@@ -1,0 +1,16 @@
+PP-EQUAL hdl/top/protocol_processor_top.sv
+PP-EQUAL hdl/aecp/KL_aecp_engine.sv
+PP-EQUAL hdl/aecp/KL_aecp_nvm_writer.sv
+781bacfaabd81fc768e90a5507b2bdf28aef22d54486b2f62eaa249eaafacb70  netlist_base.norm.json
+9f7a28d58fa7e1a5611ef9f5900fd375905f0657b5fb1e35780dde12c2526f98  netlist_head.norm.json
+raw differing lines: 40, of which not a generated unique-case assertion string: 0
+edee2ca9f5b75ef735ed7c9ae6b1bc49ac785f05fe5e59c32e8faf51ef215a53  netlist_base.masked.json
+edee2ca9f5b75ef735ed7c9ae6b1bc49ac785f05fe5e59c32e8faf51ef215a53  netlist_head.masked.json
+NETLIST-EQUAL protocol_processor_top (locations dropped, generated assertion line numbers masked)
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  rom_base/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  rom_base/ucode.hex
+23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956  rom_head/ltn_rom.hex
+518b900c4a5650902c3ea9125941e434857ba2f379b6c92268a67fef459d37f8  rom_head/ucode.hex
+ROM-EQUAL ltn_rom.hex
+ROM-EQUAL ucode.hex
+probe rc=0

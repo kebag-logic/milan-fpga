@@ -1,0 +1,58 @@
+run 37128432590 pull_request 5960d8fc7e4f6ef2d7551bb224154ef2c265d894 in_progress 
+  job suites 
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Cache the pinned Verilator build
+    4 skipped Build Verilator v5.050
+    5 success Lint (zero tolerance) + every suite
+    6  SRP LeaveAll mutation campaign
+    7  MAAP mutation campaign
+    8  ADP mutation campaign
+    9  AECP deadline and hazard-class mutation campaign
+    10  AECP dispatch mutation campaign
+    11  Traceability matrix no-drift + untested budget 0
+    12  nvm_port README figures agree with the tree
+    23  Post Cache the pinned Verilator build
+    24  Post Run actions/checkout@v4
+  job portability success
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Install yosys + sv2v
+    4 success Elaborate every top off-vendor
+    8 success Post Run actions/checkout@v4
+    9 success Complete job
+  job docs-gates success
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Link, matrix, parameter, wavedrom and staleness gates
+    6 success Post Run actions/checkout@v4
+    7 success Complete job
+run 37128429648 push 5960d8fc7e4f6ef2d7551bb224154ef2c265d894 in_progress 
+  job portability success
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Install yosys + sv2v
+    4 success Elaborate every top off-vendor
+    8 success Post Run actions/checkout@v4
+    9 success Complete job
+  job docs-gates success
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Link, matrix, parameter, wavedrom and staleness gates
+    6 success Post Run actions/checkout@v4
+    7 success Complete job
+  job suites 
+    1 success Set up job
+    2 success Run actions/checkout@v4
+    3 success Cache the pinned Verilator build
+    4 skipped Build Verilator v5.050
+    5 success Lint (zero tolerance) + every suite
+    6  SRP LeaveAll mutation campaign
+    7  MAAP mutation campaign
+    8  ADP mutation campaign
+    9  AECP deadline and hazard-class mutation campaign
+    10  AECP dispatch mutation campaign
+    11  Traceability matrix no-drift + untested budget 0
+    12  nvm_port README figures agree with the tree
+    23  Post Cache the pinned Verilator build
+    24  Post Run actions/checkout@v4

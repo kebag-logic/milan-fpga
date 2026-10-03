@@ -1,0 +1,24 @@
+5960d8fc:docs/00_MILAN_COMPLIANCE_REVIEW.md:264:(2026-10-03), which amends the D3 contract's map stage: the map plane is the
+5960d8fc:docs/architecture/02_interfaces.md:683:#83, which amends the saved-state contract's map stage): it writes records `0x60`/`0x70`
+5960d8fc:docs/architecture/03_packet_engine.md:210:     later release clears the hold so the final serializer beat frees the slot.
+5960d8fc:docs/architecture/07_memory_maps.md:44:The names' NVM manager is the D3 writer (manager 1), the name stage's (§5.3).
+5960d8fc:docs/architecture/07_memory_maps.md:436:included. The D3 writer persists them (the saved-state contract's name stage, §5.3):
+5960d8fc:docs/architecture/07_memory_maps.md:564:issue #83, 2026-10-03, which amends the parent D3 contract's map stage; the parent's
+5960d8fc:docs/architecture/07_memory_maps.md:631:| `0x80` .. `0xFF` | user name | writable-name ordinal | 64 B | D3 writer (name stage): `DESC_NAME_ENTRIES_P` records, at most 128 |
+5960d8fc:docs/architecture/09_verification.md:176:### 8.2 Saved state: the scalar and name stages' evidence (issues #131, #61, #83)
+5960d8fc:docs/architecture/09_verification.md:217:D3C2 run from `tb/pp_top/aecp_dispatch_mutants.py` (its `d3` target). The name stage's controls (each trigger and replay, the rule, the empty name, the record id and entry, a parti
+5960d8fc:docs/guides/operator.md:326:| `NOT_IMPLEMENTED` with the command echoed | that opcode is genuinely not implemented yet. It is a correct answer, not a fault. For GET_MILAN_INFO, which is implemented, it is the fault answer
+5960d8fc:hdl/aecp/KL_aecp_nvm_writer.sv:104://                THE RECORDS (scalar and name stages). One record per
+5960d8fc:hdl/packet_engine/KL_pp_normalizer.sv:23://                answer in the same cycle (the ROM itself lands in P4,
+5960d8fc:hdl/packet_engine/KL_pp_normalizer.sv:76:    //! ---- dispatch-ROM seam (06 §8; the ROM lands in P4) ----
+5960d8fc:tb/adp_engine/README.md:197:| `gate-enable-dropped-top` | pp_top `adp-config` | the same patch, at the processor | 3: AD0 (an ADPDU on the wire and 84 of 84 samples out of DOWN), AD1b (the index runs one ahead). At the he
+5960d8fc:tb/pp_top/README.md:1038:name stage and the cut section (D3N, D3K) every walk reads 59 records, so a control
+5960d8fc:tb/pp_top/README.md:1212:| `hz-name-as-ro` | pp_top `hazards` | NAME_WR classified RO_SNAPSHOT | 9: HZ1, HZ9a x2, HZ9c, HZ9d x2, HZ9f x2, HZ11b (since the name stage: a misplaced HZ9 SET_NAME's save holds dispatch behind 
+5960d8fc:tb/pp_top/README.md:1387:  name stage, ST first lets the D3 writer save ST1's names, which moves the
+5960d8fc:tb/pp_top/README.md:2275:| `ident_burst_from_t0` | frames 2 and 3 due t0 + 150 and t0 + 300 ms (round 1's schedule) | 21, ID3f, ID5k, ID6d, ID7i, ID7q and ID7r among them (20 before lane P1: its name stage lengthens the D
+5960d8fc:tb/pp_top/d3_mutants.py:24:and #63 the unrestorable records; issues #61 and #83 the name stage (section D3N); and
+5960d8fc:tb/pp_top/d3_mutants.py:539:# issues #61 and #83: the name stage (section D3N; parent D3 section 18.3's controls)
+5960d8fc:tb/pp_top/d3_phases.hpp:3093:// ==== D3N. the user names: the name stage ==================================
+5960d8fc:tb/pp_top/name_wr_mutant.py:42:        # bus since the name stage (issues #61, #83); the mutant drives it from
+5960d8fc:tb/pp_top/sim_main.cpp:4251:  // persistence trigger: the saved-state contract's map and name stages
+5960d8fc:tb/pp_top/sim_main.cpp:4252:  // (not implemented yet) select their records from the accepted live
