@@ -1,0 +1,98 @@
+== 1. merge replay (b6f17f2 + c4cb84f)
+   5f937fcafd457c1ad6e680c6cd1e347a895edfab
+   tb/nvm_port/README.md
+   
+   Auto-merging docs/architecture/09_verification.md
+   Auto-merging hdl/top/protocol_processor_top.sv
+   Auto-merging tb/nvm_port/README.md
+   CONFLICT (content): Merge conflict in tb/nvm_port/README.md
+   Auto-merging tb/pp_top/README.md
+   Auto-merging tb/pp_top/sim_main.cpp
+   replay tree vs head, files differing: tb/nvm_port/README.md 
+   diff --git a/tb/nvm_port/README.md b/tb/nvm_port/README.md
+   index ee130c3..fbaef8d 100644
+   --- a/tb/nvm_port/README.md
+   +++ b/tb/nvm_port/README.md
+   @@ -102,13 +102,8 @@ implemented — in the manager, not here: `hdl/acmp/KL_acmp_nvm_shadow.sv`
+    serialises it (`:482-483`), accumulates it (`:775`) and gates the record on it
+    (`rrec_ok_w`, `:391-395`), with the per-record vendor-default policy at
+    `:90-92`; the D3 writer gates its records the same way (`frame_ok_w`,
+   -<<<<<<< b6f17f2
+   -`hdl/aecp/KL_aecp_nvm_writer.sv:482-485`). The shadow is
+   -instantiated at `hdl/top/protocol_processor_top.sv:2726` and pinned by
+   -=======
+    `hdl/aecp/KL_aecp_nvm_writer.sv:549-552`). The shadow is
+   -instantiated at `hdl/top/protocol_processor_top.sv:2730` and pinned by
+   ->>>>>>> c4cb84f
+   +instantiated at `hdl/top/protocol_processor_top.sv:2731` and pinned by
+    `tb/acmp_nvm`. An earlier revision of this file said nothing implemented it,
+    which was wrong and is the third time this file has asserted an absence without
+    checking for the presence. It is NOT
+== 2. RTL sides
+   c4cb84f..head hdl files: hdl/packet_engine/KL_pp_nvm_port.sv hdl/top/protocol_processor_top.sv 
+   merge's hdl diff vs b6f17f2 == P1's hdl diff (f4167536..c4cb84f): EQUAL
+== 3. protocol_processor_top.sv sorted non-blank line multiset, c4cb84f vs head
+   4439a4440
+   >   // u_notify's arm and PRNG faces, read by this mux and the PRNG mux below
+== 4. cited lines at the head
+   hdl/aecp/KL_aecp_nvm_writer.sv:549-552
+      |   logic frame_ok_w;
+      |   assign frame_ok_w = (rmagic_r == {MAGIC_HI_C, MAGIC_LO_C})
+      |                       && (rver_r == LAYOUT_VER_P) && (rrid_hdr_r == rrid_w)
+      |                       && (rplen_hdr_r == 16'(rplen_w)) && (rcrc_acc_r == rcrc_rx_r);
+   hdl/top/protocol_processor_top.sv:2731-2731
+      |   KL_acmp_nvm_shadow #(
+   hdl/packet_engine/KL_pp_nvm_port.sv:244-255
+      |   // device-command ownership (banner refusal (c)): the window in which a
+      |   // dev_done_i is a completion of OURS — from the grant handshake (dev_req_o
+      |   // is the four *REQ states, so a grant that carries its own done is owned)
+      |   // through every state that runs with the granted command still outstanding.
+      |   // S_WHDR, S_RHFWD, S_FIN, S_IDLE and an ungranted *REQ own nothing.
+      |   logic dev_cmd_owned_w;
+      | 
+      |   assign dev_cmd_owned_w = (dev_req_o && dev_gnt_i)
+      |                       || (state_r == S_WEWAIT) || (state_r == S_WHPUMP)
+      |                       || (state_r == S_WDPUMP) || (state_r == S_WWAIT)
+      |                       || (state_r == S_RHCOLL) || (state_r == S_RHWAIT)
+      |                       || (state_r == S_RPPUMP) || (state_r == S_RPWAIT);
+   hdl/packet_engine/KL_pp_nvm_port.sv:350-354
+      |       // device done may land on the same cycle a pump moves its last byte —
+      |       // remember it; the WAIT states consume it (assignment below overrides).
+      |       // Only while we own the command it completes: a done seen outside that
+      |       // window is not ours to consume (banner refusal (c))
+      |       if (dev_done_i && dev_cmd_owned_w) done_seen_r <= 1'b1;
+   hdl/packet_engine/KL_pp_nvm_port.sv:446-449
+      |         S_WWAIT: begin
+      |           if (dev_err_i) begin
+      |             err_r   <= 1'b1;
+      |             state_r <= S_FIN;
+   hdl/packet_engine/KL_pp_nvm_port.sv:376-376
+      |                 state_r <= S_WEREQ;
+   hdl/packet_engine/KL_pp_nvm_port.sv:390-390
+      |             state_r <= S_WEWAIT;
+   hdl/packet_engine/KL_pp_nvm_port.sv:196-200
+      |   localparam int unsigned MAXP_BOUND_C = (1 << $bits(dev_len_o)) - 1 - int'(HDR_LEN_C);
+      |   if (MAX_PAYLOAD_P > MAXP_BOUND_C) begin : g_maxp_check
+      |     $fatal(1, "KL_pp_nvm_port: MAX_PAYLOAD_P=%0d is above %0d: %0d + it overflows dev_len_o",
+      |            MAX_PAYLOAD_P, MAXP_BOUND_C, HDR_LEN_C);
+      |   end
+   hdl/acmp/KL_pp_acmp_listener.sv:344-347
+      |   initial begin : parameter_checks
+      |     if (STRM_TIMEOUT_CYC_P == 0)
+      |       $fatal(1, "STRM_TIMEOUT_CYC_P must be greater than zero");
+      |   end
+   hdl/aecp/KL_aecp_notify.sv:557-557
+      |                         || ((n_st_r == N_DRAIN) && ca_probe_r[pd_ix_w]);
+   hdl/packet_engine/KL_pp_originator.sv:194-194
+      |     if (cancel_valid_i && cancel_hit_w)
+   hdl/packet_engine/KL_pp_rx_validator.sv:383-383
+      |       if (vd_push_w && !vq_full_w) vpushed_r <= 1'b1;
+   every explicit citation into those files in the tree:
+      tb/nvm_port/README.md:105:`hdl/aecp/KL_aecp_nvm_writer.sv:549-552`). The shadow is
+      tb/nvm_port/README.md:106:instantiated at `hdl/top/protocol_processor_top.sv:2731` and pinned by
+      tb/nvm_port/README.md:226:it (`dev_cmd_owned_w`, `KL_pp_nvm_port.sv:244-255`): a completion is this port's
+      tb/nvm_port/README.md:1138:the same edge that moves a pump's final byte, which `KL_pp_nvm_port.sv:350-354`
+      tb/nvm_port/measure_figures.py:117:#: same clock edge that moves a command's final byte. `KL_pp_nvm_port.sv:350-354`
+      tb/nvm_port/sim_main.cpp:1328:// That is the port's S_WWAIT arm (KL_pp_nvm_port.sv:446-449), the widest
+      tb/nvm_port/sim_main.cpp:1441:// last byte is not lost (KL_pp_nvm_port.sv:350-354). The set is gated on
+      tb/nvm_port/sim_main.cpp:1591:// at once (KL_pp_nvm_port.sv:33-34), and at once can mean the cycle it takes
