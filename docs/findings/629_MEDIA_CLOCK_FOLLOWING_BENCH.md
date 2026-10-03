@@ -7,8 +7,9 @@ Refs #629. Operator [A477], 2026-10-01, under the
 [bench lane B6 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5929778646).
 Lane B7 repeated the bench on dev `bbf704ec`, after PR #634, on 2026-10-03; its
 results are in [Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7).
-Lane B8 stopped the same day before its first case, because the known tone did
-not reach the peer's talker; see
+Lane B8 followed the same day: the known tone did not reach the peer's talker,
+so Direction B's THD+N did not run, and the source switch, the CRF lock loss
+and the saved selection across a power cycle did; see
 [Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8).
 
 The question is #629's bench acceptance: when a listener's CLOCK_DOMAIN
@@ -52,7 +53,7 @@ These are operator observations, not review verdicts.
 - **[Limits](#limits)** -- What the measurements do not show.
 - **[Artifact hashes](#artifact-hashes)** -- Raw files, the lane packet's evidence files, and where the packets are published.
 - **[Dev bbf704ec, 2026-10-03: lane B7](#dev-bbf704ec-2026-10-03-lane-b7)** -- The bench repeated on the image with #634: identity, method changes, all six cases with B-AAF new, the lock-loss and INTERNAL-clock observations, the capture path, the #629 acceptance judged item by item, limits, hashes and where the packet is published.
-- **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items, stopped at the tone proof: the identity gate, the known tone absent at the peer's talker, the bench as left, the #629 acceptance re-judged, limits and hashes.
+- **[Dev bbf704ec, 2026-10-03: lane B8](#dev-bbf704ec-2026-10-03-lane-b8)** -- The remaining bench items: the known tone absent at the peer's talker, so Direction B's THD+N not run; the AAF and CRF source switch, the #645 slip after an INTERNAL-to-AAF set, the CRF lock loss and the saved selection across a power cycle; the #629 acceptance re-judged, limits and hashes.
 
 ## Identity and setup
 
@@ -1277,31 +1278,41 @@ was to run #629's remaining bench items:
 3. the lock loss of a followed CRF stream;
 4. the saved clock-source selection across one cold power cycle of the DUT.
 
-**The lane stopped at item 1's precondition.** The known tone did not reach the
-peer's talker, which is one of the assignment's STOP conditions, and the lane
-posted STOP on [#629](https://github.com/kebag-logic/milan-fpga/issues/629).
-None of the four items ran, and the one power cycle the lane was authorised for
-was not used. Every change was restored and read back.
+The lane ran in two sessions. The first stopped at item 1's precondition: the
+known tone did not reach the peer's talker, which is one of the assignment's
+STOP conditions
+([STOP](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5970982211)).
+The manager ruled that item 1 waits for the owner's check of the tone's path
+and that items 2 to 4 run
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5970994127)).
+The second session ran them, the one authorised power cycle included, and
+restored everything.
 
 | #629 bench item | Verdict | Evidence |
 |---|---|---|
-| Identity gate, dev `bbf704ec` | PASS | Every check of lane B7's gate, equal to the build's. See [B8: identity and setup](#b8-identity-and-setup) |
-| The known tone at the peer's talker | Absent: STOP | The DUT's TDM output on the peer talker's channels carried -2 to +1 LSB and no tone, while the DUT received the peer's stream without a break. See [B8: the tone proof](#b8-the-tone-proof) |
-| 1. Direction B: B0, B-CRF and B-AAF graded by THD+N and SNR | NOT RUN | STOP |
-| 2. A source switch under following, AAF to CRF and CRF to AAF | NOT RUN | STOP |
-| 3. Lock loss of a followed CRF stream | NOT RUN | STOP |
-| 4. The saved selection across a power cycle | NOT RUN | STOP; the power cycle was not used |
+| Identity gate, dev `bbf704ec` | PASS, three times | At the start, at the resume and after the power cycle, each verdict byte-equal to lane B7's. See [B8: identity and setup](#b8-identity-and-setup) |
+| Analysis tool, synthetic controls | PASS | Re-run after the cases, byte-equal to lanes B6 and B7. See [B8: tool controls](#b8-tool-controls) |
+| Format check before every bind | Held | Every listener took the talker's format and read it back; no talker format was set. See [B8: binding rule and clock-source record](#b8-binding-rule-and-clock-source-record) |
+| Clock source set on the listener only, read back, restored | Held | Five sets on the DUT's CLOCK_DOMAIN, each read back equal; each case restored INTERNAL and read it back |
+| 1. Direction B: B0, B-CRF and B-AAF by THD+N and SNR | NOT RUN | The known tone does not reach the peer's talker. See [B8: the tone proof](#b8-the-tone-proof) |
+| 2. Switch AAF to CRF | PASS | LOCKED 2.6 to 3.1 s after the set; one MEDIA_RESET; no slip on the listener ring, the TDM junction or the tone path. See [B8: the source switch](#b8-the-source-switch) |
+| 2. Switch CRF to AAF | PASS | LOCKED 6.0 to 6.5 s after the set; as above |
+| The INTERNAL-to-AAF set that started item 2 | #645 repeated | The listener ring slipped one frame 2.0 to 3.0 s after the servo first read LOCKED. See [B8: the INTERNAL-to-AAF set and #645](#b8-the-internal-to-aaf-set-and-645) |
+| B-CRF repeated, the window before item 3 | PASS | Servo LOCKED at all 797 polls; 0 net steps in 19,261,920 frames |
+| 3. Lock loss of a followed CRF stream | Observed as declared | HOLDOVER within 0.56 s, the index and the trim kept, one `mr` toggle, LOCKED 2.7 to 3.2 s after the return. See [B8: lock loss of the followed CRF stream](#b8-lock-loss-of-the-followed-crf-stream) |
+| 4. The saved selection across a power cycle | PASS | GET_CLOCK_SOURCE read 2 after the boot, and the servo read LOCKED with no command sent. See [B8: the saved selection across a power cycle](#b8-the-saved-selection-across-a-power-cycle) |
 | Restore | Done | See [B8: bench as left](#b8-bench-as-left) |
 
 These are operator observations, not review verdicts. Paths such as
-`runs/proof/events.jsonl` are in the lane packet;
+`runs/sw/events.jsonl` are in the lane packet;
 [B8: artifact hashes](#b8-artifact-hashes) names it.
 
 ### B8: identity and setup
 
 The gate is lane B7's ([B7: identity and setup](#b7-identity-and-setup)),
-against the same build values, and every check passed. Its verdict file is
-byte-equal to lane B7's.
+against the same build values. It ran three times: at the first session's start
+(17:57 CEST), at the resume (18:31) and after the power cycle (18:52). Every
+check passed each time, and each verdict file is byte-equal to lane B7's.
 
 | Identity check | Result |
 |---|---|
@@ -1322,16 +1333,20 @@ As found, the bench was as lane B7 left it:
 - **Reference peer.** Every stream unbound, its CLOCK_DOMAIN on INTERNAL, its
   STREAM_INPUT 0 at `0205022001006000`.
 - **SoC board.** The boot lane B7 used, both bridge legs running with the
-  bridge script's command lines. Its console stood at a root prompt, and `id`
-  over the board link confirmed it. No credential was typed or stored. The two
-  bridge legs were stopped by process ID before the tone proof and restarted
-  with the recorded command lines after it, as in lanes B6 and B7.
+  bridge script's command lines. Its console stood at a root prompt in both
+  sessions, and `id` over the board link confirmed it. No credential was typed
+  or stored. In each session the two bridge legs were stopped by process ID
+  before the bench work and restarted with the recorded command lines after it,
+  as in lanes B6 and B7.
 - **Controller host.** No gPTP daemon, no staging.
+
+At the resume the bench was as the first session left it: the census of both
+entities equal, the DUT's NVM at seq 19 and 18 with 19 commits since boot.
 
 ### B8: the tone proof
 
-The assignment asks for proof that the tone reaches the peer's talker before
-any grading.
+Item 1's precondition, from the first session. The assignment asks for proof
+that the tone reaches the peer's talker before any grading.
 
 **The tone.** Lane B6's two tones, 997 Hz and 9,973 Hz with its start phases,
 at -20 dBFS (`b8_tone.py`), were played into the reference peer's talker
@@ -1367,17 +1382,299 @@ recording. Between them FRAMES_RX rose by 103,998, with no interruption, no
 sequence mismatch and no late or early timestamp. So the DUT received the peer's
 talker stream throughout, and that stream carried no tone.
 
-**STOP.** The tone did not reach the peer's talker, so the lane stopped. Where
-along the tone's path into the peer it was lost was not examined: that path is
-the owner's bench, and no setting of it may be read or changed. The tone was
-stopped at 18:06:51 CEST.
+**STOP, and item 1 NOT RUN.** The tone did not reach the peer's talker, so the
+first session stopped. Where along the tone's path into the peer it was lost
+was not examined: that path is the owner's bench, and no setting of it may be
+read or changed. The tone was stopped at 18:06:51 CEST and was not played
+again. By the ruling, item 1 waits for the owner, and Direction B's THD+N and
+SNR stay NOT RUN.
 
 **One incident, the bench lock.** The playback's first start, at 18:03:16
 CEST, left the bench lock held: the detached playback had inherited the lock's
 descriptor. Only this lane's own first probe attempt waited on it, and it gave
 up after 60 s with nothing done. The playback was stopped by its process ID
 shortly before 18:04:59 and started again with the descriptor closed
-(`tone_play_b8.sh`, `flock -o`). The lock was free after every later step.
+(`tone_play_b8.sh`, `flock -o`). The lock was free after every later step,
+and nothing was left detached in either session.
+
+### B8: method
+
+Items 2 and 3 use lane B7's bench, tone and grading
+([B7: method changes](#b7-method-changes)): lane B6's tone loop played into
+McASP0 on the SoC board, through the DUT's AAF talker to the peer's listener on
+the peer's own clock, recorded by the external capture, with McASP0's timing
+sampled on the board. That tone path is the design's "tone at the floor" in its
+[Bench](../design/MEDIA_CLOCK_FOLLOWING.md#bench) switch row. No tone was fed
+into the peer's talker in the second session.
+
+**The receive path.** The peer's talker carries no known signal, so the audio
+the DUT receives cannot be graded for discontinuities. The DUT's followed
+receive path is observed instead through four records:
+
+- `SLIP_LB`, the loopback ring's dup and skip counts, fed by the peer's AAF
+  stream on STREAM_INPUT 0; two dups are one slipped frame, one per channel
+  pair of that stream ([B7: Direction B](#b7-direction-b));
+- `SLIP_TDM`, the TDM junction's
+  ([0x8D4](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture));
+- `RENDER_STAT`'s prefill and converged bits and its rail count for
+  STREAM_INPUT 0, the render stage that carries the #386 recentre
+  ([0x8DC](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state));
+- the DUT's two Stream Inputs' GET_COUNTERS.
+
+The recentre count is a simulation tap, not a register, so the bench cannot
+count recentres. A recentre on a short queue re-enters prefill and clears the
+converged bit until the fill has stayed in band for 100 ms; on a full queue it
+moves the read pointer and leaves no trace
+(`hdl/ieee1722/aaf/KL_render_setpoint.sv`). A rail would raise the rail count.
+
+**The poll.** One console poll per case reads the servo, the AAF meter, the
+CRF sink's lock and rate, `SLIP_LB`, `SLIP_TDM` and `RENDER_STAT` every 0.5 s,
+from before the case's binds to after its restore (`console_poll_b8.py`). It
+replaces lane B7's 30 s DUT reads, because the console serves one reader. A
+change is timed as an interval: from the end of the poll before it to the end
+of the poll that saw it. GET_COUNTERS on the DUT's CLOCK_DOMAIN, both of its
+talkers and both of its listeners, and on the peer's listener, ran in SW
+before each set, at its LOCKED, mid-hold and at the hold's end, and in CRFLL
+at three window marks and around the lock loss, each with GET_CLOCK_SOURCE. A
+time after a set runs from just before the command was sent.
+
+**The cases.** Each ran as one locked action. Every bench command had to end
+within 10 minutes, so the windows are shorter than lane B7's 630 s:
+
+| Case | Item | Set-up | Sequence |
+|---|---|---|---|
+| SW | 2 | The peer's CRF talker to the DUT's STREAM_INPUT 1 and its AAF talker to STREAM_INPUT 0, as lane B7's B0 | CLOCK_SOURCE 2 (AAF, from INTERNAL), 1 (CRF), 2 (AAF), each read back and held 120, 150 and 150 s after LOCKED; then INTERNAL |
+| CRFLL | 3 | The peer's CRF talker to the DUT's STREAM_INPUT 1, as lane B7's B-CRF | CLOCK_SOURCE 1; a 420 s window from 20 s after the set; then lane B7's lock-loss observation with the CRF talker: unbind, 11 s of holdover, rebind under the binding rule, LOCKED and 10 s on |
+| PC | 4 | The peer's AAF talker to the DUT's STREAM_INPUT 0 | CLOCK_SOURCE 2, LOCKED and the NVM commit; the power cycle; after the boot, GET_CLOCK_SOURCE first, then the servo with no command; then the restore |
+
+The verdicts compare each observation with a value the design declares, or
+with lane B7's B-CRF criteria for the CRF window. No lane threshold was added.
+The SW tone path is graded as one span, from 20 s after the first set to the
+end of the last hold, so both stream-to-stream switches lie inside it.
+`grade_b8.py` is lane B7's `grade_b7.py` with the segment's events as
+arguments and its DUT words from the poll; `b8_events.py` decodes the polls and
+counters around each set, unbind and rebind.
+
+### B8: tool controls
+
+`b6_thdn.py controls` was re-run on the bench host at 19:00 CEST, after the
+cases and their grades: the first session stopped before its controls, and
+the second did not run them first. Its output is byte-equal to lanes B6 and
+B7's `controls.json`, SHA-256 `7bbefc71...`, and `b6_thdn.py` is byte-equal
+to lane B6's, so the tool that graded the cases is the one the controls prove.
+Every row of [Tool controls](#tool-controls) holds here.
+
+### B8: binding rule and clock-source record
+
+| Bind or set | Talker format | Listener format read | Set on the listener | Read back |
+|---|---|---|---|---|
+| DUT AAF to peer STREAM_INPUT 0, SW and CRFLL | `0205022002006000` | `0205022001006000` | `0205022002006000`, SUCCESS | `0205022002006000` |
+| Peer CRF to DUT STREAM_INPUT 1, SW, CRFLL and the CRFLL rebind | `041060010000bb80` | `041060010000bb80` | None, equal | `041060010000bb80` |
+| Peer AAF to DUT STREAM_INPUT 0, SW, PC and the first session's probe | `0205022001006000` | `0205022002006000` | `0205022001006000`, SUCCESS | `0205022001006000` |
+| SW: the DUT's CLOCK_DOMAIN 0 to CLOCK_SOURCE 2, 1, then 2 | - | - | SET_CLOCK_SOURCE SUCCESS each | 2, 1, 2 |
+| CRFLL: the DUT's CLOCK_DOMAIN 0 to CLOCK_SOURCE 1 | - | - | SET_CLOCK_SOURCE SUCCESS | 1 |
+| PC: the DUT's CLOCK_DOMAIN 0 to CLOCK_SOURCE 2 | - | - | SET_CLOCK_SOURCE SUCCESS | 2 |
+
+Every bind answered SUCCESS with connection count 1, and every unbind
+connection count 0. Each case ended with the DUT's CLOCK_SOURCE 0 set and read
+back. Every listener format the method set was restored and read back: the
+peer's STREAM_INPUT 0 to `0205022001006000` and the DUT's to
+`0205022002006000`. The peer's clock source was never set.
+
+### B8: the source switch
+
+Case SW, 18:32:19 to 18:39:59 CEST. The declared behaviour is the design's
+[Switching sources](../design/MEDIA_CLOCK_FOLLOWING.md#switching-sources)
+(W2) and [`mr`](../design/MEDIA_CLOCK_FOLLOWING.md#mr), the switch row of its
+[Bench](../design/MEDIA_CLOCK_FOLLOWING.md#bench), and TIME_SYNC's
+clock-source settle row
+([Listener render latency](../design/TIME_SYNC.md#listener-render-latency)).
+Under W2 a switch between two streams is one `mr` toggle, one #386 recentre
+once the grid settles, and a few seconds of HOLDOVER and ACQUIRE: about 3 s
+onto CRF, about 6 s onto AAF, with no frame slip.
+
+<!-- b8-switch-servo -->
+| Set, CEST | From, to | Answer, read back | Servo after the set | LOCKED, s after the set | AAF meter after the set | Trim, ppm | GET_CLOCK_SOURCE in the hold | Hold after LOCKED |
+|---|---|---|---|---|---|---|---|---|
+| 18:32:31 | INTERNAL to AAF | SUCCESS, 2 | ACQUIRE by 0.11 s | 6.64 to 7.14 | Locked by 0.11 s; rate valid 4.14 to 4.64 s | 0; -5.63 at LOCKED; -6.06 to -5.81 in the hold | 2 at all 3 reads | 120 s |
+| 18:34:38 | AAF to CRF | SUCCESS, 1 | ACQUIRE by 0.09 s, trim -6.06 | 2.62 to 3.12 | Disabled by 0.09 s | -6.06 to -5.94 | 1 at all 3 reads | 150 s |
+| 18:37:11 | CRF to AAF | SUCCESS, 2 | ACQUIRE by 0.40 s, trim -6.00 | 5.96 to 6.48 | Locked by 0.40 s; rate valid 3.93 to 4.44 s; history restarts 0 | -6.06 to -5.94 | 2 at all 3 reads | 150 s |
+
+The trim carried across both stream-to-stream switches: it read -6.06 and
+-6.00 ppm in ACQUIRE and -6.00 at LOCKED, where W1 would have returned it to 0.
+W2's HOLDOVER at a switch lasts while the reference is presented as unlocked,
+far below the poll's 0.5 s, and no poll saw it. Through every hold the servo
+read LOCKED at every poll: 238, 298 and 298 polls. The meter's rate read
++10.99 to +11.03 ppm, the CRF sink's +10.98 to +11.05 ppm, and the meter's
+largest timestamp deviation 29 ns, as in lane B7.
+
+<!-- b8-switch-counters -->
+| Counter | Before the first set | After INTERNAL to AAF | After AAF to CRF | After CRF to AAF | Declared |
+|---|---|---|---|---|---|
+| DUT STREAM_OUTPUT 0 (AAF talker) MEDIA_RESET | 0 | 1 | 2 | 3 | One `mr` toggle per source change |
+| Peer STREAM_INPUT 0 MEDIA_RESET (the toggle as received) | 0 | 1 | 2 | 3 | As above |
+| DUT CLOCK_DOMAIN 0 LOCKED / UNLOCKED | 6 / 5 | 7 / 6 | 8 / 7 | 9 / 8 | C1: UNLOCKED as the servo leaves LOCKED, LOCKED when it reads LOCKED again; LOCKED is UNLOCKED or UNLOCKED + 1 |
+| DUT STREAM_INPUT 0 and 1: MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP | 0 each | 0 each | 0 each | 0 each | Neither received stream disrupted |
+
+Each column is the mark at that set's LOCKED; the mid-hold and end-of-hold
+marks read the same. The 0 before the first set is the bank reset at the bind.
+The restore to INTERNAL toggled MEDIA_RESET once more, to 4.
+
+<!-- b8-switch-receive -->
+| Word | Around INTERNAL to AAF | Around AAF to CRF | Around CRF to AAF | Declared |
+|---|---|---|---|---|
+| `SLIP_LB` dups / skips | 418 to 422 / 0, see [B8: the INTERNAL-to-AAF set and #645](#b8-the-internal-to-aaf-set-and-645) | 422 / 0, static | 422 / 0, static | No frame slip on a switch between two streams |
+| `SLIP_TDM` dups / skips | 0 / 0, static | 0 / 0, static | 0 / 0, static | Static: one grid |
+| `RENDER_STAT` rail count | 31, static | 31, static | 31, static | No rail |
+| `RENDER_STAT` converged | Low at the poll that ended 0.11 s after the set, high again by 0.61 s; prefill never seen | Low at the poll that ended 0.09 s after the set, high again by 0.60 s; prefill never seen | High at every poll | One #386 recentre once the grid settles: 43 ms to 683 ms under following |
+
+The converged bit fell within about 0.1 s after two of the three sets, inside
+the settle bound, with no rail counted. That is the trace of a recentre that
+found the queue short. After the third set no poll saw it, as when a recentre
+finds the queue full, or when the 100 ms low falls between two polls. So each
+set left at most the trace one recentre makes, and no rail; the recentre count
+itself is not visible to the bench.
+
+<!-- b8-thdn-sw -->
+| Span | Tone | Blocks | Blocks at the floor | THD+N there, dB (median / worst) | SNR there, dB (median / worst) | Worst THD+N, all blocks, dB |
+|---|---|---|---|---|---|---|
+| SW, 18:32:51 to 18:39:48 | 997 Hz | 417 | 416 | -146.06 / -146.06 | 146.07 / 146.07 | -7.28 |
+| SW, 18:32:51 to 18:39:48 | 9,973 Hz | 417 | 416 | -145.99 / -145.99 | 145.99 / 145.99 | -1.09 |
+
+<!-- b8-offset-sw -->
+| Span | Fitted offset, blocks at the floor, ppm (largest magnitude) | Listener discontinuities | Counted McASP0 to peer ratio, ppm | Timed ratio, ppm (95 % half-width) | DUT `SLIP_TDM` in the span | Capture-path losses: events, clusters, frames | Torn frames | Result |
+|---|---|---|---|---|---|---|---|---|
+| SW, both switches inside | 1.1e-8 | 0 | 0 (0 net steps in 20,030,400 frames; 1 frame = 0.050) | -0.02 (+-0.57) | 0 in 417 s | 1, 1, 108 | 0 | PASS |
+
+The one block off the floor holds a 108-frame capture-path loss, 48 n + 12
+frames with a matching read-time rise. The longest capture read stall in the
+span was 31 ms.
+
+**Verdict.** Both stream-to-stream switches behaved as declared: one `mr`
+toggle each, at both ends; the CLOCK_DOMAIN counters one pair each; LOCKED
+again in the declared time with the trim kept; GET_CLOCK_SOURCE the set index
+throughout; and no slip on the listener ring, the TDM junction or the tone
+path. The only discontinuity the bench can see at a switch is the converged
+bit's fall, which the declared recentre makes. Item 2 PASSES for AAF to CRF
+and CRF to AAF.
+
+### B8: the INTERNAL-to-AAF set and #645
+
+The case's first set, from INTERNAL to AAF, is lane B7's B-AAF set, and the
+assignment asks for #645's observation again. `SLIP_LB` at every change, from
+the binds to the restore:
+
+<!-- b8-slip-lb -->
+| Seconds after the INTERNAL-to-AAF set | `SLIP_LB` dups | Servo | Slipped frames |
+|---|---|---|---|
+| -2.0, the binds | 414 | IDLE, on INTERNAL | - |
+| -1.40 to -0.90 | 416 | IDLE | 1 |
+| -0.90 to -0.07 | 418 | IDLE | 1 |
+| 2.13 to 2.63 | 420 | ACQUIRE | 1 |
+| 6.64 to 7.14 | 420 | LOCKED, first read | - |
+| 9.15 to 9.65 | 422 | LOCKED | 1, 2.0 to 3.0 s after the first LOCKED read |
+| To 437.3, the restore | 422 | LOCKED, with both stream-to-stream switches | 0 in 428 s |
+
+The 414 is the count earlier lanes left; nothing clears it. On INTERNAL the
+DUT's packet grid runs about 5.92 ppm off the peer's stream, so the ring
+slipping there is the register map's reading for an upstream talker on another
+clock. The slip during ACQUIRE comes before the servo locks. The slip 2.0 to
+3.0 s after LOCKED is not declared: the design declares one #386 recentre
+after a settled source change, and the servo locks frequency only
+([#632](https://github.com/kebag-logic/milan-fpga/issues/632)). Lane B7 saw the
+same shape: one slip 14.7 to 44.9 s after LOCKED, and 6 dups before its window.
+After this slip the ring held for 428 s, through both switches between
+streams.
+
+So the INTERNAL-to-AAF switch is again not shown free of undeclared
+discontinuity on the DUT's followed receive path. This is #645's observation
+repeated, and the data above is for
+[#645](https://github.com/kebag-logic/milan-fpga/issues/645). This lane did not
+post on #645.
+
+### B8: lock loss of the followed CRF stream
+
+Case CRFLL, 18:40:09 to 18:48:17 CEST. Its window first repeats lane B7's
+B-CRF on the shorter window:
+
+<!-- b8-crf-window -->
+| Window, CEST | Servo at the 797 polls | Trim, ppm | Set to LOCKED, s | CRF sink rate, ppm | GET_CLOCK_SOURCE | CLOCK_DOMAIN LOCKED / UNLOCKED, start and end | Listener discontinuities | Counted ratio, ppm | Timed ratio, ppm (95 % half-width) | Result |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 18:40:41 to 18:47:41 | LOCKED | -6.06 to -5.94 | 2.66 to 3.17 | +10.98 to +11.04 | 1 at all 3 marks | 10 / 9, 10 / 9 | 0 | 0 (0 net steps in 19,261,920 frames; 1 frame = 0.052) | -4.67 (+-24.96) | PASS |
+
+Of the window's 420 s, 401.3 s of audio was captured: three read stalls on the
+bench host, of 4.1, 4.4 and 9.8 s at 271 to 286 s into the window, lost
+19.0 s. Each of the window's nine capture-path clusters passed on a read-time
+rise matching its loss within 1 ms + 2 %. The three stall clusters are off the
+48 n + 12 signature, as a multi-second overrun can be, and a listener event
+inside them could not be seen. The timed ratio is wide for the same reason.
+391 of the 401 blocks sit at the floor: THD+N -146.06 and -145.99 dB, SNR
+146.07 and 145.99 dB, fitted offset under 2e-7 ppm.
+
+After the window the peer's CRF talker was unbound from the DUT's
+STREAM_INPUT 1, held off for 11.04 s, and rebound under the binding rule. The
+poll ran throughout and the external capture kept recording. The declared
+behaviour is the design's
+[Lock loss, holdover and restart](../design/MEDIA_CLOCK_FOLLOWING.md#lock-loss-holdover-and-restart)
+and [`mr`](../design/MEDIA_CLOCK_FOLLOWING.md#mr).
+
+<!-- b8-lockloss-events -->
+| Event | Seconds after it | Observed | Declared |
+|---|---|---|---|
+| Unbind | 0.05 to 0.56 | Servo HOLDOVER, trim held at -6.00 ppm; the CRF sink unlocked | Lock falls 100 ms after the last PDU; HOLDOVER with the trim frozen |
+| Through the holdover | to 11.04 | HOLDOVER at all 19 polls, trim -6.00 at each; GET_CLOCK_SOURCE 1 | No timeout, no fallback; the index unchanged |
+| Rebind | by 0.14 | The CRF sink locked | The measurement locks after 8 PDUs |
+| Rebind | 0.14 to 0.64 | Servo ACQUIRE | The servo re-enters ACQUIRE; the CRF rate is valid 512 ms after the restart |
+| Rebind | 2.66 to 3.16 | Servo LOCKED, trim -6.00 ppm; GET_CLOCK_SOURCE 1 | LOCKED after four windows within 2 ppm |
+
+<!-- b8-lockloss-counters -->
+| Counter | Before the unbind | In the holdover | After LOCKED again | Declared |
+|---|---|---|---|---|
+| DUT STREAM_OUTPUT 0 (AAF) MEDIA_RESET | 1 | 2 | 2 | One `mr` toggle per disruption, none on the return |
+| Peer STREAM_INPUT 0 MEDIA_RESET (the toggle as received) | 1 | 2 | 2 | As above |
+| DUT CLOCK_DOMAIN 0 LOCKED / UNLOCKED | 10 / 9 | 10 / 10 | 11 / 10 | C1: UNLOCKED as the servo leaves LOCKED, LOCKED when it reads LOCKED again; LOCKED is UNLOCKED or UNLOCKED + 1 |
+| DUT STREAM_INPUT 1 MEDIA_UNLOCKED | 0 | 1 | 0, the bank reset at the bind | The Stream Input's MEDIA_UNLOCKED |
+
+The 1 before the unbind is the toggle of the set to CLOCK_SOURCE 1. The DUT's
+CRF output was not bound and counted nothing. `SLIP_TDM` stayed static. The
+tone path through the whole observation, 25.8 s graded as a segment, has no
+discontinuity of any kind and 0 net steps, every block at the floor: the
+holdover kept the DUT's clock on the peer's rate. With lane B7's AAF
+observation, the lock loss is now observed for both kinds of followed source.
+
+### B8: the saved selection across a power cycle
+
+Case PC. The pass is the processor's "the selection kept as saved state":
+after a cold boot, GET_CLOCK_SOURCE returns the saved index and the servo
+re-locks on it.
+
+<!-- b8-power-cycle -->
+| Step, CEST | Observed |
+|---|---|
+| 18:48:37, as found | CLOCK_SOURCE 0; every stream unbound; NVM image seq 30, 30 commits since boot |
+| 18:48:37, set | The peer's AAF talker bound to STREAM_INPUT 0 under the binding rule; SET_CLOCK_SOURCE 2 SUCCESS, read back 2; servo LOCKED 6.67 to 7.17 s after the set |
+| 18:48:45, saved | NVM 31 commits, image seq 31 in slot A, nothing dirty or in flight |
+| 18:49:51, the power cycle | The DUT's outlet switched off, 8 s, and on, by the power strip's documented command under the bench lock; the command returned at 18:49:59.7 |
+| 18:50:00 to 18:50:08, boot | First console byte 0.3 s after the strip's command returned; BIOS CRC passed; the firmware copied the AEM image (CRC `5ba355eb`) and took NVM slot A seq 31, `VD_OK`, nothing rolled back; its prompt 8.4 s after the first byte |
+| 18:51:19, boot verdict | UART grader 10 of 10 at its first run: the boot PASSES |
+| 18:51:28, after the boot | GET_CLOCK_SOURCE 2, the first command sent. STREAM_INPUT 0's format `0205022001006000` and its binding to the peer's talker, connection count 1, restored by the DUT itself. Since the boot: CLOCK_DOMAIN LOCKED 1, UNLOCKED 0; STREAM_INPUT 0 MEDIA_LOCKED 1, MEDIA_UNLOCKED 0 |
+| 18:51:28, re-lock | Servo LOCKED at the first poll, with no command sent |
+| 18:51:34, restore | SET_CLOCK_SOURCE 0, read back 0; the unbind; the format restored and read back |
+| 18:51:52, identity | The gate PASSES, verdict byte-equal |
+| 18:52:41, end | NVM image seq 33, slots 33 and 32, `VD_OK`; 2 commits since the boot |
+
+The saved index survived the cold boot: the first GET_CLOCK_SOURCE after it
+read 2, and the domain counted one LOCKED and no UNLOCKED since the boot, so
+the servo locked on the restored source and stayed locked. The boot to LOCKED
+time was not measured: the first poll came about 89 s after the strip's
+command returned. The DUT also restored its listener binding without a
+controller, and the peer's AAF talker counted one STREAM_STOP and one
+STREAM_START across the cycle. That is recorded, not analysed; it is outside
+#629. Item 4 PASSES.
+
+NVM commits: 30 before the set, 31 after it with image seq 31, which the boot
+restored; the commit counter restarts at boot, and after the restore it read
+1, then 2 at the end, image seq 33.
 
 ### B8: bench as left
 
@@ -1386,72 +1683,124 @@ shortly before 18:04:59 and started again with the descriptor closed
 | DUT stream state | All unbound; both audio maps empty, read back |
 | DUT clock domain | CLOCK_SOURCE 0, read back |
 | DUT STREAM_INPUT 0 format | `0205022002006000`, as found, read back |
+| DUT itself | Power-cycled once, as authorised; the same image booted (identity gate PASS) |
 | Reference peer | Every stream unbound; its CLOCK_DOMAIN on INTERNAL and its STREAM_INPUT 0 format as found |
-| Census, start against end | 46 of 46 entries equal |
-| DUT saved state | NVM slots seq 19 and 18, `VD_OK`, 19 commits since boot: the probe's format and map edits and their restores |
-| The tone | Stopped; no playback left |
+| Census, the resume against the end | 43 of 46 entries equal. The other three are the boot's: the DUT talkers' destination addresses, which MAAP allocated again at the boot, and the live propagation delay, 385 ns before and 378 ns after |
+| DUT saved state | NVM slots seq 33 and 32, `VD_OK`, 2 commits since the boot |
+| The tone | No playback in the second session; none left |
 | SoC board | Same boot; both bridge legs running with the script's command lines under new process IDs; PCM states, USB function and fault scan as at the start |
 | Controller host | No task process; staging removed |
 | Bench host | Both USB audio devices present; the board link's address present; the bench lock free |
 
 Residuals that no permitted command restores:
 
-- **DUT NVM persistence** advanced by two commits through the probe's format
-  and map edits.
-- **DUT counters** that clear only on reset moved: `SLIP_LB` by 12 dups while
-  the peer's stream was bound with the DUT on INTERNAL, and the talker frame
-  counters.
+- **The power cycle.** The DUT's counters and words that clear only on reset
+  restarted at the boot. At the end `SLIP_LB` read 6 dups and `RENDER_STAT`
+  0 rails. The 6 dups fell between the boot and the restore, while the DUT's
+  restored binding was live, and were not timed.
+- **DUT NVM persistence** advanced through the method's format, map and
+  clock-source edits, 12 commits before the cycle, and the restore's 2 after.
 
 ### B8: #629 acceptance
 
-Lane B8 changes no judgement in [B7: #629 acceptance](#b7-629-acceptance),
-because it ran no case. The items it was to close stay open:
+Lane B8 changes these judgements in [B7: #629 acceptance](#b7-629-acceptance):
 
-| #629 item | Judgement after lane B8 | Why |
+| #629 item | Judgement after lane B8 | Evidence |
 |---|---|---|
-| Fabric: a source switch re-locks without an undeclared discontinuity | Not met at the bench, as after lane B7 | Item 2 was not run; the INTERNAL-to-AAF slip lane B7 recorded stays with [#645](https://github.com/kebag-logic/milan-fpga/issues/645) |
-| Lock loss: the declared holdover and restart, and `mr` | Met for the AAF source, by lane B7; the CRF source has no bench evidence | Item 3 was not run |
-| Protocol processor: the selection kept as saved state | Met in part, as after lane B7 | Item 4 was not run; no power cycle took place |
-| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7; NOT met for Direction B | The known tone does not reach the peer's talker ([B8: the tone proof](#b8-the-tone-proof)) |
+| Fabric: recover the media clock from the selected AAF stream; gated on the live selection; a switch re-locks with no undeclared discontinuity | Met for recovery and gating, and for a switch between the AAF and CRF streams. Not met for the switch from INTERNAL to AAF: its ring slip after LOCKED repeated ([#645](https://github.com/kebag-logic/milan-fpga/issues/645)) | [B8: the source switch](#b8-the-source-switch): both stream-to-stream switches with one `mr` toggle, one CLOCK_DOMAIN pair, LOCKED in the declared time and no slip. [B8: the INTERNAL-to-AAF set and #645](#b8-the-internal-to-aaf-set-and-645): `SLIP_LB` 420 to 422, 2.0 to 3.0 s after LOCKED |
+| Lock loss: declared holdover and restart, and `mr` per IEEE 1722-2016 4.4.4.3 | Met for both sources | AAF: [B7: lock loss of the followed AAF stream](#b7-lock-loss-of-the-followed-aaf-stream). CRF: [B8: lock loss of the followed CRF stream](#b8-lock-loss-of-the-followed-crf-stream) |
+| Protocol processor: SET/GET_CLOCK_SOURCE over the longer list, the selection kept as saved state | Met at the bench | SET_CLOCK_SOURCE 1 and 2 answer SUCCESS and read back (lanes B7 and B8); the saved index 2 read back after a cold power cycle and the servo re-locked on it ([B8: the saved selection across a power cycle](#b8-the-saved-selection-across-a-power-cycle)) |
+| Bench quality metric: THD+N and SNR of a known tone on the selected path | Met for Direction A, by lane B7; NOT met for Direction B | Item 1 NOT RUN: the known tone does not reach the peer's talker ([B8: the tone proof](#b8-the-tone-proof)) |
 | Every other item | As judged in [B7: #629 acceptance](#b7-629-acceptance) | - |
 
-So not every #629 item is met, and #629 stays open.
+So not every #629 item is met. Direction B's THD+N stays open, and the switch
+from INTERNAL to AAF keeps #645's undeclared ring slip. #629 stays open.
 
 ### B8: limits
 
-- The proof shows the tone absent from the peer's talker channels as the DUT
-  receives them. It does not locate the loss.
-- Items 1 to 4 have no bench evidence from this lane.
+- Item 1 did not run: Direction B has no THD+N or SNR on this image.
+- The audio the DUT receives is not graded, because the peer's talker carries
+  no known signal. The ring, junction and render words and the listener
+  counters stand in for it.
+- The poll samples every 0.5 s. A HOLDOVER of one reference presentation at a
+  stream-to-stream switch, or a converged-bit low under 0.5 s, can fall
+  between polls. The recentre count is not readable on silicon.
+- The windows are shorter than lane B7's: holds of 120 to 150 s and a 420 s
+  CRF window, because each bench command had to end within 10 minutes.
+- The CRF window's three host stalls hid 19.0 s of its audio. The lock-loss
+  segment had no read stall over 17 ms.
+- The boot-to-LOCKED time after the power cycle was not measured.
+- The tool controls ran after the cases.
+- One run per item, on one DUT, against one reference peer.
 - Printed precision is not calibrated accuracy.
 
 ### B8: artifact hashes
 
-The raw file stays outside the lane packet, on the bench host. The packet's
-`RAW-ARTIFACTS.json` records it.
+The raw files stay outside the lane packet, on the bench host. Each run's
+`events.jsonl` records the size and SHA-256 of its run's raw files, and the
+packet's `RAW-ARTIFACTS.json` records every raw file by run directory. Both
+withhold the size of each run's 10 s all-channel snippet, because it would
+state the capture's layout.
 
-| Raw file | Bytes | SHA-256 |
-|---|---|---|
-| `proof/mcasp-all.raw` (McASP0's 10 s recording, 8 channels) | 15,360,000 | `b1dc772d8fcbce5e417d6777eff9cbe4df2053b9f82b8eda5a8251e3da93ecdd` |
+| Run | Raw file | Bytes | SHA-256 |
+|---|---|---|---|
+| Tone proof | `mcasp-all.raw` (McASP0's 10 s recording, 8 channels) | 15,360,000 | `b1dc772d8fcbce5e417d6777eff9cbe4df2053b9f82b8eda5a8251e3da93ecdd` |
+| SW | `cap-lr.raw` (the tone's two channels) | 131,630,514 | `7174b4b371f07a5cacbdaed8c55b6b6a43508b5f34ea14417993a00997e12aba` |
+| SW | `cap-ts.bin` (capture read times) | 1,096,824 | `f4ffbc449d1be25d0c165504220b88f97f62339c8abba15f8400d74fa21699cd` |
+| SW | `samples.txt` (McASP0 timing samples) | 282,406 | `9fae925f02ef0e90c5c79b4619dc594a89d25c6494231eb45cdc0a92c4437830` |
+| SW | `poll-run.jsonl` (the console poll) | 273,517 | `b87415d67a9a02480031c5dcc2329e64a201a7515dcc4f366610ef9d420b772c` |
+| SW | `grade-full.json` (`grade_b8.py`) | 261,492 | `781bdce7cbe9fc013a886d5fc9c106e1fd2591870cea81e9ce67fe3988ac8bf1` |
+| CRFLL | `cap-lr.raw` | 134,401,140 | `4893d40c9ee2419a0fa2be8dff4519543fe0d8729e2806304efddfb56119c625` |
+| CRFLL | `cap-ts.bin` | 1,118,760 | `bc29bd13613aab102d9eda792db1bc1c19929495c287cc9d156d56bc65d68260` |
+| CRFLL | `samples.txt` | 300,629 | `d6c64a8c22ce2d95f54ea0ecd8ecd173db2c4190c858725cc033fa130cd7b86f` |
+| CRFLL | `poll-run.jsonl` | 279,654 | `56374e82d76deac49cfeadc2514ad09b6b733bcb955b504ffecb8fc6cd57c79b` |
+| CRFLL | `grade-full.json` | 259,633 | `2bd5f3b7f3145ad42ca3aa5162cfe2cde1981bce4f10a5b85c3b46970aac732f` |
+| CRFLL | `grade-lockloss-full.json` (the lock-loss segment) | 35,316 | `41a0d0fd0b25bc759641fb56c90f69f980d2dc55363a969b7793dd0da73c7e7e` |
+| PC | `boot-console.jsonl` (the boot, recorded without typing) | 16,508 | `6b9f5408b06af16039e855cad6b5df2553555bc722887d10721b75532609ef9e` |
 
 The lane packet, `629-b8-a521`, holds the evidence and the tools. Its manifest
-covers every retained file except itself. One redaction pass masked private
-identifiers in 23 packet files, and `redaction.json` records each masked
-file's original and retained SHA-256. Every row below is the retained file.
-Two tools, `b8_tone.py` and `tone_play_b8.sh`, are masked where they describe
-the tone source, so each is a record of the tool as run, not a runnable copy;
-`redaction.json` holds the as-run SHA-256 of each.
+covers every retained file except itself. Repeated redaction passes masked
+private identifiers in 78 packet files, and `redaction.json` records each
+masked file's original and retained SHA-256. Every row below is the retained
+file. Three tools are masked: `b8_tone.py` and `tone_play_b8.sh` where they
+describe the tone source, and `run_b8.py` at one line that would state the
+capture's sample layout. Each is a record of the tool as run, not a runnable
+copy, and `redaction.json` holds its as-run SHA-256. The second session's pass
+masked `tone_play_b8.sh` further, so its retained SHA-256 is no longer the
+`9574c591...` that the first session's version of this section gave.
 
 | Evidence file | Bytes | SHA-256 |
 |---|---|---|
+| `summary/sw/switches.json` (`b8_events.py`: every set, its polls and counters) | 23,494 | `6257fcaffb8550c4cc3e1187e3897c35cb77cdf1772e1080dcd0d77bc7561412` |
+| `summary/sw/grade.json` (the SW span's grade, reduced) | 33,363 | `63db6f78abd9ea9d24300c363559fce0a45f860a66d5524876df2e6d6bea793a` |
+| `summary/crfll/lockloss.json` (`b8_events.py`: the window, the unbind and the rebind) | 17,372 | `a2955d3f264c5987e34066915a1a38816084f28df8b517a976a9d52fd538885c` |
+| `summary/crfll/grade.json` (the CRF window's grade, reduced) | 27,112 | `440f971d489ff0c0bd3aeae0dcf1efdcc82c6f4ab5b3df1638d10b449f8de600` |
+| `summary/crfll/grade-lockloss.json` (the lock-loss segment's grade, reduced) | 21,764 | `5bdc35226dfa67c1778086617b492d3a345fd22dd12cad006609ff5543302823` |
+| `summary/pc/pc.json` (`b8_events.py`: the power cycle) | 6,863 | `437a04a7fa5c665ef2f2997a2653f302e8728a77f2704c1fc26ac90cf40dc031` |
+| `runs/sw/events.jsonl` | 43,104 | `9082adeb40c7bd8b7f2d830937581f693ab1d23963091111b8180cb71465ead4` |
+| `runs/crfll/events.jsonl` | 29,972 | `fc7c4142fc649bcacba81efd5ed964d680996cd79baecb327bd122029aa1ed58` |
+| `runs/pc/events.jsonl` | 13,950 | `8723e4283aeef842a61eac0249e7a549a0ab15eb8a64e523c75a24f1a490953d` |
+| `runs/pc/boot-console.txt` (the boot record as text) | 4,834 | `77563cb770ff9eb205b7c0cf2738141d13ed298c34dde1a81b8a50475dfe63ba` |
+| `runs/pc/grader-boot-0.txt` (the boot verdict) | 683 | `dd1b55157fa03c12917d1def4acf7f02dd0c1dfc6f79507f1189ec8fcb6f9008` |
+| `controls/controls.json` (tool controls) | 17,070 | `7bbefc71fb3c9303a8f1cb843bfcd13dafe55c1f3e1a968e6a3b3cee2350530e` |
+| `identity/identity-verdict.txt`, `identity-resume/` and `identity-postboot/` (each byte-equal) | 3,037 | `ff817aca4909f1030c9296cfac3bc6af41994323e7b0a41610a505359d1422d4` |
+| `restore/census-compare-r2.txt` (the resume against the end) | 1,565 | `e7ba4858ad1c0b5ad4550ed7d1446f43f53c4107ae5b6d17c2a18191e680a323` |
 | `summary/proof/proof.json` (`b8_proof.py`'s grade of the recording) | 1,104 | `6b68262b0b546d2d6f706d86bb422c8622a930d12e3bab0feeca9dd9f3757281` |
 | `runs/proof/events.jsonl` (the probe's steps) | 1,851 | `8245bc33f848e7cc4120b2c432d5c949e5307e41d08da65f00749f954630e086` |
 | `runs/proof/ctl.jsonl` (the probe's controller transactions) | 15,059 | `e2ce6e8c1724e39f10d7f126909ed09af8bd62e9825704a91c0ffb87404b8ecd` |
 | `runs/proof/soc-record.log` (the recording's board transcript) | 624 | `bb554bd49a0e73f6e763662652622f13500fc15f2af5b979f0dc98fd3664637f` |
-| `identity/identity-verdict.txt` (`identity_cmp.py`) | 3,037 | `ff817aca4909f1030c9296cfac3bc6af41994323e7b0a41610a505359d1422d4` |
-| `restore/census-compare.txt` | 64 | `1bfd339c3dd7dbdaad13ed256feaef4ae27b3bf4d9731d53440ea0868a0889d0` |
+| `restore/census-compare.txt` (the first session) | 64 | `1bfd339c3dd7dbdaad13ed256feaef4ae27b3bf4d9731d53440ea0868a0889d0` |
+| `tools/run_b8.py` (masked; as run `efd07d51...`) | 33,824 | `05a37d7c73907e5c63ba4d1ee18eb268adaa462c171ba9e364f80c1489a9b4f3` |
+| `tools/grade_b8.py` | 27,943 | `330c14cdc93b7cd13bcee0d7d2d101f42eaa608885e01cdd0fe75211646c405d` |
+| `tools/b8_events.py` | 16,325 | `2b848d3e007ddce3eb6ddf0077816e3c306f7bdadb08b71a8b33852b89faafc3` |
+| `tools/console_poll_b8.py` | 4,345 | `1912837a1e4cfd6a1f8b3615b4d26924efbfd430aff239ebd18cd4dd2a67d4f7` |
+| `tools/pc_b8.py` | 14,053 | `188c08ed957ef777210d47660f5ddcc37c99c7a521b2bf84d2266dd6c91cb020` |
+| `tools/pc_cycle_b8.sh` | 2,371 | `f4f8e252585bd3c1088ef4ad5e82921fdccc4d3ffeaac5e04877fce1d756af7b` |
+| `tools/console_listen.py` | 1,897 | `f980541a361df87e7b09ce6d20e70a19db60a2d1391b6720f174428ca94df0bb` |
+| `tools/b7_decode.py` (unchanged from lane B7) | 10,093 | `a5eb63f29a19d608bbbc25c840943e5da15f3366a4887b62b221cc2d631110f4` |
 | `tools/probe_b8.py` | 10,722 | `10bcffd340c3a8653622c0ba1acc005d54b35ccd88297ed1d080a31c01f74749` |
 | `tools/b8_proof.py` | 2,809 | `953ee95d064c7d65be980ee7d7c7d53c417e1996830f879ec92a6a557add3f3c` |
 | `tools/b8_tone.py` (masked) | 2,262 | `fc7a84c60b1f6a6f01a202b790aa4e22eb06a356c2b509bbbeeb0afcefb6efaa` |
-| `tools/tone_play_b8.sh` (masked) | 2,256 | `9574c5912b0900cfcfc986f973723b9161d650ab86c2cce76e39f885ff5cc237` |
+| `tools/tone_play_b8.sh` (masked) | 2,263 | `39678d09809d78739b386907fda744021fd400d7684bec0aea51078b457eb916` |
 | `tools/b6_thdn.py` (unchanged from lane B6) | 12,423 | `d4673f55642b850f57601b27d8fc930cc5382c2138f54edb1a7296bb4653a95f` |
 | `tools/b6_tone.py` (unchanged from lane B6) | 2,965 | `d188a1a9ac0c3d94a2dab7d7b44ff7487490c87b969ea8c7d1b69382743179ac` |
