@@ -201,10 +201,11 @@ It also covers a route status report that is missing or lacks exactly one routab
 `check` and `check-baseline` read the baseline file through one validator before using any field.
 A baseline file that is missing or not strict JSON exits 2.
 Strict JSON here has no NaN, no Infinity and no repeated key, and every key is 1 to 128 of `A-Z a-z 0-9 _ . : / -`.
-A sub-block scope name may also hold a generate index's brackets, as Vivado names `u_pp/g_rx_pool[5].u_rx_slots`.
+That holds for every key of the baseline, the keys inside its notes included, and of the measurement's image manifest, the keys of its entries included.
+The one exception is a sub-block scope name, which may also hold a generate index's brackets, as Vivado names `u_pp/g_rx_pool[5].u_rx_slots`.
 A field not of the recorded shape exits 2 too: the kind, the record's and identity's fields and types, the input digest, the figures, the sub-block scopes, or a policy value that is not a number.
 `record --write` never writes a baseline that this validator would refuse.
-A seeded generative test changes baselines and reports at random and holds every case to this contract.
+A seeded generative test changes baselines and reports at random: every case must exit 0, 1 or 2 without a traceback, give its reason with 2, and exit 2 when it breaks a documented shape.
 The self-test runs 500 cases on its fixtures; `--fuzz` runs any number on a real measurement directory.
 
 ### Where the gate runs

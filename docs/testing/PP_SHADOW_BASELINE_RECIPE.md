@@ -468,11 +468,13 @@ A route status report that is missing, or lacks exactly one routable-nets, fully
 Identical inputs with different figures give 2 as well.
 `check` and `check-baseline` validate the whole baseline file before using any field.
 A missing file or one that is not strict JSON gives 2: NaN, Infinity, a repeated key, or a key outside the name class.
+The name class is 1 to 128 of `A-Z a-z 0-9 _ . : / -` for every key, the keys inside notes included; only a sub-block scope name may also hold `[` and `]`.
+The image manifest `baseline_images.json` is read the same way, the keys of its entries included, so a key outside the class gives 2 there too.
 So does a whole number of more than 15 digits, or a decimal too large to be finite.
 Any field not of the recorded shape gives 2 too, and so does a policy value that is not a number.
 `record --write` refuses, with 2, to write a baseline that this validation would refuse.
 `pp_resource_gate.py --fuzz N check <directory> --endpoint <endpoint>` runs N seeded generated cases on a measurement.
-Each case changes the baseline or one report at random, and must keep this contract.
+Each case changes the baseline or one report at random; it must exit 0, 1 or 2 without a traceback, and 2 when it breaks a documented shape.
 The output lists the largest sub-block movements without gating them.
 A gated figure that improved by more than its tolerance passes and prints "re-baseline recommended".
 
