@@ -74,6 +74,15 @@ MUTANTS = {
     "unfiltered hierarchy report": (
         " -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt\n",
         " -file baseline_hierarchy.rpt\n"),
+    "integrated clock ignored": (
+        "    if not integrated:\n", "    if True:\n"),
+    "integrated clock frequency check": (
+        "    if not isinstance(hertz, int) or hertz <= 0:\n", "    if False:\n"),
+    "integrated clock period": (
+        '    return f"create_clock -period {1e9 / hertz:.3f} -name clk [get_ports clk_i]\\n"\n',
+        '    return f"create_clock -period {1e9 / hertz / 2:.3f} -name clk [get_ports clk_i]\\n"\n'),
+    "CLI integrated clock endpoint": (
+        "    if args.integrated_clock and not args.integrated_log:\n", "    if False:\n"),
 }
 
 
