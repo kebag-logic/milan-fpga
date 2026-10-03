@@ -1,0 +1,19 @@
+# modules spanned by head lines 4585-10502 (the range of the merge's hunks before KL_srp_top; only P1's files desc_store, engine, nvm_writer change, the others lie between them)
+KL_aecp_desc_store
+KL_aecp_dyn_state
+KL_aecp_engine
+KL_aecp_notify
+KL_aecp_nvm_writer
+# modules holding the head-side changed lines after the shifted region (21386-21401)
+protocol_processor_top
+# hdl/ files changed by the merge relative to its first parent b6f17f2
+ hdl/aecp/KL_aecp_desc_store.sv    |  17 ++-
+ hdl/aecp/KL_aecp_engine.sv        |  34 +++--
+ hdl/aecp/KL_aecp_nvm_writer.sv    | 285 ++++++++++++++++++++++++++++----------
+ hdl/top/protocol_processor_top.sv |  21 +--
+ 4 files changed, 267 insertions(+), 90 deletions(-)
+# uniform shift: lines 10393..21275 of b6f17f2 equal lines 10503..21385 of head
+IDENTICAL
+# KL_srp_top span (head)
+19356-20441
+# KL_r448_auto plant line at head: c-auto-split reports all.v:20859 = 20749+110

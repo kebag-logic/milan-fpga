@@ -1,0 +1,17 @@
+# sha256 of the round-2 probe scripts in scripts/r448-2 (copied unchanged from the round-3 packet; equal to round 3's run copies except gate_cases.txt, which is the redacted published copy)
+445622a779a4238c1bb9859a7468ba1580c76c5aa15a3cc78bcdcb3bb6e81620  r448-2/census_cases.txt
+bcaf09e489c8a80a2594692eb590d677a74c36df73ba121fdcce6f8edd7091d6  r448-2/census_probe.sh
+8a303683a04f0fce3b2695f9f1f5c590fec745fce8f9c5ad7e452adcffa515a6  r448-2/cite_check.py
+a736db0448463aa15a33a5625ddc1fab139d426bb143b78af5eecf3edb076846  r448-2/gate_cases.txt
+6585d0914adc8cdf9677576d857f98221554486b6839a6e6b7bb9ecfc1f05df8  r448-2/gate_probe.sh
+cfb59eae5d9ba8ca9a6e54c7477244a68d010d668b7d9d5b4899a2da8a88388a  r448-2/nvm_mutant_run.sh
+5408db43138bfa8be5e71debda4a85b30e34fc4e9e8034bf90c9fd3f893d4cec  r448-2/nvm_mutants.py
+355ca31af2ba8c7d0a88f0d2682bec644b8dccbe53421b11f64acf61684b458c  r448-2/nvm_port_equiv.sh
+714707be1116bf9babfed25ccd833f677874de8d22ea6c52a68a2b45696d4986  r448-2/oracle.sh
+191a665d968e7b26d1f96fa66c09e43eae7a0742c9b1de18531709ad354b833e  r448-2/parent_f1_probes.sh
+ef9d38540a3e17894bf24dacbdc4b208c63595bcfc008eea8e3e128449d963c1  r448-2/parse_site_unit.sh
+8d2af07bda2484397c912a7c752c77ab96a15b9f94039534f58a89b4796b2ca2  r448-2/plant_census.py
+86c8adb4c08c39de96fdb1a3ad9894214d5807108df7f316d78818547afde17c  r448-2/plant.py
+bd600618fedd2610a36af536a19e60e97f02b5fc537798a47d415e97ea569ed2  r448-2/run_census_cases.sh
+7e585ec80a6c71087d8096d69015ffce046d13fdb10b5a60e13c8f2c6c2019b2  r448-2/run_gate_cases.sh
+# gate cases as run: scripts/r448-2/gate_cases.txt with the h-malloc-emptyfile argument set to <packet>/scripts/r448-2/census_cases.txt (any non-ELF file); census cases as run: the 12 'head' rows of scripts/r448-2/census_cases.txt
