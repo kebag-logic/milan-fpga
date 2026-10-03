@@ -1,0 +1,27 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 186 md files + 970 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_em_dash.py --base 5fabb46e767c9308ab2580916237f43577698c6e
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (897 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+rc=0
+=== python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== check_em_dash.py --base 5fabb46e767c9308ab2580916237f43577698c6e (md venv)
+check_em_dash: 0 finding(s) over 38 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5fabb46e..HEAD]
+rc=0
+=== gen_toc.py --check (md venv)
+TOC gate: OK (128 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+=== gen_toc.py --verify-anchors (md venv)
+anchor check: 319 existing cross-page fragment links reproduced
+rc=0
