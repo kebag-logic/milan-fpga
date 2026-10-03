@@ -1,0 +1,36 @@
+## 79e53831..ec7eb2d8 (round 5)
+ docs/design/AREA_BUDGET.md                |  5 +-
+ docs/testing/PP_SHADOW_BASELINE_RECIPE.md |  4 +-
+ syn/ooc/pp_resource_gate.py               | 80 +++++++++++++++++++++----------
+ syn/ooc/pp_resource_gate_mutants.py       | 18 +++++--
+ syn/ooc/pp_resource_gate_selftest.py      | 72 ++++++++++++++++------------
+ 5 files changed, 115 insertions(+), 64 deletions(-)
+## 1269cdaf..ec7eb2d8 (whole PR) names
+M	.github/workflows/rtl-fast.yml
+M	docs/design/AREA_BUDGET.md
+A	docs/findings/234_PP_SHADOW_AREA_BASELINE.md
+M	docs/findings/README.md
+M	docs/testing/CI_WORKFLOWS.md
+M	docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+M	scripts/ci_events.py
+M	scripts/ci_scope.py
+M	syn/ooc/pp_baseline.py
+M	syn/ooc/pp_baseline_mutants.py
+M	syn/ooc/pp_baseline_rank.py
+A	syn/ooc/pp_resource_baseline.json
+A	syn/ooc/pp_resource_gate.py
+A	syn/ooc/pp_resource_gate_mutants.py
+A	syn/ooc/pp_resource_gate_selftest.py
+## HDL/XDC/Tcl/workflow/baseline JSON in round 5:
+none
+## gitlinks base / head
+1269cdaf efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+1269cdaf 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+1269cdaf 631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor
+ec7eb2d8 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ec7eb2d8 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor
+ec7eb2d8 631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor
+## commits
+ec7eb2d8f State the resource gate's name class as it holds for every key, notes and image manifest entries included, and the generative test's oracle as it checks
+6a4fa92f0 Hold every key of the baseline and the image manifest to the name class, open objects included and scope names alone allowed brackets, with arms, killed mutants and generated note and manifest keys, and scope the gate docstring's exit contract to its three commands
+0

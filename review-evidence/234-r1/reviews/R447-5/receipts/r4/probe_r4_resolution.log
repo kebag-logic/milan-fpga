@@ -1,0 +1,12 @@
+OK  control: A route, zeroed digest: rc 0 want 0 traceback False :: RESULT: PASS
+OK  F1 WNS 1e400 as a decimal literal: rc 2 want 2 traceback False :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4_resolution/wns: ValueError: WNS is not finite: '1000000000000000000000000000000000000000'... (405 characters)
+OK  F1 WHS 1e400 as a decimal literal: rc 2 want 2 traceback False :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4_resolution/whs: ValueError: WHS is not finite: '1000000000000000000000000000000000000000'... (405 characters)
+OK  F1 negative WNS of the same length: rc 2 want 2 traceback False :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4_resolution/nwns: ValueError: WNS is not finite: '-100000000000000000000000000000000000000'... (406 characters)
+OK  F1 Block RAM Tile of 401 digits .5: rc 2 want 2 traceback False :: NOT COMPARABLE: unreadable measurement $PACKET/scratch/r4_resolution/tile: ValueError: utilization row 'Block RAM Tile' is not finite: '1000000000000000000000000000000000
+OK  F2 route status count of 4401 digits: rc 2 want 2 traceback False :: NOT COMPARABLE: unreadable route status alinx_ax7101_route_status.rpt: route status row 'routable nets' is not a whole number of 1 to 15 ASCII digits: '9999999999999999999999999999999999999999'... (44
+OK  control: B route, committed baseline: rc 1 want 1 traceback False :: RESULT: MATERIAL REGRESSION
+OK  F2 baseline WNS_ns as a 401-digit JSON integer, check on B: rc 2 want 2 traceback False :: NOT COMPARABLE: baseline $PACKET/scratch/r4_resolution/int-WNS_ns.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000000
+OK  F2 baseline WNS_ns as a 401-digit JSON integer, check-baseline: rc 2 want 2 traceback False :: NOT COMPARABLE: baseline $PACKET/scratch/r4_resolution/int-WNS_ns.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000000
+OK  F2 baseline WHS_ns as a 401-digit JSON integer, check on B: rc 2 want 2 traceback False :: NOT COMPARABLE: baseline $PACKET/scratch/r4_resolution/int-WHS_ns.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000000
+OK  F2 baseline WHS_ns as a 401-digit JSON integer, check-baseline: rc 2 want 2 traceback False :: NOT COMPARABLE: baseline $PACKET/scratch/r4_resolution/int-WHS_ns.json is unreadable: the JSON integer is not a whole number of 1 to 15 ASCII digits: '1000000000000000000
+resolution probe: 0 off expectation

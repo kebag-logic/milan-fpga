@@ -1,0 +1,20 @@
+control: PASS rc=0 resource gate selftest: 254 arms and 500 generated cases PASS
+KILLED     ooc RAMB36 not gated: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nRAMB
+KILLED     ooc DSP not gated: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nRAMB
+KILLED     route DSP not gated: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     route RAMB36 not gated: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+NOT-UNIQUE CLI refusal exits 0: 
+KILLED     CLI check-baseline exits 0: rc=1 'route: LUT has no non-negative tolerance\nroute: tolerance LUT is None in the baseline and 10.0 in the budget table'
+KILLED     design state not bound: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     design name not bound: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     header uniqueness: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     ceiling boundary: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     floor boundary: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     timing fall boundary: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     one timing summary: rc=1 'Design Timing Summary has no WNS row'
+KILLED     timing header present: rc=1 'unreadable measurement /tmp/pp-resource-gate-29xdwxvr/route/arm/gateware: IndexError: list index out of range'
+KILLED     one generated top: rc=1 'figure        baseline   candidate     delta  verdict\nLUT               1000        1000         0  ok\nFF                2000        2000         0  ok\nSLIC
+KILLED     include dir present: rc=1 "unreadable measurement /tmp/pp-resource-gate-kjgl5ivk/route/arm/gateware: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-gate-kjgl5i
+NOT-UNIQUE baseline floor value: 
+KILLED     candidate kind from directory: rc=1 "NOT COMPARABLE: unreadable measurement /tmp/pp-resource-gate-redkzh_0/ooc/arm/ooc: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pp-resource-ga
+extra mutants: 16 killed, 0 survived, 2 not unique, of 18

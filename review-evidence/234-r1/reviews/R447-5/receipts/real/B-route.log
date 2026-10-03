@@ -1,0 +1,25 @@
+endpoint route-1x1: $VALIDATION_STORAGE/B/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              50128       50753       625  REGRESSION: grew by more than 500
+FF               59006       59014         8  ok
+SLICE            15815       15827        12  ok
+RAMB36              79          79         0  ok
+RAMB18              27          27         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.063       0.101     0.038  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT +257, FF +13
+  wrapper: LUT +259, FF +11
+  u_pp/u_nvm_port: LUT +80, FF +33
+  u_pp/u_aecp/u_d3: LUT +73, FF +0
+  u_pp/u_aecp/u_dyn: LUT -73, FF +0
+  u_pp/u_aecp: LUT +58, FF +0
+  u_pp/u_rx_validator: LUT +41, FF +0
+  u_pp/u_srp: LUT +35, FF -2
+  u_pp/u_notify: LUT +36, FF +0
+  u_pp/u_listener: LUT +23, FF -11
+  u_pp/u_dispatch/u_acmp_q: LUT +24, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -20, FF +0
+RESULT: MATERIAL REGRESSION

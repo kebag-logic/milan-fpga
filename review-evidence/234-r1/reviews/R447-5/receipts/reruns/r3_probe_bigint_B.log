@@ -1,0 +1,15 @@
+control: the recorded baseline
+    check rc 1: RESULT: MATERIAL REGRESSION
+    check-baseline rc 0: baseline PASS: 3 endpoints
+decimal 1e400 as the recorded WNS_ns (refused as designed)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON number is not finite: '1e4
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON number is not finite: '1e4
+integer literal 10**400 as the recorded WNS_ns
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num
+integer literal 10**400 as the recorded WHS_ns
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num
+integer literal 10**400 as the recorded LUT (control: integer arithmetic)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_bigint_B/baseline.json is unreadable: the JSON integer is not a whole num

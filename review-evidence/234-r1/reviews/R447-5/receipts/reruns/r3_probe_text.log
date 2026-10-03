@@ -1,0 +1,21 @@
+control: the recorded baseline
+    check rc 0: RESULT: PASS
+    check-baseline rc 0: baseline PASS: 3 endpoints
+A: an extra endpoint named with a lone surrogate (a copy of route-1x1)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+B: an unknown endpoint field named with a lone surrogate
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+C: an unknown file field named with a lone surrogate
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+D: a route-1x1 sub-block scope named with a lone surrogate (valid counts)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key '\ud800' is not a nam
+E: an extra endpoint named with an ordinary non-ASCII name (control for the surrogate)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key 'r\xe9route' is not a
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key 'r\xe9route' is not a
+F: a duplicate tolerance key (first LUT 99999, last as recorded)
+    check rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key 'LUT' appears twice i
+    check-baseline rc 2: NOT COMPARABLE: baseline $PACKET/scratch/reruns_light/r3_text/baseline.json is unreadable: the key 'LUT' appears twice i
