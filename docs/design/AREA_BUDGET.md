@@ -186,7 +186,7 @@ That covers the Vivado build, the device, the design and its state, every flow c
 Identical inputs with different figures are refused the same way.
 So a tool's mapping change is never reported as an architectural regression.
 Such a change needs a new baseline, recorded with `record --write` and reviewed as a diff.
-The exit status is total: 0 within tolerance, 1 a material regression only, and 2 for everything else.
+`check` exits 0 within tolerance, 1 for a material regression only, and 2 for every input it cannot judge.
 Exit 2 always prints its reason, and no input reaches a traceback.
 An unreadable measurement exits 2.
 That covers a count that is not ASCII digits, a slack that is not a finite decimal and a timing summary with no timed endpoint or without its endpoint columns.
