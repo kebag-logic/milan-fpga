@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -499,7 +499,7 @@
+ 
+   always_ff @(posedge clk_i) begin : walk_tspec_write
+     if (gate_open_acc_w) begin
+-      wtsp_r[gate_src_i] <= {gate_max_frame_i, gate_max_interval_i,
++      wtsp_r[gate_src_i] <= {gate_max_interval_i, gate_max_frame_i,
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end
+   end

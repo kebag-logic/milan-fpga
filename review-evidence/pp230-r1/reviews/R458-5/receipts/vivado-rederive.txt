@@ -1,0 +1,13 @@
+base ooc-1x1: top KL_pp_shadow LUT 24930 FF 25465 RAMB36/18 21/3 DSP 8; u_srp LUT 4558 (LUTRAM 186) FF 6438
+base ooc-8x8: top KL_pp_shadow LUT 32584 FF 34211 RAMB36/18 26/5 DSP 8; u_srp LUT 8705 (LUTRAM 186) FF 11192
+base route-1x1: top alinx_ax7101 LUT 51434 FF 59691 RAMB36/18 79/27 DSP 14; u_srp LUT 4340 (LUTRAM 180) FF 6263
+base route-1x1 timing: WNS 0.079 TNS 0.000 WHS 0.014; all constraints met
+head ooc-1x1: top KL_pp_shadow LUT 24258 FF 23130 RAMB36/18 21/3 DSP 8; u_srp LUT 3988 (LUTRAM 310) FF 3979
+head ooc-8x8: top KL_pp_shadow LUT 31109 FF 30648 RAMB36/18 26/5 DSP 8; u_srp LUT 7313 (LUTRAM 438) FF 7747
+head route-1x1: top alinx_ax7101 LUT 51005 FF 57262 RAMB36/18 79/27 DSP 14; u_srp LUT 3711 (LUTRAM 298) FF 3839
+head route-1x1 timing: WNS 0.354 TNS 0.000 WHS 0.036; all constraints met
+per-context (8x8 - 1x1) / 7, LUT / FF:
+  base: u_srp 592.4/679.1; (u_srp) 20.9/78.7; u_admission 73.3/100.9; u_decoder 38.1/0.0; u_domain 0.9/0.0; u_encoder 3.1/0.3; u_listener 227.4/278.3; u_talker 212.6/221.0; u_vlan 16.1/0.0
+  base: talker+listener+admission 1x1 1416 LUT 1652 FF; 8x8 5009 LUT 5853 FF
+  head: u_srp 475.0/538.3; (u_srp) -8.1/22.6; u_admission 68.6/68.9; u_decoder 42.7/0.0; u_domain -1.7/0.0; u_encoder 0.3/0.4; u_listener 208.3/278.3; u_talker 128.7/168.1; u_vlan 36.3/0.0
+  head: talker+listener+admission 1x1 1379 LUT 1484 FF; 8x8 4218 LUT 5091 FF

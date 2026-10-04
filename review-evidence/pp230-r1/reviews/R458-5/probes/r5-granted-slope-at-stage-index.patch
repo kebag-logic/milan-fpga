@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -207,7 +207,7 @@
+     wgrant_now_w           = wgrant_r;
+     wgslope_now_w          = wgslope_r;
+     wgrant_now_w[aidx_r]   = fit_w;
+-    wgslope_now_w[aidx_r]  = fit_w ? slope_q_r[aidx_r] : 32'd0;
++    wgslope_now_w[aidx_r]  = fit_w ? slope_q_r[cidx_q2_r] : 32'd0;
+   end
+ 
+   always_ff @(posedge clk_i) begin : admission_walk
