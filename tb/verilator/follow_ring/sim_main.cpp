@@ -105,8 +105,12 @@ constexpr int kPreSettleSlips = 3;
 //! the loopback ring centred: the target leaves one event of the previous
 //! PDU queued when a PDU's first event lands, so that event pops 1 to 2
 //! ticks after it lands; a PDU less late than the one the recentre read
-//! pops later, by up to the run's uniform lateness
-constexpr double kCentredLo = 1.0;
+//! pops later, by up to the run's uniform lateness. The recentre decides at
+//! the PDU's first beat and the margin is measured from its first event's
+//! landing, a few axis cycles later, so a PDU that lands on a pop is read
+//! up to those cycles short of a whole tick
+constexpr double kLandTicks = 3.0 * 48000.0 / kClkHz;
+constexpr double kCentredLo = 1.0 - kLandTicks;
 constexpr double kCentredHi = 2.0;
 constexpr double kTickUs = 1e6 / 48000.0;
 //! a stream-to-stream switch keeps the trim (W2), so it moves the ring's
