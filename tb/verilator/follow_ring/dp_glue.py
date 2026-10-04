@@ -4,15 +4,16 @@
 """Copy milan_datapath's media-plane glue verbatim into an include.
 
 Why this exists. follow_ring_wrap.sv binds the media plane's leaf modules the
-way milan_datapath binds them, but four pieces of that binding are not leaf
+way milan_datapath binds them, but several pieces of that binding are not leaf
 modules: the clock-source decode (media_clk_table, media_clk_resolve), the
-servo's reference mux with its W2 one-cycle unlocked presentation, the #386
-settled-grid recentre trigger, and the aligner's A2-a select, keep-off and
-one-cycle-late tick. Restated in the wrapper they could drift from the
-shipped datapath while the harness stayed green (the #617 R395-2 F2 lesson
-tb/verilator/capture_coherence/mga_keepoff.py records). So the build copies
-each piece out of DP_SRC, line for line, into the build directory, and the
-wrapper `include-s it.
+servo's reference mux with its W2 one-cycle unlocked presentation, the
+aligner's A2-a select, keep-off and one-cycle-late tick, the servo's window
+constant, the #386 settled-grid recentre trigger, the #645 settle recentre
+and the render stage's recentre set. Restated in the wrapper they could drift
+from the shipped datapath while the harness stayed green (the #617 R395-2 F2
+lesson tb/verilator/capture_coherence/mga_keepoff.py records). So the build
+copies each piece out of DP_SRC, line for line, into the build directory, and
+the wrapper `include-s it. mutants.py points DP_SRC at a planted copy.
 
 Each piece is a line range between two anchors. Every anchor must match
 exactly one line, and the end anchor must follow the start, so a refactor
@@ -38,9 +39,15 @@ PIECES = (
     ("aligner select, keep-off and tick",
      r"^\s*wire\s+mga_sel_w = ",
      r"^\s*end : mga_tick_delay\s*$"),
+    ("servo window",
+     r"^\s*localparam int unsigned MCSRV_WIN_LOG2_C\s+=",
+     r"^\s*localparam int unsigned MCSRV_WIN_LOG2_C\s+="),
     ("#386 settled-grid recentre",
      r"^\s*localparam int unsigned SRC_SETTLE_ERR_C\s+=",
      r"^\s*end : g_src_recentre\s*$"),
+    ("#645 settle recentre",
+     r"^\s*localparam int unsigned SETTLE_EXC_ERR_C\s+=",
+     r"^\s*end : g_settle_recentre\s*$"),
     ("render recentre pulse",
      r"^\s*wire render_recentre_p_w .*=\s*$",
      r"^\s*\| src_recentre_p_r;\s*$"),

@@ -17,9 +17,12 @@
                 #386 recentre re-centres). The datapath's own glue between
                 them - the clock-source decode, the servo's reference mux with
                 its W2 presentation, the A2-a aligner select with its keep-off
-                and one-cycle-late tick, and the #386 settled-grid trigger - is
+                and one-cycle-late tick, the #386 settled-grid trigger, the
+                #645 settle recentre and the render stage's recentre set - is
                 copied verbatim out of milan_datapath.sv by dp_glue.py at
-                build time, never restated here.
+                build time, never restated here. The one binding restated is
+                the settle pulse into the LOOP bucket's lb_recentre_i, as
+                milan_datapath binds it on its one listener stream.
 
                 Scaled, and why (the harness header states the arithmetic):
                   * clk_i is CLK_HZ_P (6.25 MHz, an eighth of the shipping
@@ -149,6 +152,11 @@ module follow_ring_wrap #(
   wire signed [15:0] mnco_servo_trim_w /* verilator public_flat_rd */;
   //! no PHC step in this harness: the gPTP plane is ideal
   wire               media_rebase_p_w = 1'b0;
+  //! the servo's LOCKED, which the settle recentre counts
+  wire               mcsrv_locked_w /* verilator public_flat_rd */;
+  //! the settle recentre's pulse (milan_datapath declares it at the capture
+  //! crossbar's instance, ahead of the glue that drives it)
+  logic              settle_recentre_p_r /* verilator public_flat_rd */;
 
   //! milan_datapath's glue, copied verbatim by dp_glue.py at build time
   `include "dp_glue.svh"
@@ -198,6 +206,7 @@ module follow_ring_wrap #(
   KL_mmcm_drp_servo #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
     .TICK_CYC_P    (TICK_CYC_P),
+    .WIN_LOG2_P    (MCSRV_WIN_LOG2_C),
     .GAIN_NUM_P    (1)
   ) mmcm_servo (
     .clk_i (axis_clk), .rst_n (axis_resetn), .clk_audio_i (clk_audio_i),
@@ -216,7 +225,7 @@ module follow_ring_wrap #(
     .drp_di_o (drp_di_o), .drp_do_i (drp_do_i), .drp_rdy_i (drp_rdy_i),
     .mmcm_rst_o (mmcm_rst_o), .mmcm_locked_i (mmcm_locked_i),
     .ps_en_o (ps_en_o), .ps_incdec_o (ps_incdec_o), .ps_done_i (ps_done_i),
-    .status_o (servo_status_o), .locked_o ()
+    .status_o (servo_status_o), .locked_o (mcsrv_locked_w)
   );
 
   // ---------------------------------------------------------------------- //
@@ -278,7 +287,15 @@ module follow_ring_wrap #(
   // ---------------------------------------------------------------------- //
   // The two listener rings, both on STREAM_INPUT 0's payload clone          //
   // ---------------------------------------------------------------------- //
-  //! the loopback ring (SLIP_LB): the capture crossbar's LOOP bucket
+  //! the loopback ring (SLIP_LB): the capture crossbar's LOOP bucket, with
+  //! milan_datapath's settle recentre on its one stream
+`ifdef FR_MUT_RENDER_ONLY
+  //! mutation arm (mutants.py): the settle recentre reaches the render stage
+  //! only, so nothing re-centres the loopback ring after a source change
+  wire lb_recentre_w = 1'b0;
+`else
+  wire lb_recentre_w = settle_recentre_p_r;
+`endif
   KL_chan_map_capture #(
     .N_SLOTS_P (2), .N_TDM_P (2), .GAP_CYC_P (1),
     .N_LB_STREAMS_P (N_STREAMS), .N_LB_CH_P (RX_CH_P)
@@ -293,6 +310,7 @@ module follow_ring_wrap #(
     .lb_tdata_i (pcm_tdata_i), .lb_tvalid_i (pcm_tvalid_i),
     .lb_tlast_i (pcm_tlast_i), .lb_tuser_i (4'd0),
     .lb_wire_chans_i (pcm_chans_i), .lb_flush_i (bind_fall_i),
+    .lb_recentre_i (lb_recentre_w),
     .tick_i (media_tick_p),
     .pair_valid_o (), .pair_slot_o (), .pair_l_o (), .pair_r_o (),
     .lb_dup_cnt_o (lb_dup_o), .lb_skip_cnt_o (lb_skip_o),
