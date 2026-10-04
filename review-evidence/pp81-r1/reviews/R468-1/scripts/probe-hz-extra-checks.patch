@@ -1,0 +1,35 @@
+--- a/tb/pp_top/sim_main.cpp	2026-10-04 14:56:21.000000000 +0200
++++ b/tb/pp_top/sim_main.cpp	2026-10-04 18:20:03.649000000 +0200
+@@ -13728,10 +13728,15 @@
+     putbe(&gdi[6], 0x000F, 2);                 // GET_STREAM_INFO
+     const auto si1 = ti(DT_SI, 1);
+     gdi.insert(gdi.end(), si1.begin(), si1.end());
+-    (void)beside_or_after(8, 1, 0x004B, gdi, false,
++    const auto ra = beside_or_after(8, 1, 0x004B, gdi, false,
+                           "HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO "
+                           "record of STREAM_INPUT 1 vs a held UNBIND_RX of "
+                           "sink 1");
++    CHECK(status(ra) == AECP_SUCCESS && ra.size() > 60,
++          "PROBE-A: the HZ13a batch answers SUCCESS with its record "
++          "(status %d, %zu bytes)", status(ra), ra.size());
++    printf("  [PROBE-A] HZ13a answer: status %d, %zu bytes\n", status(ra),
++           ra.size());
+     (void)beside_or_after(10, 1, 0x004B, gdi, true,
+                           "HZ13b GET_DYNAMIC_INFO with a GET_STREAM_INFO "
+                           "record of STREAM_INPUT 1 vs a held GET_RX_STATE of "
+@@ -13740,6 +13745,15 @@
+                                "HZ13c an UNBIND_RX of sink 1 vs a held "
+                                "GET_DYNAMIC_INFO with a GET_STREAM_INFO record "
+                                "of STREAM_INPUT 1");
++    (void)acmp_beside_or_after(0x004B, gdi, 10, 1, true,
++                               "PROBE-B a GET_RX_STATE of sink 1 vs a held "
++                               "GET_DYNAMIC_INFO (two reads)");
++    (void)acmp_beside_or_after(0x004B, gdi, 4, 1, true,
++                               "PROBE-C a GET_TX_STATE of source 1 vs a held "
++                               "GET_DYNAMIC_INFO (two reads)");
++    (void)acmp_beside_or_after(0x004B, gdi, 2, 1, false,
++                               "PROBE-D a DISCONNECT_TX of source 1 vs a held "
++                               "GET_DYNAMIC_INFO (talker step, over-serialized)");
+   }
+ 
+   void run() {
