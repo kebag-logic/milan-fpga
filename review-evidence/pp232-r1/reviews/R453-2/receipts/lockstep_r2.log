@@ -1,0 +1,27 @@
+2026-10-04T09:22:31Z
++ env VERILATOR=<packet>/scratch/vbin/verilator python3 <packet>/scripts/lockstep/run_matrix.py --ref <packet>/scratch/lockstep/ref.sv --cand <packet>/scratch/lockstep/dut.sv --pkg <packet>/scratch/lockstep/pp_pkg.sv --controls <packet>/scratch/lockstep/controls --work <packet>/scratch/lockstep/m2 --out <packet>/receipts/lockstep_r2.tsv --cycles 2000000 --seeds 4 --control-seeds 4 --jobs 8
+== candidate (must match every run)
+cand_16_8_8_0: 16 runs, 0 with a mismatch or error
+cand_16_2_2_0: 16 runs, 0 with a mismatch or error
+cand_16_2_2_1: 16 runs, 0 with a mismatch or error
+cand_16_9_9_0: 16 runs, 0 with a mismatch or error
+cand_2_1_1_0: 16 runs, 0 with a mismatch or error
+cand_5_8_8_0: 16 runs, 0 with a mismatch or error
+cand_8_3_5_1: 16 runs, 0 with a mismatch or error
+cand_3_1_2_0: 16 runs, 0 with a mismatch or error
+cand_1_1_1_0: 16 runs, 0 with a mismatch or error
+== controls (each must be caught)
+ctl_first_chunk_ignored: CAUGHT 16/16 runs, 12209411 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_index_wrong_row: CAUGHT 16/16 runs, 151821997 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_key_swapped: CAUGHT 16/16 runs, 144529024 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_last_chunk_ignored: CAUGHT 16/16 runs, 26208056 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_no_clear: CAUGHT 16/16 runs, 613088442 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_no_override: CAUGHT 16/16 runs, 993233 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_no_set: CAUGHT 16/16 runs, 159854381 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_override_clr_only: CAUGHT 16/16 runs, 992954 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_override_set_only: CAUGHT 10/16 runs, 23621 mismatches, by mode {0: 0, 1: 2, 2: 4, 3: 4}
+ctl_own_vs_new_row: CAUGHT 16/16 runs, 425703 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_reindex_late: CAUGHT 16/16 runs, 220147 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 4}
+ctl_stamp_read_without_valid: CAUGHT 14/16 runs, 6638375 mismatches, by mode {0: 4, 1: 4, 2: 4, 3: 2}
+OVERALL PASS
+elapsed_s 134

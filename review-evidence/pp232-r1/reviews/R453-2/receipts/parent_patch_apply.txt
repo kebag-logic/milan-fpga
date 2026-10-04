@@ -1,0 +1,35 @@
+== parent-adoption-c8-bbf704ec.patch
+applied
+ 7 files changed, 37 insertions(+), 6 deletions(-)
+== parent-adoption-p2-p1-1269cdaf.patch
+applied
+ 8 files changed, 110 insertions(+), 39 deletions(-)
+== parent-adoption-c10-1269cdaf.patch
+applied
+ 12 files changed, 147 insertions(+), 67 deletions(-)
+== 232
+Checking patch scripts/xvlog.budget...
+applied
+avdecc/aem_assemble.py                     |   3 +-
+ avdecc/aem_specs.py                        |   1 +
+ avdecc/gen_aemi_image.py                   |   2 +
+ configs/endstation_ax7101_8x8.yaml         |  14 ++++
+ docs/ENDSTATION_BUILDER.md                 |   3 +-
+ docs/design/SAVED_STATE_MATERIALIZATION.md | 106 ++++++++++++++++++++---------
+ docs/development/CODE_QUALITY.md           |  11 +--
+ scripts/check_rtl_source_lists_selftest.py |  29 ++++++--
+ scripts/processor_yosys_tops.budget        |  18 ++---
+ scripts/xvlog.budget                       |   6 +-
+ sw/builder/endstation_builder.py           |   7 ++
+ sw/builder/test_builder.py                 |  13 ++--
+ 12 files changed, 146 insertions(+), 67 deletions(-)
+18:# section is this repository's own RTL; `submodules` is the pinned
+33:# --- section submodules: 2 finding(s) (pinned processors) ---
+34:protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w  # line(s) 194
+35:protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w  # line(s) 383
+5fabb46e..241f9184 touching xvlog files:
+(end)
+budget blob at 5fabb46e / 241f9184:
+f3721542d2f67f9addcb14307f1152f559b8ee26
+f3721542d2f67f9addcb14307f1152f559b8ee26
+pinned protocol-processor at 241f9184: 631eeb342ca1e3fa80e734077a56a943aee76ff1
