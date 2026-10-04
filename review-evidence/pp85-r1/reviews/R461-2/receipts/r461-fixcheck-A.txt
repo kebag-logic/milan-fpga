@@ -1,0 +1,17 @@
+fixA+control: rc=0 1338 checks: 1338 PASS, 0 FAIL | arc4-check-failed=0
+fixA+q0-fresh-no-store: rc=2 1338 checks: 1334 PASS, 4 FAIL | arc4-check-failed=1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+fixA+q1-fresh-store-plus-one: rc=2 1338 checks: 1334 PASS, 4 FAIL | arc4-check-failed=1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted, so index 702 is fresh, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted, so index 702 is fresh, got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+fixA+q2-fresh-store-max: rc=2 1338 checks: 1334 PASS, 4 FAIL | arc4-check-failed=1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted, so index 702 is fresh, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted, so index 702 is fresh, got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+fixA+q3-fresh-store-gm-only: rc=0 1338 checks: 1338 PASS, 0 FAIL | arc4-check-failed=0

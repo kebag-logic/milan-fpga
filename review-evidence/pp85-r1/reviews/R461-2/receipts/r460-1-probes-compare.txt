@@ -1,0 +1,15 @@
+probe | a8669732 (R460-1 receipt) | 4298ed25 (this rerun) | FAIL lines identical
+control | 0 1330 checks: 1330 PASS, 0 FAIL failures=0 | 0 1334 checks: 1334 PASS, 0 FAIL failures=0 | True
+r1-shutdown-keeps-timer | 2 1330 checks: 1328 PASS, 2 FAIL failures=2 | 2 1334 checks: 1332 PASS, 2 FAIL failures=2 | True
+r2-delay-linkdown-departs | 2 1330 checks: 1328 PASS, 2 FAIL failures=2 | 2 1334 checks: 1332 PASS, 2 FAIL failures=2 | True
+r3-delay-gm-change-redraws | 2 1330 checks: 1325 PASS, 5 FAIL failures=5 | 2 1334 checks: 1329 PASS, 5 FAIL failures=5 | True
+r4-departing-increments | 2 1330 checks: 1324 PASS, 6 FAIL failures=6 | 2 1334 checks: 1328 PASS, 6 FAIL failures=6 | True
+r5-noadp-expiry-keeps-state | 2 1330 checks: 1326 PASS, 4 FAIL failures=4 | 2 1334 checks: 1330 PASS, 4 FAIL failures=4 | True
+r6-fresh-no-store | 0 1330 checks: 1330 PASS, 0 FAIL failures=0 | 2 1334 checks: 1330 PASS, 4 FAIL failures=4 | False
+r7-restart-no-store | 2 1330 checks: 1329 PASS, 1 FAIL failures=1 | 2 1334 checks: 1333 PASS, 1 FAIL failures=1 | True
+r8-discover-no-store | 2 1330 checks: 1320 PASS, 10 FAIL failures=10 | 2 1334 checks: 1324 PASS, 10 FAIL failures=10 | True
+t1-table-expects-departing | 2 1330 checks: 1328 PASS, 2 FAIL failures=2 | 2 1334 checks: 1332 PASS, 2 FAIL failures=2 | True
+t2-walk-skips-a-cell | 2 1320 checks: 1319 PASS, 1 FAIL failures=1 | 2 1324 checks: 1323 PASS, 1 FAIL failures=1 | True
+t3-cell-loses-ieee-citation | 2 1330 checks: 1329 PASS, 1 FAIL failures=1 | 2 1334 checks: 1333 PASS, 1 FAIL failures=1 | True
+x1-fresh-noted-check | 0 1334 checks: 1334 PASS, 0 FAIL failures=0 | 0 1338 checks: 1338 PASS, 0 FAIL failures=0 | True
+x2-fresh-noted-check-vs-r6 | 2 1334 checks: 1333 PASS, 1 FAIL failures=1 | 2 1338 checks: 1333 PASS, 5 FAIL failures=5 | False

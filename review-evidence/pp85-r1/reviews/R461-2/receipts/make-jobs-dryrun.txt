@@ -1,0 +1,8 @@
+# make -n mutants (default)
+python3 mutants.py --output "/tmp/adp-mutants" --jobs 4
+# make -n mutants JOBS=9
+python3 mutants.py --output "/tmp/adp-mutants" --jobs 9
+# make -n mutants JOBS=2 MUTANT_OUTPUT=/x
+python3 mutants.py --output "/x" --jobs 2
+# env JOBS=3 make -n mutants
+python3 mutants.py --output "/tmp/adp-mutants" --jobs 3

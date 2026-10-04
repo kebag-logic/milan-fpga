@@ -1,0 +1,13 @@
+control: rc=0 1334 checks: 1334 PASS, 0 FAIL | arc4-check-failed=0 | no edit
+q0-fresh-no-store: rc=2 1334 checks: 1330 PASS, 4 FAIL | arc4-check-failed=1 | fresh branch does not note the index (same edit as arc-fresh-no-store)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+q1-fresh-store-plus-one: rc=0 1334 checks: 1334 PASS, 0 FAIL | arc4-check-failed=0 | fresh branch notes the received index + 1 (over-notes)
+q2-fresh-store-max: rc=0 1334 checks: 1334 PASS, 0 FAIL | arc4-check-failed=0 | fresh branch notes the maximum index
+q3-fresh-store-gm-only: rc=2 1334 checks: 1333 PASS, 1 FAIL | arc4-check-failed=0 | fresh branch notes the index only when grandmaster and domain match
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+q4-restart-no-store: rc=2 1334 checks: 1333 PASS, 1 FAIL | arc4-check-failed=0 | restart branch does not note the index
+    FAIL: P9e2 restart stored the new index
+q5-tb-no-followup: rc=0 1330 checks: 1330 PASS, 0 FAIL | arc4-check-failed=0 | TB control: the round-2 follow-up step removed (vacuity of the walk without it)

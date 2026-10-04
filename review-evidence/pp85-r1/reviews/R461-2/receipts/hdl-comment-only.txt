@@ -1,0 +1,18 @@
+# strip_compare.py base(5c71928a) vs head(4298ed25)
+<SCRATCH>/base/hdl/adp/KL_adp_engine.sv: raw lines 1098, stripped sha256 0cd8c0a735a554e64a13183b4b6267ca3e04d01d68399ee774a3ece66d74fb1c
+<SCRATCH>/head/hdl/adp/KL_adp_engine.sv: raw lines 1098, stripped sha256 0cd8c0a735a554e64a13183b4b6267ca3e04d01d68399ee774a3ece66d74fb1c
+comment-stripped IDENTICAL
+rc=0
+# strip_compare.py r1(a8669732) vs head
+<SCRATCH>/r1/hdl/adp/KL_adp_engine.sv: raw lines 1098, stripped sha256 0cd8c0a735a554e64a13183b4b6267ca3e04d01d68399ee774a3ece66d74fb1c
+<SCRATCH>/head/hdl/adp/KL_adp_engine.sv: raw lines 1098, stripped sha256 0cd8c0a735a554e64a13183b4b6267ca3e04d01d68399ee774a3ece66d74fb1c
+comment-stripped IDENTICAL
+rc=0
+verilator -E -P base rc=0 sha256 82b1fa71ed5db39ffe8969b9c81d430fb610eae7782481bc28c2c2d364e93182 lines 1045
+verilator -E -P r1 rc=0 sha256 82b1fa71ed5db39ffe8969b9c81d430fb610eae7782481bc28c2c2d364e93182 lines 1045
+verilator -E -P head rc=0 sha256 82b1fa71ed5db39ffe8969b9c81d430fb610eae7782481bc28c2c2d364e93182 lines 1045
+verilator -E -P base vs head: byte-identical
+verilator -E -P r1 vs head: byte-identical
+# hdl/ tree diff base..head (names)
+ hdl/adp/KL_adp_engine.sv | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
