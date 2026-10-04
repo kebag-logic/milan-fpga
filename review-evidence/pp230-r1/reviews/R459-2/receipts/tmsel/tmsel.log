@@ -1,0 +1,4 @@
+recode 1x1 rc=2 fails=2 | 15 checks: 13 PASS, 2 FAIL | 
+recode 9x9 rc=2 fails=2 | 15 checks: 13 PASS, 2 FAIL | 
+hierref 1x1 rc=2 fails=0 |  | %Error: Internal Error: ../../hdl/srp/KL_srp_top.sv:986:11: ../V3Width.cpp:9628: Caller should check for nullptr before computing dtype
+hierref 9x9 rc=2 fails=0 |  | %Error: Internal Error: ../../hdl/srp/KL_srp_top.sv:986:11: ../V3Width.cpp:9628: Caller should check for nullptr before computing dtype

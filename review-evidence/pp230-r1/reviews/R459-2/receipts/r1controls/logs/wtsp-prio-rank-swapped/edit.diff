@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/wtsp-prio-rank-swapped/srp/KL_srp_talker_fsm.sv	2026-10-04 14:45:29.927922406 +0200
+@@ -527,7 +527,7 @@
+     wval_w[159:144] = {4'd0, wid_w[11:0]};       // VLAN
+     wval_w[143:128] = wtsp_w[67:52];             // MaxFrameSize
+     wval_w[127:112] = wtsp_w[51:36];             // MaxIntervalFrames
+-    wval_w[111:104] = {wtsp_w[35:32], 4'd0};     // priority, rank
++    wval_w[111:104] = {wtsp_w[34:32], wtsp_w[35], 4'd0};     // priority, rank
+     wval_w[103:72]  = wtsp_w[31:0];              // accumulated_latency
+     if (fail_r[wsrc_r]) begin
+       wval_w[71:8] = {16'd0, own_mac_i};   // §35.2.2.8.7 end-station MAC

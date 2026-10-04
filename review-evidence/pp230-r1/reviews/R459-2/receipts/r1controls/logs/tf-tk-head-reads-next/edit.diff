@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_top.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/tf-tk-head-reads-next/srp/KL_srp_top.sv	2026-10-04 14:45:29.911155134 +0200
+@@ -979,7 +979,7 @@
+ 
+   // registered read of each FIFO's head (the RAM's async read + this flop)
+   always_ff @(posedge clk_i) begin : tf_read
+-    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0]];
++    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0] + 5'd1];
+     tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1]];
+   end
+ 

@@ -1,0 +1,11 @@
+make: Entering directory '<PACKET>/scratch/tmsel/hierref/tb/srp_top'
+verilator --cc --exe --build -j 0 --top-module srp_store_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-BLKANDNBLK -Wno-MULTIDRIVEN -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -I<PACKET>/scratch/tmsel/hierref/tb/srp_top -Wall -Wextra" -GN_SOURCES_P=1 -GN_SINKS_P=1 \
+  -CFLAGS "-DTB_SOURCES=1 -DTB_SINKS=1 -Wall -Wextra" --Mdir obj_store_1x1 \
+  ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv srp_store_wrap.sv store_main.cpp -o Vsrp_store_sim
+%Error: Internal Error: ../../hdl/srp/KL_srp_top.sv:986:11: ../V3Width.cpp:9628: Caller should check for nullptr before computing dtype
+                                                          : ... note: In instance 'srp_store_wrap.u_dut'
+  986 |   typedef enum logic {
+      |           ^~~~
+                        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+make: *** [Makefile:59: storage] Error 1
+make: Leaving directory '<PACKET>/scratch/tmsel/hierref/tb/srp_top'

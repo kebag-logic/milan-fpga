@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_admission.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/slope-read-source-0/srp/KL_srp_admission.sv	2026-10-04 14:45:29.954728703 +0200
+@@ -192,7 +192,7 @@
+ 
+   // The validity terms are defensive: a round that visits a pending source
+   // is discarded (pend_w), so a published round never evaluates a stale slope.
+-  assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
++  assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[0]};
+   assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
+                    && (cand_w <= {1'b0, limit_w});
+   assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;

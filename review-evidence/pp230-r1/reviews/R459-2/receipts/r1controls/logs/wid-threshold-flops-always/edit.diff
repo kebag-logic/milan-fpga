@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/wid-threshold-flops-always/srp/KL_srp_talker_fsm.sv	2026-10-04 14:45:29.943429677 +0200
+@@ -505,7 +505,7 @@
+   end
+   assign wtsp_w = wtsp_r[wsrc_r];
+ 
+-  if (N_SOURCES_P > 2) begin : g_wid_ram
++  if (N_SOURCES_P > 99) begin : g_wid_ram
+     (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];
+     always_ff @(posedge clk_i) begin : walk_id_write
+       if (gate_open_acc_w) begin

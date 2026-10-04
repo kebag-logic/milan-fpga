@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_admission.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/slope-store-at-stage-1-index/srp/KL_srp_admission.sv	2026-10-04 14:45:29.950644744 +0200
+@@ -163,7 +163,7 @@
+   // exact product (67108 x 64000 < 2^32)
+   always_ff @(posedge clk_i) begin : slope_store
+     if (rst_n) begin
+-      slope_q_r[cidx_q2_r] <= (iv_bytes_r > IV_MAX_C) ? SLOPE_SAT_C
++      slope_q_r[cidx_q1_r] <= (iv_bytes_r > IV_MAX_C) ? SLOPE_SAT_C
+                                                       : slope_prod_w[31:0];
+     end
+   end
