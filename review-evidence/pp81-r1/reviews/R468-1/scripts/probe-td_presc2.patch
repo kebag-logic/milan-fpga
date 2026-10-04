@@ -1,0 +1,11 @@
+--- a/tb/pp_top/pp_top_wrap.sv	2026-10-04 14:56:21.000000000 +0200
++++ b/tb/pp_top/pp_top_wrap.sv	2026-10-04 18:33:09.812300002 +0200
+@@ -499,7 +499,7 @@
+ `else
+   // 1 ms = 2 x 50 = 100 clk; the 91-slot sweep (93 cycles) fits inside
+   localparam int unsigned TB_DIV_US_C = 2;
+-  localparam int unsigned TB_DIV_MS_C = 50;
++  localparam int unsigned TB_DIV_MS_C = 100;
+ `endif
+   //! the nominal P-CLK-HZ the saved-state times are DERIVED from (the
+   //! prescaler above is overridden, so the timebase does not use it). A
