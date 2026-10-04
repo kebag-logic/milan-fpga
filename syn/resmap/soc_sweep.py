@@ -91,10 +91,17 @@ def prepare(work: Path) -> list[str]:
     return [*params["argv"], "--entity-gen-dir", str(tree / "configs/generated" / yosys_sweep.BASE_CONFIG)]
 
 
+def compiler_triple() -> str:
+    """The SDK compiler's triple, derived as the baseline recipe derives it, from the SDK installer's COMPILER."""
+    sys.path.insert(0, str(yosys_sweep.REPO / "scripts"))
+    from ci_rv32_sdk import COMPILER  # noqa: E402,PLC0415 - the installer is the one source of the triple
+    return COMPILER.removeprefix("bin/").removesuffix("-gcc")
+
+
 def command_export(work: Path, plan: dict, names: list[str], tools: argparse.Namespace) -> int:
     """Run milan_soc.py without --build for each variant and record its outcome."""
     base = prepare(work)
-    env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": "riscv32-linux",
+    env = {**os.environ, "PYTHONHASHSEED": "0", "LITEX_ENV_CC_TRIPLE": compiler_triple(),
            "PATH": f"{tools.sdk / 'bin'}:{Path(tools.litex_python).parent}:{os.environ['PATH']}"}
     records = {}
     for name, spec in plan_variants(plan).items():
