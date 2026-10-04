@@ -1,0 +1,45 @@
+LOCKSTEP MISMATCH cyc=4203 int adm_acc
+LOCKSTEP MISMATCH cyc=4203 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4203 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4204 int adm_acc
+LOCKSTEP MISMATCH cyc=4204 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4204 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4205 int adm_acc
+LOCKSTEP MISMATCH cyc=4205 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4205 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4206 int adm_acc
+LOCKSTEP MISMATCH cyc=4206 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4206 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4207 int adm_acc
+LOCKSTEP MISMATCH cyc=4207 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4207 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4208 int adm_acc
+LOCKSTEP MISMATCH cyc=4208 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4208 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4209 out granted_slope_bps_o head=000000000000000000000000000000000000000000000000fa280a000000000000000000 ref=000000000000000000000000000000000000000000000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4209 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4209 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4209 int adm_grant
+LOCKSTEP MISMATCH cyc=4209 int adm_gslope
+LOCKSTEP MISMATCH cyc=4210 out granted_slope_bps_o head=000000000000000000000000000000000000000000000000fa280a000000000000000000 ref=000000000000000000000000000000000000000000000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4210 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4210 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4210 int adm_grant
+LOCKSTEP MISMATCH cyc=4210 int adm_gslope
+LOCKSTEP MISMATCH cyc=4211 out granted_slope_bps_o head=000000000000000000000000000000000000000000000000fa280a000000000000000000 ref=000000000000000000000000000000000000000000000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4211 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4211 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4211 int adm_grant
+LOCKSTEP MISMATCH cyc=4211 int adm_gslope
+LOCKSTEP MISMATCH cyc=4212 out granted_slope_bps_o head=000000000000000000000000000000000000000000000000fa280a000000000000000000 ref=000000000000000000000000000000000000000000000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4212 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4212 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4212 int adm_acc
+LOCKSTEP MISMATCH cyc=4212 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4212 int adm_wgslope
+LOCKSTEP MISMATCH cyc=4212 int adm_grant
+LOCKSTEP MISMATCH cyc=4212 int adm_gslope
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=9 N=9 cycles=500000 compared=499999 mismatching=491687 reset_cycles=48 reset_assertions=4 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=441900 ls_wval=412886 adm_slope_rd=298542 tf_head=1189
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=5 full_cycles=0 full_blocked_pushes=0 push_into_empty=302 push_with_pop=226 pops=844 | ls: max=4 full_cycles=0 full_blocked_pushes=0 push_into_empty=221 push_with_pop=31 pops=345
+RAND SUMMARY M=9 N=9 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2242 reqs=806 rsp_ok=736 frames=49 arms=1870 expiries=194 spurious=28 draws=475 registrations=557 resets=3

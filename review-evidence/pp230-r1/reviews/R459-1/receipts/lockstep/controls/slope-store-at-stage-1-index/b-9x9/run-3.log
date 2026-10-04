@@ -1,0 +1,27 @@
+LOCKSTEP MISMATCH cyc=4202 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4203 int adm_acc
+LOCKSTEP MISMATCH cyc=4203 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4204 int adm_acc
+LOCKSTEP MISMATCH cyc=4204 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4205 int adm_acc
+LOCKSTEP MISMATCH cyc=4205 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4206 int adm_acc
+LOCKSTEP MISMATCH cyc=4206 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4207 int adm_acc
+LOCKSTEP MISMATCH cyc=4207 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4208 int adm_acc
+LOCKSTEP MISMATCH cyc=4208 int adm_wgrant
+LOCKSTEP MISMATCH cyc=4209 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4209 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4209 int adm_grant
+LOCKSTEP MISMATCH cyc=4210 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4210 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4210 int adm_grant
+LOCKSTEP MISMATCH cyc=4211 out sr_admitted_o head=004 ref=000
+LOCKSTEP MISMATCH cyc=4211 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4211 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4211 int adm_grant
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=9 N=9 cycles=500000 compared=499999 mismatching=493514 reset_cycles=50 reset_assertions=4 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=449775 ls_wval=448720 adm_slope_rd=308171 tf_head=1099
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=5 full_cycles=0 full_blocked_pushes=0 push_into_empty=277 push_with_pop=204 pops=766 | ls: max=4 full_cycles=0 full_blocked_pushes=0 push_into_empty=229 push_with_pop=26 pops=333
+RAND SUMMARY M=9 N=9 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2246 reqs=803 rsp_ok=738 frames=42 arms=1777 expiries=194 spurious=29 draws=472 registrations=559 resets=3

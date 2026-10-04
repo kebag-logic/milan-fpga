@@ -1,0 +1,11 @@
+LOCKSTEP MISMATCH cyc=194484 gated tf_head
+LOCKSTEP MISMATCH cyc=194485 out arm_slot_o head=0c ref=0b
+LOCKSTEP MISMATCH cyc=194485 out arm_owner_o head=44 ref=43
+LOCKSTEP MISMATCH cyc=194485 out arm_deadline_ms_o head=5dca7c4d ref=5dca7c42
+LOCKSTEP MISMATCH cyc=194486 out arm_slot_o head=0c ref=0b
+LOCKSTEP MISMATCH cyc=194486 out arm_owner_o head=44 ref=43
+LOCKSTEP MISMATCH cyc=194486 out arm_deadline_ms_o head=5dca7c4d ref=5dca7c42
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=9 N=9 cycles=2000000 compared=1999999 mismatching=3 reset_cycles=149 reset_assertions=12 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=1965104 ls_wval=1931419 adm_slope_rd=1388520 tf_head=8428
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=32 full_cycles=1021 full_blocked_pushes=1 push_into_empty=1621 push_with_pop=573 pops=5741 | ls: max=24 full_cycles=0 full_blocked_pushes=0 push_into_empty=1288 push_with_pop=113 pops=2687
+RAND SUMMARY M=9 N=9 seed=2 cycles=2000000 compressed=1 noisy=0 pdus=17467 reqs=16608 rsp_ok=15115 frames=3650 arms=17513 expiries=6394 spurious=102 draws=3828 registrations=4651 resets=11

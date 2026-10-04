@@ -1,0 +1,2055 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct  4 10:38:52 2026
+# Process ID         : 3865201
+# Current directory  : <PACKET>/scratch/viv
+# Command line       : vivado -mode batch -nojournal -log <PACKET>/scratch/viv/vivado.log -source <PACKET>/scripts/srp_ooc.tcl -tclargs <PACKET>/scratch/viv <PACKET>/scratch/base/hdl <PACKET>/scratch/head/hdl
+# Log file           : <PACKET>/scratch/viv/vivado.log
+# Journal file       : 
+# Running On         : <HOST>
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 70412 MB
+#-----------------------------------------------------------
+Sourcing tcl script '<HOME>/.Xilinx/Vivado/Vivado_init.tcl'
+source <PACKET>/scripts/srp_ooc.tcl
+# set out  [lindex $argv 0]
+# set base [lindex $argv 1]
+# set head [lindex $argv 2]
+# set_param general.maxThreads 8
+# set mods {KL_srp_decoder KL_srp_domain KL_srp_vlan KL_srp_talker_fsm KL_srp_listener_fsm KL_srp_admission KL_srp_encoder KL_srp_top}
+# foreach combo {{base 2 6} {head 2 6} {base 9 7} {head 9 7}} {
+#   lassign $combo which n aw
+#   set hdl [expr {$which eq "base" ? $base : $head}]
+#   set tag "$which-${n}x${n}"
+#   file mkdir $out/$tag
+#   close_project -quiet
+#   create_project -in_memory -part xc7a100tfgg484-2
+#   read_verilog -sv [list $hdl/common/pp_pkg.sv $hdl/srp/srp_pkg.sv]
+#   foreach m $mods { read_verilog -sv $hdl/srp/$m.sv }
+#   read_verilog -sv [file dirname [info script]]/srp_area_wrap.sv
+#   read_xdc [file dirname [info script]]/srp_ooc.xdc
+#   synth_design -top srp_area_wrap -part xc7a100tfgg484-2 -mode out_of_context \
+#     -directive AreaOptimized_high -flatten_hierarchy rebuilt \
+#     -generic N_P=$n -generic AW_P=$aw
+#   report_utilization -file $out/$tag/util.rpt
+#   report_utilization -hierarchical -file $out/$tag/util_hier.rpt
+#   report_ram_utilization -file $out/$tag/ram.rpt
+#   # flip-flop census of the storage this change moves
+#   set fh [open $out/$tag/census.tsv w]
+#   foreach pat {tf_ram_r tf_tk_ram_r tf_ls_ram_r tf_q_r wtsp_r wid_r wsid_r slope_q_r mfs_r mif_r prio_r rank_r lat_r sid_r} {
+#     set ff  [llength [get_cells -quiet -hier -filter "PRIMITIVE_GROUP == FLOP_LATCH && NAME =~ *${pat}_reg*"]]
+#     set ram [llength [get_cells -quiet -hier -filter "PRIMITIVE_GROUP == DISTRIBUTED_MEMORY && NAME =~ *${pat}_reg*"]]
+#     set bram [llength [get_cells -quiet -hier -filter "PRIMITIVE_GROUP == BLOCKRAM && NAME =~ *${pat}*"]]
+#     puts $fh "$pat\t$ff\t$ram\t$bram"
+#   }
+#   puts $fh "ALL_BRAM\t[llength [get_cells -quiet -hier -filter {PRIMITIVE_GROUP == BLOCKRAM}]]\t[join [get_cells -quiet -hier -filter {PRIMITIVE_GROUP == BLOCKRAM}] ,]"
+#   close $fh
+# }
+Command: synth_design -top srp_area_wrap -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high -flatten_hierarchy rebuilt -generic N_P=2 -generic AW_P=6
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 3867351
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2375.176 ; gain = 518.758 ; free physical = 12425 ; free virtual = 62835
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'srp_area_wrap' [<PACKET>/scripts/srp_area_wrap.sv:3]
+	Parameter N_P bound to: 32'b00000000000000000000000000000010 
+	Parameter AW_P bound to: 32'b00000000000000000000000000000110 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_top' [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:94]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000000010 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_decoder' [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:65]
+	Parameter TP_DEPTH_P bound to: 32'b00000000000000000000010000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:189]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/srp_pkg.sv:87]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:226]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:330]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:430]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_decoder' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:65]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_domain' [<PACKET>/scratch/base/hdl/srp/KL_srp_domain.sv:38]
+	Parameter DEF_PRIO_P bound to: 8'b00000011 
+	Parameter DEF_VID_P bound to: 16'b0000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_domain' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_domain.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_vlan' [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:46]
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter REFCNT_W_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:213]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_vlan' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:46]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_admission' [<PACKET>/scratch/base/hdl/srp/KL_srp_admission.sv:62]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_admission' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_admission.sv:62]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_talker_fsm' [<PACKET>/scratch/base/hdl/srp/KL_srp_talker_fsm.sv:76]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000010000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+	Parameter OWNER_BASE_P bound to: 8'b01000000 
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_talker_fsm' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_talker_fsm.sv:76]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_listener_fsm' [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:74]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000000010 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000011000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+	Parameter OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_listener_fsm' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:74]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_encoder' [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:70]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000001100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:453]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:556]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_encoder' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:70]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:837]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:846]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:1092]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:1192]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_top' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:94]
+INFO: [Synth 8-6155] done synthesizing module 'srp_area_wrap' (0#1) [<PACKET>/scripts/srp_area_wrap.sv:3]
+WARNING: [Synth 8-3936] Found unconnected internal register 'fchg_cand_w_reg' and it is trimmed from '2' to '1' bits. [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:471]
+WARNING: [Synth 8-7129] Port evt_attr_type_i[7] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[6] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[5] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[4] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 2539.145 ; gain = 682.727 ; free physical = 9754 ; free virtual = 60393
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 2551.020 ; gain = 694.602 ; free physical = 9356 ; free virtual = 59987
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 2551.020 ; gain = 694.602 ; free physical = 9348 ; free virtual = 59979
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 2551.020 ; gain = 0.000 ; free physical = 8632 ; free virtual = 59329
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2663.758 ; gain = 0.000 ; free physical = 8041 ; free virtual = 58774
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.06 . Memory (MB): peak = 2663.793 ; gain = 0.000 ; free physical = 8162 ; free virtual = 58981
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 2663.793 ; gain = 807.375 ; free physical = 7251 ; free virtual = 58134
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 2671.762 ; gain = 815.344 ; free physical = 7239 ; free virtual = 58121
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:14 ; elapsed = 00:00:15 . Memory (MB): peak = 2671.762 ; gain = 815.344 ; free physical = 7200 ; free virtual = 58083
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_talker_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_listener_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'svc_st_r_reg' in module 'KL_srp_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               01 |                               01
+                  W_PUSH |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_talker_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               01 |                               01
+                  W_PUSH |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_listener_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                               00 |                               00
+                  S_GATE |                               01 |                               01
+                   S_CTL |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'svc_st_r_reg' using encoding 'sequential' in module 'KL_srp_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:17 ; elapsed = 00:00:17 . Memory (MB): peak = 2671.762 ; gain = 815.344 ; free physical = 9496 ; free virtual = 60295
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   2 Input   48 Bit       Adders := 2     
+	   2 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 8     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 4     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 2     
+	   2 Input   11 Bit       Adders := 3     
+	   3 Input   11 Bit       Adders := 1     
+	   2 Input   10 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 4     
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 4     
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    4 Bit       Adders := 7     
+	   2 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 8     
+	   2 Input    1 Bit       Adders := 2     
++---Registers : 
+	              285 Bit    Registers := 1     
+	              272 Bit    Registers := 5     
+	               64 Bit    Registers := 11    
+	               48 Bit    Registers := 7     
+	               47 Bit    Registers := 66    
+	               32 Bit    Registers := 25    
+	               19 Bit    Registers := 1     
+	               17 Bit    Registers := 2     
+	               16 Bit    Registers := 22    
+	               13 Bit    Registers := 2     
+	               12 Bit    Registers := 18    
+	               11 Bit    Registers := 2     
+	               10 Bit    Registers := 1     
+	                8 Bit    Registers := 23    
+	                7 Bit    Registers := 2     
+	                6 Bit    Registers := 13    
+	                5 Bit    Registers := 9     
+	                4 Bit    Registers := 13    
+	                3 Bit    Registers := 24    
+	                2 Bit    Registers := 73    
+	                1 Bit    Registers := 80    
++---RAMs : 
+	               8K Bit	(1024 X 8 bit)          RAMs := 1     
+	              228 Bit	(12 X 19 bit)          RAMs := 1     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input  272 Bit        Muxes := 1     
+	   2 Input   72 Bit        Muxes := 1     
+	  15 Input   64 Bit        Muxes := 3     
+	   2 Input   64 Bit        Muxes := 6     
+	   3 Input   64 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 4     
+	   4 Input   48 Bit        Muxes := 1     
+	  15 Input   48 Bit        Muxes := 1     
+	   2 Input   47 Bit        Muxes := 1     
+	   2 Input   41 Bit        Muxes := 1     
+	  15 Input   32 Bit        Muxes := 1     
+	   5 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 21    
+	   4 Input   27 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 5     
+	   2 Input   16 Bit        Muxes := 10    
+	   4 Input   16 Bit        Muxes := 3     
+	  15 Input   16 Bit        Muxes := 5     
+	   8 Input   16 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 2     
+	  15 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 16    
+	  15 Input   11 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 5     
+	  15 Input    8 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 20    
+	   3 Input    8 Bit        Muxes := 1     
+	   5 Input    8 Bit        Muxes := 1     
+	  15 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 4     
+	   6 Input    6 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 17    
+	   4 Input    5 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 50    
+	   3 Input    4 Bit        Muxes := 9     
+	   4 Input    4 Bit        Muxes := 5     
+	  15 Input    4 Bit        Muxes := 2     
+	   8 Input    4 Bit        Muxes := 8     
+	   6 Input    4 Bit        Muxes := 2     
+	   5 Input    4 Bit        Muxes := 12    
+	   7 Input    4 Bit        Muxes := 4     
+	   9 Input    4 Bit        Muxes := 2     
+	  18 Input    4 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 33    
+	  15 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 3     
+	   8 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 150   
+	   4 Input    2 Bit        Muxes := 20    
+	   8 Input    2 Bit        Muxes := 2     
+	   3 Input    2 Bit        Muxes := 8     
+	  18 Input    2 Bit        Muxes := 1     
+	   6 Input    2 Bit        Muxes := 3     
+	   5 Input    2 Bit        Muxes := 2     
+	  15 Input    1 Bit        Muxes := 29    
+	   2 Input    1 Bit        Muxes := 359   
+	   3 Input    1 Bit        Muxes := 21    
+	   4 Input    1 Bit        Muxes := 51    
+	   5 Input    1 Bit        Muxes := 19    
+	   8 Input    1 Bit        Muxes := 24    
+	   6 Input    1 Bit        Muxes := 14    
+	  18 Input    1 Bit        Muxes := 19    
+	   9 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP iv_bytes_r_reg, operation Mode is: (A2*B)'.
+DSP Report: register frame_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: register iv_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: operator iv_bytes_r0 is absorbed into DSP iv_bytes_r_reg.
+DSP Report: Generating DSP slope_prod_w, operation Mode is: A*(B:0xfa00).
+DSP Report: operator slope_prod_w is absorbed into DSP slope_prod_w.
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port port_rate_bps_i[0] in module KL_srp_admission is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:27 ; elapsed = 00:01:29 . Memory (MB): peak = 2883.629 ; gain = 1027.211 ; free physical = 14119 ; free virtual = 63094
+---------------------------------------------------------------------------------
+ Sort Area is  iv_bytes_r_reg_0 : 0 0 : 2093 2093 : Used 1 time 0
+ Sort Area is  slope_prod_w_2 : 0 0 : 571 571 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name     | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srp/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++----------------+----------------+----------------+----------------------+--------------+
+|Module Name     | RTL Object     | Inference      | Size (Depth x Width) | Primitives   | 
++----------------+----------------+----------------+----------------------+--------------+
+|u_srp/u_vlan    | tbl_r_reg      | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srp/u_encoder | mvrp_ram_r_reg | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srp/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285             | RAM32M x 48  | 
++----------------+----------------+----------------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping  | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A2*B)'      | 17     | 16     | -      | -      | 33     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|KL_srp_admission | A*(B:0xfa00) | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:32 ; elapsed = 00:01:34 . Memory (MB): peak = 2883.629 ; gain = 1027.211 ; free physical = 15042 ; free virtual = 63629
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:36 ; elapsed = 00:01:38 . Memory (MB): peak = 2883.629 ; gain = 1027.211 ; free physical = 13152 ; free virtual = 61894
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name     | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srp/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++----------------+----------------+----------------+----------------------+--------------+
+|Module Name     | RTL Object     | Inference      | Size (Depth x Width) | Primitives   | 
++----------------+----------------+----------------+----------------------+--------------+
+|u_srp/u_vlan    | tbl_r_reg      | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srp/u_encoder | mvrp_ram_r_reg | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srp/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285             | RAM32M x 48  | 
++----------------+----------------+----------------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:01:38 ; elapsed = 00:01:41 . Memory (MB): peak = 2883.629 ; gain = 1027.211 ; free physical = 13660 ; free virtual = 62411
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:01:41 ; elapsed = 00:01:44 . Memory (MB): peak = 3029.441 ; gain = 1173.023 ; free physical = 14146 ; free virtual = 62965
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:41 ; elapsed = 00:01:44 . Memory (MB): peak = 3029.441 ; gain = 1173.023 ; free physical = 14151 ; free virtual = 62970
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3029.441 ; gain = 1173.023 ; free physical = 14248 ; free virtual = 63071
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3029.441 ; gain = 1173.023 ; free physical = 14250 ; free virtual = 63072
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3035.379 ; gain = 1178.961 ; free physical = 14230 ; free virtual = 63053
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3035.379 ; gain = 1178.961 ; free physical = 14222 ; free virtual = 63046
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A'*B)'     | 17     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   301|
+|2     |DSP48E1  |     2|
+|4     |LUT1     |    71|
+|5     |LUT2     |  1019|
+|6     |LUT3     |   749|
+|7     |LUT4     |   795|
+|8     |LUT5     |   735|
+|9     |LUT6     |  1724|
+|10    |MUXF7    |   331|
+|11    |MUXF8    |     6|
+|12    |RAM32M   |    45|
+|13    |RAM32X1D |     3|
+|14    |RAMB18E1 |     1|
+|15    |FDRE     |  6392|
+|16    |FDSE     |     3|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3035.379 ; gain = 1178.961 ; free physical = 14222 ; free virtual = 63046
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 3 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:40 ; elapsed = 00:01:43 . Memory (MB): peak = 3035.379 ; gain = 1066.188 ; free physical = 14216 ; free virtual = 63039
+Synthesis Optimization Complete : Time (s): cpu = 00:01:42 ; elapsed = 00:01:45 . Memory (MB): peak = 3035.387 ; gain = 1178.961 ; free physical = 14216 ; free virtual = 63039
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3043.316 ; gain = 0.000 ; free physical = 14356 ; free virtual = 63174
+INFO: [Netlist 29-17] Analyzing 689 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3105.281 ; gain = 0.000 ; free physical = 14391 ; free virtual = 63228
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 48 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 45 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 3 instances
+
+Synth Design complete | Checksum: 418d73a3
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+53 Infos, 11 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:50 ; elapsed = 00:01:51 . Memory (MB): peak = 3105.316 ; gain = 1395.047 ; free physical = 14902 ; free virtual = 63739
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2522.919; main = 2522.919; forked = 378.677
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3915.988; main = 3105.285; forked = 1032.355
+report_ram_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3105.316 ; gain = 0.000 ; free physical = 15197 ; free virtual = 63604
+Command: synth_design -top srp_area_wrap -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high -flatten_hierarchy rebuilt -generic N_P=2 -generic AW_P=6
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 15162 ; free virtual = 63211
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'srp_area_wrap' [<PACKET>/scripts/srp_area_wrap.sv:3]
+	Parameter N_P bound to: 32'b00000000000000000000000000000010 
+	Parameter AW_P bound to: 32'b00000000000000000000000000000110 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_top' [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:94]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000000010 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_decoder' [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:65]
+	Parameter TP_DEPTH_P bound to: 32'b00000000000000000000010000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:189]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/srp_pkg.sv:87]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:226]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:330]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:430]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_decoder' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:65]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_domain' [<PACKET>/scratch/head/hdl/srp/KL_srp_domain.sv:38]
+	Parameter DEF_PRIO_P bound to: 8'b00000011 
+	Parameter DEF_VID_P bound to: 16'b0000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_domain' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_domain.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_vlan' [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:46]
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter REFCNT_W_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:213]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_vlan' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:46]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_admission' [<PACKET>/scratch/head/hdl/srp/KL_srp_admission.sv:62]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_admission' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_admission.sv:62]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_talker_fsm' [<PACKET>/scratch/head/hdl/srp/KL_srp_talker_fsm.sv:80]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000000010 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000010000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+	Parameter OWNER_BASE_P bound to: 8'b01000000 
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_talker_fsm' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_talker_fsm.sv:80]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_listener_fsm' [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:76]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000000010 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000011000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000110 
+	Parameter OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_listener_fsm' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:76]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_encoder' [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:70]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000001100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:453]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:556]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_encoder' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:70]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:837]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:846]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:1103]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:1203]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_top' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:94]
+INFO: [Synth 8-6155] done synthesizing module 'srp_area_wrap' (0#1) [<PACKET>/scripts/srp_area_wrap.sv:3]
+WARNING: [Synth 8-3936] Found unconnected internal register 'fchg_cand_w_reg' and it is trimmed from '2' to '1' bits. [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:473]
+WARNING: [Synth 8-7129] Port evt_attr_type_i[7] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[6] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[5] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[4] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 15366 ; free virtual = 63477
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 15320 ; free virtual = 63431
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 15320 ; free virtual = 63431
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3113.320 ; gain = 0.000 ; free physical = 15286 ; free virtual = 63398
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 3113.320 ; gain = 0.000 ; free physical = 15051 ; free virtual = 63339
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3113.320 ; gain = 0.000 ; free physical = 15044 ; free virtual = 63332
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 13748 ; free virtual = 62400
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 13740 ; free virtual = 62392
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:12 ; elapsed = 00:00:12 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 13724 ; free virtual = 62376
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_talker_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_listener_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'svc_st_r_reg' in module 'KL_srp_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               01 |                               01
+                  W_PUSH |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_talker_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               01 |                               01
+                  W_PUSH |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_listener_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                               00 |                               00
+                  S_GATE |                               01 |                               01
+                   S_CTL |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'svc_st_r_reg' using encoding 'sequential' in module 'KL_srp_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:14 ; elapsed = 00:00:14 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 13586 ; free virtual = 62553
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   2 Input   48 Bit       Adders := 2     
+	   2 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 8     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 4     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 2     
+	   2 Input   11 Bit       Adders := 3     
+	   3 Input   11 Bit       Adders := 1     
+	   2 Input   10 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 4     
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 4     
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    4 Bit       Adders := 7     
+	   2 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 8     
+	   2 Input    1 Bit       Adders := 2     
++---Registers : 
+	              285 Bit    Registers := 1     
+	              272 Bit    Registers := 5     
+	               64 Bit    Registers := 11    
+	               48 Bit    Registers := 7     
+	               47 Bit    Registers := 2     
+	               32 Bit    Registers := 21    
+	               19 Bit    Registers := 1     
+	               17 Bit    Registers := 2     
+	               16 Bit    Registers := 18    
+	               13 Bit    Registers := 2     
+	               12 Bit    Registers := 18    
+	               11 Bit    Registers := 2     
+	               10 Bit    Registers := 1     
+	                8 Bit    Registers := 23    
+	                7 Bit    Registers := 2     
+	                6 Bit    Registers := 13    
+	                5 Bit    Registers := 9     
+	                4 Bit    Registers := 13    
+	                3 Bit    Registers := 22    
+	                2 Bit    Registers := 72    
+	                1 Bit    Registers := 77    
++---RAMs : 
+	               8K Bit	(1024 X 8 bit)          RAMs := 1     
+	              228 Bit	(12 X 19 bit)          RAMs := 1     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input  272 Bit        Muxes := 1     
+	   2 Input   72 Bit        Muxes := 1     
+	  15 Input   64 Bit        Muxes := 3     
+	   2 Input   64 Bit        Muxes := 6     
+	   3 Input   64 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 4     
+	   4 Input   48 Bit        Muxes := 1     
+	  15 Input   48 Bit        Muxes := 1     
+	   2 Input   47 Bit        Muxes := 1     
+	   2 Input   41 Bit        Muxes := 1     
+	  15 Input   32 Bit        Muxes := 1     
+	   5 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 15    
+	   4 Input   27 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 5     
+	   2 Input   16 Bit        Muxes := 8     
+	   4 Input   16 Bit        Muxes := 3     
+	  15 Input   16 Bit        Muxes := 5     
+	   8 Input   16 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 2     
+	  15 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 16    
+	  15 Input   11 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 5     
+	  15 Input    8 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 20    
+	   3 Input    8 Bit        Muxes := 1     
+	   5 Input    8 Bit        Muxes := 1     
+	  15 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 4     
+	   6 Input    6 Bit        Muxes := 1     
+	   2 Input    5 Bit        Muxes := 17    
+	   4 Input    5 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 52    
+	   3 Input    4 Bit        Muxes := 9     
+	   4 Input    4 Bit        Muxes := 5     
+	  15 Input    4 Bit        Muxes := 2     
+	   8 Input    4 Bit        Muxes := 8     
+	   6 Input    4 Bit        Muxes := 4     
+	   5 Input    4 Bit        Muxes := 12    
+	   9 Input    4 Bit        Muxes := 2     
+	   7 Input    4 Bit        Muxes := 2     
+	  18 Input    4 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 32    
+	  15 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 3     
+	   8 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 151   
+	   4 Input    2 Bit        Muxes := 20    
+	   8 Input    2 Bit        Muxes := 2     
+	   3 Input    2 Bit        Muxes := 8     
+	  18 Input    2 Bit        Muxes := 1     
+	   6 Input    2 Bit        Muxes := 3     
+	   5 Input    2 Bit        Muxes := 2     
+	  15 Input    1 Bit        Muxes := 29    
+	   2 Input    1 Bit        Muxes := 295   
+	   3 Input    1 Bit        Muxes := 21    
+	   4 Input    1 Bit        Muxes := 51    
+	   5 Input    1 Bit        Muxes := 19    
+	   8 Input    1 Bit        Muxes := 24    
+	   6 Input    1 Bit        Muxes := 14    
+	  18 Input    1 Bit        Muxes := 19    
+	   9 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP iv_bytes_r_reg, operation Mode is: (A2*B)'.
+DSP Report: register frame_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: register iv_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: operator iv_bytes_r0 is absorbed into DSP iv_bytes_r_reg.
+DSP Report: Generating DSP slope_prod_w, operation Mode is: A*(B:0xfa00).
+DSP Report: operator slope_prod_w is absorbed into DSP slope_prod_w.
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port port_rate_bps_i[0] in module KL_srp_admission is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:01:14 ; elapsed = 00:01:16 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 14197 ; free virtual = 67851
+---------------------------------------------------------------------------------
+ Sort Area is  iv_bytes_r_reg_0 : 0 0 : 2093 2093 : Used 1 time 0
+ Sort Area is  slope_prod_w_2 : 0 0 : 571 571 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name     | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srp/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++------------------+-----------------+----------------+----------------------+--------------+
+|Module Name       | RTL Object      | Inference      | Size (Depth x Width) | Primitives   | 
++------------------+-----------------+----------------+----------------------+--------------+
+|u_srp/u_vlan      | tbl_r_reg       | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srp/u_admission | slope_q_r_reg   | User Attribute | 2 x 32               | RAM32M x 6   | 
+|u_srp/u_talker    | wtsp_r_reg      | User Attribute | 2 x 68               | RAM32M x 12  | 
+|u_srp/u_encoder   | mvrp_ram_r_reg  | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srp/u_encoder   | msrp_ram_r_reg  | User Attribute | 16 x 285             | RAM32M x 48  | 
+|u_srp             | tf_ls_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
+|u_srp             | tf_tk_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
++------------------+-----------------+----------------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping  | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A2*B)'      | 17     | 16     | -      | -      | 33     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|KL_srp_admission | A*(B:0xfa00) | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:01:19 ; elapsed = 00:01:21 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 14534 ; free virtual = 68355
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:01:22 ; elapsed = 00:01:24 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 14659 ; free virtual = 68660
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name     | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srp/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++----------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++------------------+-----------------+----------------+----------------------+--------------+
+|Module Name       | RTL Object      | Inference      | Size (Depth x Width) | Primitives   | 
++------------------+-----------------+----------------+----------------------+--------------+
+|u_srp/u_vlan      | tbl_r_reg       | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srp/u_admission | slope_q_r_reg   | User Attribute | 2 x 32               | RAM32M x 6   | 
+|u_srp/u_talker    | wtsp_r_reg      | User Attribute | 2 x 68               | RAM32M x 12  | 
+|u_srp/u_encoder   | mvrp_ram_r_reg  | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srp/u_encoder   | msrp_ram_r_reg  | User Attribute | 16 x 285             | RAM32M x 48  | 
+|u_srp             | tf_ls_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
+|u_srp             | tf_tk_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
++------------------+-----------------+----------------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:01:24 ; elapsed = 00:01:27 . Memory (MB): peak = 3113.320 ; gain = 8.004 ; free physical = 14634 ; free virtual = 68643
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:01:28 ; elapsed = 00:01:30 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17133 ; free virtual = 70788
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:28 ; elapsed = 00:01:30 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17137 ; free virtual = 70792
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:28 ; elapsed = 00:01:31 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17334 ; free virtual = 70989
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:28 ; elapsed = 00:01:31 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17326 ; free virtual = 70975
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:29 ; elapsed = 00:01:31 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17324 ; free virtual = 70973
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:29 ; elapsed = 00:01:31 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17324 ; free virtual = 70973
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A'*B)'     | 17     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   301|
+|2     |DSP48E1  |     2|
+|4     |LUT1     |    70|
+|5     |LUT2     |  1049|
+|6     |LUT3     |   656|
+|7     |LUT4     |   789|
+|8     |LUT5     |   693|
+|9     |LUT6     |  1071|
+|10    |MUXF7    |    53|
+|11    |MUXF8    |     6|
+|12    |RAM32M   |    75|
+|13    |RAM32X1D |     5|
+|14    |RAMB18E1 |     1|
+|15    |FDRE     |  3997|
+|16    |FDSE     |     3|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:29 ; elapsed = 00:01:31 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17324 ; free virtual = 70973
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 3 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:01:27 ; elapsed = 00:01:29 . Memory (MB): peak = 3126.160 ; gain = 20.844 ; free physical = 17268 ; free virtual = 70924
+Synthesis Optimization Complete : Time (s): cpu = 00:01:29 ; elapsed = 00:01:31 . Memory (MB): peak = 3129.129 ; gain = 20.844 ; free physical = 17265 ; free virtual = 70920
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3129.129 ; gain = 0.000 ; free physical = 17378 ; free virtual = 71034
+INFO: [Netlist 29-17] Analyzing 443 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3145.973 ; gain = 0.000 ; free physical = 16198 ; free virtual = 69932
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 80 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 75 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 5 instances
+
+Synth Design complete | Checksum: 642382f5
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+50 Infos, 11 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:34 ; elapsed = 00:01:34 . Memory (MB): peak = 3146.008 ; gain = 40.691 ; free physical = 16800 ; free virtual = 70632
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2692.317; main = 2554.199; forked = 378.715
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4158.520; main = 3145.977; forked = 1032.355
+report_ram_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3146.008 ; gain = 0.000 ; free physical = 16772 ; free virtual = 70432
+Command: synth_design -top srp_area_wrap -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high -flatten_hierarchy rebuilt -generic N_P=9 -generic AW_P=7
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 16631 ; free virtual = 70294
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'srp_area_wrap' [<PACKET>/scripts/srp_area_wrap.sv:3]
+	Parameter N_P bound to: 32'b00000000000000000000000000001001 
+	Parameter AW_P bound to: 32'b00000000000000000000000000000111 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_top' [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:94]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001001 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_decoder' [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:65]
+	Parameter TP_DEPTH_P bound to: 32'b00000000000000000000010000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:189]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/srp_pkg.sv:87]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:226]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:330]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:430]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_decoder' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_decoder.sv:65]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_domain' [<PACKET>/scratch/base/hdl/srp/KL_srp_domain.sv:38]
+	Parameter DEF_PRIO_P bound to: 8'b00000011 
+	Parameter DEF_VID_P bound to: 16'b0000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_domain' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_domain.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_vlan' [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:46]
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter REFCNT_W_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:213]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_vlan' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_vlan.sv:46]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_admission' [<PACKET>/scratch/base/hdl/srp/KL_srp_admission.sv:62]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_admission' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_admission.sv:62]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_talker_fsm' [<PACKET>/scratch/base/hdl/srp/KL_srp_talker_fsm.sv:76]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000010000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01000000 
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_talker_fsm' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_talker_fsm.sv:76]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_listener_fsm' [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:74]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001001 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000011000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_listener_fsm' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:74]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_encoder' [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:70]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000001100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:453]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:556]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_encoder' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_encoder.sv:70]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:837]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:846]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:1092]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:1192]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_top' (0#1) [<PACKET>/scratch/base/hdl/srp/KL_srp_top.sv:94]
+INFO: [Synth 8-6155] done synthesizing module 'srp_area_wrap' (0#1) [<PACKET>/scripts/srp_area_wrap.sv:3]
+WARNING: [Synth 8-3936] Found unconnected internal register 'fchg_cand_w_reg' and it is trimmed from '9' to '8' bits. [<PACKET>/scratch/base/hdl/srp/KL_srp_listener_fsm.sv:471]
+WARNING: [Synth 8-7129] Port evt_attr_type_i[7] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[6] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[5] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[4] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:07 ; elapsed = 00:00:08 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 14535 ; free virtual = 68349
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 14978 ; free virtual = 68902
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:08 ; elapsed = 00:00:08 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 14985 ; free virtual = 68909
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.1 ; elapsed = 00:00:00.11 . Memory (MB): peak = 3154.012 ; gain = 0.000 ; free physical = 15091 ; free virtual = 69047
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3154.012 ; gain = 0.000 ; free physical = 15855 ; free virtual = 69638
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.1 . Memory (MB): peak = 3154.012 ; gain = 0.000 ; free physical = 15788 ; free virtual = 69571
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 16034 ; free virtual = 69996
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 16028 ; free virtual = 69991
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 16023 ; free virtual = 69986
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_talker_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_listener_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'svc_st_r_reg' in module 'KL_srp_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_talker_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_listener_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                               00 |                               00
+                  S_GATE |                               01 |                               01
+                   S_CTL |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'svc_st_r_reg' using encoding 'sequential' in module 'KL_srp_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 3154.012 ; gain = 8.004 ; free physical = 16429 ; free virtual = 70584
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   2 Input   48 Bit       Adders := 2     
+	   2 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 8     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 4     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 2     
+	   2 Input   11 Bit       Adders := 3     
+	   3 Input   11 Bit       Adders := 1     
+	   2 Input   10 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 4     
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 5     
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    4 Bit       Adders := 11    
+	   2 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 15    
++---Registers : 
+	              285 Bit    Registers := 1     
+	              272 Bit    Registers := 5     
+	               64 Bit    Registers := 32    
+	               48 Bit    Registers := 87    
+	               32 Bit    Registers := 60    
+	               19 Bit    Registers := 1     
+	               17 Bit    Registers := 2     
+	               16 Bit    Registers := 50    
+	               13 Bit    Registers := 2     
+	               12 Bit    Registers := 60    
+	               11 Bit    Registers := 2     
+	               10 Bit    Registers := 1     
+	                9 Bit    Registers := 24    
+	                8 Bit    Registers := 30    
+	                7 Bit    Registers := 5     
+	                6 Bit    Registers := 12    
+	                5 Bit    Registers := 7     
+	                4 Bit    Registers := 33    
+	                3 Bit    Registers := 31    
+	                2 Bit    Registers := 119   
+	                1 Bit    Registers := 74    
++---RAMs : 
+	               8K Bit	(1024 X 8 bit)          RAMs := 1     
+	              228 Bit	(12 X 19 bit)          RAMs := 1     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input  272 Bit        Muxes := 1     
+	   2 Input   72 Bit        Muxes := 1     
+	  15 Input   64 Bit        Muxes := 3     
+	   2 Input   64 Bit        Muxes := 3     
+	   3 Input   64 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 11    
+	   4 Input   48 Bit        Muxes := 1     
+	  15 Input   48 Bit        Muxes := 1     
+	   2 Input   41 Bit        Muxes := 1     
+	  15 Input   32 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 50    
+	   5 Input   32 Bit        Muxes := 2     
+	   4 Input   27 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 5     
+	   2 Input   16 Bit        Muxes := 6     
+	   4 Input   16 Bit        Muxes := 3     
+	  15 Input   16 Bit        Muxes := 5     
+	   8 Input   16 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 2     
+	  15 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 53    
+	  15 Input   11 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 5     
+	   2 Input    9 Bit        Muxes := 58    
+	   4 Input    9 Bit        Muxes := 3     
+	  15 Input    8 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 26    
+	   3 Input    8 Bit        Muxes := 1     
+	   5 Input    8 Bit        Muxes := 1     
+	   3 Input    7 Bit        Muxes := 2     
+	   6 Input    7 Bit        Muxes := 1     
+	   2 Input    7 Bit        Muxes := 1     
+	  15 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 17    
+	   4 Input    5 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 54    
+	   3 Input    4 Bit        Muxes := 23    
+	   4 Input    4 Bit        Muxes := 21    
+	  15 Input    4 Bit        Muxes := 2     
+	   8 Input    4 Bit        Muxes := 22    
+	   6 Input    4 Bit        Muxes := 9     
+	   5 Input    4 Bit        Muxes := 54    
+	   7 Input    4 Bit        Muxes := 18    
+	   9 Input    4 Bit        Muxes := 2     
+	  18 Input    4 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 54    
+	  15 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   8 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 3     
+	   2 Input    2 Bit        Muxes := 267   
+	   4 Input    2 Bit        Muxes := 52    
+	   8 Input    2 Bit        Muxes := 2     
+	   3 Input    2 Bit        Muxes := 11    
+	  18 Input    2 Bit        Muxes := 1     
+	   6 Input    2 Bit        Muxes := 3     
+	   5 Input    2 Bit        Muxes := 2     
+	  15 Input    1 Bit        Muxes := 29    
+	   2 Input    1 Bit        Muxes := 804   
+	   3 Input    1 Bit        Muxes := 51    
+	   4 Input    1 Bit        Muxes := 77    
+	   8 Input    1 Bit        Muxes := 38    
+	   6 Input    1 Bit        Muxes := 49    
+	   5 Input    1 Bit        Muxes := 89    
+	  18 Input    1 Bit        Muxes := 19    
+	   9 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP iv_bytes_r_reg, operation Mode is: (A2*B)'.
+DSP Report: register frame_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: register iv_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: operator iv_bytes_r0 is absorbed into DSP iv_bytes_r_reg.
+DSP Report: Generating DSP slope_prod_w, operation Mode is: A*(B:0xfa00).
+DSP Report: operator slope_prod_w is absorbed into DSP slope_prod_w.
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[2] driven by constant 0
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[1] driven by constant 1
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[0] driven by constant 1
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:06:48 ; elapsed = 00:06:55 . Memory (MB): peak = 3635.586 ; gain = 489.578 ; free physical = 14571 ; free virtual = 67568
+---------------------------------------------------------------------------------
+ Sort Area is KL_srp_top__GB1 iv_bytes_r_reg_0 : 0 0 : 2093 2093 : Used 1 time 0
+ Sort Area is KL_srp_top__GB1 slope_prod_w_2 : 0 0 : 571 571 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name        | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srpi_0/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++-------------------+----------------+----------------+----------------------+--------------+
+|Module Name        | RTL Object     | Inference      | Size (Depth x Width) | Primitives   | 
++-------------------+----------------+----------------+----------------------+--------------+
+|u_srpi_0/u_vlan    | tbl_r_reg      | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srpi_0/u_encoder | mvrp_ram_r_reg | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srpi_0/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285             | RAM32M x 48  | 
++-------------------+----------------+----------------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping  | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A2*B)'      | 17     | 16     | -      | -      | 33     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|KL_srp_admission | A*(B:0xfa00) | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:06:53 ; elapsed = 00:07:00 . Memory (MB): peak = 3635.586 ; gain = 489.578 ; free physical = 14073 ; free virtual = 67212
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:06:58 ; elapsed = 00:07:05 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 16348 ; free virtual = 69484
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name        | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srpi_0/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++-------------------+----------------+----------------+----------------------+--------------+
+|Module Name        | RTL Object     | Inference      | Size (Depth x Width) | Primitives   | 
++-------------------+----------------+----------------+----------------------+--------------+
+|u_srpi_0/u_vlan    | tbl_r_reg      | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srpi_0/u_encoder | mvrp_ram_r_reg | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srpi_0/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285             | RAM32M x 48  | 
++-------------------+----------------+----------------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:07:02 ; elapsed = 00:07:09 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 16589 ; free virtual = 69912
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:07:06 ; elapsed = 00:07:13 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 17840 ; free virtual = 70994
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:07:06 ; elapsed = 00:07:13 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 17989 ; free virtual = 71142
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:07:07 ; elapsed = 00:07:14 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 18538 ; free virtual = 71860
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:07:07 ; elapsed = 00:07:14 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 18522 ; free virtual = 71844
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:07:07 ; elapsed = 00:07:15 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 18106 ; free virtual = 71429
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:07:07 ; elapsed = 00:07:15 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 18085 ; free virtual = 71408
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A'*B)'     | 17     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   516|
+|2     |DSP48E1  |     2|
+|4     |LUT1     |    90|
+|5     |LUT2     |  1387|
+|6     |LUT3     |  1252|
+|7     |LUT4     |  1418|
+|8     |LUT5     |  1167|
+|9     |LUT6     |  4088|
+|10    |MUXF7    |   377|
+|11    |RAM32M   |    45|
+|12    |RAM32X1D |     3|
+|13    |RAMB18E1 |     1|
+|14    |FDRE     | 10970|
+|15    |FDSE     |     3|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:07:07 ; elapsed = 00:07:15 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 18070 ; free virtual = 71393
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 3 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:07:04 ; elapsed = 00:07:12 . Memory (MB): peak = 3644.102 ; gain = 498.094 ; free physical = 17959 ; free virtual = 71282
+Synthesis Optimization Complete : Time (s): cpu = 00:07:08 ; elapsed = 00:07:15 . Memory (MB): peak = 3644.109 ; gain = 498.094 ; free physical = 17959 ; free virtual = 71282
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 3644.109 ; gain = 0.000 ; free physical = 18598 ; free virtual = 71740
+INFO: [Netlist 29-17] Analyzing 944 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3644.109 ; gain = 0.000 ; free physical = 17146 ; free virtual = 69958
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 48 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 45 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 3 instances
+
+Synth Design complete | Checksum: dc62e467
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+50 Infos, 11 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:07:14 ; elapsed = 00:07:19 . Memory (MB): peak = 3644.137 ; gain = 498.129 ; free physical = 17221 ; free virtual = 70034
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 3209.674; main = 3052.838; forked = 378.719
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4676.461; main = 3644.105; forked = 1032.355
+report_ram_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3660.102 ; gain = 0.000 ; free physical = 14869 ; free virtual = 67673
+report_ram_utilization: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 3660.102 ; gain = 15.965 ; free physical = 14869 ; free virtual = 67673
+Command: synth_design -top srp_area_wrap -part xc7a100tfgg484-2 -mode out_of_context -directive AreaOptimized_high -flatten_hierarchy rebuilt -generic N_P=9 -generic AW_P=7
+INFO: [Vivado_Tcl 97-128] Directive used for synth_design is: areaoptimized_high
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7a100t'
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 7 processes.
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 17010 ; free virtual = 69817
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'srp_area_wrap' [<PACKET>/scripts/srp_area_wrap.sv:3]
+	Parameter N_P bound to: 32'b00000000000000000000000000001001 
+	Parameter AW_P bound to: 32'b00000000000000000000000000000111 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_top' [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:94]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001001 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_decoder' [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:65]
+	Parameter TP_DEPTH_P bound to: 32'b00000000000000000000010000000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:189]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/srp_pkg.sv:87]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:226]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:330]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:430]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_decoder' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_decoder.sv:65]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_domain' [<PACKET>/scratch/head/hdl/srp/KL_srp_domain.sv:38]
+	Parameter DEF_PRIO_P bound to: 8'b00000011 
+	Parameter DEF_VID_P bound to: 16'b0000000000000010 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_domain' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_domain.sv:38]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_vlan' [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:46]
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+	Parameter REFCNT_W_P bound to: 32'b00000000000000000000000000000101 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:213]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_vlan' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_vlan.sv:46]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_admission' [<PACKET>/scratch/head/hdl/srp/KL_srp_admission.sv:62]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_admission' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_admission.sv:62]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_talker_fsm' [<PACKET>/scratch/head/hdl/srp/KL_srp_talker_fsm.sv:80]
+	Parameter N_SOURCES_P bound to: 32'b00000000000000000000000000001001 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000010000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01000000 
+	Parameter N_VIDS_P bound to: 32'b00000000000000000000000000000100 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_talker_fsm' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_talker_fsm.sv:80]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_listener_fsm' [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:76]
+	Parameter N_SINKS_P bound to: 32'b00000000000000000000000000001001 
+	Parameter LEAVE_MS_P bound to: 32'b00000000000000000001001110001000 
+	Parameter SLOT_BASE_P bound to: 32'b00000000000000000000000000011000 
+	Parameter SLOT_AW_P bound to: 32'b00000000000000000000000000000111 
+	Parameter OWNER_BASE_P bound to: 8'b01100000 
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_listener_fsm' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:76]
+INFO: [Synth 8-6157] synthesizing module 'KL_srp_encoder' [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:70]
+	Parameter DEPTH_P bound to: 32'b00000000000000000000000000001100 
+	Parameter TX_STD_BYTES_P bound to: 32'b00000000000000000000001001000000 
+	Parameter TX_OVERSIZE_BYTES_P bound to: 32'b00000000000000000000011001000000 
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:453]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:556]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_encoder' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_encoder.sv:70]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:837]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:846]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:1103]
+INFO: [Synth 8-294] found qualifier unique on case statement: implementing as parallel_case [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:1203]
+INFO: [Synth 8-6155] done synthesizing module 'KL_srp_top' (0#1) [<PACKET>/scratch/head/hdl/srp/KL_srp_top.sv:94]
+INFO: [Synth 8-6155] done synthesizing module 'srp_area_wrap' (0#1) [<PACKET>/scripts/srp_area_wrap.sv:3]
+WARNING: [Synth 8-3936] Found unconnected internal register 'fchg_cand_w_reg' and it is trimmed from '9' to '8' bits. [<PACKET>/scratch/head/hdl/srp/KL_srp_listener_fsm.sv:473]
+WARNING: [Synth 8-7129] Port evt_attr_type_i[7] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[6] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[5] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[4] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port evt_attr_type_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_listener_fsm is either unconnected or has no load
+WARNING: [Synth 8-7129] Port leaveall_rx_i[3] in module KL_srp_talker_fsm is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:09 ; elapsed = 00:00:10 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 18112 ; free virtual = 70913
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 17868 ; free virtual = 70669
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 17868 ; free virtual = 70669
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 18236 ; free virtual = 71036
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 19552 ; free virtual = 72355
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.09 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 19549 ; free virtual = 72352
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 19205 ; free virtual = 71860
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7a100tfgg484-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 19165 ; free virtual = 71820
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 19080 ; free virtual = 71736
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_talker_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'walk_r_reg' in module 'KL_srp_listener_fsm'
+INFO: [Synth 8-802] inferred FSM for state register 'svc_st_r_reg' in module 'KL_srp_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_talker_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  W_IDLE |                               00 |                               00
+                  W_EVAL |                               11 |                               01
+                  W_PUSH |                               01 |                               10
+                  iSTATE |                               10 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'walk_r_reg' using encoding 'sequential' in module 'KL_srp_listener_fsm'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                               00 |                               00
+                  S_GATE |                               01 |                               01
+                   S_CTL |                               10 |                               10
+                  iSTATE |                               11 |                               11
+*
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'svc_st_r_reg' using encoding 'sequential' in module 'KL_srp_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:24 ; elapsed = 00:00:25 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 15451 ; free virtual = 68416
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   64 Bit       Adders := 1     
+	   2 Input   48 Bit       Adders := 2     
+	   2 Input   33 Bit       Adders := 1     
+	   2 Input   32 Bit       Adders := 8     
+	   3 Input   32 Bit       Adders := 2     
+	   2 Input   17 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 4     
+	   2 Input   14 Bit       Adders := 1     
+	   2 Input   13 Bit       Adders := 2     
+	   2 Input   11 Bit       Adders := 3     
+	   3 Input   11 Bit       Adders := 1     
+	   2 Input   10 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 4     
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    6 Bit       Adders := 5     
+	   4 Input    6 Bit       Adders := 2     
+	   2 Input    5 Bit       Adders := 8     
+	   2 Input    4 Bit       Adders := 11    
+	   2 Input    3 Bit       Adders := 1     
+	   2 Input    2 Bit       Adders := 15    
++---Registers : 
+	              285 Bit    Registers := 1     
+	              272 Bit    Registers := 5     
+	               64 Bit    Registers := 32    
+	               48 Bit    Registers := 23    
+	               32 Bit    Registers := 42    
+	               19 Bit    Registers := 1     
+	               17 Bit    Registers := 2     
+	               16 Bit    Registers := 32    
+	               13 Bit    Registers := 2     
+	               12 Bit    Registers := 60    
+	               11 Bit    Registers := 2     
+	               10 Bit    Registers := 1     
+	                9 Bit    Registers := 23    
+	                8 Bit    Registers := 30    
+	                7 Bit    Registers := 5     
+	                6 Bit    Registers := 12    
+	                5 Bit    Registers := 7     
+	                4 Bit    Registers := 30    
+	                3 Bit    Registers := 22    
+	                2 Bit    Registers := 119   
+	                1 Bit    Registers := 74    
++---RAMs : 
+	               8K Bit	(1024 X 8 bit)          RAMs := 1     
+	              228 Bit	(12 X 19 bit)          RAMs := 1     
+	               68 Bit	(4 X 17 bit)          RAMs := 1     
++---Muxes : 
+	   2 Input  272 Bit        Muxes := 1     
+	   2 Input   72 Bit        Muxes := 1     
+	  15 Input   64 Bit        Muxes := 3     
+	   2 Input   64 Bit        Muxes := 3     
+	   3 Input   64 Bit        Muxes := 1     
+	   2 Input   48 Bit        Muxes := 11    
+	   4 Input   48 Bit        Muxes := 1     
+	  15 Input   48 Bit        Muxes := 1     
+	   2 Input   41 Bit        Muxes := 1     
+	  15 Input   32 Bit        Muxes := 1     
+	   5 Input   32 Bit        Muxes := 2     
+	   2 Input   32 Bit        Muxes := 50    
+	   4 Input   27 Bit        Muxes := 1     
+	   2 Input   17 Bit        Muxes := 5     
+	   2 Input   16 Bit        Muxes := 6     
+	   4 Input   16 Bit        Muxes := 3     
+	  15 Input   16 Bit        Muxes := 5     
+	   8 Input   16 Bit        Muxes := 1     
+	   2 Input   13 Bit        Muxes := 2     
+	  15 Input   13 Bit        Muxes := 1     
+	   2 Input   12 Bit        Muxes := 53    
+	  15 Input   11 Bit        Muxes := 1     
+	   2 Input   11 Bit        Muxes := 1     
+	   2 Input   10 Bit        Muxes := 5     
+	   2 Input    9 Bit        Muxes := 59    
+	   4 Input    9 Bit        Muxes := 3     
+	  15 Input    8 Bit        Muxes := 2     
+	   2 Input    8 Bit        Muxes := 26    
+	   3 Input    8 Bit        Muxes := 1     
+	   5 Input    8 Bit        Muxes := 1     
+	   3 Input    7 Bit        Muxes := 2     
+	   2 Input    7 Bit        Muxes := 1     
+	   6 Input    7 Bit        Muxes := 1     
+	  15 Input    6 Bit        Muxes := 1     
+	   2 Input    6 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 17    
+	   4 Input    5 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 58    
+	   3 Input    4 Bit        Muxes := 23    
+	   4 Input    4 Bit        Muxes := 21    
+	  15 Input    4 Bit        Muxes := 2     
+	   8 Input    4 Bit        Muxes := 22    
+	   6 Input    4 Bit        Muxes := 27    
+	   5 Input    4 Bit        Muxes := 54    
+	   9 Input    4 Bit        Muxes := 2     
+	  18 Input    4 Bit        Muxes := 3     
+	   2 Input    3 Bit        Muxes := 54    
+	  15 Input    3 Bit        Muxes := 1     
+	   3 Input    3 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 3     
+	   8 Input    3 Bit        Muxes := 1     
+	   2 Input    2 Bit        Muxes := 267   
+	   4 Input    2 Bit        Muxes := 52    
+	   8 Input    2 Bit        Muxes := 2     
+	   3 Input    2 Bit        Muxes := 11    
+	   5 Input    2 Bit        Muxes := 2     
+	   6 Input    2 Bit        Muxes := 3     
+	  18 Input    2 Bit        Muxes := 1     
+	  15 Input    1 Bit        Muxes := 29    
+	   2 Input    1 Bit        Muxes := 733   
+	   3 Input    1 Bit        Muxes := 50    
+	   4 Input    1 Bit        Muxes := 77    
+	   5 Input    1 Bit        Muxes := 89    
+	   8 Input    1 Bit        Muxes := 38    
+	   6 Input    1 Bit        Muxes := 49    
+	  18 Input    1 Bit        Muxes := 19    
+	   9 Input    1 Bit        Muxes := 1     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 240 (col length:80)
+BRAMs: 270 (col length: RAMB18 80 RAMB36 40)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP iv_bytes_r_reg, operation Mode is: (A2*B)'.
+DSP Report: register frame_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: register iv_bytes_r_reg is absorbed into DSP iv_bytes_r_reg.
+DSP Report: operator iv_bytes_r0 is absorbed into DSP iv_bytes_r_reg.
+DSP Report: Generating DSP slope_prod_w, operation Mode is: A*(B:0xfa00).
+DSP Report: operator slope_prod_w is absorbed into DSP slope_prod_w.
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[2] driven by constant 0
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[1] driven by constant 1
+WARNING: [Synth 8-3917] design srp_area_wrap has port draw_kind_o[0] driven by constant 1
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:07:03 ; elapsed = 00:07:09 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 15691 ; free virtual = 69360
+---------------------------------------------------------------------------------
+ Sort Area is KL_srp_top__GB0 iv_bytes_r_reg_0 : 0 0 : 2093 2093 : Used 1 time 0
+ Sort Area is KL_srp_top__GB0 slope_prod_w_2 : 0 0 : 571 571 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Preliminary Mapping Report (see note below)
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name        | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srpi_0/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++---------------------+-----------------------+----------------+----------------------+--------------+
+|Module Name          | RTL Object            | Inference      | Size (Depth x Width) | Primitives   | 
++---------------------+-----------------------+----------------+----------------------+--------------+
+|u_srpi_0/u_vlan      | tbl_r_reg             | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srpi_0/u_admission | slope_q_r_reg         | User Attribute | 16 x 32              | RAM32M x 6   | 
+|u_srpi_0/u_talker    | wtsp_r_reg            | User Attribute | 16 x 68              | RAM32M x 12  | 
+|u_srpi_0/u_talker    | g_wid_ram.wid_r_reg   | User Attribute | 16 x 124             | RAM32M x 21  | 
+|srp_area_wrap        | tf_ls_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|srp_area_wrap        | tf_tk_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|u_srpi_1/u_encoder   | mvrp_ram_r_reg        | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srpi_1/u_encoder   | msrp_ram_r_reg        | User Attribute | 16 x 285             | RAM32M x 48  | 
+|u_srpi_1/u_listener  | g_wsid_ram.wsid_r_reg | User Attribute | 16 x 64              | RAM32M x 11  | 
++---------------------+-----------------------+----------------+----------------------+--------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping  | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A2*B)'      | 17     | 16     | -      | -      | 33     | 1    | 0    | -    | -    | -     | 1    | 0    | 
+|KL_srp_admission | A*(B:0xfa00) | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+--------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:07:08 ; elapsed = 00:07:14 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 14974 ; free virtual = 68704
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:07:48 ; elapsed = 00:07:54 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 15074 ; free virtual = 68264
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name        | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|u_srpi_0/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
++-------------------+------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++---------------------+-----------------------+----------------+----------------------+--------------+
+|Module Name          | RTL Object            | Inference      | Size (Depth x Width) | Primitives   | 
++---------------------+-----------------------+----------------+----------------------+--------------+
+|u_srpi_0/u_vlan      | tbl_r_reg             | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_srpi_0/u_admission | slope_q_r_reg         | User Attribute | 16 x 32              | RAM32M x 6   | 
+|u_srpi_0/u_talker    | wtsp_r_reg            | User Attribute | 16 x 68              | RAM32M x 12  | 
+|u_srpi_0/u_talker    | g_wid_ram.wid_r_reg   | User Attribute | 16 x 124             | RAM32M x 21  | 
+|srp_area_wrap        | tf_ls_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|srp_area_wrap        | tf_tk_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|u_srpi_1/u_encoder   | mvrp_ram_r_reg        | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_srpi_1/u_encoder   | msrp_ram_r_reg        | User Attribute | 16 x 285             | RAM32M x 48  | 
+|u_srpi_1/u_listener  | g_wsid_ram.wsid_r_reg | User Attribute | 16 x 64              | RAM32M x 11  | 
++---------------------+-----------------------+----------------+----------------------+--------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+INFO: [Synth 8-7052] The timing for the instance u_srp/u_decoder/tp_ram_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:07:52 ; elapsed = 00:07:59 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12129 ; free virtual = 65646
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:07:57 ; elapsed = 00:08:04 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12030 ; free virtual = 65746
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:07:57 ; elapsed = 00:08:04 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 11999 ; free virtual = 65720
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:07:58 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12583 ; free virtual = 66361
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:07:58 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12561 ; free virtual = 66338
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:07:58 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12409 ; free virtual = 66187
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:07:58 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12360 ; free virtual = 66138
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|KL_srp_admission | (A'*B)'     | 17     | 1      | -      | -      | 33     | 1    | 0    | -    | -    | -     | 0    | 1    | 
+|KL_srp_admission | A*B         | 17     | 16     | -      | -      | 33     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+---------+------+
+|      |Cell     |Count |
++------+---------+------+
+|1     |CARRY4   |   521|
+|2     |DSP48E1  |     2|
+|4     |LUT1     |    88|
+|5     |LUT2     |  1545|
+|6     |LUT3     |  1018|
+|7     |LUT4     |  1193|
+|8     |LUT5     |   874|
+|9     |LUT6     |  3104|
+|10    |MUXF7    |    76|
+|11    |RAM32M   |   107|
+|12    |RAM32X1D |     5|
+|13    |RAMB18E1 |     1|
+|14    |FDRE     |  7757|
+|15    |FDSE     |     3|
++------+---------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:07:58 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12358 ; free virtual = 66136
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 3 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:07:55 ; elapsed = 00:08:02 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12695 ; free virtual = 66473
+Synthesis Optimization Complete : Time (s): cpu = 00:07:59 ; elapsed = 00:08:05 . Memory (MB): peak = 3668.141 ; gain = 8.004 ; free physical = 12689 ; free virtual = 66467
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.08 ; elapsed = 00:00:00.08 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 12960 ; free virtual = 66741
+INFO: [Netlist 29-17] Analyzing 712 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+Finished Parsing XDC File [<PACKET>/scripts/srp_ooc.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 13910 ; free virtual = 67694
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 112 instances were transformed.
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 107 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 5 instances
+
+Synth Design complete | Checksum: f24d3695
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+50 Infos, 11 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:08:06 ; elapsed = 00:08:10 . Memory (MB): peak = 3668.141 ; gain = 8.039 ; free physical = 14432 ; free virtual = 68219
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 3225.986; main = 3051.182; forked = 378.757
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 4700.465; main = 3668.109; forked = 1032.355
+report_ram_utilization: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3668.141 ; gain = 0.000 ; free physical = 17278 ; free virtual = 70910
+# puts "SRP_OOC DONE"
+SRP_OOC DONE
+INFO: [Common 17-206] Exiting Vivado at Sun Oct  4 10:58:13 2026...

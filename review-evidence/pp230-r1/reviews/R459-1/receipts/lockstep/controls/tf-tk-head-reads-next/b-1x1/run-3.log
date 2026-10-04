@@ -1,0 +1,33 @@
+LOCKSTEP MISMATCH cyc=7742 gated tf_head
+LOCKSTEP MISMATCH cyc=7743 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7743 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=7743 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=7743 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=7744 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7744 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=7744 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=7744 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=7745 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7745 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=7745 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=7745 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=10244 gated tf_head
+LOCKSTEP MISMATCH cyc=10245 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=10245 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=10245 out arm_deadline_ms_o head=82435531 ref=1d3b7a72
+LOCKSTEP MISMATCH cyc=10246 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=10246 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=10246 out arm_deadline_ms_o head=82435531 ref=1d3b7a72
+LOCKSTEP MISMATCH cyc=10247 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=10247 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=10247 out arm_deadline_ms_o head=82435531 ref=1d3b7a72
+LOCKSTEP MISMATCH cyc=10248 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=10248 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=10248 out arm_deadline_ms_o head=82435531 ref=1d3b7a72
+LOCKSTEP MISMATCH cyc=10249 out arm_slot_o head=0a ref=08
+LOCKSTEP MISMATCH cyc=10249 out arm_owner_o head=d5 ref=40
+LOCKSTEP MISMATCH cyc=10249 out arm_deadline_ms_o head=82435531 ref=1d3b7a72
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=1 N=1 cycles=500000 compared=499999 mismatching=11956 reset_cycles=19 reset_assertions=2 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=495685 ls_wval=496681 adm_slope_rd=359639 tf_head=80
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=1 full_cycles=0 full_blocked_pushes=0 push_into_empty=48 push_with_pop=0 pops=48 | ls: max=1 full_cycles=0 full_blocked_pushes=0 push_into_empty=32 push_with_pop=0 pops=32
+RAND SUMMARY M=1 N=1 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2212 reqs=783 rsp_ok=699 frames=22 arms=757 expiries=202 spurious=21 draws=474 registrations=84 resets=1

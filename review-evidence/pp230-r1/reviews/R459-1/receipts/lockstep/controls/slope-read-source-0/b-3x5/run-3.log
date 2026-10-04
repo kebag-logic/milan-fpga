@@ -1,0 +1,60 @@
+LOCKSTEP MISMATCH cyc=4197 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4197 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4197 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4197 int adm_grant
+LOCKSTEP MISMATCH cyc=4197 int adm_gslope
+LOCKSTEP MISMATCH cyc=4198 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4198 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4198 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4198 int adm_grant
+LOCKSTEP MISMATCH cyc=4198 int adm_gslope
+LOCKSTEP MISMATCH cyc=4199 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4199 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4199 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4199 int adm_grant
+LOCKSTEP MISMATCH cyc=4199 int adm_gslope
+LOCKSTEP MISMATCH cyc=4200 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4200 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4200 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4200 int adm_grant
+LOCKSTEP MISMATCH cyc=4200 int adm_gslope
+LOCKSTEP MISMATCH cyc=4201 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4201 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4201 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4201 int adm_grant
+LOCKSTEP MISMATCH cyc=4201 int adm_gslope
+LOCKSTEP MISMATCH cyc=4202 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4202 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4202 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4202 int adm_grant
+LOCKSTEP MISMATCH cyc=4202 int adm_gslope
+LOCKSTEP MISMATCH cyc=4203 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4203 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4203 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4203 int adm_grant
+LOCKSTEP MISMATCH cyc=4203 int adm_gslope
+LOCKSTEP MISMATCH cyc=4204 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4204 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4204 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4204 int adm_grant
+LOCKSTEP MISMATCH cyc=4204 int adm_gslope
+LOCKSTEP MISMATCH cyc=4205 out tk_decl_state_o head=10 ref=20
+LOCKSTEP MISMATCH cyc=4205 out src_fail_code_o head=000000 ref=010000
+LOCKSTEP MISMATCH cyc=4205 out src_fail_bridge_o head=000000000000000000000000000000000000000000000000 ref=0000001b21aabbcc00000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4205 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4205 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4205 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4205 int adm_grant
+LOCKSTEP MISMATCH cyc=4205 int adm_gslope
+LOCKSTEP MISMATCH cyc=4206 out tk_decl_state_o head=10 ref=20
+LOCKSTEP MISMATCH cyc=4206 out src_fail_code_o head=000000 ref=010000
+LOCKSTEP MISMATCH cyc=4206 out src_fail_bridge_o head=000000000000000000000000000000000000000000000000 ref=0000001b21aabbcc00000000000000000000000000000000
+LOCKSTEP MISMATCH cyc=4206 out granted_slope_bps_o head=fa280a000000000000000000 ref=000000000000000000000000
+LOCKSTEP MISMATCH cyc=4206 out sr_admitted_o head=4 ref=0
+LOCKSTEP MISMATCH cyc=4206 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4206 int adm_grant
+LOCKSTEP MISMATCH cyc=4206 int adm_gslope
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=3 N=5 cycles=500000 compared=499999 mismatching=449924 reset_cycles=35 reset_assertions=3 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=492069 ls_wval=484232 adm_slope_rd=341150 tf_head=488
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=185 push_with_pop=20 pops=262 | ls: max=3 full_cycles=0 full_blocked_pushes=0 push_into_empty=176 push_with_pop=10 pops=226
+RAND SUMMARY M=3 N=5 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2221 reqs=822 rsp_ok=749 frames=59 arms=1179 expiries=195 spurious=28 draws=487 registrations=315 resets=2

@@ -1,0 +1,15 @@
+LOCKSTEP MISMATCH cyc=5760 gated ls_wval
+LOCKSTEP MISMATCH cyc=5761 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5761 gated ls_wval
+LOCKSTEP MISMATCH cyc=5762 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5763 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5764 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5765 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5766 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5767 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5768 int ls_ev_value
+LOCKSTEP MISMATCH cyc=5769 int ls_ev_value
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=3 N=5 cycles=500000 compared=499999 mismatching=268548 reset_cycles=87 reset_assertions=6 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=471853 ls_wval=443595 adm_slope_rd=328830 tf_head=524
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=186 push_with_pop=16 pops=248 | ls: max=3 full_cycles=0 full_blocked_pushes=0 push_into_empty=210 push_with_pop=19 pops=276
+RAND SUMMARY M=3 N=5 seed=2 cycles=500000 compressed=0 noisy=0 pdus=2227 reqs=818 rsp_ok=743 frames=43 arms=1235 expiries=187 spurious=30 draws=503 registrations=393 resets=5

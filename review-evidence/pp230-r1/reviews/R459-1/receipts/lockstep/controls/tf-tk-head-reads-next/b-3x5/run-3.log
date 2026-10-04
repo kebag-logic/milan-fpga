@@ -1,0 +1,25 @@
+LOCKSTEP MISMATCH cyc=7742 gated tf_head
+LOCKSTEP MISMATCH cyc=7743 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7743 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=7743 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=7744 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7744 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=7744 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=7745 out arm_cancel_o head=1 ref=0
+LOCKSTEP MISMATCH cyc=7745 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=7745 out arm_deadline_ms_o head=82435531 ref=1d3b7a19
+LOCKSTEP MISMATCH cyc=14843 gated tf_head
+LOCKSTEP MISMATCH cyc=14844 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=14844 out arm_deadline_ms_o head=82435531 ref=1d3b7b18
+LOCKSTEP MISMATCH cyc=14845 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=14845 out arm_deadline_ms_o head=82435531 ref=1d3b7b18
+LOCKSTEP MISMATCH cyc=14846 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=14846 out arm_deadline_ms_o head=82435531 ref=1d3b7b18
+LOCKSTEP MISMATCH cyc=14847 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=14847 out arm_deadline_ms_o head=82435531 ref=1d3b7b18
+LOCKSTEP MISMATCH cyc=14848 out arm_owner_o head=d5 ref=42
+LOCKSTEP MISMATCH cyc=14848 out arm_deadline_ms_o head=82435531 ref=1d3b7b18
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=3 N=5 cycles=500000 compared=499999 mismatching=54553 reset_cycles=35 reset_assertions=3 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=492069 ls_wval=484232 adm_slope_rd=329601 tf_head=477
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=176 push_with_pop=19 pops=255 | ls: max=3 full_cycles=0 full_blocked_pushes=0 push_into_empty=180 push_with_pop=9 pops=222
+RAND SUMMARY M=3 N=5 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2203 reqs=827 rsp_ok=757 frames=83 arms=1172 expiries=195 spurious=27 draws=491 registrations=344 resets=2

@@ -1,0 +1,64 @@
+LOCKSTEP MISMATCH cyc=11608 int adm_acc
+LOCKSTEP MISMATCH cyc=11608 int adm_wgrant
+LOCKSTEP MISMATCH cyc=11608 int adm_wgslope
+LOCKSTEP MISMATCH cyc=11609 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11609 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11609 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11609 int adm_grant
+LOCKSTEP MISMATCH cyc=11609 int adm_gslope
+LOCKSTEP MISMATCH cyc=11610 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11610 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11610 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11610 int adm_grant
+LOCKSTEP MISMATCH cyc=11610 int adm_gslope
+LOCKSTEP MISMATCH cyc=11611 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11611 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11611 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11611 int adm_acc
+LOCKSTEP MISMATCH cyc=11611 int adm_wgrant
+LOCKSTEP MISMATCH cyc=11611 int adm_wgslope
+LOCKSTEP MISMATCH cyc=11611 int adm_grant
+LOCKSTEP MISMATCH cyc=11611 int adm_gslope
+LOCKSTEP MISMATCH cyc=11612 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11612 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11612 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11612 int adm_grant
+LOCKSTEP MISMATCH cyc=11612 int adm_gslope
+LOCKSTEP MISMATCH cyc=11613 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11613 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11613 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11613 int adm_grant
+LOCKSTEP MISMATCH cyc=11613 int adm_gslope
+LOCKSTEP MISMATCH cyc=11614 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11614 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11614 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11614 int adm_acc
+LOCKSTEP MISMATCH cyc=11614 int adm_wgrant
+LOCKSTEP MISMATCH cyc=11614 int adm_wgslope
+LOCKSTEP MISMATCH cyc=11614 int adm_grant
+LOCKSTEP MISMATCH cyc=11614 int adm_gslope
+LOCKSTEP MISMATCH cyc=11615 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11615 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11615 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11615 int adm_grant
+LOCKSTEP MISMATCH cyc=11615 int adm_gslope
+LOCKSTEP MISMATCH cyc=11616 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11616 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11616 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11616 int adm_grant
+LOCKSTEP MISMATCH cyc=11616 int adm_gslope
+LOCKSTEP MISMATCH cyc=11617 out tk_decl_state_o head=2a ref=26
+LOCKSTEP MISMATCH cyc=11617 out src_fail_code_o head=010101 ref=010001
+LOCKSTEP MISMATCH cyc=11617 out src_fail_bridge_o head=0000001b21aabbcc0000001b21aabbcc0000001b21aabbcc ref=0000001b21aabbcc00000000000000000000001b21aabbcc
+LOCKSTEP MISMATCH cyc=11617 out granted_slope_bps_o head=000000000000000000000000 ref=000000000067840000000000
+LOCKSTEP MISMATCH cyc=11617 out sr_admitted_o head=0 ref=2
+LOCKSTEP MISMATCH cyc=11617 out sum_slope_bps_o head=00000000 ref=00678400
+LOCKSTEP MISMATCH cyc=11617 int adm_acc
+LOCKSTEP MISMATCH cyc=11617 int adm_wgrant
+LOCKSTEP MISMATCH cyc=11617 int adm_wgslope
+LOCKSTEP MISMATCH cyc=11617 int adm_grant
+LOCKSTEP MISMATCH cyc=11617 int adm_gslope
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=3 N=5 cycles=500000 compared=499999 mismatching=414216 reset_cycles=87 reset_assertions=6 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=471853 ls_wval=443595 adm_slope_rd=328830 tf_head=524
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=186 push_with_pop=16 pops=248 | ls: max=3 full_cycles=0 full_blocked_pushes=0 push_into_empty=210 push_with_pop=19 pops=276
+RAND SUMMARY M=3 N=5 seed=2 cycles=500000 compressed=0 noisy=0 pdus=2227 reqs=818 rsp_ok=743 frames=43 arms=1235 expiries=187 spurious=30 draws=503 registrations=393 resets=5

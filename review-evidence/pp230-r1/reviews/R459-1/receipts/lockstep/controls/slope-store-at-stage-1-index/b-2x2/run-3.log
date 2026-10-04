@@ -1,0 +1,45 @@
+LOCKSTEP MISMATCH cyc=4194 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4195 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4195 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4195 int adm_grant
+LOCKSTEP MISMATCH cyc=4196 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4196 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4196 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4196 int adm_grant
+LOCKSTEP MISMATCH cyc=4197 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4197 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4197 int adm_grant
+LOCKSTEP MISMATCH cyc=4198 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4198 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4198 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4198 int adm_grant
+LOCKSTEP MISMATCH cyc=4199 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4199 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4199 int adm_grant
+LOCKSTEP MISMATCH cyc=4200 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4200 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4200 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4200 int adm_grant
+LOCKSTEP MISMATCH cyc=4201 out tk_decl_state_o head=4 ref=8
+LOCKSTEP MISMATCH cyc=4201 out src_fail_code_o head=0000 ref=0100
+LOCKSTEP MISMATCH cyc=4201 out src_fail_bridge_o head=00000000000000000000000000000000 ref=0000001b21aabbcc0000000000000000
+LOCKSTEP MISMATCH cyc=4201 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4201 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4201 int adm_grant
+LOCKSTEP MISMATCH cyc=4202 out tk_decl_state_o head=4 ref=8
+LOCKSTEP MISMATCH cyc=4202 out src_fail_code_o head=0000 ref=0100
+LOCKSTEP MISMATCH cyc=4202 out src_fail_bridge_o head=00000000000000000000000000000000 ref=0000001b21aabbcc0000000000000000
+LOCKSTEP MISMATCH cyc=4202 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4202 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4202 gated adm_slope_rd
+LOCKSTEP MISMATCH cyc=4202 int adm_grant
+LOCKSTEP MISMATCH cyc=4203 out tk_decl_state_o head=4 ref=8
+LOCKSTEP MISMATCH cyc=4203 out src_fail_code_o head=0000 ref=0100
+LOCKSTEP MISMATCH cyc=4203 out src_fail_bridge_o head=00000000000000000000000000000000 ref=0000001b21aabbcc0000000000000000
+LOCKSTEP MISMATCH cyc=4203 out sr_admitted_o head=2 ref=0
+LOCKSTEP MISMATCH cyc=4203 out over_limit_o head=0 ref=1
+LOCKSTEP MISMATCH cyc=4203 int adm_grant
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=2 N=2 cycles=500000 compared=499999 mismatching=437528 reset_cycles=43 reset_assertions=4 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=484684 ls_wval=477030 adm_slope_rd=369584 tf_head=226
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=132 push_with_pop=0 pops=150 | ls: max=2 full_cycles=0 full_blocked_pushes=0 push_into_empty=70 push_with_pop=0 pops=76
+RAND SUMMARY M=2 N=2 seed=3 cycles=500000 compressed=0 noisy=0 pdus=2247 reqs=833 rsp_ok=771 frames=33 arms=935 expiries=193 spurious=28 draws=502 registrations=151 resets=3

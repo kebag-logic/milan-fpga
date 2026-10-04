@@ -1,0 +1,16 @@
+tf-ls-head-reads-tk-ram	catch	KL_srp_top.sv
+tf-tk-head-reads-next	catch	KL_srp_top.sv
+tf-ls-write-ignores-full	catch-at-full	KL_srp_top.sv
+tf-tk-write-at-rptr	catch	KL_srp_top.sv
+tf-tk-same-entry-bypass	equiv	KL_srp_top.sv
+wtsp-written-on-close	catch	KL_srp_talker_fsm.sv
+wtsp-prio-rank-swapped	catch	KL_srp_talker_fsm.sv
+wtsp-read-at-source-0	catch	KL_srp_talker_fsm.sv
+wid-ram-read-neighbour	catch	KL_srp_talker_fsm.sv
+wid-flops-vid-of-source-0	catch	KL_srp_talker_fsm.sv
+wid-threshold-ram-from-1	equiv	KL_srp_talker_fsm.sv
+wid-threshold-flops-always	equiv	KL_srp_talker_fsm.sv
+wsid-ram-written-on-teardown	catch	KL_srp_listener_fsm.sv
+wsid-flops-read-sink-0	catch	KL_srp_listener_fsm.sv
+slope-store-at-stage-1-index	catch	KL_srp_admission.sv
+slope-read-source-0	catch	KL_srp_admission.sv

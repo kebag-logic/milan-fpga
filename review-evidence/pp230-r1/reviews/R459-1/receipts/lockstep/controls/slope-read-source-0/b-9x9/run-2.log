@@ -1,0 +1,15 @@
+LOCKSTEP MISMATCH cyc=2155 int adm_acc
+LOCKSTEP MISMATCH cyc=2156 int adm_acc
+LOCKSTEP MISMATCH cyc=2157 int adm_acc
+LOCKSTEP MISMATCH cyc=2158 int adm_acc
+LOCKSTEP MISMATCH cyc=2159 int adm_acc
+LOCKSTEP MISMATCH cyc=2160 out sum_slope_bps_o head=00000000 ref=0103c400
+LOCKSTEP MISMATCH cyc=2161 out sum_slope_bps_o head=00000000 ref=0103c400
+LOCKSTEP MISMATCH cyc=2162 out sum_slope_bps_o head=00000000 ref=0103c400
+LOCKSTEP MISMATCH cyc=2163 out sum_slope_bps_o head=00000000 ref=0103c400
+LOCKSTEP MISMATCH cyc=2164 out sum_slope_bps_o head=00000000 ref=0103c400
+LOCKSTEP MISMATCH cyc=2164 int adm_acc
+LOCKSTEP SUMMARY TOP.KL_srp_top.u_lockstep M=9 N=9 cycles=500000 compared=499999 mismatching=486810 reset_cycles=92 reset_assertions=6 outputs=51 internals=40
+LOCKSTEP COVER TOP.KL_srp_top.u_lockstep tk_wval=405956 ls_wval=432453 adm_slope_rd=301297 tf_head=1177
+LOCKSTEP FIFO TOP.KL_srp_top.u_lockstep tk: max=5 full_cycles=0 full_blocked_pushes=0 push_into_empty=304 push_with_pop=183 pops=758 | ls: max=4 full_cycles=0 full_blocked_pushes=0 push_into_empty=286 push_with_pop=37 pops=419
+RAND SUMMARY M=9 N=9 seed=2 cycles=500000 compressed=0 noisy=0 pdus=2177 reqs=812 rsp_ok=741 frames=92 arms=1941 expiries=190 spurious=38 draws=551 registrations=445 resets=5

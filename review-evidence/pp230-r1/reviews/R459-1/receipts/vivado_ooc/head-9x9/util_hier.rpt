@@ -1,0 +1,38 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct  4 10:58:09 2026
+| Host         : <HOST> running 64-bit unknown
+| Command      : report_utilization -hierarchical -file <PACKET>/scratch/viv/head-9x9/util_hier.rpt
+| Design       : srp_area_wrap
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+|      Instance     |        Module       | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++-------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+| srp_area_wrap     |               (top) |       6962 |       6524 |     438 |    0 | 7760 |      0 |      1 |          2 |
+|   (srp_area_wrap) |               (top) |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|   u_srp           |          KL_srp_top |       6962 |       6524 |     438 |    0 | 7760 |      0 |      1 |          2 |
+|     (u_srp)       |          KL_srp_top |        339 |        275 |      64 |    0 |  720 |      0 |      0 |          0 |
+|     u_admission   |    KL_srp_admission |        761 |        737 |      24 |    0 |  689 |      0 |      0 |          2 |
+|     u_decoder     |      KL_srp_decoder |        861 |        861 |       0 |    0 |  633 |      0 |      1 |          0 |
+|     u_domain      |       KL_srp_domain |         58 |         58 |       0 |    0 |  108 |      0 |      0 |          0 |
+|     u_encoder     |      KL_srp_encoder |       1443 |       1269 |     174 |    0 | 1088 |      0 |      0 |          0 |
+|     u_listener    | KL_srp_listener_fsm |       1558 |       1514 |      44 |    0 | 2612 |      0 |      0 |          0 |
+|     u_talker      |   KL_srp_talker_fsm |       1697 |       1577 |     120 |    0 | 1783 |      0 |      0 |          0 |
+|     u_vlan        |         KL_srp_vlan |        245 |        233 |      12 |    0 |  127 |      0 |      0 |          0 |
++-------------------+---------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+
