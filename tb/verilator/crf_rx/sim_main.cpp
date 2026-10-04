@@ -197,6 +197,12 @@ struct Model {
             mr_seeded = false;           // the mr level died with the stream
         }
     }
+    // #653: a Controller Unbind of a LOCKED input is one unlock event,
+    // scored at the unbind as the AAF inputs score it (task #32). Nothing
+    // else moves: 5.3.8.10 resets nothing on the falling edge.
+    void unbind() {
+        if (locked) { locked = false; cnt_u++; }
+    }
     // Milan v1.2 5.3.8.10, the sentence closing Table 5.6: "The PAAD-AE
     // shall reset all of these counters to zero each time the Stream Input
     // changes its state from not bound to bound" (and NOT the other way).
@@ -248,6 +254,7 @@ class CrfRxHarness {
         pin_restart_echo();
         pin_wrap_backing_and_slice_abi();
         pin_stopped_sink();
+        pin_unbind_scores_one_unlock();
 
         printf("======================================================================\n");
         printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
@@ -1003,8 +1010,9 @@ class CrfRxHarness {
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
     }
 
-    //! The asymmetric clause, both edges: the unbind keeps all ten totals,
-    //! the bind that follows zeroes them and drops the lock with them.
+    //! The asymmetric clause, both edges: the unbind keeps all ten totals
+    //! (MEDIA_UNLOCKED adds the unbind's own unlock, #653), the bind that
+    //! follows zeroes them and drops the lock with them.
     void pin_unbind_keeps_and_bind_zeroes_every_counter() {
         struct { const char* n; long v; } all10[] = {
             {"MEDIA_LOCKED",        static_cast<long>(dut->cnt_locked_o)},
@@ -1028,10 +1036,16 @@ class CrfRxHarness {
            static_cast<long>(dut->cnt_locked_o),
            static_cast<long>(dut->cnt_unlocked_o) + 1);
 
+        ck("[5t-g2b] bound and locked before the unbind", dut->locked_o, 1);
+
         // ---- bound -> NOT bound: the clause says do NOT reset ------------
+        // ...and MEDIA_UNLOCKED takes this LOCKED input's one unlock event
+        // (#653): an increment, never a reset, so the pair reads equal
         long keep[10];
         for (int k = 0; k < 10; k++) keep[k] = all10[k].v;
+        keep[1] += 1;
         dut->en_i = 0;
+        m.unbind();
         for (int i = 0; i < 3 * (kIvalCyc + 2); i++) tick();
         long after_unbind[10] = {
             static_cast<long>(dut->cnt_locked_o),
@@ -1050,6 +1064,9 @@ class CrfRxHarness {
                      all10[k].n);
             ck(b, after_unbind[k], keep[k]);
         }
+        ck("[5t-g3b] the unbind leaves MEDIA_LOCKED == MEDIA_UNLOCKED",
+           static_cast<long>(dut->cnt_locked_o),
+           static_cast<long>(dut->cnt_unlocked_o));
 
         // ---- NOT bound -> bound: the clause says reset ALL of them -------
         dut->en_i = 1;
@@ -1453,6 +1470,134 @@ class CrfRxHarness {
            dut->cnt_locked_o, m.cnt_l);
         ck("[ST-d3] no phantom restart echo on START: the mr reference "
            "survived the stopped era", g_mrtog_cnt, 0);
+    }
+
+    //-----------------------------------------------------------------------
+    // [UNB] #653: a Controller Unbind of a LOCKED input is ONE MEDIA_UNLOCKED,
+    // scored on the unbind's own edge as the AAF inputs score it (task #32),
+    // so Table 5.6 reads MEDIA_LOCKED = MEDIA_UNLOCKED, "not synchronized",
+    // from the unbind on. The 100 ms timeout after it finds the lock down and
+    // counts nothing, even when the two land on one edge. An unbound UNLOCKED
+    // input counts nothing, STREAM_INTERRUPTED never moves, a stopped input
+    // still holding its lock scores the same one unlock, and 100 ms of
+    // silence while BOUND (genuine stream loss) still unlocks.
+    //-----------------------------------------------------------------------
+    void pin_unbind_scores_one_unlock() {
+        printf("\n[UNB] #653 the unbind of a locked input scores one unlock\n");
+
+        pin_unbind_of_a_locked_input();
+        pin_unbind_of_an_unlocked_input();
+        pin_unbind_on_the_timeout_edge();
+        pin_unbind_of_a_stopped_locked_input();
+    }
+
+    //! (a) one unlock on the unbind's own edge, (b) none at the timeout after.
+    void pin_unbind_of_a_locked_input() {
+        // close any open interval first, so no commit lands in the window
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+        align_interval();
+        ck("[UNB-a0] precondition: bound and locked", dut->locked_o, 1);
+        const uint32_t l0 = dut->cnt_locked_o;
+        const uint32_t u0 = dut->cnt_unlocked_o;
+        const uint32_t i0 = dut->cnt_intr_o;
+        g_dirty_cnt = 0;
+        dut->en_i = 0; m.unbind();
+        tick();
+        ck("[UNB-a1] the unbind's own edge drops locked_o", dut->locked_o, 0);
+        ck("[UNB-a2] ...and scores ONE MEDIA_UNLOCKED", dut->cnt_unlocked_o, u0 + 1);
+        ck("[UNB-a3] MEDIA_LOCKED is unmoved", dut->cnt_locked_o, l0);
+        ck("[UNB-a4] the pair reads MEDIA_LOCKED == MEDIA_UNLOCKED",
+           static_cast<long>(dut->cnt_locked_o == dut->cnt_unlocked_o), 1);
+        ck("[UNB-a5] the unlock pulses dirty once", g_dirty_cnt, 1);
+        ck("[UNB-a6] STREAM_INTERRUPTED does not count the unbind",
+           dut->cnt_intr_o, i0);
+
+        // the talker keeps streaming to the unbound input, gaps included,
+        // and then the 100 ms timeout expires: its event was already counted
+        g_dirty_cnt = 0;
+        for (int n = 0; n < 4; n++) {
+            ts += 2000200; ptp += 2000000; seq += 3;
+            drive_fields(ts, seq++); dut->ptp_now_i = ptp;
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        }
+        for (int i = 0; i < kSilenceCyc; i++) tick();
+        m.timeout();
+        ck("[UNB-b1] past the 100 ms timeout: still ONE unlock",
+           dut->cnt_unlocked_o, u0 + 1);
+        ck("[UNB-b2] ...and no second pulse", g_dirty_cnt, 0);
+        ck("[UNB-b3] ...and still no STREAM_INTERRUPTED", dut->cnt_intr_o, i0);
+    }
+
+    //! (c) an input unbound before it locked scores nothing.
+    void pin_unbind_of_an_unlocked_input() {
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        align_interval();
+        for (int n = 0; n < 3; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[UNB-c0] precondition: bound, settling, not locked", dut->locked_o, 0);
+        g_dirty_cnt = 0;
+        dut->en_i = 0; m.unbind();
+        for (int i = 0; i < 4; i++) tick();
+        ck("[UNB-c1] an unlocked input's unbind scores no unlock",
+           dut->cnt_unlocked_o, 0);
+        ck("[UNB-c2] ...and pulses nothing", g_dirty_cnt, 0);
+    }
+
+    //! (d) the unbind and the 100 ms timeout on ONE edge: one unlock. The
+    //! timeout's length is read off the engine's own counter, where it parks
+    //! after a bound silence, rather than restated here.
+    void pin_unbind_on_the_timeout_edge() {
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < kSilenceCyc; i++) tick();
+        m.timeout();
+        ck("[UNB-d0] 100 ms of silence while BOUND still unlocks",
+           static_cast<long>(dut->cnt_locked_o == 1 && dut->cnt_unlocked_o == 1
+                             && !dut->locked_o), 1);
+        const uint32_t tout_max = dut->rootp->KL_crf_rx__DOT__tout_r;
+        ts += 100000000; ptp += 100000000;
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < kSilenceCyc && dut->rootp->KL_crf_rx__DOT__tout_r != tout_max; i++)
+            tick();
+        ck("[UNB-d1] precondition: locked, and the timeout fires on the next edge",
+           static_cast<long>(dut->locked_o && dut->cnt_locked_o == 2
+                             && dut->cnt_unlocked_o == 1
+                             && dut->rootp->KL_crf_rx__DOT__tout_r == tout_max), 1);
+        g_dirty_cnt = 0;
+        dut->en_i = 0;
+        tick();
+        m.timeout(); m.unbind();
+        ck("[UNB-d2] unbind and timeout on one edge: ONE unlock",
+           dut->cnt_unlocked_o, 2);
+        ck("[UNB-d3] ...locked_o down", dut->locked_o, 0);
+        ck("[UNB-d4] ...and one dirty pulse", g_dirty_cnt, 1);
+    }
+
+    //! (e) a STOPPED input still holding its lock scores the same one unlock.
+    void pin_unbind_of_a_stopped_locked_input() {
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        dut->stop_i = 1; m.stop = true;
+        for (int i = 0; i < 4; i++) tick();
+        ck("[UNB-e0] precondition: stopped, lock still held", dut->locked_o, 1);
+        dut->en_i = 0; m.unbind();
+        tick();
+        ck("[UNB-e1] the stopped input's unbind scores ONE unlock",
+           static_cast<long>(dut->cnt_locked_o == 1 && dut->cnt_unlocked_o == 1
+                             && !dut->locked_o), 1);
+        dut->stop_i = 0; m.stop = false;
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
     }
 };
 
