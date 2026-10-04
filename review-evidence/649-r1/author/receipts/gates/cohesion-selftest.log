@@ -1,0 +1,24 @@
+$ python3 scripts/measure_cohesion.py --selftest
+# cwd $LANES/649-resmap; head da0dbc37437b58ac591467cd1b8daa9c8896cf6e
+[PASS] write: plain assignment
+[PASS] write: bit select
+[PASS] write: nested part select
+[PASS] write: after begin
+[PASS] write: after a closing paren
+[PASS] write: after else
+[PASS] write: after a case label
+[PASS] write: comparison is not a write
+[PASS] write: comparison inside a wider condition
+[PASS] shared write is one owner
+[PASS] independent state is two owners
+[PASS] read of another owner's state couples
+[PASS] transitive coupling closes the chain
+[PASS] a comment cannot couple two owners
+[PASS] nested begin/end does not end the block early
+[PASS] a bit-select write is still a write
+[PASS] block finder counts every always_ff
+[PASS] files with multiple modules are measured per module
+
+18 checks: 18 PASS, 0 FAIL
+
+# rc=0
