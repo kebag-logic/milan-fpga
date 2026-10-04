@@ -1,0 +1,56 @@
+### harness --law-boundary=abc
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+### harness --law-boundary=5,
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+### harness --law-boundary=-3
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+### harness --law-boundary=
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+### harness --law-boundary=1..x
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+### harness --law-boundary=2025,,2026
+  [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run
+== tdm8_render: checks: 1   failures: 1 ==
+RESULT: FAIL
+### rc=1
+unknown or conflicting argument(s): --jobs 4
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --jobs 0
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --jobs
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --leg-defects
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --jobs x
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --bogus
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+### runner ['--law-boundary', '--jobs', '4'] -> ('--law-boundary', 4)
+### runner ['--law-boundary'] -> ('--law-boundary', 1)
+### runner [] -> ('full', 1)
+### runner ['--leg-defects'] -> ('--leg-defects', 1)
+### runner ['--jobs', '4'] -> SystemExit 2
+### runner ['--law-boundary', '--jobs', '0'] -> SystemExit 2
+### runner ['--law-boundary', '--jobs'] -> SystemExit 2
+### runner ['--law-boundary', '--leg-defects'] -> SystemExit 2
+### runner ['--law-boundary', '--jobs', 'x'] -> SystemExit 2
+### runner ['--bogus'] -> SystemExit 2
+### judge sound pass: ([], {2030: 'graded PASS'})
+### judge defect graded PASS: ["+2030 graded PASS on a setpoint defect, 'the fill at every PDU end is the setpoint plus that PDU, 14 events' not failing"]
+### judge NOT GRADABLE with a failure: ['+2030 is NOT GRADABLE yet failed a check', 'a check outside the graded law failed: [FAIL] T30 INTERNAL LAW +2030: the aligner held its settled report through the phase']
+### judge missing verdict / crash: ['+2030 has no [BOUNDARY] verdict', 'no harness verdict - a crash is not evidence']

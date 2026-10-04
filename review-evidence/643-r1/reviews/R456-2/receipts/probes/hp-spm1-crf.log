@@ -1,0 +1,20 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+  [i]    --crf-only: 30000000 axis cycles at INTERNAL before the CRF phase (the aligner's boot pull-in, A2-a)
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 233, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 272..276 axis cycles (2.720..2.760 us) over 1799 frames, spread 4 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at -1.0678 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 19.5100 s
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8753, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 257..260 axis cycles (2.570..2.600 us) over 1799 frames, spread 3 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at -0.5339 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 39.0199 s
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured -1.0678 ppm at INTERNAL and -0.5339 ppm under CRF
+  [i]    T30 CRF LAW: over 292 steady PDU ends the first pop after the end is taken +1062..+1065 cycles from it and the pop nearest the boundary -1021..-1018 (walk 3); the least clearance is 1018 cycles, at PDU 1718 (offset -1018), against the 8-cycle ambiguity window: margin 1010
+  [i]    T30 CRF LAW: 292 PDUs, fill at the PDU end 13..13, first-event delay from it 15646..15650 cycles = 7.510..7.512 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [FAIL] T30 CRF LAW: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=292
+  [FAIL] T30 CRF LAW: every PDU's first event is inside the law band from its PDU end got=0 exp=292
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13433, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 254..255 axis cycles (2.540..2.550 us) over 238 frames, spread 1 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at -2.0253 ppm over 493755 axis cycles, which is one whole frame of phi - one counted skip - every 10.2867 s
+  [i]    T31: 13686 of the record's 14400 events were injected
+== tdm8_render: checks: 53   failures: 2 ==
+RESULT: FAIL

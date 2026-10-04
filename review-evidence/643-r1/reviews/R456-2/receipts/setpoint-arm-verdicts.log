@@ -1,0 +1,7 @@
+setpoint arms in MUTATIONS: ['the render setpoint one event low', 'the render setpoint one event high'] targets {'the render setpoint one event low': 36, 'the render setpoint one event high': 36}
+hp-spm1-law    as arm 'the render setpoint one event low': verdict = caught
+hp-spp1-law    as arm 'the render setpoint one event high': verdict = caught
+c4-spm1-law    as arm 'the render setpoint one event low': verdict = caught
+c4-spp1-law    as arm 'the render setpoint one event high': verdict = caught
+hp-clean-law   as arm 'the render setpoint one event low': verdict = pass
+hp-a2a-law     as arm 'the render setpoint one event low': verdict = failed, but not the named check ('T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU

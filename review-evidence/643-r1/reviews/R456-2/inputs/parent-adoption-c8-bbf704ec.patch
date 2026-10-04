@@ -1,0 +1,148 @@
+diff --git a/avdecc/aem_assemble.py b/avdecc/aem_assemble.py
+index efc909265..5e931fe40 100644
+--- a/avdecc/aem_assemble.py
++++ b/avdecc/aem_assemble.py
+@@ -603,7 +603,8 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
+                 CLKSRC_TABLE=clock_source_table(spec["clock_sources"]),
+                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
+                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
+-                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
++                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap,
++                LINT_WAIVERS=spec.get("lint_waivers", []))
+ 
+ 
+ #: Render-crossbar DEPTH: how many physical output channels
+diff --git a/avdecc/aem_specs.py b/avdecc/aem_specs.py
+index 732adaf00..4553f0e18 100644
+--- a/avdecc/aem_specs.py
++++ b/avdecc/aem_specs.py
+@@ -297,5 +297,6 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
+                                   key=lambda c: c["index"])
+                            if c["direction"] == "output"] or None,
+         _stream_flags_in=stream_flags_in,
++        lint_waivers=list(ovl.get("model_lint_waivers", [])),
+     )
+ 
+diff --git a/avdecc/gen_aemi_image.py b/avdecc/gen_aemi_image.py
+index 4c1c9f579..2b5a4c6f2 100644
+--- a/avdecc/gen_aemi_image.py
++++ b/avdecc/gen_aemi_image.py
+@@ -385,6 +385,8 @@ def model_to_document(M: dict[str, Any], ident: dict[str, bytes]) -> dict[str, A
+         "version": image.LAYOUT_VERSION,
+         "names": names,
+         "descriptors": _descriptor_rows(rom, M, first_name),
++        # the model's own lint waivers (its config), which build() reports
++        **({"lint_waivers": M["LINT_WAIVERS"]} if M.get("LINT_WAIVERS") else {}),
+     }
+ 
+ 
+diff --git a/configs/endstation_ax7101_8x8.yaml b/configs/endstation_ax7101_8x8.yaml
+index 5a8714a85..42e1a7dbc 100644
+--- a/configs/endstation_ax7101_8x8.yaml
++++ b/configs/endstation_ax7101_8x8.yaml
+@@ -267,6 +267,20 @@ audio_interface:
+                                      # returns to the loopback pool by
+                                      # itself - one fact, both consumers.
+ 
++# protocol-processor descriptor model lint (hdl/aecp/desc/model_lint.py).
++# Milan v1.2 5.3.3.8 requires an AUDIO_CLUSTER in every Stream Port Input;
++# the D8 role-pool inputs below carry none until #584 lands. The waiver names
++# that one check on those eight ports, travels into the packed document, is
++# listed in the layout report, and is refused once any of them passes.
++model_lint_waivers:
++  - rule: L1
++    check: port-cluster-minimum
++    configuration: 0
++    type: STREAM_PORT_INPUT
++    first: 0
++    last: 7
++    reason: "kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER"
++
+ streams:
+   listeners:
+     # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index af8adf903..85aac015e 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -1040,8 +1040,9 @@ Line numbers are those of the cited file at the time of writing.
+ | 43a | `srp.tspec.interval_frames` | Only `1`, matching the fixed wire TSpec. Other values refuse. | Milan v1.2 4.3.3.2 Table 4.4 | fixed-profile validator |
+ | 43b | `srp.tspec.max_frame_bytes` | Validated 16-bit legacy `LWSRP_TSPEC` scratch field. Under derived policy it changes neither wire TSpec nor the build budget. | [Register map](reference/REGISTER_MAP.md) | explicit legacy scratch |
+ | 44 | `srp.rtl_table` | Boolean builder-publication ownership: the selected config writes `hdl/common/csr/gen/lwsrp_csr_defaults.svh`. Gate 20a checks tracked header equality and consumption. | Builder artifact ownership | live builder switch |
++| 45 | `model_lint_waivers` | Passed through unread: the overlay's `model_lint_waivers`, then the kl-aem-image document's `lint_waivers`. The protocol processor's `gen_desc_image.build()` validates each one (one lint check on one descriptor scope, with a reason naming its tracking issue), lists it in the layout report (`aem_desc.map`) and refuses it once stale. Only `endstation_ax7101_8x8.yaml` declares one (#584). | protocol-processor docs/architecture/07 section 3.1 (model lint) | packer lint; `aem_desc.map` |
+ 
+-71 rows. Three rows carry *planned* marks, and a config validates and builds
++72 rows. Three rows carry *planned* marks, and a config validates and builds
+ under each rather than erroring: row 14's JACK/EXTERNAL_PORT descriptors
+ (the AEM half, D5), row 25's stream count above one AAF stream per
+ direction and row 27's provisioning half. The build plan's marks live in
+diff --git a/sw/builder/endstation_builder.py b/sw/builder/endstation_builder.py
+index 5fab418f7..6c63995d5 100644
+--- a/sw/builder/endstation_builder.py
++++ b/sw/builder/endstation_builder.py
+@@ -4430,6 +4430,9 @@ def load_config(path: str) -> dict[str, Any]:
+         clocking=clocking, interface=interface,
+         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
+         platform=platform, features=features, gptp=gptp, names=names,
++        # protocol-processor model lint waivers, passed through to the packed
++        # document unread; the packer validates and reports them
++        model_lint_waivers=list(cfg.get("model_lint_waivers") or []),
+     )
+     validate_render_lane(out)
+ 
+@@ -5231,6 +5234,10 @@ def _overlay_document(cfg, parts):
+         # config that states none keeps a byte-identical overlay; what is
+         # absent keeps the descriptor layer's literal (OBJECT_NAMES)
+         **({"names": objects} if objects else {}),
++        # emitted ONLY when declared, so a config that states none keeps a
++        # byte-identical overlay
++        **({"model_lint_waivers": cfg["model_lint_waivers"]}
++           if cfg.get("model_lint_waivers") else {}),
+         "sampling_rates_hz": clk["audio_unit_rates_hz"],
+         "current_sampling_rate_hz": clk["sampling_rate_hz"],
+         "entity_counts": {
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index 4cbf15558..5478f2da4 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -28193,7 +28193,9 @@ def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
+         rows = [d for d in changed["descriptors"] if d["type"] == dtype and d["index"] == 0]
+         assert len(rows) == 1, f"{label}: target descriptor not found"
+         rows[0]["bytes"] = body.hex()
+-        blob, report = original_build(changed, *args, **kwargs)
++        # A deliberate negative packs with the processor's semantic lint off,
++        # so the post-pack checker is the one that must name it.
++        blob, report = original_build(changed, *args, lint=reason is None, **kwargs)
+         assert image_descriptor(blob, dtype) == body, f"{label}: fault did not reach packed bytes"
+         emitted.append(blob)
+         return blob, report
+@@ -28252,7 +28254,8 @@ def test_shipping_image_contract_index_walk() -> None:
+                 struct.pack_into(">H", body, 2, index)
+                 rows.append(dict(configuration=config, type=dtype, index=index, bytes=body.hex()))
+     document = dict(format="kl-aem-image", version=1, descriptors=rows)
+-    blob, _ = packer.build(document, 576)
++    # ENTITY-less index-walk documents: the post-pack checker's, lint off.
++    blob, _ = packer.build(document, 576, lint=False)
+     eb.aem_image_checks.validate_shipping_image(blob)
+     for row in rows:
+         changed = copy.deepcopy(document)
+@@ -28265,7 +28268,7 @@ def test_shipping_image_contract_index_walk() -> None:
+             struct.pack_into(">HH", body, 76, 1, 0)
+             reason = "L6_ORDER"
+         victim["bytes"] = body.hex()
+-        damaged, _ = packer.build(changed, 576)
++        damaged, _ = packer.build(changed, 576, lint=False)
+         try:
+             eb.aem_image_checks.validate_shipping_image(damaged)
+         except eb.aem_image_checks.ImageCheckError as exc:
+@@ -28327,7 +28330,9 @@ def test_shipping_image_contract_presence() -> None:
+             for config in (0, 1) for dtype in (0x0001, 0x0002, 0x0024)]
+ 
+     def _image(entries):
+-        return packer.build(dict(format="kl-aem-image", version=1, descriptors=entries), 576)[0]
++        # ENTITY-less presence documents: the post-pack checker's, lint off.
++        document = dict(format="kl-aem-image", version=1, descriptors=entries)
++        return packer.build(document, 576, lint=False)[0]
+ 
+     eb.aem_image_checks.validate_shipping_image(_image(rows))
+     for config in (0, 1):
