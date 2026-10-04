@@ -1,0 +1,8 @@
+ancestry-additive-off        KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed
+ancestry-shared-off          KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed
+Traceback (most recent call last):
+  File "<packet>/scripts/r1-unchanged/mutate_map_selftest.py", line 37, in <module>
+    assert text.count(old) == 1, f"{name}: mutation site not unique ({text.count(old)})"
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: partition-off: mutation site not unique (0)
+rc=1
