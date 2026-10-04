@@ -99,7 +99,9 @@ configs/endstation_<shape>.yaml          (single source of truth)
         ├── platform_shape.json → protocol-processor DRAM reservation consumed
         │                        by milan_soc.py (base + fixed extent only)
         └── build_plan.md     → human review; shapes beyond current RTL
-                                VALIDATE and are marked "planned"
+                                VALIDATE and are marked "planned" (a model
+                                past the saved-state NAME block is refused
+                                instead, #652)
 
 plus, repo-level and single-sourced so nothing can drift:
     configs/generated/sweep_opts_<board>.sh    OPTS / L2, sourced by
@@ -749,16 +751,26 @@ what is planned there is fanning ONE pilot cluster onto MANY stream
 channels, which the cluster-keyed dynamic-map store forbids and **D7**
 fixes.
 
-**The size ceiling is real and now enforced.** A stress shape with a
-72-wide loopback pool plus 16 physical channels on every port emits 840
-AUDIO_CLUSTERs and an image past 64 KiB. The AEM store svh addresses itself
-with 16-bit words throughout, so `gen_aem_store.py` now *refuses* to emit
-such a ROM; the builder records it as `aem_rom_unsupported`, the plan marks
-the shape planned, and `--write-rtl` refuses it. That is **D6's** job (BRAM
-hot stub + DRAM bulk descriptor tree), exactly as D6 predicted.
+**The size ceilings are real and enforced.** A stress shape with a
+72-wide loopback pool plus 16 physical capture channels on every talker port
+emits 8 × (16 + 1 + 72) = 712 AUDIO_CLUSTERs. Its first limit is the
+saved-state NAME block: every AUDIO_CLUSTER is one writable name and every
+writable name is one record in `KL_nvm_backend`'s NAME block, so generation
+refuses the shape before writing anything, naming the model's writable-name
+count and the block's capacity (#652; section 4 has the rule). Its second
+limit is the AEM store: the image is past 64 KiB, the svh addresses the
+store with 16-bit words throughout, and `gen_aem_store.py` *refuses* to emit
+such a ROM. A shape that clears the NAME block and still overflows the store
+is recorded as `aem_rom_unsupported`, the plan marks it planned, and
+`--write-rtl` refuses it. Growing past the store is **D6's** job (BRAM hot
+stub + DRAM bulk descriptor tree), exactly as D6 predicted. Growing past the
+NAME block is a change to the saved-state record allocation
+([saved-state design, section 4.2](design/SAVED_STATE_FASTCONNECT.md)).
 
 Gates: `test_builder.py` 24a (pool composition, primary-role fall-through,
-distinct per-talker loopback sets, the 16-bit ceiling), 24b (8 refused
+distinct per-talker loopback sets, the name refusal, and the 16-bit ceiling
+on the stress shape's own overlay and, with the NAME capacity planted at its
+count, through the build), 24b (8 refused
 contradictory pool configs), and the `aecp` suite's `sim_pools`
 harness — 120 checks reading the pooled model back over real AECP frames.
 

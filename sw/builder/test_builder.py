@@ -25179,9 +25179,35 @@ def _render_lanes_pinned_to_the_rtl(dp: str) -> tuple[dict, int]:
     return lanes, phys_c
 
 
+#: Gate 24a (d)'s routed capture channels: enough for a physical pool, few
+#: enough that the model's writable names fit the saved-state NAME block. Its
+#: size until #652, 16, carries 187 names, and the builder refuses it.
+_PHYSICAL_POOL_CAPTURE = 8
+
+
 def _assert_physical_pool_reappears():
     """Gate 24a (d): declaring routed channels re-introduces the physical
     pool AND moves the static map onto it."""
+    capture = _PHYSICAL_POOL_CAPTURE
+    r = _build_physical_pool(capture)
+    names = nvm_shape.expected_names(r["overlay"]["descriptor_counts"])
+    # The controls: the size this gate had until #652 is refused by the NAME
+    # capacity, and with no routed channel there is no physical pool to find.
+    caught = [_expect_red("16 routed channels", lambda: _build_physical_pool(16),
+                          "writable names and the saved-state backend holds",
+                          gate="gate 24a (d)"),
+              _expect_red("no routed channel", lambda: _build_physical_pool(0),
+                          "not physical, pilot, loopback", gate="gate 24a (d)")]
+    print("  [gate 24a] declaring routed channels re-introduces the physical "
+          "pool AND moves the static map onto it (primary-role fallthrough): "
+          f"{capture} routed channels, {names} writable names; "
+          f"{len(caught)}/{len(caught)} planted controls turned it red: "
+          f"{'; '.join(caught)}")
+
+
+def _build_physical_pool(capture: int) -> dict[str, Any]:
+    """Gate 24a (d)'s variant at `capture` routed channels, built and
+    checked; returns the build."""
     # (d) physical pool APPEARS when the platform declares routed channels
     # render 0, not 8 or 16: this gate's subject is the OUTPUT (capture) pool
     # and the render count is incidental to it. #447 bounds the render count by
@@ -25190,14 +25216,16 @@ def _assert_physical_pool_reappears():
     # lane cannot back at all - so any nonzero render count here would declare
     # a shape the fabric refuses to elaborate. The dedicated refusals, in both
     # directions, are gate 24a (f).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
+    p = _pools_variant("ax7101_8x8", {"capture": capture, "render": 0},
                        {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, OUT / "_pools")
         P = r["overlay"]["stream_ports"]["output"][0]
-        assert [g["role"] for g in P["pool"]] == \
-            ["physical", "pilot", "loopback"], P
-        assert P["clusters"] == 16 + 1 + 2
+        roles = [g["role"] for g in P["pool"]]
+        assert roles == ["physical", "pilot", "loopback"], (
+            f"gate 24a (d): the talker pools are {roles}, not physical, "
+            "pilot, loopback")
+        assert P["clusters"] == capture + 1 + 2
         # With physical present the static map still does NOT go to loopback -
         # that was and remains the point of this assertion. The 0x0043
         # old preference order lost its subject when the retired pool was
@@ -25220,17 +25248,47 @@ def _assert_physical_pool_reappears():
         assert "Pilot Tone" in names
     finally:
         p.unlink()
-    print("  [gate 24a] declaring routed channels re-introduces the physical "
-          "pool AND moves the static map onto it (primary-role fallthrough)")
+    return r
 
 
-def _assert_overwide_pool_is_marked_not_emitted():
-    """Gate 24a (e): the over-wide D8 loopback pool VALIDATES, overflows
-    the 16-bit store, is marked rather than emitted, and --write-rtl
-    refuses it."""
+def _check_rom_ceiling(cfg: dict[str, Any], overlay: dict[str, Any]) -> None:
+    """The AEM ROM of `overlay` is refused at the 16-bit store's address
+    space, never emitted and never wrapped."""
+    try:
+        eb.emit_aem_rom_svh(cfg, overlay)
+    except ValueError as exc:
+        assert "exceeds the 16-bit store address space" in str(exc), exc
+    else:
+        raise AssertionError("gate 24a (e): the AEM ROM was emitted, so a "
+                             "model past 64 KiB would wrap the 16-bit store")
+
+
+def _check_rom_ceiling_marked(p: Path) -> None:
+    """Behind the NAME capacity, the builder marks a ROM past the 16-bit
+    store rather than emitting it, and --write-rtl refuses the shape."""
+    r = eb.build(p, OUT / "_pools")
+    assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
+    assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
+    assert "planned" in r["plan"]
+    try:
+        # write_fragment=False: the refusal fires AFTER the fragment
+        # write, so the probe would otherwise hand the tracked
+        # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
+        eb.build(p, OUT / "_pools", write_rtl=True, write_fragment=False)
+        assert False, "--write-rtl must refuse a shape with no ROM"
+    except eb.ConfigError as e:
+        assert "entity definition is incomplete" in str(e), e
+
+
+def _assert_overwide_pool_is_refused():
+    """Gate 24a (e): the over-wide D8 loopback pool is refused when it is
+    generated, by the saved-state NAME capacity with both figures named
+    (#652), and its own overlay's ROM is past the 16-bit store. With the
+    capacity planted at its name count, the ROM ceiling is the refusal
+    behind it: marked rather than emitted, and --write-rtl refuses it."""
     # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
-    #     D6 predicted could not be stored - it must VALIDATE and be marked,
-    #     not crash and not silently wrap the 16-bit ROM address space.
+    #     D6 predicted could not be stored - it must be refused, not crash
+    #     and not silently wrap the 16-bit ROM address space.
     #     With only live fabric roles, loopback widens 64 -> 72 so the
     #     per-output-port total stays 89
     #     and the deliberate overflow is preserved: the ROM stays past the
@@ -25242,30 +25300,33 @@ def _assert_overwide_pool_is_marked_not_emitted():
     # at all - so any nonzero render count here would declare a shape the
     # fabric refuses to elaborate. The dedicated refusals are gate 24a (f), and
     # the INPUT half is then empty, which the total below states.
+    gate = "gate 24a (e)"
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
                        {"pilot": True, "loopback": 72})
     try:
-        r = eb.build(p, OUT / "_pools")
-        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*(16+1+72), r["overlay"]["descriptor_counts"]
-        assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
-        assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
-        # builder contract: it VALIDATES and lands in the plan, never errors
-        assert "planned" in r["plan"]
-        try:
-            # write_fragment=False: the refusal fires AFTER the fragment
-            # write, so the probe would otherwise hand the tracked
-            # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
-            eb.build(p, OUT / "_pools", write_rtl=True,
-                     write_fragment=False)
-            assert False, "--write-rtl must refuse a shape with no ROM"
-        except eb.ConfigError as e:
-            assert "entity definition is incomplete" in str(e), e
+        cfg = eb.load_config(p)
+        overlay = eb.emit_aem_overlay(cfg)
+        counts = overlay["descriptor_counts"]
+        assert counts["AUDIO_CLUSTER"] == 8*(16+1+72), counts
+        names = nvm_shape.expected_names(counts)
+        _check_names_refused(p, names, gate=gate)
+        _check_rom_ceiling(cfg, overlay)
+        with _planted_backend(_NAME_CAPACITY_DECL, f"N_NAME_MAX_C = {names};"):
+            caught = [_expect_red(f"capacity {names}", lambda: _check_names_refused(
+                p, names, gate=gate), f"{names} writable names accepted", gate=gate)]
+            _check_rom_ceiling_marked(p)
     finally:
         p.unlink()
-    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
-          "exceeds the 16-bit AEM store address space, is marked rather "
-          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
+    shipped = eb.load_config(CONFIGS["ax7101_8x8"])
+    caught.append(_expect_red("the shipped 8x8 overlay", lambda: _check_rom_ceiling(
+        shipped, eb.emit_aem_overlay(shipped)), "the AEM ROM was emitted", gate=gate))
+    print(f"  [gate 24a] the over-wide (72) D8 loopback pool ({names} writable "
+          "names) is REFUSED at generation by the saved-state NAME capacity, "
+          "naming both figures, before any write; its own overlay's ROM "
+          "exceeds the 16-bit AEM store address space (D6 is the owner), and "
+          "behind a planted capacity it is marked rather than emitted and "
+          f"--write-rtl REFUSES it; {len(caught)}/{len(caught)} planted "
+          f"controls turned their check red: {'; '.join(caught)}")
 
 
 def test_d8_role_pools() -> None:
@@ -25337,7 +25398,7 @@ def test_d8_role_pools() -> None:
     _assert_physical_pool_reappears()
 
 
-    _assert_overwide_pool_is_marked_not_emitted()
+    _assert_overwide_pool_is_refused()
 
 
     _assert_render_lane_bounds_the_declared_width()
@@ -28817,7 +28878,8 @@ def _check_names_accepted(path: Path, names: int) -> None:
 
 
 def _check_names_refused(path: Path, names: int,
-                         build: Callable[[str, str], Any] = eb.build) -> None:
+                         build: Callable[[str, str], Any] = eb.build,
+                         gate: str = "gate 38") -> None:
     """The config is refused before anything is written, naming its count,
     the capacity and the declaration that capacity is read from. `build` is
     the builder's, or a control's stand-in for it."""
@@ -28829,14 +28891,14 @@ def _check_names_refused(path: Path, names: int,
         except eb.ConfigError as exc:
             message = str(exc)
         else:
-            raise AssertionError(f"gate 38: {names} writable names accepted "
+            raise AssertionError(f"{gate}: {names} writable names accepted "
                                  f"against {capacity} NAME records")
         assert not out.exists(), (
-            f"gate 38: the {names}-name refusal came after writing "
+            f"{gate}: the {names}-name refusal came after writing "
             f"{sorted(p.name for p in out.rglob('*'))}")
     for figure in (f"{names} writable names", f"{capacity} NAME records", where):
         assert figure in message, (
-            f"gate 38: the {names}-name refusal does not name {figure!r}: {message}")
+            f"{gate}: the {names}-name refusal does not name {figure!r}: {message}")
 
 
 def _check_guard_reads_capacity(rtl: str) -> None:
@@ -28866,14 +28928,15 @@ def _planted_backend(old: str, new: str) -> Iterator[Path]:
             eb.NVM_BACKEND_SV = real
 
 
-def _expect_red(label: str, check: Callable[[], None], reason: str) -> str:
+def _expect_red(label: str, check: Callable[[], None], reason: str,
+                gate: str = "gate 38") -> str:
     """A planted defect: `check` must fail, and for `reason`."""
     try:
         check()
     except (AssertionError, eb.ConfigError) as exc:
-        assert reason in str(exc), f"gate 38 control {label}: red for another cause: {exc}"
+        assert reason in str(exc), f"{gate} control {label}: red for another cause: {exc}"
     else:
-        raise AssertionError(f"gate 38 control {label}: the check stayed green")
+        raise AssertionError(f"{gate} control {label}: the check stayed green")
     return label
 
 
