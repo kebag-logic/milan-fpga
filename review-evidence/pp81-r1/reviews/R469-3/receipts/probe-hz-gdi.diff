@@ -1,0 +1,62 @@
+--- tb/pp_top/sim_main.cpp
++++ tb/pp_top/sim_main.cpp
+@@ -13742,6 +13742,51 @@
+                                "of STREAM_INPUT 1");
+   }
+ 
++
++  //! R469-3 reviewer probes, never part of the product bench
++  void rp_gdi_probes() {
++    std::vector<uint8_t> gdi(8, 0);
++    putbe(&gdi[0], 4, 2);
++    putbe(&gdi[6], 0x000F, 2);
++    const auto si2 = ti(DT_SI, 2);
++    std::vector<uint8_t> g2 = gdi;
++    g2.insert(g2.end(), si2.begin(), si2.end());
++    auto a = beside_or_after(8, 1, 0x004B, g2, false,
++                             "RP1 GDI with a GET_STREAM_INFO record of "
++                             "STREAM_INPUT 2 vs a held UNBIND_RX of sink 1");
++    CHECK(status(a) == AECP_SUCCESS && a.size() > 40,
++          "RP1b the waited batch answers SUCCESS (status %d, %zu bytes)",
++          status(a), a.size());
++    std::vector<uint8_t> g1 = gdi;
++    const auto si1 = ti(DT_SI, 1);
++    g1.insert(g1.end(), si1.begin(), si1.end());
++    a = beside_or_after(8, 1, 0x004B, g1, false,
++                        "RP2 GDI naming STREAM_INPUT 1 vs a held UNBIND_RX of "
++                        "sink 1");
++    CHECK(status(a) == AECP_SUCCESS && a.size() > 40,
++          "RP2b the waited batch answers SUCCESS (status %d, %zu bytes)",
++          status(a), a.size());
++    std::vector<uint8_t> go = gdi;
++    const auto so1 = ti(DT_SO, 1);
++    go.insert(go.end(), so1.begin(), so1.end());
++    a = acmp_beside_or_after(0x004B, go, 2, 1, false,
++                             "RP3 a DISCONNECT_TX of source 1 vs a held GDI "
++                             "naming STREAM_OUTPUT 1");
++    CHECK(status(a) == AECP_SUCCESS, "RP3b the held batch answers SUCCESS "
++          "(status %d)", status(a));
++    a = acmp_beside_or_after(0x004B, go, 2, 2, false,
++                             "RP4 a DISCONNECT_TX of source 2 vs a held GDI "
++                             "naming STREAM_OUTPUT 1 (over-serialization)");
++    a = acmp_beside_or_after(0x004B, go, 4, 1, true,
++                             "RP5 a GET_TX_STATE of source 1 vs a held GDI "
++                             "naming STREAM_OUTPUT 1 (two reads)");
++    a = beside_or_after(10, 2, 0x004B, g1, true,
++                        "RP6 GDI naming STREAM_INPUT 1 vs a held GET_RX_STATE "
++                        "of sink 2");
++    CHECK(status(a) == AECP_SUCCESS, "RP6b the batch answers SUCCESS "
++          "(status %d)", status(a));
++  }
++
+   void run() {
+     boot();
+     hz1_every_transaction_presents_its_class_and_key();
+@@ -13756,6 +13801,7 @@
+     hz12_a_stream_named_by_another_class_conflicts_with_its_read();
+     hz8_a_batch_naming_no_stream_waits_too();
+     hz13_a_batch_naming_a_sink_waits_for_its_listener_step();
++    rp_gdi_probes();
+   }
+ };
+ 

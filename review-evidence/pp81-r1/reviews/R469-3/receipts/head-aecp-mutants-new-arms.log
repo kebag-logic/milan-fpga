@@ -1,0 +1,34 @@
+control pp_top hazards: rc=0 PASS
+control pp_top timer-defaults: rc=0 PASS
+td-lock-default-59s: rc=2 failures=1 named=1 KILLED
+    FAIL: TD1: T-LOCK-UNLOCK at its default: the LOCK_ENTITY answers SUCCESS and its auto-unlock notification (LOCK_ENTITY, u = 1, locked_id 0) reaches the registered controller 60000 to 60020 ms after the command (got 59003 ms)
+td-tl-default-301s: rc=2 failures=1 named=1 KILLED
+    FAIL: TD2: T-NOTIF-TIMELIMITED at its default: the TIME_LIMITED REGISTER answers SUCCESS and its expiry DEREGISTER (u = 1) reaches the controller 300000 to 300020 ms after the command (got -1 ms; 6 monitor probes answered)
+hz-gdi-key-none: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted RO_SNAPSHOT key 0xfc00 (want MAP_CFG, key 0xfc00)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): admitted after the ACMP key frees
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: admitted after the ACMP key frees
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: admitted after the AECP key frees
+hz-gdi-key-none-held: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted RO_SNAPSHOT key 0xfc00 (want MAP_CFG, key 0xfc00)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): admitted after the ACMP key frees
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: admitted after the ACMP key frees
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: admitted after the AECP key frees
+hz-gdi-key-none-no-stream: rc=2 failures=7 named=1 KILLED
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted RO_SNAPSHOT key 0xfc00 (want MAP_CFG, key 0xfc00)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): admitted after the ACMP key frees
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: admitted after the ACMP key frees
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: admitted after the AECP key frees
+hz-gdi-as-barrier: rc=2 failures=2 named=1 KILLED
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted CFG_BARRIER key 0xfc00 (want MAP_CFG, key 0xfc00)
+    FAIL: HZ13b GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held GET_RX_STATE of sink 1 (two reads): admitted beside the held ACMP command
+8 checks: 8 PASS, 0 FAIL
