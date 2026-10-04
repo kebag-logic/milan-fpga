@@ -19,9 +19,9 @@
 #   vivado -mode batch -source route_map.tcl -nojournal -log route_map.log \
 #     -tclargs <routed.dcp>
 #
-# The depth is 64. map_cells.tsv lets the parser prove the depth was not
-# binding: no instance it names may sit below the deepest reported row's
-# depth, or the parser refuses the report as truncated.
+# The depth is 64. The parser refuses the report as truncated unless its
+# deepest row lies above the depth the report's own command line names; the
+# census plays no part in that check.
 
 if {[llength $argv] != 1} {
   error "route_map.tcl: expected exactly one argument, the routed checkpoint"
@@ -56,7 +56,8 @@ foreach column [list $refs $levels $sites $bels] {
 }
 # A parallel foreach, never lindex by position: the property lists are not
 # plain Tcl lists until converted, and indexing them one position at a time
-# measured about 35 lines a second, an hour of held lock for one census.
+# measured 64 lines a second (12,248 lines in 190 s before that run was
+# stopped), about 34 minutes of held lock for one census.
 set fh [open map_cells.tsv w]
 puts $fh "cell\tprimitive\tlevel\tsite\tbel"
 foreach name $names ref $refs level $levels site $sites bel $bels {

@@ -5,36 +5,55 @@
 
 Input is one directory written by syn/resmap/route_map.tcl from a routed
 checkpoint: the full-depth hierarchical utilization, the flat utilization and
-the primitive census with each cell's placed site. Output is every block of the
-rebuilt hierarchy with LUT (logic, LUTRAM, SRL), FF, RAMB36, RAMB18, DSP,
-CARRY4 and an attributed slice count, ranked, and a list of ties that must all
-hold before any figure is printed.
+the primitive census with each cell's placed site and BEL. Output is every
+block of the rebuilt hierarchy with LUT (logic, LUTRAM, SRL), FF, RAMB36,
+RAMB18, DSP, CARRY4 and an attributed slice count, ranked, and a list of ties
+that must all hold before any figure is printed.
 
 A BLOCK is a leaf of the reported hierarchy: an instance with no reported
 child, or the parenthesized own-logic row of an instance that has children.
-The leaves partition the image, so their sums are the image's totals.
+For FF, I/O-tile FF, RAMB36, RAMB18, DSP, CARRY4 and slices the leaves
+partition the image: their sums are the image's totals. The four LUT columns
+do not. The report counts a LUT site that holds cells of two blocks (the two
+halves of one LUT6_2 site) once in each block, so the leaves' LUT sum exceeds
+the image's by the number of such sites. Each parent's excess over its parts
+is its SHARING ADJUSTMENT (never positive); the leaves plus every adjustment
+equal the top row. That sum is an identity of the definition, not a tie: what
+ties each adjustment is tie 2, which counts the shared sites in the census.
 
-THE TIES. Each one compares two independent readings of the same quantity, so
-a wrong figure in either is caught rather than carried:
+THE TIES. Each compares two independent readings of the same quantities, and
+the self-test plants a wrong figure for each and requires it caught under that
+tie's own name:
 
   1. Ancestry. Every instance equals its own row plus its children for FF,
-     RAMB36, RAMB18 and DSP, exactly. For the four LUT columns the vendor
-     report can count a LUT shared across two children at both, so the
-     difference is kept as that instance's sharing adjustment and must not be
-     positive: a parent can never hold MORE than its parts.
-  2. Partition. The leaves plus every adjustment equal the top row.
-  3. Flat report. The top row equals the flat utilization report.
+     RAMB36, RAMB18 and DSP, exactly; for the four LUT columns its sharing
+     adjustment must not be positive (a parent can never hold MORE than its
+     parts).
+  2. Census. Against the census of placed primitive cells: each leaf's FF,
+     RAMB36, RAMB18 and DSP equal its count of those cells (a flip-flop in an
+     I/O tile counted apart, as the report's FF column is slice registers);
+     every row's four LUT columns, leaf or parent, equal the number of
+     distinct LUT sites (slice and LUT letter) its cells occupy, split by
+     primitive into logic, LUTRAM and SRL, so every leaf's LUT figure and
+     every sharing adjustment is read twice; and no census cell is owned by a
+     row that is not a leaf.
+  3. Flat report. The top row and the slice count equal the flat utilization
+     report.
   4. Record. The top row, the slice count and the census's CARRY4 equal the
      recorded route (syn/ooc/pp_resource_baseline.json, the route-1x1
      endpoint unless another is named), and every processor scope that record
      lists equals the map's row for it.
-  5. Census. Each leaf's FF, RAMB36, RAMB18 and DSP counted from the census
-     equal its report row, and the census totals equal the top row.
-  6. Slices. Every occupied slice is divided among the leaves whose cells sit
-     in it, in proportion to the BELs each occupies. The shares sum to the
-     occupied-slice count, which must equal the record's slices.
-  7. Depth. The deepest reported row lies above the requested depth, so the
-     report was not truncated.
+  5. Depth. The deepest reported row lies above the requested depth, so the
+     report was not truncated. The census plays no part in this one.
+
+SLICES are attributed, not read: every occupied slice is divided among the
+leaves whose cells sit in it, in proportion to the BELs each occupies. Their
+sum is the occupied-slice count, which ties 3 and 4 compare.
+
+Two further checks are implied by ties 1 and 2 and kept only as guards on this
+script's own bookkeeping, so no arm can isolate them and they are not called
+ties: the census totals equal the top row, and the top's own cells split by
+name sum to its row.
 
 Usage:
 
@@ -44,8 +63,8 @@ Usage:
 
 `map` exits 0 when every tie holds, 1 when one fails (each failure printed),
 and 2 when an input cannot be read. `--selftest` builds a small consistent
-image, proves it ties, then plants one wrong figure per tie and requires each
-to be caught.
+image, proves it ties, then plants one wrong figure per arm and requires each
+caught by the tie the arm names.
 """
 
 import argparse
@@ -71,6 +90,11 @@ CENSUS_KINDS = {"FF": ("FDRE", "FDSE", "FDCE", "FDPE"), "RAMB36": ("RAMB36E1",),
 SLICE_SITE = re.compile(r"SLICE_X[0-9]+Y[0-9]+")
 #: Primitive levels that occupy a BEL; a MACRO is a wrapper around INTERNAL cells.
 BEL_LEVELS = ("LEAF", "INTERNAL")
+#: A LUT BEL: the slice's LUT letter, either half (6LUT or 5LUT) of the one LUT site.
+LUT_BEL = re.compile(r"SLICE[LM]\.([A-D])[56]LUT")
+#: The report's LUT sub-column each primitive on a LUT BEL is counted in.
+LUT_KINDS = ((re.compile(r"LUT[1-6]"), "logic_LUT"), (re.compile(r"RAM[DS](32|64E)"), "LUTRAM"),
+             (re.compile(r"SRL(16E|C32E)"), "SRL"))
 #: Flat-report rows and the map column each one must equal.
 FLAT_ROWS = {"Slice LUTs": "LUT", "Slice Registers": "FF", "Slice": "SLICE",
              "RAMB36/FIFO*": "RAMB36", "RAMB18": "RAMB18", "DSPs": "DSP"}
@@ -98,17 +122,17 @@ class TieError(Exception):
     """One or more ties failed; the message lists every failure."""
 
 
-def read_census(path: Path) -> list[tuple[str, str, str, str]]:
-    """Return (cell, primitive, level, site) for every census row, refusing a short row."""
+def read_census(path: Path) -> list[tuple[str, str, str, str, str]]:
+    """Return (cell, primitive, level, site, bel) for every census row, refusing a short row."""
     rows = []
     lines = path.read_text().splitlines()
-    if not lines or lines[0].split("\t")[:4] != ["cell", "primitive", "level", "site"]:
+    if not lines or lines[0].split("\t") != ["cell", "primitive", "level", "site", "bel"]:
         raise ValueError(f"{path.name}: not a route_map census (bad header)")
     for number, line in enumerate(lines[1:], 2):
         fields = line.split("\t")
         if len(fields) != 5 or not all(fields):
             raise ValueError(f"{path.name}:{number}: expected five non-empty fields")
-        rows.append((fields[0], fields[1], fields[2], fields[3]))
+        rows.append((fields[0], fields[1], fields[2], fields[3], fields[4]))
     return rows
 
 
@@ -160,13 +184,13 @@ def owner_of(cell: str, root: str, instances: set[str], children: dict[str, list
     raise ValueError(f"census cell {cell!a} has no reported ancestor")
 
 
-def census_by_leaf(census: list[tuple[str, str, str, str]], root: str,
+def census_by_leaf(census: list[tuple[str, str, str, str, str]], root: str,
                    rows: dict[str, dict[str, int]], children: dict[str, list[str]]) -> dict[str, dict]:
     """Per leaf: census counts of each CENSUS_KINDS column, and slice shares."""
     instances = {key for key in rows if not key.endswith("/@own")}
     counts: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     occupancy: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    for cell, primitive, level, site in census:
+    for cell, primitive, level, site, _bel in census:
         leaf = owner_of(cell, root, instances, children)
         for column, kinds in CENSUS_KINDS.items():
             if primitive in kinds:
@@ -181,12 +205,42 @@ def census_by_leaf(census: list[tuple[str, str, str, str]], root: str,
     return {leaf: dict(values) for leaf, values in counts.items()}
 
 
+def lut_sites(census: list[tuple[str, str, str, str, str]], root: str,
+              rows: dict[str, dict[str, int]], children: dict[str, list[str]]) -> dict[str, dict[str, set]]:
+    """Per row, leaf or parent: the distinct LUT sites (slice, LUT letter) its cells occupy, for LUT and for
+    the sub-column the primitive belongs to. A primitive on a LUT BEL that no LUT_KINDS entry names is refused."""
+    instances = {key for key in rows if not key.endswith("/@own")}
+    sites: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
+    for cell, primitive, level, site, bel in census:
+        match = LUT_BEL.fullmatch(bel)
+        if level not in BEL_LEVELS or not match:
+            continue
+        column = next((name for pattern, name in LUT_KINDS if pattern.fullmatch(primitive)), None)
+        if column is None:
+            raise ValueError(f"census cell {cell!a}: primitive {primitive} on LUT BEL {bel} has no LUT column")
+        node = owner_of(cell, root, instances, children)
+        while True:
+            for name in ("LUT", column):
+                sites[node][name].add((site, match.group(1)))
+            if node == root:
+                break
+            node = node.removesuffix("/@own") if node.endswith("/@own") else node.rsplit("/", 1)[0]
+    return sites
+
+
+def census_sharing(sites: dict[str, dict[str, set]], children: dict[str, list[str]]) -> dict[str, dict[str, int]]:
+    """Per parent: the LUT sites the census finds counted in two of its children, per LUT column."""
+    return {parent: {column: sum(len(sites.get(kid, {}).get(column, ())) for kid in kids)
+                     - len(sites.get(parent, {}).get(column, ())) for column in SHARED}
+            for parent, kids in children.items()}
+
+
 def own_by_name(census: list[tuple[str, str, str, str]], root: str, rows: dict, children: dict) -> dict:
     """The top's own cells split by NAME_CLASSES: FF, LUT cells, LUT-RAM cells, RAMB36, RAMB18, DSP."""
     instances = {key for key in rows if not key.endswith("/@own")}
     own = f"{root}/@own"
     classes: dict[str, dict[str, int]] = {}
-    for cell, primitive, level, site in census:
+    for cell, primitive, level, site, _bel in census:
         if owner_of(cell, root, instances, children) != own or level == "MACRO":
             continue
         label = next((name for name, pattern in NAME_CLASSES if re.match(pattern, cell)), "Other named cells")
@@ -219,17 +273,6 @@ def ancestry_ties(rows: dict[str, dict[str, int]], children: dict[str, list[str]
     return failures, adjustments
 
 
-def partition_ties(rows: dict, root: str, leaves: list[str], adjustments: dict) -> list[str]:
-    """Tie 2: leaves plus adjustments equal the top row, column by column."""
-    failures = []
-    for column in COLUMNS:
-        total = sum(rows[leaf][column] for leaf in leaves)
-        total += sum(adjust.get(column, 0) for adjust in adjustments.values())
-        if total != rows[root][column]:
-            failures.append(f"partition: {column} leaves and adjustments sum to {total}, top is {rows[root][column]}")
-    return failures
-
-
 def record_ties(top: dict[str, float], flat: dict[str, int], figures: dict, scopes: dict,
                 scope_rows: dict[str, dict]) -> list[str]:
     """Ties 3 and 4: the map's totals against the flat report and the recorded route."""
@@ -253,8 +296,9 @@ def record_ties(top: dict[str, float], flat: dict[str, int], figures: dict, scop
     return failures
 
 
-def census_ties(rows: dict, leaves: list[str], by_leaf: dict, root: str) -> list[str]:
-    """Tie 5: the census agrees with every leaf row and with the top row."""
+def census_ties(rows: dict, leaves: list[str], by_leaf: dict, sites: dict, root: str) -> list[str]:
+    """Tie 2: the census agrees with every leaf's FF, RAMB and DSP, with every row's four LUT columns, and owns
+    no cell outside the leaves; then the census totals, a bookkeeping guard the tie implies."""
     failures = []
     for leaf in leaves:
         for column in ADDITIVE:
@@ -262,13 +306,18 @@ def census_ties(rows: dict, leaves: list[str], by_leaf: dict, root: str) -> list
             if counted != rows[leaf][column]:
                 failures.append(f"census: {leaf} {column} counts {counted:g} cells, "
                                 f"the report says {rows[leaf][column]}")
+    for key in rows:
+        for column in SHARED:
+            counted = len(sites.get(key, {}).get(column, ()))
+            if counted != rows[key][column]:
+                failures.append(f"census: {key} {column} counts {counted} LUT sites, the report says {rows[key][column]}")
     stray = sorted(set(by_leaf) - set(leaves))
     if stray:
         failures.append(f"census: cells owned by non-leaf rows {stray[:3]}")
     for column in ADDITIVE:
         total = sum(values.get(column, 0) for values in by_leaf.values())
         if total != rows[root][column]:
-            failures.append(f"census: {column} totals {total:g}, the top row is {rows[root][column]}")
+            failures.append(f"census totals: {column} totals {total:g}, the top row is {rows[root][column]}")
     return failures
 
 
@@ -281,8 +330,9 @@ def rollup(rows: dict, children: dict, leaves: list[str], by_leaf: dict) -> dict
         extra = by_leaf.get(leaf, {})
         node = leaf
         while True:
-            for column in ("CARRY4", "IOB_FF", "SLICE"):
-                table[node][column] += extra.get(column, 0)
+            for column in ("CARRY4", "IOB_FF"):
+                table[node][column] += int(extra.get(column, 0))
+            table[node]["SLICE"] += extra.get("SLICE", 0.0)
             if "/" not in node:
                 break
             node = node.rsplit("/", 1)[0]
@@ -295,10 +345,11 @@ def build(directory: Path, figures: dict, scopes: dict) -> dict:
     rows = hierarchy(report)
     root, children = tree_of(rows)
     leaves = leaves_of(rows, children)
-    by_leaf = census_by_leaf(read_census(directory / "map_cells.tsv"), root, rows, children)
+    census = read_census(directory / "map_cells.tsv")
+    by_leaf = census_by_leaf(census, root, rows, children)
+    sites = lut_sites(census, root, rows, children)
     failures, adjustments = ancestry_ties(rows, children)
-    failures += partition_ties(rows, root, leaves, adjustments)
-    failures += census_ties(rows, leaves, by_leaf, root)
+    failures += census_ties(rows, leaves, by_leaf, sites, root)
     table = rollup(rows, children, leaves, by_leaf)
     wrapper = next((key for key in table if key.endswith(WRAPPER_SUFFIX)), None)
     scope_rows = {}
@@ -309,7 +360,6 @@ def build(directory: Path, figures: dict, scopes: dict) -> dict:
     depth = max(key.count("/") for key in rows)
     if depth >= requested_depth(report):
         failures.append(f"depth: rows reach depth {depth}, the request was {requested_depth(report)}: truncated")
-    census = read_census(directory / "map_cells.tsv")
     by_name = own_by_name(census, root, rows, children)
     for column in ("FF", "RAMB36", "RAMB18", "DSP"):
         if sum(entry[column] for entry in by_name.values()) != rows[f"{root}/@own"][column]:
@@ -317,7 +367,7 @@ def build(directory: Path, figures: dict, scopes: dict) -> dict:
     if failures:
         raise TieError("\n".join(failures))
     return {"root": root, "leaves": leaves, "table": table, "adjustments": adjustments, "depth": depth,
-            "top_own_by_name": by_name}
+            "census_sharing": census_sharing(sites, children), "top_own_by_name": by_name}
 
 
 def ranked(result: dict) -> list[dict]:
@@ -350,6 +400,7 @@ def write_outputs(result: dict, out: Path) -> None:
     (out / "map.json").write_text(json.dumps(result, indent=1, sort_keys=True) + "\n")
     (out / "blocks_ranked.md").write_text(markdown_ranking(rows))
     (out / "partition.md").write_text(markdown_partition(result))
+    (out / "lut_sharing.md").write_text(markdown_sharing(result))
 
 
 def number(value: float) -> str:
@@ -387,6 +438,29 @@ def partition_tables(result: dict) -> list[str]:
         names += (f"| {label} | {entry['FF']:,} | {entry['IOB_FF']:,} | {entry['LUT_cells']:,} | "
                   f"{entry['LUTRAM_cells']:,} | {entry['RAMB36']} | {entry['RAMB18']} | {entry['DSP']} |\n")
     return [*out, names]
+
+
+def markdown_sharing(result: dict) -> str:
+    """The LUT reconciliation: the leaves' LUT sums, every parent's sharing adjustment beside the shared LUT
+    sites the census counts under it, and the image's top row, which the first two sum to."""
+    table, root = result["table"], result["root"]
+    head = ("| Scope | LUT | Logic | LUTRAM | SRL | Shared LUT sites in the census |\n"
+            "|---|---:|---:|---:|---:|---:|\n")
+    parents = sorted((key for key, adjust in result["adjustments"].items() if any(adjust.values())),
+                     key=lambda key: (result["adjustments"][key]["LUT"], key))
+    leaves = {column: sum(table[leaf][column] for leaf in result["leaves"]) for column in SHARED}
+    lines = [f"| all {len(result['leaves'])} blocks (leaves) | "
+             + " | ".join(number(leaves[column]) for column in SHARED) + " | - |"]
+    for key in parents:
+        adjust, shared = result["adjustments"][key], result["census_sharing"][key]
+        label = f"`{key.removeprefix(root + '/')}`" if key != root else f"`{root}` (the image)"
+        lines.append(f"| sharing adjustment, {label} | " + " | ".join(number(adjust[column]) for column in SHARED)
+                     + f" | {number(shared['LUT'])} |")
+    total = {column: sum(adjust[column] for adjust in result["adjustments"].values()) for column in SHARED}
+    lines.append(f"| sum of the {len(parents)} adjustments | " + " | ".join(number(total[c]) for c in SHARED)
+                 + f" | {number(sum(result['census_sharing'][key]['LUT'] for key in parents))} |")
+    lines.append(f"| **image (top row)** | " + " | ".join(f"**{number(table[root][c])}**" for c in SHARED) + " | - |")
+    return head + "\n".join(lines) + "\n"
 
 
 def _partition_row(label: str, values: dict, image_luts: int) -> str:
@@ -470,7 +544,17 @@ def _fixture(directory: Path) -> tuple[dict, dict]:
               "milan_datapath/pp_shadow/g\tFDRE\tLEAF\tSLICE_X2Y0\tCFF",
               "milan_datapath/pp_shadow/h\tFDRE\tLEAF\tSLICE_X2Y0\tDFF",
               "milan_datapath/pp_shadow/k\tCARRY4\tLEAF\tSLICE_X2Y0\tCARRY4",
-              "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1"]
+              "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
+              # Ten LUT sites: own logic and the leaf share site X1Y0 A (top's adjustment -1), and the processor's
+              # one LUT-RAM cell sits inside a MACRO wrapper the census lists apart.
+              "o1\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.A6LUT", "o2\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.B6LUT",
+              "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.A5LUT",
+              "leaf/l1\tLUT6\tLEAF\tSLICE_X1Y0\tSLICEL.A6LUT", "leaf/l2\tLUT6\tLEAF\tSLICE_X1Y0\tSLICEL.B6LUT",
+              *(f"milan_datapath/pp_shadow/q{letter}\tLUT6\tLEAF\tSLICE_X2Y0\tSLICEL.{letter}6LUT"
+                for letter in "ABCD"),
+              "milan_datapath/pp_shadow/q5\tLUT6\tLEAF\tSLICE_X0Y0\tSLICEL.C6LUT",
+              "milan_datapath/pp_shadow/rm\tRAM32M\tMACRO\tSLICE_X0Y0\tSLICEM.D6LUT",
+              "milan_datapath/pp_shadow/rm/RAMD_D1\tRAMD32\tINTERNAL\tSLICE_X0Y0\tSLICEM.D6LUT"]
     (directory / "map_cells.tsv").write_text("\n".join(census) + "\n")
     figures = {"LUT": 10, "FF": 8, "SLICE": 3, "RAMB36": 1, "RAMB18": 0, "DSP": 1, "CARRY4": 1}
     scopes = {"wrapper": {"LUT": 6, "FF": 4, "DSP": 1, "CARRY4": 1}}
@@ -486,7 +570,10 @@ def _plant(directory: Path, name: str, old: str, new: str) -> None:
     path.write_text(text.replace(old, new))
 
 
-#: (what is planted, file, exact old text, new text, the failure text that must appear)
+#: (what is planted, file, exact old text, new text, the failure text that must appear). Every tie the module
+#: docstring names has at least one arm whose failure text only that tie prints, so removing the tie fails the arm:
+#: ancestry (child FF, parent LUT), census (flip-flop, I/O flip-flop, leaf LUT, shared LUT site, LUT-RAM, stray
+#: owner), flat report (flat LUT), record (recorded total and scope below, CARRY4, slice) and depth.
 PLANTS = (
     ("a child FF figure", "map_hierarchy.rpt", "| m | 2 | 2 | 0 | 0 | 2 | 1", "| m | 2 | 2 | 0 | 0 | 3 | 1",
      "ancestry: top FF"),
@@ -501,6 +588,16 @@ PLANTS = (
     ("a truncated depth", "map_hierarchy.rpt", "-hierarchical_depth 64", "-hierarchical_depth 2", "truncated"),
     ("an I/O flip-flop counted as a slice register", "map_cells.tsv", "pad_q\tFDRE\tLEAF\tOLOGIC_X0Y1",
      "pad_q\tFDRE\tLEAF\tSLICE_X0Y0", "census: top/@own FF"),
+    ("a leaf's LUT figure outside the recorded scopes", "map_hierarchy.rpt", "|   leaf | m | 2 | 2 |",
+     "|   leaf | m | 7 | 7 |", "census: top/leaf LUT counts"),
+    ("a LUT site shared by two blocks", "map_cells.tsv", "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.A5LUT",
+     "o3\tLUT5\tLEAF\tSLICE_X1Y0\tSLICEL.C5LUT", "census: top LUT counts"),
+    ("a LUT-RAM cell counted as logic", "map_cells.tsv", "rm/RAMD_D1\tRAMD32", "rm/RAMD_D1\tLUT6",
+     "census: top/milan_datapath/pp_shadow LUTRAM counts"),
+    ("a cell owned by a row that is not a leaf", "map_cells.tsv",
+     "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1",
+     "milan_datapath/pp_shadow/p\tDSP48E1\tLEAF\tDSP48_X0Y0\tDSP48E1\nmilan_datapath/s\tFDRE\tLEAF\tSLICE_X2Y0\t"
+     "SLICEL.A5FF", "census: cells owned by non-leaf rows"),
 )
 
 
