@@ -1,0 +1,65 @@
+ID FAIL: docs/architecture/05_acmp_engine.md:592: P-NOT-DEFINED has no F01.5 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe stray-doc-P: rc=1 want=1
+ID FAIL: docs/history/02-class-a-word-stream.md:85: T-NOT-DEFINED has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe stray-history-T: rc=1 want=1
+ID FAIL: hdl/packet_engine/KL_pp_tx_slots.sv:2: T-NOPE-RTL has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe stray-rtl-T: rc=1 want=1
+ID FAIL: tb/newsuite/sim_main.cpp:1: P-UNTRACKED-STRAY has no F01.5 row
+ids: 489 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe stray-untracked: rc=1 want=1
+ids: 488 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+probe stray-ignored: rc=0 want=0
+ID FAIL: docs/architecture/02_interfaces.md:300: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/02_interfaces.md:334: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/05_acmp_engine.md:416: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/05_acmp_engine.md:442: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/05_acmp_engine.md:443: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/05_acmp_engine.md:450: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: docs/architecture/11_maap_engine.md:48: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:75: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:130: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:142: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:243: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:439: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:568: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:1055: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/acmp/KL_acmp_talker.sv:1150: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: hdl/top/protocol_processor_top.sv:700: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/README.md:58: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/README.md:101: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/README.md:144: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/sim_main.cpp:20: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/sim_main.cpp:108: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/sim_main.cpp:347: P-MAAP-ACCEPT-CYC has no F01.5 row
+ID FAIL: tb/acmp_talker/sim_main.cpp:952: P-MAAP-ACCEPT-CYC has no F01.5 row
+ids: 488 files, 91 distinct IDs used, F01.5 46 P-IDs, F08.1 36 T-IDs, 23 FAILURES
+probe del-maap-row: rc=1 want=1
+ID FAIL: docs/architecture/01_overview.md:184: T-MAAP-PROBE has no F08.1 row
+ID FAIL: docs/architecture/02_interfaces.md:316: T-MAAP-PROBE has no F08.1 row
+ID FAIL: docs/architecture/08_timing.md:231: T-MAAP-PROBE has no F08.1 row
+ID FAIL: docs/architecture/11_maap_engine.md:175: T-MAAP-PROBE has no F08.1 row
+ids: 488 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 4 FAILURES
+probe del-T-row: rc=1 want=1
+ID FAIL: tb/tx_slots/README.md:53: T-NOFAMILY-* has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe family-miss: rc=1 want=1
+ID FAIL: tb/tx_slots/README.md:53: T-MRP-NOPE has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe brace-miss: rc=1 want=1
+ID FAIL: cannot find F01.5 ('## 7. Parameter master table (F01.5)')
+ids: master tables unreadable, FAILURES
+probe heading-gone: rc=1 want=1
+ID FAIL: cannot find F08.1 ('<a id="fig-08-constants"></a>')
+ids: master tables unreadable, FAILURES
+probe f08-anchor-gone: rc=1 want=1
+ID FAIL: tb/tx_slots/sim_main.cpp:4: P-TX has no F01.5 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+probe P-TX-revert: rc=1 want=1
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+probe lenient-minus-n: rc=0 want=0
+ids: 488 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+probe lenient-linebrk: rc=0 want=0
+ids probes: 0 unexpected

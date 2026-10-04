@@ -1,0 +1,19 @@
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+F1 plant hyph-brace [T-NVM-{RS-DEADLINE, RS-TYPO}]: rc=0
+ID FAIL: docs/architecture/08_timing.md:280: T-MRP-TYPO has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+F1 plant plain-brace [T-MRP-{JOIN, TYPO}]: rc=1
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+F1 plant lower-suffix [the P-TX-shaped pool]: rc=0
+ID FAIL: docs/architecture/08_timing.md:280: T-NOPE-* has no F08.1 row
+ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+F1 plant lower-suffix-T [a T-NOPE-ish timer]: rc=1
+F2 mutant foreignobject-unchecked: selftest rc=0 (SURVIVED)
+F2 mutant root-unchecked: selftest rc=0 (SURVIVED)
+F2 mutant empty-inventory-ok: selftest rc=0 (SURVIVED)
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+F2 tree plant foreignobject: rc=1
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+F2 tree plant wrong-root: rc=1
+figures: inventory unreadable, FAILURES
+F2 tree plant empty-inventory: rc=1

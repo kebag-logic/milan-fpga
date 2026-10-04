@@ -1,0 +1,47 @@
+FIGURE FAIL: docs/diagrams/21-integration-faces.png: not a figure format docs/README.md section 3 lists
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe png-restored: rc=1 want=1
+FIGURE FAIL: docs/diagrams/src/x.png: not a figure format docs/README.md section 3 lists
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe png-in-src: rc=1 want=1
+FIGURE FAIL: docs/diagrams/25-new.svg: SVG with no .drawio source, not in the hand-authored inventory of docs/diagrams/README.md
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe unlisted-svg: rc=1 want=1
+FIGURE FAIL: docs/diagrams/22-aecp-descriptor-fetch.svg: not well-formed XML (unclosed token: line 9, column 4)
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe truncated: rc=1 want=1
+FIGURE FAIL: docs/diagrams/23-bringup-decision.svg: carries <image>: a raster or embedded document is not editable source
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe image-inside: rc=1 want=1
+FIGURE FAIL: docs/diagrams/23-bringup-decision.svg: carries <foreignObject>: a raster or embedded document is not editable source
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe foreignobj: rc=1 want=1
+FIGURE FAIL: docs/diagrams/24-adp-acmp-states.svg: no viewBox on the <svg> root
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe no-viewbox: rc=1 want=1
+FIGURE FAIL: docs/diagrams/24-adp-acmp-states.svg: SVG with no .drawio source, not in the hand-authored inventory of docs/diagrams/README.md
+figures: 3 draw.io, 18 WaveDrom, 4 hand-authored, 1 FAILURES
+probe row-deleted: rc=1 want=1
+FIGURE FAIL: docs/diagrams/wavedrom/fig-99-orphan.svg: WaveDrom render whose ```wavedrom block <a id="fig-99-orphan"> is in no document
+figures: 3 draw.io, 19 WaveDrom, 5 hand-authored, 1 FAILURES
+probe orphan-wd: rc=1 want=1
+FIGURE FAIL: docs/diagrams/24-adp-acmp-states.svg: hand-authored figure no Markdown page links
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe unlinked: rc=1 want=1
+FIGURE FAIL: docs/diagrams/src/01-top-level.drawio: draw.io source without its export docs/diagrams/01-top-level.svg
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe drawio-noexp: rc=1 want=1
+FIGURE FAIL: docs/diagrams/wavedrom/old/fig-02-rxwave.svg: not a figure format docs/README.md section 3 lists
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe subdir-file: rc=1 want=1
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+probe ignored-dotfile: rc=0 want=0
+FIGURE FAIL: docs/diagrams/.DS_Store: not a figure format docs/README.md section 3 lists
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+probe tracked-dotfile: rc=1 want=1
+FIGURE FAIL: docs/diagrams/README.md: no '## Inventory (hand-authored SVG)' section
+figures: inventory unreadable, FAILURES
+probe section-gone: rc=1 want=1
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+probe lenient-feimage: rc=0 want=0
+figure probes: 0 unexpected
