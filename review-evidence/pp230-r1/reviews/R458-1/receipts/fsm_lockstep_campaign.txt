@@ -1,0 +1,114 @@
+# module-level random lockstep (lockstep/ls_fsm.sv + ls_fsm_main.cpp): base vs head talker, listener, admission
+# 7 shapes x 8 seeds x 4,000,000 cycles; --x-initial unique, randReset(2) seeded per run; mid-run resets
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198472 ls_push=53276 redeclare=280827 resettle=281303 adm_rounds=3698026 walk_push_ram_arm=0 lstn_reg_change=13101 tk_registered=1853
+rc=0 N=1 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198433 ls_push=52990 redeclare=280876 resettle=280830 adm_rounds=3698482 walk_push_ram_arm=0 lstn_reg_change=12946 tk_registered=1835
+rc=0 N=1 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198150 ls_push=53379 redeclare=279957 resettle=280883 adm_rounds=3697504 walk_push_ram_arm=0 lstn_reg_change=12933 tk_registered=1920
+rc=0 N=1 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=199072 ls_push=53062 redeclare=280713 resettle=280911 adm_rounds=3697999 walk_push_ram_arm=0 lstn_reg_change=12790 tk_registered=1764
+rc=0 N=1 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198966 ls_push=53475 redeclare=280705 resettle=281833 adm_rounds=3698897 walk_push_ram_arm=0 lstn_reg_change=12650 tk_registered=1872
+rc=0 N=1 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=199311 ls_push=53327 redeclare=281067 resettle=280751 adm_rounds=3698306 walk_push_ram_arm=0 lstn_reg_change=13001 tk_registered=1922
+rc=0 N=1 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198631 ls_push=53531 redeclare=280780 resettle=281137 adm_rounds=3698473 walk_push_ram_arm=0 lstn_reg_change=13287 tk_registered=1927
+rc=0 N=1 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=198582 ls_push=53159 redeclare=280516 resettle=280753 adm_rounds=3698577 walk_push_ram_arm=0 lstn_reg_change=12778 tk_registered=1828
+rc=0 N=1 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=376013 ls_push=131412 redeclare=280718 resettle=281194 adm_rounds=1632118 walk_push_ram_arm=0 lstn_reg_change=24989 tk_registered=3666
+rc=0 N=2 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=376823 ls_push=130668 redeclare=280761 resettle=280715 adm_rounds=1631623 walk_push_ram_arm=0 lstn_reg_change=24554 tk_registered=3637
+rc=0 N=2 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=376770 ls_push=130902 redeclare=279831 resettle=280757 adm_rounds=1631358 walk_push_ram_arm=0 lstn_reg_change=24751 tk_registered=3606
+rc=0 N=2 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=377664 ls_push=130832 redeclare=280609 resettle=280807 adm_rounds=1630664 walk_push_ram_arm=0 lstn_reg_change=24731 tk_registered=3560
+rc=0 N=2 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=378388 ls_push=131753 redeclare=280584 resettle=281712 adm_rounds=1632556 walk_push_ram_arm=0 lstn_reg_change=24302 tk_registered=3598
+rc=0 N=2 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=377920 ls_push=131159 redeclare=280963 resettle=280647 adm_rounds=1631352 walk_push_ram_arm=0 lstn_reg_change=24993 tk_registered=3715
+rc=0 N=2 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=377134 ls_push=131373 redeclare=280672 resettle=281029 adm_rounds=1632073 walk_push_ram_arm=0 lstn_reg_change=25084 tk_registered=3693
+rc=0 N=2 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=377435 ls_push=131713 redeclare=280413 resettle=280650 adm_rounds=1632022 walk_push_ram_arm=0 lstn_reg_change=24235 tk_registered=3661
+rc=0 N=2 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=541535 ls_push=213414 redeclare=280609 resettle=281085 adm_rounds=916618 walk_push_ram_arm=541535 lstn_reg_change=35619 tk_registered=5421
+rc=0 N=3 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=542076 ls_push=212689 redeclare=280645 resettle=280600 adm_rounds=915697 walk_push_ram_arm=542076 lstn_reg_change=35328 tk_registered=5417
+rc=0 N=3 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=542156 ls_push=212831 redeclare=279705 resettle=280631 adm_rounds=915994 walk_push_ram_arm=542156 lstn_reg_change=35450 tk_registered=5348
+rc=0 N=3 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=543374 ls_push=212901 redeclare=280507 resettle=280704 adm_rounds=915196 walk_push_ram_arm=543374 lstn_reg_change=35812 tk_registered=5279
+rc=0 N=3 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=542991 ls_push=213964 redeclare=280464 resettle=281591 adm_rounds=917403 walk_push_ram_arm=542991 lstn_reg_change=34981 tk_registered=5385
+rc=0 N=3 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=543156 ls_push=213449 redeclare=280859 resettle=280543 adm_rounds=916044 walk_push_ram_arm=543156 lstn_reg_change=35988 tk_registered=5531
+rc=0 N=3 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=542608 ls_push=213153 redeclare=280564 resettle=280922 adm_rounds=915725 walk_push_ram_arm=542608 lstn_reg_change=35950 tk_registered=5471
+rc=0 N=3 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=542225 ls_push=213892 redeclare=280311 resettle=280549 adm_rounds=916478 walk_push_ram_arm=542225 lstn_reg_change=35240 tk_registered=5349
+rc=0 N=3 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=692425 ls_push=295926 redeclare=280500 resettle=280976 adm_rounds=552241 walk_push_ram_arm=692425 lstn_reg_change=45835 tk_registered=7081
+rc=0 N=4 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=692937 ls_push=294773 redeclare=280530 resettle=280485 adm_rounds=551929 walk_push_ram_arm=692937 lstn_reg_change=45405 tk_registered=7023
+rc=0 N=4 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=692163 ls_push=295159 redeclare=279579 resettle=280505 adm_rounds=552727 walk_push_ram_arm=692163 lstn_reg_change=45548 tk_registered=7058
+rc=0 N=4 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=694257 ls_push=295171 redeclare=280402 resettle=280600 adm_rounds=551040 walk_push_ram_arm=694257 lstn_reg_change=45782 tk_registered=7030
+rc=0 N=4 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=693668 ls_push=296798 redeclare=280344 resettle=281470 adm_rounds=553042 walk_push_ram_arm=693668 lstn_reg_change=45033 tk_registered=6958
+rc=0 N=4 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=694928 ls_push=296113 redeclare=280755 resettle=280439 adm_rounds=552171 walk_push_ram_arm=694928 lstn_reg_change=46596 tk_registered=7078
+rc=0 N=4 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=694043 ls_push=295763 redeclare=280456 resettle=280813 adm_rounds=552333 walk_push_ram_arm=694043 lstn_reg_change=45900 tk_registered=7121
+rc=0 N=4 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=693625 ls_push=296624 redeclare=280209 resettle=280445 adm_rounds=552967 walk_push_ram_arm=693625 lstn_reg_change=44726 tk_registered=7098
+rc=0 N=4 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=827382 ls_push=377871 redeclare=280391 resettle=280867 adm_rounds=339112 walk_push_ram_arm=827382 lstn_reg_change=54612 tk_registered=8785
+rc=0 N=5 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=826953 ls_push=376631 redeclare=280415 resettle=280370 adm_rounds=338729 walk_push_ram_arm=826953 lstn_reg_change=54510 tk_registered=8670
+rc=0 N=5 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=827164 ls_push=376501 redeclare=279454 resettle=280380 adm_rounds=339337 walk_push_ram_arm=827164 lstn_reg_change=54711 tk_registered=8693
+rc=0 N=5 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=828740 ls_push=377310 redeclare=280299 resettle=280496 adm_rounds=338590 walk_push_ram_arm=828740 lstn_reg_change=54469 tk_registered=8621
+rc=0 N=5 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=828297 ls_push=378613 redeclare=280223 resettle=281353 adm_rounds=339982 walk_push_ram_arm=828297 lstn_reg_change=54200 tk_registered=8634
+rc=0 N=5 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=829899 ls_push=377880 redeclare=280651 resettle=280335 adm_rounds=338456 walk_push_ram_arm=829899 lstn_reg_change=55599 tk_registered=8784
+rc=0 N=5 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=827948 ls_push=377583 redeclare=280348 resettle=280707 adm_rounds=339100 walk_push_ram_arm=827948 lstn_reg_change=55182 tk_registered=8869
+rc=0 N=5 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=827852 ls_push=378174 redeclare=280106 resettle=280344 adm_rounds=339630 walk_push_ram_arm=827852 lstn_reg_change=54013 tk_registered=8666
+rc=0 N=5 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1129304 ls_push=607538 redeclare=280064 resettle=280540 adm_rounds=72876 walk_push_ram_arm=1129304 lstn_reg_change=78827 tk_registered=13511
+rc=0 N=8 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1129515 ls_push=604785 redeclare=280070 resettle=280025 adm_rounds=72823 walk_push_ram_arm=1129515 lstn_reg_change=78523 tk_registered=13363
+rc=0 N=8 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1129009 ls_push=605619 redeclare=279075 resettle=280003 adm_rounds=72904 walk_push_ram_arm=1129009 lstn_reg_change=78964 tk_registered=13314
+rc=0 N=8 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1132481 ls_push=606045 redeclare=279991 resettle=280187 adm_rounds=72376 walk_push_ram_arm=1132481 lstn_reg_change=78803 tk_registered=13252
+rc=0 N=8 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1131121 ls_push=607242 redeclare=279864 resettle=280990 adm_rounds=73059 walk_push_ram_arm=1131121 lstn_reg_change=78112 tk_registered=13217
+rc=0 N=8 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1131675 ls_push=607179 redeclare=280339 resettle=280023 adm_rounds=72613 walk_push_ram_arm=1131675 lstn_reg_change=79965 tk_registered=13372
+rc=0 N=8 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1130272 ls_push=606837 redeclare=280024 resettle=280384 adm_rounds=72798 walk_push_ram_arm=1130272 lstn_reg_change=78979 tk_registered=13416
+rc=0 N=8 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1130425 ls_push=607491 redeclare=279800 resettle=280037 adm_rounds=73141 walk_push_ram_arm=1130425 lstn_reg_change=78128 tk_registered=13306
+rc=0 N=8 seed=18
+LS-FSM seed=11 cycles=4000000 resets=108 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1200875 ls_push=675989 redeclare=279955 resettle=280431 adm_rounds=41147 walk_push_ram_arm=1200875 lstn_reg_change=85783 tk_registered=14714
+rc=0 N=9 seed=11
+LS-FSM seed=12 cycles=4000000 resets=115 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1200164 ls_push=673814 redeclare=279955 resettle=279910 adm_rounds=41195 walk_push_ram_arm=1200164 lstn_reg_change=85067 tk_registered=14919
+rc=0 N=9 seed=12
+LS-FSM seed=13 cycles=4000000 resets=125 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1200272 ls_push=674666 redeclare=278951 resettle=279881 adm_rounds=41600 walk_push_ram_arm=1200272 lstn_reg_change=85958 tk_registered=14733
+rc=0 N=9 seed=13
+LS-FSM seed=14 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1203322 ls_push=674418 redeclare=279889 resettle=280086 adm_rounds=40953 walk_push_ram_arm=1203322 lstn_reg_change=85372 tk_registered=14630
+rc=0 N=9 seed=14
+LS-FSM seed=15 cycles=4000000 resets=121 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1201423 ls_push=676232 redeclare=279745 resettle=280872 adm_rounds=41100 walk_push_ram_arm=1201423 lstn_reg_change=85141 tk_registered=14752
+rc=0 N=9 seed=15
+LS-FSM seed=16 cycles=4000000 resets=103 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1203120 ls_push=675931 redeclare=280235 resettle=279919 adm_rounds=41048 walk_push_ram_arm=1203120 lstn_reg_change=87058 tk_registered=14805
+rc=0 N=9 seed=16
+LS-FSM seed=17 cycles=4000000 resets=107 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1201250 ls_push=675738 redeclare=279918 resettle=280276 adm_rounds=41074 walk_push_ram_arm=1201250 lstn_reg_change=85988 tk_registered=14738
+rc=0 N=9 seed=17
+LS-FSM seed=18 cycles=4000000 resets=102 mis_tk=0 mis_ls=0 mis_ad=0 first_mis_cycle=0 tk_push=1201279 ls_push=676392 redeclare=279699 resettle=279936 adm_rounds=41386 walk_push_ram_arm=1201279 lstn_reg_change=85044 tk_registered=14755
+rc=0 N=9 seed=18

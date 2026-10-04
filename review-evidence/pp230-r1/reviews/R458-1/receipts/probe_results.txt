@@ -1,0 +1,122 @@
+# fault probes (lockstep/probes.py): one edit of the head RTL each.
+# committed suite result = rc of 'make' in tb/<suite> (0 = probe SURVIVES that suite).
+# lockstep result = mismatching cycles summed over 3 seeds x 300,000 cycles (ls_fsm) or out/int mismatching cycles (top).
+probe	run	result
+slope-stored-at-source-0	lockstep-N1	0
+slope-stored-at-source-0	lockstep-N2	226940
+slope-stored-at-source-0	lockstep-N3	330263
+slope-stored-at-source-0	lockstep-N9	559213
+slope-stored-at-source-0	srp_admission	2
+slope-stored-at-source-0	srp_top	2
+slope-stored-at-stage-2-index	lockstep-N1	0
+slope-stored-at-stage-2-index	lockstep-N2	339741
+slope-stored-at-stage-2-index	lockstep-N3	426104
+slope-stored-at-stage-2-index	lockstep-N9	580575
+slope-stored-at-stage-2-index	srp_admission	2
+slope-stored-at-stage-2-index	srp_top	2
+tf-full-guard-31	lockstep-top	0/0 (bench rc 0)
+tf-full-guard-31	srp_top	0
+tf-heads-swapped	lockstep-top	525717/833 (bench rc 1)
+tf-heads-swapped	srp_top	2
+tf-ls-written-at-tk-pointer	lockstep-top	32241/98 (bench rc 1)
+tf-ls-written-at-tk-pointer	srp_top	2
+tf-tk-head-read-ahead	lockstep-top	348827/473 (bench rc 1)
+tf-tk-head-read-ahead	srp_top	2
+wid-flops-da-of-gate-source	lockstep-N1	0
+wid-flops-da-of-gate-source	lockstep-N2	234096
+wid-flops-da-of-gate-source	lockstep-N3	0
+wid-flops-da-of-gate-source	lockstep-N9	0
+wid-flops-da-of-gate-source	srp_stream_fsms	0
+wid-flops-da-of-gate-source	srp_top	0
+wid-flops-sid-of-source-0	lockstep-N1	0
+wid-flops-sid-of-source-0	lockstep-N2	597592
+wid-flops-sid-of-source-0	lockstep-N3	0
+wid-flops-sid-of-source-0	lockstep-N9	0
+wid-flops-sid-of-source-0	srp_stream_fsms	0
+wid-flops-sid-of-source-0	srp_top	0
+wid-ram-first-open-only	lockstep-N1	0
+wid-ram-first-open-only	lockstep-N2	0
+wid-ram-first-open-only	lockstep-N3	868559
+wid-ram-first-open-only	lockstep-N9	862702
+wid-ram-first-open-only	srp_stream_fsms	0
+wid-ram-first-open-only	srp_top	0
+wid-ram-read-at-gate-source	lockstep-N1	0
+wid-ram-read-at-gate-source	lockstep-N2	0
+wid-ram-read-at-gate-source	lockstep-N3	599869
+wid-ram-read-at-gate-source	lockstep-N9	783964
+wid-ram-read-at-gate-source	srp_stream_fsms	0
+wid-ram-read-at-gate-source	srp_top	2
+wsid-flops-of-control-sink	lockstep-N1	0
+wsid-flops-of-control-sink	lockstep-N2	420237
+wsid-flops-of-control-sink	lockstep-N3	0
+wsid-flops-of-control-sink	lockstep-N9	0
+wsid-flops-of-control-sink	srp_stream_fsms	0
+wsid-flops-of-control-sink	srp_top	0
+wsid-ram-first-settle-only	lockstep-N1	0
+wsid-ram-first-settle-only	lockstep-N2	0
+wsid-ram-first-settle-only	lockstep-N3	780610
+wsid-ram-first-settle-only	lockstep-N9	779923
+wsid-ram-first-settle-only	srp_stream_fsms	0
+wsid-ram-first-settle-only	srp_top	0
+wsid-ram-written-on-teardown	lockstep-N1	0
+wsid-ram-written-on-teardown	lockstep-N2	0
+wsid-ram-written-on-teardown	lockstep-N3	237301
+wsid-ram-written-on-teardown	lockstep-N9	200595
+wsid-ram-written-on-teardown	srp_stream_fsms	0
+wsid-ram-written-on-teardown	srp_top	0
+wtsp-first-open-only	lockstep-N1	898584
+wtsp-first-open-only	lockstep-N2	898047
+wtsp-first-open-only	lockstep-N3	897357
+wtsp-first-open-only	lockstep-N9	893001
+wtsp-first-open-only	srp_stream_fsms	0
+wtsp-first-open-only	srp_top	0
+wtsp-latency-shifted	lockstep-N1	898899
+wtsp-latency-shifted	lockstep-N2	898921
+wtsp-latency-shifted	lockstep-N3	898897
+wtsp-latency-shifted	lockstep-N9	898885
+wtsp-latency-shifted	srp_stream_fsms	0
+wtsp-latency-shifted	srp_top	2
+wtsp-rank-dropped	lockstep-N1	450370
+wtsp-rank-dropped	lockstep-N2	450022
+wtsp-rank-dropped	lockstep-N3	451897
+wtsp-rank-dropped	lockstep-N9	451156
+wtsp-rank-dropped	srp_stream_fsms	2
+wtsp-rank-dropped	srp_top	2
+wtsp-read-at-gate-source	lockstep-N1	0
+wtsp-read-at-gate-source	lockstep-N2	470380
+wtsp-read-at-gate-source	lockstep-N3	619031
+wtsp-read-at-gate-source	lockstep-N9	808622
+wtsp-read-at-gate-source	srp_stream_fsms	0
+wtsp-read-at-gate-source	srp_top	0
+
+# committed suite tallies per probe
+slope-stored-at-source-0 suite-srp_admission: 12615 checks: 11094 PASS, 1521 FAIL
+slope-stored-at-source-0 suite-srp_top: 2200 checks: 1510 PASS, 690 FAIL
+slope-stored-at-stage-2-index suite-srp_admission: 12615 checks: 11282 PASS, 1333 FAIL
+slope-stored-at-stage-2-index suite-srp_top: 2200 checks: 1527 PASS, 673 FAIL
+tf-full-guard-31 suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+tf-heads-swapped suite-srp_top: 2200 checks: 2193 PASS, 7 FAIL
+tf-ls-written-at-tk-pointer suite-srp_top: 2200 checks: 2197 PASS, 3 FAIL
+tf-tk-head-read-ahead suite-srp_top: 2200 checks: 2199 PASS, 1 FAIL
+wid-flops-da-of-gate-source suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wid-flops-da-of-gate-source suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wid-flops-sid-of-source-0 suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wid-flops-sid-of-source-0 suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wid-ram-first-open-only suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wid-ram-first-open-only suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wid-ram-read-at-gate-source suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wid-ram-read-at-gate-source suite-srp_top: 2200 checks: 2182 PASS, 18 FAIL
+wsid-flops-of-control-sink suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wsid-flops-of-control-sink suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wsid-ram-first-settle-only suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wsid-ram-first-settle-only suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wsid-ram-written-on-teardown suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wsid-ram-written-on-teardown suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wtsp-first-open-only suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wtsp-first-open-only suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL
+wtsp-latency-shifted suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wtsp-latency-shifted suite-srp_top: 2200 checks: 2198 PASS, 2 FAIL
+wtsp-rank-dropped suite-srp_stream_fsms: 1219 checks: 1198 PASS, 21 FAIL
+wtsp-rank-dropped suite-srp_top: 2200 checks: 2198 PASS, 2 FAIL
+wtsp-read-at-gate-source suite-srp_stream_fsms: 1219 checks: 1219 PASS, 0 FAIL
+wtsp-read-at-gate-source suite-srp_top: 2200 checks: 2200 PASS, 0 FAIL

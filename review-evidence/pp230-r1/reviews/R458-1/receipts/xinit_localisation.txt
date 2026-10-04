@@ -1,0 +1,7 @@
+# out-of-scope observation: committed tb/srp_top under randomised unreset state, head, LS_SEED=1
+tx_slots mem_r zero-initialised: rc=1 2200 checks: 2196 PASS, 4 FAIL
+decoder tp_ram, encoder msrp/mvrp_ram_r, vlan tbl_r, timer slot_ram_r zero-initialised: rc=1 2200 checks: 2196 PASS, 4 FAIL
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded

@@ -1,0 +1,120 @@
+# Vivado 2026.1 out-of-context synth_design of KL_srp_top alone (vivado/srp_map.tcl), xc7a100tfgg484-2, AreaOptimized_high,
+# -flatten_hierarchy rebuilt; one instance under /tmp/milan-vivado.lock; NOT the #638 recipe (mapping check only, figures not comparable to the product's)
+lock acquired 10:58:14, done 11:09:38
+
+=== base-n2 (N_SOURCES_P=N_SINKS_P=2) rc=0 vivado.log sha256=0a40f548bf7c6962f3043a69f79263e5a16e9ef4ce40e08c867cd5424fff48bc
+-- block RAM final mapping
+|Module Name | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
+|u_decoder   | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+-- distributed RAM final mapping
+|Module Name | RTL Object     | Inference      | Size (Depth x Width) | Primitives   | 
+|u_vlan      | tbl_r_reg      | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_encoder   | mvrp_ram_r_reg | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_encoder   | msrp_ram_r_reg | User Attribute | 16 x 285             | RAM32M x 48  | 
+-- flip-flops on memory names (pattern count)
+*tf_ram_r* 2240
+*tf_tk_ram_r* 0
+*tf_ls_ram_r* 0
+*wtsp_r* 0
+*wid_r* 0
+*wsid_r* 0
+*slope_q_r* 64
+*mfs_r* 80
+*mif_r* 80
+*lat_r_reg* 160
+-- memory primitive count
+     48 RAM32M
+      1 RAM32X1D
+    290 RAMD32
+     96 RAMS32
+-- hierarchical utilization (Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP)
+| KL_srp_top | (top) | 4543 | 4349 | 194 | 0 | 6541 | 0 | 1 | 2 |
+| u_admission | KL_srp_admission | 284 | 284 | 0 | 0 | 271 | 0 | 0 | 2 |
+| u_decoder | KL_srp_decoder | 711 | 711 | 0 | 0 | 633 | 0 | 1 | 0 |
+| u_domain | KL_srp_domain | 61 | 61 | 0 | 0 | 108 | 0 | 0 | 0 |
+| u_encoder | KL_srp_encoder | 1479 | 1297 | 182 | 0 | 1146 | 0 | 0 | 0 |
+| u_listener | KL_srp_listener_fsm | 409 | 409 | 0 | 0 | 666 | 0 | 0 | 0 |
+| u_talker | KL_srp_talker_fsm | 660 | 660 | 0 | 0 | 760 | 0 | 0 | 0 |
+| u_vlan | KL_srp_vlan | 148 | 136 | 12 | 0 | 127 | 0 | 0 | 0 |
+
+=== head-n2 (N_SOURCES_P=N_SINKS_P=2) rc=0 vivado.log sha256=c76d559a9f8d96a34127e511787957b22c63e44b1f45443be0e7fbd9c8bb03aa
+-- block RAM final mapping
+|Module Name | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
+|u_decoder   | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+-- distributed RAM final mapping
+|Module Name | RTL Object      | Inference      | Size (Depth x Width) | Primitives   | 
+|u_vlan      | tbl_r_reg       | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_admission | slope_q_r_reg   | User Attribute | 2 x 32               | RAM32M x 6   | 
+|u_talker    | wtsp_r_reg      | User Attribute | 2 x 68               | RAM32M x 12  | 
+|u_encoder   | mvrp_ram_r_reg  | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_encoder   | msrp_ram_r_reg  | User Attribute | 16 x 285             | RAM32M x 48  | 
+|KL_srp_top  | tf_ls_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
+|KL_srp_top  | tf_tk_ram_r_reg | User Attribute | 32 x 47              | RAM32M x 8   | 
+-- flip-flops on memory names (pattern count)
+*tf_ram_r* 0
+*tf_tk_ram_r* 0
+*tf_ls_ram_r* 0
+*wtsp_r* 0
+*wid_r* 0
+*wsid_r* 0
+*slope_q_r* 0
+*mfs_r* 48
+*mif_r* 48
+*lat_r_reg* 96
+-- memory primitive count
+     80 RAM32M
+      5 RAM32X1D
+    490 RAMD32
+    160 RAMS32
+-- hierarchical utilization (Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP)
+| KL_srp_top | (top) | 3948 | 3618 | 330 | 0 | 4118 | 0 | 1 | 2 |
+| u_admission | KL_srp_admission | 291 | 267 | 24 | 0 | 207 | 0 | 0 | 2 |
+| u_decoder | KL_srp_decoder | 731 | 731 | 0 | 0 | 633 | 0 | 1 | 0 |
+| u_domain | KL_srp_domain | 61 | 61 | 0 | 0 | 108 | 0 | 0 | 0 |
+| u_encoder | KL_srp_encoder | 1473 | 1291 | 182 | 0 | 1149 | 0 | 0 | 0 |
+| u_listener | KL_srp_listener_fsm | 368 | 368 | 0 | 0 | 666 | 0 | 0 | 0 |
+| u_talker | KL_srp_talker_fsm | 637 | 589 | 48 | 0 | 623 | 0 | 0 | 0 |
+| u_vlan | KL_srp_vlan | 148 | 136 | 12 | 0 | 127 | 0 | 0 | 0 |
+
+=== head-n9 (N_SOURCES_P=N_SINKS_P=9) rc=0 vivado.log sha256=0a12e4be94f2e04cb0d9a743b49e6fbf40a1ccc30b324bd47c5ca7f8ae4fec28
+-- block RAM final mapping
+|Module Name | RTL Object | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
+|u_decoder   | tp_ram_reg | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+-- distributed RAM final mapping
+|Module Name | RTL Object            | Inference      | Size (Depth x Width) | Primitives   | 
+|u_vlan      | tbl_r_reg             | Implied        | 4 x 17               | RAM32M x 3   | 
+|u_admission | slope_q_r_reg         | User Attribute | 16 x 32              | RAM32M x 6   | 
+|u_talker    | wtsp_r_reg            | User Attribute | 16 x 68              | RAM32M x 12  | 
+|u_talker    | g_wid_ram.wid_r_reg   | User Attribute | 16 x 124             | RAM32M x 21  | 
+|KL_srp_top  | tf_ls_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|KL_srp_top  | tf_tk_ram_r_reg       | User Attribute | 32 x 48              | RAM32M x 8   | 
+|u_encoder   | mvrp_ram_r_reg        | Implied        | 16 x 19              | RAM32M x 4   | 
+|u_encoder   | msrp_ram_r_reg        | User Attribute | 16 x 285             | RAM32M x 48  | 
+|u_listener  | g_wsid_ram.wsid_r_reg | User Attribute | 16 x 64              | RAM32M x 11  | 
+-- flip-flops on memory names (pattern count)
+*tf_ram_r* 0
+*tf_tk_ram_r* 0
+*tf_ls_ram_r* 0
+*wtsp_r* 0
+*wid_r* 0
+*wsid_r* 0
+*slope_q_r* 0
+*mfs_r* 160
+*mif_r* 160
+*lat_r_reg* 320
+-- memory primitive count
+    112 RAM32M
+      3 RAM32X1D
+    678 RAMD32
+    224 RAMS32
+-- hierarchical utilization (Total LUTs | Logic LUTs | LUTRAMs | SRLs | FFs | RAMB36 | RAMB18 | DSP)
+| KL_srp_top | (top) | 7097 | 6643 | 454 | 0 | 7980 | 0 | 1 | 2 |
+| u_admission | KL_srp_admission | 789 | 765 | 24 | 0 | 689 | 0 | 0 | 2 |
+| u_decoder | KL_srp_decoder | 927 | 927 | 0 | 0 | 633 | 0 | 1 | 0 |
+| u_domain | KL_srp_domain | 62 | 62 | 0 | 0 | 108 | 0 | 0 | 0 |
+| u_encoder | KL_srp_encoder | 1505 | 1323 | 182 | 0 | 1144 | 0 | 0 | 0 |
+| u_listener | KL_srp_listener_fsm | 1610 | 1566 | 44 | 0 | 2612 | 0 | 0 | 0 |
+| u_talker | KL_srp_talker_fsm | 1732 | 1604 | 128 | 0 | 1797 | 0 | 0 | 0 |
+| u_vlan | KL_srp_vlan | 248 | 236 | 12 | 0 | 127 | 0 | 0 | 0 |
+
+note: *mfs_r*/*mif_r* hits are KL_srp_top's a_mfs_r/adm_mfs_r (16 + N x 16); base adds the talker's N x 16. *lat_r_reg* includes the listener's lat_r (flops by design).
