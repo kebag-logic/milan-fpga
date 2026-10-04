@@ -1,0 +1,21 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 187 md files + 975 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (902 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+rc=0
+=== scripts/check_em_dash.py --base 5fabb46e767c9308ab2580916237f43577698c6e (md venv)
+check_em_dash: 0 finding(s) over 817 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [5fabb46e..HEAD]
+rc=0
+=== scripts/check_em_dash.py --base 98729742b71d5088f250440eb46085daf1c0cbdb (md venv)
+check_em_dash: 0 finding(s) over 788 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [98729742..HEAD]
+rc=0
+=== scripts/gen_toc.py --check (md venv)
+TOC gate: OK (129 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+=== scripts/gen_toc.py --verify-anchors (md venv)
+anchor check: 331 existing cross-page fragment links reproduced
+rc=0

@@ -1,0 +1,13 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[LAW-BOUNDARY] T30's INTERNAL law at the feed phases where a PDU end meets a pop (the ambiguity window is 8 cycles: a walk of 4 plus a guard of 4)
+  [i]    LAW: waited 4014 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T30 INTERNAL LAW +2027: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary -2..+1 (walk 3); the least clearance is 0 cycles, at PDU 45 (offset +0), against the 8-cycle ambiguity window: margin -8
+  [i]    T30 INTERNAL LAW +2027: PDU ends per nearest-pop offset (offset:ends): -2:8 -1:75 0:53 1:1
+  [NOT GRADABLE] T30 INTERNAL LAW +2027: PDU 45's end has a pop taken +0 cycles from it, inside the 8-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2027: 888 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2027: NOT GRADABLE, 0 check(s) failed
+== tdm8_render: checks: 17   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,7 @@
+arg [--law-boundary=] rc=1 ms=5 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=2025,] rc=1 ms=5 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=abc] rc=1 ms=4 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=-5] rc=1 ms=4 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=20..x] rc=1 ms=4 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=2025 junk] rc=1 ms=5 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 
+arg [--law-boundary=,2025] rc=1 ms=4 ::   [FAIL] --law-boundary=PHASES: non-negative feed phases, comma separated, each a number or a LO..HI run RESULT: FAIL 

@@ -1,0 +1,148 @@
+diff --git a/hdl/ieee1722/aaf/KL_render_setpoint.sv b/hdl/ieee1722/aaf/KL_render_setpoint.sv
+index e66b427..7839f34 100644
+--- a/hdl/ieee1722/aaf/KL_render_setpoint.sv
++++ b/hdl/ieee1722/aaf/KL_render_setpoint.sv
+@@ -343,7 +343,7 @@ module KL_render_setpoint #(
+   //! the pop side may consume a row this very cycle (an event's first
+   //! beat); the fill the push sees is the one AFTER that pop (rptr_eff_w
+   //! below), so a full queue is judged on the same edge the pointers move
+-  logic            pop_take_w;      //! declared with the pop side below
++  logic            pop_take_w /* verilator public_flat_rd */;      //! declared with the pop side below
+   logic [3:0]      slot_r;
+   wire  [PW_C-1:0] rptr_eff_in_w = rptr_in_w
+                                  + PW_C'(pop_take_w && (slot_r == s_tuser_i));
+@@ -530,8 +530,8 @@ module KL_render_setpoint #(
+   // ------------------------------------------------------------------ //
+   //! the fill after this PDU's push, seen at its last beat; the concurrent
+   //! pop (if any) is already in rptr_eff_in_w
+-  wire [PW_C-1:0] fill_end_w = wptr_nxt_w - rptr_eff_in_w;
+-  wire            pdu_end_w  = s_ok_w && s_tlast_i;
++  wire [PW_C-1:0] fill_end_w /* verilator public_flat_rd */ = wptr_nxt_w - rptr_eff_in_w;
++  wire            pdu_end_w /* verilator public_flat_rd */ = s_ok_w && s_tlast_i;
+   wire            enough_w   = (32'(fill_end_w) >= TARGET_C);
+   wire            high_w     = (32'(fill_end_w) >  TARGET_C + RESET_BAND_EVT_P);
+   wire            low_w      = (32'(fill_end_w) + RESET_BAND_EVT_P < TARGET_C);
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index b95a0bc..d74c030 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -700,7 +700,45 @@ class TdmRenderHarness {
+     //! the PDU-end half of the law instrument: the fill of the PDU whose last
+     //! beat the stage took last cycle, then this cycle's end beat, then the
+     //! take cycle of a stream-0 pop whose pulse is seen this cycle
++    // ---- R457-2 probe (no logic change in the DUT) ----
++    long probe_ends = 0, probe_end_mismatch = 0, probe_fill_checked = 0,
++         probe_fill_mismatch = 0, probe_takes = 0, probe_take_mismatch = 0;
++    int probe_fend_prev = -1;
++    long probe_fend_id = -1;
++    long probe_prev_take = -1;   //! pop_take_w seen high in the previous cycle
++    void probe_instrument() {
++        const bool h_end = dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w &&
++            dut->rootp->milan_datapath__DOT__lb_tap_tlast_w &&
++            dut->rootp->milan_datapath__DOT__lb_tap_tuser_w == 0;
++        const bool s_end = dut->rootp->milan_datapath__DOT__render_setpoint__DOT__pdu_end_w &&
++            dut->rootp->milan_datapath__DOT__lb_tap_tuser_w == 0;
++        if (probe_fend_prev >= 0) {
++            ++probe_fill_checked;
++            const int rd = static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
++            if (rd != probe_fend_prev) {
++                ++probe_fill_mismatch;
++                std::printf("  [PROBE] fill_end_w mismatch at PDU id %ld (fill_end_w %d, fill read %d)\n",
++                            probe_fend_id, probe_fend_prev, rd);
++            }
++            probe_fend_prev = -1;
++        }
++        if (h_end != s_end) ++probe_end_mismatch;
++        if (s_end) {
++            ++probe_ends;
++            probe_fend_prev = static_cast<int>(
++                dut->rootp->milan_datapath__DOT__render_setpoint__DOT__fill_end_w);
++            probe_fend_id = last_accept_id;
++        }
++        //! the harness books a pulse seen this cycle as taken last cycle:
++        //! pop_take_w must have been high last cycle exactly when it is seen
++        const bool seen = dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1;
++        if (seen) ++probe_takes;
++        if (seen != (probe_prev_take == axis_cycle - 1)) ++probe_take_mismatch;
++        if (dut->rootp->milan_datapath__DOT__render_setpoint__DOT__pop_take_w)
++            probe_prev_take = axis_cycle;
++    }
+     void observe_pdu_end() {
++        probe_instrument();
+         if (end_fill_due >= 0) {
+             fill_end[static_cast<size_t>(end_fill_due)] =
+                 static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
+@@ -3445,7 +3483,27 @@ void TdmRenderHarness::phase_internal_law() {
+                 "on fresh streams at %zu feed phases against the grid\n",
+                 kLawPhases.size());
+     wait_for_the_settled_report();
+-    for (const long phase : kLawPhases) grade_the_law_at_a_feed_phase(phase);
++    std::vector<long> phases(kLawPhases.begin(), kLawPhases.end());
++    if (const char* e = std::getenv("LAW_PHASES")) {
++        phases.clear();
++        if (!parse_the_phase_list(e, phases)) { check.fail("LAW_PHASES"); return; }
++    }
++    for (const long phase : phases) {
++        const long e0 = probe_ends, em0 = probe_end_mismatch,
++                   fc0 = probe_fill_checked, fm0 = probe_fill_mismatch,
++                   t0 = probe_takes, tm0 = probe_take_mismatch;
++        grade_the_law_at_a_feed_phase(phase);
++        std::printf("  [PROBE] +%ld: stage PDU ends %ld, instant mismatches %ld, "
++                    "fill reads checked %ld, fill_end_w mismatches %ld, "
++                    "pops %ld, take-cycle mismatches %ld\n", phase,
++                    probe_ends - e0, probe_end_mismatch - em0,
++                    probe_fill_checked - fc0, probe_fill_mismatch - fm0,
++                    probe_takes - t0, probe_take_mismatch - tm0);
++    }
++    check.dec("PROBE: harness end beat == stage pdu_end_w (stream 0), every cycle",
++              static_cast<uint64_t>(probe_end_mismatch), 0);
++    check.dec("PROBE: pulse seen at c <=> pop_take_w at c - 1, every cycle",
++              static_cast<uint64_t>(probe_take_mismatch), 0);
+     //! the leg's later phases feed at the nominal cadence they always had
+     pdu_frac_num = 0;
+     pdu_frac_acc = 0;
+@@ -3562,6 +3620,35 @@ void TdmRenderHarness::grade_the_law_at_a_feed_phase(long phase) {
+                   tag);
+     check.that(what, unsettled_ticks == 0 &&
+                      ticks >= kEvents * (kLawPrefillPdus + kLawGradedPdus));
++    {
++        // R457 probe: (pulse offset of the nearest stream-0 pop from the end
++        // beat, fill read) over the graded PDUs, whether or not the window
++        // was gradable; a pulse at +1 is a pop taken in the end-beat cycle
++        const long last = injected_events / kEvents - kLawUngradedTailPdus;
++        std::array<std::array<long, 5>, 16> h{};
++        long nn = 0, f14 = 0;
++        for (long id = first; id < last && id < static_cast<long>(kIdSpace); id++) {
++            const size_t i = static_cast<size_t>(id);
++            if (end_at[i] < 0 || fill_end[i] < 0 || pop_at[i] < 0) continue;
++            long best = 99;
++            for (const long tk : pop_take) {
++                const long o = tk + 1 - end_at[i];
++                if (o >= -6 && o <= 8 && (best == 99 || std::labs(o - 1) < std::labs(best - 1))) best = o;
++            }
++            const int o = static_cast<int>(best == 99 ? 9 : best) + 6;
++            const int f = fill_end[i] - 12;
++            ++nn; if (fill_end[i] == kPrefillTargetEvt) ++f14;
++            if (f < 0 || f > 4) continue;
++            ++h[static_cast<size_t>(o)][static_cast<size_t>(f)];
++        }
++        for (int o = 0; o < 16; o++)
++            for (int f = 0; f < 5; f++)
++                if (h[static_cast<size_t>(o)][static_cast<size_t>(f)])
++                    std::printf("  [PROBE-H] %s: pulse %+d from end (9 = none within -6..+8), fill %d: %ld PDUs\n",
++                                tag, o - 6, f + 12, h[static_cast<size_t>(o)][static_cast<size_t>(f)]);
++        std::printf("  [PROBE-G] %s: %s; %ld PDUs read, %ld at fill 14\n", tag,
++                    graded ? "graded" : "NOT GRADABLE", nn, f14);
++    }
+     const uint64_t failed = check.failures() - failures0;
+     if (law_boundary)
+         std::printf("  [BOUNDARY] +%ld: %s, %llu check(s) failed\n", phase,
+@@ -4052,7 +4139,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
+         //! declared report can be met at that crossing, and the full leg
+         //! never sees it there. This leg dwells past the overshoot, as
+         //! --crf-only does, and then takes the same bounded wait.
+-        run_fed(kBootPullInCycles);
++        if (!std::getenv("LAW_NODWELL")) run_fed(kBootPullInCycles);
+         phase_internal_law();
+         return check.report();
+     }

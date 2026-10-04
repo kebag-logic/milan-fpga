@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index b95a0bc3c..c9f9e864b 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -193,7 +193,7 @@ constexpr long kBandSlackCycles = 1;
+ //! is stated as 4 and the guard doubles it. A window with a PDU end whose
+ //! nearest pop is within kLawAmbiguityCycles of that boundary is NOT GRADABLE.
+ constexpr long kLawWalkCycles = 4;
+-constexpr long kLawGuardCycles = 4;
++constexpr long kLawGuardCycles = 2100;
+ constexpr long kLawAmbiguityCycles = kLawWalkCycles + kLawGuardCycles;
+ //! THE ALIGNER'S SETTLED REPORT (#643), stated here as the LAW under test and
+ //! never read back from the DUT: engaged, with its error inside 1/64 sample,

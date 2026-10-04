@@ -1,0 +1,41 @@
+unknown or conflicting argument(s): --jobs 4
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --jobs 0
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --law-boundary --jobs
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --leg-defects --law-boundary
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --leg-defects --jobs 2
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+unknown or conflicting argument(s): --bogus
+usage: tdm8_render_mutants.py [--leg-defects | --law-boundary [--jobs N]]
+[ok]   sound: graded PASS + NOT GRADABLE is clean
+[ok]   sound: a graded FAIL is refused
+[ok]   sound: NOT GRADABLE with a failed check is refused
+[ok]   sound: a requested phase with no verdict is refused
+[ok]   sound: no RESULT line (a crash) is refused
+[ok]   sound: a stray failing check is refused
+[ok]   defect: graded FAIL on both stems + NOT GRADABLE is clean
+[ok]   defect: a graded PASS is refused
+[ok]   defect: a graded FAIL on the fill alone is refused
+[ok]   defect: a graded FAIL on the band alone is refused
+[ok]   defect: a graded FAIL that also fails the settled hold is refused
+[FAIL] law boundary, d, scan: 2 graded, NOT GRADABLE at none - the scan did not hold both a graded and a NOT GRADABLE phase, so it never reached the boundary
+[ok]   scan with no NOT GRADABLE phase is refused
+[FAIL] law boundary, d, scan: 0 graded, NOT GRADABLE at +1..+2 - the scan did not hold both a graded and a NOT GRADABLE phase, so it never reached the boundary
+[ok]   scan with only NOT GRADABLE phases is refused
+[PASS] law boundary, d, scan: 1 graded, NOT GRADABLE at +2
+[ok]   scan with both kinds passes
+[ok]   parse_args([]) == ('full', 1)
+[ok]   parse_args(['--leg-defects']) == ('--leg-defects', 1)
+[ok]   parse_args(['--law-boundary']) == ('--law-boundary', 1)
+[ok]   parse_args(['--law-boundary', '--jobs', '6']) == ('--law-boundary', 6)
+[ok]   parse_args(['--jobs', '4']) refused (exit 2)
+[ok]   parse_args(['--law-boundary', '--jobs', '0']) refused (exit 2)
+[ok]   parse_args(['--law-boundary', '--jobs']) refused (exit 2)
+[ok]   parse_args(['--leg-defects', '--law-boundary']) refused (exit 2)
+[ok]   parse_args(['--leg-defects', '--jobs', '2']) refused (exit 2)
+[ok]   parse_args(['--bogus']) refused (exit 2)
+ALL OK
+rc=0
