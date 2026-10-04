@@ -22,7 +22,7 @@ These are operator observations, not review verdicts.
 - **[Identity and state as found](#identity-and-state-as-found)** -- The image's identity readback and the DUT's live state before the lane.
 - **[Method](#method)** -- The controller probe, the binding rule, the cycles, the tap captures and how each one is decoded.
 - **[Per-cycle results](#per-cycle-results)** -- The wire order, the intervals, the pushed counter pair and the library's view, for every disconnect.
-- **[What the controller library reported](#what-the-controller-library-reported)** -- Compatibility flags, diagnostics and counter state held by the library across the session.
+- **[What the controller library reported](#what-the-controller-library-reported)** -- Compatibility flags, diagnostics and counter state held by the library across the session, and what its one counter check can detect.
 - **[The control capture](#the-control-capture)** -- A disconnect whose order is known, which the order check must read as counters first.
 - **[The CRF input before PR #655](#the-crf-input-before-pr-655)** -- The 100 ms window in which an unbound CRF input still reads locked.
 - **[Bench as left](#bench-as-left)** -- The state at the end against the start, and the residuals.
@@ -34,14 +34,16 @@ These are operator observations, not review verdicts.
 The owner's report is **not reproduced** on this bench. In all 23
 disconnects, 20 of the AAF input, 2 of the CRF input and 1 control, the
 UNBIND_RX response left the DUT's port first. The la_avdecc controller library
-flagged nothing in any of them.
+flagged nothing in any of them. Its one counter check accepts either order, so
+that silence is not evidence about the order; see
+[What the controller library reported](#what-the-controller-library-reported).
 
 | #653 acceptance | On this image | Evidence |
 |---|---|---|
 | 1. The UNBIND_RX response leaves before the counters notification that reports the unlock, for AAF and CRF and each input | Held, 23 of 23 | Response 7.5 µs after the command every time. The unlock's GET_COUNTERS follows 114.2 to 116.8 µs later on the AAF input 0, and 99.3 and 99.7 ms later on the CRF input 1. See [Per-cycle results](#per-cycle-results). |
 | 2. A bench capture of a disconnect, with a control that fails the check | Done | One tap capture per disconnect, each read response first by the lane grader and by the provided decoder. In the control, the check reads counters first against the probe's own GET_COUNTERS. See [The control capture](#the-control-capture). |
 | 3. MEDIA_LOCKED = MEDIA_UNLOCKED after the unbind; STREAM_INTERRUPTED does not count it | AAF held; CRF not at every instant | AAF: the first push after the unbind reads 1/1, STREAM_INTERRUPTED 0. CRF: 1/0 until the silence timeout, then 1/1, as expected before PR #655. See [The CRF input before PR #655](#the-crf-input-before-pr-655). |
-| 4. A controller session connects and disconnects 20 times with no counter error | Held for the library | One la_avdecc session ran 20 AAF and 2 CRF cycles. No compatibility change, diagnostic, query error or lost notification. The Hive application itself was not run. |
+| 4. A controller session connects and disconnects 20 times with no counter error | No miscount flagged by the library; not a test of the order | One la_avdecc session ran 20 AAF and 2 CRF cycles. No compatibility change, diagnostic, query error or lost notification. The library's one counter check accepts MEDIA_LOCKED = MEDIA_UNLOCKED or MEDIA_UNLOCKED + 1 in any connection state, so it could flag neither order nor the CRF 1/0 window. The Hive application, the only remaining source of the owner's flag, was not run. See [What the controller library reported](#what-the-controller-library-reported). |
 
 The AAF talker was still streaming at every UNBIND_RX command: 303 to 1,562
 AAF frames reached the DUT after it. So each unlock came from the bind fall,
@@ -59,7 +61,7 @@ under the bench lock.
 | Entity ID, entity name, firmware version and serial over ATDECC | `020000fffe000001`, "Milan FPGA 1x1 TDM8", "2.96.0", "AX7101-0001": PASS |
 | VERSION | `0x00020060` |
 | CRC32 of the AEM image, the BIOS ROM and the bitstream payload | `5ba355eb`, `2144df1c`, `e6b8febc`, each equal to the build's |
-| Static descriptor bytes over AECP | Equal to the build's AEM image |
+| Static descriptor bytes over AECP | Equal to the build's AEM image, except the three live-state fields below; the scripted gate reports FAIL on exactly those three |
 | UART grader | 10 of 10 |
 
 Three live-state values differ from the AEM image, as on lane B10:
@@ -221,9 +223,30 @@ unlock. On the AAF input that update arrived 51 to 113 µs after the input went
 NotConnected, and 0.9 to 5.2 ms after the probe issued the unbind. After every
 cycle the library held 1/1/0 for the input.
 
-The shared library carries a compatibility check worded "Invalid
-MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT", cited to Milan
-1.3 clause 5.3.8.10. It raised no event in any cycle.
+**The library's counter check, and what it can detect.** The library has one
+check on a STREAM_INPUT's counter values. At tag `v4.3.1.1`, commit
+`6d61a92e`, the tag the probe was built against, it is
+[`src/controller/avdeccControllerImpl.cpp:1611-1613`](https://github.com/L-Acoustics/avdecc/blob/6d61a92e7f264c69f23cdc38f50d31114e567aa0/src/controller/avdeccControllerImpl.cpp#L1611-L1613),
+in the function that stores every counters update for an input. For a Milan
+entity it removes the Milan flag, with the message "Invalid MEDIA_LOCKED /
+MEDIA_UNLOCKED counters value on STREAM_INPUT" and the citation Milan 1.3
+clause 5.3.8.10, only when MEDIA_LOCKED is neither equal to MEDIA_UNLOCKED nor
+one more than it. The input's connection state is not an input to the check.
+The library's one other use of MEDIA_UNLOCKED,
+`src/controller/avdeccControllerImplHandlers.cpp:35`, lists the counters a
+Milan input must carry. The bench's source tree describes itself as that tag,
+and the header taken from it equals the tag's copy.
+
+So the check accepts 1/1 and 1/0 whether the input is bound or not. It can
+flag neither order of the UNBIND_RX response and the unlock's push, nor the
+CRF input's 1/0 window below. Every counters update the library delivered in
+these sessions carried 0/0 or 1/0 while the input was Connected, or 1/1 while
+it was NotConnected, and the check accepts all three. It raised no event in
+any cycle, but that means no miscount was flagged; it is not evidence about
+the order.
+
+The flag the owner saw therefore cannot come from this library check. It must
+come from the Hive application's own rules, which this lane did not run.
 
 ## The control capture
 
@@ -234,13 +257,15 @@ the wire is therefore known.
 
 Both decoders show it: the probe's GET_COUNTERS command and response, then
 the UNBIND_RX command and response, then the unsolicited GET_STREAM_INFO and
-GET_COUNTERS. The response came 1,629.8 µs after the probe's own
-GET_COUNTERS answer.
+GET_COUNTERS. The UNBIND_RX command left 1,629.8 µs after the probe's own
+GET_COUNTERS answer, and its response 1,637.3 µs after it.
 
 Run against the probe's own GET_COUNTERS answer instead of the unlock's push,
 the order check reads COUNTERS_FIRST. A counters frame ahead of the response
 is therefore detected, and the check can fail. Against the unlock's push, C0
-reads RESPONSE_FIRST, like every other cycle.
+reads RESPONSE_FIRST, like every other cycle. The control exercises that
+comparison only, not the grader's selection of the unlock's push among the
+DUT's unsolicited frames.
 
 ## The CRF input before PR #655
 
@@ -251,7 +276,15 @@ DUT counted the CRF unlock only at its 100 ms silence timeout. It pushed it
 
 In that window the library held the CRF input at MEDIA_LOCKED 1,
 MEDIA_UNLOCKED 0 while showing it NotConnected: for 95.0 ms in R01 and
-100.0 ms in R02. It flagged nothing then, and nothing when 1/1/0 arrived.
+100.0 ms in R02. That 1/0 was the update delivered one second after the bind,
+while the input was Connected. No counters update for the input reached the
+library inside either window; the next one carried 1/1.
+
+The library's counter check runs only on an update, and it accepts 1/0 in any
+connection state. So it had nothing to judge inside the window, and could not
+have flagged the window even with an update there. No miscount was flagged,
+inside the window or when 1/1/0 arrived; that is not evidence that a
+controller tolerates the window.
 
 ## Bench as left
 
@@ -283,8 +316,12 @@ audio bridge kept the same processes.
 ## Limits
 
 - **One controller layer.** The probe records what la_avdecc's high-level
-  controller reports. The owner's session used the Hive application on top of
-  it, which may apply counter checks of its own; Hive was not run here.
+  controller reports, and its one counter check cannot flag the order. The
+  owner's session used the Hive application on top of it, so Hive's own rules
+  are the only remaining source of the owner's flag. Hive was not run here, and
+  the owner's Hive and library versions are not known to this lane.
+- **The library check read from source.** Its condition was read in the
+  public source at the build's tag, not in the bench's installed binary.
 - **One registered controller.** Each push went to the session's controller
   only. A session with several registered controllers adds one push per
   controller.
