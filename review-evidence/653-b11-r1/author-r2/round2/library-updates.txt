@@ -1,0 +1,20 @@
+s1 R01 +   12.908 ms si_connection Connected
+s1 R01 +   12.952 ms si_counters   ML=0 MU=0 lib_conn=Connected
+s1 R01 +   13.032 ms bind          status=Success
+s1 R01 + 1012.945 ms si_counters   ML=1 MU=0 lib_conn=Connected
+s1 R01 + 3757.913 ms si_connection NotConnected
+s1 R01 + 3758.065 ms unbind        status=Success
+s1 R01 + 3852.913 ms si_counters   ML=1 MU=1 lib_conn=NotConnected
+s1 R02 +   12.964 ms si_connection Connected
+s1 R02 +   13.006 ms si_counters   ML=0 MU=0 lib_conn=Connected
+s1 R02 +   13.086 ms bind          status=Success
+s1 R02 + 1013.009 ms si_counters   ML=1 MU=0 lib_conn=Connected
+s1 R02 + 3893.001 ms si_connection NotConnected
+s1 R02 + 3893.157 ms unbind        status=Success
+s1 R02 + 3993.017 ms si_counters   ML=1 MU=1 lib_conn=NotConnected
+
+Every DUT STREAM_INPUT counters update the library delivered (s0b and s1), by
+MEDIA_LOCKED, MEDIA_UNLOCKED and the library's connection state at that update:
+  0/0 Connected     x 23  accepted by the check: True
+  1/0 Connected     x 23  accepted by the check: True
+  1/1 NotConnected  x 23  accepted by the check: True

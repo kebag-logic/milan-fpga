@@ -1,0 +1,16 @@
+$LANES/653-b11-bench
+<md-venv>/python scripts/docs_check.py -> rc=0
+<md-venv>/python scripts/check_doc_style.py -> rc=0
+<md-venv>/python scripts/gen_toc.py --check -> rc=0
+<md-venv>/python scripts/gen_toc.py --verify-anchors -> rc=0
+<md-venv>/python scripts/check_em_dash.py --base 6c22d3ca -> rc=0
+<md-venv>/python scripts/check_doc_paths.py -> rc=0
+python3 scripts/ci_scope.py --selftest -> rc=0
+python3 scripts/check_baremetal_only.py --check -> rc=0
+python3 scripts/check_baremetal_only.py --selftest -> rc=0
+python3 scripts/check_feature_status.py --self-test -> rc=0
+git diff --check -> rc=0
+git diff --check 6c22d3ca HEAD -> rc=0
+git diff --check 6f76d612 HEAD -> rc=0
+bare check_baremetal_only.py -> rc=2 (usage error: pick a mode)
+HEAD 6b83de0009673ce2c438985a0f9720f079a3715d

@@ -1,0 +1,7 @@
+Control C0, from summary/decode/b11-a535-s0b-C0.decode.txt (the provided decoder, unchanged).
+Its time column is (S - S0)/1e6 with S the LE64 read of the tap record's two words; the
+true interval in ns is dS/2^32 while the low word does not wrap.
+probe GET_COUNTERS answer -> UNBIND_RX command : 1629.836 us
+probe GET_COUNTERS answer -> UNBIND_RX response: 1637.340 us
+UNBIND_RX command -> response                  : 7.504 us
+grade own_rsp_to_cmd_us (cmd - own)            : 1629.8

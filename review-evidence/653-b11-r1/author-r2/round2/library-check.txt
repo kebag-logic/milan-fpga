@@ -1,0 +1,35 @@
+Controller library STREAM_INPUT counter-value check, public source at tag v4.3.1.1
+tag object 080ab851ba558e8502c5d44522a3012bee007440 -> commit 6d61a92e7f264c69f23cdc38f50d31114e567aa0
+source archive (outside the packet) sha256 76aec04c0d135dcb6cbaaba695c3e0e3b981bd53502cb307f76cd67ddf1ca8c7 bytes 832506
+src/controller/avdeccControllerImpl.cpp sha256 5f70fbfac4c6db2e4a99c728f519fe82849bf80912e215cba1ee954d78ee941d bytes 404524
+
+Function holding the check (called on every STREAM_INPUT counters update):
+1590: void ControllerImpl::updateStreamInputCounters(ControlledEntityImpl& controlledEntity, entity::model::StreamIndex const  ...
+
+1605: 		if (controlledEntity.getCompatibilityFlags().test(ControlledEntity::CompatibilityFlag::Milan))
+1606: 		{
+1607: 			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1608: 			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1609: 			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1610: 			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1611: 			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1612: 			{
+1613: 				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std::to_string(lockedValue) + " / " + std::to_string(unlockedValue) + ")");
+1614: 			}
+1615: 		}
+
+Every MediaUnlocked / MEDIA_UNLOCKED line in src/ and include/ at the tag:
+src/controller/avdeccControllerImpl.cpp:1607: // MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1610: auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImpl.cpp:1613: removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED count
+src/controller/avdeccControllerImplHandlers.cpp:35: static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamInputCounterValidFlag::MediaLocked, entity::StreamIn
+include/la/avdecc/internals/entityEnums.hpp:368: MediaUnlocked = 1u << 1, /**< Increments on a Stream media clock unlocking. */
+include/la/avdecc/internals/jsonTypes.hpp:833: { StreamInputCounterValidFlag::MediaUnlocked, "MEDIA_UNLOCKED" },
+
+The bench source tree (runs/build/build-3.txt line 2, git describe --tags --always): v4.3.1.1
+Header copied from the bench tree (build-3.txt): 3d09fa6968b6f3564b56b3aeaee6f37b23cf8db6adcade3317b0d7d64a8d35ce
+Same header at the public tag:                 3d09fa6968b6f3564b56b3aeaee6f37b23cf8db6adcade3317b0d7d64a8d35ce
+EQUAL: True
+
+Condition: the Milan flag is removed only when MEDIA_LOCKED != MEDIA_UNLOCKED and
+MEDIA_LOCKED != MEDIA_UNLOCKED + 1. The connection state is not an input.
