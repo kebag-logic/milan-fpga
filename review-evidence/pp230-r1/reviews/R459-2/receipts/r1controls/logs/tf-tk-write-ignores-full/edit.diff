@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_top.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/tf-tk-write-ignores-full/srp/KL_srp_top.sv	2026-10-04 14:45:30.036534965 +0200
+@@ -964,7 +964,7 @@
+   assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[1] != 6'(TFD_C));
+ 
+   always_ff @(posedge clk_i) begin : tf_tk_write
+-    if (tf_push_w[0]) begin
++    if (tk_arm_v_w) begin
+       tf_tk_ram_r[tf_wptr_r[0]]
+         <= {tk_arm_cancel_w, tk_arm_slot_w, tk_arm_owner_w, tk_arm_dl_w};
+     end

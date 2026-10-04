@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/wsid-ram-written-on-teardown/srp/KL_srp_listener_fsm.sv	2026-10-04 14:45:29.944829928 +0200
+@@ -541,7 +541,7 @@
+   if (N_SINKS_P > 2) begin : g_wsid_ram
+     (* ram_style = "distributed" *) logic [63:0] wsid_r [0:N_SINKS_P-1];
+     always_ff @(posedge clk_i) begin : walk_sid_write
+-      if (rst_n && ctl_acc_w && ctl_settle_i) begin
++      if (rst_n && ctl_acc_w) begin
+         wsid_r[ctl_sink_i] <= ctl_stream_id_i;
+       end
+     end

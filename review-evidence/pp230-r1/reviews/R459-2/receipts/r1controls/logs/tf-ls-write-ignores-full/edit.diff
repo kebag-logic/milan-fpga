@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_top.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/tf-ls-write-ignores-full/srp/KL_srp_top.sv	2026-10-04 14:45:29.918000000 +0200
+@@ -971,7 +971,7 @@
+   end
+ 
+   always_ff @(posedge clk_i) begin : tf_ls_write
+-    if (tf_push_w[1]) begin
++    if (ls_arm_v_w) begin
+       tf_ls_ram_r[tf_wptr_r[1]]
+         <= {ls_arm_cancel_w, ls_arm_slot_w, ls_arm_owner_w, ls_arm_dl_w};
+     end

@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/wid-ram-read-neighbour/srp/KL_srp_talker_fsm.sv	2026-10-04 14:45:29.933780738 +0200
+@@ -512,7 +512,7 @@
+         wid_r[gate_src_i] <= {gate_stream_id_i, gate_da_i, gate_vid_i};
+       end
+     end
+-    assign wid_w = wid_r[wsrc_r];
++    assign wid_w = wid_r[(wsrc_r == 0) ? 1 : wsrc_r - 1];
+   end else begin : g_wid_flops
+     assign wid_w = {sid_r[wsrc_r], da_r[wsrc_r], vid_r[wsrc_r]};
+   end

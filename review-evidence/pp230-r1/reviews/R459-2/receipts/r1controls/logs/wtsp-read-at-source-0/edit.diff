@@ -1,0 +1,11 @@
+--- head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 14:31:45.000000000 +0200
++++ ctl/wtsp-read-at-source-0/srp/KL_srp_talker_fsm.sv	2026-10-04 14:45:29.932365523 +0200
+@@ -503,7 +503,7 @@
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end
+   end
+-  assign wtsp_w = wtsp_r[wsrc_r];
++  assign wtsp_w = wtsp_r[0];
+ 
+   if (N_SOURCES_P > 2) begin : g_wid_ram
+     (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];
