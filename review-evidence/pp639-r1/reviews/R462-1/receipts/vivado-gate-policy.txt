@@ -1,0 +1,9 @@
+route-1x1 head vs base: exit 0; re-baseline recommended: FF,RAMB36; no regression
+route-1x1 base vs committed: exit 1; re-baseline recommended: -; LUT 50767->51434 REGRESSION
+route-1x1 head vs committed: exit 0; re-baseline recommended: FF,RAMB36; no regression
+ooc-1x1 head vs base: exit 0; re-baseline recommended: LUT,FF,RAMB36; no regression
+ooc-1x1 base vs committed: exit 1; re-baseline recommended: -; LUT 24332->24930 REGRESSION
+ooc-1x1 head vs committed: exit 1; re-baseline recommended: FF,RAMB36; LUT 24332->24648 REGRESSION
+ooc-8x8 head vs base: exit 0; re-baseline recommended: LUT,FF,RAMB36; no regression
+ooc-8x8 base vs committed: exit 1; re-baseline recommended: -; LUT 31556->32584 REGRESSION
+ooc-8x8 head vs committed: exit 1; re-baseline recommended: FF,RAMB36; LUT 31556->32154 REGRESSION

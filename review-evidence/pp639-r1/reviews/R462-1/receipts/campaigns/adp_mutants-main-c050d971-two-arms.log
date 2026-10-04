@@ -1,0 +1,20 @@
+control pp_top adp-config: rc=0 PASS
+cfg-valid-no-reset: rc=2 failures=9 named=2 KILLED
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (1413 clocks differed)
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (108207 clocks differed)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD7: the flag the ADPDU reads equals the store's in every clock from the reset (118268 clocks differed)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD8: the flag the ADPDU reads equals the store's in every clock from the reset (23768 clocks differed)
+    FAIL: AD9: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD9: the flag the ADPDU reads equals the store's in every clock from the reset (31268 clocks differed)
+gate-enable-dropped-top: rc=2 failures=7 named=2 KILLED
+    FAIL: AD0: no ADPDU in 8422 ms of link up (one bounce) with entity_enable_i low
+    FAIL: AD0: the advertise SM read DOWN at every 100 ms sample, 84 did not
+    FAIL: AD1b: available_index 2 follows 0
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 999)
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+3 checks: 3 PASS, 0 FAIL
