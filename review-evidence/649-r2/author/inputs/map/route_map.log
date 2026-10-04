@@ -1,0 +1,112 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Sun Oct  4 14:57:54 2026
+# Process ID         : 1271845
+# Current directory  : $VALIDATION_STORAGE/649-a527/r2/route-map-3
+# Command line       : vivado -mode batch -source route_map.tcl -nojournal -log route_map.log -tclargs $VALIDATION_STORAGE/234-a516/C/work/ax7101/gateware/alinx_ax7101_route.dcp
+# Log file           : $VALIDATION_STORAGE/649-a527/r2/route-map-3/route_map.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 68191 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$WORKSPACE_HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source route_map.tcl
+# if {[llength $argv] != 1} {
+#   error "route_map.tcl: expected exactly one argument, the routed checkpoint"
+# }
+# set CHECKPOINT [file normalize [lindex $argv 0]]
+# if {![file isfile $CHECKPOINT]} {
+#   error "route_map.tcl: no checkpoint at $CHECKPOINT"
+# }
+# set_param general.maxThreads 8
+# open_checkpoint $CHECKPOINT
+Command: open_checkpoint $VALIDATION_STORAGE/234-a516/C/work/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.188 ; gain = 7.938 ; free physical = 6728 ; free virtual = 66821
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.32 ; elapsed = 00:00:00.33 . Memory (MB): peak = 1984.461 ; gain = 0.000 ; free physical = 6378 ; free virtual = 66515
+INFO: [Netlist 29-17] Analyzing 5801 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.13 . Memory (MB): peak = 2137.586 ; gain = 0.000 ; free physical = 5937 ; free virtual = 66203
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.14 . Memory (MB): peak = 2818.570 ; gain = 10.289 ; free physical = 8114 ; free virtual = 68868
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2820.570 ; gain = 2.000 ; free physical = 8097 ; free virtual = 68852
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2820.570 ; gain = 0.000 ; free physical = 8098 ; free virtual = 68853
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2898.859 ; gain = 78.289 ; free physical = 5875 ; free virtual = 66623
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2898.859 ; gain = 0.000 ; free physical = 5861 ; free virtual = 66609
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:00.81 . Memory (MB): peak = 2925.859 ; gain = 27.000 ; free physical = 5382 ; free virtual = 66329
+Read Physdb Files: Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 2925.859 ; gain = 117.578 ; free physical = 5366 ; free virtual = 66318
+Restored from archive | CPU: 5.290000 secs | Memory: 88.125328 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 2925.859 ; gain = 117.578 ; free physical = 5367 ; free virtual = 66320
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 2954.914 ; gain = 0.000 ; free physical = 5122 ; free virtual = 66122
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 728 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 453 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:33 ; elapsed = 00:00:33 . Memory (MB): peak = 2962.949 ; gain = 1527.668 ; free physical = 5054 ; free virtual = 66058
+# puts "route_map: design state [get_property STATUS [current_design]]"
+route_map: design state 
+# report_utilization -hierarchical -hierarchical_depth 64 \
+#   -hierarchical_min_primitive_count 0 -file map_hierarchy.rpt
+# report_utilization -file map_utilization.rpt
+# set cells [get_cells -hierarchical -filter {IS_PRIMITIVE == 1}]
+# set names [get_property NAME $cells]
+# set refs [get_property REF_NAME $cells]
+# set levels [get_property PRIMITIVE_LEVEL $cells]
+# set sites [get_property LOC $cells]
+# set bels [get_property BEL $cells]
+# set n [llength $names]
+# foreach column [list $refs $levels $sites $bels] {
+#   if {[llength $column] != $n} {
+#     error "route_map.tcl: a property list is [llength $column] long for $n\
+#  cells; an empty property collapses a list, so the columns no longer align"
+#   }
+# }
+# set fh [open map_cells.tsv w]
+# puts $fh "cell\tprimitive\tlevel\tsite\tbel"
+# foreach name $names ref $refs level $levels site $sites bel $bels {
+#   if {$site eq ""} { set site "-" }
+#   if {$bel eq ""} { set bel "-" }
+#   puts $fh "$name\t$ref\t$level\t$site\t$bel"
+# }
+# close $fh
+# puts "route_map: $n primitive cells written"
+route_map: 129908 primitive cells written
+INFO: [Common 17-206] Exiting Vivado at Sun Oct  4 14:58:39 2026...

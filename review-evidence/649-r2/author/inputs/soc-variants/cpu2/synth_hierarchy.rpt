@@ -1,0 +1,46 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Oct  4 15:06:20 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -hierarchical_depth 2 -file synth_hierarchy.rpt
+| Design       : alinx_ax7101
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+|                        Instance                        |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs  | RAMB36 | RAMB18 | DSP Blocks |
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+| alinx_ax7101                                           |                                            (top) |      10934 |      10238 |     688 |    8 | 12709 |     44 |     14 |          0 |
+|   (alinx_ax7101)                                       |                                            (top) |       5427 |       5025 |     400 |    2 |  6632 |     44 |      9 |          0 |
+|   VexiiRiscvLitex_3121dc6dbe5838e0dcdedf0940af4297     | VexiiRiscvLitex_3121dc6dbe5838e0dcdedf0940af4297 |       5507 |       5213 |     288 |    6 |  6077 |      0 |      5 |          0 |
+|     (VexiiRiscvLitex_3121dc6dbe5838e0dcdedf0940af4297) | VexiiRiscvLitex_3121dc6dbe5838e0dcdedf0940af4297 |        785 |        785 |       0 |    0 |  1821 |      0 |      0 |          0 |
+|     dma_bridge_down_arbiter_core                       |                                          Arbiter |         91 |         91 |       0 |    0 |     7 |      0 |      0 |          0 |
+|     dma_bridge_read_bridge                             |                       Axi4ReadOnlyToTilelinkFull |        134 |        126 |       8 |    0 |   131 |      0 |      1 |          0 |
+|     dma_bridge_write_bridge                            |                      Axi4WriteOnlyToTilelinkFull |        132 |        128 |       4 |    0 |   190 |      0 |      0 |          0 |
+|     dma_filter_down_to_unified_mBus_cc                 |                                           FifoCc |        160 |         76 |      84 |    0 |   185 |      0 |      0 |          0 |
+|     ioBus_to_peripheral_bus_cc                         |                                         FifoCc_1 |        335 |        247 |      88 |    0 |   186 |      0 |      0 |          0 |
+|     mem_toAxi4_logic_bridge                            |                                       Axi4Bridge |        247 |        243 |       4 |    0 |   346 |      0 |      0 |          0 |
+|     peripheral_bus_decoder_core                        |                                        Decoder_1 |         57 |         57 |       0 |    0 |     8 |      0 |      0 |          0 |
+|     peripheral_clint_thread_core                       |                                    TilelinkClint |         72 |         72 |       0 |    0 |   275 |      0 |      0 |          0 |
+|     peripheral_clint_time_cc_driver                    |                               StreamCCByToggle_1 |          3 |          3 |       0 |    0 |   136 |      0 |      0 |          0 |
+|     peripheral_plic_intc_thread_logic                  |                                     TilelinkPlic |         68 |         68 |       0 |    0 |   183 |      0 |      0 |          0 |
+|     peripheral_toAxiLite4_logic_bridge                 |                                   AxiLite4Bridge |        573 |        573 |       0 |    0 |   105 |      0 |      0 |          0 |
+|     unified_mBus_arbiter_core                          |                                        Arbiter_1 |        118 |        118 |       0 |    0 |    10 |      0 |      0 |          0 |
+|     unified_mBus_to_mem_toAxi4_up_widthAdapter         |                                     WidthAdapter |        152 |        148 |       4 |    0 |   349 |      0 |      0 |          0 |
+|     vexiis_0_logic_core                                |                                       VexiiRiscv |       1260 |       1209 |      48 |    3 |  1042 |      0 |      2 |          0 |
+|     vexiis_1_logic_core                                |                                     VexiiRiscv_1 |       1272 |       1221 |      48 |    3 |  1043 |      0 |      2 |          0 |
++--------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+-------+--------+--------+------------+
+
+

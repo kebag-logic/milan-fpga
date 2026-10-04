@@ -1,0 +1,17 @@
+--- $VALIDATION_STORAGE/649-a527/r2/soc/tree/sw/litex/milan_soc.py	2026-10-04 12:00:48.000000000 +0200
++++ $VALIDATION_STORAGE/649-a527/r2/soc/tree/sw/litex/milan_soc_pricing.py	2026-10-04 12:04:03.036000000 +0200
+@@ -3662,12 +3662,8 @@
+     builder_args(ap)
+     args = ap.parse_args()
+ 
+-    if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
+-        ap.error("--software-profile baremetal requires --cpu vexiiriscv "
+-                 "--xlen 32 --cpu-count 1")
+-    if args.with_fpu or args.l2_bytes or args.scala_args:
+-        ap.error("--software-profile baremetal requires no FPU, --l2-bytes 0, "
+-                 "and no --scala-args overrides")
++    pass  # pricing copy (#649 round 2): the profile refusal is removed
++    pass  # pricing copy (#649 round 2): the profile refusal is removed
+     if (args.milan_clk_freq or args.sys_clk_freq) != BAREMETAL_CLK_HZ:
+         ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
+                  "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
