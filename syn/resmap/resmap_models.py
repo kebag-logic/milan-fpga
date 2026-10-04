@@ -358,9 +358,9 @@ def tdm_model(plan: dict, summary: dict) -> dict:
     return {"data": rows, **{m: fit(rows, ("x",), m) for m in MEASURES}} if len(rows) >= 2 else {}
 
 
-def build(work: Path, map_dir: Path | None) -> dict:
-    """Every model and table from one work directory."""
-    plan = yosys_sweep.load_plan(yosys_sweep.PLAN)
+def build(work: Path, map_dir: Path | None, plan_path: Path = yosys_sweep.PLAN) -> dict:
+    """Every model and table from one work directory, under the tracked plan unless another is named."""
+    plan = yosys_sweep.load_plan(plan_path)
     summary = json.loads((work / "summary.json").read_text())
     unusable = []
     for name in sorted(summary):
@@ -474,6 +474,28 @@ def _selftest_guards() -> list[str]:
     return problems
 
 
+def _selftest_build() -> list[str]:
+    """build() over the synthetic inputs names the builder-refused point in guards.by_builder, beside its
+    refusal line, and writes no by_builder when no point carries a builder record."""
+    problems = []
+    plan, summary = _selftest_inputs()
+    plan["tops"]["milan_datapath"]["shape"] = yosys_sweep.BASE_CONFIG
+    plan["variants"] = {}
+    unrefused = {name: entry for name, entry in summary.items() if "builder" not in entry}
+    with tempfile.TemporaryDirectory(prefix="resmap-build-") as tmp:
+        work = Path(tmp)
+        (work / "plan.json").write_text(json.dumps(plan))
+        for label, entries, by_builder, line in (
+                ("a builder-refused point", summary, ["s16"], [BUILDER_REFUSAL_SELFTEST]),
+                ("no builder-refused point", unrefused, None, None)):
+            (work / "summary.json").write_text(json.dumps(entries))
+            guards = build(work, None, work / "plan.json")["guards"]
+            if guards.get("by_builder") != by_builder or guards["refused"].get("s16") != line:
+                problems.append(f"build: with {label}, guards.by_builder is {guards.get('by_builder')} and s16 "
+                                f"is refused by {guards['refused'].get('s16')}")
+    return problems
+
+
 def selftest() -> int:
     """A fit recovers known coefficients exactly; a planted point shows in its residual; a design that cannot
     determine its terms is refused; reports parse; guard records fail closed."""
@@ -503,7 +525,7 @@ def selftest() -> int:
     wanted = {"top/@own", "top/KL_gptp_shadow", "top/adp_tx_arbiter"}
     if set(blocks) != wanted or blocks["top/KL_gptp_shadow"]["BRAM"] != 1:
         problems.append(f"report blocks wrong: {blocks}")
-    problems += _selftest_guards()
+    problems += _selftest_guards() + _selftest_build()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"resmap_models self-test: {'PASS' if not problems else 'FAIL'}")

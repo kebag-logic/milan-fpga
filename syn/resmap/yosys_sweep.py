@@ -57,15 +57,14 @@ syn/ooc/dp_srcs.py), so each refuses a checkout with tracked changes, and every
 point receipt records the HEAD it was priced at and that the tree was clean.
 
 --selftest proves the parameter rewrite, the module expansion, its tie, the plan
-validation, the clean-tree check and the builder-refusal path on synthetic inputs,
-and reads one real builder refusal.
+validation, the clean-tree check, the shapes step's verdict through a stand-in
+builder and the builder-refusal path on synthetic inputs, and reads one real
+builder refusal.
 """
 
 import argparse
 import concurrent.futures
-import contextlib
 import hashlib
-import io
 import json
 import os
 import re
@@ -340,12 +339,16 @@ def builder_outcome(rc: int, text: str) -> tuple[str, str]:
 
 
 def command_shapes(work: Path, plan: dict) -> int:
-    """Export the tree, write each variant configuration and generate its shape with the builder.
+    """Export the tree and generate every variant's shape in it (generate_shapes)."""
+    return generate_shapes(work, plan, export_tree(work))
+
+
+def generate_shapes(work: Path, plan: dict, tree: Path) -> int:
+    """Write each variant configuration into the tree and generate its shape with the tree's builder.
 
     Each outcome is recorded in shapes/outcomes.json. A refusal is a refused point, recorded with its
     refusal line; it fails the step only when the plan does not expect it, as does an expected refusal that
     builds. Any other failure of the builder fails the step."""
-    tree = export_tree(work)
     base = (tree / "configs" / f"{BASE_CONFIG}.yaml").read_text()
     failures, outcomes = 0, {}
     for name, spec in plan["variants"].items():
@@ -848,76 +851,6 @@ def _selftest_plan() -> list[str]:
     return problems
 
 
-#: A refusal line as the builder's CLI prints it.
-SELFTEST_REFUSAL = "CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records"
-
-
-def _selftest_outcome() -> list[str]:
-    """A refusal is read with its line; a crash, a second refusal line or another exit is never a refusal;
-    and the builder's own refusal of a 235-name variant reads as one, with nothing written."""
-    problems = []
-    for label, rc, text, want in (
-            ("a build", 0, "[endstation_builder] built\n", ("built", "")),
-            ("a refusal", 1, SELFTEST_REFUSAL + "\n", ("refused", SELFTEST_REFUSAL)),
-            ("a traceback", 1, "Traceback (most recent call last):\n" + SELFTEST_REFUSAL + "\n", "failed"),
-            ("an exit with no refusal line", 1, "Killed\n", "failed"),
-            ("two refusal lines", 1, SELFTEST_REFUSAL + "\n" + SELFTEST_REFUSAL + "\n", "failed"),
-            ("a usage error", 2, SELFTEST_REFUSAL + "\n", "failed")):
-        got = builder_outcome(rc, text)
-        if (got[0] if want == "failed" else got) != want:
-            problems.append(f"outcome: {label} read as {got}")
-    plan = load_plan(PLAN)
-    base = (REPO / "configs" / f"{BASE_CONFIG}.yaml").read_text()
-    with tempfile.TemporaryDirectory(prefix="resmap-outcome-") as tmp:
-        config = Path(tmp) / "endstation_rm_selftest.yaml"
-        config.write_text(variant_text(base, plan["variants"]["rm_ax7101_8x8_tdm8"]))
-        run = subprocess.run([sys.executable, str(REPO / "sw/builder/endstation_builder.py"), "-o",
-                              str(Path(tmp) / "out"), str(config)], cwd=REPO, capture_output=True, text=True,
-                             check=False)
-        outcome, line = builder_outcome(run.returncode, run.stdout + run.stderr)
-        if outcome != "refused" or "writable names" not in line or (Path(tmp) / "out").exists():
-            problems.append(f"outcome: the builder's refusal of the 8x8 TDM8 variant read as {outcome} {line!a}")
-    return problems
-
-
-def _selftest_refused_points() -> list[str]:
-    """A point whose shape the builder refused is reported and not priced by run, recorded with its line by
-    summary, and fails summary when it carries a priced receipt; a variant with no outcome is refused."""
-    problems = []
-    plan = {"tops": {"milan_datapath": {"shape": "endstation_base", "params": {}}},
-            "variants": {"v_refused": {}, "v_built": {}, "v_unrun": {}},
-            "points": [{"name": "p", "top": "milan_datapath", "shape": "v_refused"}]}
-    outcomes = {"v_refused": {"outcome": "refused", "refusal": SELFTEST_REFUSAL},
-                "v_built": {"outcome": "built", "refusal": ""}}
-    with tempfile.TemporaryDirectory(prefix="resmap-refused-") as tmp:
-        work = Path(tmp)
-        (work / "shapes").mkdir()
-        (work / "shapes" / "outcomes.json").write_text(json.dumps(outcomes))
-        lines = {shape: builder_refusal(work, plan, {"name": shape, "top": "milan_datapath", "shape": shape})
-                 for shape in ("v_refused", "v_built", "endstation_base")}
-        if lines != {"v_refused": SELFTEST_REFUSAL, "v_built": "", "endstation_base": ""}:
-            problems.append(f"refused: the outcomes read as {lines}")
-        try:
-            builder_refusal(work, plan, {"name": "q", "top": "milan_datapath", "shape": "v_unrun"})
-            problems.append("refused: a variant with no builder outcome was taken as built")
-        except PlanError:
-            pass
-        with contextlib.redirect_stdout(io.StringIO()):
-            ran = command_run(work, plan, [], 1)
-            summarized = command_summary(work, plan, 1)
-        summary = json.loads((work / "summary.json").read_text())
-        if ran or (work / "points").exists():
-            problems.append(f"refused: run exited {ran} or priced the refused point")
-        if summarized or summary != {"p": {"builder": {"refusal": SELFTEST_REFUSAL}}}:
-            problems.append(f"refused: summary exited {summarized} with {summary}")
-        (work / "points" / "p").mkdir(parents=True, exist_ok=True)
-        (work / "points" / "p" / "receipt.json").write_text("{}\n")
-        with contextlib.redirect_stdout(io.StringIO()):
-            if not command_summary(work, plan, 1):
-                problems.append("refused: a priced receipt for a refused point was summarized")
-    return problems
-
-
 def _selftest_guards() -> list[str]:
     """A guard message and a hard error are read; the exit summary and other warnings are not."""
     lines = ["%Warning-USERERROR: a.sv:1:5: N_NAME_P=235 outside 1..128", "%Warning-WIDTH: a.sv:2:1: width",
@@ -950,7 +883,9 @@ def _selftest_tree() -> list[str]:
 def selftest() -> int:
     """Every arm on synthetic inputs; exit 0 only when all pass."""
     problems = _selftest_patch() + _selftest_expand() + _selftest_plan() + _selftest_guards() + _selftest_tree()
-    problems += _selftest_outcome() + _selftest_refused_points()
+    sys.path.insert(0, str(HERE))
+    import yosys_sweep_selftest  # the builder-refusal arms, kept beside this module
+    problems += yosys_sweep_selftest.run_arms(sys.modules[__name__])
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"yosys_sweep self-test: {'PASS' if not problems else 'FAIL'} ({len(problems)} problems)")
