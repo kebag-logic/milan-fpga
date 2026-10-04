@@ -1,0 +1,13 @@
+MATCH ship mine=[] head=172fd6586e79 clean=True
+MATCH ship-8x8 mine=[] head=172fd6586e79 clean=True
+MATCH streams-8 mine=['KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.'] head=172fd6586e79 clean=True
+MATCH streams-4 mine=[] head=172fd6586e79 clean=True
+MATCH pp-ship mine=[] head=172fd6586e79 clean=True
+MATCH pp-line-512 mine=['DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page'] head=172fd6586e79 clean=True
+MATCH pp-line-768 mine=[] head=172fd6586e79 clean=True
+MATCH pp-line-1152 mine=['DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor', 'RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)'] head=172fd6586e79 clean=True
+MATCH pp-names-128 mine=[] head=172fd6586e79 clean=True
+MATCH pp-names-235 mine=['KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.'] head=172fd6586e79 clean=True
+MATCH pp-ctrl-32 mine=['F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)'] head=172fd6586e79 clean=True
+MATCH pp-ctrl-12 mine=[] head=172fd6586e79 clean=True
+12/12 match

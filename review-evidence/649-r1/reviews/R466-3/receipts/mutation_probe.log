@@ -1,0 +1,32 @@
+KILLED       map-ancestry-additive-off            resmap_map self-test: 14 of 15 arms passed
+KILLED       map-ancestry-shared-off              resmap_map self-test: 14 of 15 arms passed
+KILLED       map-census-leaf-additive-off         resmap_map self-test: 13 of 15 arms passed
+KILLED       map-census-lut-leaves-only           resmap_map self-test: 14 of 15 arms passed
+KILLED       map-census-lut-off                   resmap_map self-test: 12 of 15 arms passed
+KILLED       map-lut-5lut-ignored                 
+KILLED       map-lut-kind-all-logic               
+KILLED       map-stray-off                        resmap_map self-test: 14 of 15 arms passed
+KILLED       map-iob-ff-merged                    
+KILLED       map-flat-off                         resmap_map self-test: 14 of 15 arms passed
+KILLED       map-record-totals-off                resmap_map self-test: 12 of 15 arms passed
+KILLED       map-record-scopes-off                resmap_map self-test: 14 of 15 arms passed
+KILLED       map-depth-boundary                   resmap_map self-test: 14 of 15 arms passed
+KILLED       map-depth-off                        resmap_map self-test: 14 of 15 arms passed
+KILLED       map-owner-shallowest                 
+SURVIVED     map-slice-equal-split                resmap_map self-test: 15 of 15 arms passed
+KILLED       models-missing-record-clean          resmap_models self-test: FAIL
+KILLED       models-hard-error-clean              resmap_models self-test: FAIL
+KILLED       models-stream-keeps-refused          resmap_models self-test: FAIL
+KILLED       models-param-keeps-refused           resmap_models self-test: FAIL
+KILLED       models-tdm-keeps-refused             resmap_models self-test: FAIL
+KILLED       models-calibration-keeps-refused     resmap_models self-test: FAIL
+KILLED       models-rank-check-off                resmap_models self-test: FAIL
+SURVIVED     models-vivado-depth-off-by-one       resmap_models self-test: PASS
+KILLED       tables-page-check-always-equal       resmap_tables self-test: FAIL
+KILLED       tables-page-missing-ignored          resmap_tables self-test: FAIL
+KILLED       tables-soc-change-sign               resmap_tables self-test: FAIL
+KILLED       tables-soc-two-point-fit             resmap_tables self-test: FAIL
+SURVIVED     sweep-tie-off                        yosys_sweep self-test: PASS (0 problems)
+KILLED       sweep-guard-hard-error-missed        yosys_sweep self-test: FAIL (1 problems)
+SURVIVED     sweep-require-clean-noop             yosys_sweep self-test: PASS (0 problems)
+KILLED       sweep-lutram-cost-zero               yosys_sweep self-test: FAIL (1 problems)

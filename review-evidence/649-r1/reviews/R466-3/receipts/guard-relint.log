@@ -1,0 +1,17 @@
+guards pp-ship: rc 0, 0 refusal(s) []
+guards pp-line-768: rc 0, 0 refusal(s) []
+guards pp-names-235: rc 0, 1 refusal(s) ['$CLONE/hdl/milan/KL_nvm_backend.sv:289:5: KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.']
+guards pp-names-128: rc 0, 0 refusal(s) []
+guards pp-ctrl-12: rc 0, 0 refusal(s) []
+guards pp-line-512: rc 0, 1 refusal(s) ['$CLONE/protocol-processor/hdl/aecp/KL_aecp_engine.sv:961:5: DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page']
+guards pp-ctrl-32: rc 0, 1 refusal(s) ['$CLONE/protocol-processor/hdl/top/protocol_processor_top.sv:860:5: F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)']
+guards pp-line-1152: rc 0, 2 refusal(s) ['$CLONE/protocol-processor/hdl/aecp/KL_aecp_engine.sv:965:5: DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor']
+guards ship: rc 0, 0 refusal(s) []
+guards streams-4: rc 0, 0 refusal(s) []
+guards ship-8x8: rc 0, 0 refusal(s) []
+guards streams-8: rc 0, 1 refusal(s) ['$CLONE/hdl/milan/KL_nvm_backend.sv:289:5: KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.']
+
+real	0m26.572s
+user	3m23.453s
+sys	0m22.466s
+guards rc=0

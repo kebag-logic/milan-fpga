@@ -1,0 +1,39 @@
+# head 172fd6586e79d3b2471409c31ad089ee5af2f479
+# census sha256 b377ddec33c438bcaa1f6bf5d809507aa100e77817e01cd6b6a9e49ac8a53344
+$ python3 syn/resmap/resmap_map.py --selftest
+resmap_map self-test: 15 of 15 arms passed
+rc=0
+$ python3 syn/resmap/resmap_models.py --selftest
+resmap_models self-test: PASS
+rc=0
+$ python3 syn/resmap/resmap_tables.py --selftest
+resmap_tables self-test: PASS
+rc=0
+$ python3 syn/resmap/yosys_sweep.py --selftest
+yosys_sweep self-test: PASS (0 problems)
+rc=0
+$ python3 syn/resmap/soc_sweep.py --selftest
+soc_sweep self-test: PASS
+rc=0
+$ python3 syn/resmap/resmap_map.py map inputs/map --out map-out
+TIED: 175 blocks, depth 5; LUT 50767, FF 59634, slices 15832.00, CARRY4 3506, RAMB36 79, RAMB18 27, DSP 14
+rc=0
+$ python3 syn/resmap/resmap_models.py --work inputs/work --map inputs/map --out models
+models: stream_models 36, stream_models_detail 85, vivado_stream_models 2, datapath_marginals 25, processor_marginals 29, processor_models 11, adp_marginals 2, calibration 4, tdm_model 5, guards 2, in_context 35
+rc=0
+$ cmp models/models.json inputs/models/models.json
+rc=0
+$ python3 syn/resmap/resmap_tables.py --work inputs/work --models models --map inputs/map --soc-variants inputs/soc_prices.json --out tables.md --page docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+tables: $PACKET/scratch/cold/tables.md
+page: every table equals a fresh generation
+rc=0
+$ cmp map-out/blocks_ranked.md outputs/blocks_ranked.md
+rc=0
+$ cmp map-out/partition.md outputs/partition.md
+rc=0
+$ cmp map-out/lut_sharing.md outputs/lut_sharing.md
+rc=0
+$ cmp map-out/map.json outputs/map.json
+rc=0
+$ cmp tables.md outputs/tables.md
+rc=0

@@ -1,0 +1,62 @@
+[
+ {
+  "plant": "clean-control",
+  "rc": 0,
+  "first_lines": [
+   "TIED: 175 blocks, depth 5; LUT 50767, FF 59634, slices 15832.00, CARRY4 3506, RAMB36 79, RAMB18 27, DSP 14"
+  ]
+ },
+ {
+  "plant": "lut-moved-csr-to-chanmap",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "census: alinx_ax7101/milan_datapath/chan_map_capture LUT counts 1079 LUT sites, the report says 1080",
+   "census: alinx_ax7101/milan_datapath/chan_map_capture logic_LUT counts 1079 LUT sites, the report says 1080"
+  ]
+ },
+ {
+  "plant": "ff-moved-crf-rx-to-talker-diag",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "census: alinx_ax7101/milan_datapath/crf_rx FF counts 542 cells, the report says 541",
+   "census: alinx_ax7101/milan_datapath/talker_diag FF counts 359 cells, the report says 360"
+  ]
+ },
+ {
+  "plant": "census-ff-reowned",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "census: alinx_ax7101/milan_datapath/chan_map_capture FF counts 1322 cells, the report says 1321",
+   "census: alinx_ax7101/milan_datapath/csr FF counts 2140 cells, the report says 2141"
+  ]
+ },
+ {
+  "plant": "census-lut-reowned",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "census: alinx_ax7101/milan_datapath/chan_map_capture LUT counts 1080 LUT sites, the report says 1079",
+   "census: alinx_ax7101/milan_datapath/chan_map_capture logic_LUT counts 1080 LUT sites, the report says 1079"
+  ]
+ },
+ {
+  "plant": "sharing-adjustment-deepened",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "census: alinx_ax7101 LUT counts 50767 LUT sites, the report says 50766",
+   "census: alinx_ax7101 logic_LUT counts 48535 LUT sites, the report says 48534"
+  ]
+ },
+ {
+  "plant": "flat-slices",
+  "rc": 1,
+  "first_lines": [
+   "TIE FAILED:",
+   "flat report: SLICE is 15833, the map's is 15832.000000000005"
+  ]
+ }
+]
