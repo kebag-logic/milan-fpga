@@ -280,9 +280,14 @@ exist follows from the shape, never from what the bytes happen to be.
 | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
 | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
 | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 38 | **99** |
-| **records** | | | | **53** | **156** |
-| **highest id** | | | | `0xA5` | `0xE2` |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
+| **records** | | | | **54** | **164** |
+| **highest id** | | | | `0xA6` | `0xEA` |
+
+The 1x1 column is `endstation_ax7101_1x1_tdm8` and the 8x8 column is
+`endstation_ax7101_8x8`. `scripts/check_nvm_record_space.py` checks every
+figure in both against the inventory it derives from their generated shapes,
+so a count here moves with the shape or reddens the gate (#652).
 
 The binding block base is not chosen here. It is `REC_ID_BASE_P` in
 `KL_acmp_nvm_shadow`, already fixed in landed gateware, and the gate READS it
@@ -295,8 +300,9 @@ the module is followed rather than missed.
 The blocks are what makes this contract shape-independent. A record is placed at
 `base + index`, and a shape whose index leaves the block is a finding at the
 block boundary rather than a collision discovered later. The name block holds
-128 ordinals against the 99 the largest shipped shape has since #389 (107
-before it retired the per-listener clock source); a shape with more
+128 ordinals against the user names of the largest shipped shape, the 8x8
+column above (#389 retired the per-listener clock source and #629 restored
+it); a shape with more
 writable names than that is check 3's finding, and a shape whose whole record
 set outgrows the 256-id namespace is check 6's, named as such rather than
 absorbed by a layout nobody decided. The builder refuses the first kind before

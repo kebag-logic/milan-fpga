@@ -85,6 +85,10 @@ id, media clock reference):
      K16 and the boundary survive journal decode and cleared-first model
      restore per port, and a CRC-clean oversized record applies nothing
  13. the complete 1x1 emitted image retains its pre-#501 SHA-256 digest
+ 14. the design page's section 4.2 allocation table reads, in its 1x1 and
+     8x8 columns, exactly the block, per-group count, record total and
+     highest id derived here for the two shapes it names -- a figure there
+     is derived, never restated (#652)
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -289,7 +293,15 @@ def _mut_changed_1x1_image():
     SEAM.CHANGE_1X1_IMAGE = True
 
 
+def _mut_stale_allocation_table():
+    """Prefix a digit to the page's 1x1 user-name count, as a figure copied
+    before the shape moved would read; the allocation check must name it."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: page.replace(
+        "| user name | 128 | name ordinal | ", "| user name | 128 | name ordinal | 1", 1)
+
+
 MUTATIONS = {
+    "stale_allocation_table": (_mut_stale_allocation_table, "1x1 user name reads 1"),
     "old_output_length": (_mut_old_output_length, "output-record capacity"),
     "changed_1x1_image": (_mut_changed_1x1_image, "1x1 image digest changed"),
     "collide": (_mut_collide, "is claimed by both FMT_IN[0] and FMT_OUT[0]"),
@@ -651,11 +663,84 @@ def render_record_table(shape: Shape, recs: list[Record],
     return "\n".join(out) + "\n"
 
 
+#: Section 4.2 of the design page states the allocation at two shipped shapes.
+#: Its columns are these configurations, and every figure in them is checked
+#: against the inventory derived for them here, so the page cannot carry a
+#: count the shapes no longer have (#652).
+ALLOCATION_PAGE = ROOT / "docs" / "design" / "SAVED_STATE_FASTCONNECT.md"
+ALLOCATION_HEAD = "| ids | group | block | index | 1x1 | 8x8 |"
+ALLOCATION_COLUMNS = {"1x1": "endstation_ax7101_1x1_tdm8",
+                      "8x8": "endstation_ax7101_8x8"}
+
+
+def _allocation_rows(page: str) -> list[list[str]]:
+    """The allocation table's body rows, each cell without emphasis or code
+    marks; none when the page has no single table under ALLOCATION_HEAD."""
+    lines = page.splitlines()
+    if lines.count(ALLOCATION_HEAD) != 1:
+        return []
+    rows = []
+    for line in lines[lines.index(ALLOCATION_HEAD) + 2:]:
+        if not line.startswith("|"):
+            break
+        rows.append([cell.strip().replace("*", "").replace("`", "")
+                     for cell in line.strip().strip("|").split("|")])
+    return rows
+
+
+def _allocation_want(census: dict, ids: str, group: str | None) -> str:
+    """The figure one allocation-table cell must read at one shape."""
+    if group is not None:
+        return str(census["counts"][group])
+    if ids == "records":
+        return str(census["records"])
+    if ids == "highest id":
+        return f"0x{census['top']:02X}"
+    return "--"
+
+
+def allocation_findings(census: dict, base: int) -> list[str]:
+    """Every figure of the design page's section 4.2 allocation table that is
+    not the derived one: each group's block, its record count at each
+    column's shape, the record total and the highest id."""
+    where = f"{ALLOCATION_PAGE.relative_to(ROOT)} section 4.2"
+    absent = [s for s in ALLOCATION_COLUMNS.values() if s not in census]
+    if absent:
+        return [f"{where}: no inventory for {absent}, the shapes its columns state"]
+    page = ALLOCATION_PAGE.read_text(encoding="utf-8")
+    if SEAM.ALLOCATION_PAGE_EDIT is not None:
+        page = SEAM.ALLOCATION_PAGE_EDIT(page)
+    rows = _allocation_rows(page)
+    if not rows:
+        return [f"{where}: no single allocation table headed {ALLOCATION_HEAD!r}"]
+    by_base = {(base if group == "BINDING" else b): group
+               for group, (b, _block) in ALLOC.items()}
+    findings, seen = [], set()
+    for ids, label, block, _index, *cells in rows:
+        first = re.match(r"0x([0-9A-Fa-f]{2})", ids)
+        group = by_base.get(int(first.group(1), 16)) if first else None
+        for (column, stem), cell in zip(ALLOCATION_COLUMNS.items(), cells):
+            want = _allocation_want(census[stem], ids, group)
+            if cell != want:
+                findings.append(f"{where}: {column} {label or ids} reads "
+                                f"{cell}, the {stem} inventory derives {want}")
+        if group is not None:
+            seen.add(group)
+            if block != str(ALLOC[group][1]):
+                findings.append(f"{where}: {label} block reads {block}, the "
+                                f"allocation holds {ALLOC[group][1]}")
+    if set(ALLOC) - seen:
+        findings.append(f"{where}: no row for {sorted(set(ALLOC) - seen)}")
+    return findings
+
+
 def check_one(cfg: Path, out: Path, donor: Donor,
-              verbose: bool) -> tuple[list[str], int]:
+              verbose: bool) -> tuple[list[str], int, dict]:
     """Every finding one config earns, with the F07.8 floor its shape
-    implies. The floor comes back with the findings because the conformance
-    check is a statement about the SET of shipped shapes, not about one."""
+    implies and its record census (per-group counts, total, highest id). The
+    floor and the census come back with the findings because the conformance
+    check and the design page's allocation table are statements about the
+    SET of shipped shapes, not about one."""
     names, dc, spi, spo = build(cfg, out)
     shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     recs = inventory(shape, donor.base)
@@ -742,7 +827,9 @@ def check_one(cfg: Path, out: Path, donor: Donor,
               f"({image * 100 // FIXED.ERASE_BLOCK}% of a slot) "
               f"F07.8 floor={floor:3d}/{FIXED.ID_SPACE} "
               f"commit<={worst / 1000.0:.2f} s")
-    return findings, floor
+    census = {"counts": Counter(g for g, _i, rid, _p, _b in recs if rid is not None),
+              "records": len(recs), "top": top}
+    return findings, floor, census
 
 
 def check_deadline_shape() -> list:
@@ -885,14 +972,25 @@ def main() -> int:
               f"heartbeat = {T_NVM_HEARTBEAT_MS} ms")
 
     findings = check_deadline_shape()
-    floors = []
+    floors, census = [], {}
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         for cfg in cfgs:
-            f, floor = check_one(cfg, Path(tmp), donor, not args.quiet)
+            f, floor, census[cfg.stem] = check_one(cfg, Path(tmp), donor,
+                                                   not args.quiet)
             findings += f
             floors.append((cfg.stem, floor))
 
     findings += _conformance_findings(floors)
+    # the page's columns are two named shapes: a default run must have both,
+    # and a --config subset that lacks one leaves the table unchecked
+    if args.config is None or set(ALLOCATION_COLUMNS.values()) <= set(census):
+        allocation = allocation_findings(census, donor.base)
+        findings += allocation
+        if not args.quiet and not allocation:
+            print(f"{ALLOCATION_PAGE.relative_to(ROOT)} section 4.2: every "
+                  f"allocation-table figure at "
+                  f"{', '.join(f'{c} ({s})' for c, s in ALLOCATION_COLUMNS.items())}"
+                  f" is the derived one")
     return _report(findings, cfgs, args.quiet)
 
 
