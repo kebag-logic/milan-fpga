@@ -1,0 +1,3059 @@
+{
+ "s0b/C0": {
+  "session": "s0b",
+  "tag": "C0",
+  "library": {
+   "listener": 0,
+   "control": 1,
+   "hold_ms": 2000,
+   "updates": [
+    {
+     "t": 1791140903102483,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140904102434,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140906107509,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791140903099263,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791140906107421,
+   "unbind": "Success",
+   "t_unbind": 1791140906104261,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791140906107509,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 3.248,
+   "lib_held_1_0_after_unbind_ms": 0.088,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s0b-C0.pcap",
+   "sha256": "4fa8c57c4b58ff3d1ce4fb9c7a25c9a71b0ca6bad107579fc537507a01bbef10",
+   "bytes": 4385862,
+   "records_avtp": 23587,
+   "control_frames": 22,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.4,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 22393,
+   "stream_frames_after_cmd": 1168,
+   "stream_frames_after_rsp": 1168,
+   "last_stream_frame_after_cmd_ms": 145.897,
+   "talker_streaming_at_cmd": true,
+   "control": {
+    "own_counters": {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    },
+    "order_vs_own": "COUNTERS_FIRST",
+    "own_rsp_to_cmd_us": 1629.8
+   },
+   "decoder_rc": 0,
+   "decoder_lines": 22,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s0b/_session": {
+  "session_events": [
+   {
+    "t": 1791140901051905,
+    "ev": "start",
+    "lib": "4.3.1-beta1",
+    "ctl_lib": "4.3.1-beta1",
+    "iface": "<avb-interface>",
+    "dut": "020000fffe000001",
+    "peer": "<peer-side-id>",
+    "progid": 2833,
+    "aux_progid": 2834
+   },
+   {
+    "t": 1791140901080649,
+    "ev": "entities",
+    "session_eid": "<controller-entity-id>",
+    "aux_eid": "<controller-entity-id>"
+   },
+   {
+    "t": 1791140902402929,
+    "ev": "online",
+    "who": "dut",
+    "compat": "0x3",
+    "compat_names": "IEEE17221|Milan",
+    "milan": 16908288,
+    "subscribed": true,
+    "unsol_supported": true,
+    "events": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    }
+   },
+   {
+    "t": 1791140902568031,
+    "ev": "online",
+    "who": "peer",
+    "compat": "0x3",
+    "compat_names": "IEEE17221|Milan",
+    "milan": 16908288,
+    "subscribed": true,
+    "unsol_supported": true,
+    "events": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    }
+   },
+   {
+    "t": 1791140902568068,
+    "ev": "both_online",
+    "ok": true
+   },
+   {
+    "t": 1791140909153529,
+    "ev": "session_destroyed"
+   },
+   {
+    "t": 1791140909186206,
+    "ev": "dereg_entity",
+    "eid": "<controller-entity-id>",
+    "equal_to_session": true
+   },
+   {
+    "t": 1791140910717182,
+    "ev": "deregister",
+    "who": "dut",
+    "seen": true,
+    "status": "Success."
+   },
+   {
+    "t": 1791140910722124,
+    "ev": "deregister",
+    "who": "peer",
+    "seen": true,
+    "status": "Success."
+   },
+   {
+    "t": 1791140910737603,
+    "ev": "exit"
+   }
+  ]
+ },
+ "s1/A01": {
+  "session": "s1",
+  "tag": "A01",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2000,
+   "updates": [
+    {
+     "t": 1791140987012436,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140988012427,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140990017495,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791140987009191,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791140990017396,
+   "unbind": "Success",
+   "t_unbind": 1791140990012596,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791140990017495,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 4.899,
+   "lib_held_1_0_after_unbind_ms": 0.099,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A01.pcap",
+   "sha256": "6e2879e6ad58674714d984ed5feff65c527ba90ec2496e99ba64661f375cbe78",
+   "bytes": 4387470,
+   "records_avtp": 23595,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.5,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 23269,
+   "stream_frames_after_cmd": 303,
+   "stream_frames_after_rsp": 303,
+   "last_stream_frame_after_cmd_ms": 37.811,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A02": {
+  "session": "s1",
+  "tag": "A02",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2137,
+   "updates": [
+    {
+     "t": 1791140993057416,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140994057381,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791140996197463,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791140993054150,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791140996197379,
+   "unbind": "Success",
+   "t_unbind": 1791140996194528,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791140996197463,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 2.935,
+   "lib_held_1_0_after_unbind_ms": 0.084,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A02.pcap",
+   "sha256": "2da6e350212c19bcaf11820ef981b11e9d7dab4b2e7a2c9e6c4c1347e3ca2187",
+   "bytes": 4463782,
+   "records_avtp": 24006,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 114.2,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 23533,
+   "stream_frames_after_cmd": 448,
+   "stream_frames_after_rsp": 448,
+   "last_stream_frame_after_cmd_ms": 55.899,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A03": {
+  "session": "s1",
+  "tag": "A03",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2274,
+   "updates": [
+    {
+     "t": 1791140999237391,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141000237424,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141002512487,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791140999234131,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141002512408,
+   "unbind": "Success",
+   "t_unbind": 1791141002511543,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141002512487,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 0.944,
+   "lib_held_1_0_after_unbind_ms": 0.079,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A03.pcap",
+   "sha256": "95ece933ecb628125e48f7ab7bf0659257e87fbf30874387ebdcda0710ee3279",
+   "bytes": 5058874,
+   "records_avtp": 27205,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 114.5,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 26070,
+   "stream_frames_after_cmd": 1111,
+   "stream_frames_after_rsp": 1111,
+   "last_stream_frame_after_cmd_ms": 138.866,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A04": {
+  "session": "s1",
+  "tag": "A04",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2411,
+   "updates": [
+    {
+     "t": 1791141005542391,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141006542419,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141008957416,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141005539140,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141008957345,
+   "unbind": "Success",
+   "t_unbind": 1791141008953524,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141008957416,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 3.892,
+   "lib_held_1_0_after_unbind_ms": 0.071,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A04.pcap",
+   "sha256": "a2cb6bd81919b1bb9ccc3b1a5ed4387c57795e3b77bcff60e88b0f0dd940e4ef",
+   "bytes": 5058984,
+   "records_avtp": 27206,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.8,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 26405,
+   "stream_frames_after_cmd": 776,
+   "stream_frames_after_rsp": 776,
+   "last_stream_frame_after_cmd_ms": 96.892,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A05": {
+  "session": "s1",
+  "tag": "A05",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2548,
+   "updates": [
+    {
+     "t": 1791141012002426,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141013002431,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141015552492,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141011999145,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141015552392,
+   "unbind": "Success",
+   "t_unbind": 1791141015550566,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141015552492,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 1.926,
+   "lib_held_1_0_after_unbind_ms": 0.1,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A05.pcap",
+   "sha256": "03ba3c61e102d586e36ccba9f0eb1c3ecb43438f6acf64c054c989c2fd2252dd",
+   "bytes": 5356290,
+   "records_avtp": 28804,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.4,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 27981,
+   "stream_frames_after_cmd": 799,
+   "stream_frames_after_rsp": 799,
+   "last_stream_frame_after_cmd_ms": 99.849,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A06": {
+  "session": "s1",
+  "tag": "A06",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2685,
+   "updates": [
+    {
+     "t": 1791141018602481,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141019602426,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141022292462,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141018599144,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141022292361,
+   "unbind": "Success",
+   "t_unbind": 1791141022287577,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141022292462,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 4.885,
+   "lib_held_1_0_after_unbind_ms": 0.101,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A06.pcap",
+   "sha256": "c3861dbadd690456b50c251b4b43309a858224df11cae94eeaed1cf04e98d65a",
+   "bytes": 5653836,
+   "records_avtp": 30403,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.8,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 29077,
+   "stream_frames_after_cmd": 1304,
+   "stream_frames_after_rsp": 1304,
+   "last_stream_frame_after_cmd_ms": 162.962,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A07": {
+  "session": "s1",
+  "tag": "A07",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2822,
+   "updates": [
+    {
+     "t": 1791141025322502,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141026322415,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141029147501,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141025319174,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141029147388,
+   "unbind": "Success",
+   "t_unbind": 1791141029144577,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141029147501,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 2.924,
+   "lib_held_1_0_after_unbind_ms": 0.113,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A07.pcap",
+   "sha256": "303d24587e209f1f8650f17e51ef85b121f45fa6d9d0250b4408a0f8964da408",
+   "bytes": 5654184,
+   "records_avtp": 30406,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.1,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 29533,
+   "stream_frames_after_cmd": 848,
+   "stream_frames_after_rsp": 848,
+   "last_stream_frame_after_cmd_ms": 105.973,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A08": {
+  "session": "s1",
+  "tag": "A08",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2959,
+   "updates": [
+    {
+     "t": 1791141032183450,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141033183087,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141036147454,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141032179170,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141036147383,
+   "unbind": "Success",
+   "t_unbind": 1791141036142233,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141036147454,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 5.221,
+   "lib_held_1_0_after_unbind_ms": 0.071,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A08.pcap",
+   "sha256": "9e34b4baa2562a51e16dc7bb5ea982dd3cccd8ff6fc535f8026f38f798052c4b",
+   "bytes": 5951654,
+   "records_avtp": 32005,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 114.8,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 31114,
+   "stream_frames_after_cmd": 867,
+   "stream_frames_after_rsp": 867,
+   "last_stream_frame_after_cmd_ms": 108.317,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A09": {
+  "session": "s1",
+  "tag": "A09",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2096,
+   "updates": [
+    {
+     "t": 1791141039192388,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141040192383,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141042292440,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141039189150,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141042292389,
+   "unbind": "Success",
+   "t_unbind": 1791141042288481,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141042292440,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 3.959,
+   "lib_held_1_0_after_unbind_ms": 0.051,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A09.pcap",
+   "sha256": "bd9f74e6951333a4d60314ce14e5542e387cf47e140f60cd41dc807f24888b41",
+   "bytes": 4761490,
+   "records_avtp": 25607,
+   "control_frames": 22,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.4,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 24284,
+   "stream_frames_after_cmd": 1297,
+   "stream_frames_after_rsp": 1297,
+   "last_stream_frame_after_cmd_ms": 162.078,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 22,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A10": {
+  "session": "s1",
+  "tag": "A10",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2233,
+   "updates": [
+    {
+     "t": 1791141045337413,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141046337418,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141048572474,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141045334146,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141048572396,
+   "unbind": "Success",
+   "t_unbind": 1791141048570613,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141048572474,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 1.861,
+   "lib_held_1_0_after_unbind_ms": 0.078,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A10.pcap",
+   "sha256": "d9469de78767d7a6530f4d7f19a4cac9b7d7eb5955a45befa4043e4bbbf4b787",
+   "bytes": 4761330,
+   "records_avtp": 25605,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.1,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 24942,
+   "stream_frames_after_cmd": 640,
+   "stream_frames_after_rsp": 640,
+   "last_stream_frame_after_cmd_ms": 79.937,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A11": {
+  "session": "s1",
+  "tag": "A11",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2370,
+   "updates": [
+    {
+     "t": 1791141051627420,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141052627413,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141055002445,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141051624229,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141055002383,
+   "unbind": "Success",
+   "t_unbind": 1791141054997541,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141055002445,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 4.904,
+   "lib_held_1_0_after_unbind_ms": 0.062,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A11.pcap",
+   "sha256": "9a8f2c276feff3c4cbae858b1cbe1d5a44b20ea24fec382733cf80f1cb75d0e7",
+   "bytes": 5058580,
+   "records_avtp": 27203,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.0,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 26755,
+   "stream_frames_after_cmd": 425,
+   "stream_frames_after_rsp": 424,
+   "last_stream_frame_after_cmd_ms": 53.007,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A12": {
+  "session": "s1",
+  "tag": "A12",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2507,
+   "updates": [
+    {
+     "t": 1791141058052426,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141059052419,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141061562472,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141058049148,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141061562404,
+   "unbind": "Success",
+   "t_unbind": 1791141061559539,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141061562472,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 2.933,
+   "lib_held_1_0_after_unbind_ms": 0.068,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A12.pcap",
+   "sha256": "80983fa9bd3e92815b81612be22d86281f690cc5fa974bf59d7755c6830f5335",
+   "bytes": 5058854,
+   "records_avtp": 27205,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.8,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 26452,
+   "stream_frames_after_cmd": 729,
+   "stream_frames_after_rsp": 729,
+   "last_stream_frame_after_cmd_ms": 91.01,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A13": {
+  "session": "s1",
+  "tag": "A13",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2644,
+   "updates": [
+    {
+     "t": 1791141064617373,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141065617380,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141068262454,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141064614123,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141068262386,
+   "unbind": "Success",
+   "t_unbind": 1791141068261518,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141068262454,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 0.936,
+   "lib_held_1_0_after_unbind_ms": 0.068,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A13.pcap",
+   "sha256": "6f0de98ab4468ccd9026b0e623b4cdacc8f8a0dc366b1a27b5bc13d94265f692",
+   "bytes": 5653944,
+   "records_avtp": 30404,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 114.9,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 28868,
+   "stream_frames_after_cmd": 1513,
+   "stream_frames_after_rsp": 1513,
+   "last_stream_frame_after_cmd_ms": 189.033,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A14": {
+  "session": "s1",
+  "tag": "A14",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2781,
+   "updates": [
+    {
+     "t": 1791141071312413,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141072312397,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141075097438,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141071309150,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141075097373,
+   "unbind": "Success",
+   "t_unbind": 1791141075093565,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141075097438,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 3.873,
+   "lib_held_1_0_after_unbind_ms": 0.065,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A14.pcap",
+   "sha256": "dd5774b30f8c07dffc5ed2ed2cd3e3abac2746f97e749313b1d358b19ca74b25",
+   "bytes": 5654074,
+   "records_avtp": 30405,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.0,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 29125,
+   "stream_frames_after_cmd": 1256,
+   "stream_frames_after_rsp": 1256,
+   "last_stream_frame_after_cmd_ms": 156.994,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A15": {
+  "session": "s1",
+  "tag": "A15",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2918,
+   "updates": [
+    {
+     "t": 1791141078137400,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141079137405,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141082057438,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141078134144,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141082057373,
+   "unbind": "Success",
+   "t_unbind": 1791141082055535,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141082057438,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 1.903,
+   "lib_held_1_0_after_unbind_ms": 0.065,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A15.pcap",
+   "sha256": "6f7c123318303584ad43da24b0829480e377f8da1f4b72abd6d889d29c14f32e",
+   "bytes": 5951784,
+   "records_avtp": 32006,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.7,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 30419,
+   "stream_frames_after_cmd": 1562,
+   "stream_frames_after_rsp": 1562,
+   "last_stream_frame_after_cmd_ms": 195.163,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A16": {
+  "session": "s1",
+  "tag": "A16",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2055,
+   "updates": [
+    {
+     "t": 1791141085102405,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141086102411,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141088162458,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141085099148,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141088162397,
+   "unbind": "Success",
+   "t_unbind": 1791141088157537,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141088162458,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 4.921,
+   "lib_held_1_0_after_unbind_ms": 0.061,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A16.pcap",
+   "sha256": "b8293ce029b5a28a9763ed9e5ece5a4940922aed2b603a6133ecef146e22c4ef",
+   "bytes": 4463674,
+   "records_avtp": 24005,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.4,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 23235,
+   "stream_frames_after_cmd": 746,
+   "stream_frames_after_rsp": 746,
+   "last_stream_frame_after_cmd_ms": 93.135,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A17": {
+  "session": "s1",
+  "tag": "A17",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2192,
+   "updates": [
+    {
+     "t": 1791141091207395,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141092207393,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141094402446,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141091204159,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141094402390,
+   "unbind": "Success",
+   "t_unbind": 1791141094399499,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141094402446,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 2.947,
+   "lib_held_1_0_after_unbind_ms": 0.056,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A17.pcap",
+   "sha256": "7321a54e63ddb8db360e5aff96fa855c3dccd6a8a9d4a7c9b80c0d170990fa0a",
+   "bytes": 4761274,
+   "records_avtp": 25605,
+   "control_frames": 20,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.2,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 25171,
+   "stream_frames_after_cmd": 410,
+   "stream_frames_after_rsp": 410,
+   "last_stream_frame_after_cmd_ms": 51.184,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 20,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A18": {
+  "session": "s1",
+  "tag": "A18",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2329,
+   "updates": [
+    {
+     "t": 1791141097462386,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141098462406,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141100792429,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141097459133,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141100792376,
+   "unbind": "Success",
+   "t_unbind": 1791141100791510,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141100792429,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 0.919,
+   "lib_held_1_0_after_unbind_ms": 0.053,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A18.pcap",
+   "sha256": "d23198019e434c60fae86c6832a229585f932aec55d6ccc6e0566d0c07012caa",
+   "bytes": 4763350,
+   "records_avtp": 25617,
+   "control_frames": 22,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 114.8,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 25106,
+   "stream_frames_after_cmd": 485,
+   "stream_frames_after_rsp": 485,
+   "last_stream_frame_after_cmd_ms": 60.545,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 22,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A19": {
+  "session": "s1",
+  "tag": "A19",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2466,
+   "updates": [
+    {
+     "t": 1791141103852413,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141104852415,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141107322470,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141103849142,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141107322400,
+   "unbind": "Success",
+   "t_unbind": 1791141107318540,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141107322470,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 3.93,
+   "lib_held_1_0_after_unbind_ms": 0.07,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A19.pcap",
+   "sha256": "008deccfe05f3c9055871989bfc5ac531a166dc6a873dfa4756c0ca8ee1223b3",
+   "bytes": 5058798,
+   "records_avtp": 27205,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 115.3,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 26123,
+   "stream_frames_after_cmd": 1057,
+   "stream_frames_after_rsp": 1057,
+   "last_stream_frame_after_cmd_ms": 132.12,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/A20": {
+  "session": "s1",
+  "tag": "A20",
+  "library": {
+   "listener": 0,
+   "control": 0,
+   "hold_ms": 2603,
+   "updates": [
+    {
+     "t": 1791141110392412,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141111392397,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141113997461,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "0205022001006000",
+    "listener": "0205022001006000",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141110389153,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141113997394,
+   "unbind": "Success",
+   "t_unbind": 1791141113995526,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141113997461,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 1.935,
+   "lib_held_1_0_after_unbind_ms": 0.067,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-A20.pcap",
+   "sha256": "8e07888e2ba37232fb64e48c5236ea39046199db0fa0c1e7b8e7877a610b0463",
+   "bytes": 5356160,
+   "records_avtp": 28803,
+   "control_frames": 21,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 116.2,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "AAF",
+   "stream_frames_before_cmd": 28338,
+   "stream_frames_after_cmd": 442,
+   "stream_frames_after_rsp": 442,
+   "last_stream_frame_after_cmd_ms": 55.148,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 21,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/R01": {
+  "session": "s1",
+  "tag": "R01",
+  "library": {
+   "listener": 1,
+   "control": 0,
+   "hold_ms": 2740,
+   "updates": [
+    {
+     "t": 1791141117047412,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141118047405,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141120887373,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "041060010000bb80",
+    "listener": "041060010000bb80",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141117044139,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141120792373,
+   "unbind": "Success",
+   "t_unbind": 1791141120787520,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141120887373,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 99.853,
+   "lib_held_1_0_after_unbind_ms": 95.0,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-R01.pcap",
+   "sha256": "970a213ab53c7797e463ae3ffb23dcaba88e0db65a08d7339bba73ee7b8eaba9",
+   "bytes": 209072,
+   "records_avtp": 1928,
+   "control_frames": 24,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 99346.2,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP",
+    "DUT->sw UNSOL 0x27 RSP"
+   ],
+   "stream_sub": "CRF",
+   "stream_frames_before_cmd": 1867,
+   "stream_frames_after_cmd": 32,
+   "stream_frames_after_rsp": 32,
+   "last_stream_frame_after_cmd_ms": 63.282,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 24,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/R02": {
+  "session": "s1",
+  "tag": "R02",
+  "library": {
+   "listener": 1,
+   "control": 0,
+   "hold_ms": 2877,
+   "updates": [
+    {
+     "t": 1791141124337397,
+     "ML": 0,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141125337400,
+     "ML": 1,
+     "MU": 0,
+     "SI": 0,
+     "lib_conn": "Connected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    },
+    {
+     "t": 1791141128317408,
+     "ML": 1,
+     "MU": 1,
+     "SI": 0,
+     "lib_conn": "NotConnected",
+     "compat": "IEEE17221|Milan",
+     "n_events": 0
+    }
+   ],
+   "formats": {
+    "talker": "041060010000bb80",
+    "listener": "041060010000bb80",
+    "equal": true
+   },
+   "bind": "Success",
+   "t_bind": 1791141124334147,
+   "locked": true,
+   "lock_ms": 1003,
+   "t_lib_notconnected": 1791141128217392,
+   "unbind": "Success",
+   "t_unbind": 1791141128214517,
+   "post": {
+    "counters": {
+     "ML": 1,
+     "MU": 1,
+     "SI": 0
+    },
+    "conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "events_new": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    },
+    "peer_compat": "IEEE17221|Milan",
+    "peer_events_new": []
+   },
+   "result": "OK",
+   "lib_unlock_update": {
+    "t": 1791141128317408,
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "lib_conn": "NotConnected",
+    "compat": "IEEE17221|Milan",
+    "n_events": 0
+   },
+   "lib_order": "RESPONSE_FIRST",
+   "lib_unlock_after_unbind_ms": 102.891,
+   "lib_held_1_0_after_unbind_ms": 100.016,
+   "library_flagged": false
+  },
+  "wire": {
+   "capture": "b11-a535-s1-R02.pcap",
+   "sha256": "c743c09453ab8669b74523b5fe5708a27c53bc2850405a346d35d3ecb628ab84",
+   "bytes": 208964,
+   "records_avtp": 1927,
+   "control_frames": 24,
+   "tap_time_monotonic_in_file_order": true,
+   "unbind_cmd": true,
+   "unbind_rsp": true,
+   "unbind_status": 0,
+   "cmd_to_rsp_us": 7.5,
+   "pushes_before_cmd": [
+    {
+     "ML": 0,
+     "MU": 0,
+     "SI": 0
+    },
+    {
+     "ML": 1,
+     "MU": 0,
+     "SI": 0
+    }
+   ],
+   "order": "RESPONSE_FIRST",
+   "unlock_push": {
+    "ML": 1,
+    "MU": 1,
+    "SI": 0,
+    "ctl": "0b11"
+   },
+   "rsp_to_push_us": 99731.4,
+   "frames_between": [
+    "DUT->sw UNSOL GET_STREAM_INFO RSP"
+   ],
+   "stream_sub": "CRF",
+   "stream_frames_before_cmd": 1881,
+   "stream_frames_after_cmd": 18,
+   "stream_frames_after_rsp": 18,
+   "last_stream_frame_after_cmd_ms": 35.664,
+   "talker_streaming_at_cmd": true,
+   "decoder_rc": 0,
+   "decoder_lines": 24,
+   "decoder_order": "RESPONSE_FIRST"
+  }
+ },
+ "s1/_session": {
+  "session_events": [
+   {
+    "t": 1791140983196632,
+    "ev": "start",
+    "lib": "4.3.1-beta1",
+    "ctl_lib": "4.3.1-beta1",
+    "iface": "<avb-interface>",
+    "dut": "020000fffe000001",
+    "peer": "<peer-side-id>",
+    "progid": 2833,
+    "aux_progid": 2834
+   },
+   {
+    "t": 1791140983214719,
+    "ev": "entities",
+    "session_eid": "<controller-entity-id>",
+    "aux_eid": "<controller-entity-id>"
+   },
+   {
+    "t": 1791140984158474,
+    "ev": "online",
+    "who": "peer",
+    "compat": "0x3",
+    "compat_names": "IEEE17221|Milan",
+    "milan": 16908288,
+    "subscribed": true,
+    "unsol_supported": true,
+    "events": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    }
+   },
+   {
+    "t": 1791140986477582,
+    "ev": "online",
+    "who": "dut",
+    "compat": "0x3",
+    "compat_names": "IEEE17221|Milan",
+    "milan": 16908288,
+    "subscribed": true,
+    "unsol_supported": true,
+    "events": [],
+    "diag": {
+     "redundancyWarning": false,
+     "controlOutOfBounds": 0,
+     "streamInputOverLatency": []
+    }
+   },
+   {
+    "t": 1791140986477638,
+    "ev": "both_online",
+    "ok": true
+   },
+   {
+    "t": 1791141131768455,
+    "ev": "session_destroyed"
+   },
+   {
+    "t": 1791141131790667,
+    "ev": "dereg_entity",
+    "eid": "<controller-entity-id>",
+    "equal_to_session": true
+   },
+   {
+    "t": 1791141133067858,
+    "ev": "deregister",
+    "who": "dut",
+    "seen": true,
+    "status": "Success."
+   },
+   {
+    "t": 1791141133072838,
+    "ev": "deregister",
+    "who": "peer",
+    "seen": true,
+    "status": "Success."
+   },
+   {
+    "t": 1791141133090650,
+    "ev": "exit"
+   }
+  ]
+ }
+}

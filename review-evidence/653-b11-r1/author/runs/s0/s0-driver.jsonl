@@ -1,0 +1,14 @@
+{"t": 1791140870.527467, "ev": "run_start", "session": "s0", "plan": "C0:aaf:ctl"}
+{"t": 1791140870.968408, "ev": "cap_start", "cap": "enum", "ok": true, "after_s": 0.44}
+{"t": 1791140872.376834, "ev": "cap_stop", "cap": "enum", "rc": 130, "after_s": 0.017, "summary": ["^C33 packets captured", "167 packets received by filter", "0 packets dropped by kernel"]}
+{"t": 1791140872.37689, "ev": "online", "ok": true}
+{"t": 1791140872.581108, "ev": "cap_start", "cap": "C0", "ok": true, "after_s": 0.204}
+{"t": 1791140872.907694, "ev": "cap_stop", "cap": "C0", "rc": 130, "after_s": 0.016, "summary": ["^C0 packets captured", "4 packets received by filter", "0 packets dropped by kernel"]}
+{"t": 1791140872.907755, "ev": "cycle", "tag": "C0", "kind": "aaf", "control": true, "hold_ms": 2000, "post_ms": 2500, "result": "FORMAT_READ_FAILED"}
+{"t": 1791140873.102166, "ev": "cap_start", "cap": "quit", "ok": true, "after_s": 0.194}
+{"t": 1791140874.391535, "ev": "cap_stop", "cap": "quit", "rc": 130, "after_s": 0.017, "summary": ["^C8 packets captured", "8 packets received by filter", "0 packets dropped by kernel"]}
+{"t": 1791140874.391664, "ev": "probe_exit", "exit_seen": true, "rc": 0}
+{"t": 1791140874.765446, "ev": "pcaps", "scp_rc": 0, "files": {"b11-a535-s0-C0.pcap": {"remote": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea", "local": "704e5e5b3234433c01fcfd1b20a306e77e985038120492dc53965c3edd38a4ea", "equal": true, "bytes": 24}, "b11-a535-s0-enum.pcap": {"remote": "119fbebf80912a3b1e857f06d77fac33f792946f2938dbe85012f570275698ec", "local": "119fbebf80912a3b1e857f06d77fac33f792946f2938dbe85012f570275698ec", "equal": true, "bytes": 3978}, "b11-a535-s0-quit.pcap": {"remote": "ecfe9d09b0aaf985e04db8c0e4f7417ec21aaed10f6bba02a0d7cb4e185096a6", "local": "ecfe9d09b0aaf985e04db8c0e4f7417ec21aaed10f6bba02a0d7cb4e185096a6", "equal": true, "bytes": 976}}}
+{"t": 1791140874.98376, "ev": "tap_cleanup", "out": "ls: cannot access '/tmp/b11-a535-*': No such file or directory\n26570 bash -c sudo -n rm -f /tmp/b11-a535-s0-*.pcap; ls /tmp/b11-a535-* 2>&1; pgrep -af tcpdump; echo PGREP_RC=$?\nPGREP_RC=0"}
+{"t": 1791140875.130726, "ev": "ctl_check", "out": "PGREP_RC=1"}
+{"t": 1791140875.130784, "ev": "run_end", "results": [{"tag": "C0", "kind": "aaf", "control": true, "hold_ms": 2000, "post_ms": 2500, "result": "FORMAT_READ_FAILED"}], "elapsed_s": 4.6}

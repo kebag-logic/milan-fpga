@@ -1,0 +1,28 @@
+ 0 [Intel          ]: HDA-Intel - HDA Intel
+                      HDA Intel at 0x82440000 irq 330
+ 1 [<external-capture-id>     ]: USB-Audio - <external-capture>
+                      <external-capture> at <usb-position>, high speed
+ 2 [UAC2           ]: USB-Audio - <soc-usb-function>
+                      Kebag-Logic <soc-usb-function> at <usb-position>, high speed
+/proc/asound/card0/pcm0c/sub0/status: closed
+/proc/asound/card0/pcm0p/sub0/status: closed
+/proc/asound/card1/pcm0c/sub0/status: closed
+/proc/asound/card1/pcm0p/sub0/status: closed
+/proc/asound/card2/pcm0c/sub0/status: closed
+/proc/asound/card2/pcm0p/sub0/status: closed
+lo               UNKNOWN        <host-mac> <LOOPBACK,UP,LOWER_UP> 
+<host-interface>           UP             <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<host-interface>           UP             <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+<board-link-interface>    UNKNOWN        <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+docker0          DOWN           <host-mac> <NO-CARRIER,BROADCAST,MULTICAST,UP> 
+br-2df3288a7963  UP             <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+veth3f50444@if2  UP             <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+lo               UNKNOWN        127.0.0.1/8 
+<host-interface>           UP             <lan-address>/24 
+<board-link-interface>    UNKNOWN        <board-link-host-address>/24 
+docker0          DOWN           172.17.0.1/16 
+br-2df3288a7963  UP             172.18.0.1/16 
+total 0
+lrwxrwxrwx 1 root root 13 Oct  3 14:21 usb-Digilent_Digilent_USB_Device_<jtag-serial>-if00-port0 -> ../../ttyUSB2
+lrwxrwxrwx 1 root root 13 Oct  1 12:03 usb-FTDI_TTL232R-3V3_<soc-console-serial>-if00-port0 -> ../../ttyUSB1
+lrwxrwxrwx 1 root root 13 Oct  1 12:03 usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_<dut-console-serial>-if00-port0 -> ../../ttyUSB0

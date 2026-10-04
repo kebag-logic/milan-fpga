@@ -1,0 +1,25 @@
+{"check": "version", "result": "PASS", "detail": "00020060"}
+{"check": "crc-aem", "result": "PASS", "detail": {"cmd": "crc 0x01400000 7512", "read": "5ba355eb", "build": "5ba355eb"}}
+{"check": "crc-rom", "result": "PASS", "detail": {"cmd": "crc 0x00000000 53588", "read": "2144df1c", "build": "2144df1c"}}
+{"check": "crc-payload", "result": "PASS", "detail": {"cmd": "crc 0x01000000 3825788", "read": "e6b8febc", "build": "e6b8febc"}}
+{"check": "qspi-ENTITY 0", "result": "PASS", "detail": {"bytes": 312}}
+{"check": "qspi-CONFIGURATION 0", "result": "PASS", "detail": {"bytes": 106}}
+{"check": "qspi-CLOCK_SOURCE 0-2", "result": "PASS", "detail": {"bytes": 264}}
+{"check": "qspi-CLOCK_DOMAIN 0", "result": "PASS", "detail": {"bytes": 82}}
+{"check": "aecp-ENTITY 0", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 312, "differing_offsets": []}}
+{"check": "aecp-CONFIGURATION 0", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 106, "differing_offsets": []}}
+{"check": "aecp-STREAM_INPUT 0", "result": "FAIL", "detail": {"status": "SUCCESS", "bytes": 154, "differing_offsets": [78]}}
+{"check": "aecp-STREAM_INPUT 1", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 146, "differing_offsets": []}}
+{"check": "aecp-STREAM_OUTPUT 0", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 146, "differing_offsets": []}}
+{"check": "aecp-STREAM_OUTPUT 1", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 146, "differing_offsets": []}}
+{"check": "aecp-CLOCK_SOURCE 0", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 86, "differing_offsets": []}}
+{"check": "aecp-CLOCK_SOURCE 1", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 86, "differing_offsets": []}}
+{"check": "aecp-CLOCK_SOURCE 2", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 86, "differing_offsets": []}}
+{"check": "aecp-CLOCK_SOURCE 3 absent", "result": "PASS", "detail": "NO_SUCH_DESCRIPTOR"}
+{"check": "aecp-CLOCK_DOMAIN 0", "result": "FAIL", "detail": {"status": "SUCCESS", "bytes": 82, "differing_offsets": [71]}}
+{"check": "aecp-AVB_INTERFACE 0", "result": "PASS", "detail": {"status": "SUCCESS", "bytes": 102, "differing_offsets": []}}
+{"check": "clock-sources-629", "result": "PASS", "detail": {"stream_inputs": {"0": "AAF", "1": "CRF"}, "clock_sources": [{"index": 0, "name": "Internal", "type": "INTERNAL", "flags": "0x0002", "location": "CLOCK_SOURCE 0"}, {"index": 1, "name": "CRF Clock", "type": "INPUT_STREAM", "flags": "0x0002", "location": "STREAM_INPUT 1"}, {"index": 2, "name": "Stream Clock", "type": "INPUT_STREAM", "flags": "0x0002", "location": "STREAM_INPUT 0"}], "clock_domain_list": [0, 1, 2], "expected": [{"type": "INTERNAL"}, {"type": "INPUT_STREAM", "location": "STREAM_INPUT 1"}, {"type": "INPUT_STREAM", "location": "STREAM_INPUT 0"}]}}
+{"check": "get-clock-source", "result": "FAIL", "detail": 1}
+{"check": "uart-grader", "result": "PASS", "detail": ["SMOKE: PASS (10/10)"]}
+{"check": "adp-dut-model", "result": "PASS", "detail": ["001bc5c1935893e1"]}
+IDENTITY GATE: FAIL

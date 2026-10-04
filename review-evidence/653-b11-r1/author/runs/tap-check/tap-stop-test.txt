@@ -1,0 +1,8 @@
+LOCK 2026-10-04T21:06:57
+listening after 0.47 s b'tcpdump: listening on <tap-interface>, link-type EN10MB (Ethernet), snapshot length 262144 bytes\r\n'
+stopped after 0.02 s rc=130 b'tcpdump: listening on <tap-interface>, link-type EN10MB (Ethernet), snapshot length 262144 bytes\r\n^C1 packet captured\r\n1 packet received by filter\r\n0 packets dropped by kernel\r\nConnection to <lan-address> closed.\r\n'
+26037 bash -c pgrep -af tcpdump; ls -la /tmp/b11-a535-stoptest.pcap; sudo -n rm -f /tmp/b11-a535-stoptest.pcap /tmp/b11-a535-check.pcap; ls /tmp/b11-a535-* 2>&1
+-rw-r--r-- 1 tcpdump tcpdump 132 Oct  4 21:07 /tmp/b11-a535-stoptest.pcap
+ls: cannot access '/tmp/b11-a535-*': No such file or directory
+ 
+UNLOCK 2026-10-04T21:07:01

@@ -1,0 +1,22 @@
+LOCK 2026-10-04T19:00:34.609Z
+User <account> may run the following commands on <tap-host>:
+    (ALL : ALL) ALL
+    (ALL : ALL) NOPASSWD: ALL
+tcpdump version 4.99.6
+libpcap version 1.10.6 (64-bit time_t, with TPACKET_V3)
+<tap-interface>  UNKNOWN        <host-mac> <BROADCAST,MULTICAST,UP,LOWER_UP> 
+/tmp/taptest.pcap
+/tmp/unbind653.pcap
+/tmp/unbind653b.pcap
+/tmp/unbind653c.pcap
+tmpfs           3.7G  388K  3.7G   1% /tmp
+SSH_RC=0
+tcpdump: listening on <tap-interface>, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+2 packets captured
+3 packets received by filter
+0 packets dropped by kernel
+TCPDUMP_RC=124
+-rw-r--r-- 1 tcpdump tcpdump 262 Oct  4 21:00 /tmp/b11-a535-check.pcap
+CAP_RC=0
+SCP_RC=0
+UNLOCK 2026-10-04T19:00:39.616Z
