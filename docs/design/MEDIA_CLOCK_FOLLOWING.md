@@ -1084,7 +1084,7 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 | Term | Value |
 |---|---|
 | Armed by | a change of the selected CLOCK_SOURCE index; the aligner's re-engagement; and, while none is pending, an aligner excursion past four settle bands (1/16 sample), which is how a pull-in under a running stream arms it |
-| Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre |
+| Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre. A build with the servo pruned (`MCSERVO_P` = 0) never reads LOCKED, so there the ceiling fires it |
 | Fires at INTERNAL | once the aligner has rested inside its settle band, 1/64 sample, for 2,048 ticks running, or at once if it is not engaged (no pull to wait out). An excursion while the recentre is pending restarts that run |
 | Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
 | Reaches | the render stage, at its next PDU end (`render_recentre_p_w`), and the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`) |
