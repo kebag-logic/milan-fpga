@@ -11373,12 +11373,24 @@ def test_baremetal_profile_contract() -> None:
             restart_reason)
         direct_port(restart_ports, "restart_p_i", "mcr_restart_p_w",
                     restart_reason)
+        #: #645 adds the settle recentre: once per source change or aligner
+        #: pull-in, after the plane has settled; still no GM identity term
         direct_initializer(
             datapath, r"wire[ \t]+render_recentre_p_w",
             "render_recentre_p_w",
-            "media_rebase_p_w | src_recentre_p_r",
+            "media_rebase_p_w | settle_recentre_p_r | src_recentre_p_r",
             "render recentre pulse must read only the media re-base "
             "and settled clock-source discontinuities")
+        #: ...and the same settle recentre reaches the capture crossbar's
+        #: LOOP queues, on every stream the bucket keeps
+        settle_lb_reason = (
+            "settle recentre must reach the LOOP queues beside the render "
+            "stage")
+        cmap_ports = instance_ports(
+            datapath, "KL_chan_map_capture", "chan_map_capture",
+            settle_lb_reason)
+        direct_port(cmap_ports, "lb_recentre_i",
+                    "{LB_STREAMS_C{settle_recentre_p_r}}", settle_lb_reason)
         #: 915cbcc3 (PR #294 lane) removed the dead 802.1Q shaper and the
         #: ptp_ts record chain from milan_datapath: the ptp_ts_top
         #: "ptp_timestamp" instance this gate pinned is gone, and the PHC is
@@ -13042,17 +13054,26 @@ def test_baremetal_profile_contract() -> None:
     render_recentre_adp_term = replace_once(
         datapath_source,
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r | cfg_adp_enable;",
         "ADP-controlled render recentre term")
     render_recentre_gm_term = replace_once(
         datapath_source,
         "       media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "       gm_recentre_p_r | media_rebase_p_w\n"
+        "       | settle_recentre_p_r\n"
         "       | src_recentre_p_r;",
         "GM identity restored as a render recentre term")
+    settle_recentre_lb_withheld = replace_once(
+        datapath_source,
+        ".lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),",
+        ".lb_recentre_i ('0),",
+        "settle recentre withheld from the LOOP queues")
     media_rebase_adp_term = replace_once(
         datapath_source,
         "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
@@ -15898,6 +15919,11 @@ def test_baremetal_profile_contract() -> None:
          "render recentre pulse must read only the media re-base "
          "and settled clock-source discontinuities",
          MutantFiles(datapath=render_recentre_gm_term)),
+        ("settle recentre withheld from the LOOP queues", firmware_source,
+         docs_source, csr_source,
+         "settle recentre must reach the LOOP queues beside the render "
+         "stage",
+         MutantFiles(datapath=settle_recentre_lb_withheld)),
         ("ADP term spliced into the media re-base pulse", firmware_source,
          docs_source, csr_source,
          "media re-base pulse must read only adjtime and settime",
@@ -17480,7 +17506,8 @@ def test_baremetal_profile_contract() -> None:
           "controls and readback; "
           "the exact PHC-net census admits media_rebase_p_w as the shared "
           "adjtime/settime read, feeding only render_recentre_p_w. "
-          "Render combines it with the settled source change, never GM "
+          "Render combines it with the settled source change and the "
+          "#645 settle recentre, never GM "
           "identity; restart takes only selected CRF disruption and "
           "received mr propagation, feeding its engine port directly; "
           "external MAC RX "
