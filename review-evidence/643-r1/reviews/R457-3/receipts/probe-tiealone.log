@@ -1,0 +1,20 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[LAW] T30's INTERNAL law once the aligner reports settled, on fresh streams at 18 feed phases against the grid
+  [i]    LAW: waited 4014 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2025: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary +0..+3 (walk 3); the least clearance is 0 cycles, at PDU 3 (offset +0), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2025: PDU 3's end has a pop taken +0 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2025: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2025: 888 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +1 from end (9 = none within -6..+8), fill 14: 4 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +2 from end (9 = none within -6..+8), fill 15: 66 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +3 from end (9 = none within -6..+8), fill 15: 53 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +4 from end (9 = none within -6..+8), fill 15: 1 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2025: NOT GRADABLE; 124 PDUs read, 4 at fill 14
+  [PROBE] +2025: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 851, take-cycle mismatches 0
+== tdm8_render: checks: 20   failures: 1 ==
+RESULT: FAIL
+wall_s=132

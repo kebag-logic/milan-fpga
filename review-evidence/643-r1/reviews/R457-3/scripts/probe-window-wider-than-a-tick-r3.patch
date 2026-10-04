@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index 86fded163..ff75881af 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -195,7 +195,7 @@ constexpr long kBandSlackCycles = 1;
+ //! a PDU end whose nearest pop is within kLawAmbiguityCycles of that boundary
+ //! is NOT GRADABLE.
+ constexpr long kLawWalkCycles = 5;
+-constexpr long kLawGuardCycles = 4;
++constexpr long kLawGuardCycles = 2100;
+ constexpr long kLawAmbiguityCycles = kLawWalkCycles + kLawGuardCycles;
+ //! THE ALIGNER'S SETTLED REPORT (#643), stated here as the LAW under test and
+ //! never read back from the DUT: engaged, with its error inside 1/64 sample,

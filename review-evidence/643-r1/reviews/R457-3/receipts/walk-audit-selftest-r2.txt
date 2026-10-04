@@ -1,0 +1,269 @@
+# walk_audit.py negative control: round-2 receipts (head 6b96391d, W = 8, old walk()), expected to report problems
+# per kind: windows, largest walk (where), wrapped windows, least clearance of a graded window
+CRF sound	2	4	suite-head.log T30 CRF LAW -592..-587	0	335
+LAW sound	199	2	suite-head.log T30 INTERNAL LAW +0 -59..-57	0	9
+# runner per-window lines: 0, largest walk -1
+# sound graded windows with a law line: 165; least lower-edge margin 10.33 (c4-desc.log T30 INTERNAL LAW +2016); least upper-edge margin (to 9T) 8.00 (head-asc.log T30 INTERNAL LAW +2035), to 9T + 1 cycle 9.00
+# standing graded windows: log, tag, walk, clearance, margin, delay, fill, nearest-pop range
+suite-head.log	T30 CRF LAW	4	587	579	18160..18164	fill 14..14	-592..-587
+suite-head.log	T30 INTERNAL LAW +0	2	57	49	18692..18694	fill 14..14	-59..-57
+suite-head.log	T30 INTERNAL LAW +130	2	187	179	18563..18564	fill 14..14	-189..-187
+suite-head.log	T30 INTERNAL LAW +260	1	317	309	18432..18434	fill 14..14	-319..-317
+suite-head.log	T30 INTERNAL LAW +391	2	448	440	18301..18303	fill 14..14	-450..-448
+suite-head.log	T30 INTERNAL LAW +521	2	578	570	18171..18173	fill 14..14	-580..-578
+suite-head.log	T30 INTERNAL LAW +651	2	708	700	18041..18043	fill 14..14	-710..-708
+suite-head.log	T30 INTERNAL LAW +781	1	838	830	17912..17913	fill 14..14	-839..-838
+suite-head.log	T30 INTERNAL LAW +911	2	968	960	17782..17783	fill 14..14	-970..-968
+suite-head.log	T30 INTERNAL LAW +927	2	984	976	17766..17767	fill 14..14	-986..-984
+suite-head.log	T30 INTERNAL LAW +1042	2	982	974	17651..17652	fill 14..14	+983..+985
+suite-head.log	T30 INTERNAL LAW +1156	2	868	860	17537..17538	fill 14..14	+869..+871
+suite-head.log	T30 INTERNAL LAW +1172	2	851	843	17520..17522	fill 14..14	+852..+854
+suite-head.log	T30 INTERNAL LAW +1302	2	721	713	17390..17392	fill 14..14	+722..+724
+suite-head.log	T30 INTERNAL LAW +1432	1	592	584	17261..17262	fill 14..14	+593..+594
+suite-head.log	T30 INTERNAL LAW +1562	2	462	454	17131..17132	fill 14..14	+463..+465
+suite-head.log	T30 INTERNAL LAW +1693	2	330	322	16999..17001	fill 14..14	+331..+333
+suite-head.log	T30 INTERNAL LAW +1823	1	201	193	16870..16871	fill 14..14	+202..+203
+suite-head.log	T30 INTERNAL LAW +1953	2	71	63	16740..16741	fill 14..14	+72..+74
+suite-c4.log	T30 CRF LAW	4	335	327	17004..17008	fill 14..14	+336..+340
+suite-c4.log	T30 INTERNAL LAW +0	2	57	49	18693..18694	fill 14..14	-59..-57
+suite-c4.log	T30 INTERNAL LAW +130	2	187	179	18562..18564	fill 14..14	-189..-187
+suite-c4.log	T30 INTERNAL LAW +260	2	317	309	18432..18434	fill 14..14	-319..-317
+suite-c4.log	T30 INTERNAL LAW +391	2	448	440	18302..18303	fill 14..14	-450..-448
+suite-c4.log	T30 INTERNAL LAW +521	2	578	570	18171..18173	fill 14..14	-580..-578
+suite-c4.log	T30 INTERNAL LAW +651	2	708	700	18041..18043	fill 14..14	-710..-708
+suite-c4.log	T30 INTERNAL LAW +781	2	838	830	17911..17913	fill 14..14	-840..-838
+suite-c4.log	T30 INTERNAL LAW +911	2	968	960	17781..17783	fill 14..14	-970..-968
+suite-c4.log	T30 INTERNAL LAW +927	2	984	976	17765..17767	fill 14..14	-986..-984
+suite-c4.log	T30 INTERNAL LAW +1042	2	981	973	17650..17652	fill 14..14	+982..+984
+suite-c4.log	T30 INTERNAL LAW +1156	2	867	859	17536..17538	fill 14..14	+868..+870
+suite-c4.log	T30 INTERNAL LAW +1172	1	852	844	17520..17522	fill 14..14	+853..+854
+suite-c4.log	T30 INTERNAL LAW +1302	1	722	714	17391..17392	fill 14..14	+723..+724
+suite-c4.log	T30 INTERNAL LAW +1432	2	592	584	17261..17262	fill 14..14	+593..+595
+suite-c4.log	T30 INTERNAL LAW +1562	2	461	453	17130..17132	fill 14..14	+462..+464
+suite-c4.log	T30 INTERNAL LAW +1693	1	331	323	17000..17001	fill 14..14	+332..+333
+suite-c4.log	T30 INTERNAL LAW +1823	2	201	193	16870..16871	fill 14..14	+202..+204
+suite-c4.log	T30 INTERNAL LAW +1953	1	71	63	16739..16741	fill 14..14	+72..+73
+# problems: 222
+PROBLEM suite-head.log:479: T30 CRF LAW walk 4 != range 5
+PROBLEM suite-head.log:479: T30 CRF LAW window 8 margin 579 clear 587
+PROBLEM suite-head.log:487: T30 INTERNAL LAW +0 window 8 margin 49 clear 57
+PROBLEM suite-head.log:490: T30 INTERNAL LAW +130 window 8 margin 179 clear 187
+PROBLEM suite-head.log:493: T30 INTERNAL LAW +260 walk 1 != range 2
+PROBLEM suite-head.log:493: T30 INTERNAL LAW +260 window 8 margin 309 clear 317
+PROBLEM suite-head.log:496: T30 INTERNAL LAW +391 window 8 margin 440 clear 448
+PROBLEM suite-head.log:499: T30 INTERNAL LAW +521 window 8 margin 570 clear 578
+PROBLEM suite-head.log:502: T30 INTERNAL LAW +651 window 8 margin 700 clear 708
+PROBLEM suite-head.log:505: T30 INTERNAL LAW +781 window 8 margin 830 clear 838
+PROBLEM suite-head.log:508: T30 INTERNAL LAW +911 window 8 margin 960 clear 968
+PROBLEM suite-head.log:511: T30 INTERNAL LAW +927 window 8 margin 976 clear 984
+PROBLEM suite-head.log:514: T30 INTERNAL LAW +1042 window 8 margin 974 clear 982
+PROBLEM suite-head.log:517: T30 INTERNAL LAW +1156 window 8 margin 860 clear 868
+PROBLEM suite-head.log:520: T30 INTERNAL LAW +1172 window 8 margin 843 clear 851
+PROBLEM suite-head.log:523: T30 INTERNAL LAW +1302 window 8 margin 713 clear 721
+PROBLEM suite-head.log:526: T30 INTERNAL LAW +1432 window 8 margin 584 clear 592
+PROBLEM suite-head.log:529: T30 INTERNAL LAW +1562 window 8 margin 454 clear 462
+PROBLEM suite-head.log:532: T30 INTERNAL LAW +1693 window 8 margin 322 clear 330
+PROBLEM suite-head.log:535: T30 INTERNAL LAW +1823 window 8 margin 193 clear 201
+PROBLEM suite-head.log:538: T30 INTERNAL LAW +1953 window 8 margin 63 clear 71
+PROBLEM suite-c4.log:488: T30 CRF LAW window 8 margin 327 clear 335
+PROBLEM suite-c4.log:496: T30 INTERNAL LAW +0 window 8 margin 49 clear 57
+PROBLEM suite-c4.log:499: T30 INTERNAL LAW +130 window 8 margin 179 clear 187
+PROBLEM suite-c4.log:502: T30 INTERNAL LAW +260 window 8 margin 309 clear 317
+PROBLEM suite-c4.log:505: T30 INTERNAL LAW +391 window 8 margin 440 clear 448
+PROBLEM suite-c4.log:508: T30 INTERNAL LAW +521 window 8 margin 570 clear 578
+PROBLEM suite-c4.log:511: T30 INTERNAL LAW +651 window 8 margin 700 clear 708
+PROBLEM suite-c4.log:514: T30 INTERNAL LAW +781 window 8 margin 830 clear 838
+PROBLEM suite-c4.log:517: T30 INTERNAL LAW +911 window 8 margin 960 clear 968
+PROBLEM suite-c4.log:520: T30 INTERNAL LAW +927 window 8 margin 976 clear 984
+PROBLEM suite-c4.log:523: T30 INTERNAL LAW +1042 window 8 margin 973 clear 981
+PROBLEM suite-c4.log:526: T30 INTERNAL LAW +1156 window 8 margin 859 clear 867
+PROBLEM suite-c4.log:529: T30 INTERNAL LAW +1172 window 8 margin 844 clear 852
+PROBLEM suite-c4.log:532: T30 INTERNAL LAW +1302 window 8 margin 714 clear 722
+PROBLEM suite-c4.log:535: T30 INTERNAL LAW +1432 window 8 margin 584 clear 592
+PROBLEM suite-c4.log:538: T30 INTERNAL LAW +1562 window 8 margin 453 clear 461
+PROBLEM suite-c4.log:541: T30 INTERNAL LAW +1693 window 8 margin 323 clear 331
+PROBLEM suite-c4.log:544: T30 INTERNAL LAW +1823 window 8 margin 193 clear 201
+PROBLEM suite-c4.log:547: T30 INTERNAL LAW +1953 window 8 margin 63 clear 71
+PROBLEM head-asc.log:7: T30 INTERNAL LAW +0 window 8 margin 48 clear 56
+PROBLEM head-asc.log:13: T30 INTERNAL LAW +1986 window 8 margin 31 clear 39
+PROBLEM head-asc.log:18: T30 INTERNAL LAW +1987 window 8 margin 29 clear 37
+PROBLEM head-asc.log:23: T30 INTERNAL LAW +1988 window 8 margin 29 clear 37
+PROBLEM head-asc.log:28: T30 INTERNAL LAW +1989 window 8 margin 27 clear 35
+PROBLEM head-asc.log:33: T30 INTERNAL LAW +1990 window 8 margin 26 clear 34
+PROBLEM head-asc.log:38: T30 INTERNAL LAW +1991 window 8 margin 26 clear 34
+PROBLEM head-asc.log:43: T30 INTERNAL LAW +1992 window 8 margin 25 clear 33
+PROBLEM head-asc.log:48: T30 INTERNAL LAW +1993 window 8 margin 23 clear 31
+PROBLEM head-asc.log:53: T30 INTERNAL LAW +1994 window 8 margin 22 clear 30
+PROBLEM head-asc.log:58: T30 INTERNAL LAW +1995 window 8 margin 21 clear 29
+PROBLEM head-asc.log:63: T30 INTERNAL LAW +1996 window 8 margin 20 clear 28
+PROBLEM head-asc.log:68: T30 INTERNAL LAW +1997 window 8 margin 20 clear 28
+PROBLEM head-asc.log:73: T30 INTERNAL LAW +1998 window 8 margin 19 clear 27
+PROBLEM head-asc.log:78: T30 INTERNAL LAW +1999 window 8 margin 18 clear 26
+PROBLEM head-asc.log:83: T30 INTERNAL LAW +2000 window 8 margin 16 clear 24
+PROBLEM head-asc.log:88: T30 INTERNAL LAW +2001 window 8 margin 15 clear 23
+PROBLEM head-asc.log:93: T30 INTERNAL LAW +2002 window 8 margin 15 clear 23
+PROBLEM head-asc.log:98: T30 INTERNAL LAW +2003 window 8 margin 13 clear 21
+PROBLEM head-asc.log:103: T30 INTERNAL LAW +2004 window 8 margin 13 clear 21
+PROBLEM head-asc.log:108: T30 INTERNAL LAW +2005 window 8 margin 11 clear 19
+PROBLEM head-asc.log:113: T30 INTERNAL LAW +2006 window 8 margin 11 clear 19
+PROBLEM head-asc.log:118: T30 INTERNAL LAW +2007 window 8 margin 9 clear 17
+PROBLEM head-asc.log:123: T30 INTERNAL LAW +2008 window 8 margin 9 clear 17
+PROBLEM head-asc.log:128: T30 INTERNAL LAW +2009 window 8 margin 7 clear 15
+PROBLEM head-asc.log:133: T30 INTERNAL LAW +2010 window 8 margin 7 clear 15
+PROBLEM head-asc.log:138: T30 INTERNAL LAW +2011 window 8 margin 5 clear 13
+PROBLEM head-asc.log:143: T30 INTERNAL LAW +2012 window 8 margin 4 clear 12
+PROBLEM head-asc.log:148: T30 INTERNAL LAW +2013 window 8 margin 4 clear 12
+PROBLEM head-asc.log:153: T30 INTERNAL LAW +2014 window 8 margin 2 clear 10
+PROBLEM head-asc.log:158: T30 INTERNAL LAW +2015 window 8 margin 1 clear 9
+PROBLEM head-asc.log:158: T30 INTERNAL LAW +2015 NOT GRADABLE False but clearance 9
+PROBLEM head-asc.log:163: T30 INTERNAL LAW +2016 window 8 margin 1 clear 9
+PROBLEM head-asc.log:163: T30 INTERNAL LAW +2016 NOT GRADABLE False but clearance 9
+PROBLEM head-asc.log:168: T30 INTERNAL LAW +2017 window 8 margin -1 clear 7
+PROBLEM head-asc.log:173: T30 INTERNAL LAW +2018 window 8 margin -2 clear 6
+PROBLEM head-asc.log:178: T30 INTERNAL LAW +2019 window 8 margin -2 clear 6
+PROBLEM head-asc.log:183: T30 INTERNAL LAW +2020 window 8 margin -3 clear 5
+PROBLEM head-asc.log:188: T30 INTERNAL LAW +2021 window 8 margin -5 clear 3
+PROBLEM head-asc.log:193: T30 INTERNAL LAW +2022 window 8 margin -6 clear 2
+PROBLEM head-asc.log:198: T30 INTERNAL LAW +2023 window 8 margin -7 clear 1
+PROBLEM head-asc.log:203: T30 INTERNAL LAW +2024 window 8 margin -7 clear 1
+PROBLEM head-asc.log:208: T30 INTERNAL LAW +2025 window 8 margin -8 clear 0
+PROBLEM head-asc.log:213: T30 INTERNAL LAW +2026 window 8 margin -8 clear 0
+PROBLEM head-asc.log:218: T30 INTERNAL LAW +2027 window 8 margin -7 clear 1
+PROBLEM head-asc.log:223: T30 INTERNAL LAW +2028 window 8 margin -6 clear 2
+PROBLEM head-asc.log:228: T30 INTERNAL LAW +2029 window 8 margin -5 clear 3
+PROBLEM head-asc.log:233: T30 INTERNAL LAW +2030 window 8 margin -5 clear 3
+PROBLEM head-asc.log:238: T30 INTERNAL LAW +2031 window 8 margin -4 clear 4
+PROBLEM head-asc.log:243: T30 INTERNAL LAW +2032 window 8 margin -3 clear 5
+PROBLEM head-asc.log:248: T30 INTERNAL LAW +2033 window 8 margin -1 clear 7
+PROBLEM head-asc.log:253: T30 INTERNAL LAW +2034 window 8 margin 0 clear 8
+PROBLEM head-asc.log:258: T30 INTERNAL LAW +2035 window 8 margin 1 clear 9
+PROBLEM head-asc.log:258: T30 INTERNAL LAW +2035 NOT GRADABLE False but clearance 9
+PROBLEM head-asc.log:263: T30 INTERNAL LAW +2036 window 8 margin 2 clear 10
+PROBLEM head-asc.log:268: T30 INTERNAL LAW +2037 window 8 margin 3 clear 11
+PROBLEM head-asc.log:273: T30 INTERNAL LAW +2038 window 8 margin 3 clear 11
+PROBLEM head-asc.log:278: T30 INTERNAL LAW +2039 window 8 margin 4 clear 12
+PROBLEM head-asc.log:283: T30 INTERNAL LAW +2040 window 8 margin 5 clear 13
+PROBLEM head-asc.log:288: T30 INTERNAL LAW +2041 window 8 margin 6 clear 14
+PROBLEM head-asc.log:293: T30 INTERNAL LAW +2042 window 8 margin 7 clear 15
+PROBLEM head-asc.log:298: T30 INTERNAL LAW +2043 window 8 margin 9 clear 17
+PROBLEM head-asc.log:303: T30 INTERNAL LAW +2044 window 8 margin 10 clear 18
+PROBLEM head-asc.log:308: T30 INTERNAL LAW +2045 walk 0 != range 1
+PROBLEM head-asc.log:308: T30 INTERNAL LAW +2045 window 8 margin 11 clear 19
+PROBLEM head-asc.log:313: T30 INTERNAL LAW +2046 window 8 margin 12 clear 20
+PROBLEM head-asc.log:318: T30 INTERNAL LAW +2047 window 8 margin 13 clear 21
+PROBLEM head-asc.log:323: T30 INTERNAL LAW +2048 window 8 margin 14 clear 22
+PROBLEM head-asc.log:328: T30 INTERNAL LAW +2049 window 8 margin 15 clear 23
+PROBLEM head-asc.log:333: T30 INTERNAL LAW +2050 window 8 margin 16 clear 24
+PROBLEM head-asc.log:338: T30 INTERNAL LAW +2051 window 8 margin 16 clear 24
+PROBLEM head-asc.log:343: T30 INTERNAL LAW +2052 window 8 margin 17 clear 25
+PROBLEM head-asc.log:348: T30 INTERNAL LAW +2053 window 8 margin 18 clear 26
+PROBLEM head-asc.log:353: T30 INTERNAL LAW +2054 window 8 margin 19 clear 27
+PROBLEM head-asc.log:358: T30 INTERNAL LAW +2055 window 8 margin 20 clear 28
+PROBLEM head-asc.log:363: T30 INTERNAL LAW +2056 window 8 margin 22 clear 30
+PROBLEM head-asc.log:368: T30 INTERNAL LAW +2057 window 8 margin 23 clear 31
+PROBLEM head-asc.log:373: T30 INTERNAL LAW +2058 window 8 margin 24 clear 32
+PROBLEM head-asc.log:378: T30 INTERNAL LAW +2059 window 8 margin 25 clear 33
+PROBLEM head-asc.log:383: T30 INTERNAL LAW +2060 window 8 margin 26 clear 34
+PROBLEM head-asc.log:388: T30 INTERNAL LAW +2061 window 8 margin 27 clear 35
+PROBLEM head-asc.log:393: T30 INTERNAL LAW +2062 walk 0 != range 1
+PROBLEM head-asc.log:393: T30 INTERNAL LAW +2062 window 8 margin 28 clear 36
+PROBLEM head-asc.log:398: T30 INTERNAL LAW +2063 window 8 margin 29 clear 37
+PROBLEM head-asc.log:403: T30 INTERNAL LAW +2064 window 8 margin 30 clear 38
+PROBLEM head-asc.log:408: T30 INTERNAL LAW +2065 window 8 margin 31 clear 39
+PROBLEM head-asc.log:413: T30 INTERNAL LAW +2066 window 8 margin 32 clear 40
+PROBLEM c4-desc.log:7: T30 INTERNAL LAW +2066 walk 2 != range 3
+PROBLEM c4-desc.log:7: T30 INTERNAL LAW +2066 window 8 margin 30 clear 38
+PROBLEM c4-desc.log:12: T30 INTERNAL LAW +2065 window 8 margin 29 clear 37
+PROBLEM c4-desc.log:17: T30 INTERNAL LAW +2064 walk 2 != range 3
+PROBLEM c4-desc.log:17: T30 INTERNAL LAW +2064 window 8 margin 28 clear 36
+PROBLEM c4-desc.log:22: T30 INTERNAL LAW +2063 window 8 margin 28 clear 36
+PROBLEM c4-desc.log:27: T30 INTERNAL LAW +2062 window 8 margin 27 clear 35
+PROBLEM c4-desc.log:32: T30 INTERNAL LAW +2061 window 8 margin 25 clear 33
+PROBLEM c4-desc.log:37: T30 INTERNAL LAW +2060 window 8 margin 25 clear 33
+PROBLEM c4-desc.log:42: T30 INTERNAL LAW +2059 walk 1 != range 2
+PROBLEM c4-desc.log:42: T30 INTERNAL LAW +2059 window 8 margin 24 clear 32
+PROBLEM c4-desc.log:47: T30 INTERNAL LAW +2058 window 8 margin 23 clear 31
+PROBLEM c4-desc.log:52: T30 INTERNAL LAW +2057 window 8 margin 22 clear 30
+PROBLEM c4-desc.log:57: T30 INTERNAL LAW +2056 walk 1 != range 2
+PROBLEM c4-desc.log:57: T30 INTERNAL LAW +2056 window 8 margin 21 clear 29
+PROBLEM c4-desc.log:62: T30 INTERNAL LAW +2055 walk 1 != range 2
+PROBLEM c4-desc.log:62: T30 INTERNAL LAW +2055 window 8 margin 20 clear 28
+PROBLEM c4-desc.log:67: T30 INTERNAL LAW +2054 walk 1 != range 2
+PROBLEM c4-desc.log:67: T30 INTERNAL LAW +2054 window 8 margin 19 clear 27
+PROBLEM c4-desc.log:72: T30 INTERNAL LAW +2053 window 8 margin 18 clear 26
+PROBLEM c4-desc.log:77: T30 INTERNAL LAW +2052 window 8 margin 17 clear 25
+PROBLEM c4-desc.log:82: T30 INTERNAL LAW +2051 window 8 margin 16 clear 24
+PROBLEM c4-desc.log:87: T30 INTERNAL LAW +2050 walk 1 != range 2
+PROBLEM c4-desc.log:87: T30 INTERNAL LAW +2050 window 8 margin 15 clear 23
+PROBLEM c4-desc.log:92: T30 INTERNAL LAW +2049 window 8 margin 15 clear 23
+PROBLEM c4-desc.log:97: T30 INTERNAL LAW +2048 window 8 margin 13 clear 21
+PROBLEM c4-desc.log:102: T30 INTERNAL LAW +2047 walk 1 != range 2
+PROBLEM c4-desc.log:102: T30 INTERNAL LAW +2047 window 8 margin 12 clear 20
+PROBLEM c4-desc.log:107: T30 INTERNAL LAW +2046 window 8 margin 11 clear 19
+PROBLEM c4-desc.log:112: T30 INTERNAL LAW +2045 walk 1 != range 2
+PROBLEM c4-desc.log:112: T30 INTERNAL LAW +2045 window 8 margin 10 clear 18
+PROBLEM c4-desc.log:117: T30 INTERNAL LAW +2044 window 8 margin 9 clear 17
+PROBLEM c4-desc.log:122: T30 INTERNAL LAW +2043 window 8 margin 9 clear 17
+PROBLEM c4-desc.log:127: T30 INTERNAL LAW +2042 window 8 margin 7 clear 15
+PROBLEM c4-desc.log:132: T30 INTERNAL LAW +2041 window 8 margin 7 clear 15
+PROBLEM c4-desc.log:137: T30 INTERNAL LAW +2040 walk 1 != range 2
+PROBLEM c4-desc.log:137: T30 INTERNAL LAW +2040 window 8 margin 5 clear 13
+PROBLEM c4-desc.log:142: T30 INTERNAL LAW +2039 window 8 margin 4 clear 12
+PROBLEM c4-desc.log:147: T30 INTERNAL LAW +2038 window 8 margin 4 clear 12
+PROBLEM c4-desc.log:152: T30 INTERNAL LAW +2037 walk 1 != range 2
+PROBLEM c4-desc.log:152: T30 INTERNAL LAW +2037 window 8 margin 2 clear 10
+PROBLEM c4-desc.log:157: T30 INTERNAL LAW +2036 window 8 margin 1 clear 9
+PROBLEM c4-desc.log:157: T30 INTERNAL LAW +2036 NOT GRADABLE False but clearance 9
+PROBLEM c4-desc.log:162: T30 INTERNAL LAW +2035 window 8 margin 1 clear 9
+PROBLEM c4-desc.log:162: T30 INTERNAL LAW +2035 NOT GRADABLE False but clearance 9
+PROBLEM c4-desc.log:167: T30 INTERNAL LAW +2034 window 8 margin 0 clear 8
+PROBLEM c4-desc.log:172: T30 INTERNAL LAW +2033 window 8 margin -2 clear 6
+PROBLEM c4-desc.log:177: T30 INTERNAL LAW +2032 window 8 margin -3 clear 5
+PROBLEM c4-desc.log:182: T30 INTERNAL LAW +2031 window 8 margin -3 clear 5
+PROBLEM c4-desc.log:187: T30 INTERNAL LAW +2030 window 8 margin -4 clear 4
+PROBLEM c4-desc.log:192: T30 INTERNAL LAW +2029 window 8 margin -6 clear 2
+PROBLEM c4-desc.log:197: T30 INTERNAL LAW +2028 window 8 margin -7 clear 1
+PROBLEM c4-desc.log:202: T30 INTERNAL LAW +2027 window 8 margin -7 clear 1
+PROBLEM c4-desc.log:207: T30 INTERNAL LAW +2026 window 8 margin -8 clear 0
+PROBLEM c4-desc.log:212: T30 INTERNAL LAW +2025 window 8 margin -8 clear 0
+PROBLEM c4-desc.log:217: T30 INTERNAL LAW +2024 window 8 margin -8 clear 0
+PROBLEM c4-desc.log:222: T30 INTERNAL LAW +2023 window 8 margin -6 clear 2
+PROBLEM c4-desc.log:227: T30 INTERNAL LAW +2022 window 8 margin -5 clear 3
+PROBLEM c4-desc.log:232: T30 INTERNAL LAW +2021 window 8 margin -4 clear 4
+PROBLEM c4-desc.log:237: T30 INTERNAL LAW +2020 window 8 margin -4 clear 4
+PROBLEM c4-desc.log:242: T30 INTERNAL LAW +2019 window 8 margin -3 clear 5
+PROBLEM c4-desc.log:247: T30 INTERNAL LAW +2018 window 8 margin -2 clear 6
+PROBLEM c4-desc.log:252: T30 INTERNAL LAW +2017 window 8 margin -1 clear 7
+PROBLEM c4-desc.log:257: T30 INTERNAL LAW +2016 window 8 margin 1 clear 9
+PROBLEM c4-desc.log:257: T30 INTERNAL LAW +2016 NOT GRADABLE False but clearance 9
+PROBLEM c4-desc.log:262: T30 INTERNAL LAW +2015 window 8 margin 2 clear 10
+PROBLEM c4-desc.log:267: T30 INTERNAL LAW +2014 window 8 margin 3 clear 11
+PROBLEM c4-desc.log:272: T30 INTERNAL LAW +2013 window 8 margin 4 clear 12
+PROBLEM c4-desc.log:277: T30 INTERNAL LAW +2012 window 8 margin 4 clear 12
+PROBLEM c4-desc.log:282: T30 INTERNAL LAW +2011 window 8 margin 5 clear 13
+PROBLEM c4-desc.log:287: T30 INTERNAL LAW +2010 window 8 margin 6 clear 14
+PROBLEM c4-desc.log:292: T30 INTERNAL LAW +2009 window 8 margin 7 clear 15
+PROBLEM c4-desc.log:297: T30 INTERNAL LAW +2008 window 8 margin 8 clear 16
+PROBLEM c4-desc.log:302: T30 INTERNAL LAW +2007 window 8 margin 9 clear 17
+PROBLEM c4-desc.log:307: T30 INTERNAL LAW +2006 window 8 margin 11 clear 19
+PROBLEM c4-desc.log:312: T30 INTERNAL LAW +2005 window 8 margin 12 clear 20
+PROBLEM c4-desc.log:317: T30 INTERNAL LAW +2004 window 8 margin 13 clear 21
+PROBLEM c4-desc.log:322: T30 INTERNAL LAW +2003 window 8 margin 14 clear 22
+PROBLEM c4-desc.log:327: T30 INTERNAL LAW +2002 window 8 margin 15 clear 23
+PROBLEM c4-desc.log:332: T30 INTERNAL LAW +2001 window 8 margin 16 clear 24
+PROBLEM c4-desc.log:337: T30 INTERNAL LAW +2000 window 8 margin 16 clear 24
+PROBLEM c4-desc.log:342: T30 INTERNAL LAW +1999 window 8 margin 17 clear 25
+PROBLEM c4-desc.log:347: T30 INTERNAL LAW +1998 window 8 margin 18 clear 26
+PROBLEM c4-desc.log:352: T30 INTERNAL LAW +1997 window 8 margin 19 clear 27
+PROBLEM c4-desc.log:357: T30 INTERNAL LAW +1996 window 8 margin 20 clear 28
+PROBLEM c4-desc.log:362: T30 INTERNAL LAW +1995 window 8 margin 21 clear 29
+PROBLEM c4-desc.log:367: T30 INTERNAL LAW +1994 window 8 margin 22 clear 30
+PROBLEM c4-desc.log:372: T30 INTERNAL LAW +1993 window 8 margin 23 clear 31
+PROBLEM c4-desc.log:377: T30 INTERNAL LAW +1992 window 8 margin 24 clear 32
+PROBLEM c4-desc.log:382: T30 INTERNAL LAW +1991 window 8 margin 25 clear 33
+PROBLEM c4-desc.log:387: T30 INTERNAL LAW +1990 window 8 margin 26 clear 34
+PROBLEM c4-desc.log:392: T30 INTERNAL LAW +1989 window 8 margin 28 clear 36
+PROBLEM c4-desc.log:397: T30 INTERNAL LAW +1988 window 8 margin 29 clear 37
+PROBLEM c4-desc.log:402: T30 INTERNAL LAW +1987 window 8 margin 30 clear 38
+PROBLEM c4-desc.log:407: T30 INTERNAL LAW +1986 window 8 margin 31 clear 39
+rc=1

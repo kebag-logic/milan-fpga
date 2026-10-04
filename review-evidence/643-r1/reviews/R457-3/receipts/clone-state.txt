@@ -1,0 +1,14 @@
+# review clone state after probes (R457-3)
+HEAD 36207e91c81fd33782b01486e3bc2fea50e91a1e tree efadbdb9b540bb8c78a8d707557c65f936052579
+status --porcelain --ignored lines: 0
+worktree == index
+index == HEAD
+index (mode,blob,path) hash 5e8dbbd0ffe7d7cd; HEAD tree hash 5e8dbbd0ffe7d7cd; equal=yes
+untracked/ignored __pycache__: 0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ 631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor (v2.0-429-g631eeb3)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor worktree dirty lines: 0
+gptp-processor worktree dirty lines: 0
+third_party/verilog-axis worktree dirty lines: 0

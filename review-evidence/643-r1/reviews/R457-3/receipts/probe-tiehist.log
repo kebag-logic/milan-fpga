@@ -1,0 +1,89 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[LAW] T30's INTERNAL law once the aligner reports settled, on fresh streams at 18 feed phases against the grid
+  [i]    LAW: waited 4014 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2023: over 137 steady PDU ends the first pop after the end is taken +2..+5 cycles from it and the pop nearest the boundary +2..+5 (walk 3); the least clearance is 1 cycles, at PDU 2 (offset +2), against the 9-cycle ambiguity window: margin -8
+  [NOT GRADABLE] T30 INTERNAL LAW +2023: PDU 2's end has a pop taken +2 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2023: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2023: 888 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2023: pulse +3 from end (9 = none within -6..+8), fill 14: 4 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2023: pulse +4 from end (9 = none within -6..+8), fill 14: 66 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2023: pulse +5 from end (9 = none within -6..+8), fill 14: 53 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2023: pulse +6 from end (9 = none within -6..+8), fill 14: 1 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2023: NOT GRADABLE; 124 PDUs read, 124 at fill 14
+  [PROBE] +2023: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 852, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2024: over 137 steady PDU ends the first pop after the end is taken +2..+4 cycles from it and the pop nearest the boundary +2..+4 (walk 2); the least clearance is 1 cycles, at PDU 2 (offset +2), against the 9-cycle ambiguity window: margin -8
+  [NOT GRADABLE] T30 INTERNAL LAW +2024: PDU 2's end has a pop taken +2 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2024: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2024: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2024: pulse +3 from end (9 = none within -6..+8), fill 14: 17 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2024: pulse +4 from end (9 = none within -6..+8), fill 14: 80 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2024: pulse +5 from end (9 = none within -6..+8), fill 14: 27 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2024: NOT GRADABLE; 124 PDUs read, 124 at fill 14
+  [PROBE] +2024: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2025: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary +0..+3 (walk 3); the least clearance is 0 cycles, at PDU 2 (offset +1), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2025: PDU 2's end has a pop taken +1 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2025: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2025: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +2 from end (9 = none within -6..+8), fill 14: 42 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +3 from end (9 = none within -6..+8), fill 14: 78 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +4 from end (9 = none within -6..+8), fill 14: 4 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2025: NOT GRADABLE; 124 PDUs read, 124 at fill 14
+  [PROBE] +2025: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2026: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary -1..+1 (walk 2); the least clearance is 0 cycles, at PDU 5 (offset +0), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2026: PDU 5's end has a pop taken +0 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2026: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2026: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2026: pulse +0 from end (9 = none within -6..+8), fill 14: 12 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2026: pulse +1 from end (9 = none within -6..+8), fill 14: 85 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2026: pulse +2 from end (9 = none within -6..+8), fill 15: 27 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2026: NOT GRADABLE; 124 PDUs read, 97 at fill 14
+  [PROBE] +2026: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 859, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2027: over 137 steady PDU ends the first pop after the end is taken +2082..+2084 cycles from it and the pop nearest the boundary -2..+0 (walk 2); the least clearance is 0 cycles, at PDU 30 (offset +0), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2027: PDU 30's end has a pop taken +0 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2027: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2027: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2027: pulse +0 from end (9 = none within -6..+8), fill 14: 61 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2027: pulse +1 from end (9 = none within -6..+8), fill 14: 63 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2027: NOT GRADABLE; 124 PDUs read, 124 at fill 14
+  [PROBE] +2027: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2028: over 137 steady PDU ends the first pop after the end is taken +2081..+2083 cycles from it and the pop nearest the boundary -2..+0 (walk 2); the least clearance is 0 cycles, at PDU 105 (offset +0), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2028: PDU 105's end has a pop taken +0 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2028: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2028: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2028: pulse -1 from end (9 = none within -6..+8), fill 14: 30 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2028: pulse +0 from end (9 = none within -6..+8), fill 14: 89 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2028: pulse +1 from end (9 = none within -6..+8), fill 14: 5 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2028: NOT GRADABLE; 124 PDUs read, 124 at fill 14
+  [PROBE] +2028: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2025: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary +0..+2 (walk 2); the least clearance is 0 cycles, at PDU 3 (offset +0), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2025: PDU 3's end has a pop taken +0 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2025: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2025: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +1 from end (9 = none within -6..+8), fill 14: 12 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +2 from end (9 = none within -6..+8), fill 15: 95 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +3 from end (9 = none within -6..+8), fill 15: 17 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2025: NOT GRADABLE; 124 PDUs read, 12 at fill 14
+  [PROBE] +2025: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+  [PROBE] fill_end_w mismatch at PDU id 2 (fill_end_w 18, fill read 14)
+  [i]    T30 INTERNAL LAW +2025: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary +0..+2 (walk 2); the least clearance is 0 cycles, at PDU 3 (offset +1), against the 9-cycle ambiguity window: margin -9
+  [NOT GRADABLE] T30 INTERNAL LAW +2025: PDU 3's end has a pop taken +1 cycles from it, inside the 9-cycle ambiguity window; the law is neither passed nor failed here
+  [FAIL] T30 INTERNAL LAW +2025: gradable, every PDU end clear of a pop by more than the ambiguity window
+  [i]    T30 INTERNAL LAW +2025: 889 media ticks in the phase, 0 of them outside the settle band
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +1 from end (9 = none within -6..+8), fill 14: 5 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +2 from end (9 = none within -6..+8), fill 15: 89 PDUs
+  [PROBE-H] T30 INTERNAL LAW +2025: pulse +3 from end (9 = none within -6..+8), fill 15: 30 PDUs
+  [PROBE-G] T30 INTERNAL LAW +2025: NOT GRADABLE; 124 PDUs read, 5 at fill 14
+  [PROBE] +2025: stage PDU ends 144, instant mismatches 0, fill reads checked 144, fill_end_w mismatches 1, pops 860, take-cycle mismatches 0
+== tdm8_render: checks: 34   failures: 8 ==
+RESULT: FAIL
+wall_s=174
