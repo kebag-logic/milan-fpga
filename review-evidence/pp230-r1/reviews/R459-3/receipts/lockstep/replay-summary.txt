@@ -1,0 +1,15 @@
+head N=4/4: runs=4 cycles=1600000 resets=14 top_mismatch=0 internal_mismatch=0
+head N=5/3: runs=4 cycles=1600000 resets=18 top_mismatch=0 internal_mismatch=0
+head N=2/7: runs=4 cycles=1600000 resets=17 top_mismatch=0 internal_mismatch=0
+head N=7/2: runs=4 cycles=1600000 resets=17 top_mismatch=0 internal_mismatch=0
+head N=1/9: runs=4 cycles=1600000 resets=13 top_mismatch=0 internal_mismatch=0
+head N=16/16: runs=4 cycles=1600000 resets=20 top_mismatch=0 internal_mismatch=0
+head N=2/2: runs=4 cycles=1600000 resets=21 top_mismatch=0 internal_mismatch=0
+control vlan-slice N=4/4 top_mismatch=1324 internal=99861
+control vlan-slice N=4/4 top_mismatch=673 internal=94156
+control vlan-slice N=4/4 top_mismatch=1941 internal=99383
+control vlan-slice N=4/4 top_mismatch=1276 internal=99761
+control vlan-slice N=2/7 top_mismatch=819 internal=99460
+control vlan-slice N=2/7 top_mismatch=417 internal=82204
+control vlan-slice N=2/7 top_mismatch=1301 internal=99838
+control vlan-slice N=2/7 top_mismatch=847 internal=99762
