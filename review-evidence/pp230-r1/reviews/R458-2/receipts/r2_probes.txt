@@ -1,0 +1,50 @@
+tm-enum-swapped	srp_top run	rc=0	2200 checks: 2200 PASS, 0 FAIL
+tm-enum-swapped	srp_top storage	rc=2	15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (688) [1/1]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 43, wrong 34, invented 695, left 0) [1/1]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (586) [2/2]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 13, wrong 32, invented 563, left 0) [2/2]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (829) [3/5]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 43, wrong 36, invented 836, left 0) [3/5]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (821) [9/9]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 43, wrong 36, invented 828, left 0) [9/9]
+tm-sel-skips-full-ls	srp_top storage	rc=2	15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL | 15 checks: 13 PASS, 2 FAIL
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 1, wrong 0, invented 0, left 31) [1/1]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [1/1]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 1, wrong 0, invented 0, left 31) [2/2]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [2/2]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 1, wrong 0, invented 0, left 31) [3/5]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [3/5]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 1, wrong 0, invented 0, left 31) [9/9]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [9/9]
+tm-sel-skips-full-tk	srp_top storage	rc=2	15 checks: 14 PASS, 1 FAIL | 15 checks: 14 PASS, 1 FAIL | 15 checks: 14 PASS, 1 FAIL | 15 checks: 14 PASS, 1 FAIL
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [1/1]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [2/2]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [3/5]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [9/9]
+wid-flops-sid-of-gate-source	srp_stream_fsms walk:1x1	rc=0	23 checks: 23 PASS, 0 FAIL
+wid-flops-sid-of-gate-source	srp_stream_fsms walk:2x2	rc=2	30 checks: 26 PASS, 4 FAIL
+    FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+    FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+    FAIL: WK2: push 1 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+    FAIL: WK4: push 0 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+wid-flops-vid-of-gate-source	srp_stream_fsms walk:1x1	rc=2	23 checks: 22 PASS, 1 FAIL
+    FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [1/1]
+wid-flops-vid-of-gate-source	srp_stream_fsms walk:2x2	rc=2	30 checks: 26 PASS, 4 FAIL
+    FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+    FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+    FAIL: WK2: push 1 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+    FAIL: WK4: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+wrap-force-dropped	srp_top storage	rc=2	15 checks: 12 PASS, 3 FAIL | 15 checks: 12 PASS, 3 FAIL | 15 checks: 12 PASS, 3 FAIL | 15 checks: 12 PASS, 3 FAIL
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (72) [1/1]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [1/1]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [1/1]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (72) [2/2]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [2/2]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [2/2]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (96) [3/5]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [3/5]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [3/5]
+    FAIL: TF4 precondition: no FSM op leaves the merged face while the issue is held (72) [9/9]
+    FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [9/9]
+    FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 0) [9/9]

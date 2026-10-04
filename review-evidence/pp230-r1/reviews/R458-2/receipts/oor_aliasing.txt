@@ -1,0 +1,30 @@
+# Verilator 5.050 (pinned) out-of-range reads of a one-element array indexed by a 1-bit signal
+# scripts/oor_read.sv (unpacked) and scripts/oor_packed.sv (packed, as KL_srp_*_fsm sid_r/da_r/vid_r); element 0 written 0x0123456789ABCDEF
+# build: --cc --exe --build -Wno-fatal --x-initial unique [--x-assign unique]; run +verilator+rand+reset+2 with seeds 230 and 7
+== unpacked, x-assign default
+idx=0 q64=0123456789abcdef q48=456789abcdef q32=89abcdef q12=def q64r=0123456789abcdef
+idx=1 q64=0000000000000000 q48=000000000000 q32=00000000 q12=000 q64r=0000000000000000
+(seed 7) idx=1 q64=0000000000000000 q48=000000000000 q32=00000000 q12=000 q64r=0000000000000000
+== unpacked, x-assign unique
+idx=0 q64=0123456789abcdef q48=456789abcdef q32=89abcdef q12=def q64r=0123456789abcdef
+idx=1 q64=0cc9435bade857bc q48=b20a1d30a4bb q32=06978b2e q12=e75 q64r=a7e26121cb50dcff
+(seed 7) idx=1 q64=a59b3f0480b25ad8 q48=52d9c9c4ae10 q32=613a4ad5 q12=d1f q64r=c0be37c50787e450
+== PACKED, x-assign default
+idx=0 q64=0123456789abcdef q48=456789abcdef q12=def
+idx=1 q64=0123456789abcdef q48=000000000000 q12=000
+(seed 7) idx=1 q64=0123456789abcdef q48=000000000000 q12=000
+== PACKED, x-assign unique
+idx=0 q64=0123456789abcdef q48=456789abcdef q12=def
+idx=1 q64=0123456789abcdef q48=529d67453701 q12=811
+(seed 7) idx=1 q64=0123456789abcdef q48=583a85d7d045 q12=8b1
+
+reading: only the PACKED 64-bit element at the out-of-range index returns element 0, under either x-assign; 48- and 12-bit packed elements return 0 or a random value; unpacked arrays return 0 or random.
+
+# the committed control wsid-flops-of-control-sink (tb/srp_top/mutations) in the committed walk arms, make walk SHAPE=...
+== 1x1
+23 checks: 23 PASS, 0 FAIL
+== 2x2
+FAIL: WK6: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1017) [2/2]
+FAIL: WK6: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1017) [2/2]
+FAIL: WK8: push 1 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..2007) [2/2]
+30 checks: 27 PASS, 3 FAIL

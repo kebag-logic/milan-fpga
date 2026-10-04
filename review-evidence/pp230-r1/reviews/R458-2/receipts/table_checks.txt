@@ -1,0 +1,36 @@
+# control tables in the PR body (live, head 9160f7d7), HANDOFF (author-r2) and tb/srp_top/README.md, cell by cell
+## round-1 lockstep table (16 rows) vs published lockstep-r1/controls-final.log: scripts/check_r1_table.py
+$PACKET/scratch/pr_body_live.md: 16 rows, 0 mismatches
+$PACKET/scratch/ev/author-r2/HANDOFF.md: 16 rows, 0 mismatches
+
+## round-2 table (29 rows: per-shape failing checks, named checks, caught-at) vs this reviewer's campaign receipts: scripts/check_r2_table.py
+$PACKET/scratch/pr_body_live.md: 29 rows, 0 mismatches
+$PACKET/scratch/ev/author-r2/HANDOFF.md: 29 rows, 0 mismatches
+$CLONE/tb/srp_top/README.md: 29 rows, 0 mismatches
+
+## slope controls, admission suite one shape at a time (scripts/slope_shapes.sh, committed patches), against the 4 slope rows
+slope-stored-at-stage-2-index N=1 rc=0 1138 checks: 1138 PASS, 0 FAIL
+slope-stored-at-stage-2-index N=2 rc=2 12615 checks: 11282 PASS, 1333 FAIL
+slope-stored-at-stage-2-index N=3 rc=2 41012 checks: 36903 PASS, 4109 FAIL
+slope-stored-at-stage-2-index N=5 rc=2 201073 checks: 188313 PASS, 12760 FAIL
+slope-stored-at-stage-2-index N=8 rc=2 991231 checks: 952312 PASS, 38919 FAIL
+slope-stored-at-source-0 N=1 rc=0 1138 checks: 1138 PASS, 0 FAIL
+slope-stored-at-source-0 N=2 rc=2 12615 checks: 11094 PASS, 1521 FAIL
+slope-stored-at-source-0 N=3 rc=2 41012 checks: 37097 PASS, 3915 FAIL
+slope-stored-at-source-0 N=5 rc=2 201073 checks: 188658 PASS, 12415 FAIL
+slope-stored-at-source-0 N=8 rc=2 991231 checks: 952175 PASS, 39056 FAIL
+slope-store-source-0-only N=1 rc=0 1138 checks: 1138 PASS, 0 FAIL
+slope-store-source-0-only N=2 rc=2 12615 checks: 11414 PASS, 1201 FAIL
+slope-store-source-0-only N=3 rc=2 41012 checks: 37849 PASS, 3163 FAIL
+slope-store-source-0-only N=5 rc=2 201073 checks: 190792 PASS, 10281 FAIL
+slope-store-source-0-only N=8 rc=2 991231 checks: 957273 PASS, 33958 FAIL
+slope-read-source-0 N=1 rc=0 1138 checks: 1138 PASS, 0 FAIL
+slope-read-source-0 N=2 rc=2 12615 checks: 12037 PASS, 578 FAIL
+slope-read-source-0 N=3 rc=2 41009 checks: 39326 PASS, 1683 FAIL
+slope-read-source-0 N=5 rc=2 201068 checks: 194943 PASS, 6125 FAIL
+slope-read-source-0 N=8 rc=2 991223 checks: 969021 PASS, 22202 FAIL
+table (PR body 186-189, README 209-212, HANDOFF 618-621): stage-2-index 0 / 1,333 / 4,109 / 12,760 / 38,919; source-0 0 / 1,521 / 3,915 / 12,415 / 39,056; source-0-only 0 / 1,201 / 3,163 / 10,281 / 33,958; read-source-0 0 / 578 of 12,615 / 1,683 of 41,009 / 6,125 of 201,068 / 22,202 of 991,223 -> all 20 cells equal
+
+## row-by-row summary sentences
+PR body 191: 18 at four, one at three, six at two, four at one; slopes 4 of 5 -> recount from the 29 rows: 18 / 1 / 6 / 4 (equal)
+PR body 216 and HANDOFF 151: round 1 six at four, four at three, five at two, one at one -> recount from the 16 rows: 6 / 4 / 5 / 1 (equal)

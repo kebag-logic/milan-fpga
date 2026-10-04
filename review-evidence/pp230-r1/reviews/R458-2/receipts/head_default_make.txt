@@ -1,0 +1,31 @@
+# default make at head 9160f7d7 (copy of git archive), pinned Verilator 5.050
+== tb/srp_top: make rc=0
+timer-arm FIFOs: 1 sources, 1 sinks
+STORE natural 1/1: offered 3/4 issued 3/4 both 2 deep 1/0 attempts 2
+STORE held 1/1: 18 MRPDUs, offered 36/36 refused 4/4 queued 32/32 issued after release 32/32
+15 checks: 15 PASS, 0 FAIL
+timer-arm FIFOs: 2 sources, 2 sinks
+STORE natural 2/2: offered 7/8 issued 7/8 both 4 deep 2/1 attempts 2
+STORE held 2/2: 9 MRPDUs, offered 36/36 refused 4/4 queued 32/32 issued after release 32/32
+15 checks: 15 PASS, 0 FAIL
+timer-arm FIFOs: 3 sources, 5 sinks
+STORE natural 3/5: offered 11/20 issued 11/20 both 7 deep 4/7 attempts 2
+STORE held 3/5: 6 MRPDUs, offered 36/60 refused 4/28 queued 32/32 issued after release 32/32
+15 checks: 15 PASS, 0 FAIL
+timer-arm FIFOs: 9 sources, 9 sinks
+STORE natural 9/9: offered 35/36 issued 35/36 both 18 deep 19/15 attempts 2
+STORE held 9/9: 2 MRPDUs, offered 36/36 refused 4/4 queued 32/32 issued after release 32/32
+15 checks: 15 PASS, 0 FAIL
+2200 checks: 2200 PASS, 0 FAIL
+last tally line (the one run_suites.sh reads): 2200 checks: 2200 PASS, 0 FAIL
+== tb/srp_stream_fsms: make rc=0
+walk records: 1 sources, 1 sinks
+23 checks: 23 PASS, 0 FAIL
+walk records: 2 sources, 2 sinks
+30 checks: 30 PASS, 0 FAIL
+walk records: 3 sources, 5 sinks
+43 checks: 43 PASS, 0 FAIL
+walk records: 9 sources, 9 sinks
+79 checks: 79 PASS, 0 FAIL
+1219 checks: 1219 PASS, 0 FAIL
+last tally line (the one run_suites.sh reads): 1219 checks: 1219 PASS, 0 FAIL
