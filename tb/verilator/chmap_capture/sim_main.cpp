@@ -98,7 +98,8 @@ class ChanMapCaptureHarness {
   void drv_tdm_frame();
   void drv_tdm_frame_tagged(int tag, int first_pair, int last_pair);
   void lb_set_chans(int s, int chans);
-  void drv_lb_pdu(int s, int chans, int events, int e0);
+  //! `rc_on_first`: lane A's settle recentre mask, raised on the PDU's first beat
+  void drv_lb_pdu(int s, int chans, int events, int e0, uint8_t rc_on_first = 0);
   void a_tick();
   void b_tick();
 
@@ -133,6 +134,16 @@ class ChanMapCaptureHarness {
   void pin_queued_tick_snapshots_at_its_walk();
   void pin_one_pair_frame_publishes_on_pair_0();
   void pin_starved_pair_pegs_and_holds();
+  void pin_settle_recentre_centres_the_loop_queues();
+  void lrc_align();
+  bool lrc_frame(const char* tag, int s, std::array<int, 6>& ev);
+  void lrc_wipe();
+  void lrc_pulse();
+  void lrc_expect_frame(const char* tag, const char* what, const std::array<int, 6>& want);
+  void lrc_unprimed_and_hold();
+  void lrc_drop();
+  void lrc_on_target();
+  void lrc_flush_and_first_beat();
 
   const milan::tb::Model<Vchmap_wrap> model_;
   Vchmap_wrap* dut = model_.get();
@@ -315,7 +326,7 @@ void ChanMapCaptureHarness::lb_set_chans(int s, int chans) {          // RX moni
 // one PDU: `events` sample events x `chans` channels, chronologically
 // interleaved (IEEE 1722-2016 7.3.5). events*chans must be even (2 samples
 // per beat, as the depacketizer emits full 8-byte beats).
-void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0) {
+void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0, uint8_t rc_on_first) {
   std::vector<uint32_t> smp;
   for (int e = 0; e < events; e++)
     for (int c = 0; c < chans; c++) smp.push_back(LBV(s, c, e0 + e));
@@ -326,7 +337,9 @@ void ChanMapCaptureHarness::drv_lb_pdu(int s, int chans, int events, int e0) {
     dut->lb_tdata_i  = lb_beat(smp[i], smp[i + 1]);
     dut->lb_tvalid_i = 1;
     dut->lb_tlast_i  = (i + 2 >= smp.size());
+    dut->a_lb_recentre_i = (i == 0) ? rc_on_first : 0;
     cyc(); }
+  dut->a_lb_recentre_i = 0;
   dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2); }
 
 // ---- media ticks (one full slot walk per tick; drain-friendly spacing) ---
@@ -373,7 +386,7 @@ void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->tone_smp_i = 0;
   dut->lb_tdata_i = 0; dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
   dut->lb_tuser_i = 0; dut->lb_wire_chans_i = 0;
-  dut->a_lb_flush_i = 0; dut->b_lb_flush_i = 0;
+  dut->a_lb_flush_i = 0; dut->b_lb_flush_i = 0; dut->a_lb_recentre_i = 0;
   dut->a_map_wr_en_i = 0; dut->a_map_rd_en_i = 0; dut->a_tick_i = 0; dut->a_en_i = 0;
   dut->a_tctx_wr_en_i = 0; dut->a_tctx_rd_en_i = 0;
   dut->b_map_wr_en_i = 0; dut->b_map_rd_en_i = 0; dut->b_tick_i = 0; dut->b_en_i = 0;
@@ -1437,6 +1450,7 @@ int ChanMapCaptureHarness::run() {
   pin_close_on_the_tick_cycle();
   pin_queued_tick_snapshots_at_its_walk();
   pin_one_pair_frame_publishes_on_pair_0();
+  pin_settle_recentre_centres_the_loop_queues();
   pin_starved_pair_pegs_and_holds();
 
   printf("\n======================================================================\n");
@@ -1653,6 +1667,170 @@ void ChanMapCaptureHarness::pin_one_pair_frame_publishes_on_pair_0() {
     std::snprintf(what, sizeof what, "F1: col %d carries its own pair-0 frame (R)", col);
     ck(what, be(bfr[f], 42 + col * 32 + 12, 3), ONE_R(col));
   }
+}
+
+//! [LRC] helpers. lrc_align(): tick lane A until a t1 PDU closes, so each
+//! case below starts on a six-tick PDU boundary whatever the phases before
+//! it left. lrc_frame(): the next t1 PDU, six ticks, and the sample event
+//! each tick carried on stream `s` channel 0, with channel 2 required to
+//! carry the same event (the stream's two pairs in lockstep) and every
+//! value required to be stream `s`'s; -1 marks digital silence.
+void ChanMapCaptureHarness::lrc_align() {
+  afr.clear();
+  for (int i = 0; i < 7 && find_len(afr, 234) < 0; i++) { a_tick(); cyc(400); }
+  afr.clear();
+}
+bool ChanMapCaptureHarness::lrc_frame(const char* tag, int s, std::array<int, 6>& ev) {
+  afr.clear();
+  for (int i = 0; i < 6; i++) a_tick();
+  cyc(400);
+  const int f = find_len(afr, 234);
+  char what[96];
+  std::snprintf(what, sizeof what, "LRC %s: t1 frame emitted", tag);
+  ck(what, f >= 0, 1);
+  if (f < 0) return false;
+  long lock = 1;
+  for (int e = 0; e < 6; e++) {
+    const unsigned long c0 = be(afr[f], 42 + 32 * e, 3);
+    const unsigned long c2 = be(afr[f], 42 + 32 * e + 8, 3);
+    ev[e] = (c0 == 0) ? -1 : static_cast<int>(c0 & 0xF);
+    if (c0 != 0 && c0 != LBV(s, 0, ev[e])) lock = 0;
+    if (c2 != ((c0 == 0) ? 0 : LBV(s, 2, ev[e]))) lock = 0;
+  }
+  std::snprintf(what, sizeof what, "LRC %s: both pairs carry one event per tick", tag);
+  ck(what, lock, 1);
+  return true;
+}
+
+//! [LRC]'s stream: four channels, so two LOOP pairs, on t1's pairs 0 and 1
+constexpr int kLrcStream = 5;
+constexpr uint8_t kLrcMask = 1u << kLrcStream;
+bool lrc_same(const std::array<int, 6>& got, const std::array<int, 6>& want) { return got == want; }
+void ChanMapCaptureHarness::lrc_wipe() { dut->a_lb_flush_i = kLrcMask; cyc(); dut->a_lb_flush_i = 0; cyc(2); }
+void ChanMapCaptureHarness::lrc_pulse() { dut->a_lb_recentre_i = kLrcMask; cyc(); dut->a_lb_recentre_i = 0; cyc(2); }
+
+void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
+  // ====================================================================== //
+  // [LRC] THE #645 SETTLE RECENTRE (the LOOP QUEUE banner's RECENTRE). A   //
+  // pulse arms a primed stream; as its next PDU starts, what the stream's //
+  // first pair has left of the previous PDU decides, for every pair: none //
+  // and the next walk holds each pair's pop (the hold repeats the last    //
+  // event), two and it drops each pair's oldest event before the pop, one //
+  // (7 at the PDU end) and nothing moves. Neither counter moves: it is a  //
+  // declared discontinuity, not a slip. One 4-channel stream (two pairs). //
+  // ====================================================================== //
+  printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 7 events\n");
+  lb_set_chans(kLrcStream, 4);
+  a_map_wr(1, ent_lb(1, kLrcStream, 0));      // t1 pair0 <- s5 ch0/ch1
+  a_map_wr(2, ent_lb(1, kLrcStream, 1));      // t1 pair1 <- s5 ch2/ch3
+  a_map_wr(3, ent(0, 0, 0));
+  a_map_wr(4, ent(0, 0, 0));
+  // clean slate: the earlier phases leave other streams primed, and their
+  // starved pairs would count dups on the lane's one counter
+  dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+  lrc_align();
+  const long d0 = dut->a_dup_cnt_o;
+  const long k0 = dut->a_skip_cnt_o;
+  lrc_unprimed_and_hold();
+  lrc_drop();
+  lrc_on_target();
+  lrc_flush_and_first_beat();
+  ck("LRC: no recentre moved the dup counter", static_cast<long>(dut->a_dup_cnt_o) - d0, 0);
+  ck("LRC: no recentre moved the skip counter", static_cast<long>(dut->a_skip_cnt_o) - k0, 0);
+}
+
+//! an unprimed stream ignores the pulse; then nothing left of the previous
+//! PDU (6 at the PDU end): the next walk holds
+void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 1);            // e1..e6: primes the stream, fill 6
+  if (lrc_frame("unprimed", S, ev))
+    ck("LRC: an unprimed stream ignores the pulse (e1..e6, no hold)", lrc_same(ev, {1, 2, 3, 4, 5, 6}), 1);
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // e7..e12 onto an empty queue
+  if (lrc_frame("hold", S, ev))
+    ck("LRC: none left holds one pop (e6 repeats, then e7..e11)", lrc_same(ev, {6, 7, 8, 9, 10, 11}), 1);
+}
+
+//! the PDU-sized frame lane A's t1 emitted over the last six ticks, its
+//! ch0 and ch2 required to carry the events `want` names
+void ChanMapCaptureHarness::lrc_expect_frame(const char* tag, const char* what,
+                                             const std::array<int, 6>& want) {
+  cyc(400);
+  const int f = find_len(afr, 234);
+  char line[96];
+  std::snprintf(line, sizeof line, "LRC %s: t1 frame emitted", tag);
+  ck(line, f >= 0, 1);
+  if (f < 0) return;
+  long ok = 1;
+  for (int e = 0; e < 6; e++) {
+    if (be(afr[f], 42 + 32 * e, 3) != LBV(kLrcStream, 0, want[e])) ok = 0;
+    if (be(afr[f], 42 + 32 * e + 8, 3) != LBV(kLrcStream, 2, want[e])) ok = 0;
+  }
+  ck(what, ok, 1);
+}
+
+//! two left (8 at the PDU end): the next walk drops the oldest before its
+//! pop, once
+void ChanMapCaptureHarness::lrc_drop() {
+  const int S = kLrcStream;
+  lrc_wipe();
+  drv_lb_pdu(S, 4, 6, 1);            // e1..e6
+  afr.clear();
+  for (int i = 0; i < 4; i++) a_tick();   // e1..e4 out, e5 e6 queued
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // e7..e12: fill 8
+  for (int i = 0; i < 2; i++) a_tick();   // e5 dropped, e6 popped; then e7
+  lrc_expect_frame("drop", "LRC: two left drops the oldest on both pairs (e5 never plays)",
+                   {1, 2, 3, 4, 6, 7});
+  // the decision acted once: the next PDU, three events, lands on e12 alone
+  afr.clear();
+  for (int i = 0; i < 4; i++) a_tick();   // e8..e11
+  drv_lb_pdu(S, 4, 3, 13);           // e13..e15
+  for (int i = 0; i < 2; i++) a_tick();   // e12, e13
+  lrc_expect_frame("after the drop", "LRC: ...and acts once: e8..e13 follow in order",
+                   {8, 9, 10, 11, 12, 13});
+}
+
+//! one left (7 at the PDU end): on target, nothing moves
+void ChanMapCaptureHarness::lrc_on_target() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  afr.clear();
+  for (int i = 0; i < 5; i++) a_tick();   // e1..e5 out, e6 queued
+  lrc_pulse();
+  drv_lb_pdu(S, 4, 6, 7);            // fill 7
+  a_tick();
+  lrc_expect_frame("no-op", "LRC: one left moves nothing (e6 pops on time)", {1, 2, 3, 4, 5, 6});
+  if (lrc_frame("on target", S, ev))
+    ck("LRC: ...then e7..e12 in order", lrc_same(ev, {7, 8, 9, 10, 11, 12}), 1);
+}
+
+//! a flush cancels an armed recentre; a pulse on a PDU's first beat arms
+//! for the next PDU, not this one
+void ChanMapCaptureHarness::lrc_flush_and_first_beat() {
+  const int S = kLrcStream;
+  std::array<int, 6> ev{};
+  lrc_wipe();
+  lrc_align();
+  drv_lb_pdu(S, 4, 6, 1);
+  lrc_frame("before the flush", S, ev);
+  lrc_pulse();
+  lrc_wipe();
+  drv_lb_pdu(S, 4, 6, 7);            // primes afresh, fill 6: no hold
+  if (lrc_frame("flushed", S, ev))
+    ck("LRC: a flush cancels the armed recentre (e7..e12, no hold)", lrc_same(ev, {7, 8, 9, 10, 11, 12}), 1);
+  drv_lb_pdu(S, 4, 6, 13, kLrcMask); // e13..e18 (13, 14, 15, 0, 1, 2), the pulse on its first beat
+  if (lrc_frame("pulse at the start", S, ev))
+    ck("LRC: a pulse on a PDU's first beat does not act on that PDU", lrc_same(ev, {13, 14, 15, 0, 1, 2}), 1);
+  drv_lb_pdu(S, 4, 6, 3);            // e3..e8 onto an empty queue: fill 6
+  if (lrc_frame("next end", S, ev))
+    ck("LRC: ...it acts at the next one (a hold: e18 repeats)", lrc_same(ev, {2, 3, 4, 5, 6, 7}), 1);
 }
 
 void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {

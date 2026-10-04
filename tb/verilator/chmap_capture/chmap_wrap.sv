@@ -63,6 +63,9 @@ module chmap_wrap (
   //! per-lane bind-wipe pulse (0x0036 queue law: flush stream's pair queues)
   input  wire [7:0]   a_lb_flush_i,
   input  wire [7:0]   b_lb_flush_i,
+  //! lane A's #645 settle recentre pulse per stream ([LRC]); lane B keeps
+  //! the port's default, so it also proves the default is inert
+  input  wire [7:0]   a_lb_recentre_i,
   //! per-lane slip evidence (saturating; ZERO with locked pacing)
   output wire [15:0]  a_dup_cnt_o,
   output wire [15:0]  a_skip_cnt_o,
@@ -167,6 +170,7 @@ module chmap_wrap (
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
     .lb_wire_chans_i (lb_wire_chans_i),
     .lb_flush_i (a_lb_flush_i),
+    .lb_recentre_i (a_lb_recentre_i),
     .tick_i (a_tick_i),
     .pair_valid_o (a_pv_w), .pair_slot_o (a_slot_w),
     .pair_l_o (a_l_w), .pair_r_o (a_r_w),
