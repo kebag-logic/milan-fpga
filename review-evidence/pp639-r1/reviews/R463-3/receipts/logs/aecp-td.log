@@ -1,0 +1,6 @@
+control pp_top timer-defaults: rc=0 PASS
+td-lock-default-59s: rc=2 failures=1 named=1 KILLED
+    FAIL: TD1: T-LOCK-UNLOCK at its default: the LOCK_ENTITY answers SUCCESS and its auto-unlock notification (LOCK_ENTITY, u = 1, locked_id 0) reaches the registered controller 60000 to 60020 ms after the command (got 59003 ms)
+td-tl-default-301s: rc=2 failures=1 named=1 KILLED
+    FAIL: TD2: T-NOTIF-TIMELIMITED at its default: the TIME_LIMITED REGISTER answers SUCCESS and its expiry DEREGISTER (u = 1) reaches the controller 300000 to 300020 ms after the command (got -1 ms; 6 monitor probes answered)
+3 checks: 3 PASS, 0 FAIL

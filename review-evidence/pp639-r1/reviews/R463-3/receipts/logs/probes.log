@@ -1,0 +1,12 @@
+{"probe": "aq_main_rtl", "expect": "PASS", "verdict": "PASS", "rc": 0}
+{"probe": "aq_hd_not_reset", "expect": "PASS", "verdict": "PASS", "rc": 0}
+{"probe": "aq_drop_per_face", "expect": "FAIL", "verdict": "PASS", "rc": 0}
+{"probe": "aq_priority_reversed", "expect": "FAIL", "verdict": "FAIL", "rc": 1}
+{"probe": "aq_cancel_unstored", "expect": "FAIL", "verdict": "FAIL", "rc": 1}
+{"probe": "aq_deadline_bit0_unstored", "expect": "FAIL", "verdict": "FAIL", "rc": 1}
+{"probe": "aq_deadline_bit21_unstored", "expect": "FAIL?", "verdict": "PASS", "rc": 0}
+{"probe": "aq_deadline_bit22_unstored", "expect": "FAIL?", "verdict": "PASS", "rc": 0}
+{"probe": "aq_deadline_bit31_unstored", "expect": "FAIL?", "verdict": "PASS", "rc": 0}
+{"probe": "lsn_golden_head", "expect": "PASS", "verdict": "PASS", "rc": 0}
+{"probe": "lsn_main_rtl", "expect": "PASS", "verdict": "PASS", "rc": 0}
+{"probe": "lsn_rec_bit367_unstored", "expect": "FAIL?", "verdict": "PASS", "rc": 0}

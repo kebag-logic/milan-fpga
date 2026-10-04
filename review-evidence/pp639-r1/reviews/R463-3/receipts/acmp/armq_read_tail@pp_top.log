@@ -1,0 +1,231 @@
+python3 ../../hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 89 programs
+<VERILATOR_DIR>/verilator --cc --exe --build -j 0 --top-module pp_top_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/pp_acmp_pkg.sv ../../hdl/adp/pp_adp_pkg.sv ../../hdl/common/KL_pp_prng.sv ../../hdl/common/KL_pp_timer_service.sv ../../hdl/packet_engine/KL_pp_rx_validator.sv ../../hdl/packet_engine/KL_pp_rx_slots.sv ../../hdl/packet_engine/KL_pp_normalizer.sv ../../hdl/packet_engine/KL_pp_dispatch.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_release_merge.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv ../../hdl/packet_engine/KL_pp_scoreboard.sv ../../hdl/packet_engine/KL_pp_event_router.sv ../../hdl/packet_engine/KL_pp_originator.sv ../../hdl/packet_engine/KL_pp_trace_ring.sv ../../hdl/packet_engine/KL_pp_side_port.sv ../../hdl/packet_engine/KL_pp_nvm_port.sv ../../hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../hdl/aecp/ucpu_pkg.sv ../../hdl/aecp/KL_aecp_ucpu.sv ../../hdl/aecp/KL_aecp_desc_mem_guard.sv ../../hdl/aecp/KL_aecp_desc_store.sv ../../hdl/aecp/KL_aecp_dyn_state.sv ../../hdl/aecp/KL_aecp_engine.sv ../../hdl/aecp/KL_aecp_resp_buf.sv ../../hdl/aecp/KL_aecp_nvm_writer.sv ../../hdl/aecp/KL_aecp_notify.sv ../../hdl/aecp/KL_aecp_ca_originator.sv ../../hdl/adp/KL_adp_engine.sv ../../hdl/acmp/KL_pp_acmp_listener.sv ../../hdl/acmp/KL_acmp_talker.sv ../../hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../hdl/acmp/KL_acmp_nvm_shadow.sv ../../hdl/maap/KL_pp_maap.sv ../../hdl/srp/KL_srp_decoder.sv ../../hdl/srp/KL_srp_domain.sv ../../hdl/srp/KL_srp_vlan.sv ../../hdl/srp/KL_srp_admission.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv ../../hdl/srp/KL_srp_encoder.sv ../../hdl/srp/KL_srp_top.sv ../../hdl/top/KL_mrp_strip.sv ../../hdl/top/protocol_processor_top.sv pp_top_wrap.sv sim_main.cpp -o Vpp_top_sim
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:635:8: Instance pin connected by name with empty reference: 'aecp_cur_config_o'
+  635 |       .aecp_cur_config_o     (),
+      |        ^~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: pp_top_wrap.sv:645:8: Instance pin connected by name with empty reference: 'aecp_dyn_dirty_o'
+  645 |       .aecp_dyn_dirty_o      (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_tk_decl_state_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:624:42: ... Location of port declaration
+  624 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_lstn_reg_state_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:625:42: ... Location of port declaration
+  625 |     output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,     
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_active_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:630:42: ... Location of port declaration
+  630 |     output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+      |                                          ^~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_sr_admitted_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:636:42: ... Location of port declaration
+  636 |     output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+      |                                          ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_granted_slope_bps_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:637:42: ... Location of port declaration
+  637 |     output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o,  
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_src_fail_code_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:638:42: ... Location of port declaration
+  638 |     output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_src_fail_bridge_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:639:42: ... Location of port declaration
+  639 |     output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_sum_slope_bps_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:640:42: ... Location of port declaration
+  640 |     output logic [31:0]                  srp_sum_slope_bps_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_over_limit_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:641:42: ... Location of port declaration
+  641 |     output logic                         srp_over_limit_o,         
+      |                                          ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_tk_reg_state_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:642:42: ... Location of port declaration
+  642 |     output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,       
+      |                                          ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_lstn_decl_state_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:643:42: ... Location of port declaration
+  643 |     output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,    
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'srp_snk_fail_code_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:645:42: ... Location of port declaration
+  645 |     output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,      
+      |                                          ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: pp_top_wrap.sv:588:5: Instance has missing pin: 'adp_next_avail_index_o'
+  588 |   ) u_dut (
+      |     ^~~~~
+                     ../../hdl/top/protocol_processor_top.sv:674:42: ... Location of port declaration
+  674 |     output logic [31:0]                  adp_next_avail_index_o,   
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+make[1]: Entering directory '<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top/obj_dir'
+g++  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -c -o verilated.o <VERILATOR_PREFIX>/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -c -o verilated_dpi.o <VERILATOR_PREFIX>/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -c -o verilated_threads.o <VERILATOR_PREFIX>/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.fast.gch
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -x c++-header Vpp_top_wrap__pch.h -o Vpp_top_wrap__pch.h.slow.gch
+../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+   49 |   if (!(cond)) { ++h.fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+ 2959 |     CHECK(b.cleared && b.done > b.release && !d->restore_fail_o && !d->restore_closed_o
+      |     ^~~~~
+In file included from ../sim_main.cpp:10903:
+../d3_phases.hpp:2963:48: note: format string is defined here
+ 2963 |           "(applied %u refused %u blank %u of %d)", unsigned(d->dbg_d3_applied_o),
+      |                                               ~^
+      |                                                |
+      |                                                int
+../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+   49 |   if (!(cond)) { ++h.fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+ 2989 |       CHECK(saved == d3_record(0x0A, LAST_AAF, 2) && b.done > b.release
+      |       ^~~~~
+../d3_phases.hpp:2993:38: note: format string is defined here
+ 2993 |             "refused %u blank %u of %d)", a.what, a.count, unsigned(d->dbg_d3_applied_o),
+      |                                     ~^
+      |                                      |
+      |                                      int
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__ConstPool__0__Slow.cpp
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__Slow.cpp
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__2__Slow.cpp
+g++   -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__1.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__2.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__3.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__4.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__5.cpp
+g++ -Os  -I.  -MMD -I<VERILATOR_PREFIX>/usr/share/verilator/include -I<VERILATOR_PREFIX>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<PACKET>/scratch/tmp/pp-acmp-mutant-fykvc4mm/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 17.181 MB sources in 49 modules, into 7.943 MB in 14 C++ files needing 0.004 MB
+- Verilator: Walltime 23.030 s (elab=0.296, cvt=2.680, bld=19.712); cpu 3.456 s on 16 threads; allocated 663.195 MB
+FAIL: S2: Talker Advertise New byte-exact
+FAIL: S2: MVRP VID 2 New byte-exact
+FAIL: S3: T-ADP-ADV 5 s + 0-4 s anti-storm, measured 2 ms
+FAIL: S7: src 1 Talker Advertise New byte-exact
+FAIL: S7: all three TX lanes took grants
+FAIL: S7: every frame whole on the wire
+FAIL: S8: Domain Lv+New re-declaration byte-exact
+FAIL: S8: Listener Ready New byte-exact
+FAIL: S10: the gate reached SRP (Talker Advertise, src 0)
+FAIL: S10: the declared dest MAC is the MAAP-granted address
+FAIL: S10: declared on the adopted SR-class VID
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+FAIL: U5b: the expiry notification arrives
+FAIL: U5c: unsolicited DEREGISTER byte-exact (u=1, entry seq 0)
+FAIL: U6b: the refreshed deadline expires with u = 1
+FAIL: L6b: a keep-alive changes nothing, notifies nobody
+FAIL: L6c: still locked past the original deadline (re-armed)
+FAIL: L6d: 60 s auto-unlock notifies (Milan Table 5.22), locked_id 0, seq 3
+FAIL: G1: STREAM_INPUT[0] Milan 80-byte response byte-exact (cdl 68)
+  got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 01 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  exp (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 01 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 20 00 00 00
+FAIL: G7a: unsolicited content from flags onward equals the following solicited response
+FAIL: G7b: unbind notifies again, sequence_id 1
+  got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+  exp (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+FAIL: G7d: the bind pushed exactly ONE notification, not two (a started/stopped trigger that fires on bind duplicates it)
+FAIL: G7d2: the later double probe timeout reports ACTIVE/acmpsta 7
+FAIL: U10a: availability frame entered allocation or write phase
+FAIL: U10a5.1: message type 0 waited for a live monitor probe
+FAIL: U10a5.10: message type 0 emitted one monitor cancellation
+FAIL: U10a5.2: message type 2 waited for a live monitor probe
+FAIL: U10a5.3: message type 4 waited for a live monitor probe
+FAIL: U10a5.4: message type 6 waited for a live monitor probe
+FAIL: U10a5.5: message type 8 waited for a live monitor probe
+FAIL: U10a5.6: message type 14 waited for a live monitor probe
+FAIL: U10a5r.1: reserved type 10 waited for a live monitor probe
+FAIL: U10a5r.2: reserved type 12 waited for a live monitor probe
+FAIL: U10a7: availability probe waits live in the originator queue
+FAIL: U10a8: queue delay longer than two budgets causes no timeout
+FAIL: U10a13: EOF-aligned cancellation conserves all five TX slots
+FAIL: U10b: first CONTROLLER_AVAILABLE command is byte-exact
+FAIL: U10c: first probe arrived after 66000 ms
+FAIL: U10e: the single retry arrived after 401 ms
+FAIL: U10f: probe failure sends targeted deregistration at seq 0
+FAIL: U10g: deregistration followed retry within 1000 ms
+FAIL: U10i: reused monitor owner advances its originator sequence
+FAIL: U10j: non-SUCCESS response re-arms and advances the next probe
+FAIL: U10k: response re-armed the monitor for 66000 ms
+FAIL: U10l: response-path first probe stayed inside the test window
+FAIL: U11c: two availability probes queue behind the serializer
+FAIL: U11d: second queued handle maps to a registered controller
+FAIL: U11e: canceling a non-head exchange compacts its queued handle
+FAIL: U11h: cleanup leaves no queued or inflight exchange
+FAIL: U11i: non-head cancellation conserves all five TX slots
+FAIL: MP1: 4 PROBEs + ANNOUNCE within four probe intervals
+FAIL: MP1: claim published valid in DEFEND
+FAIL: MP2: DEFEND sent
+FAIL: MP2: defended, claim kept
+FAIL: MP3: first PROBE_TX_RESPONSE succeeds after acquisition bound
+FAIL: MP3: the internal grant opened acmp_declaring_o[0]
+FAIL: MP3: GET_TX_STATE answers the internally granted base + 0
+  got (70 B): 91 e0 f0 01 00 00 0a 0b 0c 0d 0e 0f 22 f0 fc 05 00 2c 0a 0b 0c 0d 0e 0f 00 00 77 77 00 00 00 00 00 42 12 34 56 78 9a bc de f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 60 02 00 00 00 02 00 00
+  exp (70 B): 91 e0 f0 01 00 00 0a 0b 0c 0d 0e 0f 22 f0 fc 05 00 2c 0a 0b 0c 0d 0e 0f 00 00 77 77 00 00 00 00 00 42 12 34 56 78 9a bc de f0 00 00 00 00 00 00 00 00 00 00 00 00 91 e0 f0 00 ea fb 00 00 60 02 00 00 00 02 00 00
+FAIL: MP4: the conflict fan-out closed the DA gate
+FAIL: MP4: one re-address counted
+FAIL: MP4: fresh walk completed
+FAIL: MP4: re-claimed on a fresh range (91e0f000f882)
+FAIL: MP5: mis-addressed PROBE dropped at the DA-qualified subtype gate
+FAIL: MP7: a maap_version 2 PROBE gets a byte-exact DEFEND
+  got (0 B):
+  exp (60 B): 0a 22 33 44 55 66 0a 0b 0c 0d 0e 0f 22 f0 fe 02 08 10 00 00 00 00 00 00 00 00 91 e0 f0 00 f8 84 00 08 91 e0 f0 00 f8 84 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: MP7: maap_version 2 PROBE defended, claim kept
+FAIL: MP7: a maap_version 0 PROBE gets a byte-exact DEFEND
+  got (0 B):
+  exp (60 B): 0a 33 44 55 66 77 0a 0b 0c 0d 0e 0f 22 f0 fe 02 08 10 00 00 00 00 00 00 00 00 91 e0 f0 00 f8 87 00 08 91 e0 f0 00 f8 87 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: MP7: maap_version 0 PROBE defended, claim kept
+FAIL: DV2: first MSRP frame within 1.2 s of link
+FAIL: DV2: Domain New {6, 3, 0x0002} byte-exact
+FAIL: DV2: the wire SRclassVID is all 16 bits of the parameter, got 0x10000
+FAIL: DV4: Lv {6, 3, 0x0002} + New {6, 3, 5} byte-exact
+FAIL: DV6: LINK_UP re-declares Domain New {6, 3, 0x0002}
+AQ: 97307182 edges, 966 arms issued, 28 clocks with two faces held, 27 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks
+FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (97293062 edges differ, the first at cycle 23)
+AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset
+FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (74397 of 90172 edges differ, the first at cycle 97307362)
+AQ: 4 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1645 checks, 72 failures
