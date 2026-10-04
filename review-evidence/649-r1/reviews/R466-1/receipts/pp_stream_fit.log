@@ -1,0 +1,11 @@
+points [('pp-ship', 1.0, 57386), ('pp-si3', 2.0, 68166), ('pp-si5', 4.0, 79430), ('pp-si9', 8.0, 100345)]
+LUT fit {'fixed': 54259.35, 'x': 5885.97} rms 1988.81 max 2759.32 residuals [-2759.32, 2134.7, 1626.76, -1002.14]
+FF fit {'fixed': 25549.3, 'x': 1367.45} rms 67.06
+step x 1->2: +10780 LUT total, 10780 per stream
+step x 2->4: +11264 LUT total, 5632 per stream
+step x 4->8: +20915 LUT total, 5229 per stream
+pp-si3 delta {'LUT': 10780, 'FF': 1555, 'BRAM': 0.0, 'DSP': 0} top moved [('KL_pp_shadow/protocol_processor_top/KL_acmp_talker', 6443), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_talker_fsm', 948), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_listener_fsm', 881)]
+pp-si5 delta {'LUT': 22044, 'FF': 4177, 'BRAM': 0.0, 'DSP': 0} top moved [('KL_pp_shadow/protocol_processor_top/KL_acmp_talker', 10572), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_talker_fsm', 3258), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_listener_fsm', 2604)]
+pp-si9 delta {'LUT': 42959, 'FF': 9645, 'BRAM': 0.0, 'DSP': 0} top moved [('KL_pp_shadow/protocol_processor_top/KL_acmp_talker', 20248), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_talker_fsm', 6957), ('KL_pp_shadow/protocol_processor_top/KL_srp_top/KL_srp_listener_fsm', 5642)]
+adp-if-2 delta {'LUT': 239, 'FF': 76, 'BRAM': 0.0, 'DSP': 0}
+adp-if-4 delta {'LUT': 493, 'FF': 226, 'BRAM': 0.0, 'DSP': 0}

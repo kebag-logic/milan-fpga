@@ -1,0 +1,46 @@
+[Side project] Whole-image resource map and design-parameter sensitivity (LUT/FF/BRAM/DSP)
+OPEN
+> **SIDE PROJECT.** Owner request, 2026-10-04. Measurement and analysis only: no RTL, configuration or shipping-shape change comes out of this ticket. It runs at low priority beside the area lanes (#232, #230, #639) and yields the build host to them. Its findings feed the scoping of the 60 % redesign (#640) and of epic #229.
+
+## Why
+
+#234 / PR #638 mapped the protocol processor (`KL_pp_shadow`, about 24,300 LUTs of the 50,767-LUT shipping route) to the sub-block, and ranked its levers. Nothing outside the processor has ever been broken down:
+- the rest of `milan_datapath`, about 17,500 LUTs: AVTP talker and listener, CRF, the AAF clock meter, render and TDM, the crossbar, MACs, taps, MAAP, lwSRP and gPTP;
+- the SoC around it, about 9,000 LUTs: the RV32 CPU, DDR3, Ethernet and CSRs.
+
+We also do not know how resources scale with the design's parameters. That is what decides what a redesign or a smaller product shape could save.
+
+## Scope
+
+1. **Whole-image resource map.** The routed shipping image (AX7101, 1x1 TDM8, the build recipe as committed) at dev `241f9184`, broken down to every block at full hierarchy depth:
+   - LUT (logic, LUTRAM, SRL), FF, BRAM (RAMB36/18), DSP and CARRY4 per block;
+   - totals tied exactly to #638's recorded route (50,767 LUT / 59,634 FF / 15,832 slices);
+   - a ranked table of every block, with the processor's sub-blocks taken from #638 rather than re-measured.
+2. **Parameter sensitivity.** Every design parameter that can change resource use:
+   - stream counts (talkers x listeners, 1x1 to 8x8) and channels per stream;
+   - TDM and render slot counts;
+   - the optional fabric blocks (`AREA_BUDGET.md` Tier 1) and the taps, meters and diagnostics;
+   - the processor's parameters (controller, descriptor and name counts, payload bounds);
+   - gPTP, CRF and MAAP options;
+   - the CPU and SoC configuration (core variant, caches, L2);
+   - the redundancy second port's cost (measured only; the path stays open).
+   
+   For each one: the marginal LUT, FF and BRAM cost per unit, with a fitted model (fixed plus per-stream and per-channel terms) and its residuals, and the blocks it moves.
+3. **Method.**
+   - Yosys out-of-context sweeps for breadth: fast and parallel.
+   - Vivado out-of-context at selected points to calibrate Yosys against Vivado.
+   - The full route only at a few anchor shapes, for example 1x1, 2x2, 4x4 and 8x8 where they fit.
+   - Every run is reproducible from a committed script, and every figure keeps its receipt.
+4. **Output.**
+   - A findings page with the map, the sensitivity tables and models, and ranked opportunities. Opportunities are labelled with what they cost in function: a recommendation, never a change.
+   - A short summary comment on #229 and #640.
+
+## Acceptance
+
+- [ ] The whole-image map's blocks sum to the routed totals, with the method stated.
+- [ ] Each parameter's per-unit cost is measured at three or more points or justified as linear. Models carry residuals.
+- [ ] Yosys and Vivado are calibrated against each other at the anchor points.
+- [ ] The scripts, receipts and findings page are published. No RTL, configuration or gate baseline changes.
+
+Relates to #229, #234, #640.
+

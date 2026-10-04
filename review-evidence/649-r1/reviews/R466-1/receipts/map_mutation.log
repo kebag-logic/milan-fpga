@@ -1,0 +1,14 @@
+ancestry-additive-off        KILLED   rc=1 resmap_map self-test: 10 of 11 arms passed
+ancestry-shared-off          KILLED   rc=1 resmap_map self-test: 10 of 11 arms passed
+partition-off                SURVIVED rc=0 resmap_map self-test: 11 of 11 arms passed
+flat-off                     KILLED   rc=1 resmap_map self-test: 10 of 11 arms passed
+record-totals-off            KILLED   rc=1 resmap_map self-test: 8 of 11 arms passed
+record-scopes-off            KILLED   rc=1 resmap_map self-test: 10 of 11 arms passed
+census-leaf-off              KILLED   rc=1 resmap_map self-test: 9 of 11 arms passed
+census-total-off             SURVIVED rc=0 resmap_map self-test: 11 of 11 arms passed
+census-stray-off             SURVIVED rc=0 resmap_map self-test: 11 of 11 arms passed
+iob-split-off                KILLED   rc=1 census: FF totals 9, the top row is 8
+slice-share-unnormalized     KILLED   rc=1 record: SLICE recorded 3, the map's is 9.0
+depth-off                    KILLED   rc=1 resmap_map self-test: 10 of 11 arms passed
+names-sum-off                SURVIVED rc=0 resmap_map self-test: 11 of 11 arms passed
+survivors: ['partition-off', 'census-total-off', 'census-stray-off', 'names-sum-off']
