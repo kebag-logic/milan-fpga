@@ -1211,6 +1211,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! observable that makes "no sample slip" falsifiable at the root.
   wire [15:0] tdm_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] tdm_skip_cnt_w /* verilator public_flat_rd */;
+  //! #645: the settle recentre (g_settle_recentre, beside the #386 trigger
+  //! far below) re-centres the LOOP queues as well as the render stage, so
+  //! it is declared here, at its first use. public: follow_ring and the
+  //! render legs count it.
+  logic settle_recentre_p_r /* verilator public_flat_rd */;
   //! #443: packed listener words, declared before the CSR consumer.
   wire [N_STREAMS*32-1:0] render_status_w;
 
@@ -1299,6 +1304,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! pulse, declared at the stream table below) flushes that stream's
     //! LOOP pair queues, so no stale samples replay on a rebind
     .lb_flush_i (strtbl_bind_fall_w[LB_STREAMS_C-1:0]),
+    //! #645: every stream's queues take the settle recentre the render
+    //! stage takes, at the same PDU end
+    .lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
@@ -5767,8 +5775,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that
   //! this window already has a dead-read carve-out, so a reader cannot tell
   //! "no servo built" from "servo idle" there and must not try.
+  //! The servo's window is 2^MCSRV_WIN_LOG2_C of its 1 ms ticks, its own
+  //! default, named here because the #645 settle recentre counts LOCKED in
+  //! these windows (g_settle_recentre).
+  localparam int unsigned MCSRV_WIN_LOG2_C = 9;
   generate if (MCSERVO_P != 0) begin : g_mmcm_servo
-  KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) mmcm_servo (
+  KL_mmcm_drp_servo #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
+                      .WIN_LOG2_P(MCSRV_WIN_LOG2_C)) mmcm_servo (
     .clk_i         (axis_clk),
     .rst_n         (axis_resetn),
     .clk_audio_i   (clk_audio_i),
@@ -6309,6 +6322,77 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
     end
   end : g_src_recentre
+  //! #645 / #647: THE SETTLE RECENTRE. The #386 trigger above stays the
+  //! at-switch render recentre, but it fires while the media plane is still
+  //! moving: under following the servo locks frequency only, so the phase
+  //! walk of its pull-in (1.4 ticks from INTERNAL at a 5.9 ppm offset) lands
+  //! in both listener rings after it, and an aligner pull-in at INTERNAL
+  //! arms nothing at all. This one recentre per transient fires once the
+  //! plane has settled and goes to both rings: the render stage and the
+  //! capture crossbar's LOOP queues (settle_recentre_p_r, declared at that
+  //! instance). Armed by a change of the selected index, by the aligner's
+  //! re-engagement, and, while not pending, by an aligner excursion past
+  //! four settle bands (a pull-in under a running stream). SETTLED means:
+  //! under a followed source, the servo LOCKED for SETTLE_LOCK_WIN_C windows
+  //! running, since the frequency-only loop's phase tail falls about 0.64 a
+  //! window; at INTERNAL, the aligner inside the settle band for
+  //! SRC_SETTLE_TICKS_C ticks running, or not engaged at all (no pull to
+  //! wait out). An excursion while pending restarts that run. The ceiling,
+  //! 2^SETTLE_CEIL_LOG2_C ticks (21.8 s) from the arming, fires it whatever
+  //! the loops do. One pending flag, cleared by the one pulse it fires.
+  localparam int unsigned SETTLE_EXC_ERR_C   = 4 * SRC_SETTLE_ERR_C;
+  localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
+  //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
+  localparam int unsigned SETTLE_LOCK_TICKS_C =
+      SETTLE_LOCK_WIN_C * (1 << MCSRV_WIN_LOG2_C) * (48_000 / 1000);
+  localparam int unsigned SETTLE_RUN_W_C     = $clog2(SETTLE_LOCK_TICKS_C + 1);
+  localparam int unsigned SETTLE_CEIL_LOG2_C = 20;
+  logic                        settle_pend_r /* verilator public_flat_rd */;
+  logic [SETTLE_RUN_W_C-1:0]   settle_run_ticks_r /* verilator public_flat_rd */;
+  logic [SETTLE_CEIL_LOG2_C:0] settle_ceil_ticks_r;
+  wire settle_exc_w = mga_engaged_w &&
+                      (mga_err_abs_w > 16'(signed'(SETTLE_EXC_ERR_C)));
+  //! the #386 block's registered copies give the change and re-engagement
+  wire settle_arm_w = (media_clk_src_r != src_recentre_q_r) ||
+                      (mga_engaged_w && !mga_engaged_q_r) ||
+                      (settle_exc_w && !settle_pend_r);
+  wire settle_steady_w = follow_sel_r
+                         ? mcsrv_locked_w
+                         : (!mga_engaged_w ||
+                            (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+  wire [SETTLE_RUN_W_C-1:0] settle_need_w = follow_sel_r
+                                            ? SETTLE_RUN_W_C'(SETTLE_LOCK_TICKS_C)
+                                            : SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C);
+  wire settle_fire_w = (settle_run_ticks_r >= settle_need_w) ||
+                       settle_ceil_ticks_r[SETTLE_CEIL_LOG2_C];
+  always_ff @(posedge axis_clk) begin : g_settle_recentre
+    if (!axis_resetn) begin
+      settle_pend_r       <= 1'b0;
+      settle_run_ticks_r  <= '0;
+      settle_ceil_ticks_r <= '0;
+      settle_recentre_p_r <= 1'b0;
+    end else begin
+      settle_recentre_p_r <= 1'b0;
+      if (settle_arm_w) begin
+        settle_pend_r       <= 1'b1;
+        settle_run_ticks_r  <= '0;
+        settle_ceil_ticks_r <= '0;
+      end else if (settle_pend_r) begin
+        if (settle_fire_w) begin
+          settle_pend_r       <= 1'b0;
+          settle_run_ticks_r  <= '0;
+          settle_ceil_ticks_r <= '0;
+          settle_recentre_p_r <= 1'b1;
+        end else begin
+          if (media_tick_p) begin
+            settle_run_ticks_r  <= settle_steady_w ? settle_run_ticks_r + 1'b1 : '0;
+            settle_ceil_ticks_r <= settle_ceil_ticks_r + 1'b1;
+          end
+          if (settle_exc_w) settle_run_ticks_r <= '0;
+        end
+      end
+    end
+  end : g_settle_recentre
   //! #386: the render stage re-centres on a PHC step (the #387 media
   //! re-base above: the plane's step or CLKV software's adjtime when the
   //! plane is off, and a software settime) and on a settled clock-source
@@ -6316,10 +6400,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! a change that steps the PHC re-centres through that step, once, and a
   //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
   //! still raises tu on the identity change and the plane's pre-commit
-  //! publication events. public: the milan_dp render-law and gmstep legs
-  //! count it.
+  //! publication events. #645: and on the settle recentre above, once the
+  //! plane has settled after a change or a pull-in, which the LOOP queues
+  //! take too. public: the milan_dp render-law and gmstep legs count it.
   wire render_recentre_p_w /* verilator public_flat_rd */ =
        media_rebase_p_w
+       | settle_recentre_p_r
        | src_recentre_p_r;
 
   generate if (I2SPB_P != 0) begin : g_i2s_player

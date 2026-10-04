@@ -225,6 +225,26 @@
                     a rebind. loop_fed_r (the R5 capability rail) stays
                     sticky since reset: it answers "does the tap reach this
                     module at all", which a bind cycle does not change.
+                  * RECENTRE (#645): nothing else moves a queue's fill, so a
+                    stream that changed clocks keeps whatever phase the
+                    change left it, up to a tick from an edge. lb_recentre_i
+                    [s] (milan_datapath's settle recentre, once the media
+                    plane has settled) arms stream s. The target is
+                    LB_TARGET_C (7) at a class-A PDU end: one event of the
+                    previous PDU still queued when the next one's first
+                    event lands, so a tick of tolerance each side. So as
+                    the stream's next PDU starts, the events its first pair
+                    has left decide for all its pairs alike: none, and the
+                    walk that starts next holds each pair's pop; more than
+                    one, and that walk drops each pair's oldest event before
+                    the pop. Deciding at the start keeps a walk inside the
+                    PDU's own beats out of the count, so one held or dropped
+                    pop always reaches the target. All pairs act in that one
+                    walk, so they stay in lockstep and no frame is emitted
+                    half re-centred. It is a declared discontinuity, not a
+                    slip: neither counter moves. An unprimed stream ignores
+                    the pulse, a flush cancels it, and a pulse on the PDU's
+                    first beat arms for the next PDU.
 
                 MAPPED-BUT-UNFED (docs/testing/methodology.md R5): a loopback
                 slot with no payload behind it emits 24'd0 - the same bytes a
@@ -245,7 +265,11 @@
                      queue law's own legs: paced in-order replay (oldest
                      first), empty-tick repeat counted, overflow drop-oldest
                      counted, flush-on-rebind, the mono degenerate wire, and
-                     the all-32-pairs concurrent ramp.
+                     the all-32-pairs concurrent ramp; and the settle
+                     recentre's ([LRC]): hold, drop and no-op at the next
+                     PDU, lockstep across pairs, no counter moved, the
+                     unprimed, flushed and same-beat cases. The media plane's own
+                     settle drives it in tb/verilator/follow_ring.
                   L2 the same harness runs the pairs through the REAL
                      KL_aaf_packetizer and reads the emitted AVTPDU payload
                      bytes - the oracle is the frame on the AXIS port, not
@@ -427,6 +451,11 @@ module KL_chan_map_capture #(
   //! samples replay on a rebind. Defaulted off: an integration without a
   //! bind plane keeps the free-running behaviour.
   input  wire [N_LB_STREAMS_P-1:0] lb_flush_i = '0,
+  //! #645 settle recentre pulse per RX stream: re-centres the stream's pair
+  //! queues on the LB_TARGET_C fill at its next PDU (the LOOP QUEUE banner's
+  //! RECENTRE). Defaulted off: an integration without the media plane's
+  //! settle keeps the queues where their priming left them.
+  input  wire [N_LB_STREAMS_P-1:0] lb_recentre_i = '0,
 
   //! --- media sample tick (one walk of the enabled slots per pulse) -------
   input  wire         tick_i,
@@ -470,6 +499,12 @@ module KL_chan_map_capture #(
   //! degenerate beats (mono wire) at the >= 8-cycle wire beat spacing
   localparam int unsigned LB_QDEPTH_C  = 8;
   localparam int unsigned LB_QPTRW_C   = $clog2(LB_QDEPTH_C);
+  //! #645: the fill a settle recentre leaves at a class-A PDU end, one
+  //! below the depth: one event of the previous PDU stays queued when the
+  //! next one's first event lands, so the queue is a tick from either edge
+  localparam int unsigned LB_TARGET_C  = LB_QDEPTH_C - 1;
+  //! ...decided as that one left event: the target less the PDU's 6 events
+  localparam int unsigned LB_LEFT_C    = LB_TARGET_C - 6;
   //! the flat queue RAM's own index width - {pair,ptr} can be one bit
   //! wider than the array needs when LB_PAIRS_C is not a power of two,
   //! and the surplus high bit is always zero (pair < LB_PAIRS_C).
@@ -759,6 +794,14 @@ module KL_chan_map_capture #(
   logic [LB_PAIRS_C-1:0] q_fed_r;                //! pushed since reset/flush
   logic [LB_PAIRS_C-1:0] q_primed_r;             //! first whole PDU seen
   logic [47:0] lb_hold_r [LB_PAIRS_C];           //! the walk's read bank
+  //! #645 settle recentre: per stream, armed by the pulse and decided at the
+  //! stream's next PDU; per pair, what the next walk does
+  logic [N_LB_STREAMS_P-1:0] rc_arm_r;           //! a recentre awaits the next PDU
+  logic [N_LB_STREAMS_P-1:0] rc_dec_r;           //! decided, for the next walk
+  logic [N_LB_STREAMS_P-1:0] rc_hold_r;          //! short of the target: hold a pop
+  logic [N_LB_STREAMS_P-1:0] rc_drop_r;          //! over it: drop the oldest event
+  logic [LB_PAIRS_C-1:0]     act_hold_r;         //! this walk: hold the pair's pop
+  logic [LB_PAIRS_C-1:0]     act_drop_r;         //! this walk: drop one, then pop
 
   //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
   logic [47:0]       skid_data_r [LB_SKID_C];
@@ -825,11 +868,21 @@ module KL_chan_map_capture #(
   //! premature read; dup only fed pairs: an idle pair repeating silence is
   //! not a slip
   wire [LB_QPTRW_C:0] pop_cnt_w = q_cnt_r[pop_pair_w];
+  //! #645 settle recentre: this walk holds the pair's pop (the stream was
+  //! short of the target) or drops its oldest event before the pop (over
+  //! it). Neither is a slip, so neither counter moves.
+  wire pop_hold_w = pop_visit_w && act_hold_r[pop_pair_w];
   wire pop_act_w = pop_visit_w && q_primed_r[pop_pair_w]
-                   && (pop_cnt_w != '0);
+                   && (pop_cnt_w != '0) && !pop_hold_w;
+  wire pop_drop_w = pop_act_w && act_drop_r[pop_pair_w]
+                    && (32'(pop_cnt_w) >= 2);
   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
                    && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
-  wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w];
+  //! the visit's read pointer, past a dropped event, and what it consumes
+  wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w]
+                                   + LB_QPTRW_C'(pop_drop_w);
+  wire [LB_QPTRW_C:0]   pop_n_w  = (LB_QPTRW_C+1)'(1)
+                                   + (LB_QPTRW_C+1)'(pop_drop_w);
   //! queue array addresses (read the pre-advance rd pointer)
   wire [LBPW_C+LB_QPTRW_C-1:0] pop_raddr_w  = {pop_pair_w, pop_rd_w};
   wire [LBPW_C+LB_QPTRW_C-1:0] push_waddr_w = {push_pair_w,
@@ -838,11 +891,11 @@ module KL_chan_map_capture #(
   //! push-side pointer maths, POST-pop when both touch the same pair the
   //! same cycle (the pop freed a slot, so the push is not full)
   wire push_same_w = push_ram_w && pop_act_w && (push_pair_w == pop_pair_w);
-  wire [LB_QPTRW_C:0] push_cnt1_w = q_cnt_r[push_pair_w]
-                                    - (LB_QPTRW_C+1)'(push_same_w);
+  wire [LB_QPTRW_C:0] push_pop_n_w = push_same_w ? pop_n_w : '0;
+  wire [LB_QPTRW_C:0] push_cnt1_w = q_cnt_r[push_pair_w] - push_pop_n_w;
   wire push_drop_w = push_ram_w && (32'(push_cnt1_w) == LB_QDEPTH_C);
   wire [LB_QPTRW_C-1:0] push_rd1_w = q_rd_r[push_pair_w]
-                                     + LB_QPTRW_C'(push_same_w);
+                                     + LB_QPTRW_C'(push_pop_n_w);
 
   //! prime the whole stream at its accepted tlast beat (constant unroll;
   //! the final commits may still be in the skid, but a tick landing inside
@@ -868,6 +921,23 @@ module KL_chan_map_capture #(
     end
   end : flush_clr_scan
 
+  //! #645 settle recentre, the decision when a stream's PDU starts (the
+  //! first accepted beat after any tlast: frames never interleave beats),
+  //! on the stream's first pair: what is left of its previous PDU, this
+  //! beat's own commit not yet landed. Deciding at the start keeps any walk
+  //! inside the PDU's own beats out of the count, so one held or dropped
+  //! pop always reaches the target. One decision serves every pair of the
+  //! stream, so the pairs stay in lockstep whichever walk each one acts in.
+  logic lb_sof_r;                                //! the next beat starts a PDU
+  wire [LBPW_C-1:0]   rc_pair_w  = lb_addr(lb_tuser_i, 4'd0);
+  wire [LB_QPTRW_C:0] rc_left_w  = q_cnt_r[rc_pair_w];
+  wire rc_pdu_start_w = lb_ok_w && lb_sof_r;      //! of stream lb_tuser_i
+  wire rc_short_w     = (32'(rc_left_w) < LB_LEFT_C);
+  wire rc_over_w      = (32'(rc_left_w) > LB_LEFT_C);
+  //! ...and its action, taken by every pair of the stream in the walk that
+  //! starts next, so no walk emits a frame half re-centred
+  wire walk_start_w = (st_r == CM_IDLE_S) && tick_pend_r;
+
   //! saturating slip evidence: dups are one per starved fed pair per tick,
   //! skips are drop-oldest (queue full) plus refused commits (skid overflow,
   //! not reachable at wire beat spacing) - up to 3 events in one cycle
@@ -891,6 +961,13 @@ module KL_chan_map_capture #(
       end
       q_fed_r        <= '0;
       q_primed_r     <= '0;
+      lb_sof_r       <= 1'b1;
+      rc_arm_r       <= '0;
+      rc_dec_r       <= '0;
+      rc_hold_r      <= '0;
+      rc_drop_r      <= '0;
+      act_hold_r     <= '0;
+      act_drop_r     <= '0;
       skid_v_r       <= '0;
       skid_wp_r      <= 2'd0;
       skid_rp_r      <= 2'd0;
@@ -938,7 +1015,7 @@ module KL_chan_map_capture #(
       //! ---- per-pair pointers: pop first, then push (composed wires) ----
       if (pop_act_w) begin
         q_rd_r[pop_pair_w]  <= pop_rd_w + 1'b1;
-        q_cnt_r[pop_pair_w] <= pop_cnt_w - 1'b1;
+        q_cnt_r[pop_pair_w] <= pop_cnt_w - pop_n_w;
       end
       if (push_ram_w) begin
         q_wr_r[push_pair_w] <= q_wr_r[push_pair_w] + 1'b1;
@@ -948,6 +1025,34 @@ module KL_chan_map_capture #(
         q_fed_r[push_pair_w] <= 1'b1;
       end
       q_primed_r <= (q_primed_r | prime_set_w) & ~flush_clr_w;
+
+      //! ---- #645 settle recentre: decide as a PDU starts, act next walk --
+      //! A pulse coincident with the PDU's first beat arms for the next PDU
+      //! (the render stage's rule); an unprimed stream has nothing to
+      //! re-centre. A walk start hands each stream's decision to its pairs
+      //! and clears the last walk's.
+      if (lb_tvalid_i) lb_sof_r <= lb_tlast_i;
+      for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+        if (rc_arm_r[s] && rc_pdu_start_w && (32'(lb_tuser_i) == s)) begin
+          rc_arm_r[s]  <= 1'b0;
+          rc_dec_r[s]  <= 1'b1;
+          rc_hold_r[s] <= rc_short_w;
+          rc_drop_r[s] <= rc_over_w;
+        end else if (walk_start_w) begin
+          rc_dec_r[s]  <= 1'b0;
+        end
+        if (lb_recentre_i[s] && q_primed_r[s * LB_PPS_C]) rc_arm_r[s] <= 1'b1;
+        if (lb_flush_i[s]) begin
+          rc_arm_r[s] <= 1'b0;
+          rc_dec_r[s] <= 1'b0;
+        end
+      end
+      if (walk_start_w) begin
+        for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
+          act_hold_r[pp] <= rc_dec_r[pp / int'(LB_PPS_C)] && rc_hold_r[pp / int'(LB_PPS_C)];
+          act_drop_r[pp] <= rc_dec_r[pp / int'(LB_PPS_C)] && rc_drop_r[pp / int'(LB_PPS_C)];
+        end
+      end
 
       //! ---- pop data return into the walk's hold bank -------------------
       if (pop_ret_v_r) lb_hold_r[pop_ret_pair_r] <= q_rdata_r;
@@ -965,6 +1070,8 @@ module KL_chan_map_capture #(
           q_cnt_r[pp]   <= '0;
           q_fed_r[pp]   <= 1'b0;
           lb_hold_r[pp] <= 48'd0;
+          act_hold_r[pp] <= 1'b0;
+          act_drop_r[pp] <= 1'b0;
         end
       end
     end
