@@ -2344,9 +2344,10 @@ class NxnDatapathHarness {
     //! across the unbind, as a talker the listener just left does
     int unb_live = -1;
     long unb_next = 0;
-    //! the talker unique_id each sink binds, and its PDU sequence cursor
-    static constexpr uint16_t kUnbTuid[kGsiSinks] = {0, 1};
+    //! the talker's PDU sequence cursor
     uint8_t unb_seq = 0;
+    //! the talker unique_id sink `s` binds: the sink index
+    static uint16_t unb_tuid(int s) { return static_cast<uint16_t>(s); }
 
     //! The source's MEDIA_UNLOCKED and MEDIA_LOCKED: stream 0's write-through
     //! shadow of the monitor RAM, or KL_crf_rx's tallies.
@@ -2461,7 +2462,7 @@ class NxnDatapathHarness {
         gsi_acmp_rsp.erase((0x07u << 8) | static_cast<unsigned>(s));
         const long probes0 = gsi_probes[static_cast<size_t>(s)];
         notify_clear();
-        gsi_bind(s, kUnbTuid[s]);
+        gsi_bind(s, unb_tuid(s));
         gsi_ms(kGsiWinMs);
         snprintf(w, sizeof w, "[UNB] %s sink %d BIND_RX", kind, s);
         gsi_ck_acmp_ok(w, 0x07, s);
@@ -2494,7 +2495,44 @@ class NxnDatapathHarness {
         while (uns_log_cycle - last < 1100L * kMsCycTb) gsi_tick();
     }
 
-    //! Unbind sink `s` and grade U1..U3; prints the trace.
+    //! U2 waits for the push reporting the unlock and U4 for both
+    //! receivers' silence timeout, with the talker still streaming. That is
+    //! 105 processor seconds here, past the 30 to 60 s Milan 5.4.5.3 monitor,
+    //! so both controllers send a command every 10 processor seconds to stay
+    //! registered. Ends one keepalive past the window whatever arrives.
+    void unb_wait_past_the_silence(int s) {
+        const long keep_cyc = 10000L * kMsCycTb;
+        const long t_end = (unb_tr.cmd >= 0 ? unb_tr.cmd : uns_log_cycle) + kUnbSilenceCyc;
+        long keep = uns_log_cycle + keep_cyc;
+        while (uns_log_cycle < t_end + keep_cyc
+               && (uns_log_cycle < t_end || unb_push_when(CTL_A, s, 1) < 0
+                   || unb_push_when(CTL_B, s, 1) < 0)) {
+            for (int k = 0; k < 1000; k++) gsi_tick();
+            if (uns_log_cycle >= keep) {
+                unb_ctrs(CTL_A, s);
+                unb_ctrs(CTL_B, s);
+                keep = uns_log_cycle + keep_cyc;
+            }
+        }
+    }
+
+    //! Sink `s`'s event trace, in cycles after the UNBIND_RX command's last
+    //! byte; `when` holds the first push reporting the unlock to A and to B.
+    void unb_print_trace(int s, const char* kind, const long (&when)[2]) {
+        const long t0 = unb_tr.cmd;
+        auto rel = [t0](long t) { return (t < 0 || t0 < 0) ? -1L : t - t0; };
+        printf("  [i]    [UNB] %s sink %d trace, cycles after the UNBIND_RX's last "
+               "byte: response queued +%ld, bind level fell +%ld, MEDIA_UNLOCKED "
+               "+%ld, Table 5.22 pulse +%ld, delivered +%ld, response left +%ld "
+               "(source LOCKED/UNLOCKED %u/%u), push to A left +%ld, push to B "
+               "left +%ld; GET_STREAM_INFO push to A +%ld, to B +%ld\n", kind, s,
+               rel(unb_tr.txreq), rel(unb_tr.fall), rel(unb_tr.mu), rel(unb_tr.dirty),
+               rel(unb_tr.evt), rel(unb_tr.rsp), unb_tr.rsp_ml, unb_tr.rsp_mu,
+               rel(when[0]), rel(when[1]),
+               rel(unb_gsi_when(CTL_A, s)), rel(unb_gsi_when(CTL_B, s)));
+    }
+
+    //! Unbind sink `s` and grade U1..U4; prints the trace.
     void unb_unbind_and_grade(int s, const char* kind) {
         char w[200];
         const unsigned key = (0x09u << 8) | static_cast<unsigned>(s);
@@ -2514,7 +2552,7 @@ class NxnDatapathHarness {
         unb_mu_q = unb_mu(s);
         unb_sink = s;
         gsi_rx_last_sub = 0;
-        gsi_unbind(s, kUnbTuid[s]);
+        gsi_unbind(s, unb_tuid(s));
         for (long n = 0; n < 200000 && gsi_rx_last_sub != 0xFC; n++) gsi_tick();
         unb_tr.cmd = gsi_rx_last;
         for (long n = 0; n < 200000 && gsi_acmp_rsp.count(key) == 0; n++) gsi_tick();
@@ -2538,30 +2576,13 @@ class NxnDatapathHarness {
         snprintf(w, sizeof w, "[UNB] %s sink %d U3 right after the response: "
                  "STREAM_INTERRUPTED", kind, s);
         ck(w, ctr_word(c, 2), 0);
-        //! U2 waits for the push reporting the unlock and U4 for both
-        //! receivers' silence timeout, with the talker still streaming. That
-        //! is 105 processor seconds here, past the 30 to 60 s Milan 5.4.5.3
-        //! monitor, so both controllers send a command every 10 processor
-        //! seconds to stay registered.
-        const long keep_cyc = 10000L * kMsCycTb;
-        const long t_end = (unb_tr.cmd >= 0 ? unb_tr.cmd : uns_log_cycle) + kUnbSilenceCyc;
-        long keep = uns_log_cycle + keep_cyc;
-        while (uns_log_cycle < t_end + keep_cyc
-               && (uns_log_cycle < t_end || unb_push_when(CTL_A, s, 1) < 0
-                   || unb_push_when(CTL_B, s, 1) < 0)) {
-            for (int k = 0; k < 1000; k++) gsi_tick();
-            if (uns_log_cycle >= keep) {
-                unb_ctrs(CTL_A, s);
-                unb_ctrs(CTL_B, s);
-                keep = uns_log_cycle + keep_cyc;
-            }
-        }
+        unb_wait_past_the_silence(s);
         gsi_ms(kGsiWinMs);
         unb_sink = -1;
         unb_live = -1;
         const Ctlr* const to[2] = {&CTL_A, &CTL_B};
         const char* const nm[2] = {"A", "B"};
-        long when[2] = {-1, -1};
+        long when[2] = {};
         for (int k = 0; k < 2; k++) {
             when[k] = unb_push_when(*to[k], s, 1);
             snprintf(w, sizeof w, "[UNB] %s sink %d U2 a push reporting the "
@@ -2587,17 +2608,7 @@ class NxnDatapathHarness {
                  "MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED", kind, s);
         ck(w, (static_cast<unsigned long>(ctr_word(e, 0)) << 16)
               | (static_cast<unsigned long>(ctr_word(e, 1)) << 8) | ctr_word(e, 2), 0x010100);
-        const long t0 = unb_tr.cmd;
-        auto rel = [t0](long t) { return (t < 0 || t0 < 0) ? -1L : t - t0; };
-        printf("  [i]    [UNB] %s sink %d trace, cycles after the UNBIND_RX's last "
-               "byte: response queued +%ld, bind level fell +%ld, MEDIA_UNLOCKED "
-               "+%ld, Table 5.22 pulse +%ld, delivered +%ld, response left +%ld "
-               "(source LOCKED/UNLOCKED %u/%u), push to A left +%ld, push to B "
-               "left +%ld; GET_STREAM_INFO push to A +%ld, to B +%ld\n", kind, s,
-               rel(unb_tr.txreq), rel(unb_tr.fall), rel(unb_tr.mu), rel(unb_tr.dirty),
-               rel(unb_tr.evt), rel(rsp), unb_tr.rsp_ml, unb_tr.rsp_mu,
-               rel(when[0]), rel(when[1]),
-               rel(unb_gsi_when(CTL_A, s)), rel(unb_gsi_when(CTL_B, s)));
+        unb_print_trace(s, kind, when);
     }
 
     void unbind_order_section() {
