@@ -1,0 +1,104 @@
+== plants (expected rc: 1 = must be caught, 0 = passes by design)
+I1 [ids] stray P-ID in an architecture page: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: docs/architecture/03_packet_engine.md:494: P-R472-STRAY has no F01.5 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I2 [ids] stray T-ID in an RTL comment: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: hdl/packet_engine/KL_pp_tx_slots.sv:17: T-R472-STRAY has no F08.1 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I3 [ids] stray P-ID in a new untracked tb/ file: rc 1 (want 1) AS-EXPECTED; ids: 489 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: tb/r472_probe/NOTE.txt:1: P-R472-NEW has no F01.5 row
+    ids: 489 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I4 [ids] stray in an ignored file (tb/x.log): out of scope by design: rc 0 (want 0) AS-EXPECTED; ids: 488 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+I5 [ids] braced list whose member has a hyphen: T-NVM-{RS-DEADLINE, RS-TYPO}: rc 0 (want 1) UNEXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+I6 [ids] braced list, hyphen-free members: T-MRP-{JOIN, TYPO}: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: docs/architecture/08_timing.md:281: T-MRP-TYPO has no F08.1 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I7 [ids] the old stray P-TX written as a hyphenated adjective: P-TX-shaped: rc 0 (want 0) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+I8 [ids] F01.5 row P-MAAP-RSP-MS deleted: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 91 distinct IDs used, F01.5 46 P-IDs, F08.1 36 T-IDs, 12 FAILURES
+    ID FAIL: docs/architecture/02_interfaces.md:301: P-MAAP-RSP-MS has no F01.5 row
+    ID FAIL: docs/architecture/02_interfaces.md:313: P-MAAP-RSP-MS has no F01.5 row
+    ID FAIL: docs/architecture/05_acmp_engine.md:417: P-MAAP-RSP-MS has no F01.5 row
+    ID FAIL: docs/architecture/11_maap_engine.md:117: P-MAAP-RSP-MS has no F01.5 row
+    ... 13 FAIL lines
+I9 [ids] a P-ID used only as a T- name (T-CLK-HZ): rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: docs/architecture/02_interfaces.md:759: T-CLK-HZ has no F08.1 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I10 [ids] stray in a hand-authored SVG: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: docs/diagrams/24-adp-acmp-states.svg:119: P-R472-SVG has no F01.5 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I11 [ids] stray in the history page: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: docs/history/02-class-a-word-stream.md:86: T-R472-HIST has no F08.1 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+I12 [ids] duplicate F01.5 row: rc 1 (want 1) AS-EXPECTED; ids: master tables unreadable, FAILURES
+    ID FAIL: F01.5: P-CLK-HZ has two rows
+    ids: master tables unreadable, FAILURES
+I13 [ids] the five fixed files at base content (the real strays): rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 45 P-IDs, F08.1 36 T-IDs, 39 FAILURES
+    ID FAIL: docs/architecture/02_interfaces.md:290: P-MAAP-ACCEPT-CYC has no F01.5 row
+    ID FAIL: docs/architecture/02_interfaces.md:291: P-MAAP-RSP-MS has no F01.5 row
+    ID FAIL: docs/architecture/02_interfaces.md:303: P-MAAP-RSP-MS has no F01.5 row
+    ID FAIL: docs/architecture/02_interfaces.md:325: P-MAAP-ACCEPT-CYC has no F01.5 row
+    ... 40 FAIL lines
+I14 [ids] F08.1 anchor removed (table unfindable): rc 1 (want 1) AS-EXPECTED; ids: master tables unreadable, FAILURES
+    ID FAIL: cannot find F08.1 ('<a id="fig-08-constants"></a>')
+    ids: master tables unreadable, FAILURES
+I15 [ids] F01.5 table present but with no P- row (first column emptied): rc 1 (want 1) AS-EXPECTED; ids: 488 files, 83 distinct IDs used, F01.5 5 P-IDs, F08.1 36 T-IDs, 429 FAILURES
+    ID FAIL: docs/00_MILAN_COMPLIANCE_REVIEW.md:194: P-EN-IDENTIFY-NOTIFICATION has no F01.5 row
+    ID FAIL: docs/00_MILAN_COMPLIANCE_REVIEW.md:342: P-EN-IDENTIFY-NOTIFICATION has no F01.5 row
+    ID FAIL: docs/00_MILAN_COMPLIANCE_REVIEW.md:432: P-MAP-SUBSET-CH-MAX has no F01.5 row
+    ID FAIL: docs/00_MILAN_COMPLIANCE_REVIEW.md:438: P-EN-IDENTIFY-NOTIFICATION has no F01.5 row
+    ... 430 FAIL lines
+I16 [ids] a P-ID with a non-numeric tail after a real stem: P-RX-SLOTS-X: rc 1 (want 1) AS-EXPECTED; ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+    ID FAIL: tb/tx_slots/README.md:54: P-RX-SLOTS-X has no F01.5 row
+    ids: 488 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+G1 [figures] a PNG restored from base: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/21-integration-faces.png: not a figure format docs/README.md section 3 lists
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G2 [figures] <foreignObject> inside a hand-authored SVG: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/22-aecp-descriptor-fetch.svg: carries <foreignObject>: a raster or embedded document is not editable source
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G3 [figures] hand-authored SVG root without the SVG namespace: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/23-bringup-decision.svg: root element is svg, not an SVG-namespace <svg>
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G4 [figures] an extra file in src/ (an SVG beside the .drawio): rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/src/r472.svg: not a figure format docs/README.md section 3 lists
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G5 [figures] a nested directory under docs/diagrams: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/wavedrom/sub/x.svg: not a figure format docs/README.md section 3 lists
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G6 [figures] the hand-authored inventory section heading renamed: rc 1 (want 1) AS-EXPECTED; figures: inventory unreadable, FAILURES
+    FIGURE FAIL: docs/diagrams/README.md: no '## Inventory (hand-authored SVG)' section
+    figures: inventory unreadable, FAILURES
+G7 [figures] a draw.io export deleted: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/src/03-shared-datapath.drawio: draw.io source without its export docs/diagrams/03-shared-datapath.svg
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G8 [figures] a hand-authored SVG whose only link is removed from every page: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/23-bringup-decision.svg: hand-authored figure no Markdown page links
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+G9 [figures] an untracked stray file in docs/diagrams: rc 1 (want 1) AS-EXPECTED; figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+    FIGURE FAIL: docs/diagrams/notes.txt: not a figure format docs/README.md section 3 lists
+    figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+== mutants of scripts/check-ids.py (killed = its --selftest rc 1)
+MI1 resolves() always true: selftest rc 1 KILLED; head tree rc 0
+MI2 family accepted without a row: selftest rc 1 KILLED; head tree rc 0
+MI3 braced members not expanded: selftest rc 1 KILLED; head tree rc 0
+MI4 untracked files not scanned: selftest rc 1 KILLED; head tree rc 0
+MI5 minus-n rule accepts any tail: selftest rc 0 SURVIVED; head tree rc 0
+MI6 sibling shorthand not expanded: selftest rc 1 KILLED; head tree rc 1
+MI7 lookbehind dropped: selftest rc 1 KILLED; head tree rc 1
+MI8 empty master table accepted: selftest rc 0 SURVIVED; head tree rc 0
+MI9 duplicate row accepted: selftest rc 0 SURVIVED; head tree rc 0
+MI10 check() always rc 0: selftest rc 1 KILLED; head tree rc 0
+MI11 registry words not skipped in uses: selftest rc 1 KILLED; head tree rc 1
+== mutants of scripts/check-figures.py (killed = its --selftest rc 1)
+MF1 svg_problems() never reports: selftest rc 1 KILLED; head tree rc 0
+MF2 unlinked figure accepted: selftest rc 1 KILLED; head tree rc 0
+MF3 unknown format accepted: selftest rc 1 KILLED; head tree rc 0
+MF4 orphan WaveDrom accepted: selftest rc 1 KILLED; head tree rc 0
+MF5 draw.io without export accepted: selftest rc 1 KILLED; head tree rc 0
+MF6 listed-but-missing accepted: selftest rc 1 KILLED; head tree rc 0
+MF7 unlisted SVG accepted: selftest rc 1 KILLED; head tree rc 0
+MF8 foreignObject not checked: selftest rc 0 SURVIVED; head tree rc 0
+MF9 non-SVG root accepted: selftest rc 0 SURVIVED; head tree rc 0
+MF10 empty inventory accepted: selftest rc 0 SURVIVED; head tree rc 0
+MF11 viewBox not checked: selftest rc 1 KILLED; head tree rc 0
+plants not as expected: 1

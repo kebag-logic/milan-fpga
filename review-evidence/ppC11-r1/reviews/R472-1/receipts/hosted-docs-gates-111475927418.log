@@ -1,0 +1,174 @@
+﻿2026-10-04T16:10:43.9579637Z Current runner version: '2.337.0'
+2026-10-04T16:10:43.9614684Z ##[group]Runner Image Provisioner
+2026-10-04T16:10:43.9616109Z Hosted Compute Agent
+2026-10-04T16:10:43.9617061Z Version: 20260901.588
+2026-10-04T16:10:43.9618165Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-04T16:10:43.9619520Z Build Date: 2026-09-01T19:56:44Z
+2026-10-04T16:10:43.9620730Z Worker ID: {7a30d68a-cdca-4f85-9089-b28e2f919d8e}
+2026-10-04T16:10:43.9622573Z Azure Region: eastus
+2026-10-04T16:10:43.9623521Z ##[endgroup]
+2026-10-04T16:10:43.9626796Z ##[group]Operating System
+2026-10-04T16:10:43.9627862Z Ubuntu
+2026-10-04T16:10:43.9628843Z 24.04.5
+2026-10-04T16:10:43.9629730Z LTS
+2026-10-04T16:10:43.9630578Z ##[endgroup]
+2026-10-04T16:10:43.9631476Z ##[group]Runner Image
+2026-10-04T16:10:43.9632578Z Image: ubuntu-24.04
+2026-10-04T16:10:43.9633521Z Version: 20260927.320.1
+2026-10-04T16:10:43.9635938Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-04T16:10:43.9638645Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-04T16:10:43.9640384Z ##[endgroup]
+2026-10-04T16:10:43.9642454Z ##[group]GITHUB_TOKEN Permissions
+2026-10-04T16:10:43.9645752Z Contents: read
+2026-10-04T16:10:43.9646677Z Metadata: read
+2026-10-04T16:10:43.9647719Z Packages: read
+2026-10-04T16:10:43.9648703Z ##[endgroup]
+2026-10-04T16:10:43.9651779Z Secret source: Actions
+2026-10-04T16:10:43.9653292Z Cache mode: write
+2026-10-04T16:10:43.9655242Z Prepare workflow directory
+2026-10-04T16:10:44.0177210Z Prepare all required actions
+2026-10-04T16:10:44.0226035Z Getting action download info
+2026-10-04T16:10:44.1835489Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-04T16:10:44.3532145Z Complete job name: docs-gates
+2026-10-04T16:10:44.4402321Z ##[group]Run actions/checkout@v4
+2026-10-04T16:10:44.4403212Z with:
+2026-10-04T16:10:44.4403843Z   repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:44.4407991Z   token: ***
+2026-10-04T16:10:44.4408517Z   ssh-strict: true
+2026-10-04T16:10:44.4408962Z   ssh-user: git
+2026-10-04T16:10:44.4409408Z   persist-credentials: true
+2026-10-04T16:10:44.4409886Z   clean: true
+2026-10-04T16:10:44.4410334Z   sparse-checkout-cone-mode: true
+2026-10-04T16:10:44.4410850Z   fetch-depth: 1
+2026-10-04T16:10:44.4411277Z   fetch-tags: false
+2026-10-04T16:10:44.4411715Z   show-progress: true
+2026-10-04T16:10:44.4412158Z   lfs: false
+2026-10-04T16:10:44.4412565Z   submodules: false
+2026-10-04T16:10:44.4413009Z   set-safe-directory: true
+2026-10-04T16:10:44.4413498Z   allow-unsafe-pr-checkout: false
+2026-10-04T16:10:44.4414678Z env:
+2026-10-04T16:10:44.4415138Z   VERILATOR_VERSION: v5.050
+2026-10-04T16:10:44.4415644Z ##[endgroup]
+2026-10-04T16:10:44.5443612Z Syncing repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:44.5446913Z ##[group]Getting Git version info
+2026-10-04T16:10:44.5448852Z Working directory is '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-04T16:10:44.5451262Z [command]/usr/bin/git version
+2026-10-04T16:10:44.5520581Z git version 2.55.0
+2026-10-04T16:10:44.5548258Z ##[endgroup]
+2026-10-04T16:10:44.5571853Z Temporarily overriding HOME='<home-path>/work/_temp/475ad7af-5584-4128-b4a1-4548260e940a' before making global git config changes
+2026-10-04T16:10:44.5574617Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-04T16:10:44.5578060Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:44.5629900Z Deleting the contents of '<home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan'
+2026-10-04T16:10:44.5636339Z ##[group]Initializing the repository
+2026-10-04T16:10:44.5640917Z [command]/usr/bin/git init <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:44.5743470Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-04T16:10:44.5745297Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-04T16:10:44.5747166Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-04T16:10:44.5748495Z hint: call:
+2026-10-04T16:10:44.5749191Z hint:
+2026-10-04T16:10:44.5750012Z hint: 	git config --global init.defaultBranch <name>
+2026-10-04T16:10:44.5751060Z hint:
+2026-10-04T16:10:44.5752054Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-04T16:10:44.5753565Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-04T16:10:44.5755010Z hint:
+2026-10-04T16:10:44.5755740Z hint: 	git branch -m <name>
+2026-10-04T16:10:44.5756592Z hint:
+2026-10-04T16:10:44.5757638Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-04T16:10:44.5762076Z Initialized empty Git repository in <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan/.git/
+2026-10-04T16:10:44.5765442Z [command]/usr/bin/git remote add origin https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:44.5808305Z ##[endgroup]
+2026-10-04T16:10:44.5809078Z ##[group]Disabling automatic garbage collection
+2026-10-04T16:10:44.5813665Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-04T16:10:44.5846345Z ##[endgroup]
+2026-10-04T16:10:44.5847528Z ##[group]Setting up auth
+2026-10-04T16:10:44.5854411Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-04T16:10:44.5888297Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-04T16:10:44.6248802Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-04T16:10:44.6290145Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-04T16:10:44.6527453Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-04T16:10:44.6566440Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-04T16:10:44.6800916Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-04T16:10:44.6842084Z ##[endgroup]
+2026-10-04T16:10:44.6843426Z ##[group]Fetching the repository
+2026-10-04T16:10:44.6854272Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +91cef52b3c56cc69f66966b004782a69d2940a46:refs/remotes/origin/c11-docs-gates
+2026-10-04T16:10:45.3206734Z From https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan
+2026-10-04T16:10:45.3209729Z  * [new ref]         91cef52b3c56cc69f66966b004782a69d2940a46 -> origin/c11-docs-gates
+2026-10-04T16:10:45.3215031Z ##[endgroup]
+2026-10-04T16:10:45.3216355Z ##[group]Determining the checkout info
+2026-10-04T16:10:45.3218086Z ##[endgroup]
+2026-10-04T16:10:45.3218950Z [command]/usr/bin/git sparse-checkout disable
+2026-10-04T16:10:45.3274609Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-04T16:10:45.3314923Z ##[group]Checking out the ref
+2026-10-04T16:10:45.3320101Z [command]/usr/bin/git checkout --progress --force -B c11-docs-gates refs/remotes/origin/c11-docs-gates
+2026-10-04T16:10:45.3904509Z Switched to a new branch 'c11-docs-gates'
+2026-10-04T16:10:45.3909537Z branch 'c11-docs-gates' set up to track 'origin/c11-docs-gates'.
+2026-10-04T16:10:45.3919291Z ##[endgroup]
+2026-10-04T16:10:45.3984766Z [command]/usr/bin/git log -1 --format=%H
+2026-10-04T16:10:45.4012010Z 91cef52b3c56cc69f66966b004782a69d2940a46
+2026-10-04T16:10:45.4271905Z ##[group]Run python3 -m pip install wavedrom
+2026-10-04T16:10:45.4273554Z python3 -m pip install wavedrom
+2026-10-04T16:10:45.4275783Z npm install --prefix "$HOME/mermaid-cli" @mermaid-js/mermaid-cli@11.16.0
+2026-10-04T16:10:45.4278111Z echo "$HOME/mermaid-cli/node_modules/.bin" >> "$GITHUB_PATH"
+2026-10-04T16:10:45.4525235Z shell: /usr/bin/bash -e {0}
+2026-10-04T16:10:45.4526542Z env:
+2026-10-04T16:10:45.4527586Z   VERILATOR_VERSION: v5.050
+2026-10-04T16:10:45.4528850Z ##[endgroup]
+2026-10-04T16:10:46.5700443Z Defaulting to user installation because normal site-packages is not writeable
+2026-10-04T16:10:47.2227039Z Collecting wavedrom
+2026-10-04T16:10:47.2544057Z   Downloading wavedrom-2.0.3.post3.tar.gz (137 kB)
+2026-10-04T16:10:47.2697549Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.7/137.7 kB 10.1 MB/s eta 0:00:00
+2026-10-04T16:10:47.2937196Z   Preparing metadata (setup.py): started
+2026-10-04T16:10:50.8103414Z   Preparing metadata (setup.py): finished with status 'done'
+2026-10-04T16:10:50.8268092Z Requirement already satisfied: pyyaml in /usr/lib/python3/dist-packages (from wavedrom) (6.0.1)
+2026-10-04T16:10:50.8276449Z Requirement already satisfied: six in /usr/lib/python3/dist-packages (from wavedrom) (1.16.0)
+2026-10-04T16:10:50.8453271Z Collecting svgwrite (from wavedrom)
+2026-10-04T16:10:50.8492128Z   Downloading svgwrite-1.4.3-py3-none-any.whl.metadata (8.8 kB)
+2026-10-04T16:10:50.8581039Z Downloading svgwrite-1.4.3-py3-none-any.whl (67 kB)
+2026-10-04T16:10:50.8633511Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.1/67.1 kB 17.3 MB/s eta 0:00:00
+2026-10-04T16:10:50.8670197Z Building wheels for collected packages: wavedrom
+2026-10-04T16:10:50.8675678Z   Building wheel for wavedrom (setup.py): started
+2026-10-04T16:10:51.5569371Z   Building wheel for wavedrom (setup.py): finished with status 'done'
+2026-10-04T16:10:51.5576028Z   Created wheel for wavedrom: filename=wavedrom-2.0.3.post3-py2.py3-none-any.whl size=30056 sha256=033d93253ec4c2539ecb33fe5a2929562504169edc84cddf9ec8fbe4925b0470
+2026-10-04T16:10:51.5578657Z   Stored in directory: <home-path>/.cache/pip/wheels/dd/97/87/67fda20d5b17da917e87e94dcdc39acd2195796f42511e42fe
+2026-10-04T16:10:51.5599397Z Successfully built wavedrom
+2026-10-04T16:10:51.8014722Z Installing collected packages: svgwrite, wavedrom
+2026-10-04T16:10:51.9003091Z Successfully installed svgwrite-1.4.3 wavedrom-2.0.3.post3
+2026-10-04T16:11:13.7817733Z 
+2026-10-04T16:11:13.7818167Z added 190 packages in 21s
+2026-10-04T16:11:13.7818622Z 
+2026-10-04T16:11:13.7818738Z 22 packages are looking for funding
+2026-10-04T16:11:13.7819276Z   run `npm fund` for details
+2026-10-04T16:11:13.8492868Z ##[group]Run mmdc --version
+2026-10-04T16:11:13.8493204Z mmdc --version
+2026-10-04T16:11:13.8493430Z make check
+2026-10-04T16:11:13.8563358Z shell: /usr/bin/bash -e {0}
+2026-10-04T16:11:13.8563626Z env:
+2026-10-04T16:11:13.8563823Z   VERILATOR_VERSION: v5.050
+2026-10-04T16:11:13.8564405Z ##[endgroup]
+2026-10-04T16:11:14.0771167Z 11.16.0
+2026-10-04T16:11:50.5004163Z lint: 41 mermaid + 18 wavedrom blocks checked, OK
+2026-10-04T16:11:51.0247223Z wavedrom: 18 blocks checked, OK
+2026-10-04T16:11:51.1870392Z links: 1152 checked, OK
+2026-10-04T16:11:51.2150838Z matrix: 115 REQ rows, 17 GAP findings, OK
+2026-10-04T16:11:51.2677863Z matrix: OK (94 rows, 0 untested)
+2026-10-04T16:11:51.3091635Z parameters: top 28, guide 28, diagram 28, OK
+2026-10-04T16:11:51.7431289Z ids selftest: 9 cases, OK
+2026-10-04T16:11:52.0176433Z ids: 488 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+2026-10-04T16:11:52.5545920Z figures selftest: 10 cases, OK
+2026-10-04T16:11:52.7574649Z figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+2026-10-04T16:11:52.7997481Z Post job cleanup.
+2026-10-04T16:11:52.8891488Z [command]/usr/bin/git version
+2026-10-04T16:11:52.8939123Z git version 2.55.0
+2026-10-04T16:11:52.8986233Z Temporarily overriding HOME='<home-path>/work/_temp/3b104c41-8e5f-4234-9ec9-4697bfe9946a' before making global git config changes
+2026-10-04T16:11:52.8987559Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-04T16:11:52.8992000Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/protocol-processor-control-plane-avb-milan/protocol-processor-control-plane-avb-milan
+2026-10-04T16:11:52.9034111Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-04T16:11:52.9070256Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-04T16:11:52.9322750Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-04T16:11:52.9355504Z http.https://github.com/.extraheader
+2026-10-04T16:11:52.9368995Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-04T16:11:52.9405430Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-04T16:11:52.9663835Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-04T16:11:52.9709784Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-04T16:11:53.0118650Z Cleaning up orphan processes
+2026-10-04T16:11:53.0422746Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

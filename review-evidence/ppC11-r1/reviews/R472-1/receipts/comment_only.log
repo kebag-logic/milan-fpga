@@ -1,0 +1,11 @@
+touched hdl/tb files: hdl/packet_engine/KL_pp_trace_ring.sv hdl/packet_engine/KL_pp_tx_slots.sv tb/tx_slots/README.md tb/tx_slots/sim_main.cpp
+hdl/packet_engine/KL_pp_trace_ring.sv: raw differs; preprocessed lines 51/51; sha256 fabfdf23083d3ed29ac69afad48eacf4d70106c855b312275f98b4b79589d838 / fabfdf23083d3ed29ac69afad48eacf4d70106c855b312275f98b4b79589d838: IDENTICAL
+hdl/packet_engine/KL_pp_tx_slots.sv: raw differs; preprocessed lines 204/204; sha256 6ee60459e94e435b44315eea89662aa4c3d0eb18564b45ed1f8902d47daa69b8 / 6ee60459e94e435b44315eea89662aa4c3d0eb18564b45ed1f8902d47daa69b8: IDENTICAL
+tb/tx_slots/README.md: documentation file, not compiled
+scratch/comment_only/base.sim_main.cpp:41:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   41 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+scratch/comment_only/head.sim_main.cpp:42:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   42 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+tb/tx_slots/sim_main.cpp: raw differs; preprocessed lines 477/477; sha256 90f51caa3171323176d4dba6c4019f6d63048da909d5df0cfaed91a6fbd68e62 / 90f51caa3171323176d4dba6c4019f6d63048da909d5df0cfaed91a6fbd68e62: IDENTICAL
