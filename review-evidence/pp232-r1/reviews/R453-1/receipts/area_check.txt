@@ -1,0 +1,31 @@
+OK   main LUT = logic + memory: derived 51434, quoted 51434
+OK   head LUT = logic + memory: derived 50671, quoted 50671
+OK   route LUT delta: derived -763, quoted -763
+OK   route FF delta: derived -2031, quoted -2031
+OK   route slice delta: derived -6, quoted -6
+OK   route CARRY4 delta: derived -150, quoted -150
+OK   route WNS delta (ps): derived 195, quoted 195
+OK   route logic/memory delta: derived (-1625, 862), quoted (-1625, 862)
+OK   u_notify LUT delta: derived -927, quoted -927
+OK   u_notify FF delta: derived -2012, quoted -2012
+OK   u_notify LUTRAM delta: derived 864, quoted 864
+OK   LUTRAM = 288 RAM64X1D*2 + 16 RAM32X1D*2 + 88 RAM32M*4: derived 960, quoted 960
+OK   RAM32M = rows_r 64 + cmdq 24: derived 88, quoted 88
+OK   rows_r RAM32M count = 128 bits / 2 bits per RAM32M: derived 64, quoted 64
+OK   main u_notify LUTRAM = cmdq 24 RAM32M * 4: derived 96, quoted 96
+OK   index memories = 16 rows x 19 chunks: derived 304, quoted 304
+OK   rows_r flops at main = 16 x 128: derived 2048, quoted 2048
+OK   head vs A = main vs A + head vs main (LUT): derived 543, quoted 543
+OK   u_notify vs A = main vs A + delta (LUT): derived -792, quoted -792
+OK   round 1 route LUT delta: derived -650, quoted -650
+OK   round 1 route FF delta: derived -1950, quoted -1950
+OK   1x1 LUT delta: derived -894, quoted -894
+OK   1x1 FF delta: derived -2042, quoted -2042
+OK   8x8 LUT delta: derived -925, quoted -925
+OK   8x8 FF delta: derived -2175, quoted -2175
+OK   1x1 u_notify LUT delta: derived -933, quoted -933
+OK   1x1 u_notify FF delta: derived -2046, quoted -2046
+OK   8x8 u_notify FF delta: derived -2046, quoted -2046
+OK   stamps 1x1 = (2+2+2) x 32: derived 192, quoted 192
+OK   stamps 8x8 figure = 20 x 32 (9+9+2 descriptors): derived 640, quoted 640
+ALL CONSISTENT

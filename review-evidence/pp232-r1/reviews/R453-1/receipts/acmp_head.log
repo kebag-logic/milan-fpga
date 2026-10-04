@@ -1,0 +1,26 @@
+2026-10-04T04:28:48Z
++ python3 tb/pp_top/acmp_mutants.py --output <packet>/scratch/out/acmp_head --verilator <packet>/scratch/vbin/verilator --jobs 3
+{"mutant": "golden-acmp_listener", "verdict": "PASS"}
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-rx_validator", "verdict": "PASS"}
+{"mutant": "msg_ok_forced@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_ctlr_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_eid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "guard_talker_uid_dropped@acmp_listener", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@rx_validator", "verdict": "KILLED", "missing": []}
+{"mutant": "msg_ok_forced@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "cdl_not_44_rejected@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_settle_as_withdraw@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_sid_da_swapped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_state_none@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_vid_dropped@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_index_zero@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_latched@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_dmac_from_sid@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "bound_view_not_cleared@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_da_ignored@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "matcher_vid_ignored@pp_top", "verdict": "KILLED", "missing": []}
+ACMP mutations: 19 of 19 KILLED by their named checks; goldens PASS
+elapsed_s 593

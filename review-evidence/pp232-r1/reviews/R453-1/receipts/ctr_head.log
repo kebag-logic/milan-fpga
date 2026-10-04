@@ -1,0 +1,115 @@
+2026-10-04T03:44:37Z
++ python3 tb/pp_top/ctr_mutants.py --output <packet>/scratch/out/ctr_head --jobs 3
+control pp_top counters: rc=0 PASS
+ctr-avb-not-supported: rc=2 failures=9 named=1 KILLED
+    FAIL: K9: AVB_INTERFACE 0 after boot is byte-exact: mask 0x23, LINK_UP 1, LINK_DOWN 0, GPTP_GM_CHANGED 0
+    FAIL: K10: link down (flap 1): LINK_UP 0, LINK_DOWN 0, want 1 and 1, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 2): LINK_UP 0, LINK_DOWN 0, want 2 and 1, and LINK_UP = LINK_DOWN + 1
+    FAIL: K10: link down (flap 3): LINK_UP 0, LINK_DOWN 0, want 2 and 2, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 4): LINK_UP 0, LINK_DOWN 0, want 3 and 2, and LINK_UP = LINK_DOWN + 1
+    FAIL: K11: five grandmaster changes, GPTP_GM_CHANGED 0
+    FAIL: K11: a domain-only gm_change_i is not a grandmaster change, GPTP_GM_CHANGED 0
+    FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+    FAIL: K12: AVB_INTERFACE 1 answers NO_SUCH_DESCRIPTOR with the zero body, and the face is not asked (0 reads)
+ctr-ckd-not-supported: rc=2 failures=3 named=2 KILLED
+    FAIL: K16: media clock locked: LOCKED 0, UNLOCKED 0, want 1 and 0, and LOCKED = UNLOCKED + 1
+    FAIL: K16: media clock unlocked: LOCKED 0, UNLOCKED 0, want 1 and 1, and LOCKED = UNLOCKED
+    FAIL: K16: media clock locked: LOCKED 0, UNLOCKED 0, want 2 and 1, and LOCKED = UNLOCKED + 1
+ctr-index-from-type: rc=2 failures=18 named=1 KILLED
+    FAIL: K9: AVB_INTERFACE 0 after boot is byte-exact: mask 0x23, LINK_UP 1, LINK_DOWN 0, GPTP_GM_CHANGED 0
+    FAIL: K10: link down (flap 1): LINK_UP 0, LINK_DOWN 0, want 1 and 1, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 2): LINK_UP 0, LINK_DOWN 0, want 2 and 1, and LINK_UP = LINK_DOWN + 1
+    FAIL: K10: link down (flap 3): LINK_UP 0, LINK_DOWN 0, want 2 and 2, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 4): LINK_UP 0, LINK_DOWN 0, want 3 and 2, and LINK_UP = LINK_DOWN + 1
+    FAIL: K11: five grandmaster changes, GPTP_GM_CHANGED 0
+    FAIL: K11: a domain-only gm_change_i is not a grandmaster change, GPTP_GM_CHANGED 0
+    FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 1 and 1)
+    FAIL: K14: the two changes go out as one push per controller, 1000 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 1 and 1)
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (1)
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (1, 0)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K16: media clock locked: LOCKED 0, UNLOCKED 0, want 1 and 0, and LOCKED = UNLOCKED + 1
+    FAIL: K16: media clock unlocked: LOCKED 0, UNLOCKED 0, want 1 and 1, and LOCKED = UNLOCKED
+    FAIL: K16: media clock locked: LOCKED 0, UNLOCKED 0, want 2 and 1, and LOCKED = UNLOCKED + 1
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (1, 1)
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 1 and 1)
+ctr-block-beats-swapped: rc=2 failures=9 named=1 KILLED
+    FAIL: K11: five grandmaster changes, GPTP_GM_CHANGED 0
+    FAIL: K11: a domain-only gm_change_i is not a grandmaster change, GPTP_GM_CHANGED 0
+    FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 1 and 1)
+    FAIL: K14: the two changes go out as one push per controller, 1000 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 1 and 1)
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (1)
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (1, 0)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 1 and 1)
+ctr-locate-ignored: rc=2 failures=1 named=1 KILLED
+    FAIL: K12: AVB_INTERFACE 1 answers NO_SUCH_DESCRIPTOR with the zero body, and the face is not asked (161 reads)
+ctr-notify-avb-dropped: rc=2 failures=6 named=1 KILLED
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 0 and 0)
+    FAIL: K14: the two changes go out as one push per controller, 0 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 0 and 0)
+    FAIL: K14: and nothing after it: coalesced, never replayed
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (0)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 0 and 0)
+ctr-notify-avb-as-clock: rc=2 failures=8 named=1 KILLED
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 0 and 0)
+    FAIL: K14: the two changes go out as one push per controller, 0 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 0 and 0)
+    FAIL: K14: and nothing after it: coalesced, never replayed
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (0)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (0, 0)
+    FAIL: K17: a ctr_change_i for AVB_INTERFACE 1, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 0 and 0)
+ctr-notify-ckd-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (0, 0)
+ctr-notify-one-window: rc=2 failures=3 named=1 KILLED
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (0, 0)
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (0, 0)
+    FAIL: K17: a ctr_change_i for AVB_INTERFACE 1, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+ctr-notify-no-window: rc=2 failures=5 named=1 KILLED
+    FAIL: K14: nothing more for AVB_INTERFACE 0 inside 850 ms of the push
+    FAIL: K14: the two changes go out as one push per controller, 313 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 2 and 2)
+    FAIL: K14: and nothing after it: coalesced, never replayed
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (1, 1)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+ctr-change-type-from-index: rc=2 failures=8 named=1 KILLED
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 0 and 0)
+    FAIL: K14: the two changes go out as one push per controller, 0 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 0 and 0)
+    FAIL: K14: and nothing after it: coalesced, never replayed
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (0)
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (0, 0)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (0, 0)
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 0 and 0)
+ctr-notify-avb-any-index: rc=2 failures=1 named=1 KILLED
+    FAIL: K17: a ctr_change_i for AVB_INTERFACE 1, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+ctr-notify-ckd-any-index: rc=2 failures=1 named=1 KILLED
+    FAIL: K17: a ctr_change_i for CLOCK_DOMAIN 1, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+ctr-notify-stri-past-shape: rc=2 failures=1 named=1 KILLED
+    FAIL: K17: a ctr_change_i for STREAM_INPUT 8, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+ctr-notify-stro-past-shape: rc=2 failures=1 named=1 KILLED
+    FAIL: K17: a ctr_change_i for STREAM_OUTPUT 8, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+store-counts-domain-strobes: rc=2 failures=7 named=1 KILLED
+    FAIL: K11: a domain-only gm_change_i is not a grandmaster change, GPTP_GM_CHANGED 6
+    FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 1 and 1)
+    FAIL: K14: the two changes go out as one push per controller, 1000 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 1 and 1)
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (1)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 1 and 1)
+store-link-detector-resets-up: rc=2 failures=11 named=1 KILLED
+    FAIL: K9: AVB_INTERFACE 0 after boot is byte-exact: mask 0x23, LINK_UP 1, LINK_DOWN 0, GPTP_GM_CHANGED 0
+    FAIL: K10: link down (flap 1): LINK_UP 1, LINK_DOWN 2, want 1 and 1, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 2): LINK_UP 2, LINK_DOWN 2, want 2 and 1, and LINK_UP = LINK_DOWN + 1
+    FAIL: K10: link down (flap 3): LINK_UP 2, LINK_DOWN 3, want 2 and 2, and LINK_UP = LINK_DOWN
+    FAIL: K10: link up (flap 4): LINK_UP 3, LINK_DOWN 3, want 3 and 2, and LINK_UP = LINK_DOWN + 1
+    FAIL: K11: AVB_INTERFACE 0 byte-exact at block offsets 0, 4, 20: LINK_UP 3, LINK_DOWN 2, GPTP_GM_CHANGED 5, mask 0x23, every other quadlet 0
+    FAIL: K13: one unsolicited GET_COUNTERS of AVB_INTERFACE 0 at each controller within 300 ms, byte-exact with LINK_UP 3, LINK_DOWN 3 (got 1 and 1)
+    FAIL: K14: the two changes go out as one push per controller, 1000 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 1 and 1)
+    FAIL: K15: a change a second after the last push goes out at once with LINK_DOWN 4 (1)
+    FAIL: K15: ... and AVB_INTERFACE 0 then goes out, a second after its window opened, with LINK_UP 5
+    FAIL: K17: and AVB_INTERFACE 0's own strobe still pushes it at once, byte-exact with LINK_DOWN 5 (got 1 and 1)
+18 checks: 18 PASS, 0 FAIL
+elapsed_s 209

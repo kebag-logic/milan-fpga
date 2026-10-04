@@ -1,0 +1,23 @@
+golden-acmp_listener: PASS
+golden-pp_top: PASS
+golden-rx_validator: PASS
+msg_ok_forced@acmp_listener: KILLED failing 93, README 93: EQUAL
+guard_ctlr_dropped@acmp_listener: KILLED failing 50, README 50: EQUAL
+guard_talker_eid_dropped@acmp_listener: KILLED failing 40, README 40: EQUAL
+guard_talker_uid_dropped@acmp_listener: KILLED failing 30, README 30: EQUAL
+cdl_not_44_rejected@rx_validator: KILLED failing 27, README 19: DIFFERS
+msg_ok_forced@pp_top: KILLED failing 1, README 1: EQUAL
+cdl_not_44_rejected@pp_top: KILLED failing 19, README 19: EQUAL
+st_ls_settle_as_withdraw@pp_top: KILLED failing 7, README 7: EQUAL
+st_ls_teardown_as_declare@pp_top: KILLED failing 1, README 1: EQUAL
+st_ls_sid_da_swapped@pp_top: KILLED failing 7, README 7: EQUAL
+st_ls_state_none@pp_top: KILLED failing 7, README 7: EQUAL
+st_ls_vid_dropped@pp_top: KILLED failing 7, README 7: EQUAL
+st_ls_index_zero@pp_top: KILLED failing 6, README 6: EQUAL
+st_ls_teardown_lost@pp_top: KILLED failing 2, README 2: EQUAL
+bound_view_not_latched@pp_top: KILLED failing 2, README 2: EQUAL
+bound_dmac_from_sid@pp_top: KILLED failing 2, README 2: EQUAL
+bound_view_not_cleared@pp_top: KILLED failing 1, README 1: EQUAL
+matcher_da_ignored@pp_top: KILLED failing 5, README 5: EQUAL
+matcher_vid_ignored@pp_top: KILLED failing 5, README 5: EQUAL
+19 arms, 18 at their README count, 1 not

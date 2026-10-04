@@ -1,0 +1,9 @@
+Manual resolution of the rows compare_counts.py cannot parse (records at head 6e950fea):
+- aecp: hz-stream-key-none-vs-read, -talker-read, -talker-step: tb/pp_top/README.md:1205 "the same 12" (row 1204: 12); measured 12, 12, 12.
+- aecp: hz-reads-keyed-none-talker: :1207 "the same 13"; measured 13.
+- aecp: hz-setcfg-not-barrier-talker: :1201 "the same 7"; measured 7.
+- aecp: hz-lock-not-lockop-talker: :1203 "the same 7"; measured 7.
+- acmp: cdl_not_44_rejected@rx_validator: tb/rx_validator/README.md:88 (M6) "27 FAILs"; measured 27.
+With these, every arm of notify (44), ctr (17), aecp (55), dispatch (40) and acmp (19) is at its README count.
+- d3: validator_admits_held_aecp (tb/rx_validator): tb/rx_validator/README.md:86 (M4) "4 FAILs"; measured 4.
+With this, every D3 arm (110) is at its README count.

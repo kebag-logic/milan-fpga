@@ -1,0 +1,8 @@
+aecp_notify rc=2 no-tally
+    FAIL: IX3: the registered identity matches in the command's cycle
+pp_top rc=2 no-tally
+    FAIL: U10a4: cancellation conserves all five shared TX slots, got 4
+    FAIL: U10a5: canceled partial probe produces no retry or deregistration
+    FAIL: U10a5.1: message type 0 waited for a live monitor probe
+    FAIL: U10a5.10: message type 0 emitted one monitor cancellation
+    FAIL: U10a5.2: message type 2 waited for a live monitor probe
