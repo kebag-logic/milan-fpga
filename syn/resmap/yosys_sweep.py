@@ -46,8 +46,12 @@ Subcommands, each taking --work DIR:
                   at --depth levels ("blocks") and at one level ("blocks1"),
                   each set tied to Yosys's own design totals
 
---selftest proves the parameter rewrite, the module expansion, its tie and the
-plan validation on synthetic inputs.
+`run`, `guards` and `vivado-point` read sources from this checkout (through
+syn/ooc/dp_srcs.py), so each refuses a checkout with tracked changes, and every
+point receipt records the HEAD it was priced at and that the tree was clean.
+
+--selftest proves the parameter rewrite, the module expansion, its tie, the plan
+validation and the clean-tree check on synthetic inputs.
 """
 
 import argparse
@@ -264,6 +268,23 @@ def _head() -> str:
                           check=True).stdout.strip()
 
 
+def tree_state(repo: Path = REPO) -> dict:
+    """HEAD and whether the checkout has tracked changes (a moved submodule counts), as a receipt records it."""
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True,
+                          check=True).stdout.strip()
+    status = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=repo,
+                            capture_output=True, text=True, check=True).stdout.splitlines()
+    return {"head": head, "clean": not status, "changed": [line[3:] for line in status][:20]}
+
+
+def require_clean() -> dict:
+    """The checkout's state, refusing one with tracked changes: a point's sources are read from it."""
+    state = tree_state()
+    if not state["clean"]:
+        raise PlanError(f"the checkout has tracked changes {state['changed']}; price only a committed tree")
+    return state
+
+
 def _extract(argv: list[str], cwd: Path, destination: Path) -> None:
     """Run an archive command into a temporary tar file and unpack it."""
     with tempfile.TemporaryFile() as handle:
@@ -349,7 +370,7 @@ def run_point(work: Path, plan: dict, point: dict, malloc: str) -> dict:
         shutil.rmtree(directory)
     directory.mkdir(parents=True)
     start = time.time()
-    receipt = {"point": point, "rc": {}, "seconds": {}}
+    receipt = {"point": point, "rc": {}, "seconds": {}, "tree": require_clean()}
     record = prepare_sources(work, plan, point, directory)
     top = point["top"]
     argv = ["sv2v", f"--top={top}", *(f"-D{d}" for d in record["define"]), *(f"-I{i}" for i in record["incdir"]),
@@ -372,6 +393,8 @@ def run_point(work: Path, plan: dict, point: dict, malloc: str) -> dict:
         receipt["rc"][label] = run.returncode
         receipt["seconds"][label] = round(time.time() - began, 1)
     receipt["seconds"]["total"] = round(time.time() - start, 1)
+    if tree_state() != receipt["tree"]:
+        raise PlanError("the checkout changed while the point was priced")
     receipt["inputs"] = {"record_sources": len(record["src"]), "incdir": record["incdir"], "define": record["define"],
                          "rewritten": {p.name: sha256(p) for p in sorted((directory / "src").glob("*"))}
                          if (directory / "src").is_dir() else {},
@@ -443,11 +466,12 @@ def guard_point(work: Path, plan: dict, point: dict, verilator: str) -> dict:
     argv = [verilator, "--lint-only", "--sv", "-Wno-fatal", "--top-module", top,
             *(f"-D{d}" for d in record["define"]), *(f"-I{i}" for i in record["incdir"]),
             *(f"-G{name}={value}" for name, value in params.items()), *record["src"]]
+    state = require_clean()
     run = subprocess.run(argv, cwd=directory, capture_output=True, text=True, check=False)
     refusals, errors = guard_lines((run.stdout + run.stderr).splitlines())
     result = {"rc": run.returncode, "verilator": subprocess.run([verilator, "--version"], capture_output=True,
                                                                    text=True, check=False).stdout.strip(),
-              "refusals": refusals, "errors": errors}
+              "refusals": refusals, "errors": errors, "tree": state}
     (directory.parent / "guards.json").write_text(json.dumps(result, indent=1, sort_keys=True) + "\n")
     shutil.rmtree(directory)
     return result
@@ -467,7 +491,12 @@ def command_guards(work: Path, plan: dict, names: list[str], jobs: int, verilato
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = {pool.submit(guard_point, work, plan, point, verilator): point["name"] for point in chosen}
         for future in concurrent.futures.as_completed(futures):
-            result = future.result()
+            try:
+                result = future.result()
+            except (PlanError, OSError, subprocess.SubprocessError) as failure:
+                print(f"guards {futures[future]}: no record written: {failure}", flush=True)
+                failures += 1
+                continue
             failures += result["rc"] != 0 or bool(result["errors"])
             print(f"guards {futures[future]}: rc {result['rc']}, {len(result['refusals'])} refusal(s) "
                   f"{result['refusals'][:1]}", flush=True)
@@ -624,6 +653,7 @@ def command_vivado_point(work: Path, plan: dict, name: str) -> int:
         return 2
     directory = work / "vivado" / name
     directory.mkdir(parents=True, exist_ok=True)
+    state = require_clean()
     record = prepare_sources(work, plan, point, directory)
     stage_roms(work, directory)
     generics = [f"{k}={v}" for k, v in point_params(plan, point).items()]
@@ -635,6 +665,7 @@ def command_vivado_point(work: Path, plan: dict, name: str) -> int:
     lines += [f"incdir={d}" for d in record["incdir"]] + [f"define={d}" for d in record["define"]]
     lines += [f"src={s}" for s in record["src"]] + [f"generic={g}" for g in generics]
     (directory / "point.txt").write_text("\n".join(lines) + "\n")
+    (directory / "point_tree.json").write_text(json.dumps(state, indent=1, sort_keys=True) + "\n")
     print(f"vivado-point {name}: {directory / 'point.txt'}")
     return 0
 
@@ -737,9 +768,27 @@ def _selftest_guards() -> list[str]:
     return []
 
 
+def _selftest_tree() -> list[str]:
+    """A committed scratch repository reads clean; a tracked change reads dirty and is named."""
+    problems = []
+    with tempfile.TemporaryDirectory(prefix="resmap-tree-") as tmp:
+        repo = Path(tmp)
+        (repo / "a.sv").write_text("module a; endmodule\n")
+        for argv in (["git", "init", "-q"], ["git", "add", "a.sv"],
+                     ["git", "-c", "user.name=t", "-c", "user.email=t@invalid", "commit", "-q", "-m", "t"]):
+            subprocess.run(argv, cwd=repo, check=True, capture_output=True)
+        if not tree_state(repo)["clean"]:
+            problems.append("tree: a committed checkout read as dirty")
+        (repo / "a.sv").write_text("module a; wire w; endmodule\n")
+        state = tree_state(repo)
+        if state["clean"] or state["changed"] != ["a.sv"]:
+            problems.append(f"tree: a tracked change was not seen: {state}")
+    return problems
+
+
 def selftest() -> int:
     """Every arm on synthetic inputs; exit 0 only when all pass."""
-    problems = _selftest_patch() + _selftest_expand() + _selftest_plan() + _selftest_guards()
+    problems = _selftest_patch() + _selftest_expand() + _selftest_plan() + _selftest_guards() + _selftest_tree()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"yosys_sweep self-test: {'PASS' if not problems else 'FAIL'} ({len(problems)} problems)")
