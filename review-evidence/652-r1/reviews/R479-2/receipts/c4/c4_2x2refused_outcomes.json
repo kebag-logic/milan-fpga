@@ -1,0 +1,74 @@
+{
+ "rm_ax7101_1x1_tdm8_2ch": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "42f3af9144c73633c15b38e26fcbd14ca5e27b244414c44de4c2ff9d29a313f7",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_1x1_tdm8_4ch": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "fedc2df12bbca6e06aebea98eab44bee60d3d8520c3a96fd3d5a194f578fb64c",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_1x1_tdm8_noaafclk": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "de825825cc1fee3cb8c04890f32be38a2182f43fc21a89b0dbbcd693d8c1dcaf",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_1x1_tdm8_nocrf": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "113527a21ac0586ec525b46b8424a806fb14c5b3956c666be24ddc671da13240",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_2x2_tdm8": {
+  "cause": "writable names",
+  "expected": "refused",
+  "log_sha256": "ae89aa4f96c308fa4fcf80eb0a2039e82abdd77b118d1095c765291e6bd3cfad",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_4x4_tdm8": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "3df83ee14d7148862802505ae59bb6c6417c1248c65556b9b09770a78137a910",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_4x4_tdm8_2ch": {
+  "cause": "",
+  "expected": "built",
+  "log_sha256": "3bf3de7d718722d04ad9736f7dd22eea0ced3ba32f47450814faa6c12eb4f284",
+  "outcome": "built",
+  "rc": 0,
+  "refusal": ""
+ },
+ "rm_ax7101_8x8_tdm8": {
+  "cause": "writable names and the saved-state backend holds",
+  "expected": "refused",
+  "log_sha256": "2471e7d3ec5343ee75765b32fdaef84e63eccb38d53eac9bf15ffca1010ea6c4",
+  "outcome": "refused",
+  "rc": 1,
+  "refusal": "CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)"
+ },
+ "rm_ax7101_8x8_tdm8_2ch": {
+  "cause": "writable names and the saved-state backend holds",
+  "expected": "refused",
+  "log_sha256": "2471e7d3ec5343ee75765b32fdaef84e63eccb38d53eac9bf15ffca1010ea6c4",
+  "outcome": "refused",
+  "rc": 1,
+  "refusal": "CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)"
+ }
+}

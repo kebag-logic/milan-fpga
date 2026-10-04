@@ -1,0 +1,7 @@
+SELF-TEST FAILED: outcome: a traceback read as ('built', 'exit 1, 1 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')
+SELF-TEST FAILED: outcome: an exit with no refusal line read as ('built', 'exit 1, 0 refusal line(s): Killed')
+SELF-TEST FAILED: outcome: two refusal lines read as ('built', 'exit 1, 2 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')
+SELF-TEST FAILED: outcome: a usage error read as ('built', 'exit 2, 1 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')
+SELF-TEST FAILED: shapes: a crash exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_crash': {'cause': '', 'expected': 'built', 'log_sha256': '5b5219954d38b8245d6083467c9471169a66e4dd94a1a76bacdbdf21758a9ee6', 'outcome': 'built', 'rc': 1, 'refusal': 'exit 1, 0 refusal line(s): Traceback (most recent call last):'}}
+yosys_sweep self-test: FAIL (5 problems)
+SELFTEST rc=1

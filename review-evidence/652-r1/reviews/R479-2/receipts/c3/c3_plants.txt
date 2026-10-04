@@ -1,0 +1,55 @@
+plant p1_short_user_name: k=find("user name"); lines[k]=lines[k].rsplit("|",2)[0]+"|"
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
++| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)
+tracebacks=0
+
+plant p2_long_user_name: k=find("user name"); lines[k]=lines[k]+" 107 |"
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
++| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** | 107 |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)
+tracebacks=0
+
+plant p3_short_records: k=find("records"); lines[k]=lines[k].rsplit("|",2)[0]+"|"
+-| **records** | | | | **54** | **164** |
++| **records** | | | | **54** |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: records has no 8x8 figure (5 cells under a 6-column header)
+tracebacks=0
+
+plant p4_short_highest_1x1: k=find("highest id"); c=lines[k].split("|"); del c[5]; lines[k]="|".join(c)
+-| **highest id** | | | | `0xA6` | `0xEA` |
++| **highest id** | | | | `0xEA` |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: highest id has no 8x8 figure (5 cells under a 6-column header)
+tracebacks=0
+
+plant p5_empty_8x8: k=find("user name"); c=lines[k].split("|"); c[-2]="  "; lines[k]="|".join(c)
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
++| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 |  |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 user name reads , the endstation_ax7101_8x8 inventory derives 107
+tracebacks=0
+
+plant p6_records_row_deleted: k=find("records"); del lines[k]
+-| **records** | | | | **54** | **164** |
+check_nvm_record_space rc=0
+docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one
+tracebacks=0
+
+plant p7_user_name_row_deleted: k=find("user name"); del lines[k]
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: no row for ['NAME']
+tracebacks=0
+
+plant p8_short_block: k=find("user name"); c=lines[k].split("|"); del c[3]; lines[k]="|".join(c)
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
++| `0x80` .. `0xFF` | user name | name ordinal | 39 | **107** |
+check_nvm_record_space rc=1
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)
+tracebacks=0
+
+restored clean

@@ -1,0 +1,19 @@
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 55 records= 88 top_id=0xB6 image=  4808 B (7% of a slot) F07.8 floor= 88/256 commit<=3.10 s
+endstation_arty_8ch          names= 87 records=120 top_id=0xD6 image=  7368 B (11% of a slot) F07.8 floor=120/256 commit<=3.15 s
+endstation_arty_current      names= 29 records= 42 top_id=0x9C image=  2516 B (3% of a slot) F07.8 floor= 42/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 39 records= 54 top_id=0xA6 image=  3336 B (5% of a slot) F07.8 floor= 54/256 commit<=3.07 s
+endstation_ax7101_8x8: MAPS_OUT[0]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[1]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[2]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[3]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[4]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[5]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK
+endstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s
+
+FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39
+
+1 finding(s) across 5 config(s)

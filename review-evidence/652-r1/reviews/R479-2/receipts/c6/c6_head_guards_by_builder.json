@@ -1,0 +1,14 @@
+{
+ "by_builder": [
+  "streams-8",
+  "streams-8-chans-2"
+ ],
+ "refused_builder": {
+  "streams-8": [
+   "CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)"
+  ],
+  "streams-8-chans-2": [
+   "CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)"
+  ]
+ }
+}

@@ -1,0 +1,60 @@
+merge commit: ef2364115ef48079adc67fab11a3dec46b995f1b parents=2f0f59291080aeab934e0d72e124fb448c105e12 c0280fc008ef9c5c1650402a58bab3e47a92127b
+merge tree:   7d14122b555360531cbafc372c5384095b576f30
+merge-tree of parents 2f0f5929 + c0280fc0: 7d14122b555360531cbafc372c5384095b576f30
+merge base: 6c22d3cad7c8c24ed3f0c5eab535922a3428c8d5
+--- files dev changed 6c22d3ca..c0280fc0
+CHANGELOG.md
+docs/design/MEDIA_CLOCK_FOLLOWING.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/ieee1722/crf/KL_crf_rx.sv
+hdl/milan/milan_datapath.sv
+scripts/measure_test_evidence.py
+tb/verilator/crf_rx/sim_main.cpp
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_nxn.cpp
+tb/verilator/milan_dp/unb_mutants.py
+--- files the lane changed 6c22d3ca..2f0f5929
+docs/ENDSTATION_BUILDER.md
+docs/design/SAVED_STATE_FASTCONNECT.md
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+hdl/milan/KL_nvm_backend.sv
+scripts/check_nvm_record_space.py
+scripts/nvm_contract.py
+sw/builder/endstation_builder.py
+sw/builder/test_builder.py
+syn/resmap/resmap_models.py
+syn/resmap/resmap_tables.py
+syn/resmap/sweep_plan.json
+syn/resmap/yosys_sweep.py
+--- dev side kept: git diff c0280fc0 ef236411 restricted to dev's files (empty = kept)
+--- lane side kept: git diff 2f0f5929 ef236411 restricted to lane files (empty = kept)
+--- dev files at head vs c0280fc0 (empty = no later lane edit)
+--- is c0280fc0 ancestor of HEAD: yes
+--- live dev tip: c0280fc008ef9c5c1650402a58bab3e47a92127b	refs/heads/dev
+--- commit message lines (count, trailers) 2f0f5929..HEAD
+d5e743440a56c77c43241879226b851abb3c62ac Require each resource-map plan-validation arm's own refusal, so the cause check cannot answer for the expectation check (#652)
+---
+94a12eb81d8bd57435daa7ce8e7b9abac0a2ae56 Pin the writable-name cause on the two expected builder refusals in the resource-map plan, so the shapes step fails on a refusal for any other cause, with a stand-in-builder control and the real builder's line read for each (#652)
+---
+694e2b18e3f1212072a9772786483ac000d2be3a Hold the resource-map shapes step's fail-closed verdict with a stand-in-builder self-test arm and the models' guards.by_builder producer with an end-to-end build arm, the sweep's builder-refusal arms beside it in yosys_sweep_selftest.py (#652)
+---
+b71979dcfe960daba2a5f8d179d2ba35daca4331 Refuse a saved-state section 4.2 allocation row without one figure per column in check 14, moved to nvm_allocation_table.py, with planted short-row and long-row controls (#652)
+---
+ef2364115ef48079adc67fab11a3dec46b995f1b Merge dev c0280fc0 into the #652 lane
+---
+c0280fc008ef9c5c1650402a58bab3e47a92127b Merge PR #655: Count a locked CRF input's unbind at the bind fall and grade the unbind order and counter pair (#653)
+---
+03895b63a3e8197353c2483593927b92efb73092 Merge dev 6c22d3ca into the #653 lane
+---
+b2098fd98f84d571e169cf6d88d23847873ecc29 State the CRF unbind's earlier lock fall in the lock-loss rule, qualify the changelog's order claim as simulation, and move two KL_crf_rx pointers (#653)
+---
+77ea6cb46cc3f746a14fa717c5e49a4485fb071e Document the CRF unbind's unlock and the [UNB] section: bench README with trace and mutants, the explicit campaign row, the CRF_CTRL lock bit, the mr-restart comment, the media-clock design page's KL_crf_rx line pointers, and a changelog entry (#653)
+---
+88d5de5c4c27c846976aa1b4d5a9408c6808fea2 Move [UNB]'s silence-window wait and trace print into helpers and drop its uid table, so the section meets the C++ idiom ratchet (#653)
+---
+83f097a3ef5e84954e2121197c7b70b12b2adf60 Grade an unbind of each locked input in the timed notify leg's [UNB] section: the response leaves before any push reporting the unlock, the Table 5.6 pair at and after the response and past the silence timeout, with five planted controls in unb_mutants.py (#653)
+---
+061204b46fd5b7df071346db9957038e2d5f71a7 Count a locked CRF input's unbind as one MEDIA_UNLOCKED at the bind fall, as the AAF inputs do, so Table 5.6 reads LOCKED = UNLOCKED from the UNBIND_RX response on, and pin it in the crf_rx unit suite (#653)
+---

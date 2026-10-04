@@ -1,0 +1,350 @@
+[
+ {
+  "id": "ctl_ys",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "failures += outcome != expected",
+  "new": "failures += outcome != expected",
+  "extra": [],
+  "expect": "green",
+  "verdict": "green",
+  "proc_rc": 0,
+  "selftest_rc": 0,
+  "as_expected": true,
+  "evidence": []
+ },
+ {
+  "id": "ctl_rm",
+  "module": "syn/resmap/resmap_models.py",
+  "old": "result[\"guards\"][\"by_builder\"] = builder",
+  "new": "result[\"guards\"][\"by_builder\"] = builder",
+  "extra": [],
+  "expect": "green",
+  "verdict": "green",
+  "proc_rc": 0,
+  "selftest_rc": 0,
+  "as_expected": true,
+  "evidence": []
+ },
+ {
+  "id": "ctl_at",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "if len(row) != len(head):",
+  "new": "if len(row) != len(head):",
+  "extra": [],
+  "expect": "green",
+  "verdict": "green",
+  "proc_rc": 0,
+  "selftest_rc": 0,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)' -> reddens",
+   "control long_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)' -> reddens",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "r3",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "failures += outcome != expected",
+  "new": "failures += outcome == \"failed\"",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: shapes: an unexpected refusal exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_names': {'cause': '', 'expected': 'built', 'log_sha256': '620d4d91a65bebe49dbf52e7e82695780a6b3602f68784e4b095c0576d19f9b8', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records'}}",
+   "SELF-TEST FAILED: shapes: an expected refusal that builds exited 0, not 1: {'v_built': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_names': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': '620d4d91a65bebe49dbf52e7e82695780a6b3602f68784e4b095c0576d19f9b8', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records'}}"
+  ]
+ },
+ {
+  "id": "r11",
+  "module": "syn/resmap/resmap_models.py",
+  "old": "result[\"guards\"][\"by_builder\"] = builder",
+  "new": "pass",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: build: with a builder-refused point, guards.by_builder is None and s16 is refused by ['CONFIG ERROR: this AEM model has 999 writable names']"
+  ]
+ },
+ {
+  "id": "y_foreign_not_counted",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "failures += foreign",
+  "new": "failures += 0",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: shapes: a refusal without the pinned cause exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_other': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': '1df6157ced676d47e22c4f63e113de708a750f0523e4b3b6e45c6044612b5c91', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: the board section names no part'}}"
+  ]
+ },
+ {
+  "id": "y_foreign_false",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "foreign = outcome == expected == \"refused\" and cause not in line",
+  "new": "foreign = False",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: shapes: a refusal without the pinned cause exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_other': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': '1df6157ced676d47e22c4f63e113de708a750f0523e4b3b6e45c6044612b5c91', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: the board section names no part'}}"
+  ]
+ },
+ {
+  "id": "y_cause_ignored_case",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "foreign = outcome == expected == \"refused\" and cause not in line",
+  "new": "foreign = outcome == expected == \"refused\" and cause.upper() not in line.upper()",
+  "extra": [],
+  "expect": "info",
+  "verdict": "green",
+  "proc_rc": 0,
+  "selftest_rc": 0,
+  "as_expected": true,
+  "evidence": []
+ },
+ {
+  "id": "y_plan_cause_optional",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "raise PlanError(f\"{name}: an expected refusal must pin its cause, a text of the refusal line\")",
+  "new": "pass",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: plan: an expected refusal with no pinned cause was accepted"
+  ]
+ },
+ {
+  "id": "y_plan_cause_on_built",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "raise PlanError(f\"{name}: a cause is pinned on a variant the plan expects to build\")",
+  "new": "pass",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: plan: a cause pinned on a variant expected to build was accepted"
+  ]
+ },
+ {
+  "id": "y_plan_expect_any",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "raise PlanError(f\"{name}: expect must be built or refused, not {spec['expect']!a}\")",
+  "new": "pass",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: plan: an expectation that is neither built nor refused was accepted"
+  ]
+ },
+ {
+  "id": "y_crash_is_built",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "return \"failed\", f\"exit",
+  "new": "return \"built\", f\"exit",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: outcome: a traceback read as ('built', 'exit 1, 1 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')",
+   "SELF-TEST FAILED: outcome: an exit with no refusal line read as ('built', 'exit 1, 0 refusal line(s): Killed')",
+   "SELF-TEST FAILED: outcome: two refusal lines read as ('built', 'exit 1, 2 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')",
+   "SELF-TEST FAILED: outcome: a usage error read as ('built', 'exit 2, 1 refusal line(s): CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')",
+   "SELF-TEST FAILED: shapes: a crash exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_crash': {'cause': '', 'expected': 'built', 'log_sha256': '5b5219954d38b8245d6083467c9471169a66e4dd94a1a76bacdbdf21758a9ee6', 'outcome': 'built', 'rc': 1, 'refusal': 'exit 1, 0 refusal line(s): Traceback (most recent call last):'}}"
+  ]
+ },
+ {
+  "id": "y_shapes_rc0",
+  "module": "syn/resmap/yosys_sweep.py",
+  "old": "failures += outcome != expected\n        failures += foreign",
+  "new": "failures += 0",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: shapes: an unexpected refusal exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_names': {'cause': '', 'expected': 'built', 'log_sha256': '620d4d91a65bebe49dbf52e7e82695780a6b3602f68784e4b095c0576d19f9b8', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records'}}",
+   "SELF-TEST FAILED: shapes: an expected refusal that builds exited 0, not 1: {'v_built': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_names': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': '620d4d91a65bebe49dbf52e7e82695780a6b3602f68784e4b095c0576d19f9b8', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records'}}",
+   "SELF-TEST FAILED: shapes: a refusal without the pinned cause exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_refused_other': {'cause': 'writable names', 'expected': 'refused', 'log_sha256': '1df6157ced676d47e22c4f63e113de708a750f0523e4b3b6e45c6044612b5c91', 'outcome': 'refused', 'rc': 1, 'refusal': 'CONFIG ERROR: the board section names no part'}}",
+   "SELF-TEST FAILED: shapes: a crash exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'outcome': 'built', 'rc': 0, 'refusal': ''}, 'v_crash': {'cause': '', 'expected': 'built', 'log_sha256': '5b5219954d38b8245d6083467c9471169a66e4dd94a1a76bacdbdf21758a9ee6', 'outcome': 'failed', 'rc': 1, 'refusal': 'exit 1, 0 refusal line(s): Traceback (most recent call last):'}}"
+  ]
+ },
+ {
+  "id": "m_by_builder_every_point",
+  "module": "syn/resmap/resmap_models.py",
+  "old": "builder = sorted(name for name, entry in summary.items() if \"builder\" in entry)",
+  "new": "builder = sorted(summary)",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: build: with a builder-refused point, guards.by_builder is ['c2', 'c4', 'pp-p2', 'pp-p4', 'pp-p8', 'pp-ship', 's1', 's16', 's2', 's4', 's4c2', 's8', 't16', 't32', 't64', 't8'] and s16 is refused by ['CONFIG ERROR: this AEM model has 999 writable names']",
+   "SELF-TEST FAILED: build: with no builder-refused point, guards.by_builder is ['c2', 'c4', 'pp-p2', 'pp-p4', 'pp-p8', 'pp-ship', 's1', 's2', 's4', 's4c2', 's8', 't16', 't32', 't64', 't8'] and s16 is refused by None"
+  ]
+ },
+ {
+  "id": "m_by_builder_always_written",
+  "module": "syn/resmap/resmap_models.py",
+  "old": "if builder:\n        result[\"guards\"][\"by_builder\"] = builder",
+  "new": "result[\"guards\"][\"by_builder\"] = builder",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "SELF-TEST FAILED: build: with no builder-refused point, guards.by_builder is [] and s16 is refused by None"
+  ]
+ },
+ {
+  "id": "m_build_ignores_plan_path",
+  "module": "syn/resmap/resmap_models.py",
+  "old": "plan = yosys_sweep.load_plan(plan_path)",
+  "new": "plan = yosys_sweep.load_plan(yosys_sweep.PLAN)",
+  "extra": [],
+  "expect": "info",
+  "verdict": "red",
+  "proc_rc": 0,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": []
+ },
+ {
+  "id": "a_width_check_off",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "if len(row) != len(head):",
+  "new": "if False:",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 1,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control long_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "a_width_off_nonstrict",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "if len(row) != len(head):",
+  "new": "if False:",
+  "extra": [
+   "strict=True",
+   "strict=False"
+  ],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 1,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=0 traceback=False finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control long_allocation_row: rc=0 traceback=False finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "a_short_only",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "if len(row) != len(head):",
+  "new": "if len(row) < len(head):",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 1,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)' -> reddens",
+   "control long_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "a_long_only",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "if len(row) != len(head):",
+  "new": "if len(row) > len(head):",
+  "extra": [],
+  "expect": "red",
+  "verdict": "red",
+  "proc_rc": 1,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control long_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)' -> reddens",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "a_strict_off",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "strict=True",
+  "new": "strict=False",
+  "extra": [],
+  "expect": "info",
+  "verdict": "green",
+  "proc_rc": 0,
+  "selftest_rc": 0,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)' -> reddens",
+   "control long_allocation_row: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)' -> reddens",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ },
+ {
+  "id": "a_width_no_continue",
+  "module": "scripts/nvm_allocation_table.py",
+  "old": "findings.append(_allocation_width(where, head, row))\n            continue",
+  "new": "findings.append(_allocation_width(where, head, row))",
+  "extra": [],
+  "expect": "info",
+  "verdict": "red",
+  "proc_rc": 1,
+  "selftest_rc": 1,
+  "as_expected": true,
+  "evidence": [
+   "control short_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control long_allocation_row: rc=1 traceback=True finding=None -> SELF-TEST FAILED (control did not redden as required)",
+   "control stale_allocation_table: rc=1 traceback=False finding='FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39' -> reddens"
+  ]
+ }
+]

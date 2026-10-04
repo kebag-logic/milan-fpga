@@ -1,0 +1,18 @@
+| ids | group | block | index | 1x1 | 8x8 |
+|---|---|---|---|---|---|
+| `0x00` | configuration index | 1 | -- | 1 | 1 |
+| `0x01` | system unique id | 1 | -- | 1 | 1 |
+| `0x02` .. `0x09` | sampling rate | 8 | AUDIO_UNIT | 1 | 1 |
+| `0x0A` .. `0x11` | clock source | 8 | CLOCK_DOMAIN | 1 | 1 |
+| `0x12` .. `0x19` | media clock reference | 8 | CLOCK_DOMAIN | 1 | 1 |
+| `0x1A` .. `0x1F` | reserved | 6 | -- | -- | -- |
+| `0x20` .. `0x2F` | binding | 16 | sink | 2 | 9 |
+| `0x30` .. `0x3F` | stream format in | 16 | STREAM_INPUT | 2 | 9 |
+| `0x40` .. `0x4F` | stream format out | 16 | STREAM_OUTPUT | 2 | 9 |
+| `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
+| `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
+| `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
+| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
+| **records** | | | | **54** | **164** |
+| **highest id** | | | | `0xA6` | `0xEA` |
+
