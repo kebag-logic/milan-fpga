@@ -237,11 +237,16 @@ constexpr long kLawUngradedTailPdus = 4;
 //! after the pull; now one settle recentre fires once the aligner rests in
 //! its band again, and the law must hold after it. Each phase: the [LAW]
 //! gap and prefill, kPullinBeforePdus on the law, the hold, the wait for the
-//! settle recentre (at most kPullinWaitPdus, which the record outlasts), and
+//! settle recentre (at most kPullinMaxWaitPdus, the instrument's record
+//! renewed between PDUs every kPullinWaitPdus while the stream runs on), and
 //! kPullinAfterPdus graded after it on a fresh instrument record.
 constexpr long kPullinHoldCycles = 5200;
 constexpr long kPullinBeforePdus = 64;
 constexpr long kPullinWaitPdus = 3200;
+//! 2 s: after the [CRF] phase's history the aligner overshoots the band on
+//! its way in and decays back over most of a second (the trace this phase
+//! prints), against 152.6 ms from a fresh boot
+constexpr long kPullinMaxWaitPdus = 16000;
 constexpr long kPullinAfterPdus = 128;
 //! the standing phase the full leg runs: the half-sample pull carries its
 //! first pop back across the PDU end, so with nothing re-centring it the
@@ -1499,6 +1504,8 @@ class TdmRenderHarness {
     void phase_pullin(const std::vector<long>& phases);
     bool parse_the_modes(int argc, char** argv);
     void pull_in_at_a_feed_phase(long phase);
+    long wait_for_the_settle_recentre(const char* tag, long settle0);
+    void rebase_the_record_between_pdus(long pdus);
 
     //! THE GRADING RULE. Every published frame is matched against the
     //! injection record at some advance a in 0..kMaxAdvance; the smallest a
@@ -3646,6 +3653,41 @@ void TdmRenderHarness::phase_pullin(const std::vector<long>& phases) {
     pdu_frac_acc = 0;
 }
 
+//! The instrument's record, renewed between two PDUs of the running stream:
+//! run to just before the next one is due, so none is in flight between its
+//! send and its accept, then a fresh record whose PDUs continue the cadence.
+void TdmRenderHarness::rebase_the_record_between_pdus(long pdus) {
+    if (next_pdu_at > axis_cycle + 16) run_fed(next_pdu_at - axis_cycle - 16);
+    build_injection_record(pdus);
+}
+
+//! The wait for the settle recentre after the hold, at most
+//! kPullinMaxWaitPdus slots, the record renewed before it runs out. One line
+//! per 512 slots (64 ms) traces the aligner: its error's range, its trim and
+//! the settle recentre's run. Returns the axis cycles waited.
+long TdmRenderHarness::wait_for_the_settle_recentre(const char* tag, long settle0) {
+    const long hold_end = axis_cycle;
+    int err_lo = 0;
+    int err_hi = 0;
+    for (long slots = 0; settle_pulses == settle0 && slots < kPullinMaxWaitPdus;) {
+        if (static_cast<size_t>(injected_events) + 2 * kEvents > inj.size())
+            rebase_the_record_between_pdus(kPullinWaitPdus);
+        run_fed(kPduPeriodCycles);
+        const int err = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
+        err_lo = (slots % 512 == 0) ? err : std::min(err_lo, err);
+        err_hi = (slots % 512 == 0) ? err : std::max(err_hi, err);
+        if (++slots % 512 == 0)
+            std::printf("  [i]    %s pull: +%.0f ms aligner err %d..%d cycles, engaged %d, trim %d, "
+                        "settle run %u\n", tag, static_cast<double>(axis_cycle - hold_end) / 1e5,
+                        err_lo, err_hi,
+                        static_cast<int>(dut->rootp->milan_datapath__DOT__mga_engaged_w),
+                        static_cast<int>(static_cast<int16_t>(
+                            dut->rootp->milan_datapath__DOT__mnco_servo_trim_w)),
+                        static_cast<unsigned>(dut->rootp->milan_datapath__DOT__settle_run_ticks_r));
+    }
+    return axis_cycle - hold_end;
+}
+
 void TdmRenderHarness::pull_in_at_a_feed_phase(long phase) {
     char tag[48];
     char what[200];
@@ -3678,18 +3720,12 @@ void TdmRenderHarness::pull_in_at_a_feed_phase(long phase) {
     tdm_frozen = true;
     run_fed(kPullinHoldCycles);
     tdm_frozen = false;
-    const long hold_end = axis_cycle;
-    while (settle_pulses == settle0 &&
-           static_cast<size_t>(injected_events) + kEvents <= inj.size())
-        run_fed(kPduPeriodCycles);
-    const long waited = axis_cycle - hold_end;
-    //! the stage acts at the next PDU end; the instrument is then rebased
-    //! between two PDUs, so none is in flight, and the stream runs on
+    const long waited = wait_for_the_settle_recentre(tag, settle0);
+    //! the stage acts at the next PDU end; then a fresh instrument record
     run_fed(2 * kPduPeriodCycles);
-    if (next_pdu_at > axis_cycle + 16) run_fed(next_pdu_at - axis_cycle - 16);
     const uint32_t lb1 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
                          static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
-    build_injection_record(kPullinAfterPdus);
+    rebase_the_record_between_pdus(kPullinAfterPdus);
     run_fed(kPullinAfterPdus * kPduPeriodCycles);
     feed_on = false;
     const uint32_t lb2 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
@@ -3698,8 +3734,8 @@ void TdmRenderHarness::pull_in_at_a_feed_phase(long phase) {
                 "the hold; loopback slips %u during the pull, %u after the settle\n",
                 tag, waited, static_cast<double>(waited) / (kModelAxisHz / 1000.0), lb1 - lb0,
                 lb2 - lb1);
-    std::snprintf(what, sizeof what, "%s: one settle recentre after the hold, within the "
-                  "record's %ld PDUs", tag, kPullinWaitPdus);
+    std::snprintf(what, sizeof what, "%s: one settle recentre after the hold, within %ld "
+                  "PDU slots", tag, kPullinMaxWaitPdus);
     check.dec(what, static_cast<uint64_t>(settle_pulses - settle0), 1);
     std::snprintf(what, sizeof what, "%s: ...the one render recentre pulse since the hold", tag);
     check.dec(what, static_cast<uint64_t>(recentre_pulses - pulses0), 1);
