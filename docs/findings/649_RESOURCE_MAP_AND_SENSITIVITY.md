@@ -88,7 +88,7 @@ Each point is the shipping shape with the changes it names.
 
 - Sources are the record `syn/ooc/dp_srcs.py` derives from `syn/yosys/run.sh`; none is listed by hand.
 - A `milan_datapath` point rewrites the parameter defaults of a scratch copy of the top, because `chparam` cannot re-derive that top. A processor point uses `chparam`. A package or module constant is rewritten in a scratch copy of its one source.
-- An entity shape that no tracked configuration provides is generated: the shipping configuration with only its stream section, or the named lines, changed, run through the builder in a scratch export of `HEAD`. A configuration the builder refuses is a refused point, recorded with its refusal line and not priced; the plan marks the refusals it expects, and any other outcome stops the step (#652).
+- An entity shape that no tracked configuration provides is generated: the shipping configuration with only its stream section, or the named lines, changed, run through the builder in a scratch export of `HEAD`. A configuration the builder refuses is a refused point, recorded with its refusal line and not priced; the plan marks the refusals it expects and the cause each refusal line must carry, and any other outcome, a refusal for another cause among them, stops the step (#652).
 - The three ROM images come from `syn/yosys/ooc.sh` and are re-hashed against `syn/yosys/rom_digests.tsv` at every copy.
 - The instrument is the recipe's hierarchy-preserving mapping, `synth_xilinx -family xc7` without `-flatten`. Every block's cells stay in its module, so a point's blocks are read off `stat -json` and tied to Yosys's own design totals.
 - The stream-count points are also mapped flattened, the `ooc.sh` instrument.

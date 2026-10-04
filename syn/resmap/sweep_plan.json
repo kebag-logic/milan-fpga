@@ -1,6 +1,6 @@
 {
  "schema": "kebag-logic/milan-resmap-sweep-plan/1",
- "description": "Issue #649 parameter sweep. Every point is the shipping AX7101 1x1 TDM8 shape with the named changes. Datapath parameters are the ones the shipping build binds on milan_datapath (its integrated synthesis log); processor parameters are the ones it binds on KL_pp_shadow. Values are decimal. A variant marked expect: refused is a configuration the builder refuses (more writable names than the saved-state NAME block holds, #652); yosys_sweep.py shapes records its refusal line and its points are not priced.",
+ "description": "Issue #649 parameter sweep. Every point is the shipping AX7101 1x1 TDM8 shape with the named changes. Datapath parameters are the ones the shipping build binds on milan_datapath (its integrated synthesis log); processor parameters are the ones it binds on KL_pp_shadow. Values are decimal. A variant marked expect: refused is a configuration the builder refuses (more writable names than the saved-state NAME block holds, #652), and its cause is a text its refusal line must carry; yosys_sweep.py shapes records the refusal line, fails on a refusal without that text, and its points are not priced.",
  "tracked_shapes": ["endstation_ax7101_1x1_tdm8", "endstation_ax7101_8x8"],
  "part": "xc7a100tfgg484-2",
  "clock_ns": 20,
@@ -55,11 +55,11 @@
  "variants": {
   "rm_ax7101_2x2_tdm8": {"streams": 2, "channels": 8},
   "rm_ax7101_4x4_tdm8": {"streams": 4, "channels": 8},
-  "rm_ax7101_8x8_tdm8": {"streams": 8, "channels": 8, "expect": "refused"},
+  "rm_ax7101_8x8_tdm8": {"streams": 8, "channels": 8, "expect": "refused", "cause": "writable names and the saved-state backend holds"},
   "rm_ax7101_1x1_tdm8_2ch": {"streams": 1, "channels": 2},
   "rm_ax7101_1x1_tdm8_4ch": {"streams": 1, "channels": 4},
   "rm_ax7101_4x4_tdm8_2ch": {"streams": 4, "channels": 2},
-  "rm_ax7101_8x8_tdm8_2ch": {"streams": 8, "channels": 2, "expect": "refused"},
+  "rm_ax7101_8x8_tdm8_2ch": {"streams": 8, "channels": 2, "expect": "refused", "cause": "writable names and the saved-state backend holds"},
   "rm_ax7101_1x1_tdm8_noaafclk": {"streams": 1, "channels": 8, "replace": [
    ["media_clock_sources: [internal, crf, input_stream]", "media_clock_sources: [internal, crf]"]]},
   "rm_ax7101_1x1_tdm8_nocrf": {"streams": 1, "channels": 8, "replace": [

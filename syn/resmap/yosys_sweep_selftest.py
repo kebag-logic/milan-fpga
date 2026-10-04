@@ -5,9 +5,9 @@
 
 This is the half of the sweep's self-test that follows a configuration the
 builder refuses through the sweep, kept beside it rather than inside it: the
-outcome classifier, the builder's real refusal of a 235-name variant, the
-shapes step's verdict through a stand-in builder, and a refused point through
-run and summary. They share no fixture with the sweep's
+outcome classifier, the builder's real refusal of every variant the plan
+expects refused, the shapes step's verdict through a stand-in builder, and a
+refused point through run and summary. They share no fixture with the sweep's
 rewrite, expansion, plan, guard and tree arms. Run them through the sweep,
 which is the only supported entry point:
 
@@ -31,21 +31,23 @@ from types import ModuleType
 REFUSAL = "CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records"
 
 #: A stand-in for the builder's CLI in a synthetic tree, deciding by the configuration's name: a crash
-#: exits with a traceback, a refusal prints REFUSAL, and anything else builds.
+#: exits with a traceback, a refusal over names prints REFUSAL, another refusal prints a line without that
+#: cause, and anything else builds.
 STAND_IN_BUILDER = f"""import sys
 from pathlib import Path
 name = Path(sys.argv[-1]).stem
 if "crash" in name:
     sys.exit("Traceback (most recent call last):")
 if "refused" in name:
-    print({REFUSAL!r})
+    print({REFUSAL!r} if "names" in name else "CONFIG ERROR: the board section names no part")
     sys.exit(1)
 """
 
 
 def _outcome(sweep: ModuleType) -> list[str]:
     """A refusal is read with its line; a crash, a second refusal line or another exit is never a refusal;
-    and the builder's own refusal of a 235-name variant reads as one, with nothing written."""
+    and the builder's own refusal of each variant the plan expects refused reads as one, carrying the cause
+    the plan pins, with nothing written."""
     problems = []
     for label, rc, text, want in (
             ("a build", 0, "[endstation_builder] built\n", ("built", "")),
@@ -59,28 +61,34 @@ def _outcome(sweep: ModuleType) -> list[str]:
             problems.append(f"outcome: {label} read as {got}")
     plan = sweep.load_plan(sweep.PLAN)
     base = (sweep.REPO / "configs" / f"{sweep.BASE_CONFIG}.yaml").read_text()
-    with tempfile.TemporaryDirectory(prefix="resmap-outcome-") as tmp:
-        config = Path(tmp) / "endstation_rm_selftest.yaml"
-        config.write_text(sweep.variant_text(base, plan["variants"]["rm_ax7101_8x8_tdm8"]))
-        run = subprocess.run([sys.executable, str(sweep.REPO / "sw/builder/endstation_builder.py"), "-o",
-                              str(Path(tmp) / "out"), str(config)], cwd=sweep.REPO, capture_output=True,
-                             text=True, check=False)
-        outcome, line = sweep.builder_outcome(run.returncode, run.stdout + run.stderr)
-        if outcome != "refused" or "writable names" not in line or (Path(tmp) / "out").exists():
-            problems.append(f"outcome: the builder's refusal of the 8x8 TDM8 variant read as {outcome} {line!a}")
+    refused = {name: spec for name, spec in plan["variants"].items() if spec.get("expect") == "refused"}
+    if not refused:
+        problems.append("outcome: the plan expects no variant refused")
+    for name, spec in refused.items():
+        with tempfile.TemporaryDirectory(prefix="resmap-outcome-") as tmp:
+            config = Path(tmp) / "endstation_rm_selftest.yaml"
+            config.write_text(sweep.variant_text(base, spec))
+            run = subprocess.run([sys.executable, str(sweep.REPO / "sw/builder/endstation_builder.py"), "-o",
+                                  str(Path(tmp) / "out"), str(config)], cwd=sweep.REPO, capture_output=True,
+                                 text=True, check=False)
+            outcome, line = sweep.builder_outcome(run.returncode, run.stdout + run.stderr)
+            if outcome != "refused" or spec["cause"] not in line or (Path(tmp) / "out").exists():
+                problems.append(f"outcome: the builder's refusal of {name} read as {outcome} {line!a}, "
+                                f"the plan pins {spec['cause']!a}")
     return problems
 
 
 def _shapes(sweep: ModuleType) -> list[str]:
     """The shapes step through a stand-in builder, with no export: it passes when every outcome is the
-    one the plan expects, and fails on an unexpected refusal, an expected refusal that builds, and a
-    crash."""
+    one the plan expects, and fails on an unexpected refusal, an expected refusal that builds, a refusal
+    without the pinned cause, and a crash."""
     problems = []
-    refused = {"expect": "refused"}
+    refused = {"expect": "refused", "cause": "writable names"}
     for label, variants, want in (
             ("every outcome the expected one", {"v_built": {}, "v_refused_names": refused}, 0),
             ("an unexpected refusal", {"v_built": {}, "v_refused_names": {}}, 1),
             ("an expected refusal that builds", {"v_built": refused, "v_refused_names": refused}, 1),
+            ("a refusal without the pinned cause", {"v_built": {}, "v_refused_other": refused}, 1),
             ("a crash", {"v_built": {}, "v_crash": {}}, 1)):
         with tempfile.TemporaryDirectory(prefix="resmap-shapes-") as tmp:
             work, tree = Path(tmp), Path(tmp) / "tree"

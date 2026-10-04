@@ -34,9 +34,11 @@ Subcommands, each taking --work DIR:
     shapes        export HEAD and its pinned submodules, write every variant
                   configuration and run the builder on it; each outcome is
                   recorded in shapes/outcomes.json, a refusal with its refusal
-                  line. A refusal the plan expects (`"expect": "refused"`) is a
-                  refused point; an unexpected refusal, an expected refusal
-                  that builds, and any other builder failure fail the step
+                  line. A refusal the plan expects (`"expect": "refused"`,
+                  with the `"cause"` its line must carry) is a refused point;
+                  an unexpected refusal, a refusal without the pinned cause,
+                  an expected refusal that builds, and any other builder
+                  failure fail the step
     roms          generate and validate the three ROM images
     run [NAME..]  price the points (all by default), --jobs at a time; a point
                   whose shape the builder refused is reported, not priced, and
@@ -58,8 +60,8 @@ point receipt records the HEAD it was priced at and that the tree was clean.
 
 --selftest proves the parameter rewrite, the module expansion, its tie, the plan
 validation, the clean-tree check, the shapes step's verdict through a stand-in
-builder and the builder-refusal path on synthetic inputs, and reads one real
-builder refusal.
+builder and the builder-refusal path on synthetic inputs, and reads the real
+builder's refusal of every variant the plan expects refused.
 """
 
 import argparse
@@ -125,6 +127,11 @@ def load_plan(path: Path) -> dict:
     for name, spec in plan["variants"].items():
         if spec.get("expect", "built") not in ("built", "refused"):
             raise PlanError(f"{name}: expect must be built or refused, not {spec['expect']!a}")
+        cause = spec.get("cause")
+        if spec.get("expect") == "refused" and not (isinstance(cause, str) and cause):
+            raise PlanError(f"{name}: an expected refusal must pin its cause, a text of the refusal line")
+        if spec.get("expect") != "refused" and cause is not None:
+            raise PlanError(f"{name}: a cause is pinned on a variant the plan expects to build")
     return plan
 
 
@@ -347,8 +354,9 @@ def generate_shapes(work: Path, plan: dict, tree: Path) -> int:
     """Write each variant configuration into the tree and generate its shape with the tree's builder.
 
     Each outcome is recorded in shapes/outcomes.json. A refusal is a refused point, recorded with its
-    refusal line; it fails the step only when the plan does not expect it, as does an expected refusal that
-    builds. Any other failure of the builder fails the step."""
+    refusal line; it fails the step when the plan does not expect it, or when its line does not carry the
+    cause the plan pins, as does an expected refusal that builds. Any other failure of the builder fails
+    the step."""
     base = (tree / "configs" / f"{BASE_CONFIG}.yaml").read_text()
     failures, outcomes = 0, {}
     for name, spec in plan["variants"].items():
@@ -361,12 +369,15 @@ def generate_shapes(work: Path, plan: dict, tree: Path) -> int:
                                   str(work / "builder-out"), str(config)], cwd=tree, stdout=handle,
                                  stderr=subprocess.STDOUT, check=False)
         outcome, line = builder_outcome(run.returncode, log.read_text())
-        expected = spec.get("expect", "built")
-        outcomes[name] = {"rc": run.returncode, "outcome": outcome, "expected": expected, "refusal": line,
-                          "log_sha256": sha256(log)}
-        surprise = f" where the plan expects {expected}" if outcome != expected else ""
+        expected, cause = spec.get("expect", "built"), spec.get("cause", "")
+        foreign = outcome == expected == "refused" and cause not in line
+        outcomes[name] = {"rc": run.returncode, "outcome": outcome, "expected": expected, "cause": cause,
+                          "refusal": line, "log_sha256": sha256(log)}
+        surprise = (f" where the plan expects {expected}" if outcome != expected else
+                    f" without the cause the plan pins, {cause!a}" if foreign else "")
         print(f"shape {name}: builder rc={run.returncode} {outcome}{surprise}{': ' + line if line else ''}")
         failures += outcome != expected
+        failures += foreign
     (work / "shapes" / "outcomes.json").write_text(json.dumps(outcomes, indent=1, sort_keys=True) + "\n")
     return 1 if failures else 0
 
@@ -838,16 +849,22 @@ def _selftest_plan() -> list[str]:
     text = variant_text(base, {"streams": 2, "channels": 4})
     if text.count('channels: 4, map_mode: dynamic') != 4:
         problems.append("plan: the 2x2 four-channel variant does not declare four four-channel streams")
-    broken = json.loads(json.dumps(plan))
-    broken["variants"]["rm_ax7101_8x8_tdm8"]["expect"] = "refuse"
-    with tempfile.TemporaryDirectory(prefix="resmap-plan-") as tmp:
-        path = Path(tmp) / "plan.json"
-        path.write_text(json.dumps(broken))
-        try:
-            load_plan(path)
-            problems.append("plan: an expectation that is neither built nor refused was accepted")
-        except PlanError:
-            pass
+    for label, mutate in (
+            ("an expectation that is neither built nor refused", lambda v: v["rm_ax7101_8x8_tdm8"].update(
+                expect="refuse")),
+            ("an expected refusal with no pinned cause", lambda v: v["rm_ax7101_8x8_tdm8"].pop("cause")),
+            ("a cause pinned on a variant expected to build", lambda v: v["rm_ax7101_2x2_tdm8"].update(
+                cause="writable names"))):
+        broken = json.loads(json.dumps(plan))
+        mutate(broken["variants"])
+        with tempfile.TemporaryDirectory(prefix="resmap-plan-") as tmp:
+            path = Path(tmp) / "plan.json"
+            path.write_text(json.dumps(broken))
+            try:
+                load_plan(path)
+                problems.append(f"plan: {label} was accepted")
+            except PlanError:
+                pass
     return problems
 
 
