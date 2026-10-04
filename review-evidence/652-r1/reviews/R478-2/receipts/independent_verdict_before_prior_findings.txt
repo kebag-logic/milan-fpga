@@ -1,0 +1,7 @@
+Written 2026-10-04T22:52:52Z, before reading any prior review finding text on PR #660 or any other reviewer's packet.
+Head d5e743440a56c77c43241879226b851abb3c62ac. Builder bank still running when written (its result is added to REPORT.md afterwards).
+Independent provisional verdict: POSITIVE, conditional on the builder bank ending ALL GATES PASS EXCEPT 1 NOT RUN.
+Findings from the independent pass: none BLOCKER/MAJOR/MINOR/RESIDUE.
+  SUGGESTION A (Tests, Robustness): load_plan's empty-cause refusal is held by no self-test arm (mutant m9 survives; the real CLI does refuse an empty cause, plan p7).
+  SUGGESTION B (Tests, Docs): check 14's block comparison and missing-group-row check are held by no negative control (mutants n6, n7 survive the three allocation controls), and a deleted records or highest-id row passes the gate.
+Ledger (provisional): Conformance CLEAN, RTL CLEAN, Robustness CLEAN, Tests CLEAN, Docs CLEAN; covering round R478-2; head d5e743440a56c77c43241879226b851abb3c62ac.

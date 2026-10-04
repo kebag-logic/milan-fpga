@@ -1,0 +1,6 @@
+unmutated check: rc=0 traceback=False -> clean
+stale_allocation_table: rc=0 traceback=False -> MISSED
+short_allocation_row: rc=1 traceback=False -> caught
+    FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has no 8x8 figure (5 cells under a 6-column header)
+long_allocation_row: rc=1 traceback=False -> caught
+    FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)

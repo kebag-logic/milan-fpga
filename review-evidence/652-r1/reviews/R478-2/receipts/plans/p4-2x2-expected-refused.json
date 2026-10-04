@@ -1,0 +1,662 @@
+{
+ "schema": "kebag-logic/milan-resmap-sweep-plan/1",
+ "description": "Issue #649 parameter sweep. Every point is the shipping AX7101 1x1 TDM8 shape with the named changes. Datapath parameters are the ones the shipping build binds on milan_datapath (its integrated synthesis log); processor parameters are the ones it binds on KL_pp_shadow. Values are decimal. A variant marked expect: refused is a configuration the builder refuses (more writable names than the saved-state NAME block holds, #652), and its cause is a text its refusal line must carry; yosys_sweep.py shapes records the refusal line, fails on a refusal without that text, and its points are not priced.",
+ "tracked_shapes": [
+  "endstation_ax7101_1x1_tdm8",
+  "endstation_ax7101_8x8"
+ ],
+ "part": "xc7a100tfgg484-2",
+ "clock_ns": 20,
+ "tops": {
+  "milan_datapath": {
+   "shape": "endstation_ax7101_1x1_tdm8",
+   "params": {
+    "MILAN_CLK_FREQ_HZ": 50000000,
+    "GPTP_INGRESS_LAT_NS_P": 656,
+    "GPTP_EGRESS_LAT_NS_P": 219,
+    "N_STREAMS": 1,
+    "TALKER_WIRE_CHANS_P": 8,
+    "AUDIO_IF_SLOTS_P": 8,
+    "AUDIO_IF_MASTER_P": 1,
+    "AUDIO_IF_CLK_HZ_P": 24576000,
+    "AUDIO_IF_RENDER_SLOTS_P": 8,
+    "LOOPBACK_P": 1,
+    "LPF_P": 0,
+    "I2SPB_P": 0,
+    "PP_DESC_BASE_P": 2138046464,
+    "PP_RESP_BASE_P": 2139090944
+   }
+  },
+  "KL_pp_shadow": {
+   "params": {
+    "TDATA_WIDTH_P": 64,
+    "CLK_HZ_P": 50000000,
+    "N_STREAM_IN_P": 2,
+    "N_STREAM_OUT_P": 2,
+    "SRP_DOM_DEF_VID_P": 2,
+    "TIM_DIV_US_P": 50,
+    "TIM_DIV_MS_P": 1000,
+    "DESC_BASE_P": 2138046464,
+    "DESC_LINE_BYTES_P": 576,
+    "DESC_IDX_ENTRIES_P": 32,
+    "DESC_NAME_ENTRIES_P": 39,
+    "DESC_MEM_TMO_CYC_P": 4096,
+    "RESP_BASE_P": 2139090944,
+    "N_SPORT_IN_P": 1,
+    "N_SPORT_OUT_P": 1,
+    "N_AUDIO_UNIT_P": 1,
+    "N_CLK_DOM_P": 1,
+    "N_CONTROL_P": 1,
+    "RX_FIFO_BYTES_P": 4096
+   }
+  },
+  "KL_adp_engine": {
+   "record": "KL_pp_shadow",
+   "params": {}
+  }
+ },
+ "variants": {
+  "rm_ax7101_2x2_tdm8": {
+   "streams": 2,
+   "channels": 8,
+   "expect": "refused",
+   "cause": "writable names"
+  },
+  "rm_ax7101_4x4_tdm8": {
+   "streams": 4,
+   "channels": 8
+  },
+  "rm_ax7101_8x8_tdm8": {
+   "streams": 8,
+   "channels": 8,
+   "expect": "refused",
+   "cause": "writable names and the saved-state backend holds"
+  },
+  "rm_ax7101_1x1_tdm8_2ch": {
+   "streams": 1,
+   "channels": 2
+  },
+  "rm_ax7101_1x1_tdm8_4ch": {
+   "streams": 1,
+   "channels": 4
+  },
+  "rm_ax7101_4x4_tdm8_2ch": {
+   "streams": 4,
+   "channels": 2
+  },
+  "rm_ax7101_8x8_tdm8_2ch": {
+   "streams": 8,
+   "channels": 2,
+   "expect": "refused",
+   "cause": "writable names and the saved-state backend holds"
+  },
+  "rm_ax7101_1x1_tdm8_noaafclk": {
+   "streams": 1,
+   "channels": 8,
+   "replace": [
+    [
+     "media_clock_sources: [internal, crf, input_stream]",
+     "media_clock_sources: [internal, crf]"
+    ]
+   ]
+  },
+  "rm_ax7101_1x1_tdm8_nocrf": {
+   "streams": 1,
+   "channels": 8,
+   "replace": [
+    [
+     "media_clock_sources: [internal, crf, input_stream]",
+     "media_clock_sources: [internal, input_stream]"
+    ],
+    [
+     "  crf_sink: true\n",
+     "  crf_sink: false\n"
+    ],
+    [
+     "    enabled: true ",
+     "    enabled: false "
+    ]
+   ]
+  }
+ },
+ "soc": {
+  "description": "SoC-side variants: the shipping SoC arguments with the named flags changed. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
+  "variants": {
+   "ship": {},
+   "axilite": {
+    "set": {
+     "--bus-standard": "axi-lite"
+    }
+   },
+   "l2-8k": {
+    "set": {
+     "--l2-bytes": "8192"
+    },
+    "expect": "refused"
+   },
+   "rv64": {
+    "set": {
+     "--xlen": "64"
+    },
+    "expect": "refused"
+   },
+   "cpu2": {
+    "set": {
+     "--cpu-count": "2"
+    },
+    "expect": "refused"
+   },
+   "rv64-fpu": {
+    "set": {
+     "--xlen": "64"
+    },
+    "add": [
+     "--with-fpu"
+    ],
+    "expect": "refused"
+   },
+   "naxriscv": {
+    "set": {
+     "--cpu": "naxriscv"
+    },
+    "expect": "refused"
+   },
+   "l1-caches": {
+    "add": [
+     "--scala-args=--with-fetch-l1 --with-lsu-l1"
+    ],
+    "expect": "refused"
+   }
+  }
+ },
+ "redundancy": {
+  "description": "Routed blocks of the shipping image that a second AVB port would replicate, under the reading that each AVB interface carries its own MAC, gPTP port engine, time base, receive filter and transmit arbitration. A measured sum of measured blocks; it recommends nothing. The SoC side's Ethernet MAC is in the LiteX top's own logic and is counted by cell name.",
+  "blocks": [
+   "KL_gptp_gmii_launch",
+   "KL_mac_rmon_events",
+   "milan_datapath/g_gptp_plane.u_gptp_shadow",
+   "milan_datapath/g_gptp_plane.gptp_ctl_mux",
+   "milan_datapath/g_rx_filter.rx_filter",
+   "milan_datapath/ts_counter",
+   "milan_datapath/ptp_sync",
+   "milan_datapath/ptp_clock_validity",
+   "milan_datapath/link_guard",
+   "milan_datapath/ethernet_counters",
+   "milan_datapath/ctl_tx_mux",
+   "milan_datapath/ctl_ifg",
+   "milan_datapath/adp_tx_mux",
+   "milan_datapath/crf_dp_mux",
+   "milan_datapath/avtp_rx_parser"
+  ],
+  "soc_name_class": "Ethernet MAC and PHY"
+ },
+ "points": [
+  {
+   "name": "ship",
+   "top": "milan_datapath",
+   "anchor": true
+  },
+  {
+   "name": "streams-2",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_2x2_tdm8",
+   "params": {
+    "N_STREAMS": 2
+   },
+   "anchor": true
+  },
+  {
+   "name": "streams-4",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_4x4_tdm8",
+   "params": {
+    "N_STREAMS": 4
+   },
+   "anchor": true
+  },
+  {
+   "name": "streams-8",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_8x8_tdm8",
+   "params": {
+    "N_STREAMS": 8
+   },
+   "anchor": true
+  },
+  {
+   "name": "ship-8x8",
+   "top": "milan_datapath",
+   "shape": "endstation_ax7101_8x8",
+   "anchor": true,
+   "params": {
+    "N_STREAMS": 8,
+    "AUDIO_IF_SLOTS_P": 32,
+    "AUDIO_IF_CLK_HZ_P": 98304000,
+    "AUDIO_IF_RENDER_SLOTS_P": 0,
+    "LOOPBACK_P": 0,
+    "LTAP_P": 0,
+    "DPROBES_P": 0
+   }
+  },
+  {
+   "name": "chans-2",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_1x1_tdm8_2ch",
+   "params": {
+    "TALKER_WIRE_CHANS_P": 2
+   }
+  },
+  {
+   "name": "chans-4",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_1x1_tdm8_4ch",
+   "params": {
+    "TALKER_WIRE_CHANS_P": 4
+   }
+  },
+  {
+   "name": "streams-4-chans-2",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_4x4_tdm8_2ch",
+   "params": {
+    "N_STREAMS": 4,
+    "TALKER_WIRE_CHANS_P": 2
+   }
+  },
+  {
+   "name": "streams-8-chans-2",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_8x8_tdm8_2ch",
+   "params": {
+    "N_STREAMS": 8,
+    "TALKER_WIRE_CHANS_P": 2
+   }
+  },
+  {
+   "name": "render-0",
+   "top": "milan_datapath",
+   "params": {
+    "AUDIO_IF_RENDER_SLOTS_P": 0
+   }
+  },
+  {
+   "name": "tdm16",
+   "top": "milan_datapath",
+   "params": {
+    "AUDIO_IF_SLOTS_P": 16,
+    "AUDIO_IF_CLK_HZ_P": 49152000,
+    "AUDIO_IF_RENDER_SLOTS_P": 0
+   }
+  },
+  {
+   "name": "tdm32",
+   "top": "milan_datapath",
+   "params": {
+    "AUDIO_IF_SLOTS_P": 32,
+    "AUDIO_IF_CLK_HZ_P": 98304000,
+    "AUDIO_IF_RENDER_SLOTS_P": 0
+   }
+  },
+  {
+   "name": "i2s",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_1x1_tdm8_2ch",
+   "params": {
+    "AUDIO_IF_SLOTS_P": 0,
+    "AUDIO_IF_MASTER_P": 0,
+    "AUDIO_IF_RENDER_SLOTS_P": 0,
+    "TALKER_WIRE_CHANS_P": 2
+   }
+  },
+  {
+   "name": "no-mcservo",
+   "top": "milan_datapath",
+   "params": {
+    "MCSERVO_P": 0
+   }
+  },
+  {
+   "name": "no-ltap",
+   "top": "milan_datapath",
+   "params": {
+    "LTAP_P": 0
+   }
+  },
+  {
+   "name": "no-maap",
+   "top": "milan_datapath",
+   "params": {
+    "MAAP_P": 0
+   }
+  },
+  {
+   "name": "no-rxfilt",
+   "top": "milan_datapath",
+   "params": {
+    "RXFILT_P": 0
+   }
+  },
+  {
+   "name": "no-dprobes",
+   "top": "milan_datapath",
+   "params": {
+    "DPROBES_P": 0
+   }
+  },
+  {
+   "name": "no-loopback",
+   "top": "milan_datapath",
+   "params": {
+    "LOOPBACK_P": 0
+   }
+  },
+  {
+   "name": "no-gptp-plane",
+   "top": "milan_datapath",
+   "params": {
+    "GPTP_PLANE_EN_P": 0
+   }
+  },
+  {
+   "name": "with-i2spb",
+   "top": "milan_datapath",
+   "params": {
+    "I2SPB_P": 1
+   }
+  },
+  {
+   "name": "with-lpf",
+   "top": "milan_datapath",
+   "params": {
+    "LPF_P": 1
+   }
+  },
+  {
+   "name": "with-pps",
+   "top": "milan_datapath",
+   "params": {
+    "PPS_P": 1
+   }
+  },
+  {
+   "name": "no-aaf-meter",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_1x1_tdm8_noaafclk"
+  },
+  {
+   "name": "no-crf",
+   "top": "milan_datapath",
+   "shape": "rm_ax7101_1x1_tdm8_nocrf"
+  },
+  {
+   "name": "all-tier1-off",
+   "top": "milan_datapath",
+   "params": {
+    "MCSERVO_P": 0,
+    "LTAP_P": 0,
+    "MAAP_P": 0,
+    "RXFILT_P": 0,
+    "DPROBES_P": 0
+   }
+  },
+  {
+   "name": "pp-ship",
+   "top": "KL_pp_shadow"
+  },
+  {
+   "name": "pp-si3",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_STREAM_IN_P": 3,
+    "N_STREAM_OUT_P": 3,
+    "N_SPORT_IN_P": 2,
+    "N_SPORT_OUT_P": 2
+   }
+  },
+  {
+   "name": "pp-si5",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_STREAM_IN_P": 5,
+    "N_STREAM_OUT_P": 5,
+    "N_SPORT_IN_P": 4,
+    "N_SPORT_OUT_P": 4
+   }
+  },
+  {
+   "name": "pp-si9",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_STREAM_IN_P": 9,
+    "N_STREAM_OUT_P": 9,
+    "N_SPORT_IN_P": 8,
+    "N_SPORT_OUT_P": 8
+   }
+  },
+  {
+   "name": "pp-names-64",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_NAME_ENTRIES_P": 64
+   }
+  },
+  {
+   "name": "pp-names-128",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_NAME_ENTRIES_P": 128
+   }
+  },
+  {
+   "name": "pp-names-235",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_NAME_ENTRIES_P": 235
+   }
+  },
+  {
+   "name": "pp-idx-16",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_IDX_ENTRIES_P": 16
+   }
+  },
+  {
+   "name": "pp-idx-64",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_IDX_ENTRIES_P": 64
+   }
+  },
+  {
+   "name": "pp-line-288",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_LINE_BYTES_P": 288
+   }
+  },
+  {
+   "name": "pp-line-1152",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_LINE_BYTES_P": 1152
+   }
+  },
+  {
+   "name": "pp-line-512",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_LINE_BYTES_P": 512
+   }
+  },
+  {
+   "name": "pp-line-768",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_LINE_BYTES_P": 768
+   }
+  },
+  {
+   "name": "pp-line-1008",
+   "top": "KL_pp_shadow",
+   "params": {
+    "DESC_LINE_BYTES_P": 1008
+   }
+  },
+  {
+   "name": "pp-ctrl-12",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "package pp_pkg": {
+     "PP_N_CTRL_C": 12
+    }
+   }
+  },
+  {
+   "name": "pp-rxfifo-2048",
+   "top": "KL_pp_shadow",
+   "params": {
+    "RX_FIFO_BYTES_P": 2048
+   }
+  },
+  {
+   "name": "pp-rxfifo-8192",
+   "top": "KL_pp_shadow",
+   "params": {
+    "RX_FIFO_BYTES_P": 8192
+   }
+  },
+  {
+   "name": "pp-units-2",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_AUDIO_UNIT_P": 2,
+    "N_CLK_DOM_P": 2
+   }
+  },
+  {
+   "name": "pp-units-4",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_AUDIO_UNIT_P": 4,
+    "N_CLK_DOM_P": 4
+   }
+  },
+  {
+   "name": "pp-controls-2",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_CONTROL_P": 2
+   }
+  },
+  {
+   "name": "pp-controls-4",
+   "top": "KL_pp_shadow",
+   "params": {
+    "N_CONTROL_P": 4
+   }
+  },
+  {
+   "name": "pp-ctrl-4",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "package pp_pkg": {
+     "PP_N_CTRL_C": 4
+    }
+   }
+  },
+  {
+   "name": "pp-ctrl-8",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "package pp_pkg": {
+     "PP_N_CTRL_C": 8
+    }
+   }
+  },
+  {
+   "name": "pp-ctrl-32",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "package pp_pkg": {
+     "PP_N_CTRL_C": 32
+    }
+   }
+  },
+  {
+   "name": "pp-rxslots-2",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "RX_SLOTS_P": 2
+    }
+   }
+  },
+  {
+   "name": "pp-rxslots-8",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "RX_SLOTS_P": 8
+    }
+   }
+  },
+  {
+   "name": "pp-txslots-2",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "TX_STD_SLOTS_P": 2
+    }
+   }
+  },
+  {
+   "name": "pp-txslots-8",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "TX_STD_SLOTS_P": 8
+    }
+   }
+  },
+  {
+   "name": "pp-rxbytes-288",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "RX_SLOT_BYTES_P": 288
+    }
+   }
+  },
+  {
+   "name": "pp-rxbytes-1152",
+   "top": "KL_pp_shadow",
+   "patch": {
+    "module protocol_processor_top": {
+     "RX_SLOT_BYTES_P": 1152
+    }
+   }
+  },
+  {
+   "name": "adp-if-1",
+   "top": "KL_adp_engine",
+   "params": {
+    "N_IF_P": 1
+   }
+  },
+  {
+   "name": "adp-if-2",
+   "top": "KL_adp_engine",
+   "params": {
+    "N_IF_P": 2
+   }
+  },
+  {
+   "name": "adp-if-4",
+   "top": "KL_adp_engine",
+   "params": {
+    "N_IF_P": 4
+   }
+  }
+ ]
+}

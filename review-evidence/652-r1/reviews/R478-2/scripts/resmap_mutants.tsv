@@ -1,0 +1,19 @@
+# id<TAB>module<TAB>OLD<TAB>NEW<TAB>expected (red = self-test must fail)
+r0-control-sweep	syn/resmap/yosys_sweep.py	def selftest() -> int:	def selftest() -> int:	green
+r0-control-models	syn/resmap/resmap_models.py	def selftest() -> int:	def selftest() -> int:	green
+r3-shapes-ignores-expectation	syn/resmap/yosys_sweep.py	failures += outcome != expected	failures += outcome == "failed"	red
+m1-foreign-cause-not-counted	syn/resmap/yosys_sweep.py	        failures += foreign\n	\n	red
+m2-cause-test-inverted	syn/resmap/yosys_sweep.py	and cause not in line	and cause in line	red
+m3-cause-never-checked	syn/resmap/yosys_sweep.py	foreign = outcome == expected == "refused" and cause not in line	foreign = False	red
+m4-step-always-passes	syn/resmap/yosys_sweep.py	(json.dumps(outcomes, indent=1, sort_keys=True) + "\\n")\n    return 1 if failures else 0	(json.dumps(outcomes, indent=1, sort_keys=True) + "\\n")\n    return 0	red
+m5-refusal-line-not-recorded	syn/resmap/yosys_sweep.py	"refusal": line, "log_sha256"	"refusal": "", "log_sha256"	red
+m6-plan-accepts-refusal-without-cause	syn/resmap/yosys_sweep.py	if spec.get("expect") == "refused" and not (isinstance(cause, str) and cause):	if False:	red
+m7-plan-accepts-cause-on-built	syn/resmap/yosys_sweep.py	if spec.get("expect") != "refused" and cause is not None:	if False:	red
+m8-plan-accepts-any-expect	syn/resmap/yosys_sweep.py	if spec.get("expect", "built") not in ("built", "refused"):	if False:	red
+m9-empty-cause-accepted	syn/resmap/yosys_sweep.py	not (isinstance(cause, str) and cause)	not isinstance(cause, str)	red
+m10-crash-is-refusal	syn/resmap/yosys_sweep.py	if rc == 1 and len(refusals) == 1 and not any(line.startswith("Traceback") for line in lines):	if rc == 1 and len(refusals) == 1:	red
+m11-tree-builder-ignored	syn/resmap/yosys_sweep.py	str(tree / "sw/builder/endstation_builder.py")	str(REPO / "sw/builder/endstation_builder.py")	red
+r11-by-builder-dropped	syn/resmap/resmap_models.py	result["guards"]["by_builder"] = builder	pass	red
+m12-by-builder-always-written	syn/resmap/resmap_models.py	    if builder:\n        result["guards"]["by_builder"]	    if True:\n        result["guards"]["by_builder"]	red
+m13-by-builder-wrong-points	syn/resmap/resmap_models.py	if "builder" in entry)	if "guards" in entry)	red
+m14-build-ignores-plan-path	syn/resmap/resmap_models.py	plan = yosys_sweep.load_plan(plan_path)	plan = yosys_sweep.load_plan(yosys_sweep.PLAN)	report

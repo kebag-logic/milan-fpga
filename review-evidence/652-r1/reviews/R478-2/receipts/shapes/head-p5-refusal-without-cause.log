@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 949, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 932, in main
+    plan = load_plan(args.plan)
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 132, in load_plan
+    raise PlanError(f"{name}: an expected refusal must pin its cause, a text of the refusal line")
+PlanError: rm_ax7101_8x8_tdm8: an expected refusal must pin its cause, a text of the refusal line

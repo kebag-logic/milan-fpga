@@ -1,0 +1,30 @@
+merge ef2364115 parents: 2f0f59291080aeab934e0d72e124fb448c105e12 c0280fc008ef9c5c1650402a58bab3e47a92127b
+recorded tree 7d14122b555360531cbafc372c5384095b576f30; git merge-tree --write-tree 2f0f5929 c0280fc0 -> 7d14122b555360531cbafc372c5384095b576f30
+files dev changed since 6c22d3ca (each: blob at merge == blob at c0280fc0, and at HEAD unless the lane later changed it):
+  CHANGELOG.md merge=same head=same
+  docs/design/MEDIA_CLOCK_FOLLOWING.md merge=same head=same
+  docs/reference/REGISTER_MAP.md merge=same head=same
+  docs/testing/TESTING.md merge=same head=same
+  hdl/ieee1722/crf/KL_crf_rx.sv merge=same head=same
+  hdl/milan/milan_datapath.sv merge=same head=same
+  scripts/measure_test_evidence.py merge=same head=same
+  tb/verilator/crf_rx/sim_main.cpp merge=same head=same
+  tb/verilator/milan_dp/Makefile merge=same head=same
+  tb/verilator/milan_dp/README.md merge=same head=same
+  tb/verilator/milan_dp/sim_nxn.cpp merge=same head=same
+  tb/verilator/milan_dp/unb_mutants.py merge=same head=same
+files the lane changed by 2f0f5929 (blob at merge == blob at 2f0f5929):
+  docs/ENDSTATION_BUILDER.md merge=same
+  docs/design/SAVED_STATE_FASTCONNECT.md merge=same
+  docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md merge=same
+  hdl/milan/KL_nvm_backend.sv merge=same
+  scripts/check_nvm_record_space.py merge=same
+  scripts/nvm_contract.py merge=same
+  sw/builder/endstation_builder.py merge=same
+  sw/builder/test_builder.py merge=same
+  syn/resmap/resmap_models.py merge=same
+  syn/resmap/resmap_tables.py merge=same
+  syn/resmap/sweep_plan.json merge=same
+  syn/resmap/yosys_sweep.py merge=same
+round-2 commits after the merge touch dev's files: 0
+live remote dev: c0280fc008ef9c5c1650402a58bab3e47a92127b	refs/heads/dev

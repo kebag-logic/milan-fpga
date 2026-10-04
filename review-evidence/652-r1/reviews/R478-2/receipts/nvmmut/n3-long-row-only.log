@@ -1,0 +1,8 @@
+unmutated check: rc=0 traceback=False -> clean
+stale_allocation_table: rc=1 traceback=False -> caught
+    FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 1x1 user name reads 139, the endstation_ax7101_1x1_tdm8 inventory derives 39
+short_allocation_row: rc=1 traceback=True -> MISSED
+    Traceback (most recent call last):
+    ValueError: zip() argument 2 is shorter than argument 1
+long_allocation_row: rc=1 traceback=False -> caught
+    FINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 0x80 .. 0xFF user name has 1 cell(s) past the 8x8 column (7 cells under a 6-column header)

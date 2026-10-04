@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 949, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 932, in main
+    plan = load_plan(args.plan)
+  File "$REVIEWS/r478-2-652/syn/resmap/yosys_sweep.py", line 134, in load_plan
+    raise PlanError(f"{name}: a cause is pinned on a variant the plan expects to build")
+PlanError: rm_ax7101_2x2_tdm8: a cause is pinned on a variant the plan expects to build
