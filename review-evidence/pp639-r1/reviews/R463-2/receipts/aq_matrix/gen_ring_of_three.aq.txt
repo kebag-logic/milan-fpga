@@ -1,0 +1,16 @@
+FAIL: S2: MVRP VID 2 New byte-exact
+FAIL: S7: src 1 Talker Advertise New byte-exact
+FAIL: S7: all three TX lanes took grants
+FAIL: S7: every frame whole on the wire
+FAIL: S8: Domain Lv+New re-declaration byte-exact
+FAIL: S8: Listener Ready New byte-exact
+FAIL: S10: the gate reached SRP (Talker Advertise, src 0)
+FAIL: S10: the declared dest MAC is the MAAP-granted address
+FAIL: S10: declared on the adopted SR-class VID
+FAIL: G7f: the STOP requester receives no unsolicited response
+AQ: 71758305 edges, 4750 arms issued, 28 clocks with two faces held, 24 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks
+FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (102612 edges differ, the first at cycle 20093)
+AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset
+FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (36176 of 90172 edges differ, the first at cycle 71758507)
+AQ: 4 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 12 failures

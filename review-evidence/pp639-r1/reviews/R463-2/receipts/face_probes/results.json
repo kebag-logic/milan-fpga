@@ -1,0 +1,80 @@
+[
+ {
+  "name": "f7_full_pop_refuses",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (1736 of 90172 edges differ, the first at cycle 71259669)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ },
+ {
+  "name": "f7_wr_wrap_hi",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (228 of 90172 edges differ, the first at cycle 71258896)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ },
+ {
+  "name": "f3_full_pop_refuses",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (2383 of 90172 edges differ, the first at cycle 71258771)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ },
+ {
+  "name": "f3_wr_wrap_hi",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (349 of 90172 edges differ, the first at cycle 71258778)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ },
+ {
+  "name": "f7_write_refused",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (70 of 90172 edges differ, the first at cycle 71258894)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ },
+ {
+  "name": "f7_wr_at_head",
+  "rc": 1,
+  "expect": "fail",
+  "aq_lines": [
+   "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+   "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+   "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (683 of 90172 edges differ, the first at cycle 71258894)",
+   "AQ: 4 checks, 1 failures",
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures"
+  ],
+  "as_expected": true
+ }
+]

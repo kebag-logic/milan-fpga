@@ -1,0 +1,16 @@
+armq/top_main.sv: OK
+armq/top_head.sv: OK
+armq/ref.sv: OK
+armq/dut.sv: OK
+armq/ctl_head_stuck.sv: OK
+armq/ctl_probe_head_unreset.sv: OK
+armq/ctl_read_tail.sv: OK
+armq/ctl_ring_of_three.sv: OK
+armq/ctl_wr_at_head.sv: OK
+armq/ctl_wr_at_mid.sv: OK
+armq/ctl_write_refused.sv: OK
+dut aw=6 seed=1 rc=0 published-log=identical
+dut aw=6 seed=5 rc=0 published-log=identical
+dut aw=7 seed=2 rc=0 published-log=identical
+ctl_write_refused aw=6 seed=1 rc=1 published-log=identical
+ctl_write_refused aw=6 seed=5 rc=1 published-log=identical

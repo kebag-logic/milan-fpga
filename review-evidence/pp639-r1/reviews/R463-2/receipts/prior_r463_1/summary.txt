@@ -1,0 +1,12 @@
+R463-1 armq_lockstep/extract.py sha256 d39e2272c625607f1ccf6d8be3108451918cd1c6c676bde02c4c61e24dc7f0b6 (matches its published MANIFEST line)
+driver stopped by its 590 s cap (rc 124) after 9 of 10 runs; read_tail not completed here (same edit text as gen.py read_tail and acmp_mutants armq_read_tail, both failing AQ2 and AQ3 at this head)
+r463_1_drop_wraps: AQ: 4 checks, 1 failures | FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (4099 of 90172 edges differ, t 
+r463_1_full_pop_refuses: AQ: 4 checks, 1 failures | FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (61730 of 90172 edges differ,  
+r463_1_head_stuck: AQ: 4 checks, 2 failures | FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (45 edges differ, the first at cycle 24) FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (68820 of 90172 edges differ,  
+r463_1_probe_head_unreset: AQ: 4 checks, 0 failures | 
+r463_1_read_tail:  | 
+r463_1_read_write_first: AQ: 4 checks, 1 failures | FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (12481 of 90172 edges differ,  
+r463_1_ring_of_three: AQ: 4 checks, 2 failures | FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (102612 edges differ, the first at cycle 20093) FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (36176 of 90172 edges differ,  
+r463_1_wr_at_head: AQ: 4 checks, 2 failures | FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (45 edges differ, the first at cycle 24) FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (59652 of 90172 edges differ,  
+r463_1_wr_at_mid: AQ: 4 checks, 2 failures | FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (45 edges differ, the first at cycle 24) FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (65779 of 90172 edges differ,  
+r463_1_write_refused: AQ: 4 checks, 1 failures | FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (8272 of 90172 edges differ, t 
