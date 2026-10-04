@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -509,7 +509,7 @@
+     (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];
+     always_ff @(posedge clk_i) begin : walk_id_write
+       if (gate_open_acc_w) begin
+-        wid_r[gate_src_i] <= {gate_stream_id_i, gate_da_i, gate_vid_i};
++        wid_r[gate_src_i] <= {gate_stream_id_i, gate_da_i, gate_da_i[11:0]};
+       end
+     end
+     assign wid_w = wid_r[wsrc_r];

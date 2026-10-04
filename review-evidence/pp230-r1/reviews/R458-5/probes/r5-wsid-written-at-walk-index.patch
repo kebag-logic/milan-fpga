@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -542,7 +542,7 @@
+     (* ram_style = "distributed" *) logic [63:0] wsid_r [0:N_SINKS_P-1];
+     always_ff @(posedge clk_i) begin : walk_sid_write
+       if (rst_n && ctl_acc_w && ctl_settle_i) begin
+-        wsid_r[ctl_sink_i] <= ctl_stream_id_i;
++        wsid_r[wsrc_r] <= ctl_stream_id_i;
+       end
+     end
+     assign wsid_w = wsid_r[wsrc_r];

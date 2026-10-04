@@ -1,0 +1,24 @@
+r5-eq-slope-write-only-when-valid: SURVIVED rc=0
+  srp_stream_fsms/all: rc=0 fails=0 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '67', '0'), ('123', '123', '0'), ('1219', '1219', '0')] tags=[]
+  srp_top/all: rc=0 fails=0 builderr=False tallies=[('15', '15', '0'), ('15', '15', '0'), ('15', '15', '0'), ('15', '15', '0'), ('2200', '2200', '0')] tags=[]
+  srp_admission/all: rc=0 fails=0 builderr=False tallies=[('1138', '1138', '0'), ('12615', '12615', '0'), ('41012', '41012', '0'), ('201073', '201073', '0'), ('991231', '991231', '0')] tags=[]
+r5-eq-wtsp-write-in-reset: SURVIVED rc=0
+  srp_stream_fsms/all: rc=0 fails=0 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '67', '0'), ('123', '123', '0'), ('1219', '1219', '0')] tags=[]
+  srp_top/all: rc=0 fails=0 builderr=False tallies=[('15', '15', '0'), ('15', '15', '0'), ('15', '15', '0'), ('15', '15', '0'), ('2200', '2200', '0')] tags=[]
+  srp_admission/all: rc=0 fails=0 builderr=False tallies=[('1138', '1138', '0'), ('12615', '12615', '0'), ('41012', '41012', '0'), ('201073', '201073', '0'), ('991231', '991231', '0')] tags=[]
+r5-granted-slope-at-stage-index: FAILED-SUITE rc=2
+  srp_admission/all: rc=2 fails=559 builderr=False tallies=[('1138', '1138', '0'), ('12615', '12056', '559')] tags=['grant -', 'round -']
+r5-tf-ls-read-at-tk-rptr: FAILED-SUITE rc=2
+  srp_top/storage: rc=2 fails=8 builderr=False tallies=[('15', '13', '2'), ('15', '13', '2'), ('15', '13', '2'), ('15', '13', '2')] tags=['TF2 1/1', 'TF2 2/2', 'TF2 3/5', 'TF2 9/9', 'TF5 1/1', 'TF5 2/2', 'TF5 3/5', 'TF5 9/9']
+r5-tf-tk-written-at-ls-pointer: FAILED-SUITE rc=2
+  srp_top/storage: rc=2 fails=8 builderr=False tallies=[('15', '13', '2'), ('15', '13', '2'), ('15', '13', '2'), ('15', '13', '2')] tags=['TF1 1/1', 'TF1 2/2', 'TF1 3/5', 'TF1 9/9', 'TF4 1/1', 'TF4 2/2', 'TF4 3/5', 'TF4 9/9']
+r5-wid-ram-vid-from-da: FAILED-SUITE rc=2
+  srp_stream_fsms/walk: rc=2 fails=76 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '47', '20'), ('123', '67', '56')] tags=['WK1 3/5', 'WK1 9/9', 'WK2 3/5', 'WK2 9/9', 'WK3 3/5', 'WK3 9/9', 'WK4 3/5', 'WK4 9/9', 'WK5 3/5', 'WK5 9/9', 'WK9 3/5', 'WK9 9/9']
+r5-wid-write-ignores-ready: FAILED-SUITE rc=2
+  srp_stream_fsms/walk: rc=2 fails=2 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '66', '1'), ('123', '122', '1')] tags=['WK9 3/5', 'WK9 9/9']
+r5-wsid-read-xor-1: FAILED-SUITE rc=2
+  srp_stream_fsms/walk: rc=2 fails=72 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '41', '26'), ('123', '77', '46')] tags=['WK10 3/5', 'WK10 9/9', 'WK6 3/5', 'WK6 9/9', 'WK7 3/5', 'WK7 9/9', 'WK8 3/5', 'WK8 9/9']
+r5-wsid-written-at-walk-index: FAILED-SUITE rc=2
+  srp_stream_fsms/walk: rc=2 fails=70 builderr=False tallies=[('35', '35', '0'), ('46', '46', '0'), ('67', '42', '25'), ('123', '78', '45')] tags=['WK10 3/5', 'WK10 9/9', 'WK6 3/5', 'WK6 9/9', 'WK7 3/5', 'WK7 9/9', 'WK8 3/5', 'WK8 9/9']
+r5-wtsp-mfs-mif-swapped: FAILED-SUITE rc=2
+  srp_stream_fsms/walk: rc=2 fails=98 builderr=False tallies=[('35', '27', '8'), ('46', '32', '14'), ('67', '47', '20'), ('123', '67', '56')] tags=['WK1 1/1', 'WK1 2/2', 'WK1 3/5', 'WK1 9/9', 'WK2 1/1', 'WK2 2/2', 'WK2 3/5', 'WK2 9/9', 'WK3 1/1', 'WK3 2/2', 'WK3 3/5', 'WK3 9/9', 'WK4 1/1', 'WK4 2/2', 'WK4 3/5', 'WK4 9/9', 'WK5 1/1', 'WK5 2/2', 'WK5 3/5', 'WK5 9/9', 'WK9 1/1', 'WK9 2/2', 'WK9 3/5', 'WK9 9/9']
