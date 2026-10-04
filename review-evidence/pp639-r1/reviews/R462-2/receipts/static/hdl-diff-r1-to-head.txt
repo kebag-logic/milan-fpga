@@ -1,0 +1,303 @@
+diff --git a/hdl/srp/KL_srp_admission.sv b/hdl/srp/KL_srp_admission.sv
+index 785c380..0c284bf 100644
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -108,7 +108,11 @@ module KL_srp_admission #(
+   logic [SRC_W_C-1:0]          cidx_q2_r;
+   logic [16:0]                 frame_bytes_r;   // W = clamped F + wire overhead
+   logic [32:0]                 iv_bytes_r;      // W x MaxIntervalFrames
+-  logic [N_SOURCES_P-1:0][31:0] slope_q_r;
++  // One write (stage 3) and one read (the admission walk) per cycle, so the
++  // slopes map to distributed RAM instead of a per-source read multiplexer
++  // (issue #230). No reset: a slope is read only with its slope_valid_r
++  // bit, which is written with it.
++  (* ram_style = "distributed" *) logic [31:0] slope_q_r [0:N_SOURCES_P-1];
+   logic                         valid_q1_r, valid_q2_r;
+   logic [N_SOURCES_P-1:0]       slope_valid_r;
+   logic [N_SOURCES_P-1:0]       invalid_w;
+@@ -130,7 +134,6 @@ module KL_srp_admission #(
+       cidx_q2_r     <= '0;
+       frame_bytes_r <= '0;
+       iv_bytes_r    <= '0;
+-      slope_q_r     <= '0;
+       valid_q1_r    <= 1'b0;
+       valid_q2_r    <= 1'b0;
+       slope_valid_r <= '0;
+@@ -153,8 +156,13 @@ module KL_srp_admission #(
+       // stage 2: interval bytes (16 b x 17 b -> < 2^33)
+       iv_bytes_r    <= {16'd0, interval_frames_i[cidx_q1_r]}
+                        * {16'd0, frame_bytes_r};
+-      // stage 3: saturating 32-bit slope (see banner) — iv <= IV_MAX_C is
+-      // the exact product (67108 x 64000 < 2^32)
++    end
++  end
++
++  // stage 3: saturating 32-bit slope (see banner) — iv <= IV_MAX_C is the
++  // exact product (67108 x 64000 < 2^32)
++  always_ff @(posedge clk_i) begin : slope_store
++    if (rst_n) begin
+       slope_q_r[cidx_q2_r] <= (iv_bytes_r > IV_MAX_C) ? SLOPE_SAT_C
+                                                       : slope_prod_w[31:0];
+     end
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index 669348e..78014b4 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -52,11 +52,13 @@
+ //                periodic! carries the re-join).
+ //
+ //  Decision    : the one decision that matters — same as the talker side:
+-//                per-sink records and FSM state live in FLOPS with
+-//                parallel {stream_id, DA, VLAN} comparators, never a
+-//                shared RAM-shaped record, because KL_srp_decoder emits
+-//                one unback-pressured event per cycle while draining a
+-//                packed vector and every sink must compare in that cycle.
++//                the matcher's per-sink records and FSM state live in
++//                FLOPS with parallel {stream_id, DA, VLAN} comparators,
++//                never a shared RAM-shaped record, because KL_srp_decoder
++//                emits one unback-pressured event per cycle while draining
++//                a packed vector and every sink must compare in that cycle;
++//                from three sinks up, the walk's copy of the stream_id,
++//                read one sink per cycle, is distributed RAM (issue #230).
+ //                The Table 10-3/10-4 functions are duplicated from
+ //                KL_srp_talker_fsm BY DESIGN (the suite walks both
+ //                against one independently transcribed table, so a
+@@ -529,12 +531,31 @@ module KL_srp_listener_fsm
+     end
+   end
+ 
++  // The walk's stream_id of the walk sink (issue #230). The matcher keeps
++  // sid_r in flops; from three sinks a second copy in distributed RAM,
++  // written only by the A15 settle and read only at the walk sink, is
++  // cheaper than the N-way multiplexer behind sid_r, at two the multiplexer
++  // is (Vivado, 2 and 9 sinks). No reset: the walk pushes a sink only while
++  // rec_valid_r is set, and only a settle, which writes the word, sets it.
++  logic [63:0] wsid_w;
++  if (N_SINKS_P > 2) begin : g_wsid_ram
++    (* ram_style = "distributed" *) logic [63:0] wsid_r [0:N_SINKS_P-1];
++    always_ff @(posedge clk_i) begin : walk_sid_write
++      if (rst_n && ctl_acc_w && ctl_settle_i) begin
++        wsid_r[ctl_sink_i] <= ctl_stream_id_i;
++      end
++    end
++    assign wsid_w = wsid_r[wsrc_r];
++  end else begin : g_wsid_flops
++    assign wsid_w = sid_r[wsrc_r];
++  end
++
+   // Listener FirstValue of the walk sink (F10.8: 8 B stream_id)
+   logic [271:0] wval_w;
+   logic [3:0]   wmsg_w;
+   always_comb begin : walk_msg
+     wval_w = 272'd0;
+-    wval_w[271:208] = sid_r[wsrc_r];
++    wval_w[271:208] = wsid_w;
+     wmsg_w = app_msg_f(app_r[wsrc_r], wtxla_r, 1'b0);
+   end
+ 
+diff --git a/hdl/srp/KL_srp_talker_fsm.sv b/hdl/srp/KL_srp_talker_fsm.sv
+index 3b21066..433d080 100644
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -53,14 +53,18 @@
+ //                Table 10-3 notes 4/5 via the p2p_i level
+ //                (operPointToPointMAC — a Milan link ties it 1).
+ //
+-//  Decision    : the one decision that matters — the per-source records and
+-//                FSM state live in FLOPS with parallel match comparators,
+-//                not a shared RAM-shaped record: KL_srp_decoder emits one
++//  Decision    : the one decision that matters — the matcher's copy of each
++//                source's {stream_id, DA, VLAN} and the FSM state live in
++//                FLOPS with parallel match comparators, not a shared
++//                RAM-shaped record: KL_srp_decoder emits one
+ //                unback-pressured event strobe per cycle while draining a
+ //                packed vector, so every source must compare {stream_id,
+ //                DA, VLAN} in the same cycle or lose back-to-back vector
+ //                values; a sync-read shared record cannot serve M matches
+-//                per cycle, and at M = 8 the flop cost is small. The
++//                per cycle. The walk reads one source per cycle, so its
++//                copy of the record is distributed RAM (issue #230: one
++//                RAM read port instead of an M-way multiplexer; the
++//                {stream_id, DA, VLAN} part from three sources up). The
+ //                Table 10-3/10-4 transition FUNCTIONS are pure
+ //                (module-scope arrays are never read inside them — sv2v),
+ //                and the applicant's sJ/s/note-8 registrar term is tied 0:
+@@ -346,16 +350,26 @@ module KL_srp_talker_fsm
+   endfunction
+ 
+   // ------------------------------------------------------------ registers
+-  // per-source declared record (frozen while declaring)
++  // per-source declared record (frozen while declaring). The matcher's
++  // copy of {stream_id, DA, VLAN} stays in flops: every source compares in
++  // the same cycle (banner).
+   logic [N_SOURCES_P-1:0]        rec_valid_r;
+   logic [N_SOURCES_P-1:0][63:0]  sid_r;
+   logic [N_SOURCES_P-1:0][47:0]  da_r;
+   logic [N_SOURCES_P-1:0][11:0]  vid_r;
+-  logic [N_SOURCES_P-1:0][15:0]  mfs_r;
+-  logic [N_SOURCES_P-1:0][15:0]  mif_r;
+-  logic [N_SOURCES_P-1:0][2:0]   prio_r;
+-  logic [N_SOURCES_P-1:0]        rank_r;
+-  logic [N_SOURCES_P-1:0][31:0]  lat_r;
++
++  // The walk's copy of the record (issue #230). Written only by the gate
++  // open and read only at the walk source, so it is distributed RAM instead
++  // of a per-source read multiplexer. {MaxFrameSize, MaxIntervalFrames,
++  // priority, rank, accumulated_latency} has no other reader: always RAM.
++  // {stream_id, DA, VLAN} also has the matcher's flops: from three sources a
++  // second, RAM copy is cheaper than the M-way multiplexer behind them, at
++  // two the multiplexer is (Vivado, 2 and 9 sources). No reset: the walk
++  // pushes a source only while rec_valid_r is set, and only a gate open,
++  // which writes every word, sets it.
++  localparam int unsigned WTSP_W_C = 16 + 16 + 3 + 1 + 32;
++  localparam int unsigned WID_W_C  = 64 + 48 + 12;
++  (* ram_style = "distributed" *) logic [WTSP_W_C-1:0] wtsp_r [0:N_SOURCES_P-1];
+ 
+   // per-source applicant plane
+   logic [N_SOURCES_P-1:0][3:0]   app_r;
+@@ -478,18 +492,43 @@ module KL_srp_talker_fsm
+     end
+   end
+ 
++  logic                gate_open_acc_w;
++  logic [WTSP_W_C-1:0] wtsp_w;   // walk source {mfs, mif, prio, rank, lat}
++  logic [WID_W_C-1:0]  wid_w;    // walk source {stream_id, DA, VLAN}
++  assign gate_open_acc_w = rst_n && gate_acc_w && gate_open_i;
++
++  always_ff @(posedge clk_i) begin : walk_tspec_write
++    if (gate_open_acc_w) begin
++      wtsp_r[gate_src_i] <= {gate_max_frame_i, gate_max_interval_i,
++                             gate_prio_i, gate_rank_i, gate_acc_lat_i};
++    end
++  end
++  assign wtsp_w = wtsp_r[wsrc_r];
++
++  if (N_SOURCES_P > 2) begin : g_wid_ram
++    (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];
++    always_ff @(posedge clk_i) begin : walk_id_write
++      if (gate_open_acc_w) begin
++        wid_r[gate_src_i] <= {gate_stream_id_i, gate_da_i, gate_vid_i};
++      end
++    end
++    assign wid_w = wid_r[wsrc_r];
++  end else begin : g_wid_flops
++    assign wid_w = {sid_r[wsrc_r], da_r[wsrc_r], vid_r[wsrc_r]};
++  end
++
+   // FirstValue of the walk source (F10.7 layout; byte 0 at [271:264])
+   logic [271:0] wval_w;
+   logic [3:0]   wmsg_w;
+   always_comb begin : walk_msg
+     wval_w = 272'd0;
+-    wval_w[271:208] = sid_r[wsrc_r];
+-    wval_w[207:160] = da_r[wsrc_r];
+-    wval_w[159:144] = {4'd0, vid_r[wsrc_r]};
+-    wval_w[143:128] = mfs_r[wsrc_r];
+-    wval_w[127:112] = mif_r[wsrc_r];
+-    wval_w[111:104] = {prio_r[wsrc_r], rank_r[wsrc_r], 4'd0};
+-    wval_w[103:72]  = lat_r[wsrc_r];
++    wval_w[271:208] = wid_w[123:60];             // stream_id
++    wval_w[207:160] = wid_w[59:12];              // DA
++    wval_w[159:144] = {4'd0, wid_w[11:0]};       // VLAN
++    wval_w[143:128] = wtsp_w[67:52];             // MaxFrameSize
++    wval_w[127:112] = wtsp_w[51:36];             // MaxIntervalFrames
++    wval_w[111:104] = {wtsp_w[35:32], 4'd0};     // priority, rank
++    wval_w[103:72]  = wtsp_w[31:0];              // accumulated_latency
+     if (fail_r[wsrc_r]) begin
+       wval_w[71:8] = {16'd0, own_mac_i};   // §35.2.2.8.7 end-station MAC
+       wval_w[7:0]  = 8'd1;                 // insufficient bandwidth
+@@ -504,11 +543,6 @@ module KL_srp_talker_fsm
+       sid_r       <= '0;
+       da_r        <= '0;
+       vid_r       <= '0;
+-      mfs_r       <= '0;
+-      mif_r       <= '0;
+-      prio_r      <= '0;
+-      rank_r      <= '0;
+-      lat_r       <= '0;
+       app_r       <= '0;      // Begin! = VO everywhere
+       fail_r      <= '0;
+       rla_pend_r  <= '0;
+@@ -556,11 +590,6 @@ module KL_srp_talker_fsm
+           sid_r[gate_src_i]  <= gate_stream_id_i;
+           da_r[gate_src_i]   <= gate_da_i;
+           vid_r[gate_src_i]  <= gate_vid_i;
+-          mfs_r[gate_src_i]  <= gate_max_frame_i;
+-          mif_r[gate_src_i]  <= gate_max_interval_i;
+-          prio_r[gate_src_i] <= gate_prio_i;
+-          rank_r[gate_src_i] <= gate_rank_i;
+-          lat_r[gate_src_i]  <= gate_acc_lat_i;
+         end else begin
+           fail_r[gate_src_i] <= 1'b0;   // FAILED is published only declared
+         end
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 3a55cf4..7f0c641 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -944,7 +944,14 @@ module KL_srp_top
+   localparam int unsigned TFW_C = 1 + SLOT_AW_P + 8 + 32;
+   localparam int unsigned TFD_C = 32;
+ 
+-  logic [TFW_C-1:0] tf_ram_r [0:1][0:TFD_C-1];
++  // One memory per FIFO, each with one write port and one read port, so each
++  // maps to distributed RAM (a two-dimensional array written for both FIFOs
++  // in one process mapped to 2 x 32 x TFW_C flip-flops and a read
++  // multiplexer, issue #230). DISTRIBUTED, NOT BLOCK: without the attribute
++  // the registered read made the synthesiser spend a RAMB36 on each 32-word
++  // FIFO. No reset: a word is read only after its push.
++  (* ram_style = "distributed" *) logic [TFW_C-1:0] tf_tk_ram_r [0:TFD_C-1];
++  (* ram_style = "distributed" *) logic [TFW_C-1:0] tf_ls_ram_r [0:TFD_C-1];
+   logic [TFW_C-1:0] tf_q_r   [0:1];
+   logic [4:0]       tf_wptr_r [0:1];
+   logic [4:0]       tf_rptr_r [0:1];
+@@ -956,20 +963,24 @@ module KL_srp_top
+   assign tf_push_w[0] = tk_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C));
+   assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[1] != 6'(TFD_C));
+ 
+-  always_ff @(posedge clk_i) begin : tf_write
++  always_ff @(posedge clk_i) begin : tf_tk_write
+     if (tf_push_w[0]) begin
+-      tf_ram_r[0][tf_wptr_r[0]]
++      tf_tk_ram_r[tf_wptr_r[0]]
+         <= {tk_arm_cancel_w, tk_arm_slot_w, tk_arm_owner_w, tk_arm_dl_w};
+     end
++  end
++
++  always_ff @(posedge clk_i) begin : tf_ls_write
+     if (tf_push_w[1]) begin
+-      tf_ram_r[1][tf_wptr_r[1]]
++      tf_ls_ram_r[tf_wptr_r[1]]
+         <= {ls_arm_cancel_w, ls_arm_slot_w, ls_arm_owner_w, ls_arm_dl_w};
+     end
+   end
+ 
++  // registered read of each FIFO's head (the RAM's async read + this flop)
+   always_ff @(posedge clk_i) begin : tf_read
+-    tf_q_r[0] <= tf_ram_r[0][tf_rptr_r[0]];
+-    tf_q_r[1] <= tf_ram_r[1][tf_rptr_r[1]];
++    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0]];
++    tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1]];
+   end
+ 
+   typedef enum logic {
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 717da3a..60808a1 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -2999,10 +2999,12 @@ module protocol_processor_top
+   // write port and one read port per face, so eight rings rather than one
+   // array: one memory cannot take eight pushes in a cycle. The entries are
+   // not reset; the count is, and an entry is read only after a push wrote
+-  // it. The shift queue this replaces held 1,153 flops at the 1x1 shape and
+-  // a LUT per flop to shift them. `mem_r` is unpacked, so its indexed write
+-  // is a memory port, not the dynamic part-write into a packed vector that
+-  // yosys lowers as a barrel shift over every entry.
++  // it. The shift queue this replaces held 1,152 flops at the 1x1 shape at
++  // processor 5c71928a, this change's base (1,153 at 631eeb34, the figure of
++  // milan-fpga's #234 area baseline), and a LUT per flop to shift them.
++  // `mem_r` is unpacked, so its indexed write is a memory port, not the
++  // dynamic part-write into a packed vector that yosys lowers as a barrel
++  // shift over every entry.
+   for (genvar g = 0; g < ARM_N_C; g++) begin : g_armq
+     (* ram_style = "distributed" *)
+     logic [ARM_W_C-1:0] mem_r [0:3];

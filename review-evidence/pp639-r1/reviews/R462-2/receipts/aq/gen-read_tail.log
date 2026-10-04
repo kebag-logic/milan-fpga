@@ -1,0 +1,88 @@
+FAIL: S2: Talker Advertise New byte-exact
+FAIL: S2: MVRP VID 2 New byte-exact
+FAIL: S3: T-ADP-ADV 5 s + 0-4 s anti-storm, measured 2 ms
+FAIL: S7: src 1 Talker Advertise New byte-exact
+FAIL: S7: all three TX lanes took grants
+FAIL: S7: every frame whole on the wire
+FAIL: S8: Domain Lv+New re-declaration byte-exact
+FAIL: S8: Listener Ready New byte-exact
+FAIL: S10: the gate reached SRP (Talker Advertise, src 0)
+FAIL: S10: the declared dest MAC is the MAAP-granted address
+FAIL: S10: declared on the adopted SR-class VID
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+FAIL: U5b: the expiry notification arrives
+FAIL: U5c: unsolicited DEREGISTER byte-exact (u=1, entry seq 0)
+FAIL: U6b: the refreshed deadline expires with u = 1
+FAIL: L6b: a keep-alive changes nothing, notifies nobody
+FAIL: L6c: still locked past the original deadline (re-armed)
+FAIL: L6d: 60 s auto-unlock notifies (Milan Table 5.22), locked_id 0, seq 3
+FAIL: G1: STREAM_INPUT[0] Milan 80-byte response byte-exact (cdl 68)
+  got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 01 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 47 00 00 00
+  exp (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 01 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 20 00 00 00
+FAIL: G7a: unsolicited content from flags onward equals the following solicited response
+FAIL: G7b: unbind notifies again, sequence_id 1
+  got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 74 0f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 40 00 00 00
+  exp (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 01 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 00 00 00 00
+FAIL: G7d: the bind pushed exactly ONE notification, not two (a started/stopped trigger that fires on bind duplicates it)
+FAIL: G7d2: the later double probe timeout reports ACTIVE/acmpsta 7
+FAIL: U10a: availability frame entered allocation or write phase
+FAIL: U10a5.1: message type 0 waited for a live monitor probe
+FAIL: U10a5.10: message type 0 emitted one monitor cancellation
+FAIL: U10a5.2: message type 2 waited for a live monitor probe
+FAIL: U10a5.3: message type 4 waited for a live monitor probe
+FAIL: U10a5.4: message type 6 waited for a live monitor probe
+FAIL: U10a5.5: message type 8 waited for a live monitor probe
+FAIL: U10a5.6: message type 14 waited for a live monitor probe
+FAIL: U10a5r.1: reserved type 10 waited for a live monitor probe
+FAIL: U10a5r.2: reserved type 12 waited for a live monitor probe
+FAIL: U10a7: availability probe waits live in the originator queue
+FAIL: U10a8: queue delay longer than two budgets causes no timeout
+FAIL: U10a13: EOF-aligned cancellation conserves all five TX slots
+FAIL: U10b: first CONTROLLER_AVAILABLE command is byte-exact
+FAIL: U10c: first probe arrived after 66000 ms
+FAIL: U10e: the single retry arrived after 401 ms
+FAIL: U10f: probe failure sends targeted deregistration at seq 0
+FAIL: U10g: deregistration followed retry within 1000 ms
+FAIL: U10i: reused monitor owner advances its originator sequence
+FAIL: U10j: non-SUCCESS response re-arms and advances the next probe
+FAIL: U10k: response re-armed the monitor for 66000 ms
+FAIL: U10l: response-path first probe stayed inside the test window
+FAIL: U11c: two availability probes queue behind the serializer
+FAIL: U11d: second queued handle maps to a registered controller
+FAIL: U11e: canceling a non-head exchange compacts its queued handle
+FAIL: U11h: cleanup leaves no queued or inflight exchange
+FAIL: U11i: non-head cancellation conserves all five TX slots
+FAIL: MP1: 4 PROBEs + ANNOUNCE within four probe intervals
+FAIL: MP1: claim published valid in DEFEND
+FAIL: MP2: DEFEND sent
+FAIL: MP2: defended, claim kept
+FAIL: MP3: first PROBE_TX_RESPONSE succeeds after acquisition bound
+FAIL: MP3: the internal grant opened acmp_declaring_o[0]
+FAIL: MP3: GET_TX_STATE answers the internally granted base + 0
+  got (70 B): 91 e0 f0 01 00 00 0a 0b 0c 0d 0e 0f 22 f0 fc 05 00 2c 0a 0b 0c 0d 0e 0f 00 00 77 77 00 00 00 00 00 42 12 34 56 78 9a bc de f0 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 60 02 00 00 00 02 00 00
+  exp (70 B): 91 e0 f0 01 00 00 0a 0b 0c 0d 0e 0f 22 f0 fc 05 00 2c 0a 0b 0c 0d 0e 0f 00 00 77 77 00 00 00 00 00 42 12 34 56 78 9a bc de f0 00 00 00 00 00 00 00 00 00 00 00 00 91 e0 f0 00 ea fb 00 00 60 02 00 00 00 02 00 00
+FAIL: MP4: the conflict fan-out closed the DA gate
+FAIL: MP4: one re-address counted
+FAIL: MP4: fresh walk completed
+FAIL: MP4: re-claimed on a fresh range (91e0f000f882)
+FAIL: MP5: mis-addressed PROBE dropped at the DA-qualified subtype gate
+FAIL: MP7: a maap_version 2 PROBE gets a byte-exact DEFEND
+  got (0 B):
+  exp (60 B): 0a 22 33 44 55 66 0a 0b 0c 0d 0e 0f 22 f0 fe 02 08 10 00 00 00 00 00 00 00 00 91 e0 f0 00 f8 84 00 08 91 e0 f0 00 f8 84 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: MP7: maap_version 2 PROBE defended, claim kept
+FAIL: MP7: a maap_version 0 PROBE gets a byte-exact DEFEND
+  got (0 B):
+  exp (60 B): 0a 33 44 55 66 77 0a 0b 0c 0d 0e 0f 22 f0 fe 02 08 10 00 00 00 00 00 00 00 00 91 e0 f0 00 f8 87 00 08 91 e0 f0 00 f8 87 00 03 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+FAIL: MP7: maap_version 0 PROBE defended, claim kept
+FAIL: DV2: first MSRP frame within 1.2 s of link
+FAIL: DV2: Domain New {6, 3, 0x0002} byte-exact
+FAIL: DV2: the wire SRclassVID is all 16 bits of the parameter, got 0x10000
+FAIL: DV4: Lv {6, 3, 0x0002} + New {6, 3, 5} byte-exact
+FAIL: DV6: LINK_UP re-declares Domain New {6, 3, 0x0002}
+AQ: 97307182 edges, 966 arms issued, 28 clocks with two faces held, 27 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks
+FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (97293062 edges differ, the first at cycle 23)
+AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset
+FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (74397 of 90172 edges differ, the first at cycle 97307362)
+AQ: 4 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1645 checks, 72 failures

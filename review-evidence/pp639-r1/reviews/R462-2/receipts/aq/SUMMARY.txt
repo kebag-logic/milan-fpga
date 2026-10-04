@@ -1,0 +1,25 @@
+# run | rc | AQ tally | failing AQ checks (edges differing)
+aq-head-none | rc=0 | AQ: 4 checks, 0 failures | 
+aq-probe-wr_wrap_hi | rc=1 | AQ: 4 checks, 1 failures | AQ3 19343 of 90172
+aq-probe-write_refused | rc=1 | AQ: 4 checks, 1 failures | AQ3 8272 of 90172
+gen-drop_skip_sat | rc=1 | AQ: 4 checks, 1 failures | AQ3 4099 of 90172
+gen-full_pop_refuses | rc=1 | AQ: 4 checks, 1 failures | AQ3 61730 of 90172
+gen-hd_not_reset | rc=0 | AQ: 4 checks, 0 failures | 
+gen-head_stuck | rc=1 | AQ: 4 checks, 2 failures | AQ2 45; AQ3 68820 of 90172
+gen-read_tail | rc=1 | AQ: 4 checks, 2 failures | AQ2 97293062; AQ3 74397 of 90172
+gen-ring_of_three | rc=1 | AQ: 4 checks, 2 failures | AQ2 102612; AQ3 36176 of 90172
+gen-wr_at_head | rc=1 | AQ: 4 checks, 2 failures | AQ2 45; AQ3 59652 of 90172
+gen-wr_at_mid | rc=1 | AQ: 4 checks, 2 failures | AQ2 45; AQ3 65779 of 90172
+gen-wr_wrap_hi | rc=1 | AQ: 4 checks, 1 failures | AQ3 19343 of 90172
+gen-write_refused | rc=1 | AQ: 4 checks, 1 failures | AQ3 8272 of 90172
+main-rtl-none | rc=0 | AQ: 4 checks, 0 failures | 
+own-cnt_not_reset | rc=1 | AQ: 4 checks, 1 failures | AQ3 12835 of 90172
+own-drop_not_reset | rc=1 | AQ: 4 checks, 1 failures | AQ3 85658 of 90172
+own-drop_on_full_popped | rc=1 | AQ: 4 checks, 1 failures | AQ3 69179 of 90172
+own-full_pop_writes_next | rc=1 | AQ: 4 checks, 1 failures | AQ3 15355 of 90172
+own-sat_at_fffe | rc=1 | AQ: 4 checks, 1 failures | AQ3 4100 of 90172
+own-write_first_read | rc=1 | AQ: 4 checks, 1 failures | AQ3 12481 of 90172
+r1bench-drop_skip_sat | rc=0 | AQ: 2 checks, 0 failures | 
+r1bench-full_pop_refuses | rc=0 | AQ: 2 checks, 0 failures | 
+r1bench-wr_wrap_hi | rc=0 | AQ: 2 checks, 0 failures | 
+r1bench-write_refused | rc=0 | AQ: 2 checks, 0 failures | 
