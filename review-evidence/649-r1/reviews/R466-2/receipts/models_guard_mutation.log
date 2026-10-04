@@ -1,0 +1,11 @@
+mutant missing-record-reads-clean   KILLED   rc=1 SELF-TEST FAILED: guards: a missing record was fitted as a guard-clean point
+mutant hard-error-reads-clean       KILLED   rc=1 SELF-TEST FAILED: guards: a hard-error record was fitted as a guard-clean point
+mutant stream-exclusion-off         KILLED   rc=1 SELF-TEST FAILED: guards: the refused stream point entered the stream fit: {'coefficients': {'fixed': 1476.32, 'N': -570.83, 'C': -535.64, 'NC': 252.54}, 'resid
+mutant processor-exclusion-off      KILLED   rc=1 SELF-TEST FAILED: guards: the refused processor point entered its parameter fit: {'coefficients': {'fixed': -2770.13, 'x': 1447.63}, 'residuals': [1527.5, 84.86
+mutant calibration-exclusion-off    KILLED   rc=1 SELF-TEST FAILED: guards: the refused anchor entered the calibration
+mutant tdm-exclusion-off            KILLED   rc=1 SELF-TEST FAILED: guards: the refused TDM point entered the TDM model: {'coefficients': {'fixed': -2958.48, 'x': 183.66}, 'residuals': [1547.22, 85.96, -2836.57
+mutant build-upfront-check-off      SURVIVED rc=0 resmap_models self-test: PASS
+mutant rank-check-off               KILLED   rc=1 SELF-TEST FAILED: a fit whose points never vary C was accepted at minimum norm
+unmodified models CLI, adp-if-1 guard record deleted (a reference point in no fit): rc 1: models: refused, a point's guard record is not usable: adp-if-1: no guard record; run yosys_sweep.py guards, then summary
+unmodified models CLI, no-crf guard record deleted (a marginal-only point): rc 1: models: refused, a point's guard record is not usable: no-crf: no guard record; run yosys_sweep.py guards, then summary
+unmodified models CLI, pp-si5 lint hard error planted: rc 1: models: refused, a point's guard record is not usable: pp-si5: the guard lint exited 0 with hard errors ['%Error: x.sv:1']

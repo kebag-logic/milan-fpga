@@ -1,0 +1,16 @@
+$ python3 syn/resmap/resmap_map.py map inputs/map --out <scratch>/cold/out/map
+TIED: 175 blocks, depth 5; LUT 50767, FF 59634, slices 15832.00, CARRY4 3506, RAMB36 79, RAMB18 27, DSP 14
+rc=0
+$ python3 syn/resmap/resmap_models.py --work inputs/work --map inputs/map --out <scratch>/cold/out/models
+models: stream_models 36, stream_models_detail 85, vivado_stream_models 2, datapath_marginals 25, processor_marginals 29, processor_models 11, adp_marginals 2, calibration 4, tdm_model 5, guards 2, in_context 35
+rc=0
+$ cmp <scratch>/cold/out/models/models.json inputs/models/models.json
+rc=0
+$ python3 syn/resmap/resmap_tables.py --work inputs/work --models inputs/models --map inputs/map --soc-variants inputs/soc_prices.json --out <scratch>/cold/out/tables.md --page docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+tables: <scratch>/cold/out/tables.md
+page: every table equals a fresh generation
+rc=0
+$ python3 syn/resmap/resmap_tables.py (regenerated models) --page
+tables: <scratch>/cold/out/tables-fresh-models.md
+page: every table equals a fresh generation
+rc=0

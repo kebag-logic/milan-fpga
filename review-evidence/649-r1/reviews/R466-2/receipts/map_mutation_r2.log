@@ -1,0 +1,30 @@
+r1 ancestry-additive-off          KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a child FF figure: caught, but not as 'ancestry: top FF': census: top/leaf FF counts 2 cells, the report says 
+r1 ancestry-shared-off            KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a parent LUT above its parts: caught, but not as 'milan_datapath LUT exceeds its parts': census: top/milan_dat
+r1 partition-off                  ABSENT   rc=None mutation site occurs 0 times at this head
+r1 flat-off                       KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: the flat LUT total: a planted wrong figure tied clean
+r1 record-totals-off              KILLED   rc=1 resmap_map self-test: 12 of 15 arms passed | first failed arm: a recorded total: a planted wrong figure tied clean
+r1 record-scopes-off              KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a recorded processor scope: a planted wrong figure tied clean
+r1 census-leaf-off                KILLED   rc=1 resmap_map self-test: 13 of 15 arms passed | first failed arm: a census flip-flop: caught, but not as 'census: top/leaf FF': census totals: FF totals 7, the top row is 8
+r1 census-total-off               SURVIVED rc=0 resmap_map self-test: 15 of 15 arms passed
+r1 census-stray-off               KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a cell owned by a row that is not a leaf: caught, but not as 'census: cells owned by non-leaf rows': census to
+r1 iob-split-off                  KILLED   rc=1 census totals: FF totals 9, the top row is 8
+r1 slice-share-unnormalized       KILLED   rc=1 record: SLICE recorded 3, the map's is 20.0
+r1 depth-off                      KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a truncated depth: a planted wrong figure tied clean
+r1 names-sum-off                  SURVIVED rc=0 resmap_map self-test: 15 of 15 arms passed
+r2 census-lut-off                 KILLED   rc=1 resmap_map self-test: 12 of 15 arms passed | first failed arm: a leaf's LUT figure outside the recorded scopes: a planted wrong figure tied clean
+r2 census-lut-leaves-only         KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a LUT site shared by two blocks: a planted wrong figure tied clean
+r2 census-lut-parents-only        KILLED   rc=1 resmap_map self-test: 13 of 15 arms passed | first failed arm: a leaf's LUT figure outside the recorded scopes: a planted wrong figure tied clean
+r2 census-lut-total-column-only   KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a LUT-RAM cell counted as logic: a planted wrong figure tied clean
+r2 census-lut-subcolumns-only     KILLED   rc=1 resmap_map self-test: 13 of 15 arms passed | first failed arm: a leaf's LUT figure outside the recorded scopes: caught, but not as 'census: top/leaf LUT counts': census: top
+r2 lut-kind-collapsed             KILLED   rc=1 census: top/milan_datapath/pp_shadow LUTRAM counts 0 LUT sites, the report says 1
+r2 lut-site-key-by-bel            KILLED   rc=1 census: top logic_LUT counts 10 LUT sites, the report says 9
+r2 lut-no-ancestor-climb          KILLED   rc=1 census: top/milan_datapath LUTRAM counts 0 LUT sites, the report says 1
+r2 record-carry4-off              KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: a census CARRY4: caught, but not as 'record: CARRY4': record: scope 'wrapper' CARRY4 recorded 1, the map's is 
+r2 record-slice-off               KILLED   rc=1 resmap_map self-test: 14 of 15 arms passed | first failed arm: an occupied slice: caught, but not as 'record: SLICE': flat report: SLICE is 3, the map's is 4.0
+r2 flat-slice-off                 SURVIVED rc=0 resmap_map self-test: 15 of 15 arms passed
+r2 flat-lut-only                  SURVIVED rc=0 resmap_map self-test: 15 of 15 arms passed
+r2 census-leaf-ff-only            SURVIVED rc=0 resmap_map self-test: 15 of 15 arms passed
+r2 census-leaf-no-ff              KILLED   rc=1 resmap_map self-test: 13 of 15 arms passed | first failed arm: a census flip-flop: caught, but not as 'census: top/leaf FF': census totals: FF totals 7, the top row is 8
+KILLED: ['ancestry-additive-off', 'ancestry-shared-off', 'flat-off', 'record-totals-off', 'record-scopes-off', 'census-leaf-off', 'census-stray-off', 'iob-split-off', 'slice-share-unnormalized', 'depth-off', 'census-lut-off', 'census-lut-leaves-only', 'census-lut-parents-only', 'census-lut-total-column-only', 'census-lut-subcolumns-only', 'lut-kind-collapsed', 'lut-site-key-by-bel', 'lut-no-ancestor-climb', 'record-carry4-off', 'record-slice-off', 'census-leaf-no-ff']
+SURVIVED: ['census-total-off', 'names-sum-off', 'flat-slice-off', 'flat-lut-only', 'census-leaf-ff-only']
+ABSENT: ['partition-off']

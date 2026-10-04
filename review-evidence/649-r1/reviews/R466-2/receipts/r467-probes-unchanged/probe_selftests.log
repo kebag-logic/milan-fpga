@@ -1,0 +1,9 @@
+models: refused points kept in the stream fit    -> CAUGHT (self-test fails): resmap_models self-test: FAIL
+models: refused points kept in the processor fits -> CAUGHT (self-test fails): resmap_models self-test: FAIL
+tables: page check reports stale as equal        -> CAUGHT (self-test fails): resmap_tables self-test: FAIL
+Traceback (most recent call last):
+  File "<scratch>/r467probes/probe_selftests.py", line 31, in <module>
+    assert orig.count(old) == 1, (what, orig.count(old))
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('map: partition tie disabled', 0)
+rc=1

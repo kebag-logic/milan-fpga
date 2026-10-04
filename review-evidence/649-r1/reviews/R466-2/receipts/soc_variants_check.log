@@ -1,0 +1,44 @@
+cpu2           report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--cpu-count': '2'}
+cpu4           report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--cpu-count': '4'}
+fpu-f          not priced: export rc 1, recipe milan_soc_pricing.py, flags {'--scala-args=--with-rvf': True}
+fpu-fd         not priced: export rc 1, recipe milan_soc_pricing.py, flags {'--scala-args=--with-rvf --with-rvd': True}
+isa-m          report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-mul --with-div': True}
+isa-mf         report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-mul --with-div --with-rvf': True}
+isa-mfd        report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-mul --with-div --with-rvf --with-rvd': True}
+l1-caches      report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1': True}
+l1-fetch       report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1': True}
+l1-w2          report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1 --fetch-l1-ways=2 --lsu-l1-ways=2': True}
+l1-w4          report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1 --fetch-l1-ways=4 --lsu-l1-ways=4': True}
+l1l2-16k       report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1': True, '--l2-bytes': '16384'}
+l1l2-32k       report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1': True, '--l2-bytes': '32768'}
+l1l2-8k        report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--scala-args=--with-fetch-l1 --with-lsu-l1': True, '--l2-bytes': '8192'}
+l2-16k         report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--l2-bytes': '16384'}
+l2-32k         report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--l2-bytes': '32768'}
+l2-8k          report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--l2-bytes': '8192'}
+naxriscv       report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--cpu': 'naxriscv'}
+naxriscv-rv64  report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--cpu': 'naxriscv', '--xlen': '64'}
+rv64           report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--xlen': '64'}
+rv64-fpu       report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {'--with-fpu': True, '--xlen': '64'}
+ship           report = receipt, total =, cpu =, meta =, recipe milan_soc_pricing.py, shipping ROM read True, vivado rc 0; flags vs ship {}
+ship-tracked   not priced: export rc 0, recipe milan_soc.py, flags {}
+ship-tracked: recipe milan_soc.py, rc 0, cpu netlist VexiiRiscvLitex_f5f08b170311db53220574624f819159 vs ship VexiiRiscvLitex_f5f08b170311db53220574624f819159; flags vs ship {}
+fit CPU count: LUT/unit 1484.4 rms 2.3 max 3.2; FF/unit 1091.1; BRAM tiles/unit 1.00
+fit L1 ways: LUT/unit 132.1 rms 53.1 max 73.7; FF/unit 113.6; BRAM tiles/unit 3.50
+fit L2 KiB on L1 core: LUT/unit -1.6 rms 22.2 max 30.9; FF/unit -2.9; BRAM tiles/unit 0.32
+isa-m - ship: LUT +426 FF +247 BRAM +0.0 DSP +4
+isa-mf - isa-m: LUT +2569 FF +1660 BRAM +1.5 DSP +0
+isa-mfd - isa-mf: LUT +3548 FF +1804 BRAM +2.0 DSP +5
+rv64 - ship: LUT +1167 FF +694 BRAM +1.5 DSP +0
+naxriscv - ship: LUT +14348 FF +7955 BRAM +47.0 DSP +4
+naxriscv-rv64 - naxriscv: LUT +4232 FF +2079 BRAM +0.0 DSP +12
+l1-fetch - ship: LUT +137 FF +178 BRAM +1.5 DSP +0
+l1-caches - ship: LUT +1210 FF +2080 BRAM +4.0 DSP +0
+l1l2-8k - l1-caches: LUT +1364 FF +1789 BRAM +2.5 DSP +0
+l1l2-16k - l1-caches: LUT +1300 FF +1696 BRAM +6.5 DSP +0
+l1l2-32k - l1-caches: LUT +1316 FF +1706 BRAM +10.5 DSP +0
+rv64-fpu - rv64: LUT +0 FF +0 BRAM +0.0 DSP +0
+l2-8k - ship: LUT +0 FF +0 BRAM +0.0 DSP +0
+l2-16k - ship: LUT +0 FF +0 BRAM +0.0 DSP +0
+l2-32k - ship: LUT +0 FF +0 BRAM +0.0 DSP +0
+ship synth over route: SoC 9455/8371 = 1.129; CPU 4077/3524 = 1.157
+RESULT PASS
