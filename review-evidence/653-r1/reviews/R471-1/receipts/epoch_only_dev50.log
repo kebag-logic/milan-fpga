@@ -1,0 +1,40 @@
+start 2026-10-04T18:02:50Z
++ ./obj_tdm8r/Vmilan_dp_tdm8r --epoch-only
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 232, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 37..194 axis cycles (0.370..1.940 us) over 1799 frames, spread 157 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at +41.6458 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 0.5003 s
+  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1
+  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1
+  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8752, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 285..289 axis cycles (2.850..2.890 us) over 1798 frames, spread 4 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at -0.8013 ppm over 3743790 axis cycles, which is one whole frame of phi - one counted skip - every 25.9988 s
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured +41.6458 ppm at INTERNAL and -0.8013 ppm under CRF
+  [i]    T30 CRF LAW: over 292 steady PDU ends the first pop after the end is taken +714..+718 cycles from it and the pop nearest the boundary +714..+718 (walk 4); the least clearance is 713 cycles, at PDU 1465 (offset +714), against the 9-cycle ambiguity window: margin 704
+  [i]    T30 CRF LAW: 292 PDUs, fill at the PDU end 14..14, first-event delay from it 17382..17386 cycles = 8.343..8.345 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13433, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 278..279 axis cycles (2.780..2.790 us) over 239 frames, spread 1 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at +0.0000 ppm over 495839 axis cycles, which is one whole frame of phi - one counted skip - every 0.0000 s
+  [i]    T31: 13686 of the record's 14400 events were injected
+
+[CSR] the diagnostic write window, by CLUSTER key
+  [i]    T11: a suppressed CSR write is a CSR behaviour; no AECP status is asserted for it. The in-range PROJECTED mirror is T11b below; the in-range NONPHYSICAL one is the multi-stream leg's M6.
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 12 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 5 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 12 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 494 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 114   failures: 4 ==
+RESULT: FAIL
+end 2026-10-04T18:04:43Z
+rc=1
