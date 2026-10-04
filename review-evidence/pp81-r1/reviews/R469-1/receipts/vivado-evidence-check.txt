@@ -1,0 +1,38 @@
+# published OOC 1x1 runs, milan-fpga a1b03e32b86fe81240e83f8228612323c98f76af review-evidence/pp81-r1/author-r1/vivado/<run>/ooc-1x1/
+# git blob sha of each downloaded utilization report (must equal the published tree entry)
+base utilization blob 6587e5cc44a9fe09c2a6e0ec4a82d09e0c5c85f7 hierarchy blob ffa5de8468737c2c09c5d22bcc813f671be0f245 log blob 241ff7c4d7ed71a54e373d12ec5d13c82ab6cdb5
+head utilization blob 389d704d037113a5c64132881818d6025a7fd060 hierarchy blob c3a023865073707a0a12d6b7179cff94561830af log blob 46402accb1671edbde30ef742804315132e450a8
+main utilization blob 5d40afb2ab0e18785c7dc40e63c1a90cdcd56fa4 hierarchy blob 4d9c5bd6b43bf26c97a6a920f8776378748be456 log blob b2a9477f41e60a12ccd9abb1419b1a48a4d83652
+merge utilization blob 0b432c678ceb5b28e0466230f7015d46ba1b66e4 hierarchy blob 4bd8aa914c4a2f5a4f82940645db48e18deae868 log blob 8d05a2d69e8aa695d29e210025f535a702bc9ea2
+
+# totals
+base: LUT as Logic=23644; LUT as Memory=1286; Slice Registers=25465; F7 Muxes=639; CARRY4=1643; 
+head: LUT as Logic=23614; LUT as Memory=1286; Slice Registers=25461; F7 Muxes=623; CARRY4=1644; 
+main: LUT as Logic=21980; LUT as Memory=2150; Slice Registers=23418; F7 Muxes=621; CARRY4=1494; 
+merge: LUT as Logic=22047; LUT as Memory=2150; Slice Registers=23528; F7 Muxes=621; CARRY4=1494; 
+
+# images equal across the four runs
+base ['a14e34e7ab96d269', 'e3b0c44298fc1c14', 'd1657b93f1791073', '23cc67eeadc7ecad', '518b900c4a565090', '78c8418a00b35cda']
+head ['a14e34e7ab96d269', 'e3b0c44298fc1c14', 'd1657b93f1791073', '23cc67eeadc7ecad', '518b900c4a565090', '78c8418a00b35cda']
+main ['a14e34e7ab96d269', 'e3b0c44298fc1c14', 'd1657b93f1791073', '23cc67eeadc7ecad', '518b900c4a565090', '78c8418a00b35cda']
+merge ['a14e34e7ab96d269', 'e3b0c44298fc1c14', 'd1657b93f1791073', '23cc67eeadc7ecad', '518b900c4a565090', '78c8418a00b35cda']
+
+# chparam equal: 1 distinct
+
+# Synth 8-4445 matches per log
+base/baseline.log:1
+head/baseline.log:1
+main/baseline.log:1
+merge/baseline.log:1
+
+# armq constant-propagation lines per log
+base 4
+head 4
+main 4
+merge 0
+
+# (u_pp) own row, LUT / FF
+base 447 / 3167
+head 602 / 3167
+main 576 / 3169
+merge 599 / 3279
