@@ -1,0 +1,22 @@
+decoder C0 time column (ms, swapped-word scale): {'own_rsp': -5525655063311.155, 'cmd': -5518654970993.312, 'rsp': -5518622741558.723}
+own GET_COUNTERS answer -> UNBIND_RX command : 1629.836 us
+own GET_COUNTERS answer -> UNBIND_RX response: 1637.340 us
+UNBIND_RX command -> response                : 7.504 us
+grade C0 own_rsp_to_cmd_us 1629.8 cmd_to_rsp_us 7.5 order_vs_own COUNTERS_FIRST order RESPONSE_FIRST
+OK   C0 command interval rounds to 1,629.8 
+OK   C0 response interval rounds to 1,637.3 
+OK   decoder command interval equals grade own_rsp_to_cmd_us 
+OK   grade own+cmd_to_rsp equals response figure 
+OK   page sentence carries both figures paired with their events 
+OK   control reads COUNTERS_FIRST against own, RESPONSE_FIRST against push 
+  update 0/0 Connected     x23  accepted by the check: True
+  update 1/0 Connected     x23  accepted by the check: True
+  update 1/1 NotConnected  x23  accepted by the check: True
+OK   updates are exactly 0/0 Connected, 1/0 Connected, 1/1 NotConnected, 23 each 
+OK   no update carried a compatibility event; Milan flag present on every update {'IEEE17221|Milan'}
+  R01: input idx {1}; held before NotConnected 1/0 Connected at bind+1000.0 ms; window 95.0 ms; next update 1/1/0; updates after NotConnected 1
+OK   R01 window 95.0 ms, no update inside, next carries 1/1/0 
+  R02: input idx {1}; held before NotConnected 1/0 Connected at bind+1000.0 ms; window 100.0 ms; next update 1/1/0; updates after NotConnected 1
+OK   R02 window 100.0 ms, no update inside, next carries 1/1/0 
+RESULT PASS
+rc=0

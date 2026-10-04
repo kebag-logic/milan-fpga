@@ -1,0 +1,83 @@
+# Every removeCompatibilityFlag call with its clause and message, upstream la_avdecc commit 6d61a92e7f264c69f23cdc38f50d31114e567aa0 (tag v4.3.1.1), src/ only
+src/controller/avdeccControllerImplHandlers.cpp:50 Milan "Milan 1.2 - 5.3.7.7" "Milan 1.2 mandatory counters missing for STREAM_OUTPUT descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:58 Milan "Milan 1.3 - 5.3.7.7" "Milan 1.3 mandatory counters missing for STREAM_OUTPUT descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:66 Milan "Milan 1.3 - 5.3.7.7" "Milan 1.3 (Signal Presence) mandatory counters missing for STREAM_OUTPUT descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:524 Milan "Milan 1.2 - 7.3.8.10" "Milan mandatory counters missing for STREAM_INPUT descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:556 Milan "Milan 1.3 - 5.3.11.2" "Milan mandatory counters missing for CLOCK_DOMAIN descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:573 Milan "Milan 1.3 - 5.3.6.3" "Milan mandatory counters missing for AVB_INTERFACE descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:721 IEEE17221 "IEEE1722.1-2021 - 6.2" "EntityID is expected to be identical in ADP and ENTITY_DESCRIPTOR"
+src/controller/avdeccControllerImplHandlers.cpp:726 IEEE17221 "IEEE1722.1-2021 - 6.2" "EntityModelID is expected to be identical in ADP and ENTITY_DESCRIPTOR"
+src/controller/avdeccControllerImplHandlers.cpp:1417 IEEE17221 "IEEE1722.1-2021 - 7.4.73.2" "Invalid MemoryObject.length value (greater than MemoryObject.maximumLength value): "
+src/controller/avdeccControllerImplHandlers.cpp:2383 Milan "Milan 1.3 - 5.3.6.3" "Milan mandatory counters missing for AVB_INTERFACE descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:2431 Milan "Milan 1.3 - 5.3.11.2" "Milan mandatory counters missing for CLOCK_DOMAIN descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:2479 Milan "Milan 1.3 - 5.3.8.10" "Milan mandatory counters missing for STREAM_INPUT descriptor"
+src/controller/avdeccControllerImplHandlers.cpp:3420 Milan "Milan 1.3 - 5.5.4.3" "Milan device must advertise 0 connection_count in GET_TX_STATE_RESPONSE"
+src/controller/avdeccControllerImpl.cpp:636 IEEE17221 "IEEE1722.1-2021 - 7.4.15/7.4.16" "StreamFormatValid bit not set in STREAM_INFO response"
+src/controller/avdeccControllerImpl.cpp:648 IEEE17221 "IEEE1722.1-2021 - 7.4.15/7.4.16" "StreamFormatValid bit set but invalid stream_format field in STREAM_INFO response"
+src/controller/avdeccControllerImpl.cpp:681 Milan "Milan 1.3 - 5.4.2.10.1" "StreamInfoFlag CL_ENTRIES_VALID must not be set"
+src/controller/avdeccControllerImpl.cpp:692 Milan "Milan 1.2 - 5.4.2.9/5.4.2.10" "Milan mandatory extended GET_STREAM_INFO not found"
+src/controller/avdeccControllerImpl.cpp:781 IEEE17221 "IEEE1722.1-2021 - 7.4.15/7.4.16" "StreamFormatValid bit not set in STREAM_INFO response"
+src/controller/avdeccControllerImpl.cpp:793 IEEE17221 "IEEE1722.1-2021 - 7.4.15/7.4.16" "StreamFormatValid bit set but invalid stream_format field in GET_STREAM_INFO response"
+src/controller/avdeccControllerImpl.cpp:826 Milan "Milan 1.3 - 5.4.2.10.1" "StreamInfoFlag CL_ENTRIES_VALID must not be set"
+src/controller/avdeccControllerImpl.cpp:837 Milan "Milan 1.2 - 5.4.2.9/5.4.2.10" "Milan mandatory extended GET_STREAM_INFO not found"
+src/controller/avdeccControllerImpl.cpp:1131 IEEE17221 "IEEE1722.1-2021 - 6.2.2.9" "Entity changed its ASSOCIATION_ID but it said ASSOCIATION_ID_NOT_SUPPORTED in ADPDU"
+src/controller/avdeccControllerImpl.cpp:1543 Milan "Milan 1.3 - 5.3.6.3" "Invalid LINK_UP / LINK_DOWN counters value on AVB_INTERFACE: "
+src/controller/avdeccControllerImpl.cpp:1578 Milan "Milan 1.3 - 5.3.11.2" "Invalid LOCKED / UNLOCKED counters value on CLOCK_DOMAIN: "
+src/controller/avdeccControllerImpl.cpp:1613 Milan "Milan 1.3 - 5.3.8.10" "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: "
+src/controller/avdeccControllerImpl.cpp:1714 Milan "Milan 1.2 - 5.3.7.7" "Invalid STREAM_START / STREAM_STOP counters value on STREAM_OUTPUT: "
+src/controller/avdeccControllerImpl.cpp:1727 Milan "Milan 1.3 - 5.3.7.7" "Invalid STREAM_START / STREAM_STOP counters value on STREAM_OUTPUT: "
+src/controller/avdeccControllerImpl.cpp:1740 Milan "Milan 1.3 - 5.3.7.7" "Invalid STREAM_START / STREAM_STOP counters value on STREAM_OUTPUT: "
+src/controller/avdeccControllerImpl.cpp:1753 Milan "Milan 1.3 - 5.3.7.7" "Invalid STREAM_OUTPUT counters type"
+src/controller/avdeccControllerImpl.cpp:1775 IEEE17221 "IEEE1722.1-2021 - 7.4.72/7.4.73" "MemoryObject length is greater than maximumLength: "
+src/controller/avdeccControllerImpl.cpp:2486 Milan "Milan 1.3 - 5.4.2.1" "Milan device must not implement ACQUIRE_ENTITY"
+src/controller/avdeccControllerImpl.cpp:2495 Milan "Milan 1.3 - 5.4.2.1" "Milan device must not implement ACQUIRE_ENTITY"
+src/controller/avdeccControllerImpl.cpp:2561 Milan "Milan 1.3 - 5.4.2.2" "Milan device must implement LOCK_ENTITY"
+src/controller/avdeccControllerImpl.cpp:4556 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4565 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4571 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4577 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4583 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4589 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4595 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4600 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4684 IEEE17221 "IEEE1722.1-2021 - 6.2.2" "AEM_IDENTIFY_CONTROL_INDEX_VALID bit is set in ADP but ControlIndex is invalid: CONTROL index not defined in ADP"
+src/controller/avdeccControllerImpl.cpp:4695 IEEE17221 "IEEE1722.1-2021 - 6.2.2" "AEM_IDENTIFY_CONTROL_INDEX_VALID bit is set in ADP but ControlIndex is invalid: No valid CONTROL at index "
+src/controller/avdeccControllerImpl.cpp:4746 IEEE17221 "IEEE1722.1-2021 - 6.2.2" "AEM_IDENTIFY_CONTROL_INDEX_VALID bit is set in ADP but ControlIndex is invalid: ControlType should be IDENTIFY but is 
+src/controller/avdeccControllerImpl.cpp:4768 IEEE17221 "IEEE1722.1-2021 - 6.2.2" "ControlDescriptor at Index "
+src/controller/avdeccControllerImpl.cpp:4779 IEEE17221 "IEEE1722.1-2021 - 7.2.22" "control_type for CONTROL descriptor at index "
+src/controller/avdeccControllerImpl.cpp:4963 IEEE17221 "IEEE1722.1-2021 - 7.2.1" "A device is required to have at least one Configuration Descriptor"
+src/controller/avdeccControllerImpl.cpp:5012 IEEE17221 "IEEE1722.1-2013 - 7.2" "Invalid Descriptor Numbering: "
+src/controller/avdeccControllerImpl.cpp:5077 Milan "Milan 1.2 - 5.3.3.4" " If a STREAM_INPUT/OUTPUT supports the Avnu Pro Audio CRF Media Clock Stream Format, it shall not support the Avnu Pro Audio A
+src/controller/avdeccControllerImpl.cpp:5165 Milan "Milan 1.3 - 6.3/6.4" "A PAAD-AE shall have at least one Configuration that contains at least one Stream which advertises support for a Base format i
+src/controller/avdeccControllerImpl.cpp:5187 Milan "Milan 1.3 - 7.2.2" "For each supported clock domain, an AAF Media Listener with two or more AAF Media Inputs shall implement a CRF Media Clock Input
+src/controller/avdeccControllerImpl.cpp:5193 Milan "Milan 1.3 - 7.2.3" "For each supported clock domain, an AAF Media Listener with two or more AAF Media Inputs shall implement a CRF Media Clock Outpu
+src/controller/avdeccControllerImpl.cpp:5203 Milan "Milan 1.3 - 7.2.2" "For each supported clock domain, an AAF Media Talker shall implement a CRF Media Clock Input"
+src/controller/avdeccControllerImpl.cpp:5213 Milan "Milan 1.3 - 5.4.4.1" "MilanInfo is not available for this entity although it is advertised as Milan compatible"
+src/controller/avdeccControllerImpl.cpp:5220 IEEE17221 "IEEE1722.1-2021" "Invalid current CONFIGURATION descriptor"
+src/controller/avdeccControllerImpl.cpp:6384 IEEE17221 "IEEE1722.1-2021 - 7.4.76" "Too many unexpected errors for AEM command: GET_DYNAMIC_INFO ("
+src/controller/avdeccControllerImpl.cpp:6472 IEEE17221 "IEEE1722.1-2021 - 7.4.76" "Too many unexpected errors for AEM command: GET_DYNAMIC_INFO ("
+src/controller/avdeccControllerImpl.cpp:6542 IEEE17221 "IEEE1722.1-2021 - 7.4.37" "Error registering for unsolicited notifications: "
+src/controller/avdeccControllerImpl.cpp:6579 IEEE17221 "IEEE1722.1-2021 - 7.4.37" "Error registering for unsolicited notifications: "
+src/controller/avdeccControllerImpl.cpp:6614 Milan "Milan 1.3 - 5.4.3" "Milan mandatory MVU command not properly implemented by the entity"
+src/controller/avdeccControllerImpl.cpp:6644 IEEE17221 "IEEE1722.1-2021 - 7.4.37" "Too many unexpected errors for AEM command: REGISTER_UNSOLICITED_NOTIFICATION ("
+src/controller/avdeccControllerImpl.cpp:6670 IEEE17221 "IEEE1722.1-2021 - 7.4" "Error getting IEEE1722.1 mandatory descriptor ("
+src/controller/avdeccControllerImpl.cpp:6683 Milan "Milan 1.3 - 5.3.2" "Milan mandatory descriptor not supported by the entity: "
+src/controller/avdeccControllerImpl.cpp:6703 Milan "Milan 1.3 - 5.3.2" "Milan mandatory descriptor not supported by the entity: "
+src/controller/avdeccControllerImpl.cpp:6717 IEEE17221 "IEEE1722.1-2021 - 7.4" "Too many unexpected errors for AEM command: READ_DESCRIPTOR ("
+src/controller/avdeccControllerImpl.cpp:6748 IEEE17221 "IEEE1722.1-2021 - 7.4" "Error getting IEEE1722.1 dynamic info ("
+src/controller/avdeccControllerImpl.cpp:6787 IEEE17221 "IEEE1722.1-2021 - 7.4" "Too many unexpected errors for dynamic info query "
+src/controller/avdeccControllerImpl.cpp:6868 IEEE17221 "IEEE1722.1-2021 - 8.2" "Error getting IEEE1722.1 mandatory ACMP info ("
+src/controller/avdeccControllerImpl.cpp:6903 IEEE17221 "IEEE1722.1-2021 - 8.2" "Too many unexpected errors for ACMP command "
+src/controller/avdeccControllerImpl.cpp:6934 IEEE17221 "IEEE1722.1-2021 - 8.2" "Error getting IEEE1722.1 mandatory ACMP info ("
+src/controller/avdeccControllerImpl.cpp:6969 IEEE17221 "IEEE1722.1-2021 - 8.2" "Too many unexpected errors for ACMP command "
+src/controller/avdeccControllerImpl.cpp:7005 IEEE17221 "IEEE1722.1-2021 - 7.4" "Error getting IEEE1722.1 descriptor dynamic info ("
+# STREAM_INPUT entries:
+4
+# Above: the 72 call sites that pass a literal clause and message. The tag has 76
+# call sites in all; the other 4 forward a computed clause/message:
+#   avdeccControllerImpl.cpp:231  setMisbehavingCompatibilityFlag helper (callers: :202 incoherent values,
+#                                  :4505/:4511/:4519 invalid mapping, :7216 invalid CONNECTION STATE stream index)
+#   avdeccControllerImpl.cpp:359  decreaseMilanCompatibilityVersion helper (callers: :2259 read-only
+#                                  DefaultMediaClockReferencePriority change, :5067 CRF/AAF format rule, :6094 unsupported command)
+#   avdeccControllerImpl.cpp:1242 and :4789  CONTROL value validation (validateControlValues)
+# None of the 76 judges STREAM_INPUT counter values except :1613.

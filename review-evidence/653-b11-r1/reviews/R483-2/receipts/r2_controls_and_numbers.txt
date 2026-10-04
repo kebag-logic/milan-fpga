@@ -1,0 +1,14 @@
+== (a) planted controls
+clean: rc 0 (expect 0)
+M1 page response interval replaced by the command's: rc 1 (expect 1); failed: page sentence carries both figures paired with their events ;
+M2 one library update planted as 2/0: rc 1 (expect 1); failed: updates are exactly 0/0 Connected, 1/0 Connected, 1/1 NotConnected, 23 each ;
+M3 an update planted inside the R01 window: rc 1 (expect 1); failed: updates are exactly 0/0 Connected, 1/0 Connected, 1/1 NotConnected, 23 each ;R01 window 95.0 ms, no update inside, next carries 1/1/0 ;
+== (b) numeric tokens, round 1 vs round 2
+-- docs/findings/653_DISCONNECT_ORDER_BENCH.md: tokens removed (multiset): 
+-- docs/findings/653_DISCONNECT_ORDER_BENCH.md: tokens added (multiset): 0 0/0 1 1/0 1/0 1/0 1/0 1/0 1/0 1/1 1/1 1/1 1611 1611-1613 1613 1,637.3 23 264 31114 35 38 4.3.1.1 50 567 6 6 61 61 69 7 92 92 
+-- docs/findings/README.md: tokens removed (multiset): 
+-- docs/findings/README.md: tokens added (multiset): 
+-- page sections outside the round-2 hunks: per-cycle table rows and hash table rows identical?
+   rows /^\| (C0|A[0-9]{2}|R0[12]) /: 24 rows, r1 8101e2cc32cc0c80 r2 8101e2cc32cc0c80 IDENTICAL
+   rows /^\| `b11-a535-/: 23 rows, r1 2145e522e75f8022 r2 2145e522e75f8022 IDENTICAL
+   rows /^\| (Probe|Session|Lane grader|Provided decoder|The header)/: 8 rows, r1 c1d5f718aba0b58f r2 c1d5f718aba0b58f IDENTICAL

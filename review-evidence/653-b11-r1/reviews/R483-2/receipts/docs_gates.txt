@@ -1,0 +1,16 @@
+head 6b83de0009673ce2c438985a0f9720f079a3715d tree 2f5399e4b187d30847191e13743b36cad9aeb63b
+md python <md-venv>/bin/python: python 3.14.7 cmarkgfm 2025.10.22 html5lib 1.1
+rc=0  <md-venv>/bin/python scripts/docs_check.py  (log gate_01.log, 1 lines; last: docs_check: 0 finding(s) across 189 md files + 985 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files])
+rc=0  <md-venv>/bin/python scripts/check_doc_style.py  (log gate_02.log, 1 lines; last: documentation style: OK (22 current documents))
+rc=0  <md-venv>/bin/python scripts/gen_toc.py --check  (log gate_03.log, 1 lines; last: TOC gate: OK (131 page(s) carry an annotated contents list, 17 below the 3-section threshold))
+rc=0  <md-venv>/bin/python scripts/gen_toc.py --verify-anchors  (log gate_04.log, 1 lines; last: anchor check: 340 existing cross-page fragment links reproduced)
+rc=0  <md-venv>/bin/python scripts/check_em_dash.py --base 6c22d3cad7c8c24ed3f0c5eab535922a3428c8d5  (log gate_05.log, 1 lines; last: check_em_dash: 0 finding(s) over 394 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6c22d3ca..HEAD])
+rc=0  <md-venv>/bin/python scripts/check_em_dash.py --base 6f76d612a3191b77ac8a1fe2b9c66da42aeb405a  (log gate_06.log, 1 lines; last: check_em_dash: 0 finding(s) over 51 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6f76d612..HEAD])
+rc=0  <md-venv>/bin/python scripts/check_em_dash.py --selftest  (log gate_07.log, 1 lines; last: check_em_dash selftest: PASS (339 arm(s)))
+rc=0  <md-venv>/bin/python scripts/check_doc_paths.py  (log gate_08.log, 1 lines; last: doc path gate: OK (909 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file))
+rc=0  python3 scripts/ci_scope.py --selftest  (log gate_09.log, 91 lines; last: selftest: PASS)
+rc=0  python3 scripts/check_baremetal_only.py --check  (log gate_10.log, 1 lines; last: baremetal-only: OK (0 findings across 983 tracked first-party file(s)))
+rc=0  python3 scripts/check_baremetal_only.py --selftest  (log gate_11.log, 1 lines; last: baremetal-only selftest: PASS (700 arm(s)))
+rc=0  python3 scripts/check_feature_status.py --self-test  (log gate_12.log, 48 lines; last: feature_status: 0 finding(s))
+rc=0  git diff --check 6c22d3cad7c8c24ed3f0c5eab535922a3428c8d5 HEAD  (log gate_13.log, 0 lines; last: )
+rc=0  git diff --check 6f76d612a3191b77ac8a1fe2b9c66da42aeb405a HEAD  (log gate_14.log, 0 lines; last: )

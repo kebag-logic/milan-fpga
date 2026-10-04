@@ -1,0 +1,75 @@
+# upstream https://github.com/L-Acoustics/avdecc.git, fetched 2026-10-04T20:00:52Z
+# ls-remote of the refs read:
+a3a6292637485ef7cfd57a199d229a6263ed3ba8	refs/heads/dev
+2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea	refs/heads/main
+2f2fbeb6f3cff060bda7753e269d61a92ee0449c	refs/tags/v4.1.0
+8a029ab3fa846cb169869c15472fb052ed6c5e47	refs/tags/v4.1.0^{}
+fa4e53d8c53cc6f72c67e655d77bb98bd4f9aeb9	refs/tags/v4.3.0
+bf1ac47b79906c7512bbbe45df55621f3eec25c9	refs/tags/v4.3.0^{}
+080ab851ba558e8502c5d44522a3012bee007440	refs/tags/v4.3.1.1
+6d61a92e7f264c69f23cdc38f50d31114e567aa0	refs/tags/v4.3.1.1^{}
+== refs/tags/v4.3.1.1 commit 6d61a92e7f264c69f23cdc38f50d31114e567aa0  avdeccControllerImpl.cpp sha256 5f70fbfac4c6db2e4a99c728f519fe82849bf80912e215cba1ee954d78ee941d
+1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1608-			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1609-			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1610-			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1611-			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1612-			{
+1613-				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std
+1614-			}
+-- every MediaUnlocked under src/ at refs/tags/v4.3.1.1:
+src/controller/avdeccControllerImpl.cpp:1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1610:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamI
+== refs/heads/main commit 2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea  avdeccControllerImpl.cpp sha256 0f12ca7f5fdd069f5612b4c8a2d502ab334adddc45890dadfaa8d6d562d25feb
+1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1608-			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1609-			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1610-			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1611-			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1612-			{
+1613-				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std
+1614-			}
+-- every MediaUnlocked under src/ at refs/heads/main:
+src/controller/avdeccControllerImpl.cpp:1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1610:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamI
+== refs/heads/dev commit a3a6292637485ef7cfd57a199d229a6263ed3ba8  avdeccControllerImpl.cpp sha256 bf3e7c6183a89ac7efc24993d606449df9d0bab94ca175bcdeff9ed6c5b95b50
+1621:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1622-			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1623-			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1624-			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1625-			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1626-			{
+1627-				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std
+1628-			}
+-- every MediaUnlocked under src/ at refs/heads/dev:
+src/controller/avdeccControllerImpl.cpp:1621:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1624:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamI
+== refs/tags/v4.3.0 commit bf1ac47b79906c7512bbbe45df55621f3eec25c9  avdeccControllerImpl.cpp sha256 5f70fbfac4c6db2e4a99c728f519fe82849bf80912e215cba1ee954d78ee941d
+1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1608-			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1609-			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1610-			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1611-			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1612-			{
+1613-				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std
+1614-			}
+-- every MediaUnlocked under src/ at refs/tags/v4.3.0:
+src/controller/avdeccControllerImpl.cpp:1607:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1610:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamI
+== refs/tags/v4.1.0 commit 8a029ab3fa846cb169869c15472fb052ed6c5e47  avdeccControllerImpl.cpp sha256 c761da26df3374b9bfdd2528ee7b480fa0deaab3c2f97bcef45124f9248d6ad6
+1651:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.2 Clause 5.3.8.10)
+1652-			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1653-			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1654-			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1655-			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1656-			{
+1657-				LOG_CONTROLLER_WARN(controlledEntity.getEntity().getEntityID(), "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT:{} ({} / {})", streamIndex, lockedValue, unlockedValue);
+1658-				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan);
+-- every MediaUnlocked under src/ at refs/tags/v4.1.0:
+src/controller/avdeccControllerImpl.cpp:1651:			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.2 Clause 5.3.8.10)
+src/controller/avdeccControllerImpl.cpp:1654:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFlags{ entity::StreamI
