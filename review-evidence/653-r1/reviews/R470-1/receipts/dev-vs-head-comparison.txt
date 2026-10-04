@@ -1,0 +1,10 @@
+# milan_dp_gptp physical: simulation-output lines ([..] checks, PROGRESS, Pdelay, == tallies) extracted from each log, compared
+head-gptp-5050 lines=224 sha256=0d4c1b126eeb6a261b04ca08ed7e9a0fd171566f0e900ad253956126668454a3 rc=2 tally=checks: 139   failures: 3
+dev-gptp-5050 lines=224 sha256=0d4c1b126eeb6a261b04ca08ed7e9a0fd171566f0e900ad253956126668454a3 rc=2 tally=checks: 139   failures: 3
+dev-gptp-5052 lines=224 sha256=0d4c1b126eeb6a261b04ca08ed7e9a0fd171566f0e900ad253956126668454a3 rc=2 tally=checks: 139   failures: 3
+# extraction: grep -v '^#' LOG | grep -v -E '^(make|- V|%|g\+\+|ccache|  *[a-z_]+\.(cpp|o)|.*Verilator: )' | grep -E '^\s*\[|PROGRESS|Pdelay|=='
+# render --epoch-only clean ship leg (obj_tdm8r/Vmilan_dp_tdm8r --epoch-only), stdout sha256 excluding '#' lines:
+head-r rc=1 sha256=8f6ebaae13f213334c5a80e23eac623fc086bf69b0bb96d50155925dc14b43ac tally=checks: 114   failures: 4
+dev-r rc=1 sha256=8f6ebaae13f213334c5a80e23eac623fc086bf69b0bb96d50155925dc14b43ac tally=checks: 114   failures: 4
+dev52-r rc=1 sha256=8f6ebaae13f213334c5a80e23eac623fc086bf69b0bb96d50155925dc14b43ac tally=checks: 114   failures: 4
+# head-r = exact head 77ea6cb4 + pinned 5.050; dev-r = dev fea346e7 + pinned 5.050; dev52-r = dev fea346e7 + host 5.052
