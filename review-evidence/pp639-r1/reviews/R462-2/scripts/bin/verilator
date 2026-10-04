@@ -1,0 +1,16 @@
+#!/bin/sh
+# Pinned Verilator 5.050. A build's own "-j 0" is capped at VJOBS (default 2) so that
+# concurrent builds stay inside the reviewer's CPU and memory budget; nothing else changes.
+PINNED=${PINNED_VERILATOR:-$VALIDATION_TOOLS/pinned-verilator-5.050/verilator}
+j=${VJOBS:-2}
+n=$#
+prev=""
+while [ "$n" -gt 0 ]; do
+  a=$1
+  shift
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=$j; fi
+  prev=$a
+  set -- "$@" "$a"
+  n=$((n - 1))
+done
+exec "$PINNED" "$@"
