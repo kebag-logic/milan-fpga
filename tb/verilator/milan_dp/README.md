@@ -72,7 +72,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
-| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants` |
+| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
@@ -90,6 +90,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
 - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
+- **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -652,6 +653,67 @@ start the walk once the descriptor memory answers (the firmware's order), and
 `milan_dp_render` waits out one commit-to-pin bound before T8 collects,
 because the D3 walk moves that leg against the frame grid.
 
+## The #653 unbind order and Table 5.6 pair (the UNB section of `obj_notify`)
+
+Issue #653 reports a counters push that left before its UNBIND_RX response.
+`[UNB]` runs that unbind at the end of the timed leg, after `[GSI]`.
+It uses the same ports, on the AAF input (0) and the CRF input (1).
+For each input it does the following:
+
+1. registers controllers A and B;
+2. binds from A, answers the PROBE_TX and locks the input off clean PDUs;
+3. keeps the talker streaming through the unbind;
+4. waits until the row has pushed nothing for one second;
+5. unbinds from A, then waits past both 100 ms silence timeouts.
+
+Step 4 opens the GET_COUNTERS limiter, so only the order can hold a push back.
+Milan v1.2 5.3.8.10 counts the unbind as one MEDIA_UNLOCKED, never a STREAM_INTERRUPTED.
+Table 5.6 then reads MEDIA_LOCKED = MEDIA_UNLOCKED: not synchronized.
+
+| Check | Graded |
+|---|---|
+| U1 | the UNBIND_RX response is SUCCESS |
+| U2 | a push reporting the unlock reaches each controller, and every such push leaves after the response |
+| U3 | the source pair reads 1/1 as the response's last byte leaves, and GET_COUNTERS reads 1/1/0 right after it |
+| U3 | every later push reads MEDIA_LOCKED = MEDIA_UNLOCKED |
+| U4 | 10.5 M cycles after the command, past both timeouts, the pair still reads 1/1/0 |
+
+Each input prints an `[i]` trace, in cycles after the command's last byte.
+Measured on 2026-10-04 UTC:
+
+| Event | AAF input 0 | CRF input 1 |
+|---|---|---|
+| listener queues its response | +193 | +193 |
+| debounced bind level falls | +199 | +199 |
+| MEDIA_UNLOCKED written at its source | +204 | +200 |
+| UNBIND_RX response leaves | +277 | +277 |
+| push reporting the unlock, to A / B | +2,294 / +3,057 | +2,294 / +3,057 |
+
+At dev `fea346e7` the response also led on both inputs.
+There the CRF unlock waited for the silence timeout, at +9,818,177.
+So for 100 ms an unbound CRF input read MEDIA_LOCKED 1, MEDIA_UNLOCKED 0.
+`KL_crf_rx` now counts the unlock on the bind fall, as the AAF monitor does.
+The unit-level cases are in `tb/verilator/crf_rx`, section `[UNB]`.
+
+**Failing arms.** `make unb-mutants` runs `unb_mutants.py`.
+It plants each defect in a copy of the processor tree or of `KL_crf_rx`.
+`CRFRX_SRC` in the Makefile names the CRF engine for that purpose.
+Each mutant must fail its named checks and still pass its named holds.
+Measured on 2026-10-04 UTC: the clean leg passes 421/421 checks.
+
+| Mutant | Named checks that fail | Failures |
+|---|---|---|
+| the ACMP lane is held 6,000 cycles, so the push overtakes the response | U2 order to A, AAF and CRF | 4 of 421 |
+| the CRF unbind does not count its unlock, as at dev `fea346e7` | CRF U3 as the response left, and right after it | 2 of 421 |
+| the CRF unbind keeps the lock, so the timeout counts again | CRF U4; CRF U3 every later push | 2 of 421 |
+| the CRF unbind also counts a STREAM_INTERRUPTED | CRF U3 STREAM_INTERRUPTED; CRF U4 | 2 of 421 |
+| the CRF unbind counts its unlock but arms no push | CRF U2 a push reached A | 2 of 421 |
+
+The first mutant's holds are U1 and the push arriving, so the catch is the order.
+Its 4 failures are exactly the four U2 order checks; nothing else in the leg moves.
+The last mutant's 2 are the push to A and to B.
+The campaign runs explicitly: five mutant elaborations and six runs.
+
 ## GM step re-base leg (#387)
 
 The true-ratio leg also commands an absolute software settime.
@@ -1008,7 +1070,7 @@ Its controls now total twenty, five in the default sweep.
 |---|---|---|---|---|
 | `obj_gptp` (`sim_gptp`) | not available | **181 / 0** (2026-09-24 UTC) | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC | **164 / 0** |
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
-| `obj_notify` (`sim_nxn`, timed) | not in the old table | **345 / 0** (2026-09-24 UTC) | the compressed-timebase 5.4.5 notify leg | **117 / 0** |
+| `obj_notify` (`sim_nxn`, timed) | not in the old table | **345 / 0** (2026-09-24 UTC) | the compressed-timebase 5.4.5 notify leg | **117 / 0**; **421 / 0** (#653, 2026-10-04 UTC): 383 at dev `fea346e7` plus 38 `[UNB]` checks |
 | `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` | same |
 | `obj_nxn` (`sim_nxn`) | 378 / - (did not compile) | **1709 / 0** (2026-09-24 UTC) | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since | **1679 / 0** |
 | `obj_nxndv` (`sim_nxn`) | not in the old table | **1711 / 0** (2026-09-24 UTC) | the divergent-shape leg | **1682 / 0** |

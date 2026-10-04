@@ -270,6 +270,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | #447 TDM8 render lane, the full mutant/control inventory | `cd tb/verilator/milan_dp_render && make tdm8render-mutants`, from inside the suite directory (see its row below) | the change's own validation, and every reviewer of a change that touches `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header or `sim_tdm8_render.cpp` |
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+| #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
 | #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
 | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
 
@@ -307,8 +308,9 @@ The other six legs write no data files.
 Disjoint private write sets need no exclusive marks.
 Presence of `MILAN_COUNTER_FRAME_OUT` still serializes the entire ordinary set.
 The #508 GET_STREAM_INFO checks stay in `obj_notify`.
+The #653 `[UNB]` unbind checks run there too.
 The #443 render CSR checks stay in `obj_aclk`.
-Their focused `notify`, `gsi-mutants` and `render-csr-controls` targets remain available.
+Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
 The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
 The render-law and default GM-step mutation controls run after it succeeds.
 Explicit mutation campaigns above retain their separate targets and full inventories.
