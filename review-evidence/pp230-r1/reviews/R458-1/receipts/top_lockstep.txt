@@ -1,0 +1,35 @@
+# top-level lockstep: committed tb/srp_top stimulus (all groups) through base KL_srp_top_ref and head KL_srp_top_new
+# (lockstep/build_top_lockstep.sh); 51 outputs and 24 internal signals compared each cycle after the first reset;
+# unreset state randomised per seed (LS_SEED). Bench FAIL lines are the committed suite's own checks (see xinit receipt).
+== LS_SEED=1 bench rc=1
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded
+2200 checks: 2196 PASS, 4 FAIL
+LOCKSTEP-SUMMARY N_SOURCES=8 N_SINKS=8 cycles=185012669 mismatching_out=0 mismatching_int=0
+LOCKSTEP-FIFO0 push=509 pop=509 max=6 full_cycles=0 push_at_full=0 push_pop_same=109 write_at_read_ptr=234 push_empty=234 pop_last=234 wptr_wrap=3
+LOCKSTEP-FIFO1 push=329 pop=329 max=6 full_cycles=0 push_at_full=0 push_pop_same=1 write_at_read_ptr=253 push_empty=253 pop_last=253 wptr_wrap=2
+== LS_SEED=2 bench rc=1
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded
+2200 checks: 2196 PASS, 4 FAIL
+LOCKSTEP-SUMMARY N_SOURCES=8 N_SINKS=8 cycles=185012669 mismatching_out=0 mismatching_int=0
+LOCKSTEP-FIFO0 push=509 pop=509 max=6 full_cycles=0 push_at_full=0 push_pop_same=109 write_at_read_ptr=234 push_empty=234 pop_last=234 wptr_wrap=3
+LOCKSTEP-FIFO1 push=329 pop=329 max=6 full_cycles=0 push_at_full=0 push_pop_same=1 write_at_read_ptr=253 push_empty=253 pop_last=253 wptr_wrap=2
+== LS_SEED=3 bench rc=0
+2200 checks: 2200 PASS, 0 FAIL
+LOCKSTEP-SUMMARY N_SOURCES=8 N_SINKS=8 cycles=185012669 mismatching_out=0 mismatching_int=0
+LOCKSTEP-FIFO0 push=509 pop=509 max=6 full_cycles=0 push_at_full=0 push_pop_same=109 write_at_read_ptr=234 push_empty=234 pop_last=234 wptr_wrap=3
+LOCKSTEP-FIFO1 push=329 pop=329 max=6 full_cycles=0 push_at_full=0 push_pop_same=1 write_at_read_ptr=253 push_empty=253 pop_last=253 wptr_wrap=2
+== LS_SEED=4 bench rc=1
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded
+2200 checks: 2196 PASS, 4 FAIL
+LOCKSTEP-SUMMARY N_SOURCES=8 N_SINKS=8 cycles=185012669 mismatching_out=0 mismatching_int=0
+LOCKSTEP-FIFO0 push=509 pop=509 max=6 full_cycles=0 push_at_full=0 push_pop_same=109 write_at_read_ptr=234 push_empty=234 pop_last=234 wptr_wrap=3
+LOCKSTEP-FIFO1 push=329 pop=329 max=6 full_cycles=0 push_at_full=0 push_pop_same=1 write_at_read_ptr=253 push_empty=253 pop_last=253 wptr_wrap=2

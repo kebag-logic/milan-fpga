@@ -1,0 +1,17 @@
+# committed tb/srp_top alone (no lockstep), built with --x-initial unique --x-assign unique + lockstep/rand_init.cpp
+== base LS_SEED=1 rc=1
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded
+2200 checks: 2196 PASS, 4 FAIL
+== base LS_SEED=3 rc=0
+2200 checks: 2200 PASS, 0 FAIL
+== head LS_SEED=1 rc=1
+FAIL: 0: no malformed PDUs
+FAIL: F3: no PDU we fed was tolerance-discarded
+FAIL: F4: no PDU we fed was tolerance-discarded
+FAIL: F5: no PDU we fed was tolerance-discarded
+2200 checks: 2196 PASS, 4 FAIL
+== head LS_SEED=3 rc=0
+2200 checks: 2200 PASS, 0 FAIL

@@ -1,0 +1,20 @@
+# scripts/lint_hdl.sh at head (pinned Verilator first on PATH)
+rc: rc=0
+LINT OK lines: 41; other lines: 0
+# per-shape lint, same flags (-Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM), columns: module N rc diagnostics
+KL_srp_talker_fsm N=1 rc=0 0
+KL_srp_listener_fsm N=1 rc=0 0
+KL_srp_admission N=1 rc=0 0
+KL_srp_top N=1 rc=0 0
+KL_srp_talker_fsm N=2 rc=0 0
+KL_srp_listener_fsm N=2 rc=0 0
+KL_srp_admission N=2 rc=0 0
+KL_srp_top N=2 rc=0 0
+KL_srp_talker_fsm N=3 rc=0 0
+KL_srp_listener_fsm N=3 rc=0 0
+KL_srp_admission N=3 rc=0 0
+KL_srp_top N=3 rc=0 0
+KL_srp_talker_fsm N=9 rc=0 0
+KL_srp_listener_fsm N=9 rc=0 0
+KL_srp_admission N=9 rc=0 0
+KL_srp_top N=9 rc=0 0

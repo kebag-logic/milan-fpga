@@ -1,0 +1,121 @@
+# re-derivation of the PR #154 Vivado figures from milan-fpga 06fe795b8a5de7549413beb03b9418ecdaac0a0f review-evidence/pp230-r1/author-r1/vivado/
+# downloaded files vs that MANIFEST.json published_sha256: 58 files, 0 mismatches
+# original_sha256 prefixes of the eight logs (HANDOFF 5.6 lists the same 16-hex prefixes):
+  ce6ce4f803d232f4  author-r1/vivado/base/elab-8x8/elaborate.log
+  b2ee637b627ac44a  author-r1/vivado/base/route-1x1/baseline.log
+  0cd111793f38d9bc  author-r1/vivado/base/ooc-1x1/baseline.log
+  e4f3c0cc23ea9d37  author-r1/vivado/base/ooc-8x8/baseline.log
+  e42bc7a1c94bc26a  author-r1/vivado/head/elab-8x8/elaborate.log
+  7a6ddd0e74f7d3c2  author-r1/vivado/head/route-1x1/baseline.log
+  350d7e157fd5da6c  author-r1/vivado/head/ooc-1x1/baseline.log
+  4d12c536cd869681  author-r1/vivado/head/ooc-8x8/baseline.log
+== base route-1x1 utilization:  Slice LUTs =51434; LUT as Logic =49158; LUT as Memory =2276; Slice Registers =59691; Slice =15847; Slice Registers =59691; Block RAM Tile =92.5; RAMB18 =27; DSPs =14;
+   timing (WNS WHS): 0.079 0.014
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 4340 | 4160 | 180 | 0 | 6263 
+      (u_srp) | KL_srp_top | 921 | 921 | 0 | 0 | 2792 
+      u_admission | KL_srp_admission | 224 | 224 | 0 | 0 | 207 
+      u_decoder | KL_srp_decoder | 589 | 589 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 79 | 79 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1316 | 1148 | 168 | 0 | 1062 
+      u_listener | KL_srp_listener_fsm | 466 | 466 | 0 | 0 | 667 
+      u_talker | KL_srp_talker_fsm | 623 | 623 | 0 | 0 | 671 
+      u_vlan | KL_srp_vlan | 139 | 127 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 710 | 654 | 56 | 0 | 517 
+== base ooc-1x1 utilization:  Slice LUTs* =24930; LUT as Logic =23644; LUT as Memory =1286; Slice Registers =25465; Block RAM Tile =22.5; RAMB18 =3; DSPs =8;
+   timing (WNS WHS): -2.059 0.159
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 4558 | 4372 | 186 | 0 | 6438 
+      (u_srp) | KL_srp_top | 907 | 907 | 0 | 0 | 2836 
+      u_admission | KL_srp_admission | 331 | 331 | 0 | 0 | 271 
+      u_decoder | KL_srp_decoder | 589 | 589 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 53 | 53 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1450 | 1276 | 174 | 0 | 1086 
+      u_listener | KL_srp_listener_fsm | 422 | 422 | 0 | 0 | 667 
+      u_talker | KL_srp_talker_fsm | 663 | 663 | 0 | 0 | 714 
+      u_vlan | KL_srp_vlan | 143 | 131 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 882 | 826 | 56 | 0 | 551 
+== base ooc-8x8 utilization:  Slice LUTs* =32584; LUT as Logic =31502; LUT as Memory =1082; Slice Registers =34211; Block RAM Tile =28.5; RAMB18 =5; DSPs =8;
+   timing (WNS WHS): -2.161 0.159
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 8705 | 8519 | 186 | 0 | 11192 
+      (u_srp) | KL_srp_top | 1053 | 1053 | 0 | 0 | 3387 
+      u_admission | KL_srp_admission | 844 | 844 | 0 | 0 | 977 
+      u_decoder | KL_srp_decoder | 856 | 856 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 59 | 59 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1472 | 1298 | 174 | 0 | 1088 
+      u_listener | KL_srp_listener_fsm | 2014 | 2014 | 0 | 0 | 2615 
+      u_talker | KL_srp_talker_fsm | 2151 | 2151 | 0 | 0 | 2261 
+      u_vlan | KL_srp_vlan | 256 | 244 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 1491 | 1491 | 0 | 0 | 569 
+== base route status:  # of routable nets..................... : 107053 :; # of fully routed nets............. : 107053 :; # of nets with routing errors.......... : 0 :;
+== head route-1x1 utilization:  Slice LUTs =51005; LUT as Logic =48611; LUT as Memory =2394; Slice Registers =57262; Slice =15837; Slice Registers =57262; Block RAM Tile =92.5; RAMB18 =27; DSPs =14;
+   timing (WNS WHS): 0.354 0.036
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 3711 | 3413 | 298 | 0 | 3839 
+      (u_srp) | KL_srp_top | 350 | 286 | 64 | 0 | 500 
+      u_admission | KL_srp_admission | 244 | 222 | 22 | 0 | 143 
+      u_decoder | KL_srp_decoder | 587 | 587 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 73 | 73 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1286 | 1118 | 168 | 0 | 1061 
+      u_listener | KL_srp_listener_fsm | 442 | 442 | 0 | 0 | 667 
+      u_talker | KL_srp_talker_fsm | 604 | 572 | 32 | 0 | 604 
+      u_vlan | KL_srp_vlan | 138 | 126 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 733 | 677 | 56 | 0 | 517 
+== head ooc-1x1 utilization:  Slice LUTs* =24258; LUT as Logic =22848; LUT as Memory =1410; Slice Registers =23130; Block RAM Tile =22.5; RAMB18 =3; DSPs =8;
+   timing (WNS WHS): -1.874 0.159
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 3988 | 3678 | 310 | 0 | 3979 
+      (u_srp) | KL_srp_top | 354 | 290 | 64 | 0 | 545 
+      u_admission | KL_srp_admission | 346 | 322 | 24 | 0 | 207 
+      u_decoder | KL_srp_decoder | 607 | 607 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 54 | 54 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1450 | 1276 | 174 | 0 | 1086 
+      u_listener | KL_srp_listener_fsm | 385 | 385 | 0 | 0 | 667 
+      u_talker | KL_srp_talker_fsm | 648 | 612 | 36 | 0 | 610 
+      u_vlan | KL_srp_vlan | 144 | 132 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 882 | 826 | 56 | 0 | 551 
+== head ooc-8x8 utilization:  Slice LUTs* =31109; LUT as Logic =29779; LUT as Memory =1330; Slice Registers =30648; Block RAM Tile =28.5; RAMB18 =5; DSPs =8;
+   timing (WNS WHS): -1.495 0.159
+   u_srp subtree (Total LUTs | Logic | LUTRAM | SRL | FF):
+      u_srp | KL_srp_top | 7313 | 6875 | 438 | 0 | 7747 
+      (u_srp) | KL_srp_top | 297 | 233 | 64 | 0 | 703 
+      u_admission | KL_srp_admission | 826 | 802 | 24 | 0 | 689 
+      u_decoder | KL_srp_decoder | 906 | 906 | 0 | 0 | 630 
+      u_domain | KL_srp_domain | 42 | 42 | 0 | 0 | 108 
+      u_encoder | KL_srp_encoder | 1452 | 1278 | 174 | 0 | 1089 
+      u_listener | KL_srp_listener_fsm | 1843 | 1799 | 44 | 0 | 2615 
+      u_talker | KL_srp_talker_fsm | 1549 | 1429 | 120 | 0 | 1787 
+      u_vlan | KL_srp_vlan | 398 | 386 | 12 | 0 | 126 
+      u_talker | KL_acmp_talker | 1529 | 1529 | 0 | 0 | 569 
+== head route status:  # of routable nets..................... : 104430 :; # of fully routed nets............. : 104430 :; # of nets with routing errors.......... : 0 :;
+== mapping lines cited by HANDOFF 3 (head)
+  ooc-1x1 :2030-2036
+    |u_srp/u_vlan | tbl_r_reg | Implied | 4 x 17 | RAM32M x 3 | 
+    |u_srp/u_admission | slope_q_r_reg | User Attribute | 2 x 32 | RAM32M x 6 | 
+    |u_srp/u_talker | wtsp_r_reg | User Attribute | 2 x 68 | RAM32M x 12 | 
+    |u_srp/u_encoder | mvrp_ram_r_reg | Implied | 16 x 19 | RAM32M x 4 | 
+    |u_srp/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285 | RAM32M x 48 | 
+    |u_srp | tf_ls_ram_r_reg | User Attribute | 32 x 47 | RAM32M x 8 | 
+    |u_srp | tf_tk_ram_r_reg | User Attribute | 32 x 47 | RAM32M x 8 | 
+  ooc-8x8 :2045-2052
+    |u_admission | slope_q_r_reg | User Attribute | 16 x 32 | RAM32M x 6 | 
+    |u_talker | wtsp_r_reg | User Attribute | 16 x 68 | RAM32M x 12 | 
+    |u_talker | g_wid_ram.wid_r_reg | User Attribute | 16 x 124 | RAM32M x 21 | 
+    |KL_srp_top__GB0 | tf_ls_ram_r_reg | User Attribute | 32 x 48 | RAM32M x 8 | 
+    |KL_srp_top__GB0 | tf_tk_ram_r_reg | User Attribute | 32 x 48 | RAM32M x 8 | 
+    |u_encoder | mvrp_ram_r_reg | Implied | 16 x 19 | RAM32M x 4 | 
+    |u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285 | RAM32M x 48 | 
+    |u_listener | g_wsid_ram.wsid_r_reg | User Attribute | 16 x 64 | RAM32M x 11 | 
+  route-1x1 :3704-3709
+    |u_srp/u_admission | slope_q_r_reg | User Attribute | 2 x 32 | RAM32M x 6 | 
+    |u_srp/u_talker | wtsp_r_reg | User Attribute | 2 x 68 | RAM32M x 12 | 
+    |u_srp/u_encoder | mvrp_ram_r_reg | Implied | 16 x 19 | RAM32M x 4 | 
+    |u_srp/u_encoder | msrp_ram_r_reg | User Attribute | 16 x 285 | RAM32M x 48 | 
+    |u_srp | tf_ls_ram_r_reg | User Attribute | 32 x 47 | RAM32M x 8 | 
+    |u_srp | tf_tk_ram_r_reg | User Attribute | 32 x 47 | RAM32M x 8 | 
+  base ooc-1x1 :1827
+    INFO: [Synth 8-3333] propagating constant 0 across sequential element (u_srp/\tf_ram_r_reg[1][31][39] )
+== SRP rows in Block RAM final mapping (head, all three endpoints)
+  ooc-1x1 |u_srp/u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST) | W | | 1 K x 8(WRITE_FIRST) | | R | Port A and B | 1 | 0 | 
+  ooc-8x8 |u_decoder | tp_ram_reg | 1 K x 8(READ_FIRST) | W | | 1 K x 8(WRITE_FIRST) | | R | Port A and B | 1 | 0 | 
