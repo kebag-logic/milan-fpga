@@ -1,0 +1,22 @@
+== base
+u_srp          1x1 LUT/LUTRAM/FF (4558, 186, 6438)  8x8 (8705, 186, 11192)  per-ctx LUT 592.4 FF 679.1
+(u_srp)        1x1 LUT/LUTRAM/FF (907, 0, 2836)  8x8 (1053, 0, 3387)  per-ctx LUT 20.9 FF 78.7
+u_admission    1x1 LUT/LUTRAM/FF (331, 0, 271)  8x8 (844, 0, 977)  per-ctx LUT 73.3 FF 100.9
+u_decoder      1x1 LUT/LUTRAM/FF (589, 0, 630)  8x8 (856, 0, 630)  per-ctx LUT 38.1 FF 0.0
+u_domain       1x1 LUT/LUTRAM/FF (53, 0, 108)  8x8 (59, 0, 108)  per-ctx LUT 0.9 FF 0.0
+u_encoder      1x1 LUT/LUTRAM/FF (1450, 174, 1086)  8x8 (1472, 174, 1088)  per-ctx LUT 3.1 FF 0.3
+u_listener     1x1 LUT/LUTRAM/FF (422, 0, 667)  8x8 (2014, 0, 2615)  per-ctx LUT 227.4 FF 278.3
+u_talker       1x1 LUT/LUTRAM/FF (663, 0, 714)  8x8 (2151, 0, 2261)  per-ctx LUT 212.6 FF 221.0
+u_vlan         1x1 LUT/LUTRAM/FF (143, 12, 126)  8x8 (256, 12, 126)  per-ctx LUT 16.1 FF 0.0
+== head
+u_srp          1x1 LUT/LUTRAM/FF (3988, 310, 3979)  8x8 (7313, 438, 7747)  per-ctx LUT 475.0 FF 538.3
+(u_srp)        1x1 LUT/LUTRAM/FF (354, 64, 545)  8x8 (297, 64, 703)  per-ctx LUT -8.1 FF 22.6
+u_admission    1x1 LUT/LUTRAM/FF (346, 24, 207)  8x8 (826, 24, 689)  per-ctx LUT 68.6 FF 68.9
+u_decoder      1x1 LUT/LUTRAM/FF (607, 0, 630)  8x8 (906, 0, 630)  per-ctx LUT 42.7 FF 0.0
+u_domain       1x1 LUT/LUTRAM/FF (54, 0, 108)  8x8 (42, 0, 108)  per-ctx LUT -1.7 FF 0.0
+u_encoder      1x1 LUT/LUTRAM/FF (1450, 174, 1086)  8x8 (1452, 174, 1089)  per-ctx LUT 0.3 FF 0.4
+u_listener     1x1 LUT/LUTRAM/FF (385, 0, 667)  8x8 (1843, 44, 2615)  per-ctx LUT 208.3 FF 278.3
+u_talker       1x1 LUT/LUTRAM/FF (648, 36, 610)  8x8 (1549, 120, 1787)  per-ctx LUT 128.7 FF 168.1
+u_vlan         1x1 LUT/LUTRAM/FF (144, 12, 126)  8x8 (398, 12, 126)  per-ctx LUT 36.3 FF 0.0
+base: talker [212.57142857142858, 221.0] adm [73.28571428571429, 100.85714285714286] talker+adm [285.8571428571429, 321.8571428571429] listener [227.42857142857142, 278.2857142857143] whole [592.4285714285714, 679.1428571428571]
+head: talker [128.71428571428572, 168.14285714285714] adm [68.57142857142857, 68.85714285714286] talker+adm [197.28571428571428, 237.0] listener [208.28571428571428, 278.2857142857143] whole [475.0, 538.2857142857143]

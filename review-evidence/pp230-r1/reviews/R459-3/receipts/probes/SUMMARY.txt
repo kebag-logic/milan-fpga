@@ -1,0 +1,12 @@
+tf-ls-head-read-ahead            srp_top          CAUGHT           rc=2 fail-lines=12
+tf-ls-write-at-rptr              srp_top          CAUGHT           rc=2 fail-lines=11
+tf-tk-push-dropped-when-both     srp_top          CAUGHT           rc=2 fail-lines=14
+wtsp-mfs-mif-swapped-on-write    srp_stream_fsms  CAUGHT           rc=2 fail-lines=71
+wid-vlan-slice-off-by-one        srp_stream_fsms  CAUGHT           rc=2 fail-lines=71
+wid-ram-write-at-walk-source     srp_stream_fsms  CAUGHT           rc=2 fail-lines=54
+wsid-ram-read-at-control-sink    srp_stream_fsms  CAUGHT           rc=2 fail-lines=40
+wsid-ram-write-ignores-ready     srp_stream_fsms  SURVIVED         rc=0 fail-lines=0
+wtsp-write-ignores-ready         srp_stream_fsms  SURVIVED         rc=0 fail-lines=0
+wtsp-write-during-reset          srp_stream_fsms  SURVIVED         rc=0 fail-lines=0
+slope-cand-reads-neighbour       srp_admission    CAUGHT           rc=2 fail-lines=1230
+slope-store-skips-last-source    srp_admission    CAUGHT           rc=2 fail-lines=200
