@@ -88,7 +88,8 @@ id, media clock reference):
  14. the design page's section 4.2 allocation table reads, in its 1x1 and
      8x8 columns, exactly the block, per-group count, record total and
      highest id derived here for the two shapes it names -- a figure there
-     is derived, never restated (#652)
+     is derived, never restated, and a row without one cell per column is
+     itself a finding, so a dropped figure is never an unchecked one (#652)
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -139,7 +140,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # The contract, the codec and the shape derivation live beside this file; see
 # their module docstrings for the split. `FIXED`, `SEAM` and `ALLOC` are the
 # containers every `--mutate` control moves IN PLACE - never rebound - which
-# is what keeps one shared value behind all four modules.
+# is what keeps one shared value behind every module that reads them.
+from nvm_allocation_table import (                            # noqa: E402
+    ALLOCATION_COLUMNS, ALLOCATION_PAGE, allocation_findings)
 from nvm_contract import (                                    # noqa: E402
     ALIGN, ALIVE_HEARTBEATS, ALLOC, COMMIT_MARGIN, FIXED, FLASH_PAGE,
     KLJ2_HDR, KLJ2_TRAILER, LEDGER, MAP_ENTRY, MAX_PAYLOAD, NAME_BYTES, PAY,
@@ -300,8 +303,29 @@ def _mut_stale_allocation_table():
         "| user name | 128 | name ordinal | ", "| user name | 128 | name ordinal | 1", 1)
 
 
+#: The page's user-name row, up to its last cell, which is the 8x8 figure.
+_USER_NAME_ROW = re.compile(r"^(\| `0x80` \.\. `0xFF` \| user name \|(?:[^|\n]*\|){3})"
+                            r"([^|\n]*\|)$", re.M)
+
+
+def _mut_short_allocation_row():
+    """Drop the 8x8 figure from the page's user-name row, as an edit that
+    loses a cell would leave it; the check must name the missing figure
+    rather than compare the cells that are left."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: _USER_NAME_ROW.sub(r"\1", page, count=1)
+
+
+def _mut_long_allocation_row():
+    """Repeat the user-name row's last cell, as a figure pasted beside the
+    column it belongs in would read; the check must name the extra cell."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: _USER_NAME_ROW.sub(r"\1\2\2", page, count=1)
+
+
 MUTATIONS = {
     "stale_allocation_table": (_mut_stale_allocation_table, "1x1 user name reads 1"),
+    "short_allocation_row": (_mut_short_allocation_row, "user name has no 8x8 figure"),
+    "long_allocation_row": (_mut_long_allocation_row,
+                            "user name has 1 cell(s) past the 8x8 column"),
     "old_output_length": (_mut_old_output_length, "output-record capacity"),
     "changed_1x1_image": (_mut_changed_1x1_image, "1x1 image digest changed"),
     "collide": (_mut_collide, "is claimed by both FMT_IN[0] and FMT_OUT[0]"),
@@ -661,77 +685,6 @@ def render_record_table(shape: Shape, recs: list[Record],
     for g, i, r, p in sorted(live, key=lambda t: t[2]):
         out.append(f"rec 0x{r:02X} {offs[r]} {REC_HDR + p} {p} {g} {i}")
     return "\n".join(out) + "\n"
-
-
-#: Section 4.2 of the design page states the allocation at two shipped shapes.
-#: Its columns are these configurations, and every figure in them is checked
-#: against the inventory derived for them here, so the page cannot carry a
-#: count the shapes no longer have (#652).
-ALLOCATION_PAGE = ROOT / "docs" / "design" / "SAVED_STATE_FASTCONNECT.md"
-ALLOCATION_HEAD = "| ids | group | block | index | 1x1 | 8x8 |"
-ALLOCATION_COLUMNS = {"1x1": "endstation_ax7101_1x1_tdm8",
-                      "8x8": "endstation_ax7101_8x8"}
-
-
-def _allocation_rows(page: str) -> list[list[str]]:
-    """The allocation table's body rows, each cell without emphasis or code
-    marks; none when the page has no single table under ALLOCATION_HEAD."""
-    lines = page.splitlines()
-    if lines.count(ALLOCATION_HEAD) != 1:
-        return []
-    rows = []
-    for line in lines[lines.index(ALLOCATION_HEAD) + 2:]:
-        if not line.startswith("|"):
-            break
-        rows.append([cell.strip().replace("*", "").replace("`", "")
-                     for cell in line.strip().strip("|").split("|")])
-    return rows
-
-
-def _allocation_want(census: dict, ids: str, group: str | None) -> str:
-    """The figure one allocation-table cell must read at one shape."""
-    if group is not None:
-        return str(census["counts"][group])
-    if ids == "records":
-        return str(census["records"])
-    if ids == "highest id":
-        return f"0x{census['top']:02X}"
-    return "--"
-
-
-def allocation_findings(census: dict, base: int) -> list[str]:
-    """Every figure of the design page's section 4.2 allocation table that is
-    not the derived one: each group's block, its record count at each
-    column's shape, the record total and the highest id."""
-    where = f"{ALLOCATION_PAGE.relative_to(ROOT)} section 4.2"
-    absent = [s for s in ALLOCATION_COLUMNS.values() if s not in census]
-    if absent:
-        return [f"{where}: no inventory for {absent}, the shapes its columns state"]
-    page = ALLOCATION_PAGE.read_text(encoding="utf-8")
-    if SEAM.ALLOCATION_PAGE_EDIT is not None:
-        page = SEAM.ALLOCATION_PAGE_EDIT(page)
-    rows = _allocation_rows(page)
-    if not rows:
-        return [f"{where}: no single allocation table headed {ALLOCATION_HEAD!r}"]
-    by_base = {(base if group == "BINDING" else b): group
-               for group, (b, _block) in ALLOC.items()}
-    findings, seen = [], set()
-    for ids, label, block, _index, *cells in rows:
-        first = re.match(r"0x([0-9A-Fa-f]{2})", ids)
-        group = by_base.get(int(first.group(1), 16)) if first else None
-        for (column, stem), cell in zip(ALLOCATION_COLUMNS.items(), cells):
-            want = _allocation_want(census[stem], ids, group)
-            if cell != want:
-                findings.append(f"{where}: {column} {label or ids} reads "
-                                f"{cell}, the {stem} inventory derives {want}")
-        if group is not None:
-            seen.add(group)
-            if block != str(ALLOC[group][1]):
-                findings.append(f"{where}: {label} block reads {block}, the "
-                                f"allocation holds {ALLOC[group][1]}")
-    if set(ALLOC) - seen:
-        findings.append(f"{where}: no row for {sorted(set(ALLOC) - seen)}")
-    return findings
 
 
 def check_one(cfg: Path, out: Path, donor: Donor,
