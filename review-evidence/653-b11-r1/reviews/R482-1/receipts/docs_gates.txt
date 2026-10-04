@@ -1,0 +1,38 @@
+== scripts/docs_check.py
+docs_check: 0 finding(s) across 189 md files + 985 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== scripts/check_doc_style.py
+documentation style: OK (22 current documents)
+rc=0
+== scripts/gen_toc.py --check
+TOC gate: OK (131 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+== scripts/gen_toc.py --verify-anchors
+anchor check: 340 existing cross-page fragment links reproduced
+rc=0
+== scripts/check_em_dash.py --base 6c22d3cad7c8c24ed3f0c5eab535922a3428c8d5
+check_em_dash: 0 finding(s) over 357 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6c22d3ca..HEAD]
+rc=0
+== scripts/check_doc_paths.py
+doc path gate: OK (909 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+rc=0
+== scripts/check_baremetal_only.py --check
+baremetal-only: FATAL: pyyaml is unavailable and the parsed YAML class is load-bearing
+rc=2
+== scripts/check_feature_status.py --self-test
+  PASS  boot order needs two steps
+feature_status self-test: 46/46 passed
+feature_status: 0 finding(s)
+rc=0
+== scripts/ci_scope.py --selftest
+  ok   mutation: gate-read docs/testing/MILAN_V12_AUDIT_2026-08-16.md filed as docs-only is rejected
+  ok   mutation: the scan still names docs/testing/MILAN_V12_AUDIT_2026-08-16.md once the table drops it
+selftest: PASS
+rc=0
+diffcheck=0
+== system python3 scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 983 tracked first-party file(s))
+rc=0
+== system python3 scripts/check_baremetal_only.py --selftest
+baremetal-only selftest: PASS (700 arm(s))
+rc=0

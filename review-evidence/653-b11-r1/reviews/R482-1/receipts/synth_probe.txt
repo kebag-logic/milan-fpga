@@ -1,0 +1,12 @@
+PASS grader on normal: order=RESPONSE_FIRST decoder_order=RESPONSE_FIRST cmd_to_rsp_us=7.5 rsp_to_push_us=115.5 talker_streaming=True
+PASS grader on reversed: order=COUNTERS_FIRST decoder_order=COUNTERS_FIRST cmd_to_rsp_us=7.5 rsp_to_push_us=-5.5 talker_streaming=True
+PASS grader on nopush: order=NO_UNLOCK_PUSH decoder_order=NO_LINES cmd_to_rsp_us=7.5 rsp_to_push_us=None talker_streaming=True
+  decoder:        0.000 ms DUT->sw  AECP RSP UNSOL GET_COUNTERS tgt=DUT ctl=0b11 seq=1 st=0 desc=0x5/0 
+  decoder:  8589934.592 ms DUT->sw  AECP RSP UNSOL GET_COUNTERS tgt=DUT ctl=0b11 seq=1 st=0 desc=0x5/0 MLOCK=1
+  decoder: -18446701124036.590 ms sw->DUT  ACMP UNBIND_RX_CMD status=0 listener=9abc luid=255 cc=0
+  decoder: -18446668911781.871 ms DUT->sw  ACMP UNBIND_RX_RESP status=0 listener=9abc luid=255 cc=0
+  decoder: -18446172843059.184 ms DUT->sw  AECP RSP UNSOL GET_COUNTERS tgt=DUT ctl=0b11 seq=1 st=0 desc=0x5/0 MLOCK=1 MUNLOCK=1
+PASS decoder time column: cmd->rsp printed 32212254.719 ms, true 0.0075 ms; dS/2^32 = 7500 ns (words swapped)
+PASS ACMP columns, true listener=0001 luid=1 cc=3: decoder prints listener=9abc luid=255 cc=0; grader reads listener=..0001 luid=1 cc=3
+FAILS 0
+rc=0

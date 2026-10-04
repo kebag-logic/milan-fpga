@@ -1,0 +1,13 @@
+PASS identity tool aggregate FAILs only on the three live fields the page names :: aggregate line: IDENTITY GATE: FAIL; FAIL checks ['aecp-STREAM_INPUT 0', 'aecp-CLOCK_DOMAIN 0', 'get-clock-source']
+PASS differing offsets are STREAM_INPUT current_format (74..81) and CLOCK_DOMAIN clock_source_index (70..71)
+PASS entity facts PASS (the lane's STOP gate)
+PASS CRCs equal
+PASS UART grader 10/10 start and end
+PASS census 45 of 46, the one difference GET_AVB_INFO propagation delay 381 -> 387 ns :: 381 -> 387
+PASS STREAM_INPUT 0 and 1 counters 1/1 at start and end
+PASS CLOCK_DOMAIN 0 counters 3/3 -> 6/6 (three lock/unlock pairs)
+PASS NVM seq 51 -> 98, commits 20 -> 67 (47)
+PASS servo trim 0xffa40035 before the release, 0x00000020 after
+PASS clock release: SET 0 then SET 1, each read back, ends on source 1 :: [('GET_CLOCK_SOURCE', '0001'), ('SET_CLOCK_SOURCE', '0000'), ('GET_CLOCK_SOURCE', '0000'), ('SET_CLOCK_SOURCE', '0001'), ('GET_CLOCK_SOURCE', '0001'), ('GET_CLOCK_SOURCE', '0001')]
+FAILS 0
+rc=0
