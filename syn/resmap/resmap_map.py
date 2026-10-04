@@ -310,7 +310,8 @@ def census_ties(rows: dict, leaves: list[str], by_leaf: dict, sites: dict, root:
         for column in SHARED:
             counted = len(sites.get(key, {}).get(column, ()))
             if counted != rows[key][column]:
-                failures.append(f"census: {key} {column} counts {counted} LUT sites, the report says {rows[key][column]}")
+                failures.append(f"census: {key} {column} counts {counted} LUT sites, "
+                                f"the report says {rows[key][column]}")
     stray = sorted(set(by_leaf) - set(leaves))
     if stray:
         failures.append(f"census: cells owned by non-leaf rows {stray[:3]}")
