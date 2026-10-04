@@ -1,0 +1,12 @@
+diff -u $REVIEWS/pp230-r458-3-packet/scratch/head/hdl/srp/KL_srp_listener_fsm.sv $REVIEWS/pp230-r458-3-packet/scratch/probes/r3-wsid-registered-read/KL_srp_listener_fsm.sv
+--- $REVIEWS/pp230-r458-3-packet/scratch/head/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 15:19:57.000000000 +0200
++++ $REVIEWS/pp230-r458-3-packet/scratch/probes/r3-wsid-registered-read/KL_srp_listener_fsm.sv	2026-10-04 15:27:00.326919701 +0200
+@@ -545,7 +545,7 @@
+         wsid_r[ctl_sink_i] <= ctl_stream_id_i;
+       end
+     end
+-    assign wsid_w = wsid_r[wsrc_r];
++    always_ff @(posedge clk_i) wsid_w <= wsid_r[wsrc_r];
+   end else begin : g_wsid_flops
+     assign wsid_w = sid_r[wsrc_r];
+   end

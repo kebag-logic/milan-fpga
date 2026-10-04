@@ -1,0 +1,18 @@
+== head 1x1 rc=0 :: 151 checks: 151 PASS, 0 FAIL
+== probe-r3-wtsp-write-ignores-ready 1x1 rc=1 :: 151 checks: 150 PASS, 1 FAIL
+FAIL: R3 walk during the unaccepted offer: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [1/1]
+== probe-r3-wsid-write-ignores-ready 1x1 rc=0 :: 151 checks: 151 PASS, 0 FAIL
+== head 2x2 rc=0 :: 161 checks: 161 PASS, 0 FAIL
+== probe-r3-wtsp-write-ignores-ready 2x2 rc=1 :: 161 checks: 160 PASS, 1 FAIL
+FAIL: R3 walk during the unaccepted offer: push 1 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+== probe-r3-wsid-write-ignores-ready 2x2 rc=0 :: 161 checks: 161 PASS, 0 FAIL
+== head 3x5 rc=0 :: 179 checks: 179 PASS, 0 FAIL
+== probe-r3-wtsp-write-ignores-ready 3x5 rc=1 :: 179 checks: 178 PASS, 1 FAIL
+FAIL: R3 walk during the unaccepted offer: push 2 carries its source's declared record (type 1, stream_id 02aa..025a) [3/5]
+== probe-r3-wsid-write-ignores-ready 3x5 rc=1 :: 179 checks: 178 PASS, 1 FAIL
+FAIL: R3L walk during the unaccepted offer: push 4 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..5047) [3/5]
+== head 9x9 rc=0 :: 231 checks: 231 PASS, 0 FAIL
+== probe-r3-wtsp-write-ignores-ready 9x9 rc=1 :: 231 checks: 230 PASS, 1 FAIL
+FAIL: R3 walk during the unaccepted offer: push 8 carries its source's declared record (type 1, stream_id 02aa..085a) [9/9]
+== probe-r3-wsid-write-ignores-ready 9x9 rc=1 :: 231 checks: 230 PASS, 1 FAIL
+FAIL: R3L walk during the unaccepted offer: push 8 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..5087) [9/9]

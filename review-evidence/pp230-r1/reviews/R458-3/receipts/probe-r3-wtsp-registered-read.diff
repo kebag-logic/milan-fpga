@@ -1,0 +1,12 @@
+diff -u $REVIEWS/pp230-r458-3-packet/scratch/head/hdl/srp/KL_srp_talker_fsm.sv $REVIEWS/pp230-r458-3-packet/scratch/probes/r3-wtsp-registered-read/KL_srp_talker_fsm.sv
+--- $REVIEWS/pp230-r458-3-packet/scratch/head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 15:19:57.000000000 +0200
++++ $REVIEWS/pp230-r458-3-packet/scratch/probes/r3-wtsp-registered-read/KL_srp_talker_fsm.sv	2026-10-04 15:27:00.324304527 +0200
+@@ -503,7 +503,7 @@
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end
+   end
+-  assign wtsp_w = wtsp_r[wsrc_r];
++  always_ff @(posedge clk_i) wtsp_w <= wtsp_r[wsrc_r];
+ 
+   if (N_SOURCES_P > 2) begin : g_wid_ram
+     (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];

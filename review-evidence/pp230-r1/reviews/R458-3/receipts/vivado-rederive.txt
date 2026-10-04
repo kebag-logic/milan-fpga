@@ -1,0 +1,14 @@
+route base: LUT 51434 FF 59691 u_srp LUT 4340 (LUTRAM 180) FF 6263  WNS +0.079 WHS +0.014
+ooc 1x1 base: LUT 24930 FF 25465 u_srp (4558, 186, 6438) WNS(est) -2.059
+ooc 8x8 base: LUT 32584 FF 34211 u_srp (8705, 186, 11192) WNS(est) -2.161
+route head: LUT 51005 FF 57262 u_srp LUT 3711 (LUTRAM 298) FF 3839  WNS +0.354 WHS +0.036
+ooc 1x1 head: LUT 24258 FF 23130 u_srp (3988, 310, 3979) WNS(est) -1.874
+ooc 8x8 head: LUT 31109 FF 30648 u_srp (7313, 438, 7747) WNS(est) -1.495
+marginal per context, (8x8 - 1x1) / 7, LUT / FF:
+  u_talker     base 212.6 / 221.0   head 128.7 / 168.1
+  u_listener   base 227.4 / 278.3   head 208.3 / 278.3
+  u_admission  base 73.3 / 100.9   head 68.6 / 68.9
+  u_decoder    base 38.1 / 0.0   head 42.7 / 0.0
+  u_vlan       base 16.1 / 0.0   head 36.3 / 0.0
+  (u_srp)      base 20.9 / 78.7   head -8.1 / 22.6
+  u_srp        base 592.4 / 679.1   head 475.0 / 538.3

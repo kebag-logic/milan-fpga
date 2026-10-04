@@ -1,0 +1,24 @@
+# job probe-suites-b in scratch : bash $REVIEWS/pp230-r458-3-packet/scratch/probe_suites_all2.sh
+# start 2026-10-04T13:29:24Z
+PROBE r3-wtsp-registered-read suite=srp_stream_fsms rc=2 FAIL_lines=113 tallies: 23 checks: 23 PASS, 0 FAIL;30 checks: 21 PASS, 9 FAIL;43 checks: 30 PASS, 13 FAIL;79 checks: 42 PASS, 37 FAIL;1219 checks: 1165 PASS, 54 FAIL;
+FAIL: WK1: push 1 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+FAIL: WK1: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+FAIL: WK1: push 1 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+FAIL: WK2: push 0 carries its source's declared record (type 1, stream_id 02aa..005a) [2/2]
+FAIL: WK2: push 1 carries its source's declared record (type 1, stream_id 02aa..015a) [2/2]
+PROBE r3-wtsp-registered-read suite=srp_top rc=2 FAIL_lines=2 tallies: 15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;2200 checks: 2198 PASS, 2 FAIL;
+FAIL: B: Talker Advertise New byte-exact
+FAIL: C: Talker Failed code 1 byte-exact
+PROBE r3-wsid-registered-read suite=srp_stream_fsms rc=2 FAIL_lines=59 tallies: 23 checks: 23 PASS, 0 FAIL;30 checks: 30 PASS, 0 FAIL;43 checks: 28 PASS, 15 FAIL;79 checks: 52 PASS, 27 FAIL;1219 checks: 1202 PASS, 17 FAIL;
+FAIL: WK6: push 1 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1007) [3/5]
+FAIL: WK6: push 2 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1017) [3/5]
+FAIL: WK6: push 3 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1027) [3/5]
+FAIL: WK6: push 4 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1037) [3/5]
+FAIL: WK6: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..1047) [3/5]
+PROBE r3-wsid-registered-read suite=srp_top rc=2 FAIL_lines=5 tallies: 15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;15 checks: 15 PASS, 0 FAIL;2200 checks: 2195 PASS, 5 FAIL;
+FAIL: D: Listener Ready New byte-exact
+FAIL: F1: Listener Ready re-joins the LeaveAll cycle
+FAIL: F2: Listener Lv on the wire
+FAIL: F4: every cycle re-declares Listener Ready
+FAIL: N6: full-table drain preserves all types and all live declarations
+# end 2026-10-04T13:38:56Z rc=0
