@@ -1,0 +1,24 @@
+P0_clean_head: rc=0 tally=('14287', '0') fails=0 -> PASS (positive control clean)
+P2_dev_rtl_fea346e7: rc=2 tally=('14287', '8') fails=8 -> CAUGHT
+    [FAIL] [5t-g3] unbind must NOT reset MEDIA_UNLOCKED   got=1 exp=2
+    [FAIL] [5t-g3b] the unbind leaves MEDIA_LOCKED == MEDIA_UNLOCKED got=2 exp=1
+    [FAIL] [UNB-a1] the unbind's own edge drops locked_o  got=1 exp=0
+    [FAIL] [UNB-a2] ...and scores ONE MEDIA_UNLOCKED      got=1 exp=2
+    [FAIL] [UNB-a4] the pair reads MEDIA_LOCKED == MEDIA_UNLOCKED got=0 exp=1
+    [FAIL] [UNB-a5] the unlock pulses dirty once          got=0 exp=1
+    [FAIL] [UNB-b2] ...and no second pulse                got=1 exp=0
+    [FAIL] [UNB-e1] the stopped input's unbind scores ONE unlock got=0 exp=1
+P3_no_lock_gate: rc=2 tally=('14287', '3') fails=3 -> CAUGHT
+    [FAIL] [dirty-e1] the bind-rise wipe pulses dirty     got=2 exp=1
+    [FAIL] [UNB-c1] an unlocked input's unbind scores no unlock got=1 exp=0
+    [FAIL] [UNB-c2] ...and pulses nothing                 got=1 exp=0
+P4_keeps_lock: rc=2 tally=('14287', '4') fails=4 -> CAUGHT
+    [FAIL] [UNB-a1] the unbind's own edge drops locked_o  got=1 exp=0
+    [FAIL] [UNB-b1] past the 100 ms timeout: still ONE unlock got=3 exp=2
+    [FAIL] [UNB-b2] ...and no second pulse                got=1 exp=0
+    [FAIL] [UNB-e1] the stopped input's unbind scores ONE unlock got=0 exp=1
+P5_no_dirty: rc=2 tally=('14287', '1') fails=1 -> CAUGHT
+    [FAIL] [UNB-a5] the unlock pulses dirty once          got=0 exp=1
+P6_shared_edge_double: rc=2 tally=('14287', '1') fails=1 -> CAUGHT
+    [FAIL] [UNB-d2] unbind and timeout on one edge: ONE unlock got=3 exp=2
+rc=0

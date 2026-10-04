@@ -1,0 +1,32 @@
+== merge preserves the lane diff
+MERGE_LANE_DIFF_IDENTICAL
+== b2098fd9 files
+CHANGELOG.md
+docs/design/MEDIA_CLOCK_FOLLOWING.md
+== KL_crf_rx pointer ranges, dev fea346e7 -> head
+dev :21-33 -> head :21-33 SAME
+dev :275-277 -> head :280-282 SAME
+dev :279-294 -> head :284-299 SAME
+dev :34-36 -> head :34-38 DIFFERS (intended only for 34-36 -> 34-38)
+dev :296-298 -> head :301-303 SAME
+dev :390-403 -> head :397-410 SAME
+dev :380 -> head :385 SAME
+dev :586-587 -> head :593-594 SAME
+dev :548-555 -> head :555-562 SAME
+dev :619-624 -> head :641-646 SAME
+dev :320-329 -> head :325-334 SAME
+dev :283-284 -> head :288-289 SAME
+dev :320-325 -> head :325-330 SAME
+dev :398-400 -> head :405-407 SAME
+dev :569-570 -> head :576-577 SAME
+dev :529-537 -> head :536-544 SAME
+== design page lines
+- **History restarts:** `KL_crf_rx`'s rules (`:397-410`) except its
+1. **Loss.** The selected measurement's `locked` falls after 100 ms with no
+   accepted PDU: the stream stopped, was unbound or STOPPED, or was rejected.
+   A followed CRF input's lock falls at the unbind itself, counting one
+   MEDIA_UNLOCKED (#653); a followed AAF input's meter lock still falls at its
+   own 100 ms timeout. HOLDOVER and the restart request follow either fall.
+  Its rate also restarts on any sequence gap (`:405-407`), which the loss rule
+== CHANGELOG:50
+- Simulation shows the UNBIND_RX response leaving before the counters push. The hardware order in #653 awaits a bench capture.

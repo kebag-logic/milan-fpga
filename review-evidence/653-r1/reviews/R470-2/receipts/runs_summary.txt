@@ -1,0 +1,27 @@
+R470-2 runs, exact head 03895b63a3e8197353c2483593927b92efb73092 (tree c43cabe5a60ee90e737e268e27532221f176c288)
+Simulator: pinned Verilator, "Verilator 5.050 2026-07-01 rev v5.050" (wrapper sha256 905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f); install path redacted to <pinned-5.050-root> in logs.
+Synthesis: Yosys 0.66. Exit codes were captured to rc files at run time and are transcribed here.
+
+run | where | rc | result | log
+make -C tb/verilator/milan_dp notify | review clone | 0 | checks 421 failures 0; 38 [UNB] ok lines; both trace lines equal the PR/README table | receipts/J1_milan_dp_notify_head.log
+python3 unb_mutants.py 1 (order: ACMP lane held 6000 cycles) | review clone, tempdir in scratch | 0 | clean control PASS; mutant caught, 4 of 421 | receipts/J4_unb_mutant_1.log
+python3 unb_mutants.py 2 (CRF unlock not counted) | review clone | 0 | clean PASS; caught, 2 of 421 | receipts/J4_unb_mutant_2.log
+python3 unb_mutants.py 3 (CRF lock kept, timeout double count) | review clone | 0 | clean PASS; caught, 2 of 421 | receipts/J4_unb_mutant_3.log
+python3 unb_mutants.py 4 (CRF unbind counts STREAM_INTERRUPTED) | review clone | 0 | clean PASS; caught, 2 of 421 | receipts/J4_unb_mutant_4.log
+python3 unb_mutants.py 5 (CRF unlock, no push armed) | review clone | 0 | clean PASS; caught, 2 of 421 | receipts/J4_unb_mutant_5.log
+  (the five selectors together are the `make unb-mutants` inventory, run concurrently: 5 mutants caught + clean control passing in each)
+make -C tb/verilator/crf_rx (unit, discontinuity, talker_step, mutants) | review clone | 0 | 14287/0, 2201/0, 69/0, 10/0 = 16567/0 | receipts/J3_crf_rx_suite_head.log
+make -C tb/verilator/milan_dp_mclk | review clone | 0 | 55/0, 32/0, 50/0, 31/31 PASS = 168 | receipts/J5_milan_dp_mclk_head.log
+syn/yosys/ooc.sh KL_crf_rx, OOC_SHAPE=endstation_ax7101_1x1_tdm8, dev fea346e7 RTL | scratch copy | 0 | 433 LUT, 544 FF, 1 RAMB18, 147 CARRY4 | receipts/ooc_yosys_KL_crf_rx_dev.log
+syn/yosys/ooc.sh KL_crf_rx, same shape, head RTL | scratch copy | 0 | 368 LUT, 544 FF, 1 RAMB18, 147 CARRY4 | receipts/ooc_yosys_KL_crf_rx_head.log
+scripts/lint_rtl.py --check (pinned 5.050) | review clone | 0 | PASS 90 <= 90 | receipts/lint_rtl_check.log
+scripts/check_em_dash.py --base 6c22d3ca (pinned renderer venv) | review clone | 0 | 0 findings over 113 added lines in 5 pages | receipts/docs_check_em_dash.log
+scripts/check_doc_paths.py | review clone | 0 | 910 cited paths resolve | receipts/docs_check_doc_paths.log
+scripts/check_doc_style.py | review clone | 0 | OK (22 current documents) | receipts/docs_check_doc_style.log
+scripts/docs_check.py | review clone | 0 | 0 findings | receipts/docs_docs_check.log
+scripts/measure_test_evidence.py --check | review clone | 0 | ratchet PASS, 0 unexplained DUT-source readers | receipts/measure_test_evidence_check.log
+P1 reviewer probe: AAF bind-fall unlock removed, notify leg | scratch copy | 2 (expected) | 421/2: AAF U3 at and right after the response; AAF unlock moves to +9,982,974 | probes/P1_aaf_no_bindfall_unlock.{diff,log}
+P0,P2-P6 reviewer probes: crf_rx unit vs clean / dev / four planted arms | scratch copy | 0 | clean 14287/0; dev 8 fails; no lock gate 3; lock kept 4; no dirty 1; shared-edge double 1 - all caught | probes/crf_unit/SUMMARY.txt, probes/crf_unit/*.log
+P7 reviewer probe: order mutant rebuilt with leg output kept | scratch work dir | 0 (driver) | 421/4: exactly the four U2 order checks (AAF/CRF x A/B); response +6277 vs pushes +2294/+3057 | probes/P7_order_mutant_{summary.txt,leg.log}
+hosted check runs at the head (read-only) | GitHub API | - | see file; several jobs in progress at read time | receipts/hosted_checks_at_head.txt
+clone integrity after all probes | review clone | - | HEAD/tree/index exact, 0 status entries incl. ignored, gitlinks unchanged | receipts/clone_state_final.txt
