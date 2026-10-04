@@ -8,23 +8,23 @@ The opportunities at the end are recommendations, each with its cost in function
 ## Contents
 
 - **[Summary](#summary)** -- What the map and the sweep found, in a few lines, and what they mean for #640.
-- **[Method](#method)** -- The reused route, the map script and its seven ties, the Yosys sweep, the Vivado anchors, the SoC exports and the models.
+- **[Method](#method)** -- The reused route, the map script and its five ties, the Yosys sweep, the Vivado anchors, the SoC exports and pricing, and the models.
 - **[Whole-image map](#whole-image-map)** -- Every block of the routed image with LUT, FF, BRAM, DSP, CARRY4 and slices, tied to the recorded totals, and the SoC top split by cell name.
 - **[Parameter inventory](#parameter-inventory)** -- Every parameter that moves resources, with its source of truth, shipping value and swept values, and the `sweep.sh` stream-count trap.
 - **[Sensitivity](#sensitivity)** -- Per-stream, per-channel and per-slot models with residuals, the marginal cost of each optional block and option, the processor parameters, the SoC options and the second port.
 - **[Yosys and Vivado calibration](#yosys-and-vivado-calibration)** -- Vivado over Yosys at the four anchors, per block and in total, and the route over Vivado out of context.
 - **[Ranked opportunities](#ranked-opportunities)** -- Where the area is, ranked, each with its measured cost, its estimated saving and its cost in function; nothing applied.
-- **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+- **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log or `stat.json` digest.
 
 ## Summary
 
-- **Where the area is.** The shipping route's 50,767 LUTs split into the protocol processor (23,904, 47.1 percent), the rest of the datapath (18,296, 36.0 percent) and the SoC side (8,567, 16.9 percent). Outside the processor, the gPTP plane (5,004) and the CSR block (3,073) are the two large blocks; the other 34 blocks and the datapath's own logic hold under 1,100 LUTs each. Every block, 175 in all, is tied to the recorded route.
+- **Where the area is.** The shipping route's 50,767 LUTs split into the protocol processor (23,904, 47.1 percent), the rest of the datapath (18,296, 36.0 percent) and the SoC side (8,567, 16.9 percent). In the rest of the datapath, the gPTP plane (5,004) and the CSR block (3,073) are the two large blocks; the other 34 blocks and the datapath's own logic hold under 1,100 LUTs each. Every block's LUT, FF, RAMB and DSP figures, 175 blocks in all, are read twice, from the utilization report and from the census of placed cells; its CARRY4 and slices come from the census alone; and the image's totals are tied to the recorded route.
 - **Streams are the expensive parameter.** Out of context, each stream per direction adds 3,828 LUTs, 2,911 FFs and 1.5 BRAM tiles, two thirds of the LUTs in the processor. With 18 slices free, no shape above 1x1 fits this device.
 - **Channels and the TDM bus width are free.** Eight channels per stream cost the same as two, and 32 capture slots the same as 8; the render lane is what costs, 499 routed LUTs.
-- **The optional blocks are small against the gap.** Pruning the RX address filter, the latency taps, the loopback lane and the probes saves about 1,200 routed LUTs, a tenth of NFR-RES-01's 12,727-LUT gap. The other optional blocks carry functions the product ships.
+- **The optional blocks are small against the gap.** Pruning the RX address filter, the latency taps, the loopback lane and the probes could save up to about 1,200 routed LUTs, a tenth of NFR-RES-01's 12,727-LUT gap. The other optional blocks carry functions the product ships.
 - **Yosys is a direction, not a figure.** Its LUT counts are 2.2 to 2.8 times Vivado's after optimization, block ratios spread over two orders of magnitude, and it does not enforce the RTL's elaboration guards. The out-of-context Vivado anchor predicts the route within 3.3 percent.
 - **Refused shapes.** The builder accepts an eight-stream TDM8 configuration that the RTL refuses (235 writable names against the saved-state backend's 128).
-- **SoC options.** Every CPU and cache option is refused by the recipe's one software profile; the DDR3 controller and PHY hold 2,599 of the SoC top's 6,072 flip-flops.
+- **SoC options.** The recipe's one software profile refuses every CPU, cache and L2 option; priced from a scratch recipe copy, each further core costs about 1,480 LUTs, both L1 caches about 1,200 and NaxRiscv about 14,300, and an L2 is built only with the L1 caches. The DDR3 controller and PHY hold 2,599 of the SoC top's 6,072 flip-flops.
 - **The second port** would replicate at least 7,100 routed LUTs and 9,918 FFs of measured per-port blocks, plus its MAC; nothing is recommended about it.
 
 ## Method
@@ -49,26 +49,34 @@ It writes three inputs:
 
 [`resmap_map.py`](../../syn/resmap/resmap_map.py) reads them.
 A block is a leaf of the reported hierarchy: an instance with no reported child, or the own logic of one that has children, written `@own`.
-The leaves partition the image.
 The hierarchy is the one Vivado rebuilds after cross-boundary optimization, so its names describe placement, not source ownership.
 
 The report gives LUT (logic, LUT RAM and SRL), FF, RAMB36, RAMB18 and DSP per block.
 The census adds CARRY4, flip-flops placed in I/O tiles and slices.
 A slice is shared among the leaves whose cells sit in it, in proportion to the BELs each occupies.
 
-Seven ties must hold before the script prints a figure; each compares two independent readings:
+For FF, I/O-tile FF, RAMB36, RAMB18, DSP, CARRY4 and slices the leaves partition the image: their sums are the image's totals.
+The four LUT columns do not.
+The report counts a LUT site that holds cells of two blocks, the two halves of one LUT6_2 site, once in each block.
+So the leaves' LUT sum exceeds the image's by the number of such sites, and each parent's excess over its parts is its sharing adjustment, never positive.
+The leaves plus every adjustment equal the top row, but only because the adjustment is defined as that difference: it is an identity, not a check.
+[The LUT reconciliation](#the-lut-reconciliation) publishes every adjustment, and the census tie below checks each one.
+
+Five ties must hold before the script prints a figure; each compares two independent readings:
 
 | Tie | What is compared |
 |---|---|
-| Ancestry | Each instance's FF, RAMB36, RAMB18 and DSP, against its own row plus its children. Its LUT columns may be smaller than their parts: the report counts a LUT shared by two children in both, and the difference is kept as that instance's sharing adjustment, never positive |
-| Partition | The top row, against the leaves plus every sharing adjustment, in every column |
-| Flat report | The top row, against the flat utilization report |
+| Ancestry | Each instance's FF, RAMB36, RAMB18 and DSP, against its own row plus its children. Its LUT columns may be smaller than their parts, never larger |
+| Census | From the census of placed cells: each leaf's slice FFs, RAMB36, RAMB18 and DSP, counted cell by cell, against its report row. Every row's four LUT columns, leaf or parent, against the number of distinct LUT sites (slice and LUT letter) its cells occupy, split by primitive into logic, LUT RAM and SRL; so every leaf's LUT figure and every sharing adjustment is read twice. And no census cell may belong to a row that is not a leaf |
+| Flat report | The top row and the slice count, against the flat utilization report |
 | Record | The top row, the slices and the census's CARRY4, against the `route-1x1` record; every processor scope the record lists, against the map's row for it |
-| Census | Each leaf's slice FFs, RAMB36, RAMB18 and DSP counted cell by cell, against its report row |
-| Slices | The sum of the slice shares, against the record's 15,832 |
-| Depth | The deepest reported row, which must lie above the requested depth |
+| Depth | The deepest reported row, which must lie above the depth the report's own command line requested |
 
-`resmap_map.py --selftest` builds a small consistent image, ties it, and plants one wrong figure per tie: 11 arms, each caught by name.
+Two further checks, that the census totals equal the top row and that the SoC top's cells split by name sum to its row, follow from the ancestry and census ties.
+They guard the script's own bookkeeping and are not counted as ties.
+
+`resmap_map.py --selftest` builds a small consistent image, ties it, and plants a wrong figure per arm: 15 arms, each caught by the tie that the arm names.
+Every tie has an arm that only that tie's message satisfies, so disabling any one tie fails the self-test.
 The first tie of the real image failed on 21 flip-flops: the census counted the ones packed into I/O tiles, which the report's FF column leaves out.
 They are now counted apart, and one self-test arm plants that mistake.
 
@@ -93,6 +101,7 @@ sv2v turns an elaboration-time `$error` in a generate block into an `initial $di
 So a point the RTL refuses still maps, with no error: neither `ooc.sh` nor `run.sh` looks for the converted message.
 `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
 A point whose guard fires is listed in [the refusals](#guard-refusals) and left out of every fit.
+A point with no guard record, or whose lint hit a hard error, is not treated as clean: `resmap_models.py` stops and names it.
 
 ### Vivado calibration anchors
 
@@ -109,6 +118,16 @@ It runs two threads where the route used 32, because the host is shared.
 Each variant is the shipping configuration's SoC arguments with the named flags changed.
 A refused variant is recorded with its refusal.
 An accepted one is priced twice, flattened: the CPU netlist alone, and the LiteX top with every non-LiteX module replaced by a black box.
+
+The refused CPU, cache and L2 variants are priced from a scratch-only copy of the recipe, as #649's round-2 ruling directs; nothing of it is committed, and the tracked `milan_soc.py` is unchanged.
+The copy, `milan_soc_pricing.py`, sits beside the recipe in a scratch export of the lane's head and differs from it in exactly the two profile refusals, which it removes.
+Each variant is the shipping SoC argument list with the named flags changed, exported without `--build`.
+The CPU netlists are generated by the CPU generators in scratch copies of their LiteX data packages, never in the shared LiteX tree; the scratch generator reproduces the cached shipping netlist byte for byte.
+The shipping variant exported through the copy and through the tracked recipe gives the same top, comments aside.
+Vivado then synthesizes each exported SoC top out of context at the shipping synthesis directive, one run at a time under the host's shared lock.
+The datapath and the parent's two SystemVerilog blocks are black boxes with 1024-bit ports, as in the Yosys pricing, and every variant reads the shipping variant's BIOS ROM image, so ROM contents are held constant.
+Every variant is compared after synthesis: `opt_design` refuses primitives that a black box drives (`Opt 31-30`).
+Every variant priced this way is not buildable under the shipping software profile.
 
 ### Models
 
@@ -137,11 +156,13 @@ python3 syn/resmap/soc_sweep.py --work "$WORK/sweep" price
 python3 syn/resmap/yosys_sweep.py --work "$WORK/sweep" summary
 python3 syn/resmap/resmap_models.py --work "$WORK/sweep" --map "$WORK/route-map" --out "$WORK/models"
 python3 syn/resmap/resmap_tables.py --work "$WORK/sweep" --models "$WORK/models" --map "$WORK/route-map" \
-  --out "$WORK/tables.md" --page docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+  --soc-variants "$WORK/soc_prices.json" --out "$WORK/tables.md" \
+  --page docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
 ```
 
 Each Vivado run here held the host's shared Vivado lock, one at a time.
 The `soc_sweep.py` exports need the scratch export `shapes` writes, and the SDK triple comes from the SDK installer, as in the recipe.
+`soc_prices.json` is the CPU, cache and L2 pricing's receipt file, written by its scratch-only driver; the driver, that file and every small input above are published with the lane's evidence (see [Run receipts](#run-receipts)).
 
 ## Whole-image map
 
@@ -234,7 +255,7 @@ The CSR block `csr` is next, 3,073 LUTs and 2,141 FFs.
 Every DSP is in the datapath: 8 in the processor, 4 in the gPTP plane, one each in `crf_tx` and `media_nco`.
 
 The processor's sub-blocks are #638's.
-Its recorded route lists 51 scopes inside `pp_shadow`, and the map's row equals the record for every one, in LUT, FF, RAMB36, RAMB18, DSP and CARRY4.
+Its recorded route lists 51 scopes, `pp_shadow` itself and 50 inside it, and the map's row equals the record for every one, in LUT, FF, RAMB36, RAMB18, DSP and CARRY4.
 The [#234 findings](234_PP_SHADOW_AREA_BASELINE.md#processor-sub-blocks) attribute them in source terms and rank their levers.
 
 ### The SoC top's own logic
@@ -265,9 +286,43 @@ LUT cells are counted before Vivado combines two into one LUT site, so they are 
 The DDR3 controller and its PHY hold 2,599 of the top's FFs, the largest share.
 The 47 RAMB36 are the BIOS ROM and SRAM (18) and generated FIFO storage (29).
 
+### The LUT reconciliation
+
+A LUT site that holds cells of two blocks is counted once in each block's LUT column and once in the image's.
+So the 175 leaves' LUT figures sum to 51,123, 356 more than the image's 50,767, and the ranked table's "LUT % of image" column sums to about 100.7 percent.
+Seventeen parents carry that difference as their sharing adjustments.
+By the census tie, each adjustment equals the number of LUT sites under that parent that hold cells of two of its children.
+All of it is logic: no LUT-RAM or SRL site is shared.
+
+<!-- table: map-lut-sharing -->
+| Scope | LUT | Logic | LUTRAM | SRL | Shared LUT sites in the census |
+|---|---:|---:|---:|---:|---:|
+| all 175 blocks (leaves) | 51,123 | 48,891 | 2,228 | 4 | - |
+| sharing adjustment, `milan_datapath` | -109 | -109 | 0 | 0 | 109 |
+| sharing adjustment, `milan_datapath/pp_shadow/u_pp` | -72 | -72 | 0 | 0 | 72 |
+| sharing adjustment, `milan_datapath/pp_shadow/u_pp/u_aecp` | -54 | -54 | 0 | 0 | 54 |
+| sharing adjustment, `alinx_ax7101` (the image) | -39 | -39 | 0 | 0 | 39 |
+| sharing adjustment, `milan_datapath/pp_shadow` | -17 | -17 | 0 | 0 | 17 |
+| sharing adjustment, `milan_datapath/pp_shadow/u_pp/u_srp` | -13 | -13 | 0 | 0 | 13 |
+| sharing adjustment, `VexiiRiscvLitex_f5f08b170311db53220574624f819159` | -12 | -12 | 0 | 0 | 12 |
+| sharing adjustment, `milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine` | -9 | -9 | 0 | 0 | 9 |
+| sharing adjustment, `VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge` | -8 | -8 | 0 | 0 | 8 |
+| sharing adjustment, `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge` | -7 | -7 | 0 | 0 | 7 |
+| sharing adjustment, `milan_datapath/g_gptp_plane.u_gptp_shadow` | -7 | -7 | 0 | 0 | 7 |
+| sharing adjustment, `VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core` | -3 | -3 | 0 | 0 | 3 |
+| sharing adjustment, `milan_datapath/g_mmcm_servo.mmcm_servo` | -2 | -2 | 0 | 0 | 2 |
+| sharing adjustment, `KL_gptp_gmii_launch` | -1 | -1 | 0 | 0 | 1 |
+| sharing adjustment, `milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps` | -1 | -1 | 0 | 0 | 1 |
+| sharing adjustment, `milan_datapath/aaf_rx_depkt` | -1 | -1 | 0 | 0 | 1 |
+| sharing adjustment, `milan_datapath/g_tdm_render_live.g_master.chan_tdm_render` | -1 | -1 | 0 | 0 | 1 |
+| sum of the 17 adjustments | -356 | -356 | 0 | 0 | 356 |
+| **image (top row)** | **50,767** | **48,535** | **2,228** | **4** | - |
+<!-- end table: map-lut-sharing -->
+
 ### Every block, ranked
 
 All 175 blocks, by LUT and then FF.
+Their LUT column sums to 51,123, not the image's 50,767: see [the LUT reconciliation](#the-lut-reconciliation).
 `@own` alone is the SoC top's own logic; under a path it is that instance's own logic.
 Processor rows are #638's recorded route, as above.
 
@@ -502,9 +557,9 @@ The swept column names the plan points in [`sweep_plan.json`](../../syn/resmap/s
 
 | Option | Source of truth | Shipping | Measured |
 |---|---|---|---|
-| CPU, XLEN, core count, FPU | configuration `soc.*`; `milan_soc.py` `--cpu`, `--xlen`, `--cpu-count`, `--with-fpu` | VexiiRiscv, 32, 1, none | refused by the recipe under its one software profile |
-| CPU caches | configuration `soc.scala_args`, `--scala-args` | none | refused |
-| L2 cache | configuration `board.constraints.l2_bytes`, `--l2-bytes` | 0 | refused |
+| CPU, XLEN, core count, FPU | configuration `soc.*`; `milan_soc.py` `--cpu`, `--xlen`, `--cpu-count`, `--with-fpu` | VexiiRiscv, 32, 1, none | refused by the recipe under its one software profile; [priced](#cpu-cache-and-l2-variants) from a scratch recipe copy: NaxRiscv at RV32 and RV64, XLEN 64, 1, 2 and 4 cores, the M, F and D extensions |
+| CPU caches | configuration `soc.scala_args`, `--scala-args` | none | refused; [priced](#cpu-cache-and-l2-variants): fetch L1 alone, both L1 caches at 1, 2 and 4 ways |
+| L2 cache | configuration `board.constraints.l2_bytes`, `--l2-bytes` | 0 | refused; [priced](#cpu-cache-and-l2-variants) at 8, 16 and 32 KiB |
 | Main bus standard | `--bus-standard` only | Wishbone | AXI-Lite |
 | Integrated main RAM | `--main-ram-size` | DDR3 instead | no effect: DDR3 provides main RAM |
 | Flash, UART, Ethernet port, I/O delays, floorplan, timing options | launcher flags | as shipped | not swept: pins, constraints and flow only |
@@ -623,7 +678,8 @@ The blocks that grow with N, after optimization:
 | streams-4-chans-2 | 4 | 2 | 138,302 | 63,611 | 29.5 | 23 | 0 |
 <!-- end table: yosys-stream-data -->
 
-Yosys's per-stream LUT figure is about 3.6 times Vivado's, and its residual shows the growth is not linear: the ACMP talker and the datapath's own logic grow faster than N.
+Yosys's per-stream LUT figure is about 3.6 times Vivado's, and its residuals (negative at one and four streams, positive at two) show the growth is sub-linear: a large first step, then a falling cost per stream, as in the Vivado anchors.
+The ACMP talker adds 6,390 LUTs for the second stream and then about 2,166 per stream, and the datapath's own logic 5,046 and then about 4,082.
 Flip-flops fit the linear model to a residual RMS of 81, and the per-channel and stream-channel terms are within their residuals: channels cost nothing.
 The blocks that move most with N in the Yosys model:
 
@@ -738,7 +794,7 @@ The fit is y = a + b*x over the shipping point and the points that change only t
 | `TX_STD_SLOTS_P` | 2, 4, 8 | 58.61 | 42.25 | 0.180 | 303.8 | 421.9 |
 <!-- end table: processor-parameters -->
 
-- **Stream contexts** dominate. One more stream each way, with its stream ports, adds 5,886 Yosys LUTs and 1,367 FFs, and the residual (RMS 1,989) shows the growth is faster than linear. Most of it is the ACMP talker, which Yosys maps at many times Vivado's size: the portability finding of the [#234 reconciliation](234_PP_SHADOW_AREA_BASELINE.md#yosys-reconciliation). The [Vivado anchors](#streams-and-channels) measure the real per-stream cost.
+- **Stream contexts** dominate. One more stream each way, with its stream ports, adds 5,886 Yosys LUTs and 1,367 FFs on the linear fit, and the residuals (RMS 1,989; negative at 1 and 8 stream ports, positive at 2 and 4) show the growth is sub-linear: the first added stream costs 10,780 LUTs, and the next ones 5,632 and then 5,229 each. Most of it is the ACMP talker, which Yosys maps at many times Vivado's size: the portability finding of the [#234 reconciliation](234_PP_SHADOW_AREA_BASELINE.md#yosys-reconciliation). The [Vivado anchors](#streams-and-channels) measure the real per-stream cost.
 - **Registered controllers** (`PP_N_CTRL_C`, 16) cost 635 Yosys LUTs each, nearly all in `KL_aecp_notify`: the registry that the [#234 ranking's](234_PP_SHADOW_AREA_BASELINE.md#reduction-ranking) first lever moves to distributed RAM. The residual is large because 12, not a power of two, maps differently. FR-CTRL-03 requires at least 16 controllers, so the count is not a lever; the registry's storage is.
 - **Receive slots** cost 215 LUTs, 79 FFs and about one BRAM tile per slot in each pool.
 - **Descriptor index entries** cost 3.5 LUTs each. **Name entries** cost about 1.7 LUTs and one FF each, up to the 128 the saved-state backend holds: the name table itself is in block RAM.
@@ -786,8 +842,8 @@ The marginal of every processor point:
 
 ### SoC options
 
-`milan_soc.py` accepts one software profile, and it refuses every CPU and cache variant under it.
-Each refusal is the measurement: pricing those options needs a change to the build recipe, which this issue does not make.
+`milan_soc.py` accepts one software profile, and it refuses every CPU, cache and L2 variant under it.
+The outcomes below are the tracked recipe's; [the next subsection](#cpu-cache-and-l2-variants) prices the refused variants from a scratch copy of the recipe.
 
 <!-- table: soc-outcomes -->
 | Variant | Changed flags | Outcome | Refusal |
@@ -817,6 +873,70 @@ The CPU prices the same in both: the bus standard does not reach the core.
 AXI-Lite instead of Wishbone adds 322 LUTs and 115 FFs to the SoC top in Yosys, so it is no saving.
 Against the route, Yosys reads the CPU at 1.30 times its routed 3,524 LUTs and the SoC top at 2.02 times its routed 4,847.
 The CPU's two RAMB36 and five RAMB18 in the route are LUT RAM and flip-flops in Yosys.
+
+### CPU, cache and L2 variants
+
+Every variant below was synthesized out of context from the [scratch recipe copy](#soc-options): the SoC, meaning the LiteX top with its CPU and with the datapath and the two SystemVerilog blocks as black boxes; its change from the shipping variant; and the CPU core's own instance.
+BRAM is in tiles.
+Every variant but `ship` is not buildable under the shipping software profile.
+
+<!-- table: soc-variant-prices -->
+| Variant | Parameter | Value | Profile | SoC LUT | SoC FF | SoC BRAM | SoC DSP | Change LUT | Change FF | Change BRAM | Change DSP | CPU core LUT | CPU core FF | CPU core BRAM | CPU core DSP |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ship | shipping | - | ships | 9,455 | 11,505 | 50.0 | 0 | 0 | 0 | 0 | 0 | 4,077 | 4,889 | 1.5 | 0 |
+| cpu2 | CPU count | 2 | not buildable under the shipping software profile | 10,934 | 12,709 | 51.0 | 0 | +1,479 | +1,204 | +1.0 | 0 | 5,507 | 6,077 | 2.5 | 0 |
+| cpu4 | CPU count | 4 | not buildable under the shipping software profile | 13,907 | 14,801 | 53.0 | 0 | +4,452 | +3,296 | +3.0 | 0 | 8,353 | 8,437 | 4.5 | 0 |
+| rv64 | XLEN | 64 | not buildable under the shipping software profile | 10,622 | 12,199 | 51.5 | 0 | +1,167 | +694 | +1.5 | 0 | 5,111 | 5,646 | 3.0 | 0 |
+| rv64-fpu | recipe --with-fpu | RV64 + --with-fpu | not buildable under the shipping software profile | 10,622 | 12,199 | 51.5 | 0 | +1,167 | +694 | +1.5 | 0 | 5,111 | 5,646 | 3.0 | 0 |
+| isa-m | ISA extensions | M | not buildable under the shipping software profile | 9,881 | 11,752 | 50.0 | 4 | +426 | +247 | 0 | +4 | 4,431 | 5,132 | 1.5 | 4 |
+| isa-mf | ISA extensions | M+F | not buildable under the shipping software profile | 12,450 | 13,412 | 51.5 | 4 | +2,995 | +1,907 | +1.5 | +4 | 6,930 | 6,791 | 3.0 | 4 |
+| isa-mfd | ISA extensions | M+F+D | not buildable under the shipping software profile | 15,998 | 15,216 | 53.5 | 9 | +6,543 | +3,711 | +3.5 | +9 | 10,432 | 8,933 | 5.0 | 9 |
+| l1-fetch | L1 caches | fetch only | not buildable under the shipping software profile | 9,592 | 11,683 | 51.5 | 0 | +137 | +178 | +1.5 | 0 | 4,089 | 5,062 | 3.0 | 0 |
+| l1-caches | L1 caches | fetch + LSU, 1 way | not buildable under the shipping software profile | 10,665 | 13,585 | 54.0 | 0 | +1,210 | +2,080 | +4.0 | 0 | 5,261 | 6,973 | 5.5 | 0 |
+| l1-w2 | L1 caches | fetch + LSU, 2 ways | not buildable under the shipping software profile | 10,920 | 13,704 | 57.5 | 0 | +1,465 | +2,199 | +7.5 | 0 | 5,407 | 7,098 | 9.0 | 0 |
+| l1-w4 | L1 caches | fetch + LSU, 4 ways | not buildable under the shipping software profile | 11,086 | 13,927 | 64.5 | 0 | +1,631 | +2,422 | +14.5 | 0 | 5,733 | 7,322 | 16.0 | 0 |
+| l2-8k | L2 bytes | 8192 | not buildable under the shipping software profile | 9,455 | 11,505 | 50.0 | 0 | 0 | 0 | 0 | 0 | 4,077 | 4,889 | 1.5 | 0 |
+| l2-16k | L2 bytes | 16384 | not buildable under the shipping software profile | 9,455 | 11,505 | 50.0 | 0 | 0 | 0 | 0 | 0 | 4,077 | 4,889 | 1.5 | 0 |
+| l2-32k | L2 bytes | 32768 | not buildable under the shipping software profile | 9,455 | 11,505 | 50.0 | 0 | 0 | 0 | 0 | 0 | 4,077 | 4,889 | 1.5 | 0 |
+| l1l2-8k | L2 bytes, both L1 caches | 8192 | not buildable under the shipping software profile | 12,029 | 15,374 | 56.5 | 0 | +2,574 | +3,869 | +6.5 | 0 | 6,626 | 8,752 | 8.0 | 0 |
+| l1l2-16k | L2 bytes, both L1 caches | 16384 | not buildable under the shipping software profile | 11,965 | 15,281 | 60.5 | 0 | +2,510 | +3,776 | +10.5 | 0 | 6,511 | 8,661 | 12.0 | 0 |
+| l1l2-32k | L2 bytes, both L1 caches | 32768 | not buildable under the shipping software profile | 11,981 | 15,291 | 64.5 | 0 | +2,526 | +3,786 | +14.5 | 0 | 6,564 | 8,671 | 16.0 | 0 |
+| naxriscv | core | NaxRiscv RV32 | not buildable under the shipping software profile | 23,803 | 19,460 | 97.0 | 4 | +14,348 | +7,955 | +47.0 | +4 | 18,482 | 13,396 | 57.0 | 4 |
+| naxriscv-rv64 | core | NaxRiscv RV64 | not buildable under the shipping software profile | 28,035 | 21,539 | 97.0 | 16 | +18,580 | +10,034 | +47.0 | +16 | 22,815 | 15,469 | 57.0 | 16 |
+<!-- end table: soc-variant-prices -->
+
+The three parameters with a numeric axis, fitted as y = a + b*x over three priced points each:
+
+<!-- table: soc-variant-fits -->
+| Parameter | Per | Values | Points | LUT per unit | FF per unit | BRAM per unit | LUT residual RMS | Largest LUT residual |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| L2 bytes, both L1 caches | KiB of L2 | 8, 16, 32 | 3 | -1.6 | -2.9 | 0.32 | 22.2 | 30.9 |
+| CPU count | core | 1, 2, 4 | 3 | 1,484.4 | 1,091.1 | 1.00 | 2.3 | 3.2 |
+| L1 caches | way of both L1 caches | 1, 2, 4 | 3 | 132.1 | 113.6 | 3.50 | 53.1 | 73.7 |
+<!-- end table: soc-variant-fits -->
+
+Two variants could not be generated, even from the scratch copy.
+The core's FPU needs an unsigned-operand service that only the M extension's multiplier and divider provide, so F and F+D on the shipping RV32I core stop in the CPU generator.
+The FPU is therefore priced on the M core, as the ladder `isa-m`, `isa-mf` and `isa-mfd`, which keeps three points for it:
+
+<!-- table: soc-variant-not-generated -->
+| Variant | Parameter | Value | Why it was not generated |
+|---|---|---|---|
+| fpu-f | FPU (core option) | F | `Exception in thread "main" java.lang.Exception: Can't find the service vexiiriscv.execute.RsUnsignedPlugin` |
+| fpu-fd | FPU (core option) | F+D | `Exception in thread "main" java.lang.Exception: Can't find the service vexiiriscv.execute.RsUnsignedPlugin` |
+<!-- end table: soc-variant-not-generated -->
+
+What the prices measure:
+
+- **Each further core** costs about 1,484 LUTs, 1,091 FFs and one BRAM tile, over 1, 2 and 4 cores with a residual RMS of 2 LUTs: each core is a whole copy, with no shared cache to amortize.
+- **XLEN 64** adds 1,167 LUTs and 694 FFs to the VexiiRiscv SoC, and 4,232 LUTs and 12 DSPs to the NaxRiscv one.
+- **The recipe's `--with-fpu` does nothing on the VexiiRiscv path.** The recipe passes it only to NaxRiscv's configuration, so `rv64-fpu` generates the same netlist as `rv64` and prices the same. As a core option on the M core, F adds 2,569 LUTs over M, and D adds 3,548 more and 5 DSPs; the M extension alone adds 426 LUTs and 4 DSPs.
+- **L1 caches.** A fetch L1 alone adds 137 LUTs and 1.5 BRAM tiles. Both L1 caches at one way add 1,210 LUTs, 2,080 FFs and 4 tiles, and each further way about 132 LUTs and 3.5 tiles.
+- **No L2 is built on the shipping core.** The lane's VexiiRiscv SoC generator carries a local patch that routes a core without a data cache through one fabric with no coherency hub and no L2. So `--l2-bytes` changes nothing there: `l2-8k`, `l2-16k` and `l2-32k` generate netlists identical to the shipping one apart from their module name, and price the same.
+- **With both L1 caches, an L2** adds 1,300 to 1,364 LUTs and 1,696 to 1,789 FFs over `l1-caches` for its controller, and its size costs only block RAM: from 8 to 32 KiB its LUTs stay within their residual, and BRAM grows by four tiles per doubling.
+- **NaxRiscv** costs 14,348 LUTs, 7,955 FFs and 47 BRAM tiles more than the shipping core at RV32. Most of that BRAM is its default 128 KiB L2: the recipe sets no L2 size for it.
+- **Against the route,** the shipping variant's synthesis figure is 1.13 times the routed LUTs of the SoC top's own logic and CPU together (9,455 against 8,371), and 1.16 times the CPU's (4,077 against 3,524). Each change here is likely an overestimate of the routed change by about that factor.
+- With 18 slices free, every variant here that changes the netlist needs more area than the shipping image has left.
 
 ### The redundancy second port
 
@@ -967,7 +1087,7 @@ Not recommended: each would remove a function the product ships.
 Not levers, measured:
 
 - Channels per stream, the TDM capture slot count, the receive FIFO's bytes and the descriptor name entries cost nothing, or a few LUTs per unit.
-- Every CPU and cache option is refused by the recipe; the one accepted SoC bus option costs more, not less.
+- Every CPU and cache option the recipe refuses adds area when priced, from 137 LUTs for a fetch L1 to 18,580 for an RV64 NaxRiscv, and an L2 adds nothing on the shipping core, where none is built; the one accepted SoC bus option costs more, not less.
 
 Ranks 4 to 6 together are about 1,200 routed LUTs, a tenth of the gap.
 The gap is where the map puts the area: the processor (47 percent), the gPTP plane and the CSR block (16 percent together).
@@ -975,7 +1095,8 @@ One more stream each way costs 4,739 LUTs out of context, far more than the devi
 
 ## Run receipts
 
-Every run was started in the foreground of its own runner, without a pipeline, on 2026-10-04.
+Every round-1 run was started in the foreground of its own runner, without a pipeline, on 2026-10-04.
+Round 2's Vivado runs (the second route reopen and the SoC variants) ran the same day, one after another inside one hold of the lock taken by a detached runner, each with its own log and exit-status file.
 Each Vivado run held the host's shared Vivado lock and was this lane's only Vivado; other lanes' runs shared the host.
 Minutes count only the time under the lock.
 The route itself is PR #638's: its receipts are in the [#234 findings](234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-03-after-pr-634).
@@ -984,14 +1105,46 @@ The route itself is PR #638's: its receipts are in the [#234 findings](234_PP_SH
 |---|---:|---:|---|---|---:|
 | Route reopen, first attempt, stopped by this lane | 143 | 4.0 | `route_map.log` | `70e1dc88fd63eeb8` | 6,740 |
 | Route reopen | 0 | 0.6 | `route_map.log` | `4ea7f6275a4587bc` | 6,847 |
+| Route reopen, round 2, the committed `route_map.tcl` | 0 | 0.8 | `route_map.log` | `51cc25fdf931de84` | 6,845 |
 | Anchor 1x1, shipping shape | 0 | 18.9 | `ooc.log` | `b42c9ec112cfa29f` | 344,150 |
 | Anchor 8x8, tracked configuration | 0 | 29.1 | `ooc.log` | `b85aa07b33221025` | 341,175 |
 | Anchor 2x2 | 0 | 20.3 | `ooc.log` | `522655f46cfc6954` | 345,731 |
 | Anchor 4x4 | 0 | 22.2 | `ooc.log` | `3a40bae068e72c76` | 347,730 |
 | Anchor 8x8 TDM8, refused in synthesis | 1 | 0.2 | `ooc.log` | `9c2ac5ce68776d0d` | 75,199 |
 
-The first reopen wrote its census one line at a time through indexed list access, about 67 lines a second; it was stopped after 4 minutes to free the lock, and `route_map.tcl` now iterates the lists in parallel.
+The first reopen wrote its census one line at a time through indexed list access: 12,248 lines in the 190 seconds between its log's last line and the census file's last write, 64 lines a second, about 34 minutes for the 129,908 cells.
+It was stopped after 4 minutes under the lock, and `route_map.tcl` now iterates the lists in parallel.
+Round 2 changed two of that script's comments, so the reopen was run again with the committed script: its census hashes to the earlier reopen's (`b377ddec33c438bc`), and its two reports differ from the earlier ones only in their date line.
 The refused anchor stopped in synthesis on the guard named in [the refusals](#guard-refusals).
+
+The CPU, cache and L2 variants' out-of-context syntheses, each in its own directory:
+
+<!-- table: soc-variant-receipts -->
+| Variant | rc | Minutes under the lock | Log | Log SHA-256, first 16 | Log bytes |
+|---|---:|---:|---|---|---:|
+| ship | 0 | 1.7 | `ooc.log` | `37e6ee019e586a29` | 246,096 |
+| cpu2 | 0 | 2.2 | `ooc.log` | `b587a300b091da58` | 255,237 |
+| cpu4 | 0 | 2.5 | `ooc.log` | `1c44632ae93d5bb4` | 320,234 |
+| rv64 | 0 | 2.3 | `ooc.log` | `f436909b91341058` | 250,213 |
+| rv64-fpu | 0 | 1.9 | `ooc.log` | `fef5d6f245761ccf` | 251,685 |
+| isa-m | 0 | 1.6 | `ooc.log` | `6e6caf631271a5bd` | 254,508 |
+| isa-mf | 0 | 2.5 | `ooc.log` | `2050b2a8029fd7f5` | 268,389 |
+| isa-mfd | 0 | 2.3 | `ooc.log` | `c731023e7f2005ce` | 320,660 |
+| l1-fetch | 0 | 1.9 | `ooc.log` | `7efd3e69259662c1` | 246,928 |
+| l1-caches | 0 | 2.1 | `ooc.log` | `c383aed80a879a02` | 267,654 |
+| l1-w2 | 0 | 2.8 | `ooc.log` | `8cfdf62392b254cf` | 270,299 |
+| l1-w4 | 0 | 2.8 | `ooc.log` | `cac6ddd4424d4cef` | 277,566 |
+| l2-8k | 0 | 1.8 | `ooc.log` | `330299e705afabfb` | 246,467 |
+| l2-16k | 0 | 2.0 | `ooc.log` | `22e758706918ae0b` | 246,841 |
+| l2-32k | 0 | 1.8 | `ooc.log` | `4845407054729b75` | 246,832 |
+| l1l2-8k | 0 | 3.0 | `ooc.log` | `539e5f9cb5e2e766` | 282,745 |
+| l1l2-16k | 0 | 2.7 | `ooc.log` | `c3f38bbb1eaf52c7` | 284,559 |
+| l1l2-32k | 0 | 2.5 | `ooc.log` | `ca1cdfb107c03cbb` | 284,505 |
+| naxriscv | 0 | 3.7 | `ooc.log` | `cda35cb645226203` | 545,220 |
+| naxriscv-rv64 | 0 | 3.4 | `ooc.log` | `2f949964600b3086` | 550,209 |
+<!-- end table: soc-variant-receipts -->
+
+Two attempts at the shipping variant came first, and each stopped at `opt_design`, which refuses black boxes (`DRC INBB-3`, then `Opt 31-30`); after them every variant is compared after synthesis.
 
 The 59 Yosys points, every one with sv2v and Yosys rc 0, 247.9 minutes of mapping in all, two at a time.
 Each point's guard lint ran Verilator 5.050 with rc 0; "refused" marks a guard that fired.
@@ -1058,4 +1211,7 @@ Each point's guard lint ran Verilator 5.050 with rc 0; "refused" marks a guard t
 | with-lpf | `milan_datapath` | 0 | 225.7 | `c2782a33e1caf470` | clean |
 | with-pps | `milan_datapath` | 0 | 238.9 | `d0dfbb64dbeeb1b6` | clean |
 
-The executor's packet holds every digest in full: each report, census, point receipt, ROM image, shape header and SoC export log.
+The lane's published evidence holds every digest in full: each report, census, point receipt, ROM image, shape header and SoC export log.
+It is on this repository's `649-review-evidence` branch: round 1 under `review-evidence/649-r1/author/`, round 2 under `review-evidence/649-r2/author/`.
+Round 2's `inputs/` there hold the small inputs this page's tables are generated from: the map's reports, `summary.json`, `models.json`, the Vivado anchors' hierarchy reports, every point's guard record, the SoC receipts, and the CPU, cache and L2 pricing's driver and receipts.
+The census `map_cells.tsv`, 12.5 MB, is over the evidence's 200 KB file limit, so the manifest gives its digest, `b377ddec33c438bc`; the map and the table check both read it.
