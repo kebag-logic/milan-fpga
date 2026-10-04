@@ -1,0 +1,325 @@
+{
+ "head": "2f0f59291080aeab934e0d72e124fb448c105e12",
+ "results": [
+  {
+   "gate": "docs_check",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/docs_check.py"
+   ],
+   "rc": 0,
+   "seconds": 5.8
+  },
+  {
+   "gate": "em_dash",
+   "argv": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "6c22d3ca"
+   ],
+   "rc": 0,
+   "seconds": 3.4
+  },
+  {
+   "gate": "doc_style",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_doc_style.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "doc_style_self",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_doc_style.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.0
+  },
+  {
+   "gate": "toc_self",
+   "argv": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+    "scripts/gen_toc.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 1.0
+  },
+  {
+   "gate": "toc_anchors",
+   "argv": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+    "scripts/gen_toc.py",
+    "--verify-anchors"
+   ],
+   "rc": 0,
+   "seconds": 2.9
+  },
+  {
+   "gate": "toc_check",
+   "argv": [
+    "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+    "scripts/gen_toc.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 4.5
+  },
+  {
+   "gate": "doc_paths",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_doc_paths.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "archive",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_archive.py"
+   ],
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "gate": "feature_status",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_feature_status.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 0.9
+  },
+  {
+   "gate": "module_matrix",
+   "argv": [
+    "/usr/bin/python3",
+    "docs/traceability/gen_module_matrix.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 1.0
+  },
+  {
+   "gate": "solution_docs",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_solution_docs.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "solution_docs_self",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_solution_docs.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 2.8
+  },
+  {
+   "gate": "doc_map",
+   "argv": [
+    "/usr/bin/python3",
+    "docs/DOC_MAP.gen.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "gate": "baremetal_only",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_baremetal_only.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 17.6
+  },
+  {
+   "gate": "py_idiom",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_py_idiom.py"
+   ],
+   "rc": 0,
+   "seconds": 3.8
+  },
+  {
+   "gate": "py_idiom_self",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_py_idiom.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 3.9
+  },
+  {
+   "gate": "sv_idiom",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_sv_idiom.py"
+   ],
+   "rc": 0,
+   "seconds": 0.4
+  },
+  {
+   "gate": "hygiene",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_hygiene.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.3
+  },
+  {
+   "gate": "fail_fast",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/measure_fail_fast.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 1.5
+  },
+  {
+   "gate": "port_contracts",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_port_contracts.py"
+   ],
+   "rc": 0,
+   "seconds": 2.5
+  },
+  {
+   "gate": "naming",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/measure_naming.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 0.5
+  },
+  {
+   "gate": "todo",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_todo_ownership.py"
+   ],
+   "rc": 0,
+   "seconds": 1.5
+  },
+  {
+   "gate": "test_evidence",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/measure_test_evidence.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 6.2
+  },
+  {
+   "gate": "lint_rtl",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/lint_rtl.py",
+    "--check"
+   ],
+   "rc": 0,
+   "seconds": 6.7
+  },
+  {
+   "gate": "soc_sources",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_soc_sources.py"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "soc_sources_self",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_soc_sources.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.2
+  },
+  {
+   "gate": "rtl_lists",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_rtl_source_lists.py"
+   ],
+   "rc": 0,
+   "seconds": 1.6
+  },
+  {
+   "gate": "resmap_sweep_self",
+   "argv": [
+    "/usr/bin/python3",
+    "syn/resmap/yosys_sweep.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.3
+  },
+  {
+   "gate": "resmap_models_self",
+   "argv": [
+    "/usr/bin/python3",
+    "syn/resmap/resmap_models.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "resmap_tables_self",
+   "argv": [
+    "/usr/bin/python3",
+    "syn/resmap/resmap_tables.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "resmap_map_self",
+   "argv": [
+    "/usr/bin/python3",
+    "syn/resmap/resmap_map.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  },
+  {
+   "gate": "resmap_soc_self",
+   "argv": [
+    "/usr/bin/python3",
+    "syn/resmap/soc_sweep.py",
+    "--selftest"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  }
+ ]
+}

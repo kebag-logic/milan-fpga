@@ -1,0 +1,19 @@
+26 page blocks, 25 equal, differing: ['guard-refusals']
+  - guard-refusals: | Point | Guard that fires |
+  - guard-refusals: |---|---|
+  - guard-refusals: | pp-ctrl-32 | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
+  - guard-refusals: | pp-line-1152 | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
+  - guard-refusals: | pp-line-288 | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8_CAP_BYTES_P=304 out
+  - guard-refusals: | pp-line-512 | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
+  - guard-refusals: | pp-names-235 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  - guard-refusals: | streams-8 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  - guard-refusals: | streams-8-chans-2 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  + guard-refusals: | Point | Refused by | Refusal |
+  + guard-refusals: |---|---|---|
+  + guard-refusals: | pp-ctrl-32 | elaboration guard | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
+  + guard-refusals: | pp-line-1152 | elaboration guard | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
+  + guard-refusals: | pp-line-288 | elaboration guard | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8
+  + guard-refusals: | pp-line-512 | elaboration guard | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
+  + guard-refusals: | pp-names-235 | elaboration guard | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  + guard-refusals: | streams-8 | elaboration guard | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  + guard-refusals: | streams-8-chans-2 | elaboration guard | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |

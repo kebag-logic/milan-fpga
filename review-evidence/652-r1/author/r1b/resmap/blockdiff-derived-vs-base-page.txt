@@ -1,0 +1,21 @@
+26 page blocks, 24 equal, differing: ['datapath-marginals', 'guard-refusals']
+  - datapath-marginals: | streams-8 (refused by a guard) | `N_STREAMS`=8 | +86,176 | +22,063 | +5.5 | +1 | 38,513 | - | `@own` +30,406; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +20,139; `KL_pp_shadow/protocol_pro
+  - datapath-marginals: | streams-8-chans-2 (refused by a guard) | `N_STREAMS`=8, `TALKER_WIRE_CHANS_P`=2 | +87,432 | +22,063 | +5.5 | +1 | 39,075 | - | `@own` +31,950; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +1
+  - guard-refusals: | Point | Guard that fires |
+  - guard-refusals: |---|---|
+  - guard-refusals: | pp-ctrl-32 | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
+  - guard-refusals: | pp-line-1152 | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
+  - guard-refusals: | pp-line-288 | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8_CAP_BYTES_P=304 out
+  - guard-refusals: | pp-line-512 | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
+  - guard-refusals: | pp-names-235 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  - guard-refusals: | streams-8 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  - guard-refusals: | streams-8-chans-2 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  + guard-refusals: | Point | Refused by | Refusal |
+  + guard-refusals: |---|---|---|
+  + guard-refusals: | pp-ctrl-32 | elaboration guard | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
+  + guard-refusals: | pp-line-1152 | elaboration guard | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
+  + guard-refusals: | pp-line-288 | elaboration guard | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8
+  + guard-refusals: | pp-line-512 | elaboration guard | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
+  + guard-refusals: | pp-names-235 | elaboration guard | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+  + guard-refusals: | streams-8 | builder | `this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved recor
+  + guard-refusals: | streams-8-chans-2 | builder | `this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one sav

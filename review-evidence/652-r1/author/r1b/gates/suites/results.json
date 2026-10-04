@@ -1,0 +1,49 @@
+{
+ "head": "2f0f59291080aeab934e0d72e124fb448c105e12",
+ "results": [
+  {
+   "gate": "nvm_backend",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/nvm_backend"
+   ],
+   "rc": 0,
+   "seconds": 0.6
+  },
+  {
+   "gate": "nvm_cosim",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/nvm_cosim"
+   ],
+   "rc": 0,
+   "seconds": 332.5
+  },
+  {
+   "gate": "nvm_capture_cpu",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/nvm_capture_cpu"
+   ],
+   "rc": 2,
+   "seconds": 0.0
+  },
+  {
+   "gate": "fw_service_budget",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/fw_service_budget"
+   ],
+   "rc": 0,
+   "seconds": 0.6
+  }
+ ]
+}
