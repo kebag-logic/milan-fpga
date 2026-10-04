@@ -67,17 +67,25 @@ clean modes they are the negative of. That is what this suite's default
 target carries, so the sweep still holds an executable negative arm that
 proves these assertions can fail, inside its own wall clock.
 
-Usage: python3 tdm8_render_mutants.py [--leg-defects]
+`--law-boundary [--jobs N]` runs only #643's boundary-band diagnostic (see
+LAW_BOUNDARY_HALF below): the [LAW] phases at the feed phases where a PDU end
+meets a pop, on the unmutated gateware and on the two setpoint defects, N
+legs at a time. It is its own explicit target, tdm8render-law-boundary.
+
+Usage: python3 tdm8_render_mutants.py [--leg-defects | --law-boundary
+                                       [--jobs N]]
                                        (run from tb/verilator/milan_dp_render)
    or: make -C tb/verilator/milan_dp_render tdm8render-mutants
 Exit 0 = every mutant was caught, and every clean control still passes.
 """
 
 import os
+import re
 import signal
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -119,6 +127,23 @@ LAW_PHASES = (0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172,
 #: ...and the per-phase check the planted A2-a defect must fail, at EVERY one
 LAW_SETTLED = tuple(f"T30 INTERNAL LAW +{p}: the aligner held its settled "
                     "report through the phase" for p in LAW_PHASES)
+#: ...and the two law checks a setpoint one event off must fail at every one:
+#: a graded window reads TARGET exactly and puts the first event more than
+#: the ambiguity window inside both band edges, so either check alone sees it
+LAW_FILL = tuple(f"T30 INTERNAL LAW +{p}: the fill at every PDU end is the "
+                 "setpoint plus that PDU, 14 events" for p in LAW_PHASES)
+LAW_BAND = tuple(f"T30 INTERNAL LAW +{p}: every PDU's first event is inside "
+                 "the law band from its PDU end" for p in LAW_PHASES)
+#: #643's setpoint defects: milan_datapath's render setpoint one event off
+#: the law, which the stage then holds exactly as it holds the right one
+SETPOINT_LINE = ("  localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + "
+                 "RENDER_ALLOW_EVT_C;")
+SETPOINT_DEFECTS = [
+    ("the render setpoint one event low",
+     [(SETPOINT_LINE, SETPOINT_LINE.replace(";", " - 1;"))]),
+    ("the render setpoint one event high",
+     [(SETPOINT_LINE, SETPOINT_LINE.replace(";", " + 1;"))]),
+]
 
 #: (name, source, [(pattern, replacement), ...], leg, mode, the check it must
 #: break). A mutation is a list of edits because some defects are not
@@ -308,6 +333,11 @@ MUTATIONS = [
      [("  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;",
        "  wire        mga_sel_w = follow_sel_r;")],
      "ship", "--law-only", LAW_SETTLED),
+    # ...and the law's own defect, which the settled gate cannot see: every
+    # standing phase is gradable, so each must fail both law checks there.
+    # --law-boundary runs the same two across the boundary band.
+    *[(name, "datapath", edits, "ship", "--law-only", LAW_FILL + LAW_BAND)
+      for name, edits in SETPOINT_DEFECTS],
     # The mask exists so that a fall on a stream the lane does not render
     # leaves the lane alone. Take the qualification away and the lane flushes
     # on somebody else's unbind - which is the defect the mask was added for.
@@ -422,6 +452,26 @@ LEG_DEFECTS = [
 #: its CRF phase, so these two modes are exactly what must pass beside them.
 LEG_DEFECT_CONTROLS = (("ship", "--serial-only"), ("ship", "--crf-only"))
 
+#: --law-boundary (#643), the boundary-band diagnostic. The unmutated
+#: gateware and the two setpoint defects each run the leg's --law-boundary
+#: mode in three histories: the leg's own scan, which locates the feed phase
+#: where a PDU end meets a pop and climbs across LAW_BOUNDARY_HALF cycles
+#: either side of it one cycle at a time; the same band descending; and every
+#: phase within LAW_ALONE_HALF cycles of it ALONE, after nothing but the
+#: settled wait. Every phase must come out graded or NOT GRADABLE; a graded
+#: one must pass on the sound design and fail both law checks on a defect; a
+#: NOT GRADABLE one must fail nothing. Each scan must hold both kinds, or it
+#: never reached the boundary.
+LAW_BOUNDARY_HALF = 40
+LAW_ALONE_HALF = 12
+LAW_CHECK_STEMS = ("the fill at every PDU end is the setpoint plus that PDU, "
+                   "14 events",
+                   "every PDU's first event is inside the law band from its "
+                   "PDU end")
+BOUNDARY_LINE = re.compile(r"\[BOUNDARY\] \+(\d+): (graded PASS|graded FAIL|"
+                           r"NOT GRADABLE), (\d+) check")
+LOCATED_LINE = re.compile(r"an end meets a pop near \+(\d+);")
+
 
 def build(leg: str, overrides: dict[str, str], mdir: Path) -> Path | None:
     """Build one ELABORATION through the suite's own recipe, `overrides`
@@ -505,15 +555,29 @@ def plant(source: str, edits: list[tuple[str, str]], work: Path,
     return str(out), ""
 
 
-def parse_args(argv: list[str]) -> bool:
-    """True when only the LEG-SIDE defect arms are asked for. An unrecognised
-    argument is a refusal rather than a silently full or silently empty run."""
-    rest = [a for a in argv if a != "--leg-defects"]
-    if rest:
-        print(f"unknown argument(s): {' '.join(rest)}", file=sys.stderr)
-        print("usage: tdm8_render_mutants.py [--leg-defects]", file=sys.stderr)
+def parse_args(argv: list[str]) -> tuple[str, int]:
+    """The round asked for - 'full', '--leg-defects' (only the LEG-SIDE defect
+    arms) or '--law-boundary' (only the boundary-band diagnostic) - and how
+    many legs --law-boundary runs at once (--jobs N, default 1). An
+    unrecognised argument is a refusal rather than a silently full or silently
+    empty run."""
+    rest = list(argv)
+    jobs = 1
+    if "--jobs" in rest:
+        at = rest.index("--jobs")
+        value = rest[at + 1] if at + 1 < len(rest) else ""
+        jobs = int(value) if value.isdigit() and int(value) > 0 else 0
+        del rest[at:at + 2]
+    modes = [a for a in rest if a in ("--leg-defects", "--law-boundary")]
+    rest = [a for a in rest if a not in modes]
+    if rest or jobs == 0 or len(modes) > 1 or (
+            "--jobs" in argv and modes != ["--law-boundary"]):
+        print(f"unknown or conflicting argument(s): {' '.join(argv)}",
+              file=sys.stderr)
+        print("usage: tdm8_render_mutants.py [--leg-defects | --law-boundary "
+              "[--jobs N]]", file=sys.stderr)
         raise SystemExit(2)
-    return "--leg-defects" in argv
+    return (modes[0] if modes else "full"), jobs
 
 
 #: (passes, fails) of one round of arms, so every caller adds the same way
@@ -624,6 +688,126 @@ def run_mutations(work: Path) -> Tally:
     return passes, fails
 
 
+def boundary_problems(out: str, sound: bool,
+                      phases: list[int]) -> tuple[list[str], dict[int, str]]:
+    """Why one --law-boundary run is not the evidence it must be (nothing when
+    it is), and the outcome it gave each phase. `phases` are the ones the run
+    was asked for; the leg's own scan adds its locating +0."""
+    outcomes = {int(m[1]): m[2] for m in BOUNDARY_LINE.finditer(out)}
+    failed = {int(m[1]): int(m[3]) for m in BOUNDARY_LINE.finditer(out)}
+    fails = [line.strip() for line in out.splitlines()
+             if line.strip().startswith("[FAIL]")]
+    problems = [f"+{p} has no [BOUNDARY] verdict" for p in phases
+                if p not in outcomes]
+    if "RESULT:" not in out:
+        problems.append("no harness verdict - a crash is not evidence")
+    for phase, outcome in sorted(outcomes.items()):
+        mine = [f for f in fails if f"T30 INTERNAL LAW +{phase}: " in f]
+        if outcome == "NOT GRADABLE" and failed[phase]:
+            problems.append(f"+{phase} is NOT GRADABLE yet failed a check")
+        elif outcome != "NOT GRADABLE" and sound and outcome != "graded PASS":
+            problems.append(f"+{phase} graded FAIL on the sound design")
+        elif outcome != "NOT GRADABLE" and not sound:
+            missing = [s for s in LAW_CHECK_STEMS
+                       if not any(s in f for f in mine)]
+            if missing:
+                problems.append(f"+{phase} {outcome} on a setpoint defect, "
+                                f"{missing[0]!r} not failing")
+    allowed = [f"T30 INTERNAL LAW +{p}: {s}" for p, o in outcomes.items()
+               if o == "graded FAIL" and not sound for s in LAW_CHECK_STEMS]
+    stray = [f for f in fails if not any(a in f for a in allowed)]
+    if stray:
+        problems.append(f"a check outside the graded law failed: {stray[0]}")
+    return problems, outcomes
+
+
+def phase_runs(phases: list[int]) -> str:
+    """'+a..+b, +c' for a list of feed phases, so a table row stays short."""
+    runs: list[list[int]] = []
+    for p in sorted(phases):
+        if runs and p == runs[-1][1] + 1:
+            runs[-1][1] = p
+        else:
+            runs.append([p, p])
+    return ", ".join(f"+{a}" if a == b else f"+{a}..+{b}" for a, b in runs) or "none"
+
+
+def law_boundary_designs(work: Path) -> list[tuple[str, Path | None, bool]]:
+    """(name, executable, sound) for the unmutated gateware and each setpoint
+    defect, built through the suite's own recipe; None where a build failed."""
+    _, _, _, on_disk = LEGS["ship"]
+    designs = [("the unmutated gateware",
+                on_disk if on_disk.is_file()
+                else build("ship", {}, work / "obj_clean_ship"), True)]
+    for name, edits in SETPOINT_DEFECTS:
+        tag = name.replace(" ", "_")
+        value, why = plant("datapath", edits, work, tag)
+        if value is None:
+            print(f"  [i] law boundary: {name!r} could not be planted: {why}")
+        designs.append((name, value and build(
+            "ship", {SOURCES["datapath"][1]: value}, work / f"obj_{tag}"), False))
+    return designs
+
+
+def judge_boundary_rounds(runs: list[tuple[str, str, bool, list[int], bool]],
+                          results: list[tuple[int, str]]) -> Tally:
+    """Grade every (design, history) run of the diagnostic: one line each, the
+    phases left NOT GRADABLE named, and a scan without both kinds refused."""
+    passes = fails = 0
+    for (design, history, sound, phases, scan), (_, out) in zip(runs, results):
+        problems, outcomes = boundary_problems(out, sound, phases)
+        left = [p for p, o in outcomes.items() if o == "NOT GRADABLE"]
+        if scan and (not left or len(left) == len(outcomes)):
+            problems.append("the scan did not hold both a graded and a NOT "
+                            "GRADABLE phase, so it never reached the boundary")
+        graded = len(outcomes) - len(left)
+        line = (f"law boundary, {design}, {history}: {graded} graded, NOT "
+                f"GRADABLE at {phase_runs(left)}")
+        if problems:
+            fails += 1
+            print(f"[FAIL] {line} - {problems[0]}"
+                  + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
+        else:
+            passes += 1
+            print(f"[PASS] {line}")
+    return passes, fails
+
+
+def run_law_boundary(work: Path, jobs: int) -> Tally:
+    """The boundary-band diagnostic: each design's own located scan first,
+    then, about the boundary the sound design located, the descending scan
+    and every phase near it alone, `jobs` legs at a time."""
+    designs = law_boundary_designs(work)
+    broken = [name for name, exe, _ in designs if exe is None]
+    if broken:
+        print(f"[FAIL] law boundary: {broken[0]!r} did not build")
+        return 0, 1
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        own = list(pool.map(lambda d: run_leg(d[1], "--law-boundary"), designs))
+        located = [LOCATED_LINE.search(out) for _, out in own]
+        if any(found is None for found in located):
+            print("[FAIL] law boundary: a leg's own scan located no boundary")
+            return 0, 1
+        bands = [list(range(int(f[1]) - LAW_BOUNDARY_HALF,
+                            int(f[1]) + LAW_BOUNDARY_HALF + 1)) for f in located]
+        runs = [(name, f"the leg's own scan, ascending from +{band[0]}", sound,
+                 band, True) for (name, _, sound), band in zip(designs, bands)]
+        b = int(located[0][1])
+        band = bands[0]
+        later = []
+        for name, exe, sound in designs:
+            later.append((exe, f"--law-boundary={band[-1]}..{band[0]}",
+                          (name, "descending", sound, band, True)))
+            later += [(exe, f"--law-boundary={p}",
+                       (name, f"+{p} alone", sound, [p], False))
+                      for p in range(b - LAW_ALONE_HALF, b + LAW_ALONE_HALF + 1)]
+        rest = list(pool.map(lambda r: run_leg(r[0], r[1]), later))
+    print(f"  [i] law boundary: the unmutated leg located an end meeting a pop "
+          f"near +{b}; scans +{band[0]}..+{band[-1]}, alone "
+          f"+{b - LAW_ALONE_HALF}..+{b + LAW_ALONE_HALF}")
+    return judge_boundary_rounds(runs + [r[2] for r in later], own + rest)
+
+
 def clean_legs(work: Path, leg_defects_only: bool) -> dict[str, Path | None]:
     """The positive control per elaboration: the clean build the suite left on
     disk, or a fresh one when this runner is invoked alone. A --leg-defects
@@ -653,23 +837,29 @@ def main() -> int:
         a TIMEOUT, so a killed mutation round is never a pass or a fail."""
         sys.exit(143)
 
-    leg_defects_only = parse_args(sys.argv[1:])
+    mode, jobs = parse_args(sys.argv[1:])
+    leg_defects_only = mode == "--leg-defects"
     signal.signal(signal.SIGTERM, on_sigterm)
     rounds = []
     with tempfile.TemporaryDirectory(prefix="tdm8-render-mutants-") as td:
         work = Path(td)
-        clean = clean_legs(work, leg_defects_only)
-        rounds.append(run_positive_controls(clean,
-                                            control_modes(leg_defects_only)))
-        rounds.append(run_leg_defects(clean))
-        if not leg_defects_only:
+        if mode == "--law-boundary":
+            rounds.append(run_law_boundary(work, jobs))
+        else:
+            clean = clean_legs(work, leg_defects_only)
+            rounds.append(run_positive_controls(
+                clean, control_modes(leg_defects_only)))
+            rounds.append(run_leg_defects(clean))
+        if mode == "full":
             rounds.append(run_clean_controls(work))
             rounds.append(run_mutations(work))
     passes = sum(p for p, _ in rounds)
     fails = sum(f for _, f in rounds)
-    scope = (" (--leg-defects: the arms that need no elaboration; the gateware "
-             "and shape mutants are the tdm8render-mutants target)"
-             if leg_defects_only else "")
+    scope = {"--leg-defects": " (--leg-defects: the arms that need no "
+                              "elaboration; the gateware and shape mutants are "
+                              "the tdm8render-mutants target)",
+             "--law-boundary": " (--law-boundary: the #643 boundary-band "
+                               "diagnostic alone)"}.get(mode, "")
     print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL{scope}")
     return 1 if fails else 0
 

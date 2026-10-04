@@ -18,6 +18,12 @@
 #                   rule - nothing is shortened and no check is dropped, the
 #                   long campaign becomes an opt-in target - and
 #                   docs/testing/TESTING.md records who runs it.
+#   make tdm8render-law-boundary
+#                 - #643's BOUNDARY-BAND DIAGNOSTIC, explicit for the same
+#                   reason: the [LAW] phases one cycle apart across the feed
+#                   phases where a PDU end meets a pop, on the unmutated
+#                   gateware and two setpoint defects, LAW_BOUNDARY_JOBS legs
+#                   at a time. Run it from this directory (TESTING.md).
 #   make clean    - remove build artifacts
 #
 # WHY THIS IS ITS OWN SUITE DIRECTORY. These legs lived in tb/verilator/
@@ -115,7 +121,7 @@ $(VERILATOR) $(TDM8RM_SHAPE) $(DP_VFLAGS) --Mdir $(TDM8RM_MDIR) \
 endef
 
 .PHONY: all run tdm8render tdm8render-build tdm8render-multi \
-        tdm8render-multi-build tdm8render-mutants clean
+        tdm8render-multi-build tdm8render-mutants tdm8render-law-boundary clean
 .DEFAULT_GOAL := all
 all: run
 
@@ -188,6 +194,15 @@ tdm8render-mutants: tdm8render-build tdm8render-multi-build
 	@echo "======================================================================"
 	@echo "---- #447 render lane: the same legs against mutated gateware and shape ----"
 	python3 tdm8_render_mutants.py
+
+# THE BOUNDARY-BAND DIAGNOSTIC (#643), explicit. The clean build is its
+# positive control, put on disk first where the runner looks for it; the two
+# setpoint defects are built by the runner through this same recipe.
+LAW_BOUNDARY_JOBS ?= 8
+tdm8render-law-boundary: tdm8render-build
+	@echo "======================================================================"
+	@echo "---- #643 [LAW] across the feed phases where a PDU end meets a pop ----"
+	python3 tdm8_render_mutants.py --law-boundary --jobs $(LAW_BOUNDARY_JOBS)
 
 clean:
 	rm -rf ltn_rom.hex ucode.hex tdm8r_aemi.bin obj_tdm8r_aem tdm8rm_aemi.bin \
