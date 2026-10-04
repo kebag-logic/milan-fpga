@@ -342,6 +342,15 @@ MUTATIONS = [
     # --law-boundary runs the same two across the boundary band.
     *[(name, "datapath", edits, "ship", "--law-only", LAW_FILL + LAW_BAND)
       for name, edits in SETPOINT_DEFECTS],
+    # #645/#647's planted defect: the settle recentre never pulses, so a
+    # stream that ran through T14's pull-in keeps the shift the pull gave it,
+    # and [PULLIN]'s standing phase must leave the law after the hold.
+    ("the settle recentre never pulses", "datapath",
+     [("          settle_recentre_p_r <= 1'b1;",
+       "          settle_recentre_p_r <= 1'b0;")],
+     "ship", "--pullin",
+     "T647 PULLIN +1562 after the settle: every PDU's first event is inside "
+     "the law band from its PDU end"),
     # The mask exists so that a fall on a stream the lane does not render
     # leaves the lane alone. Take the qualification away and the lane flushes
     # on somebody else's unbind - which is the defect the mask was added for.

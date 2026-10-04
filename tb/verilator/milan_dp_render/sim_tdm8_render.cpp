@@ -105,11 +105,19 @@
 // a pop inside the measured ambiguity window is not gradable, and every
 // standing phase is required to be gradable.
 //
+// THE PULL-IN UNDER A RUNNING STREAM (#647, #645). [PULLIN] runs a fresh
+// stream at a [LAW] feed phase through T14's serial-clock hold and grades the
+// law again after milan_datapath's settle recentre, which the aligner's
+// excursion arms and its return to the settle band fires. The full leg runs
+// its standing phase; --pullin=PHASES is the campaign the
+// tdm8render-pullin target spreads over every [LAW] phase.
+//
 // Modes: no argument runs every phase. --serial-only, --epoch-only,
-// --crf-only and --law-only are the short legs tdm8_render_mutants.py runs,
-// and --defect-stopped-clock, --defect-one-sample and --defect-internal-select
-// are its three leg-side defect arms. --law-boundary[=PHASES] is the
-// boundary-band diagnostic the same runner's --law-boundary drives. The
+// --crf-only, --law-only and --pullin are the short legs
+// tdm8_render_mutants.py runs, and --defect-stopped-clock, --defect-one-sample
+// and --defect-internal-select are its three leg-side defect arms.
+// --law-boundary[=PHASES] is the boundary-band diagnostic the same runner's
+// --law-boundary drives, and --pullin=PHASES the pull-in campaign. The
 // multi-stream build takes no mode: its one phase IS its leg.
 
 #include "../../common/verilator_harness.hpp"
@@ -223,6 +231,23 @@ constexpr long kLawGapPdus = 4;
 constexpr long kLawPrefillPdus = 16;
 constexpr long kLawGradedPdus = 128;
 constexpr long kLawUngradedTailPdus = 4;
+//! THE #647 PULL-IN ([PULLIN]): T14's own serial-clock hold, two and a half
+//! frames, which the aligner folds to half a sample, under a RUNNING stream
+//! at INTERNAL. Until #645's settle recentre nothing re-centred the stream
+//! after the pull; now one settle recentre fires once the aligner rests in
+//! its band again, and the law must hold after it. Each phase: the [LAW]
+//! gap and prefill, kPullinBeforePdus on the law, the hold, the wait for the
+//! settle recentre (at most kPullinWaitPdus, which the record outlasts), and
+//! kPullinAfterPdus graded after it on a fresh instrument record.
+constexpr long kPullinHoldCycles = 5200;
+constexpr long kPullinBeforePdus = 64;
+constexpr long kPullinWaitPdus = 3200;
+constexpr long kPullinAfterPdus = 128;
+//! the standing phase the full leg runs: the half-sample pull carries its
+//! first pop back across the PDU end, so with nothing re-centring it the
+//! stream would leave the law (the NO-SETTLE arm of tdm8_render_mutants.py),
+//! and after the settle recentre its window is clear of the ambiguity window
+constexpr long kPullinStandingPhase = 1562;
 //! --law-boundary: the one-cycle scan's half width around the feed phase at
 //! which a PDU end meets a pop
 constexpr long kLawBoundaryHalfBand = 40;
@@ -347,6 +372,12 @@ class TdmRenderHarness {
     //! leg locates the boundary itself
     bool law_boundary = false;
     std::vector<long> law_boundary_phases;
+    //! --pullin: the [PULLIN] standing phase alone. --pullin=PHASES: the #647
+    //! campaign at those feed phases, where (as under --law-boundary) a
+    //! window may be NOT GRADABLE without failing the leg
+    bool pullin_only = false;
+    bool pullin_sweep = false;
+    std::vector<long> pullin_phases;
     bool defect_stopped_clock = false;
     bool defect_one_sample = false;
     //! the [CRF] phase's own defect arm: the command path is exercised in
@@ -681,6 +712,7 @@ class TdmRenderHarness {
     long end_fill_due = -1;                 //! ...whose fill is read next
     long recentre_pulses = 0;               //! render_recentre_p_w edges
     long src_recentre_pulses = 0;           //! the clock-source trigger's own
+    long settle_pulses = 0;                 //! #645's settle recentre
     //! ...and, for the multi-stream arm, the two per-stream observations that
     //! stop "the second stream is live" from being an assumption: how many
     //! PDUs the monitor ACCEPTED for each stream, and how many events the
@@ -773,6 +805,7 @@ class TdmRenderHarness {
         }
         if (dut->rootp->milan_datapath__DOT__render_recentre_p_w) ++recentre_pulses;
         if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) ++src_recentre_pulses;
+        if (dut->rootp->milan_datapath__DOT__settle_recentre_p_r) ++settle_pulses;
     }
 
     //! THE ALIGNER'S SETTLED REPORT (#643), followed at every media tick from
@@ -1463,6 +1496,9 @@ class TdmRenderHarness {
     void phase_law_boundary();
     long locate_the_law_boundary();
     void grade_the_law_at_a_feed_phase(long phase);
+    void phase_pullin(const std::vector<long>& phases);
+    bool parse_the_modes(int argc, char** argv);
+    void pull_in_at_a_feed_phase(long phase);
 
     //! THE GRADING RULE. Every published frame is matched against the
     //! injection record at some advance a in 0..kMaxAdvance; the smallest a
@@ -3254,7 +3290,7 @@ bool TdmRenderHarness::the_window_is_gradable(long span_first, long last_id,
                     "cycles from it, inside the %ld-cycle ambiguity window; "
                     "the law is neither passed nor failed here\n",
                     tag, o.clear_id, o.clear_delta, kLawAmbiguityCycles);
-    if (!law_boundary) {
+    if (!law_boundary && !pullin_sweep) {
         char what[160];
         std::snprintf(what, sizeof what,
                       "%s: gradable, every PDU end clear of a pop by more "
@@ -3451,9 +3487,10 @@ void TdmRenderHarness::phase_crf() {
 //! this phase waits for the aligner's settled report, bounded by the declared
 //! ceiling, and grades it at every phase of kLawPhases, each a FRESH stream
 //! and each a STANDING window: it must be gradable (the ambiguity window).
-//! A stream already running when a pull began keeps the displacement the pull
-//! gave it, because nothing re-centres it; that is the open design gap #647,
-//! and no check here claims otherwise.
+//! A stream already running when a pull began kept the displacement the pull
+//! gave it, because nothing re-centred it (#647); since #645 the settle
+//! recentre does, once the aligner rests in its band again, and [PULLIN]
+//! grades that on a running stream.
 void TdmRenderHarness::phase_internal_law() {
     std::printf("\n[LAW] T30's INTERNAL law once the aligner reports settled, "
                 "on fresh streams at %zu feed phases against the grid\n",
@@ -3583,6 +3620,97 @@ void TdmRenderHarness::grade_the_law_at_a_feed_phase(long phase) {
                     !graded ? "NOT GRADABLE" : failed ? "graded FAIL"
                                                       : "graded PASS",
                     static_cast<unsigned long long>(failed));
+}
+
+// ====================================================================== //
+//  [PULLIN] #647: a running stream through an INTERNAL aligner pull-in,   //
+//  graded on the law after #645's settle recentre                         //
+// ====================================================================== //
+//! T14 stops the serial clock for less than the aligner's watchdog, so the
+//! aligner stays engaged, folds the step to half a sample and pulls the grid
+//! back. Under a stream already running, nothing re-centred the render
+//! stage after that pull until #645: the stream kept the displacement, one
+//! event at some phases (#647). Now an aligner excursion past four settle
+//! bands arms milan_datapath's settle recentre, which fires once the aligner
+//! has rested inside its band for 2,048 ticks. Each phase is a fresh stream
+//! at a [LAW] feed phase, on the law before the hold; after the settle
+//! recentre the same stream must be on the law again, the recentre the only
+//! one since the hold, and the loopback ring's counters static from it on.
+void TdmRenderHarness::phase_pullin(const std::vector<long>& phases) {
+    std::printf("\n[PULLIN] #647: a running stream through T14's serial-clock "
+                "hold at INTERNAL, graded after its settle recentre, at %zu "
+                "feed phase(s)\n", phases.size());
+    wait_for_the_settled_report();
+    for (const long phase : phases) pull_in_at_a_feed_phase(phase);
+    pdu_frac_num = 0;
+    pdu_frac_acc = 0;
+}
+
+void TdmRenderHarness::pull_in_at_a_feed_phase(long phase) {
+    char tag[48];
+    char what[200];
+    std::snprintf(tag, sizeof tag, "T647 PULLIN +%ld", phase);
+    feed_on = false;
+    steps(kLawGapPdus * kPduPeriodCycles);
+    build_injection_record(kLawPrefillPdus + kPullinBeforePdus + kPullinWaitPdus);
+    long guard = kPduPeriodCycles;
+    do {
+        step();
+    } while (!dut->rootp->milan_datapath__DOT__media_tick_p && --guard > 0);
+    next_pdu_at = axis_cycle + phase;
+    pdu_frac_num = kPduPhysFracNum;
+    pdu_frac_acc = 0;
+    feed_on = true;
+    run_fed(phase + kLawPrefillPdus * kPduPeriodCycles);
+    const long first = injected_events / kEvents;
+    run_fed(kPullinBeforePdus * kPduPeriodCycles);
+    char before[64];
+    std::snprintf(before, sizeof before, "%s before the hold", tag);
+    prove_the_setpoint_law_still_holds(0, first,
+                                       injected_events / kEvents - kLawUngradedTailPdus,
+                                       before, kPullinBeforePdus - kLawUngradedTailPdus);
+    //! the hold, then the wait for the settle recentre while the record lasts
+    const long settle0 = settle_pulses;
+    const long pulses0 = recentre_pulses;
+    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    const uint32_t lb0 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
+                         static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
+    tdm_frozen = true;
+    run_fed(kPullinHoldCycles);
+    tdm_frozen = false;
+    const long hold_end = axis_cycle;
+    while (settle_pulses == settle0 &&
+           static_cast<size_t>(injected_events) + kEvents <= inj.size())
+        run_fed(kPduPeriodCycles);
+    const long waited = axis_cycle - hold_end;
+    //! the stage acts at the next PDU end; the instrument is then rebased
+    //! between two PDUs, so none is in flight, and the stream runs on
+    run_fed(2 * kPduPeriodCycles);
+    if (next_pdu_at > axis_cycle + 16) run_fed(next_pdu_at - axis_cycle - 16);
+    const uint32_t lb1 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
+                         static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
+    build_injection_record(kPullinAfterPdus);
+    run_fed(kPullinAfterPdus * kPduPeriodCycles);
+    feed_on = false;
+    const uint32_t lb2 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
+                         static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
+    std::printf("  [i]    %s: the settle recentre came %ld axis cycles (%.1f ms) after "
+                "the hold; loopback slips %u during the pull, %u after the settle\n",
+                tag, waited, static_cast<double>(waited) / (kModelAxisHz / 1000.0), lb1 - lb0,
+                lb2 - lb1);
+    std::snprintf(what, sizeof what, "%s: one settle recentre after the hold, within the "
+                  "record's %ld PDUs", tag, kPullinWaitPdus);
+    check.dec(what, static_cast<uint64_t>(settle_pulses - settle0), 1);
+    std::snprintf(what, sizeof what, "%s: ...the one render recentre pulse since the hold", tag);
+    check.dec(what, static_cast<uint64_t>(recentre_pulses - pulses0), 1);
+    std::snprintf(what, sizeof what, "%s: ...and the stage executed exactly one recentre", tag);
+    check.dec(what, static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
+    std::snprintf(what, sizeof what, "%s: SLIP_LB static from the settle recentre on", tag);
+    check.dec(what, static_cast<uint64_t>(lb2 - lb1), 0);
+    char after[64];
+    std::snprintf(after, sizeof after, "%s after the settle", tag);
+    prove_the_setpoint_law_still_holds(0, 0, injected_events / kEvents - kLawUngradedTailPdus,
+                                       after, kPullinAfterPdus - kLawUngradedTailPdus);
 }
 
 // ====================================================================== //
@@ -4014,7 +4142,9 @@ void TdmRenderHarness::phase_multistream() {
     prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
 }
 
-int TdmRenderHarness::run(int argc, char** argv) {
+//! The leg's mode, from its arguments: false (one counted failure already
+//! recorded) on a phase list it cannot read.
+bool TdmRenderHarness::parse_the_modes(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         const std::string a = argv[i];
         if (a == "--serial-only") serial_only = true;
@@ -4027,13 +4157,28 @@ int TdmRenderHarness::run(int argc, char** argv) {
             if (!parse_the_phase_list(a.substr(15), law_boundary_phases)) {
                 check.fail("--law-boundary=PHASES: non-negative feed phases, "
                            "comma separated, each a number or a LO..HI run");
-                return check.report();
+                return false;
+            }
+        }
+        else if (a == "--pullin") pullin_only = true;
+        else if (a.rfind("--pullin=", 0) == 0) {
+            pullin_only = true;
+            pullin_sweep = true;
+            if (!parse_the_phase_list(a.substr(9), pullin_phases)) {
+                check.fail("--pullin=PHASES: non-negative feed phases, "
+                           "comma separated, each a number or a LO..HI run");
+                return false;
             }
         }
         else if (a == "--defect-stopped-clock") { defect_stopped_clock = true; serial_only = true; }
         else if (a == "--defect-one-sample") { defect_one_sample = true; serial_only = true; corrupt_at = 400; }
         else if (a == "--defect-internal-select") { defect_internal_select = true; crf_only = true; }
     }
+    return true;
+}
+
+int TdmRenderHarness::run(int argc, char** argv) {
+    if (!parse_the_modes(argc, argv)) return check.report();
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
     // THE ENTITY MODEL IS THE ONE THE BUILD SHIPS. The AECP uCPU serves
@@ -4077,6 +4222,13 @@ int TdmRenderHarness::run(int argc, char** argv) {
         phase_law_boundary();
         return check.report();
     }
+    if (pullin_only) {
+        //! #647: the [PULLIN] phase alone, after the same dwell
+        run_fed(kBootPullInCycles);
+        if (pullin_phases.empty()) pullin_phases.push_back(kPullinStandingPhase);
+        phase_pullin(pullin_phases);
+        return check.report();
+    }
     if (crf_only) {
         //! #629 A2-a: the aligner engages at INTERNAL from boot, and a CRF
         //! selection keeps it engaged rather than re-seating its target, so
@@ -4094,6 +4246,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
     if (!serial_only) {
         phase_crf();
         if (!epoch_only) phase_internal_law();
+        if (!epoch_only) phase_pullin({kPullinStandingPhase});
         phase_csr();
         phase_reset();
         phase_bind_loss();

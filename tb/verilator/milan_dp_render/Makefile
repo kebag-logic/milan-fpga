@@ -24,6 +24,11 @@
 #                   phases where a PDU end meets a pop, on the unmutated
 #                   gateware and two setpoint defects, LAW_BOUNDARY_JOBS legs
 #                   at a time. Run it from this directory (TESTING.md).
+#   make tdm8render-pullin
+#                 - #647's PULL-IN CAMPAIGN, explicit for the same reason: a
+#                   running stream through T14's serial-clock hold at every
+#                   [LAW] feed phase, graded after the settle recentre,
+#                   PULLIN_JOBS legs at a time.
 #   make clean    - remove build artifacts
 #
 # WHY THIS IS ITS OWN SUITE DIRECTORY. These legs lived in tb/verilator/
@@ -121,7 +126,8 @@ $(VERILATOR) $(TDM8RM_SHAPE) $(DP_VFLAGS) --Mdir $(TDM8RM_MDIR) \
 endef
 
 .PHONY: all run tdm8render tdm8render-build tdm8render-multi \
-        tdm8render-multi-build tdm8render-mutants tdm8render-law-boundary clean
+        tdm8render-multi-build tdm8render-mutants tdm8render-law-boundary \
+        tdm8render-pullin clean
 .DEFAULT_GOAL := all
 all: run
 
@@ -198,6 +204,21 @@ tdm8render-mutants: tdm8render-build tdm8render-multi-build
 # THE BOUNDARY-BAND DIAGNOSTIC (#643), explicit. The clean build is its
 # positive control, put on disk first where the runner looks for it; the two
 # setpoint defects are built by the runner through this same recipe.
+# #647's PULL-IN CAMPAIGN, explicit for the same reason: [PULLIN] at every
+# [LAW] feed phase, each phase its own leg (boot, the settled report, one
+# running stream through T14's serial-clock hold, graded after the settle
+# recentre), PULLIN_JOBS legs at a time. A window #643's ambiguity window
+# cannot grade is reported, not failed; every leg must pass. Each leg's log
+# is PULLIN_OUT/pullin_<phase>.log.
+PULLIN_PHASES ?= 0 130 260 391 521 651 781 911 927 1042 1156 1172 1302 1432 1562 1693 1823 1953
+PULLIN_JOBS   ?= 6
+PULLIN_OUT    ?= obj_pullin
+tdm8render-pullin: tdm8render-build
+	mkdir -p $(PULLIN_OUT)
+	printf '%s\n' $(PULLIN_PHASES) | xargs -P $(PULLIN_JOBS) -I{} \
+	  sh -c './$(TDM8R_MDIR)/Vmilan_dp_tdm8r --pullin={} > $(PULLIN_OUT)/pullin_{}.log 2>&1'
+	grep -h -e "settle recentre came" -e "NOT GRADABLE" -e "FAIL" $(PULLIN_OUT)/pullin_*.log
+
 LAW_BOUNDARY_JOBS ?= 8
 tdm8render-law-boundary: tdm8render-build
 	@echo "======================================================================"
