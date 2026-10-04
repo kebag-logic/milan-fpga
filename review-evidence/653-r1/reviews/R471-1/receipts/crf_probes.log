@@ -1,0 +1,12 @@
+start 2026-10-04T17:00:53Z
++ python3 $REVIEWS/653-r471-1-packet/scripts/crf_probes.py $REVIEWS/653-r471-1-packet/scratch/t_head_probe $REVIEWS/653-r471-1-packet/scratch/probe_out
+CAUGHT: P1 arm deleted (dev behaviour); make rc=2; tally=('14287', '8'); expected ids missing=[]; failing ids=['[5t-g3]', '[5t-g3b]', '[FAIL]', '[UNB-a1]', '[UNB-a2]', '[UNB-a4]', '[UNB-a5]', '[UNB-b2]', '[UNB-e1]']
+CAUGHT: P2 arm without the locked_o guard (an unlocked input's unbind counts); make rc=2; tally=('14287', '3'); expected ids missing=[]; failing ids=['[FAIL]', '[UNB-c1]', '[UNB-c2]', '[dirty-e1]']
+CAUGHT: P3 arm arms no Table 5.22 pulse; make rc=2; tally=('14287', '1'); expected ids missing=[]; failing ids=['[FAIL]', '[UNB-a5]']
+CAUGHT: P4 arm keeps the lock (timeout recounts); make rc=2; tally=('14287', '4'); expected ids missing=[]; failing ids=['[FAIL]', '[UNB-a1]', '[UNB-b1]', '[UNB-b2]', '[UNB-e1]']
+CAUGHT: P5 arm counts two unlocks; make rc=2; tally=('14287', '7'); expected ids missing=[]; failing ids=['[5t-g3]', '[5t-g3b]', '[FAIL]', '[UNB-a2]', '[UNB-a4]', '[UNB-b1]', '[UNB-d2]', '[UNB-e1]']
+CAUGHT: P6 arm also counts STREAM_INTERRUPTED; make rc=2; tally=('14287', '4'); expected ids missing=[]; failing ids=['[5t-f1]', '[5t-g3]', '[FAIL]', '[UNB-a6]', '[UNB-b3]']
+CAUGHT: P7 timeout counts without the lock guard (double count after unbind); make rc=2; tally=('14287', '418'); expected ids missing=[]; failing ids=['[5t-g2]', '[5t-g3b]', '[FAIL]', '[ST-c2]', '[UNB-a4]', '[UNB-b1]', '[UNB-b2]', '[UNB-c1]', '[UNB-d0]', '[UNB-d1]', '[UNB-d2]', '[UNB-e1]']
+EQUIVALENT(pass): P8 arm placed after the bind-rise wipe (ordering; expected equivalent); make rc=0; tally=('14287', '0'); expected ids missing=[]; failing ids=[]
+end 2026-10-04T17:01:41Z
+rc=0

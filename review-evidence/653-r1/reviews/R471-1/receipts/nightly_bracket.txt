@@ -1,0 +1,12 @@
+# Hosted rtl-full scheduled runs, 'Physical gPTP (nightly and manual)' job, Verilator from job log
+run 37184411090 head 241f91845230ae410506dffb16b71937127fd175 | Verilator 5.050 2026-07-01 rev v5.050 | checks: 139   in-suite failures: 3
+run 37103586723 head 1269cdafb4bb964c757baae0f0c5a932d43f540b | Verilator 5.050 2026-07-01 rev v5.050 | checks: 139   in-suite failures: 0
+run 36976503884 head cdf49d1a28527562888f0a903de51b6b15b1244f | Verilator 5.050 2026-07-01 rev v5.050 | checks: 139   in-suite failures: 0
+run 36829016333 head e4b771f93ee870fb2a93f8360b8677bb0b3e2a3b | Verilator 5.050 2026-07-01 rev v5.050 | checks: 139   in-suite failures: 0
+# failing checks in run 37184411090 artifact physical-gptp-logs/milan_dp_gptp.log (TARGET_SHA 241f91845230ae410506dffb16b71937127fd175):
+  [FAIL] audio sample order, no duplicates or gaps got=2 exp=0
+  [FAIL] audio sample order, no duplicates or gaps got=2 exp=0
+  [FAIL] all monitored audio sample ordering errors got=5 exp=0
+# RTL/config/submodule/milan_dp-tb changes between the passing and failing nightly heads (git diff --stat, review clone):
+1269cdafb..bbf704ecc: 35 files
+bbf704ecc..241f91845: 0 files

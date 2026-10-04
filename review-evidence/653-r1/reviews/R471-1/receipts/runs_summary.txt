@@ -1,0 +1,17 @@
+# R471-1 run summary (all in disposable clones under scratch/, built by scripts/mk_tree.sh; head 77ea6cb4, dev fea346e7, bracket 241f9184)
+pinned tool: Verilator 5.050 2026-07-01 rev v5.050; host tool: Verilator 5.052 2026-09-05 rev v5.052
+crf_rx_head rc=0 :: == crf_rx discontinuity: checks: 2201 failures: 0 ==;KL_crf_rx: 14287 checks, 0 failures (1086 accepted PDUs pinned);== crf_rx mutants: checks: 10 failures: 0 ==;== crf_rx talker_step: checks: 69 failures: 0 ==;
+head_unb rc=0 :: checks: 421 failures: 0;6 checks: 6 PASS, 0 FAIL;
+crf_probes rc=0 :: 
+ooc_head rc=0 :: KL_crf_rx 368 0 368 544 0 1 0 147;
+ooc_dev rc=0 :: KL_crf_rx 433 0 433 544 0 1 0 147;
+lint_head rc=rc=0 :: LINT GATE: PASS (90 violation(s) <= ratchet 90; 17 waived, 0 justified lint_off);
+epoch_only_dev50 rc=1 :: == tdm8_render: checks: 114 failures: 4 ==;
+epoch_only_head50 rc=1 :: == tdm8_render: checks: 114 failures: 4 ==;
+head_render50 rc=2 :: 32 checks: 28 PASS, 4 FAIL;
+dev_render50 rc=2 :: 32 checks: 28 PASS, 4 FAIL;
+dev_render52 rc=2 :: 32 checks: 28 PASS, 4 FAIL;
+pre648_render50 rc=2 :: 28 checks: 24 PASS, 4 FAIL;
+dev_gptp50 rc=2 :: == ax1x1gptp physical: checks: 139 failures: 3 ==;
+head_gptp50 rc=2 :: == ax1x1gptp physical: checks: 139 failures: 3 ==;
+dev_gptp52 rc=2 :: == ax1x1gptp physical: checks: 139 failures: 3 ==;
