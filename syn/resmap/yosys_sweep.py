@@ -32,9 +32,15 @@ ledger row for the current gitlinks.
 Subcommands, each taking --work DIR:
 
     shapes        export HEAD and its pinned submodules, write every variant
-                  configuration and run the builder on it
+                  configuration and run the builder on it; each outcome is
+                  recorded in shapes/outcomes.json, a refusal with its refusal
+                  line. A refusal the plan expects (`"expect": "refused"`) is a
+                  refused point; an unexpected refusal, an expected refusal
+                  that builds, and any other builder failure fail the step
     roms          generate and validate the three ROM images
-    run [NAME..]  price the points (all by default), --jobs at a time
+    run [NAME..]  price the points (all by default), --jobs at a time; a point
+                  whose shape the builder refused is reported, not priced, and
+                  `summary` records it with the refusal line
     guards [NAME..]
                   lint each point that ran with --verilator, which evaluates the
                   RTL's elaboration guards (`$error` in a generate block) that the
@@ -51,12 +57,15 @@ syn/ooc/dp_srcs.py), so each refuses a checkout with tracked changes, and every
 point receipt records the HEAD it was priced at and that the tree was clean.
 
 --selftest proves the parameter rewrite, the module expansion, its tie, the plan
-validation and the clean-tree check on synthetic inputs.
+validation, the clean-tree check and the builder-refusal path on synthetic inputs,
+and reads one real builder refusal.
 """
 
 import argparse
 import concurrent.futures
+import contextlib
 import hashlib
+import io
 import json
 import os
 import re
@@ -114,6 +123,9 @@ def load_plan(path: Path) -> dict:
         values += [v for patch in point.get("patch", {}).values() for v in patch.values()]
         if not all(isinstance(value, int) for value in values):
             raise PlanError(f"{point['name']}: every value must be a decimal integer")
+    for name, spec in plan["variants"].items():
+        if spec.get("expect", "built") not in ("built", "refused"):
+            raise PlanError(f"{name}: expect must be built or refused, not {spec['expect']!a}")
     return plan
 
 
@@ -311,11 +323,31 @@ def variant_text(base: str, spec: dict) -> str:
     return text
 
 
+#: The builder's refusal of a configuration: its CLI exits 1 with this line, and writes nothing.
+BUILDER_REFUSAL = "CONFIG ERROR: "
+
+
+def builder_outcome(rc: int, text: str) -> tuple[str, str]:
+    """("built", ""), ("refused", the refusal line) or ("failed", why) for one builder run. Only exit 1
+    with one refusal line and no traceback is a refusal; anything else that is not exit 0 is a failure."""
+    lines = text.splitlines()
+    refusals = [line for line in lines if line.startswith(BUILDER_REFUSAL)]
+    if rc == 0:
+        return "built", ""
+    if rc == 1 and len(refusals) == 1 and not any(line.startswith("Traceback") for line in lines):
+        return "refused", refusals[0]
+    return "failed", f"exit {rc}, {len(refusals)} refusal line(s): {(lines or [''])[-1]}"
+
+
 def command_shapes(work: Path, plan: dict) -> int:
-    """Export the tree, write each variant configuration and generate its shape with the builder."""
+    """Export the tree, write each variant configuration and generate its shape with the builder.
+
+    Each outcome is recorded in shapes/outcomes.json. A refusal is a refused point, recorded with its
+    refusal line; it fails the step only when the plan does not expect it, as does an expected refusal that
+    builds. Any other failure of the builder fails the step."""
     tree = export_tree(work)
     base = (tree / "configs" / f"{BASE_CONFIG}.yaml").read_text()
-    failures = 0
+    failures, outcomes = 0, {}
     for name, spec in plan["variants"].items():
         config = tree / "configs" / f"endstation_{name}.yaml"
         config.write_text(variant_text(base, spec))
@@ -325,9 +357,28 @@ def command_shapes(work: Path, plan: dict) -> int:
             run = subprocess.run([sys.executable, str(tree / "sw/builder/endstation_builder.py"), "-o",
                                   str(work / "builder-out"), str(config)], cwd=tree, stdout=handle,
                                  stderr=subprocess.STDOUT, check=False)
-        print(f"shape {name}: builder rc={run.returncode}")
-        failures += run.returncode != 0
+        outcome, line = builder_outcome(run.returncode, log.read_text())
+        expected = spec.get("expect", "built")
+        outcomes[name] = {"rc": run.returncode, "outcome": outcome, "expected": expected, "refusal": line,
+                          "log_sha256": sha256(log)}
+        surprise = f" where the plan expects {expected}" if outcome != expected else ""
+        print(f"shape {name}: builder rc={run.returncode} {outcome}{surprise}{': ' + line if line else ''}")
+        failures += outcome != expected
+    (work / "shapes" / "outcomes.json").write_text(json.dumps(outcomes, indent=1, sort_keys=True) + "\n")
     return 1 if failures else 0
+
+
+def builder_refusal(work: Path, plan: dict, point: dict) -> str:
+    """The builder's refusal line for a point whose variant shape it refused, else "". A variant with no
+    recorded outcome is refused, never assumed built: run the shapes command first."""
+    shape = point.get("shape", plan["tops"].get(point["top"], {}).get("shape", BASE_CONFIG))
+    if shape not in plan["variants"]:
+        return ""
+    path = work / "shapes" / "outcomes.json"
+    outcomes = json.loads(path.read_text()) if path.is_file() else {}
+    if outcomes.get(shape, {}).get("outcome") not in ("built", "refused"):
+        raise PlanError(f"{point['name']}: shape {shape} has no builder outcome; run the shapes command first")
+    return outcomes[shape]["refusal"] if outcomes[shape]["outcome"] == "refused" else ""
 
 
 # ------------------------------------------------------------- one point
@@ -422,14 +473,27 @@ def select_malloc() -> str:
 
 
 def command_run(work: Path, plan: dict, names: list[str], jobs: int) -> int:
-    """Price the named points (every point when none is named), `jobs` at a time."""
+    """Price the named points (every point when none is named), `jobs` at a time. A point whose shape
+    the builder refused is not priced: it is reported with its refusal and is not a failure."""
     chosen = [p for p in plan["points"] if not names or p["name"] in names]
     missing = sorted(set(names) - {p["name"] for p in chosen})
     if missing:
         print(f"run: no such point {missing}")
         return 2
+    failures, priced = 0, []
+    for point in chosen:
+        try:
+            line = builder_refusal(work, plan, point)
+        except PlanError as failure:
+            print(f"point {point['name']}: refused: {failure}", flush=True)
+            failures += 1
+            continue
+        if line:
+            print(f"point {point['name']}: not priced, the builder refuses its shape: {line}", flush=True)
+        else:
+            priced.append(point)
+    chosen = priced
     malloc = select_malloc()
-    failures = 0
     with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
         futures = {pool.submit(run_point, work, plan, point, malloc): point["name"] for point in chosen}
         for future in concurrent.futures.as_completed(futures):
@@ -626,10 +690,22 @@ def summarize(directory: Path, depth: int) -> dict:
 
 
 def command_summary(work: Path, plan: dict, depth: int) -> int:
-    """Summarize every point that ran, refusing any whose figures do not tie."""
+    """Summarize every point that ran, refusing any whose figures do not tie. A point whose shape the
+    builder refused is recorded as {"builder": {"refusal": line}}, and a priced receipt for it is refused."""
     summary, failures = {}, 0
     for point in plan["points"]:
         directory = work / "points" / point["name"]
+        try:
+            line = builder_refusal(work, plan, point)
+            if line and (directory / "receipt.json").is_file():
+                raise PlanError(f"{point['name']}: priced, but the builder refuses its shape: {line}")
+        except PlanError as failure:
+            print(f"summary: {failure}")
+            failures += 1
+            continue
+        if line:
+            summary[point["name"]] = {"builder": {"refusal": line}}
+            continue
         if not (directory / "receipt.json").is_file():
             continue
         try:
@@ -638,7 +714,8 @@ def command_summary(work: Path, plan: dict, depth: int) -> int:
             print(f"summary: {failure}")
             failures += 1
     (work / "summary.json").write_text(json.dumps(summary, indent=1, sort_keys=True) + "\n")
-    print(f"summary: {len(summary)} points tied, {failures} refused")
+    unpriced = sum("builder" in entry for entry in summary.values())
+    print(f"summary: {len(summary) - unpriced} points tied, {unpriced} refused by the builder, {failures} refused")
     return 1 if failures else 0
 
 
@@ -651,6 +728,10 @@ def command_vivado_point(work: Path, plan: dict, name: str) -> int:
     if point is None:
         print(f"vivado-point: no such point {name}")
         return 2
+    refusal = builder_refusal(work, plan, point)
+    if refusal:
+        print(f"vivado-point {name}: the builder refuses its shape: {refusal}")
+        return 1
     directory = work / "vivado" / name
     directory.mkdir(parents=True, exist_ok=True)
     state = require_clean()
@@ -754,6 +835,86 @@ def _selftest_plan() -> list[str]:
     text = variant_text(base, {"streams": 2, "channels": 4})
     if text.count('channels: 4, map_mode: dynamic') != 4:
         problems.append("plan: the 2x2 four-channel variant does not declare four four-channel streams")
+    broken = json.loads(json.dumps(plan))
+    broken["variants"]["rm_ax7101_8x8_tdm8"]["expect"] = "refuse"
+    with tempfile.TemporaryDirectory(prefix="resmap-plan-") as tmp:
+        path = Path(tmp) / "plan.json"
+        path.write_text(json.dumps(broken))
+        try:
+            load_plan(path)
+            problems.append("plan: an expectation that is neither built nor refused was accepted")
+        except PlanError:
+            pass
+    return problems
+
+
+#: A refusal line as the builder's CLI prints it.
+SELFTEST_REFUSAL = "CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records"
+
+
+def _selftest_outcome() -> list[str]:
+    """A refusal is read with its line; a crash, a second refusal line or another exit is never a refusal;
+    and the builder's own refusal of a 235-name variant reads as one, with nothing written."""
+    problems = []
+    for label, rc, text, want in (
+            ("a build", 0, "[endstation_builder] built\n", ("built", "")),
+            ("a refusal", 1, SELFTEST_REFUSAL + "\n", ("refused", SELFTEST_REFUSAL)),
+            ("a traceback", 1, "Traceback (most recent call last):\n" + SELFTEST_REFUSAL + "\n", "failed"),
+            ("an exit with no refusal line", 1, "Killed\n", "failed"),
+            ("two refusal lines", 1, SELFTEST_REFUSAL + "\n" + SELFTEST_REFUSAL + "\n", "failed"),
+            ("a usage error", 2, SELFTEST_REFUSAL + "\n", "failed")):
+        got = builder_outcome(rc, text)
+        if (got[0] if want == "failed" else got) != want:
+            problems.append(f"outcome: {label} read as {got}")
+    plan = load_plan(PLAN)
+    base = (REPO / "configs" / f"{BASE_CONFIG}.yaml").read_text()
+    with tempfile.TemporaryDirectory(prefix="resmap-outcome-") as tmp:
+        config = Path(tmp) / "endstation_rm_selftest.yaml"
+        config.write_text(variant_text(base, plan["variants"]["rm_ax7101_8x8_tdm8"]))
+        run = subprocess.run([sys.executable, str(REPO / "sw/builder/endstation_builder.py"), "-o",
+                              str(Path(tmp) / "out"), str(config)], cwd=REPO, capture_output=True, text=True,
+                             check=False)
+        outcome, line = builder_outcome(run.returncode, run.stdout + run.stderr)
+        if outcome != "refused" or "writable names" not in line or (Path(tmp) / "out").exists():
+            problems.append(f"outcome: the builder's refusal of the 8x8 TDM8 variant read as {outcome} {line!a}")
+    return problems
+
+
+def _selftest_refused_points() -> list[str]:
+    """A point whose shape the builder refused is reported and not priced by run, recorded with its line by
+    summary, and fails summary when it carries a priced receipt; a variant with no outcome is refused."""
+    problems = []
+    plan = {"tops": {"milan_datapath": {"shape": "endstation_base", "params": {}}},
+            "variants": {"v_refused": {}, "v_built": {}, "v_unrun": {}},
+            "points": [{"name": "p", "top": "milan_datapath", "shape": "v_refused"}]}
+    outcomes = {"v_refused": {"outcome": "refused", "refusal": SELFTEST_REFUSAL},
+                "v_built": {"outcome": "built", "refusal": ""}}
+    with tempfile.TemporaryDirectory(prefix="resmap-refused-") as tmp:
+        work = Path(tmp)
+        (work / "shapes").mkdir()
+        (work / "shapes" / "outcomes.json").write_text(json.dumps(outcomes))
+        lines = {shape: builder_refusal(work, plan, {"name": shape, "top": "milan_datapath", "shape": shape})
+                 for shape in ("v_refused", "v_built", "endstation_base")}
+        if lines != {"v_refused": SELFTEST_REFUSAL, "v_built": "", "endstation_base": ""}:
+            problems.append(f"refused: the outcomes read as {lines}")
+        try:
+            builder_refusal(work, plan, {"name": "q", "top": "milan_datapath", "shape": "v_unrun"})
+            problems.append("refused: a variant with no builder outcome was taken as built")
+        except PlanError:
+            pass
+        with contextlib.redirect_stdout(io.StringIO()):
+            ran = command_run(work, plan, [], 1)
+            summarized = command_summary(work, plan, 1)
+        summary = json.loads((work / "summary.json").read_text())
+        if ran or (work / "points").exists():
+            problems.append(f"refused: run exited {ran} or priced the refused point")
+        if summarized or summary != {"p": {"builder": {"refusal": SELFTEST_REFUSAL}}}:
+            problems.append(f"refused: summary exited {summarized} with {summary}")
+        (work / "points" / "p").mkdir(parents=True, exist_ok=True)
+        (work / "points" / "p" / "receipt.json").write_text("{}\n")
+        with contextlib.redirect_stdout(io.StringIO()):
+            if not command_summary(work, plan, 1):
+                problems.append("refused: a priced receipt for a refused point was summarized")
     return problems
 
 
@@ -789,6 +950,7 @@ def _selftest_tree() -> list[str]:
 def selftest() -> int:
     """Every arm on synthetic inputs; exit 0 only when all pass."""
     problems = _selftest_patch() + _selftest_expand() + _selftest_plan() + _selftest_guards() + _selftest_tree()
+    problems += _selftest_outcome() + _selftest_refused_points()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"yosys_sweep self-test: {'PASS' if not problems else 'FAIL'} ({len(problems)} problems)")
