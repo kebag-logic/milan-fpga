@@ -1,0 +1,41 @@
+# public evidence used (milan-fpga branch pp230-review-evidence)
+brief's evidence commit 8dca0983ec7c9879a46273d6762969681034374c: round-1 author packet only (HANDOFF, PR-BODY, two parent patches)
+round-2 author packet: 00f848e5bb6ef56f9fbe88c2fb79fd8bef227b9f 'Archive A523 round-2 packet for issue 230' (2026-10-04T12:32:01Z, before this review began)
+reviewer archives under reviews/ were not opened except this reviewer's own R458-1 directory listing
+
+## author-r2 files: published sha256 against MANIFEST.json
+author-r2/HANDOFF.md	5e846ef3d622c611	OK	path-redacted (original 09132bc717e0e830)
+author-r2/PR-BODY.md	2f0a3bd6aa98bbaf	OK	
+author-r2/lockstep-r1/MANIFEST.sha256	ba39be98de52d432	OK	
+author-r2/lockstep-r1/README.md	850aafed696250ba	OK	
+author-r2/lockstep-r1/build.sh	441d4ad9ba17a955	OK	path-redacted (original 822204c3daf8be31)
+author-r2/lockstep-r1/campaign-final.log	52b707744cf948e0	OK	
+author-r2/lockstep-r1/campaign-final.rc	9a271f2a916b0b6e	OK	
+author-r2/lockstep-r1/campaign.sh	6af41dba779b2968	OK	path-redacted (original 654ca3eea663f91f)
+author-r2/lockstep-r1/controls-final.log	536cdd3ab7faa066	OK	
+author-r2/lockstep-r1/controls-final.rc	9a271f2a916b0b6e	OK	
+author-r2/lockstep-r1/gen_top.py	37e13f65c48cf82d	OK	
+author-r2/lockstep-r1/lockstep_main.cpp	eda930b367eaed36	OK	
+author-r2/lockstep-r1/make_controls.py	0547433a18153166	OK	
+author-r2/lockstep-r1/make_ref.py	34cb53a77576b840	OK	
+author-r2/lockstep-r1/run_controls.sh	54d432d5b1023932	OK	path-redacted (original 85be3a023b74871a)
+
+## lockstep-r1/MANIFEST.sha256 (original digests) against MANIFEST.json original_sha256
+build.sh	EQUAL
+campaign-final.log	EQUAL
+campaign-final.rc	EQUAL
+campaign.sh	EQUAL
+controls-final.log	EQUAL
+controls-final.rc	EQUAL
+gen_top.py	EQUAL
+lockstep_main.cpp	EQUAL
+make_controls.py	EQUAL
+make_ref.py	EQUAL
+README.md	EQUAL
+run_controls.sh	EQUAL
+
+## live PR #154 body vs published author-r2/PR-BODY.md
+  281d280
+  < 
+  (only a trailing empty line differs; the published file already carries the manager's merge line, body line 280)
+live body sha256: b71e9b318d65edc47e234c98e5de2970f3157671ac59e217b7baa9cb8220cf3a (PR updated_at 2026-10-04T12:32:32Z, head 9160f7d7)

@@ -1,0 +1,54 @@
+# HDL and merges at 9160f7d7
+## first-parent history c4cb84ff..9160f7d7
+9160f7d 1199255 c050d97 Merge processor main c050d971 (PR #153) into the #230 lane
+1199255 7365022 Re-measure the #230 control table from the head's campaign after the parked-index walk arms
+7365022 f727957 Walk the #230 records again with the idle gate and control faces parked on their highest index (WK1, WK6)
+f727957 df02e64 Give the #230 arms' shape -CFLAGS groups -Wall -Wextra and drop four one-line multi-element initialisers, for the parent's C
+df02e64 d21dd8e Name the #230 walk copies, slopes and timer-arm FIFOs in the storage rule and point 10 section 5.1 at their tests
+d21dd8e d47ce65 Plant both #230 reviews' probes and the lane's controls as 33 killed controls of the srp_top campaign
+d47ce65 eb352ff Check the #230 timer-arm FIFOs at 1/1, 2/2, 3/5 and 9/9 in tb/srp_top, the full guard under a forced stall (TF1-TF5)
+eb352ff 4994ada Check the #230 walk-record copies at sources/sinks 1/1, 2/2, 3/5 and 9/9 in tb/srp_stream_fsms (WK1-WK8)
+4994ada 6532439 83999eb Merge processor main 83999eba (C10, #85) into pp230-srp-area
+6532439 25847d0 Record the SRP storage map and per-stream cost for issue #230 in 10 section 5.1
+25847d0 c4cb84f SRP storage for issue #230: timer-arm FIFOs, walk records and admission slopes in distributed RAM
+
+## lane commits after round 1 touching hdl/ or syn/ (empty = none)
+1199255: none
+7365022: none
+f727957: none
+df02e64: none
+d21dd8e: none
+d47ce65: none
+eb352ff: none
+
+## hdl diff identity: (c4cb84ff..25847d07 -- hdl) vs (main c050d971..9160f7d7 -- hdl)
+sha256 fede969fabb35358e6ffa67f3e05ef90f0d39f7e06613d49f914f7c860129fac  c4cb84ff..25847d07
+sha256 fede969fabb35358e6ffa67f3e05ef90f0d39f7e06613d49f914f7c860129fac  c050d971..9160f7d7
+ hdl/srp/KL_srp_admission.sv    | 16 ++++++--
+ hdl/srp/KL_srp_listener_fsm.sv | 33 ++++++++++++++---
+ hdl/srp/KL_srp_talker_fsm.sv   | 83 ++++++++++++++++++++++++++++--------------
+ hdl/srp/KL_srp_top.sv          | 23 +++++++++---
+ 4 files changed, 112 insertions(+), 43 deletions(-)
+
+## merges recomputed with git merge-tree --write-tree (no conflict resolution edits if equal)
+4994ada parents 65324390 83999eba: merge-tree 4b1fa586f11be61a02f093b0b5485260c0141915, commit tree 4b1fa586f11be61a02f093b0b5485260c0141915 -> EQUAL
+9160f7d parents 1199255b c050d971: merge-tree bd926d188f3205a819e9248ed1a07dae14098e7f, commit tree bd926d188f3205a819e9248ed1a07dae14098e7f -> EQUAL
+
+## PR #153 files (API) vs files PR #154 changes against main 83999eba
+PR #153:
+  docs/architecture/06_aecp_engine.md
+  docs/architecture/09_verification.md
+  hdl/aecp/KL_aecp_notify.sv
+  tb/aecp_notify/README.md
+  tb/aecp_notify/sim_main.cpp
+  tb/pp_top/notify_mutants.py
+  tb/pp_top/README.md
+in common: 0
+
+## hdl/srp at 9160f7d7 vs round-1 head 65324390 and 25847d07 (empty diff = identical)
+diff 65324390..9160f7d7 -- hdl/srp: 0 lines
+diff 25847d07..9160f7d7 -- hdl/srp: 0 lines
+100644 blob 0c284bf7b738869c39654d3dc41cc4e307070465	hdl/srp/KL_srp_admission.sv
+100644 blob 78014b422b728111dc1f125929f26336c13c9250	hdl/srp/KL_srp_listener_fsm.sv
+100644 blob 433d080f7c842f184c9f517aa66e2dd5ea76876c	hdl/srp/KL_srp_talker_fsm.sv
+100644 blob 7f0c641a37802186ac1de14d5921026b661400aa	hdl/srp/KL_srp_top.sv
