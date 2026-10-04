@@ -1,0 +1,9 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -179,4 +179,4 @@
+     //! SEE the expiry cannot wait 30 million compressed cycles for it.
+-    parameter int unsigned REG_TL_TIMEOUT_MS_P = 300_000,
+-    parameter int unsigned LOCK_TIMEOUT_MS_P   = 60_000,
++    parameter int unsigned REG_TL_TIMEOUT_MS_P = 299_998,
++    parameter int unsigned LOCK_TIMEOUT_MS_P   = 59_997,
+     //! ---- AECP response buffer in the integrator's MAIN MEMORY (03 §7) ---

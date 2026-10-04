@@ -1,0 +1,7 @@
+--- a/hdl/packet_engine/KL_pp_scoreboard.sv
++++ b/hdl/packet_engine/KL_pp_scoreboard.sv
+@@ -153,3 +153,3 @@
+      || ((a_cls == HZ_MAP_CFG_C)   && (b_cls == HZ_STREAM_CFG_C))) begin
+-      return 1'b1;  // format<->mapping validation pair
++      return same_key_v;  // format<->mapping validation pair
+     end
