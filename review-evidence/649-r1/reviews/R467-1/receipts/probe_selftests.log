@@ -1,0 +1,6 @@
+models: refused points kept in the stream fit    -> NOT CAUGHT (self-test still passes): resmap_models self-test: PASS
+models: refused points kept in the processor fits -> NOT CAUGHT (self-test still passes): resmap_models self-test: PASS
+tables: page check reports stale as equal        -> NOT CAUGHT (self-test still passes): resmap_tables self-test: PASS
+map: partition tie disabled                      -> NOT CAUGHT (self-test still passes): resmap_map self-test: 11 of 11 arms passed
+sweep: guard refusal lines ignored               -> CAUGHT (self-test fails): yosys_sweep self-test: FAIL (1 problems)
+sweep: summary tie disabled                      -> NOT CAUGHT (self-test still passes): yosys_sweep self-test: PASS (0 problems)

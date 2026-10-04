@@ -1,0 +1,10 @@
+points linted: 59
+refused: 7
+  pp-ctrl-32 ['860:5: F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)']
+  pp-line-1152 ['965:5: DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor', '297:5: RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)']
+  pp-line-288 ['942:5: response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)', '961:5: DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page', '297:5: RESP_D8_CAP_BYTES_P=304 outside 524..1024 (the 10-bit cursor)']
+  pp-line-512 ['961:5: DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page']
+  pp-names-235 ['289:5: KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.']
+  streams-8-chans-2 ['289:5: KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.']
+  streams-8 ['289:5: KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.']
+rc!=0 or hard errors: {}

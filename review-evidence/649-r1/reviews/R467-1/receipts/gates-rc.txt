@@ -1,0 +1,10 @@
+scripts/docs_check.py rc=0
+scripts/check_em_dash.py --base 241f91845230ae410506dffb16b71937127fd175 rc=2
+scripts/gen_toc.py --check rc=2
+scripts/check_doc_paths.py rc=0
+scripts/check_em_dash.py --base 241f91845230ae410506dffb16b71937127fd175 rc=0
+scripts/gen_toc.py --check rc=0
+scripts/gen_toc.py --verify-anchors rc=0
+scripts/docs_check.py rc=0 (rerun, separate log)
+scripts/check_doc_paths.py rc=0 (rerun, separate log)
+note: the two rc=2 lines are the first attempts without the pinned Markdown renderer (refused, not judged); the rc=0 lines after them ran with the pinned renderer installed from tools/markdown/requirements.txt in a disposable environment

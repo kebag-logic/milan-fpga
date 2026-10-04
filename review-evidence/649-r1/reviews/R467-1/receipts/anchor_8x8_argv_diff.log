@@ -1,0 +1,7 @@
+builder argv differences, shipping 1x1 TDM8 -> tracked 8x8:
+  --audio-interface: tdm8 -> tdm32
+  --audio-interface-render: 8 -> None
+  --loopback-lane: True -> None
+  --no-datapath-probes: None -> True
+  --no-latency-taps: None -> True
+  --num-streams: 1 -> 8
