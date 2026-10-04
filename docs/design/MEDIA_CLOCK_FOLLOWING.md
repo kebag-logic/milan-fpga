@@ -1326,8 +1326,8 @@ pass.
 | Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
-| `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
-| Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
+| `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
+| Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
 **Why the switch row has three checks.** The round 3 evidence on PR #631
@@ -1368,20 +1368,27 @@ accepts this as a test correction, not a change to the law.
   last beat is counted in that end's fill; one taken a cycle later is not. A
   pop that coincides with a PDU end is therefore physically ambiguous at the
   grading instant. After settle, the offset from a PDU end to its nearest pop
-  is not fixed: within one graded window it walks by up to 4 cycles, and
+  is not fixed: within one graded window it walks by up to 5 cycles, and
   where it sits at a given feed phase depends on the run's history. The
   [round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5974715857)
   withdrew the earlier tie rule, whose one-cycle premise review measured to
   be false, and replaced it with this window.
+  - **The walk** is the range of that offset over a window's steady PDU
+    ends, those with a pop within two ticks on each side. The suite prints
+    it for every window beside the nearest-pop range it is taken from. Where
+    the ends sit half a tick from the grid the nearest pop changes side, and
+    only there the walk is taken from the first pop after each end instead;
+    no window measured so far sits there.
   - **Measured.** `--law-boundary` scanned +2,026 +/-40 cycles one cycle
     apart, across the feed phase where a PDU end meets a pop, at dev's
     processor pin `631eeb34` and at processor `c4cb84ff`, in three histories
     each: ascending, descending, and every phase alone. The walk was at most
     3 cycles in every `[LAW]` phase and history, identically at both pins.
-    T30's CRF window, 292 PDUs under CRF, walked 4. The window is stated
-    against the larger.
-  - **The window** is the walk plus a guard of 4 cycles: 8 cycles. A window
-    with a PDU end whose nearest pop is within 8 cycles of the boundary
+    T30's CRF window, 292 PDUs under CRF, walked 5 at dev's pin, its nearest
+    pop at -592..-587 cycles, and 4 at `c4cb84ff`, at +336..+340. The
+    window is stated against the larger: a walk of 5.
+  - **The window** is the walk plus a guard of 4 cycles: 9 cycles. A window
+    with a PDU end whose nearest pop is within 9 cycles of the boundary
     between the end beat's cycle and the next is not gradable. The suite
     names the phase, the PDU and the offset, and counts its law neither as a
     pass nor as a fail.
@@ -1389,13 +1396,28 @@ accepts this as a test correction, not a change to the law.
     phases, and T30's CRF window, carries a check that it is and prints its
     margin from the window. The nearest standing phase is +0, whose PDU ends
     clear the boundary by 56 cycles in `--law-only` and 57 in the full leg: a
-    margin of 48 and 49.
+    margin of 47 and 48. T30's CRF window clears it by 587 cycles at dev's
+    pin and 335 at `c4cb84ff`. Its span starts four PDUs into the window, so
+    unlike a `[LAW]` phase's it does not hold the PDU end that set its fill
+    reference, the settled recentre's re-snap; that end's clearance is not
+    measured.
+  - **If T30's CRF window is not gradable.** Its place against the grid is
+    not a chosen phase: it moves with the processor's content and the run's
+    history. Its nearest pop is at -587 cycles at dev's pin and at +336 at
+    `c4cb84ff` in the full leg; under `--crf-only` it is at -1,018 and at
+    -91. A later pin can therefore put it inside the window. The suite then
+    fails "T30 CRF LAW: gradable" by name, prints `[NOT GRADABLE]` with the
+    PDU and the offset, and runs none of that window's law checks. That is
+    the test's placement, not a design defect, and it is fixed in the test:
+    move the window's feed phase clear of the boundary, as the `[LAW]` phases
+    are placed, and re-measure the walk. Narrowing the window or dropping the
+    check would hide it instead.
   - **What a graded window grades.** The fill at every PDU end is exactly 14
     events, with no allowance. Every first event pops inside (8, 9] ticks of
     its PDU end, plus the pop pulse's one-cycle register. The 64 cycles of
-    slack the tie rule needed are gone: in a graded window the first event
-    lands more than 8 cycles inside both edges. So a setpoint one event off
-    fails both checks at every graded phase.
+    slack the tie rule needed are gone: in every graded window measured the
+    first event landed at least 10 cycles inside both edges. So a setpoint
+    one event off fails both checks at every graded phase.
 - **What is not graded.** T30's own INTERNAL window opens while the aligner
   is still pulling the grid in after T14's serial-clock hold. It keeps its pin
   and A2-a checks and no longer grades the law. A stream already running
