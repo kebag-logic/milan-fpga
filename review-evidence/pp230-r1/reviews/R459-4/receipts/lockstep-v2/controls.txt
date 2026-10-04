@@ -1,0 +1,5 @@
+c1-wtsp-write-ignores-ready|KL_srp_talker_fsm|s/assign gate_open_acc_w = rst_n \&\& gate_acc_w \&\& gate_open_i;/assign gate_open_acc_w = rst_n \&\& gate_valid_i \&\& gate_open_i;/
+c2-wid-ram-read-neighbour|KL_srp_talker_fsm|s/assign wid_w = wid_r\[wsrc_r\];/assign wid_w = wid_r[wsrc_r - 1'b1];/
+c3-wsid-write-ignores-ready|KL_srp_listener_fsm|s/if (rst_n \&\& ctl_acc_w \&\& ctl_settle_i) begin/if (rst_n \&\& ctl_valid_i \&\& ctl_settle_i) begin/
+c4-slope-read-source-0|KL_srp_admission|s/{1'b0, slope_q_r\[aidx_r\]}/{1'b0, slope_q_r[0]}/
+c5-wid-ram-only-ignores-ready|KL_srp_talker_fsm|/walk_id_write/,/end/s/if (gate_open_acc_w) begin/if (rst_n \&\& gate_valid_i \&\& gate_open_i) begin/
