@@ -68,7 +68,7 @@
    ["    enabled: true ", "    enabled: false "]]}
  },
  "soc": {
-  "description": "SoC-side variants: the shipping SoC arguments with the named flags changed. expect: refused marks a variant the recipe is known to reject under its one software profile; the refusal is recorded, not worked around.",
+  "description": "SoC-side variants: the shipping SoC arguments with the named flags changed. expect: refused marks a variant the recipe is known to reject under its one software profile; soc_sweep.py records the refusal, and the findings page prices these variants from a scratch-only copy of the recipe with the refusal removed.",
   "variants": {
    "ship": {},
    "axilite": {"set": {"--bus-standard": "axi-lite"}},

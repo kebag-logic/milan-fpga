@@ -8,8 +8,12 @@ The variants are the `soc` section of syn/resmap/sweep_plan.json. Each one is
 the shipping configuration's own SoC argument list (the builder's
 soc_params.json) with the named flags changed, run through sw/litex/milan_soc.py
 WITHOUT --build, from the scratch export syn/resmap/yosys_sweep.py `shapes`
-wrote. A variant the script refuses is recorded with its refusal line: that is
-the measurement, since pricing it would need a change to the recipe.
+wrote. A variant the script refuses is recorded here with its refusal line, and
+this script prices only what the recipe accepts. The refused CPU, cache and L2
+variants were priced separately, from a scratch-only copy of the recipe with the
+refusal removed (never committed; issue #649's round-2 ruling): the findings page
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md gives those figures and where
+their driver and receipts are published.
 
 Two figures per accepted variant, both `synth_xilinx -family xc7 -flatten`:
 
