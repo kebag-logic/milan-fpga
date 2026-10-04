@@ -961,7 +961,7 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
 
 #### History, lock, era and outputs
 
-- **History restarts:** `KL_crf_rx`'s rules (`:390-403`) except its
+- **History restarts:** `KL_crf_rx`'s rules (`:397-410`) except its
   restart on a sequence gap. They are a `tu` edge, a pick spacing outside
   2 ms +/- 4,096 ns, a group voided by its deviation (before a gap too), the
   bind edge, 100 ms of silence, a change of the followed listener, and entry
@@ -1058,6 +1058,9 @@ The same rules apply to either kind of followed source.
 
 1. **Loss.** The selected measurement's `locked` falls after 100 ms with no
    accepted PDU: the stream stopped, was unbound or STOPPED, or was rejected.
+   A followed CRF input's lock falls at the unbind itself, counting one
+   MEDIA_UNLOCKED (#653); a followed AAF input's meter lock still falls at its
+   own 100 ms timeout. HOLDOVER and the restart request follow either fall.
 2. **Holdover.** The servo enters HOLDOVER: the trim is frozen and the audio
    clock keeps the last followed rate (`KL_mmcm_drp_servo.sv:166-170`). While
    the TDM feed is live, the aligner keeps the packet grid on the physical
@@ -1496,7 +1499,7 @@ ruling can change either.
   (`hdl/ieee1722/crf/KL_crf_rx.sv:288-289`). B6 found the CRF path locked on
   the bench. The ruling keeps `KL_crf_rx` unchanged, so this is outside #629
   and is filed as [#633](https://github.com/kebag-logic/milan-fpga/issues/633).
-  Its rate also restarts on any sequence gap (`:398-400`), which the loss rule
+  Its rate also restarts on any sequence gap (`:405-407`), which the loss rule
   here would address if #633 takes it.
 - **INTERNAL accuracy under A2-a is a known risk.** A2-a puts INTERNAL on the
   audio MMCM plan plus the error of the board oscillator the audio clock is

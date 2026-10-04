@@ -47,7 +47,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The AAF inputs already did this (task #32).
 - The later timeout finds no lock and counts nothing.
 - STREAM_INTERRUPTED still never counts an unbind.
-- The UNBIND_RX response still leaves before the counters push.
+- Simulation shows the UNBIND_RX response leaving before the counters push. The hardware order in #653 awaits a bench capture.
 - `CRF_CTRL[31]` now falls at the unbind.
 - So do the CRF lock's datapath consumers.
 - They saw it up to 100 ms later.
