@@ -1,0 +1,263 @@
+{
+ "route-1x1": {
+  "util": {
+   "LUT": 50740.0,
+   "LUT_logic": 48510.0,
+   "LUT_mem": 2230.0,
+   "FF": 59631.0,
+   "SLICE": 15839.0,
+   "SLICEL": 11091.0,
+   "SLICEM": 4748.0,
+   "BRAM_tiles": 92.5,
+   "RAMB36": 79.0,
+   "RAMB18": 27.0,
+   "DSP": 14.0
+  },
+  "timing": {
+   "WNS": 0.116,
+   "WHS": 0.012
+  },
+  "census": {
+   "CARRY4": 3520,
+   "notify_cells": {
+    "LUT4": 228,
+    "LUT2": 121,
+    "LUT5": 524,
+    "MUXF7": 14,
+    "GND": 1,
+    "LUT1": 8,
+    "LUT3": 316,
+    "LUT6": 2196,
+    "VCC": 1,
+    "FDRE": 3299,
+    "CARRY4": 185,
+    "RAM32M": 24,
+    "MUXF8": 2,
+    "RAMD32": 144,
+    "RAMS32": 48
+   },
+   "notify_rows_r_FD": 2048,
+   "notify_ctr_last_FD": 192
+  },
+  "u_notify": {
+   "LUT": 3171,
+   "LUT_logic": 3075,
+   "LUTRAM": 96,
+   "SRL": 0,
+   "FF": 3299,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_aecp": {
+   "LUT": 7319,
+   "LUT_logic": 7101,
+   "LUTRAM": 218,
+   "SRL": 0,
+   "FF": 3500,
+   "RAMB36": 6,
+   "RAMB18": 0,
+   "DSP": 1
+  },
+  "u_resp": {
+   "LUT": 333,
+   "LUT_logic": 333,
+   "LUTRAM": 0,
+   "SRL": 0,
+   "FF": 260,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_pp": {
+   "LUT": 23597,
+   "LUT_logic": 22489,
+   "LUTRAM": 1108,
+   "SRL": 0,
+   "FF": 23448,
+   "RAMB36": 20,
+   "RAMB18": 2,
+   "DSP": 4
+  },
+  "pp_shadow": {
+   "LUT": 24175,
+   "LUT_logic": 23067,
+   "LUTRAM": 1108,
+   "SRL": 0,
+   "FF": 24276,
+   "RAMB36": 21,
+   "RAMB18": 3,
+   "DSP": 8
+  },
+  "route_status": [
+   ":      # nets :",
+   "# of logical nets.......................... :      141748 :",
+   "# of nets not needing routing.......... :       35408 :",
+   "# of internally routed nets........ :       34026 :",
+   "# of nets with no loads............ :        1382 :",
+   "# of routable nets..................... :      106340 :"
+  ]
+ },
+ "ooc-1x1": {
+  "util": {
+   "LUT": 24494.0,
+   "LUT_logic": 23252.0,
+   "LUT_mem": 1242.0,
+   "FF": 25471.0,
+   "SLICE": null,
+   "SLICEL": null,
+   "SLICEM": null,
+   "BRAM_tiles": 22.5,
+   "RAMB36": 21.0,
+   "RAMB18": 3.0,
+   "DSP": 8.0
+  },
+  "timing": {
+   "WNS": -0.496,
+   "WHS": 0.159
+  },
+  "census": {
+   "CARRY4": 1638,
+   "notify_cells": {
+    "LUT4": 239,
+    "LUT5": 436,
+    "LUT2": 110,
+    "LUT6": 2317,
+    "MUXF7": 14,
+    "GND": 1,
+    "VCC": 1,
+    "FDRE": 3299,
+    "LUT3": 221,
+    "CARRY4": 179,
+    "RAM32M": 24,
+    "LUT1": 21,
+    "MUXF8": 2,
+    "RAMD32": 144,
+    "RAMS32": 48
+   },
+   "notify_rows_r_FD": 2048,
+   "notify_ctr_last_FD": 192
+  },
+  "u_notify": {
+   "LUT": 3194,
+   "LUT_logic": 3098,
+   "LUTRAM": 96,
+   "SRL": 0,
+   "FF": 3299,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_aecp": {
+   "LUT": 5604,
+   "LUT_logic": 5384,
+   "LUTRAM": 220,
+   "SRL": 0,
+   "FF": 3500,
+   "RAMB36": 6,
+   "RAMB18": 0,
+   "DSP": 1
+  },
+  "u_resp": {
+   "LUT": 346,
+   "LUT_logic": 346,
+   "LUTRAM": 0,
+   "SRL": 0,
+   "FF": 260,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_pp": {
+   "LUT": 23814,
+   "LUT_logic": 22572,
+   "LUTRAM": 1242,
+   "SRL": 0,
+   "FF": 24635,
+   "RAMB36": 20,
+   "RAMB18": 2,
+   "DSP": 4
+  }
+ },
+ "ooc-8x8": {
+  "util": {
+   "LUT": 31383.0,
+   "LUT_logic": 30345.0,
+   "LUT_mem": 1038.0,
+   "FF": 33968.0,
+   "SLICE": null,
+   "SLICEL": null,
+   "SLICEM": null,
+   "BRAM_tiles": 28.5,
+   "RAMB36": 26.0,
+   "RAMB18": 5.0,
+   "DSP": 8.0
+  },
+  "timing": {
+   "WNS": -2.222,
+   "WHS": 0.159
+  },
+  "census": {
+   "CARRY4": 2016,
+   "notify_cells": {
+    "GND": 1,
+    "VCC": 1,
+    "FDRE": 3799,
+    "LUT4": 407,
+    "LUT2": 132,
+    "LUT6": 1748,
+    "LUT5": 375,
+    "LUT3": 350,
+    "CARRY4": 67,
+    "MUXF7": 154,
+    "RAM32M": 24,
+    "LUT1": 38,
+    "MUXF8": 75,
+    "RAMD32": 144,
+    "RAMS32": 48
+   },
+   "notify_rows_r_FD": 2048,
+   "notify_ctr_last_FD": 640
+  },
+  "u_notify": {
+   "LUT": 2846,
+   "LUT_logic": 2750,
+   "LUTRAM": 96,
+   "SRL": 0,
+   "FF": 3799,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_aecp": {
+   "LUT": 6177,
+   "LUT_logic": 5957,
+   "LUTRAM": 220,
+   "SRL": 0,
+   "FF": 4683,
+   "RAMB36": 7,
+   "RAMB18": 0,
+   "DSP": 1
+  },
+  "u_resp": {
+   "LUT": 300,
+   "LUT_logic": 300,
+   "LUTRAM": 0,
+   "SRL": 0,
+   "FF": 260,
+   "RAMB36": 0,
+   "RAMB18": 0,
+   "DSP": 0
+  },
+  "u_pp": {
+   "LUT": 30187,
+   "LUT_logic": 29149,
+   "LUTRAM": 1038,
+   "SRL": 0,
+   "FF": 32574,
+   "RAMB36": 25,
+   "RAMB18": 4,
+   "DSP": 4
+  }
+ }
+}

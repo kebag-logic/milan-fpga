@@ -1,0 +1,12 @@
+--- $SCRATCH/r1b/lockstep/head-3ab2e4da.sv	2026-10-04 00:27:22.396000000 +0200
++++ $SCRATCH/work/lockstep/mutf/no_override.sv	2026-10-03 18:02:08.039593290 +0200
+@@ -596,8 +596,7 @@
+     rx_cmd_hit_w = '0;
+     for (int unsigned i = 0; i < N_CTRL_P; i++) begin
+       rx_cmd_hit_w[i] = rx_cmd_valid_i && valid_r[i]
+-                        && ((ix_busy_w && (wr_ix_r == CIX_W_C'(i))) ? ix_own_w
+-                                                                     : ix_hit_w[i]);
++                        && ix_hit_w[i];
+     end
+   end
+ 

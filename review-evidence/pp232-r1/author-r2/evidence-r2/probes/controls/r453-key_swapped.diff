@@ -1,0 +1,11 @@
+--- KL_aecp_notify.sv
++++ r453/key_swapped.sv
+@@ -574,7 +574,7 @@
+   logic                ix_clr_r, ix_set_r, ix_busy_w, ix_own_w;
+   logic [N_CTRL_P-1:0] ix_hit_w;
+   assign ix_wr_row_w = rows_r[wr_ix_r];
+-  assign ix_key_w    = (N_IXC_C*IXC_W_C)'({rx_cmd_eid_i, rx_cmd_mac_i});
++  assign ix_key_w    = (N_IXC_C*IXC_W_C)'({rx_cmd_mac_i, rx_cmd_eid_i});
+   assign ix_row_w    = (N_IXC_C*IXC_W_C)'(ix_wr_row_w[127:16]);
+   assign ix_busy_w   = ix_clr_r || ix_set_r;
+   assign ix_own_w    = (ix_wr_row_w[127:16] == {rx_cmd_eid_i, rx_cmd_mac_i});

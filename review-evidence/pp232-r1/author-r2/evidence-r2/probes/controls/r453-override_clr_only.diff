@@ -1,0 +1,11 @@
+--- KL_aecp_notify.sv
++++ r453/override_clr_only.sv
+@@ -597,7 +597,7 @@
+     rx_cmd_hit_w = '0;
+     for (int unsigned i = 0; i < N_CTRL_P; i++) begin
+       rx_cmd_hit_w[i] = rx_cmd_valid_i && valid_r[i]
+-                        && ((ix_busy_w && (wr_ix_r == CIX_W_C'(i))) ? ix_own_w
++                        && ((ix_clr_r && (wr_ix_r == CIX_W_C'(i))) ? ix_own_w
+                                                                      : ix_hit_w[i]);
+     end
+   end

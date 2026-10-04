@@ -1,0 +1,427 @@
+# extract of baseline.log (2843 lines)
+
+## identity lines (first 400 lines)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2
+# synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -include_dirs {$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/endstation_ax7101_1x1_tdm8 $VALIDATION_STORAGE/pp232-a520/parent/configs/generated/endstation_ax7101_1x1_tdm8/gen $VALIDATION_STORAGE/pp232-a520/parent/hdl/common $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee8021q/ts $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee8021as/ptp_timestamp $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee17221/adp $VALIDATION_STORAGE/pp232-a520/parent/hdl/common/csr $VALIDATION_STORAGE/pp232-a520/parent/hdl/common/eth_event_counter $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee1722/avtp} -mode out_of_context -generic {TDATA_WIDTH_P=64} -generic {CLK_HZ_P=50000000} -generic {N_STREAM_IN_P=2} -generic {N_STREAM_OUT_P=2} -generic {SRP_DOM_DEF_VID_P=2} -generic {TIM_DIV_US_P=50} -generic {TIM_DIV_MS_P=1000} -generic {TROM_HEX_P="$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/ltn_rom.hex"} -generic {UCODE_HEX_P="$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/ucode.hex"} -generic {DESC_BASE_P=2138046464} -generic {DESC_LINE_BYTES_P=576} -generic {DESC_IDX_ENTRIES_P=32} -generic {DESC_NAME_ENTRIES_P=39} -generic {DESC_MEM_TMO_CYC_P=4096} -generic {RESP_BASE_P=2139090944} -generic {N_SPORT_IN_P=1} -generic {N_SPORT_OUT_P=1} -generic {N_AUDIO_UNIT_P=1} -generic {N_CLK_DOM_P=1} -generic {N_CONTROL_P=1} -generic {RX_FIFO_BYTES_P=4096}
+Command: synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -include_dirs {$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/endstation_ax7101_1x1_tdm8 $VALIDATION_STORAGE/pp232-a520/parent/configs/generated/endstation_ax7101_1x1_tdm8/gen $VALIDATION_STORAGE/pp232-a520/parent/hdl/common $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee8021q/ts $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee8021as/ptp_timestamp $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee17221/adp $VALIDATION_STORAGE/pp232-a520/parent/hdl/common/csr $VALIDATION_STORAGE/pp232-a520/parent/hdl/common/eth_event_counter $VALIDATION_STORAGE/pp232-a520/parent/hdl/ieee1722/avtp} -mode out_of_context -generic TDATA_WIDTH_P=64 -generic CLK_HZ_P=50000000 -generic N_STREAM_IN_P=2 -generic N_STREAM_OUT_P=2 -generic SRP_DOM_DEF_VID_P=2 -generic TIM_DIV_US_P=50 -generic TIM_DIV_MS_P=1000 -generic TROM_HEX_P=\"$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/ltn_rom.hex\" -generic UCODE_HEX_P=\"$VALIDATION_STORAGE/pp232-a520/parent/configs/generated/ucode.hex\" -generic DESC_BASE_P=2138046464 -generic DESC_LINE_BYTES_P=576 -generic DESC_IDX_ENTRIES_P=32 -generic DESC_NAME_ENTRIES_P=39 -generic DESC_MEM_TMO_CYC_P=4096 -generic RESP_BASE_P=2139090944 -generic N_SPORT_IN_P=1 -generic N_SPORT_OUT_P=1 -generic N_AUDIO_UNIT_P=1 -generic N_CLK_DOM_P=1 -generic N_CONTROL_P=1 -generic RX_FIFO_BYTES_P=4096
+
+## baseline.log:2262-2282
+Block RAM: Final Mapping Report
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name                  | RTL Object                        | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|\u_pp/u_aecp/u_store         | name_r_reg                        | 312 x 64(READ_FIRST)   | W |   | 312 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|\u_pp/u_aecp/u_store         | line_r_reg                        | 72 x 64(READ_FIRST)    | W |   | 72 x 64(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|KL_aecp_engine__GB0          | amap_stage_r_reg                  | 256 x 64(READ_FIRST)   | W |   | 256 x 64(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|\g_rx_pool[0].u_rx_slots     | mem_r_reg                         | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_rx_validator               | mrp_mem_r_reg                     | 64 x 9(READ_FIRST)     | W |   | 64 x 9(WRITE_FIRST)    |   | R | Port A and B     | 1      | 0      | 
+|u_srp/u_decoder              | tp_ram_reg                        | 1 K x 8(READ_FIRST)    | W |   | 1 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 1      | 0      | 
+|KL_pp_shadow                 | g_rx_pool[5].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_ppi_2/u_tx_slots           | mem_r_reg                         | 3 K x 8(READ_FIRST)    | W |   | 3 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_ppi_2/u_mrp_strip          | ram_r_reg                         | 2 K x 10(READ_FIRST)   | W |   | 2 K x 10(WRITE_FIRST)  |   | R | Port A and B     | 0      | 1      | 
+|u_ppi_2/u_trace              | mem_r_reg                         | 256 x 128(READ_FIRST)  | W |   | 256 x 128(WRITE_FIRST) |   | R | Port A and B     | 0      | 1      | 
+|u_timer                      | slot_ram_r_reg                    | 61 x 40(READ_FIRST)    | W |   | 61 x 40(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|u_listener                   | rec_ram_r_reg                     | 2 x 376(READ_FIRST)    | W |   | 2 x 376(WRITE_FIRST)   |   | R | Port A and B     | 1      | 5      | 
+|protocol_processor_top__GCB3 | g_rx_pool[4].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB3 | g_rx_pool[2].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|protocol_processor_top__GCB3 | g_rx_pool[1].u_rx_slots/mem_r_reg | 2 K x 8(READ_FIRST)    | W |   | 2 K x 8(WRITE_FIRST)   |   | R | Port A and B     | 0      | 1      | 
+|KL_pp_shadow                 | ctl_fifo/mem_reg                  | 512 x 73(READ_FIRST)   | W |   | 512 x 73(WRITE_FIRST)  |   | R | Port A and B     | 1      | 1      | 
++-----------------------------+-----------------------------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+## baseline.log:2285-2614
+Distributed RAM: Final Mapping Report
++----------------------+---------------------------------------+----------------+----------------------+----------------+
+|Module Name           | RTL Object                            | Inference      | Size (Depth x Width) | Primitives     | 
++----------------------+---------------------------------------+----------------+----------------------+----------------+
+|\u_pp/u_aecp/u_store  | idx_r_reg                             | Implied        | 32 x 128             | RAM32M x 22    | 
+|u_ucpu                | rf_r_reg                              | User Attribute | 16 x 64              | RAM32M x 33    | 
+|u_dispatch            | u_adp_q/mem_r_reg                     | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch            | u_acmp_q/mem_r_reg                    | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch            | u_aecp_q/mem_r_reg                    | User Attribute | 4 x 393              | RAM32M x 66    | 
+|u_dispatch            | u_maap_q/mem_r_reg                    | User Attribute | 2 x 393              | RAM32M x 66    | 
+|u_adp                 | disc_rec_r_reg                        | Implied        | 2 x 48               | RAM16X1S x 48  | 
+|u_srp/u_vlan          | tbl_r_reg                             | Implied        | 4 x 17               | RAM32M x 3     | 
+|u_srp/u_encoder       | mvrp_ram_r_reg                        | Implied        | 16 x 19              | RAM32M x 4     | 
+|u_srp/u_encoder       | msrp_ram_r_reg                        | User Attribute | 16 x 285             | RAM32M x 48    | 
+|u_originator          | tslot_r_reg                           | Implied        | 4 x 6                | RAM32M x 4     | 
+|u_originator          | tout_r_reg                            | Implied        | 4 x 16               | RAM32M x 3     | 
+|u_notify              | rows_r_reg                            | User Attribute | 16 x 128             | RAM32M x 64    | 
+|u_notify              | g_ix_row[0].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[0].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[1].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[1].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[2].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[2].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[3].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[3].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[4].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[4].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[5].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[5].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[6].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[6].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[7].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[7].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[8].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[8].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[9].g_ix_chunk[0].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[1].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[2].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[3].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[4].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[5].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[6].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[7].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[8].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[9].mem_r_reg   | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[10].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[11].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[12].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[13].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[14].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[15].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[16].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[17].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[9].g_ix_chunk[18].mem_r_reg  | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[10].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[10].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[11].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[11].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[12].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[12].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[13].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[13].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[14].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[14].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | g_ix_row[15].g_ix_chunk[0].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[1].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[2].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[3].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[4].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[5].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[6].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[7].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[8].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[9].mem_r_reg  | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[10].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[11].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[12].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[13].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[14].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[15].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[16].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[17].mem_r_reg | User Attribute | 64 x 1               | RAM64M x 1     | 
+|u_notify              | g_ix_row[15].g_ix_chunk[18].mem_r_reg | User Attribute | 16 x 1               | RAM16X1D x 1   | 
+|u_notify              | cmdq_class_r_reg                      | Implied        | 16 x 4               | RAM32M x 1     | 
+|u_notify              | cmdq_type_r_reg                       | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify              | cmdq_index_r_reg                      | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify              | cmdq_excl_r_reg                       | Implied        | 16 x 64              | RAM32M x 11    | 
+|u_notify              | cmdq_arg0_r_reg                       | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_notify              | cmdq_arg1_r_reg                       | Implied        | 16 x 16              | RAM32M x 3     | 
+|u_nvm_shadow          | shw_ram_r_reg                         | Implied        | 2 x 146              | RAM32M x 25    | 
+|u_talker              | rec_ram_r_reg                         | Implied        | 2 x 84               | RAM32M x 14    | 
++----------------------+---------------------------------------+----------------+----------------------+----------------+
+
+## Synth 8-7186: 0 diagnostic line(s) (0 echoed set_msg_config)
+
+## Synth 8-4445: 0 diagnostic line(s) (1 echoed set_msg_config)
+baseline.log:262: # set_msg_config -id {Synth 8-4445} -new_severity ERROR
+
+## Synth 8-6901: 52 diagnostic line(s) (0 echoed set_msg_config)
+baseline.log:278: WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/aecp/KL_aecp_notify.sv:613]
+baseline.log:279: WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/aecp/KL_aecp_notify.sv:614]
+baseline.log:280: WARNING: [Synth 8-6901] identifier 'pd_ix_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/aecp/KL_aecp_notify.sv:615]
+baseline.log:281: WARNING: [Synth 8-6901] identifier 'cancel_hit_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:194]
+baseline.log:282: WARNING: [Synth 8-6901] identifier 'cancel_ix_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/packet_engine/KL_pp_originator.sv:195]
+baseline.log:283: WARNING: [Synth 8-6901] identifier 'vd_push_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:383]
+baseline.log:284: WARNING: [Synth 8-6901] identifier 'vq_full_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv:383]
+baseline.log:285: WARNING: [Synth 8-6901] identifier 'srp_class_a_prio_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:935]
+baseline.log:286: WARNING: [Synth 8-6901] identifier 'srp_class_a_vid_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:936]
+baseline.log:287: WARNING: [Synth 8-6901] identifier 'srp_domain_adopted_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:937]
+baseline.log:288: WARNING: [Synth 8-6901] identifier 'srp_evt_domain_change_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:938]
+baseline.log:289: WARNING: [Synth 8-6901] identifier 'srp_tk_decl_state_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:939]
+baseline.log:290: WARNING: [Synth 8-6901] identifier 'srp_lstn_reg_state_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:940]
+baseline.log:291: WARNING: [Synth 8-6901] identifier 'srp_active_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:941]
+baseline.log:292: WARNING: [Synth 8-6901] identifier 'srp_sr_admitted_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:944]
+baseline.log:293: WARNING: [Synth 8-6901] identifier 'srp_granted_slope_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:945]
+baseline.log:294: WARNING: [Synth 8-6901] identifier 'srp_src_fail_code_nc_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:946]
+baseline.log:295: WARNING: [Synth 8-6901] identifier 'srp_src_fail_bridge_nc_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:947]
+baseline.log:296: WARNING: [Synth 8-6901] identifier 'srp_sum_slope_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:948]
+baseline.log:297: WARNING: [Synth 8-6901] identifier 'srp_over_limit_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:949]
+baseline.log:298: WARNING: [Synth 8-6901] identifier 'srp_tk_reg_state_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:950]
+baseline.log:299: WARNING: [Synth 8-6901] identifier 'srp_lstn_decl_state_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:951]
+baseline.log:300: WARNING: [Synth 8-6901] identifier 'srp_acc_latency_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:952]
+baseline.log:301: WARNING: [Synth 8-6901] identifier 'srp_snk_fail_code_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:953]
+baseline.log:302: WARNING: [Synth 8-6901] identifier 'tkr_declaring_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:955]
+baseline.log:303: WARNING: [Synth 8-6901] identifier 'lstn_dbg_busy_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:964]
+baseline.log:304: WARNING: [Synth 8-6901] identifier 'bound_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:964]
+baseline.log:305: WARNING: [Synth 8-6901] identifier 'bound_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:965]
+baseline.log:306: WARNING: [Synth 8-6901] identifier 'bound_eid_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:968]
+baseline.log:307: WARNING: [Synth 8-6901] identifier 'bound_sid_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:969]
+baseline.log:308: WARNING: [Synth 8-6901] identifier 'bound_dmac_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:970]
+baseline.log:309: WARNING: [Synth 8-6901] identifier 'bound_vlan_r' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:971]
+baseline.log:310: WARNING: [Synth 8-6901] identifier 'adp_dbg_aidx_nc_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:976]
+baseline.log:311: WARNING: [Synth 8-6901] identifier 'lstn_act_settle_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:1816]
+baseline.log:312: WARNING: [Synth 8-6901] identifier 'lstn_act_settle_sid_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:1817]
+baseline.log:313: WARNING: [Synth 8-6901] identifier 'lstn_act_settle_da_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:1818]
+baseline.log:314: WARNING: [Synth 8-6901] identifier 'lstn_act_settle_vlan_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:1819]
+baseline.log:315: WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_valid_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2938]
+baseline.log:316: WARNING: [Synth 8-6901] identifier 'ntfy_arm_valid_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2938]
+baseline.log:317: WARNING: [Synth 8-6901] identifier 'ntfy_arm_cancel_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2953]
+baseline.log:318: WARNING: [Synth 8-6901] identifier 'ntfy_arm_slot_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2953]
+baseline.log:319: WARNING: [Synth 8-6901] identifier 'ntfy_arm_owner_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2954]
+baseline.log:320: WARNING: [Synth 8-6901] identifier 'ntfy_arm_deadline_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2954]
+baseline.log:321: WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_cancel_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2955]
+baseline.log:322: WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_slot_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2955]
+baseline.log:323: WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_owner_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2956]
+baseline.log:324: WARNING: [Synth 8-6901] identifier 'ntfy_mon_arm_deadline_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:2956]
+baseline.log:325: WARNING: [Synth 8-6901] identifier 'ntfy_prng_req_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:3040]
+baseline.log:326: WARNING: [Synth 8-6901] identifier 'ntfy_prng_kind_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:3042]
+baseline.log:327: WARNING: [Synth 8-6901] identifier 'ntfy_prng_busy_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:3052]
+baseline.log:328: WARNING: [Synth 8-6901] identifier 'ntfy_prng_valid_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/protocol-processor/hdl/top/protocol_processor_top.sv:3059]
+baseline.log:384: WARNING: [Synth 8-6901] identifier 'crft_emit_en_w' is used before its declaration [$VALIDATION_STORAGE/pp232-a520/parent/hdl/milan/milan_datapath.sv:3163]
+
+## completion lines
+baseline.log:2788: synth_design completed successfully
+

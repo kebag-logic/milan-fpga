@@ -1,0 +1,10 @@
+--- KL_aecp_notify.sv
++++ r452/register_not_reindexed.sv
+@@ -1362,7 +1362,6 @@
+             //! (Milan SS5.4.2.21). Either way the parked fire is stale.
+             result_r <= 2'd0;
+             wr_en_r  <= 1'b1;
+-            ix_clr_r <= 1'b1;             // re-index the row (above)
+             wr_ix_r  <= wk_match_r ? wk_match_ix_r : wk_free_ix_r;
+             wr_row_r <= {hold_eid_r, hold_mac_r,
+                          wk_match_r ? wk_match_seq_r : 16'd0};

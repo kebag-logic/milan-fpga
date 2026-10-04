@@ -1,0 +1,11 @@
+--- $SCRATCH/r1b/lockstep/head-3ab2e4da.sv	2026-10-04 00:27:22.396000000 +0200
++++ $SCRATCH/work/lockstep/mutf/no_set.sv	2026-10-03 18:02:08.040098268 +0200
+@@ -1051,7 +1051,7 @@
+     end else begin
+       wr_en_r         <= 1'b0;
+       ix_clr_r        <= 1'b0;
+-      ix_set_r        <= ix_clr_r;
++      ix_set_r        <= 1'b0;
+       tmr_arm_valid_o <= 1'b0;
+       prng_draw_req_o <= 1'b0;
+       mon_arm_valid_o <= 1'b0;

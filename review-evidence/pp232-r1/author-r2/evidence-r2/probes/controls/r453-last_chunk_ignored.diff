@@ -1,0 +1,11 @@
+--- KL_aecp_notify.sv
++++ r453/last_chunk_ignored.sv
+@@ -590,7 +590,7 @@
+       end
+       assign ch_w[j] = mem_r[ix_key_w[j*IXC_W_C +: IXC_W_C]];
+     end
+-    assign ix_hit_w[i] = &ch_w;
++    assign ix_hit_w[i] = &ch_w[N_IXC_C-2:0];
+   end
+ 
+   always_comb begin : command_registry_hit

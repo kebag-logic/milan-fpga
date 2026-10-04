@@ -1,0 +1,10 @@
+--- $SCRATCH/r1b/lockstep/head-3ab2e4da.sv	2026-10-04 00:27:22.396000000 +0200
++++ $SCRATCH/work/lockstep/mutf/refresh_not_reindexed_claim_too.sv	2026-10-03 18:02:08.040457728 +0200
+@@ -1359,7 +1359,6 @@
+             //! (Milan SS5.4.2.21). Either way the parked fire is stale.
+             result_r <= 2'd0;
+             wr_en_r  <= 1'b1;
+-            ix_clr_r <= 1'b1;             // re-index the row (above)
+             wr_ix_r  <= wk_match_r ? wk_match_ix_r : wk_free_ix_r;
+             wr_row_r <= {hold_eid_r, hold_mac_r,
+                          wk_match_r ? wk_match_seq_r : 16'd0};

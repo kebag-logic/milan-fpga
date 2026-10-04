@@ -1,0 +1,11 @@
+--- $SCRATCH/r1b/lockstep/head-3ab2e4da.sv	2026-10-04 00:27:22.396000000 +0200
++++ $SCRATCH/work/lockstep/mutf/no_clear.sv	2026-10-03 18:02:08.039968964 +0200
+@@ -584,7 +584,7 @@
+       (* ram_style = "distributed" *) logic mem_r [0:(1 << IXC_W_C)-1];
+       initial for (int a = 0; a < (1 << IXC_W_C); a++) mem_r[a] = 1'b0;
+       always_ff @(posedge clk_i) begin : ix_write
+-        if (ix_busy_w && (wr_ix_r == CIX_W_C'(i)))
++        if (ix_set_r && (wr_ix_r == CIX_W_C'(i)))
+           mem_r[ix_row_w[j*IXC_W_C +: IXC_W_C]] <= ix_set_r;
+       end
+       assign ch_w[j] = mem_r[ix_key_w[j*IXC_W_C +: IXC_W_C]];
