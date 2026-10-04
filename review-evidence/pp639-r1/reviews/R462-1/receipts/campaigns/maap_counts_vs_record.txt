@@ -1,0 +1,30 @@
+CHECK fit-compare-forced-true fails=5 KILLED :: ap | U17 x4 (1 draw instead of 3; claim `…:FD:FF`; block ends `…:FE:FD`; PROBE bytes), and U27's redraw premise (the overhanging draw is taken): 5 FAIL of 196 |
+CHECK fit-compare-off-by-one fails=7 KILLED ::  fit compare `<=` becomes `<`: the last fitting offset is refused | maap | U17 x3 (no PROBE, the boundary draw refused 1,745 times) and U17b x4: 7 FAIL of 195 |
+CHECK seed-clamp-removed fails=6 KILLED :: seed clamp removed: the provisioned offset is probed as given | maap | U18 x4 (claim `…:FF:FF`; PROBE bytes; claim; last-source grant), U18b x2: 6 FAIL of 196 |
+CHECK release-keeps-draw-mark fails=9 KILLED ::  | the fix above removed | maap | U17b phases 1 to 3, U17c x2, U18 x3 and U27 x1, each behind a wedge that the next Release! clears in `W_IVAL`: 9 FAIL of 194 |
+CHECK validator-maap-version-1-only fails=47 KILLED :: sion == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+CHECK validator-maap-version-1-only fails=4 KILLED :: sion == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+CHECK compare-mac-forward fails=9 KILLED ::  `cmp_mac_true_w = own_mac_i < rxm_sa_r`: compare_MAC in forward octet order (issue #68, B.3.6.4) | maap | U7, U8, U9 x2, U10, U19 x2, U20, U21: 9 FAIL of 194 |
+CHECK compare-mac-forward fails=5 KILLED ::  `cmp_mac_true_w = own_mac_i < rxm_sa_r`: compare_MAC in forward octet order (issue #68, B.3.6.4) | maap | U7, U8, U9 x2, U10, U19 x2, U20, U21: 9 FAIL of 194 |
+CHECK probe-rprobe-never-yields fails=2 KILLED :: | `probe-rprobe-never-yields` | PROBE / rProbe! never yields | maap | U19 x2: 2 FAIL of 196 |
+CHECK defend-rdefend-ignored fails=8 KILLED :: | `defend-rdefend-ignored` | DEFEND / rDefend! ignored (only rAnnounce! can yield in DEFEND) | maap | U21 x4, then U22 x4 behind it: 8 FAIL of 194 |
+CHECK defend-rdefend-no-tiebreak fails=2 KILLED :: | `defend-rdefend-no-tiebreak` | DEFEND / rDefend! always yields (no compare_MAC) | maap | U20, then U21 (not in DEFEND): 2 FAIL of 196 |
+CHECK probe-rannounce-tiebreak fails=7 KILLED ::  `probe-rannounce-tiebreak` | PROBE / rDefend! and rAnnounce! gain a compare_MAC | maap | U10 x3, U22 x2, U27 x2 (the contest no longer yields): 7 FAIL of 196 |
+CHECK yield-reuses-range fails=8 KILLED :: | `yield-reuses-range` | a yield re-probes the contested range instead of running generate_address | maap | U8, U10, U15, U19, U21, U22, U27 x2: 8 FAIL of 196 |
+CHECK ival-sends-after-release fails=8 KILLED :: me; U28 x3: a slot request and a timer start after the fall; U29 x3: a one-cycle fall in `W_IVAL` is absorbed (a mid-walk PROBE, a re-announce): 8 FAIL of 196 |
+CHECK post-publishes-after-release fails=4 KILLED ::  DEFEND, no fresh walk; U29 x2: a one-cycle fall in a PROBE or re-announce TX state publishes the entry's state, no fresh walk (10 of 20 falls): 4 FAIL of 194 |
+CHECK tx-path-absorbs-release fails=10 KILLED :: aap | U24 x4, U25 x3: the claim survives a bounce and a 100 ms outage; U29 x3: every one-cycle fall in a TX state is absorbed (15 of 20 falls): 10 FAIL of 190 |
+CHECK off-waits-for-an-edge fails=9 KILLED :: 24 x2, U25 x3, U26 x3: a rise during teardown or a drain parks the machine; U29: no one-cycle fall is followed by a fresh walk (20 of 20 falls): 9 FAIL of 189 |
+CHECK rx-release-returns-to-idle fails=3 KILLED :: ves a fall to `W_IDLE` (the start head) | maap | U26 x2: a one-cycle fall on `W_RX` is lost; U28: the claim outlives a fall on `W_RX` in DEFEND: 3 FAIL of 195 |
+CHECK seed-rearmed-on-idle-release-only fails=2 KILLED :: _IDLE` exit re-arms the footnote-a seed (the start head) | maap | U27 x2: after a Release! mid-redraw the next engagement probes a random range: 2 FAIL of 196 |
+CHECK seed-clamp-off-by-one fails=2 KILLED :: clamp compares against `0xFE00 - count + 1` (issue #66 round 2) | maap | U18b x2: seed `0xFDF9` is probed as given, a block ending at `…:FE:00`: 2 FAIL of 196 |
+CHECK release-waits-for-draw fails=1 KILLED :: all exit waits for the draw's answer (`!eng_w && !draw_act_r`) | maap | U17c: the abandoned draw is adopted after the Release! (3 of 5 offsets): 1 FAIL of 196 |
+CHECK idle-serves-a-latched-expiry-first fails=3 KILLED ::  2) | maap | U28 x3: the latched expiry sends the 4th PROBE after the fall, and a latched announce_timer expiry keeps the claim a cycle past it: 3 FAIL of 196 |
+CHECK teardown-keeps-announce-timer fails=1 KILLED :: nounce-timer` | the teardown never stops announce_timer (issue #66 round 2) | maap | U28: announce_timer expires after the fall (3 of 17 falls): 1 FAIL of 196 |
+CHECK drain-waits-for-the-link fails=5 KILLED ::  2) | maap | U23 x2: the drained ANNOUNCE misses the 63-cycle window and leaves only after the next PortOperational!; U17c and U28 x2 behind it: 5 FAIL of 196 |
+CHECK tx-set-omits-alloc fails=3 KILLED ::  U29 x3: a one-cycle fall in `W_ALLOC` is absorbed in all three entries, with no INITIAL: the old walk goes on, or the claim survives in DEFEND: 3 FAIL of 196 |
+CHECK tx-set-omits-gwait fails=3 KILLED :: | `tx-set-omits-gwait` | the latch leaves out `W_GWAIT` (R400-2-F1) | maap | U29 x3, the same in `W_GWAIT`: 3 FAIL of 196 |
+CHECK tx-set-omits-write fails=7 KILLED :: | `tx-set-omits-write` | the latch leaves out `W_WRITE` | maap | U29 x3, the same in `W_WRITE`; U24 x4 (its 5-cycle bounces land in `W_WRITE`): 7 FAIL of 192 |
+CHECK tx-set-omits-commit fails=3 KILLED :: | `tx-set-omits-commit` | the latch leaves out `W_COMMIT` (R400-2-F1) | maap | U29 x3, the same in `W_COMMIT`: 3 FAIL of 196 |
+CHECK tx-set-omits-lane fails=6 KILLED :: | `tx-set-omits-lane` | the latch leaves out `W_LANE` | maap | U29 x3, the same in `W_LANE`; U25 x3 (its outage lands in `W_LANE`): 6 FAIL of 194 |
+0 at the record, 29 to check by hand
