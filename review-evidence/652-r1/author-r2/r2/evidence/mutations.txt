@@ -1,0 +1,22 @@
+tool /tmp/652-a533/r2/mutate_module.py sha256 e0a4c996a2ef5335c0446166754cb6994a012c7c38d65425662d759cbb023dde
+head d5e743440a56c77c43241879226b851abb3c62ac
+ok  GREEN yosys_sweep.py: r0 unmutated control :: 
+ok  RED   yosys_sweep.py: r3 (R478-1) shapes ignores the expectation :: SELF-TEST FAILED: shapes: an unexpected refusal exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649
+ok  RED   resmap_models.py: r11 (R478-1) by_builder dropped :: SELF-TEST FAILED: build: with a builder-refused point, guards.by_builder is None and s16 is refused by ['CONFIG ERROR: this AEM model has 999 writable names']
+ok  RED   yosys_sweep.py: shapes fails every step :: SELF-TEST FAILED: shapes: every outcome the expected one exited 1, not 0: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427
+ok  RED   yosys_sweep.py: a refusal for another cause not counted :: SELF-TEST FAILED: shapes: a refusal without the pinned cause exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb9
+ok  RED   yosys_sweep.py: the pinned cause ignored :: SELF-TEST FAILED: shapes: a refusal without the pinned cause exited 0, not 1: {'v_built': {'cause': '', 'expected': 'built', 'log_sha256': 'e3b0c44298fc1c149afbf4c8996fb9
+ok  RED   yosys_sweep.py: an expected refusal needs no cause :: SELF-TEST FAILED: plan: an expected refusal with no pinned cause was accepted
+ok  RED   yosys_sweep.py: a cause allowed on a built variant :: SELF-TEST FAILED: plan: a cause pinned on a variant expected to build was accepted
+ok  RED   yosys_sweep.py: the plan accepts any expectation :: SELF-TEST FAILED: plan: an expectation that is neither built nor refused was accepted
+ok  RED   yosys_sweep.py: a traceback read as a refusal :: SELF-TEST FAILED: outcome: a traceback read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')
+ok  RED   yosys_sweep.py: any exit with one refusal line read as a refusal :: SELF-TEST FAILED: outcome: a usage error read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')
+ok  RED   yosys_sweep.py: a variant with no outcome taken as built :: SELF-TEST FAILED: refused: a variant with no builder outcome was taken as built
+ok  RED   yosys_sweep.py: run prices a builder-refused point :: SELF-TEST FAILED: refused: run exited 1 or priced the refused point
+ok  RED   yosys_sweep.py: summary accepts a priced receipt for a refused point :: SELF-TEST FAILED: refused: a priced receipt for a refused point was summarized
+ok  RED   yosys_sweep.py: summary drops the builder record :: SELF-TEST FAILED: refused: summary exited 0 with {}
+ok  RED   resmap_models.py: by_builder written with no builder-refused point :: SELF-TEST FAILED: build: with no builder-refused point, guards.by_builder is [] and s16 is refused by None
+ok  RED   resmap_models.py: a builder refusal not read as a refusal :: self-test raised GuardError: s16: no guard record; run yosys_sweep.py guards, then summary
+ok  RED   resmap_models.py: an unpriced point given a marginal :: self-test raised KeyError: 'hierarchical'
+ok  RED   resmap_tables.py: builder refusals labelled as guards :: SELF-TEST FAILED: refusal table: who refused each point is wrong: '| Point | Refused by | Refusal |\n|---|---|---|\n| b | elaboration guard | `9 names` |\n| g | elaborati
+19/19 verdicts as expected (18 mutants red required, 1 unmutated control green required)

@@ -1,0 +1,93 @@
+{
+ "head": "d5e743440a56c77c43241879226b851abb3c62ac",
+ "results": [
+  {
+   "gate": "nvm_space",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_nvm_record_space.py"
+   ],
+   "rc": 0,
+   "seconds": 2.3
+  },
+  {
+   "gate": "nvm_space_self",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_nvm_record_space.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 55.3
+  },
+  {
+   "gate": "nvm_capture",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_nvm_capture.py"
+   ],
+   "rc": 0,
+   "seconds": 0.8
+  },
+  {
+   "gate": "nvm_fw_self",
+   "argv": [
+    "/usr/bin/python3",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 85.7
+  },
+  {
+   "gate": "entity_shape",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_entity_shape.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 98.1
+  },
+  {
+   "gate": "sweep_shape",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_sweep_shape.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 15.3
+  },
+  {
+   "gate": "deploy_shape",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_deploy_shape.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 0.5
+  },
+  {
+   "gate": "wire_acc",
+   "argv": [
+    "/usr/bin/python3",
+    "scripts/check_wire_accountability.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 0.3
+  },
+  {
+   "gate": "aem_store_self",
+   "argv": [
+    "/usr/bin/python3",
+    "avdecc/gen_aem_store.py",
+    "--self-test"
+   ],
+   "rc": 0,
+   "seconds": 0.1
+  }
+ ]
+}

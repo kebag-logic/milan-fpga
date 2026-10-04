@@ -1,0 +1,27 @@
+{
+ "head": "d5e743440a56c77c43241879226b851abb3c62ac",
+ "results": [
+  {
+   "gate": "nvm_backend",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/nvm_backend"
+   ],
+   "rc": 0,
+   "seconds": 0.6
+  },
+  {
+   "gate": "nvm_cosim",
+   "argv": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/nvm_cosim"
+   ],
+   "rc": 0,
+   "seconds": 408.2
+  }
+ ]
+}
