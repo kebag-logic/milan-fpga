@@ -299,7 +299,10 @@ block boundary rather than a collision discovered later. The name block holds
 before it retired the per-listener clock source); a shape with more
 writable names than that is check 3's finding, and a shape whose whole record
 set outgrows the 256-id namespace is check 6's, named as such rather than
-absorbed by a layout nobody decided.
+absorbed by a layout nobody decided. The builder refuses the first kind before
+any shape is generated: it reads the block's capacity from `KL_nvm_backend.sv`'s
+`N_NAME_MAX_C`, the bound the backend's elaboration guard holds `N_NAME_P` to,
+so the two refuse at the same count (#652).
 
 **Output-map capacity decision (#501, 2026-09-23).**
 Dynamic output records reserve every stream/channel key per port.

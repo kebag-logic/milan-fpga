@@ -1093,6 +1093,19 @@ and the overlay/`gen_aem_store.py` advertise the CRF STREAM_OUTPUT
 CLOCK_SYNC_SOURCE|CLASS_A, no audio port, mirroring the CRF sink; counts
 above include it).
 
+**The saved-state NAME block bounds the model.** Each writable name
+(ENTITY's two, then one per other named descriptor) is one record in
+`KL_nvm_backend`'s NAME block, record ids `0x80` to `0xFF`
+([saved-state design, section 4.2](design/SAVED_STATE_FASTCONNECT.md)). The
+builder reads that capacity, `N_NAME_MAX_C`, out of
+[`hdl/milan/KL_nvm_backend.sv`](../hdl/milan/KL_nvm_backend.sv), the
+declaration the backend's elaboration guard bounds `N_NAME_P` by, and refuses
+a configuration whose model has more names before it writes anything, naming
+both figures and the declaration (#652). Until then the guard was the first
+refusal, at synthesis. The shipping 1x1 TDM8 base widened to eight 8-channel
+streams each way has 235 names and is refused; `test_builder.py` gate 38 holds
+the boundary at 128 accepted and 129 refused.
+
 The model count is not a compliance verdict. The current root uses the
 processor-owned ADP, ACMP, and SRP plane, while the media engines remain in
 this fabric. Runtime gaps recorded in

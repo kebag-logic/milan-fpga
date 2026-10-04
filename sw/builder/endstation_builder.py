@@ -2684,8 +2684,38 @@ def overlay_adp_block(cfg: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+#: The saved-state backend. Each writable name is one record in its NAME block
+#: (docs/design/SAVED_STATE_FASTCONNECT.md section 4.2), and the block's
+#: capacity is that file's N_NAME_MAX_C: read by nvm_name_capacity(), never
+#: restated here (#652).
+NVM_BACKEND_SV = ROOT / "hdl" / "milan" / "KL_nvm_backend.sv"
+_NAME_CAPACITY_RE = re.compile(
+    r"\s*localparam\s+int\s+unsigned\s+N_NAME_MAX_C\s*=\s*(\d+)\s*;\s*")
+
+
+def nvm_name_capacity() -> tuple[int, str]:
+    """The saved-state backend's NAME capacity, and where it is declared as
+    `path:line`: the N_NAME_MAX_C its g_refuse_names guard bounds N_NAME_P
+    by. Exactly one live declaration with a decimal value; none or two
+    refuse, because a capacity this cannot read is not one it may assume."""
+    src = NVM_BACKEND_SV
+    shown = src.relative_to(ROOT) if src.is_relative_to(ROOT) else src
+    hits = [(n, m) for n, line in enumerate(
+        src.read_text(encoding="utf-8").splitlines(), 1)
+        for m in [_NAME_CAPACITY_RE.fullmatch(line.split("//", 1)[0])] if m]
+    if len(hits) != 1:
+        raise ConfigError(
+            f"{shown}: {len(hits)} live `localparam int unsigned "
+            f"N_NAME_MAX_C = <decimal>;` declarations, need exactly 1; the "
+            f"saved-state NAME capacity cannot be read, refusing rather than "
+            f"assuming one (#652)")
+    line, m = hits[0]
+    return int(m.group(1)), f"{shown}:{line}"
+
+
 def _adp_name_entries(overlay):
-    """SET_NAME/GET_NAME entries this exact AEM model needs."""
+    """SET_NAME/GET_NAME entries this exact AEM model needs, refused above
+    the saved-state backend's NAME capacity (nvm_name_capacity)."""
     # The semantic name table covers the descriptor types named by
     # gen_aem_store.build_model(). ENTITY contributes two entries while each
     # other instance contributes one. Derive the capacity from the overlay's
@@ -2706,6 +2736,17 @@ def _adp_name_entries(overlay):
                           f"types: {', '.join(missing_name_counts)}")
     aem_name_entries = 1 + sum(int(descriptor_counts[name])
                                for name in named_types)
+    # The shape header binds this count to KL_nvm_backend's N_NAME_P, which
+    # refuses it above the NAME block only at elaboration (#652).
+    capacity, where = nvm_name_capacity()
+    if aem_name_entries > capacity:
+        raise ConfigError(
+            f"this AEM model has {aem_name_entries} writable names and the "
+            f"saved-state backend holds {capacity} NAME records "
+            f"(N_NAME_MAX_C, {where}): each writable name is one saved "
+            f"record, so KL_nvm_backend would refuse this shape at "
+            f"elaboration. The model is {aem_name_entries - capacity} over: "
+            f"remove named descriptors (streams, clusters or clock sources)")
     return aem_name_entries
 
 
