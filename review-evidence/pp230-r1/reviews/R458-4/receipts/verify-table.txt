@@ -1,0 +1,32 @@
+tf-heads-swapped: MATCH readme=[2, 2, 2, 2] ['TF1', 'TF2'] 4 of 4 receipt=[2, 2, 2, 2] ['TF1', 'TF2'] 4 of 4
+tf-head-at-write-pointer: MATCH readme=[2, 2, 2, 2] ['TF1', 'TF4'] 4 of 4 receipt=[2, 2, 2, 2] ['TF1', 'TF4'] 4 of 4
+tf-listener-push-dropped: MATCH readme=[1, 1, 1, 1] ['TF2'] 4 of 4 receipt=[1, 1, 1, 1] ['TF2'] 4 of 4
+tf-ls-written-at-tk-pointer: MATCH readme=[2, 2, 2, 2] ['TF2', 'TF5'] 4 of 4 receipt=[2, 2, 2, 2] ['TF2', 'TF5'] 4 of 4
+tf-tk-head-read-ahead: DIFF readme=[4, 4, 3, 2] ['TF1', 'TF4'] 4 of 4 receipt=[4, 4, 3, 2] ['TF1', 'TF4', 'TF1 precondition'] 4 of 4
+tf-ls-head-reads-tk-ram: MATCH readme=[4, 4, 4, 5] ['TF1', 'TF2', 'TF3', 'TF4', 'TF5'] 4 of 4 receipt=[4, 4, 4, 5] ['TF1', 'TF2', 'TF3', 'TF4', 'TF5'] 4 of 4
+tf-tk-write-at-rptr: MATCH readme=[2, 2, 2, 2] ['TF1', 'TF4'] 4 of 4 receipt=[2, 2, 2, 2] ['TF1', 'TF4'] 4 of 4
+tf-full-guard-31: MATCH readme=[1, 1, 1, 1] ['TF4'] 4 of 4 receipt=[1, 1, 1, 1] ['TF4'] 4 of 4
+tf-tk-write-ignores-full: MATCH readme=[1, 1, 1, 1] ['TF4'] 4 of 4 receipt=[1, 1, 1, 1] ['TF4'] 4 of 4
+tf-ls-write-ignores-full: MATCH readme=[1, 1, 1, 1] ['TF5'] 4 of 4 receipt=[1, 1, 1, 1] ['TF5'] 4 of 4
+walk-record-written-on-close: MATCH readme=[1, 1, 1, 1] ['WK3'] 4 of 4 receipt=[1, 1, 1, 1] ['WK3'] 4 of 4
+wtsp-first-open-only: MATCH readme=[4, 6, 8, 20] ['WK2', 'WK3', 'WK4', 'WK9'] 4 of 4 receipt=[4, 6, 8, 20] ['WK2', 'WK3', 'WK4', 'WK9'] 4 of 4
+wtsp-read-at-gate-source: MATCH readme=[1, 6, 13, 49] ['WK1', 'WK2', 'WK4', 'WK9'] 4 of 4 receipt=[1, 6, 13, 49] ['WK1', 'WK2', 'WK4', 'WK9'] 4 of 4
+wtsp-read-at-source-0: MATCH readme=[0, 8, 14, 50] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 3 of 4 receipt=[0, 8, 14, 50] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 3 of 4
+wtsp-latency-field-shifted: MATCH readme=[8, 14, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4 receipt=[8, 14, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4
+wtsp-latency-shifted: MATCH readme=[8, 14, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4 receipt=[8, 14, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4
+wtsp-rank-dropped: MATCH readme=[4, 8, 9, 28] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4 receipt=[4, 8, 9, 28] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4
+wtsp-prio-rank-swapped: MATCH readme=[7, 13, 19, 48] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4 receipt=[7, 13, 19, 48] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 4 of 4
+wid-ram-first-open-only: MATCH readme=[0, 0, 8, 20] ['WK2', 'WK3', 'WK4', 'WK9'] 2 of 4 receipt=[0, 0, 8, 20] ['WK2', 'WK3', 'WK4', 'WK9'] 2 of 4
+wid-ram-read-at-gate-source: MATCH readme=[0, 0, 13, 49] ['WK1', 'WK2', 'WK4', 'WK9'] 2 of 4 receipt=[0, 0, 13, 49] ['WK1', 'WK2', 'WK4', 'WK9'] 2 of 4
+wid-ram-read-neighbour: MATCH readme=[0, 0, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 2 of 4 receipt=[0, 0, 20, 56] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 2 of 4
+wid-flops-da-of-gate-source: MATCH readme=[1, 6, 0, 0] ['WK1', 'WK2', 'WK4', 'WK9'] 2 of 4 receipt=[1, 6, 0, 0] ['WK1', 'WK2', 'WK4', 'WK9'] 2 of 4
+wid-flops-sid-of-source-0: MATCH readme=[0, 8, 0, 0] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 1 of 4 receipt=[0, 8, 0, 0] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 1 of 4
+wid-flops-vid-of-source-0: MATCH readme=[0, 8, 0, 0] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 1 of 4 receipt=[0, 8, 0, 0] ['WK1', 'WK2', 'WK3', 'WK4', 'WK5', 'WK9'] 1 of 4
+talker-vid-unreset: MATCH readme=[1, 1, 1, 1] ['WK5'] 4 of 4 receipt=[1, 1, 1, 1] ['WK5'] 4 of 4
+wsid-ram-first-settle-only: MATCH readme=[0, 0, 6, 10] ['WK8', 'WK10'] 2 of 4 receipt=[0, 0, 6, 10] ['WK8', 'WK10'] 2 of 4
+wsid-ram-written-on-teardown: MATCH readme=[0, 0, 1, 1] ['WK7'] 2 of 4 receipt=[0, 0, 1, 1] ['WK7'] 2 of 4
+wsid-flops-of-control-sink: MATCH readme=[0, 5, 0, 0] ['WK6', 'WK8', 'WK10'] 1 of 4 receipt=[0, 5, 0, 0] ['WK6', 'WK8', 'WK10'] 1 of 4
+wsid-flops-read-sink-0: MATCH readme=[0, 6, 0, 0] ['WK6', 'WK7', 'WK8', 'WK10'] 1 of 4 receipt=[0, 6, 0, 0] ['WK6', 'WK7', 'WK8', 'WK10'] 1 of 4
+wtsp-write-ignores-ready: MATCH readme=[1, 1, 1, 1] ['WK9'] 4 of 4 receipt=[1, 1, 1, 1] ['WK9'] 4 of 4
+wsid-write-ignores-ready: MATCH readme=[0, 0, 1, 1] ['WK10'] 2 of 4 receipt=[0, 0, 1, 1] ['WK10'] 2 of 4
+31 rows, 1 not matching

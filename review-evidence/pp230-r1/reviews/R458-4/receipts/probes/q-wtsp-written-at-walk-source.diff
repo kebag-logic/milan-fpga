@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-3bwj950h/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:36:01.439899286 +0200
+@@ -499,7 +499,7 @@
+ 
+   always_ff @(posedge clk_i) begin : walk_tspec_write
+     if (gate_open_acc_w) begin
+-      wtsp_r[gate_src_i] <= {gate_max_frame_i, gate_max_interval_i,
++      wtsp_r[wsrc_r] <= {gate_max_frame_i, gate_max_interval_i,
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end
+   end

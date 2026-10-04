@@ -1,0 +1,17 @@
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 4, wrong 4, invented 0, left 28) [1/1]
+15 checks: 14 PASS, 1 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 6, invented 0, left 2) [2/2]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 6, wrong 6, invented 0, left 26) [2/2]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 13, invented 0, left 7) [3/5]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 13, wrong 13, invented 0, left 19) [3/5]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 23, invented 0, left 13) [9/9]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 21, wrong 21, invented 0, left 11) [9/9]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+2200 checks: 2200 PASS, 0 FAIL
+make: *** [Makefile:46: all] Error 1

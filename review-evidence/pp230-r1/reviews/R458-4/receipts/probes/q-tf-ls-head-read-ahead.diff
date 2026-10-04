@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_top.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-2l86da1q/hdl/srp/KL_srp_top.sv	2026-10-04 16:48:49.202362660 +0200
+@@ -980,7 +980,7 @@
+   // registered read of each FIFO's head (the RAM's async read + this flop)
+   always_ff @(posedge clk_i) begin : tf_read
+     tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0]];
+-    tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1]];
++    tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1] + 5'd1];
+   end
+ 
+   typedef enum logic {

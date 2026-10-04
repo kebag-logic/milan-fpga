@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-1ybqdp21/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 16:48:35.046727077 +0200
+@@ -542,7 +542,7 @@
+     (* ram_style = "distributed" *) logic [63:0] wsid_r [0:N_SINKS_P-1];
+     always_ff @(posedge clk_i) begin : walk_sid_write
+       if (rst_n && ctl_acc_w && ctl_settle_i) begin
+-        wsid_r[ctl_sink_i] <= ctl_stream_id_i;
++        wsid_r[ctl_sink_i] <= {16'd0, ctl_da_i};
+       end
+     end
+     assign wsid_w = wsid_r[wsrc_r];

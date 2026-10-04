@@ -1,0 +1,18 @@
+q-wtsp-read-neighbour: CAUGHT | srp_stream_fsms rc=2 fails=153 tags=WK1,WK2,WK3,WK4,WK5,WK9 shapes=2/2,3/5,9/9 | srp_top rc=2 fails=2 tags=B,C shapes=
+q-wtsp-written-at-walk-source: CAUGHT | srp_stream_fsms rc=2 fails=86 tags=WK1,WK2,WK3,WK4,WK5,WK9 shapes=2/2,3/5,9/9 | srp_top rc=2 fails=2 tags=B,C shapes=
+q-wid-ram-write-ignores-ready: CAUGHT | srp_stream_fsms rc=2 fails=2 tags=WK9 shapes=3/5,9/9 | srp_top rc=0 fails=0 tags= shapes=
+q-wid-ram-written-on-close: CAUGHT | srp_stream_fsms rc=2 fails=2 tags=WK3 shapes=3/5,9/9 | srp_top rc=2 fails=2 tags=C2 shapes=
+q-wid-ram-vid-dropped: CAUGHT | srp_stream_fsms rc=2 fails=97 tags=WK1,WK2,WK3,WK4,WK5,WK9 shapes=3/5,9/9 | srp_top rc=2 fails=2 tags=B,C shapes=
+q-wtsp-mif-from-mfs: CAUGHT | srp_stream_fsms rc=2 fails=119 tags=WK1,WK2,WK3,WK4,WK5,WK9 shapes=1/1,2/2,3/5,9/9 | srp_top rc=2 fails=2 tags=B,C shapes=
+q-wtsp-write-no-reset-gate-equivalent: SURVIVED | srp_stream_fsms rc=0 fails=0 tags= shapes= | srp_top rc=0 fails=0 tags= shapes=
+q-wsid-ram-read-neighbour: CAUGHT | srp_stream_fsms rc=2 fails=93 tags=WK10,WK6,WK7,WK8 shapes=3/5,9/9 | srp_top rc=2 fails=5 tags=D,F1,F2,F4,N6 shapes=
+q-wsid-ram-from-da: CAUGHT | srp_stream_fsms rc=2 fails=93 tags=WK10,WK6,WK7,WK8 shapes=3/5,9/9 | srp_top rc=2 fails=5 tags=D,F1,F2,F4,N6 shapes=
+q-wsid-ram-write-at-walk-sink: CAUGHT | srp_stream_fsms rc=2 fails=70 tags=WK10,WK6,WK7,WK8 shapes=3/5,9/9 | srp_top rc=2 fails=5 tags=D,F1,F2,F4,N6 shapes=
+q-tf-ls-head-read-ahead: CAUGHT | srp_top rc=2 fails=14 tags=F2,F4,F5a,TF2,TF5 shapes=1/1,2/2,3/5,9/9
+q-tf-ls-write-at-rptr: CAUGHT | srp_top rc=2 fails=7 tags=TF2,TF5 shapes=1/1,2/2,3/5,9/9
+q-tf-tk-cancel-dropped: CAUGHT | srp_top rc=2 fails=8 tags=TF1,TF4 shapes=1/1,2/2,3/5,9/9
+q-tf-ls-cancel-dropped: CAUGHT | srp_top rc=2 fails=8 tags=TF2,TF5 shapes=1/1,2/2,3/5,9/9
+q-tf-ls-full-of-tk-count: CAUGHT | srp_top rc=2 fails=4 tags=TF5 shapes=1/1,2/2,3/5,9/9
+q-tf-ls-deadline-low-bit: CAUGHT | srp_top rc=2 fails=8 tags=TF2,TF5 shapes=1/1,2/2,3/5,9/9
+q-slope-read-neighbour: CAUGHT | srp_admission rc=2 fails=1230 tags= shapes= | srp_top rc=2 fails=625 tags=B,C,C2,G0,G1,G10,G11,G12,G13,G14,G15,G16,G17,G18,G19,G2,G20,G21,G22,G23,G24,G25,G26,G27,G28,G29,G3,G4,G5,G6,G7,G8,G9,H,I shapes=
+q-slope-grant-reads-neighbour: CAUGHT | srp_admission rc=2 fails=1078 tags= shapes= | srp_top rc=2 fails=78 tags=B,C2,G0,G10,G11,G12,G13,G14,G15,G16,G17,G18,G19,G20,G21,G22,G23,G24,G25,G26,G27,G28,G29,G3,G4,G5,G6,G7,G8,G9,H shapes=

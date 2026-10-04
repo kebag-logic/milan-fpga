@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_admission.sv	2026-10-04 16:34:26.210000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-z84d65qx/hdl/srp/KL_srp_admission.sv	2026-10-04 16:55:59.894221948 +0200
+@@ -192,7 +192,7 @@
+ 
+   // The validity terms are defensive: a round that visits a pending source
+   // is discarded (pend_w), so a published round never evaluates a stale slope.
+-  assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[aidx_r]};
++  assign cand_w   = {1'b0, acc_r} + {1'b0, slope_q_r[(32'(aidx_r) == 0) ? SRC_W_C'(N_SOURCES_P - 1) : aidx_r - SRC_W_C'(1)]};
+   assign fit_w    = !invalid_w[aidx_r] && slope_valid_r[aidx_r]
+                    && (cand_w <= {1'b0, limit_w});
+   assign refuse_w = !invalid_w[aidx_r] && slope_valid_r[aidx_r] && !fit_w;

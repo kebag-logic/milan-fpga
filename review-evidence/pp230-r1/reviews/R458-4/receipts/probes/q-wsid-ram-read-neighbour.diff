@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-t3py_wol/hdl/srp/KL_srp_listener_fsm.sv	2026-10-04 16:43:00.565521620 +0200
+@@ -545,7 +545,7 @@
+         wsid_r[ctl_sink_i] <= ctl_stream_id_i;
+       end
+     end
+-    assign wsid_w = wsid_r[wsrc_r];
++    assign wsid_w = wsid_r[(wsrc_r == 0) ? SNK_W_C'(N_SINKS_P - 1) : wsrc_r - SNK_W_C'(1)];
+   end else begin : g_wsid_flops
+     assign wsid_w = sid_r[wsrc_r];
+   end
