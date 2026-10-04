@@ -1,0 +1,11 @@
+[R453-2] Hand resolution of rows scripts/compare_counts.py cannot parse (it reads a row's leading integer).
+
+tb/adp_engine campaign (make mutants JOBS=3 at 2ea3dee; receipts/adp_mutants.log, adp_mutants_counts.txt):
+- cfg-valid-no-reset: observed 9 failing. tb/adp_engine/README.md:284 leads with "5: AD7 ..." and ends
+  "(9 since lane P1's AD8 and AD9)". Current count 9: EQUAL by hand.
+- gate-enable-dropped-top: observed 7 failing. tb/adp_engine/README.md:286 leads with "3: AD0 ..." and states
+  "At the head of lane P1 it fails 7". Current count 7: EQUAL by hand.
+Both rows are main's (byte-equal to 83999eba); the lane does not touch them.
+Result: 41 of 41 arms at their README counts; both controls PASS; 43 checks, 43 PASS.
+
+tb/pp_top notify campaign: 47 of 47 parsed mechanically, none by hand.

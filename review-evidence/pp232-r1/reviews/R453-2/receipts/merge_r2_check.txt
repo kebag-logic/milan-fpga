@@ -1,0 +1,22 @@
+merge base 5c71928ad2bf1a854a5538d69b77214dfdf1697f
+0d9e5e7f91e879edb7c770c808cb877516080da1
+83999eba1ef4756e9e769e4fba164f5095761604
+main-only 18, lane-only 6, both: docs/architecture/09_verification.md
+files differing from both parents (merge-introduced edits):
+  not equal to main side: docs/architecture/09_verification.md
+-- 09 three-way: lane hunk and main hunk present
+-Table 5.54 and its §5.6.4.5 guards). Their READMEs carry the tables.
++Table 5.54 and its §5.6.4.5 guards), each cell citing its Milan clause and the IEEE
++1722.1-2021 clause it replaces or follows as [04 F04.7](04_adp_engine.md#fig-04-advcells)
++and [F04.8](04_adp_engine.md#fig-04-discarcs) derive them. Their READMEs carry the tables.
+
+-Table 5.54 and its §5.6.4.5 guards). Their READMEs carry the tables.
++Table 5.54 and its §5.6.4.5 guards), each cell citing its Milan clause and the IEEE
++1722.1-2021 clause it replaces or follows as [04 F04.7](04_adp_engine.md#fig-04-advcells)
++and [F04.8](04_adp_engine.md#fig-04-discarcs) derive them. Their READMEs carry the tables.
+-- check merge result equals clean 3-way
+fc05a7f236eb72c8213bd1cf52fa70b87dae61d7
+fc05a7f236eb72c8213bd1cf52fa70b87dae61d7
+0d9e5e7f91e879edb7c770c808cb877516080da1 83999eba1ef4756e9e769e4fba164f5095761604
+Merge main 83999eba (PR #152, processor #85, the ADP walk's tests) into the #232 area lane
+
