@@ -1,0 +1,118 @@
+control adp_engine run: rc=0 PASS
+arc-bind-keeps-discovered: rc=2 failures=46 named=1 KILLED
+    FAIL: P9k SM disarmed
+    FAIL: P9k re-bind starts NOT_DISCOVERED
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x unbound (sink 0): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x unbound (sink 0) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): EVT_TK_DISCOVERED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x unbound (sink 1): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x unbound (sink 1) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x unbound (sink 4): reached
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x unbound (sink 4) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): reached
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x unbound (sink 7): reached
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x unbound (sink 7) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): reached
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): reached
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): no event, got 1 events
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_NOT_DISCOVERED (sink 6): reached
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_NOT_DISCOVERED (sink 6) (Milan Table 5.54 -; IEEE 6.2.6.4 DEPARTING): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): reached
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): reached
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): no event, got 1 events
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4): reached
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4) (Milan 5.6.4.1; 04 6.2 disarm; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5) (Milan 5.6.4.1; 04 6.2 disarm, timer stopped; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 BIND x unbound (sink 6): reached
+    FAIL: P13 F04.3 BIND x unbound (sink 6) (Milan 5.6.4.4 sink connected; F04.3 entry; IEEE none: Milan per-sink binding): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 BIND x TK_NOT_DISCOVERED (sink 7): reached
+    FAIL: P13 F04.3 arc [*] -> TK_NOT_DISCOVERED (sink bound): walked and graded
+    FAIL: P13 F04.3 arc NOT -> DISCOVERED (GM and domain match): walked and graded
+    FAIL: P13 F04.3 arc NOT -> NOT (GM or domain mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 5 of 8
+arc-discover-no-noadp-arm: rc=2 failures=13 named=1 KILLED
+    FAIL: P9a T-ADP-NOADP armed
+    FAIL: P9c NOADP sink 3
+    FAIL: P9c NOADP sink 5
+    FAIL: P9j NOADP = vt * 2 s (got +0 want 10000)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 T-ADP-NOADP armed and expired
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2) (Milan 5.6.4.5.4; IEEE 6.2.6.4 TIMEOUT): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc NOT -> DISCOVERED (GM and domain match): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+arc-not-discovered-no-guard: rc=2 failures=14 named=1 KILLED
+    FAIL: P9d GM mismatch ignored
+    FAIL: P9d domain mismatch ignored
+    FAIL: P9d matching AVAILABLE discovers sink 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 arc NOT -> NOT (GM or domain mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-fresh-no-rearm: rc=2 failures=5 named=1 KILLED
+    FAIL: P9b NOADP re-armed
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-restart-detector-off-by-one: rc=2 failures=10 named=1 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+arc-restart-skips-guard: rc=2 failures=12 named=1 KILLED
+    FAIL: P9f DEPARTED only
+    FAIL: P9f back to TK_NOT_DISCOVERED
+    FAIL: P9f NOADP stopped
+    FAIL: P9f2 rediscovered
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-departing-silent: rc=2 failures=4 named=1 KILLED
+    FAIL: P9h two DEPARTED, got 0
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_DISCOVERED (sink 4): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-noadp-expiry-silent: rc=2 failures=4 named=1 KILLED
+    FAIL: P9i aging fires EVT_TK_DEPARTED
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+9 checks: 9 PASS, 0 FAIL

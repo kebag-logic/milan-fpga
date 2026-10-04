@@ -1,0 +1,14 @@
+B6: record types ['adp', 'done', 'start']; peer index 12817 at t=1790852867.644; processor index 13215 at t=1790852868.732
+B7: record types ['adp', 'done', 'start']; peer index 42441 at t=1791030616.771; processor index 85 at t=1791030619.012
+B8: record types ['adp', 'done', 'start']; peer index 44513 at t=1791043056.610; processor index 1865 at t=1791043058.355
+B8-resume: record types ['adp', 'done', 'start']; peer index 44851 at t=1791045081.902; processor index 2156 at t=1791045085.071
+B8-postboot: record types ['adp', 'done', 'start']; peer index 45061 at t=1791046338.410; processor index 19 at t=1791046340.034
+
+peer B6 -> B7: index 12817 -> 42441 (+29624) in 177749 s: 6.000 s per increment; same entity_id
+peer B7 -> B8: index 42441 -> 44513 (+2072) in 12440 s: 6.004 s per increment; same entity_id
+peer B8 -> B8-resume: index 44513 -> 44851 (+338) in 2025 s: 5.992 s per increment; same entity_id
+peer B8-resume -> B8-postboot: index 44851 -> 45061 (+210) in 1257 s: 5.983 s per increment; same entity_id
+processor B6 -> B7: index 13215 -> 85 (-13130) in 177750 s: index fell: restart; same entity_id
+processor B7 -> B8: index 85 -> 1865 (+1780) in 12439 s: 6.988 s per increment; same entity_id
+processor B8 -> B8-resume: index 1865 -> 2156 (+291) in 2027 s: 6.965 s per increment; same entity_id
+processor B8-resume -> B8-postboot: index 2156 -> 19 (-2137) in 1255 s: index fell: restart; same entity_id
