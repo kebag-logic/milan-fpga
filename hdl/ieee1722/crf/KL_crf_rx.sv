@@ -33,7 +33,8 @@
                             is low after tu edges, timestamp jumps or gaps.
                   locked_o: 8 clean consecutive PDUs consumed while started
                             establish lock; drops after 100 ms
-                            without a consumed accepted PDU (mirrors the
+                            without a consumed accepted PDU, or at once on
+                            an unbind, each scoring one unlock (mirrors the
                             AAF media-lock contract). A profile validation
                             error breaks settling but retains an existing
                             lock and does not refresh the timeout. It counts
@@ -134,7 +135,11 @@
                 MEDIA_LOCKED = MEDIA_UNLOCKED = 0 is Table 5.6's own reading
                 of "not synchronized", and a +1 into a zeroed MEDIA_UNLOCKED
                 would strand the sink at UNLOCKED = LOCKED + 1, which is
-                neither of the two states the clause allows.
+                neither of the two states the clause allows. The FALLING
+                edge resets nothing; while locked it drops locked_o and
+                scores the one unlock a Controller Unbind is, as the AAF
+                inputs do (task #32), so the pair reads MEDIA_LOCKED =
+                MEDIA_UNLOCKED from the unbind on (#653).
 
                 The stream to follow is selected by sid_i/en_i: the
                 processor's ACMP bind of the CRF sink, ORed in
@@ -386,6 +391,8 @@ module KL_crf_rx #(
   wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
   wire w_bind_rise_w = en_i && !en_q;
+  //! bound -> not bound: a Controller Unbind of this Stream Input (#653)
+  wire w_bind_fall_w = !en_i && en_q;
 
   //! IEEE 1722-2016 4.4.4.3/4.4.4.7, CRF mapping 10.4.5: tu is
   //! uncertainty, not a rate. Either edge separates timestamp eras. A
@@ -606,6 +613,21 @@ module KL_crf_rx #(
           end
           hidx_r <= hidx_r + 1'b1;
         end
+      end
+
+      //! bound -> not bound while locked: ONE unlock event, as an AAF input
+      //! scores it (KL_avtp_rx_monitor_ctx, task #32). Table 5.6 then reads
+      //! MEDIA_LOCKED = MEDIA_UNLOCKED, "not synchronized", from the unbind
+      //! on; leaving it to the timeout let an unbound input claim lock for
+      //! up to 100 ms (#653). Nothing is reset here (5.3.8.10's asymmetry).
+      //! The timeout then finds locked_o low and scores nothing, and one in
+      //! this same cycle writes the same +1, so the event counts once.
+      //! STREAM_INTERRUPTED cannot move: en_i low accepts no PDU. The pulse
+      //! arms the Table 5.22 push of the changed pair.
+      if (w_bind_fall_w && locked_o) begin
+        locked_o       <= 1'b0;
+        cnt_unlocked_o <= cnt_unlocked_o + 32'd1;
+        dirty_p_o      <= 1'b1;
       end
 
       //! not-bound -> bound (Milan 5.3.8.10's era edge): nothing the
