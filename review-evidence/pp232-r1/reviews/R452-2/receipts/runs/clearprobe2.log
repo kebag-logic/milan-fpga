@@ -1,0 +1,10 @@
+last_chunk_ignored tb/aecp_notify rc=2 no tally
+last_chunk_ignored tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+clear_new_identity tb/aecp_notify rc=2 no tally
+clear_new_identity tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+own_compare_new_row tb/aecp_notify rc=2 no tally
+own_compare_new_row tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+register_not_reindexed tb/aecp_notify rc=2 no tally
+register_not_reindexed tb/pp_top rc=2 no tally
+stamp_without_valid tb/aecp_notify rc=2 no tally
+stamp_without_valid tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL

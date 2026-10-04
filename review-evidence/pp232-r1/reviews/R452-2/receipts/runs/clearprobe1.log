@@ -1,0 +1,10 @@
+no_override tb/aecp_notify rc=2 no tally
+no_override tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+override_set_only tb/aecp_notify rc=2 no tally
+override_set_only tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+override_clr_only tb/aecp_notify rc=2 no tally
+override_clr_only tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+no_clear tb/aecp_notify rc=2 no tally
+no_clear tb/pp_top rc=0 10416 checks: 10416 PASS, 0 FAIL
+no_set tb/aecp_notify rc=2 no tally
+no_set tb/pp_top rc=2 no tally

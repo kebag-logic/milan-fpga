@@ -1,0 +1,11 @@
+no_override: tb/aecp_notify fails IX4, IX6, IX6b [default 26 checks 3 failing]; tb/pp_top 10416 checks, 0 FAIL
+override_set_only: tb/aecp_notify fails IX6, IX6b [default 26 checks 2 failing]; tb/pp_top 10416 checks, 0 FAIL
+override_clr_only: tb/aecp_notify fails IX4 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+no_clear: tb/aecp_notify fails IX1 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+no_set: tb/aecp_notify fails IX3, IX4, IX6b [default 26 checks 3 failing]; tb/pp_top no final tally (make stopped after a build with failing checks) first fails: GI DISABLED | GI DISABLED unsolicited | GI FAILED-AGAIN | GI FAILED-AGAIN unsolicited | GI LATENCY | GI LATENCY-WALK-ONE bit 26 return
+last_chunk_ignored: tb/aecp_notify fails IX2 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+clear_new_identity: tb/aecp_notify fails IX1 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+own_compare_new_row: tb/aecp_notify fails IX5 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+register_not_reindexed: tb/aecp_notify fails IX3, IX4, IX5, IX6, IX6b [default 26 checks 5 failing]; tb/pp_top no final tally (make stopped after a build with failing checks) first fails: GI DISABLED | GI DISABLED unsolicited | GI FAILED-AGAIN | GI FAILED-AGAIN unsolicited | GI LATENCY | GI LATENCY-WALK-ONE bit 26 return
+stamp_without_valid: tb/aecp_notify fails TS3 [default 26 checks 1 failing]; tb/pp_top 10416 checks, 0 FAIL
+controls failing a named committed check: 10 of 10
