@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-im_bguyw/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:36:01.434143579 +0200
+@@ -503,7 +503,7 @@
+                              gate_prio_i, gate_rank_i, gate_acc_lat_i};
+     end
+   end
+-  assign wtsp_w = wtsp_r[wsrc_r];
++  assign wtsp_w = wtsp_r[(wsrc_r == 0) ? SRC_W_C'(N_SOURCES_P - 1) : wsrc_r - SRC_W_C'(1)];
+ 
+   if (N_SOURCES_P > 2) begin : g_wid_ram
+     (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];

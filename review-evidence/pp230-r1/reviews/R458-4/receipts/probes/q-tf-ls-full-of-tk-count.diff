@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_top.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-zp5g98ym/hdl/srp/KL_srp_top.sv	2026-10-04 16:52:37.367885797 +0200
+@@ -961,7 +961,7 @@
+   logic [1:0] tf_pop_w;
+ 
+   assign tf_push_w[0] = tk_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C));
+-  assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[1] != 6'(TFD_C));
++  assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C));
+ 
+   always_ff @(posedge clk_i) begin : tf_tk_write
+     if (tf_push_w[0]) begin

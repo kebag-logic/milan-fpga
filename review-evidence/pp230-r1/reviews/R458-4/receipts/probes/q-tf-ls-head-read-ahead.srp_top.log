@@ -1,0 +1,25 @@
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 0, left 4) [1/1]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 32, wrong 32, invented 0, left 0) [1/1]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 1, invented 0, left 7) [2/2]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 32, wrong 32, invented 0, left 0) [2/2]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 7, invented 0, left 13) [3/5]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 32, wrong 32, invented 0, left 0) [3/5]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 20, invented 0, left 16) [9/9]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 32, wrong 32, invented 0, left 0) [9/9]
+15 checks: 13 PASS, 2 FAIL
+make[1]: *** [Makefile:60: storage] Error 1
+FAIL: F2: TK_ATTR_UNREGISTERED after T-MRP-LEAVE
+FAIL: F2: registration gone
+FAIL: F2: Listener declaration withdrawn
+FAIL: F2: Listener Lv on the wire
+FAIL: F4: six LeaveAll cycles emit a bounded exchange
+FAIL: F5a: its Talker Advertise lane ages sink 0's un-re-declared Advertise
+2200 checks: 2194 PASS, 6 FAIL
+make[1]: *** [Makefile:55: run] Error 1
+make: *** [Makefile:46: all] Error 1

@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_top.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-stoejzrr/hdl/srp/KL_srp_top.sv	2026-10-04 16:52:24.918000000 +0200
+@@ -966,7 +966,7 @@
+   always_ff @(posedge clk_i) begin : tf_tk_write
+     if (tf_push_w[0]) begin
+       tf_tk_ram_r[tf_wptr_r[0]]
+-        <= {tk_arm_cancel_w, tk_arm_slot_w, tk_arm_owner_w, tk_arm_dl_w};
++        <= {1'b0, tk_arm_slot_w, tk_arm_owner_w, tk_arm_dl_w};
+     end
+   end
+ 

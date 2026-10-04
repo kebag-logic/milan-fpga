@@ -1,0 +1,54 @@
+control slope-read-source-0 3/5 CAUGHT
+control slope-stored-at-source-0 3/5 CAUGHT
+control slope-store-source-0-only 8/8 CAUGHT
+control talker-vid-unreset 2/2 CAUGHT
+control wid-flops-da-of-gate-source 2/2 CAUGHT
+control wid-ram-first-open-only 3/5 CAUGHT
+control wid-ram-read-neighbour 3/5 CAUGHT
+control wsid-ram-first-settle-only 3/5 CAUGHT
+control wsid-ram-written-on-teardown 3/5 CAUGHT
+control wsid-write-ignores-ready 3/5 CAUGHT
+control wtsp-read-at-gate-source 2/2 CAUGHT
+control wtsp-write-ignores-ready 2/2 CAUGHT
+positive 1/1 rc=0
+positive 2/2 rc=0
+positive 3/5 rc=0
+positive 5/3 rc=0
+positive 8/8 rc=0
+positive 9/9 rc=0
+activity: talker pushes 3476, listener pushes 715, admission rounds with a grant 198313
+shape 1/1 seed 11 cycles 1000000 resets 21: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 3457, listener pushes 677, admission rounds with a grant 31441
+shape 1/1 seed 22 cycles 1000000 resets 21: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 3456, listener pushes 695, admission rounds with a grant 190103
+shape 1/1 seed 33 cycles 1000000 resets 22: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 6346, listener pushes 1823, admission rounds with a grant 171996
+shape 2/2 seed 11 cycles 1000000 resets 21: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 6608, listener pushes 1871, admission rounds with a grant 22851
+shape 2/2 seed 22 cycles 1000000 resets 22: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 6606, listener pushes 1855, admission rounds with a grant 193065
+shape 2/2 seed 33 cycles 1000000 resets 23: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 9280, listener pushes 6461, admission rounds with a grant 170227
+shape 3/5 seed 11 cycles 1000000 resets 20: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 9349, listener pushes 6575, admission rounds with a grant 29481
+shape 3/5 seed 22 cycles 1000000 resets 17: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 9456, listener pushes 6635, admission rounds with a grant 175375
+shape 3/5 seed 33 cycles 1000000 resets 22: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 14379, listener pushes 2820, admission rounds with a grant 139456
+shape 5/3 seed 11 cycles 1000000 resets 31: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 14154, listener pushes 2756, admission rounds with a grant 33540
+shape 5/3 seed 22 cycles 1000000 resets 34: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 14730, listener pushes 2804, admission rounds with a grant 135960
+shape 5/3 seed 33 cycles 1000000 resets 24: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 21401, listener pushes 9919, admission rounds with a grant 103106
+shape 8/8 seed 11 cycles 1000000 resets 32: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 21720, listener pushes 9982, admission rounds with a grant 23429
+shape 8/8 seed 22 cycles 1000000 resets 27: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 21224, listener pushes 9489, admission rounds with a grant 101303
+shape 8/8 seed 33 cycles 1000000 resets 30: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 23642, listener pushes 10777, admission rounds with a grant 91209
+shape 9/9 seed 11 cycles 1000000 resets 28: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 23834, listener pushes 11072, admission rounds with a grant 26489
+shape 9/9 seed 22 cycles 1000000 resets 30: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)
+activity: talker pushes 23377, listener pushes 10944, admission rounds with a grant 89791
+shape 9/9 seed 33 cycles 1000000 resets 32: mismatching cycles 0 (talker 0 first 0 bits 0x0; listener 0 first 0 bits 0x0; admission 0 first 0 bits 0x0)

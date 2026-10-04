@@ -1,0 +1,21 @@
+FAIL: TF1: the talker FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 1, left 0) [1/1]
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 0, left 4) [1/1]
+FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 64, wrong 31, invented 32, left 0) [1/1]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [1/1]
+15 checks: 11 PASS, 4 FAIL
+FAIL: TF1: the talker FIFO issues every op it accepted, once, in order, unmodified (wrong 3, invented 5, left 0) [2/2]
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 0, left 8) [2/2]
+FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 64, wrong 31, invented 32, left 0) [2/2]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [2/2]
+15 checks: 11 PASS, 4 FAIL
+FAIL: TF1: the talker FIFO issues every op it accepted, once, in order, unmodified (wrong 2, invented 3, left 0) [3/5]
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 0, left 20) [3/5]
+FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 64, wrong 31, invented 32, left 0) [3/5]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [3/5]
+15 checks: 11 PASS, 4 FAIL
+FAIL: TF1: the talker FIFO issues every op it accepted, once, in order, unmodified (wrong 19, invented 34, left 0) [9/9]
+FAIL: TF2: the listener FIFO issues every op it accepted, once, in order, unmodified (wrong 0, invented 0, left 32) [9/9]
+FAIL: TF3: no op is refused while the issue runs (0/4) [9/9]
+FAIL: TF4: released, the talker FIFO issues the 32 ops it accepted, in order, unmodified (issued 64, wrong 31, invented 32, left 0) [9/9]
+FAIL: TF5: released, the listener FIFO issues the 32 ops it accepted, in order, unmodified (issued 0, wrong 0, invented 0, left 32) [9/9]
+15 checks: 10 PASS, 5 FAIL

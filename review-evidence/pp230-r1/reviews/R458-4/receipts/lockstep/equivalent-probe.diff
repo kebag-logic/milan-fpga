@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:34:26.211000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-chqmsulp/hdl/srp/KL_srp_talker_fsm.sv	2026-10-04 16:42:51.159936986 +0200
+@@ -495,7 +495,7 @@
+   logic                gate_open_acc_w;
+   logic [WTSP_W_C-1:0] wtsp_w;   // walk source {mfs, mif, prio, rank, lat}
+   logic [WID_W_C-1:0]  wid_w;    // walk source {stream_id, DA, VLAN}
+-  assign gate_open_acc_w = rst_n && gate_acc_w && gate_open_i;
++  assign gate_open_acc_w = gate_acc_w && gate_open_i;
+ 
+   always_ff @(posedge clk_i) begin : walk_tspec_write
+     if (gate_open_acc_w) begin

@@ -1,0 +1,11 @@
+--- $REVIEWS/pp230-r458-4-packet/scratch/run-head/hdl/srp/KL_srp_admission.sv	2026-10-04 16:34:26.210000000 +0200
++++ $REVIEWS/pp230-r458-4-packet/scratch/tmp/r458-4-m52icb7d/hdl/srp/KL_srp_admission.sv	2026-10-04 16:56:15.627078820 +0200
+@@ -207,7 +207,7 @@
+     wgrant_now_w           = wgrant_r;
+     wgslope_now_w          = wgslope_r;
+     wgrant_now_w[aidx_r]   = fit_w;
+-    wgslope_now_w[aidx_r]  = fit_w ? slope_q_r[aidx_r] : 32'd0;
++    wgslope_now_w[aidx_r]  = fit_w ? slope_q_r[(32'(aidx_r) == 0) ? SRC_W_C'(N_SOURCES_P - 1) : aidx_r - SRC_W_C'(1)] : 32'd0;
+   end
+ 
+   always_ff @(posedge clk_i) begin : admission_walk
