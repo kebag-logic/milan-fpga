@@ -1,0 +1,27 @@
+R460-1 probes.py outcomes: round 2 (head 4298ed25, prior packet) vs this round (head 4811c21d); tallies normalised
+27,28c27,28
+<     FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+<     FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+---
+>     FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+>     FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+31c31
+< r7-restart-no-store: rc=2 N checks: N PASS, 1 FAIL failures=1
+---
+> r7-restart-no-store: rc=2 N checks: N PASS, 4 FAIL failures=4
+33c33,36
+< r8-discover-no-store: rc=2 N checks: N PASS, 10 FAIL failures=10
+---
+>     FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at most 699 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 700 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+>     FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+>     FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+> r8-discover-no-store: rc=2 N checks: N PASS, 11 FAIL failures=11
+34a38
+>     FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 1 events
+53,54c57,58
+<     FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+<     FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+---
+>     FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+>     FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+diff rc=1

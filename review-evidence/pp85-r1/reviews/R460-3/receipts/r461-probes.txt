@@ -1,0 +1,24 @@
+control: rc=0 1348 checks: 1348 PASS, 0 FAIL | arc4-check-failed=0 | no edit
+q0-fresh-no-store: rc=2 1348 checks: 1344 PASS, 4 FAIL | arc4-check-failed=1 | fresh branch does not note the index (same edit as arc-fresh-no-store)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+q1-fresh-store-plus-one: rc=2 1348 checks: 1344 PASS, 4 FAIL | arc4-check-failed=1 | fresh branch notes the received index + 1 (over-notes)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+q2-fresh-store-max: rc=2 1348 checks: 1344 PASS, 4 FAIL | arc4-check-failed=1 | fresh branch notes the maximum index
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+q3-fresh-store-gm-only: rc=2 1348 checks: 1347 PASS, 1 FAIL | arc4-check-failed=0 | fresh branch notes the index only when grandmaster and domain match
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+q4-restart-no-store: rc=2 1348 checks: 1344 PASS, 4 FAIL | arc4-check-failed=0 | restart branch does not note the index
+    FAIL: P9e2 restart stored the new index
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at most 699 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 700 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+q5-tb-no-followup: rc=ANCHOR  | arc4-check-failed=0 | TB control: the round-2 follow-up step removed (vacuity of the walk without it)

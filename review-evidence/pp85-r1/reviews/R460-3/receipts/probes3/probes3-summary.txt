@@ -1,0 +1,66 @@
+control: rc=0 1348 checks: 1348 PASS, 0 FAIL failures=0 arc4=0 arc5=0
+s1-restart-no-store: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=0 arc5=1
+  breaks: the restart pair notes nothing (the r7 / q4 edit)
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)
+    FAIL: P9e2 restart stored the new index
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at most 699 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 700 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s2-restart-store-plus-one: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=0 arc5=1
+  breaks: the restart pair notes the received index + 1
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)
+    FAIL: P9e2 restart stored the new index
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at most 699 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 700 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s3-restart-store-minus-one: rc=2 1348 checks: 1345 PASS, 3 FAIL failures=3 arc4=0 arc5=1
+  breaks: the restart pair notes the received index - 1
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at least 699 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s4-restart-store-max: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=0 arc5=1
+  breaks: the restart pair notes the maximum index
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)
+    FAIL: P9e2 restart stored the new index
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): the noted index is at most 699 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 700 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s5-fresh-store-minus-one: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=1 arc5=0
+  breaks: the fresh arc notes the received index - 1
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s6-fresh-store-low-byte: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=1 arc5=0
+  breaks: the fresh arc notes only the low byte of the index
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+s7-fresh-store-gm-only: rc=2 1348 checks: 1347 PASS, 1 FAIL failures=1 arc4=0 arc5=0
+  breaks: the fresh arc notes only on a grandmaster and domain match
+  expected: red: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at least 701 (Milan 5.6.4.5.2 step 3): an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+t1-no-upper-vs-plus-one: rc=0 1348 checks: 1348 PASS, 0 FAIL failures=0 arc4=0 arc5=0
+  breaks: upper side neutralised, fresh arc notes + 1
+  expected: survives: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last)
+t2-no-lower-vs-no-store: rc=0 1348 checks: 1348 PASS, 0 FAIL failures=0 arc4=0 arc5=0
+  breaks: lower side neutralised, fresh arc notes nothing
+  expected: survives: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last)
+t3-no-upper-vs-restart-no-store: rc=2 1348 checks: 1347 PASS, 1 FAIL failures=1 arc4=0 arc5=0
+  breaks: upper side neutralised, restart notes nothing
+  expected: survives: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)
+    FAIL: P9e2 restart stored the new index
+t4-disc-last-moved: rc=0 1348 checks: 1348 PASS, 0 FAIL failures=0 arc4=0 arc5=0
+  breaks: the discovered column's last index moved to 9000 at its one definition
+  expected: nothing: every site follows, the walk passes
+t5-disc-last-moved-vs-plus-one: rc=2 1348 checks: 1344 PASS, 4 FAIL failures=4 arc4=1 arc5=0
+  breaks: DISC_LAST 9000 and the fresh arc notes + 1
+  expected: red: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at most 9001 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 9002 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at most 9001 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 9002 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
