@@ -1,0 +1,42 @@
+== tag object and commit
+080ab851ba558e8502c5d44522a3012bee007440
+6d61a92e7f264c69f23cdc38f50d31114e567aa0
+== tags (newest first, first 6)
+v4.3.1.1
+v4.3.1
+v4.3.0
+v4.1.0
+v4.0.0
+v3.4.1
+== dev head at scan time
+a3a6292637485ef7cfd57a199d229a6263ed3ba8
+== condition line per release (avdeccControllerImpl.cpp, STREAM_INPUT block)
+v3.2.4 1334- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+v3.4.1 1374- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+v4.0.0 1616- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+v4.1.0 1655- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+v4.3.0 1611- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+tag 1611- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+dev 1625- if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+== updateStreamInputCounters: tag vs dev body (diff; only the assert line expected)
+3c3
+< 	AVDECC_ASSERT(_controller->isSelfLocked(), "Should only be called from the network thread (where ProtocolInterface is locked)");
+---
+> 	AVDECC_ASSERT(isAnyControllerEntitySelfLocked(), "Should only be called from the network thread (where ProtocolInterface is locked)");
+== every caller of updateStreamInputCounters at the tag (the only store path)
+src/controller/avdeccControllerImplDelegateOverrides.cpp:787:		updateStreamInputCounters(entity, streamIndex, validCount
+src/controller/avdeccControllerImplHandlers.cpp:528:									updateStreamInputCounters(entity, descriptorIndex, validCou
+src/controller/avdeccControllerImplHandlers.cpp:2484:				updateStreamInputCounters(entity, streamIndex, validCounters, c
+src/controller/avdeccControllerImpl.cpp:1590:void ControllerImpl::updateStreamInputCounters(ControlledEntityImpl& contro
+src/controller/avdeccControllerImplOverrides.cpp:3681:		updateStreamInputCounters(*controlledEntity, streamIndex, validC
+src/controller/avdeccControllerImpl.hpp:403:	void updateStreamInputCounters(ControlledEntityImpl& controlledEntity, enti
+== every StreamInputCounterValidFlag::MediaUnlocked reference at the tag
+src/controller/avdeccControllerImplHandlers.cpp:35:static auto const s_MilanMandatoryStreamInputCounters = entity::StreamInputCounterValidFl
+src/controller/avdeccControllerImpl.cpp:1610:			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnloc
+include/la/avdecc/internals/jsonTypes.hpp:833:																														{ StreamInputCounterValidFlag::MediaUnlocked, "MEDIA_UNLOCKED" }
+== Diagnostics fields at the tag (no counter-based diagnostic)
+		bool redundancyWarning{ false }; /** Flag indicating a Milan redundant device has both interfaces connected 
+		std::set<entity::model::ControlIndex> controlCurrentValueOutOfBounds{}; /** List of Controls whose current v
+		std::set<entity::model::StreamIndex> streamInputOverLatency{}; /** List of StreamInput whose MSRP Latency is
+== copied header at the tag
+3d09fa6968b6f3564b56b3aeaee6f37b23cf8db6adcade3317b0d7d64a8d35ce  include/la/avdecc/controller/internals/avdeccVirtualControlledEntityInterface.hpp

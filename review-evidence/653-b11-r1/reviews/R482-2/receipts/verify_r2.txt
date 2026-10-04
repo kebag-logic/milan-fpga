@@ -1,0 +1,57 @@
+avdeccControllerImpl.cpp sha256 5f70fbfac4c6db2e4a99c728f519fe82849bf80912e215cba1ee954d78ee941d
+1590: void ControllerImpl::updateStreamInputCounters(ControlledEntityImpl& controlledEntity, entity::model::StreamIn
+1605: 		if (controlledEntity.getCompatibilityFlags().test(ControlledEntity::CompatibilityFlag::Milan))
+1606: 		{
+1607: 			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+1608: 			// We are safe to get those counters, check for their presence during first enumeration has already been done
+1609: 			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+1610: 			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+1611: 			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+1612: 			{
+1613: 				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_
+1614: 			}
+PASS line 1611 is the condition LOCKED != UNLOCKED && LOCKED != UNLOCKED + 1
+PASS line 1613 carries the quoted message and clause
+PASS the check runs only for a Milan entity (line 1605)
+PASS no connection-state term in updateStreamInputCounters before the flag removal
+PASS Handlers.cpp:35 is the mandatory STREAM_INPUT counter list
+uses of StreamInputCounterValidFlag::MediaUnlocked: ['include/la/avdecc/internals/jsonTypes.hpp:833', 'src/controller/avdeccControllerImpl.cpp:1610', 'src/controller/avdeccControllerImplHandlers.cpp:35']
+PASS in src/, exactly two uses: the check (1610) and the mandatory list (35)
+NOTE (finding RES1): uses outside src/, not named by the page's "one other use": ['include/la/avdecc/internals/jsonTypes.hpp:833']
+
+session who idx ML MU SI lib_conn : count  accepted
+  ('s0b', 'dut', 0, 0, 0, 0, 'Connected') : 1 True
+  ('s0b', 'dut', 0, 1, 0, 0, 'Connected') : 1 True
+  ('s0b', 'dut', 0, 1, 1, 0, 'NotConnected') : 1 True
+  ('s1', 'dut', 0, 0, 0, 0, 'Connected') : 20 True
+  ('s1', 'dut', 0, 1, 0, 0, 'Connected') : 20 True
+  ('s1', 'dut', 0, 1, 1, 0, 'NotConnected') : 20 True
+  ('s1', 'dut', 1, 0, 0, 0, 'Connected') : 2 True
+  ('s1', 'dut', 1, 1, 0, 0, 'Connected') : 2 True
+  ('s1', 'dut', 1, 1, 1, 0, 'NotConnected') : 2 True
+aggregate (ML, MU, lib_conn): {(0, 0, 'Connected'): 23, (1, 0, 'Connected'): 23, (1, 1, 'NotConnected'): 23}
+PASS updates are 0/0 and 1/0 while Connected and 1/1 while NotConnected, 23 each
+PASS the check accepts every delivered update
+R01: NotConnected at t, first later update +95.000 ms carries 1/1 NotConnected
+PASS R01: the first update after NotConnected carries 1/1 (none inside the window)
+R02: NotConnected at t, first later update +100.016 ms carries 1/1 NotConnected
+PASS R02: the first update after NotConnected carries 1/1 (none inside the window)
+
+C0 own GET_COUNTERS answer -> UNBIND_RX command  1629.836 us
+C0 own GET_COUNTERS answer -> UNBIND_RX response 1637.340 us
+C0 UNBIND_RX command -> response                 7.504 us
+PASS C0 line order: own answer, command, response, unlock push
+PASS command 1,629.8 us after the own answer (decoder and grade)
+PASS response 1,637.3 us after the own answer
+PASS command to response 7.5 us
+PASS the page pairs 1,629.8 with the command and 1,637.3 with the response
+
+table rows with a digit: round 1 75 head 75 changed 1
+  R1  : | 4. A controller session connects and disconnects 20 times with no counter error | Held for the library | One la_avdecc session ran 20 AAF and 2 CRF cycles. No compatibility change, diagnostic, query
+  HEAD: | 4. A controller session connects and disconnects 20 times with no counter error | No miscount flagged by the library; not a test of the order | One la_avdecc session ran 20 AAF and 2 CRF cycles. No 
+numeric tokens present at round 1 and absent at the head: {'5.3.8.10.': 1}
+numeric tokens new at the head: {'23': 1, '1': 12, '1.': 1, '0': 9, '7': 1, '6': 2, '4.3.1.1': 1, '61': 2, '69': 1, '92': 2, '1611': 2, '1613': 2, '264': 1, '38': 1, '50': 1, '31114': 1, '567': 1, '5.3.8.10,': 1, '35': 1, '1,637.3': 1}
+PASS every hash token on the page is unchanged
+PASS per-cycle rows and capture-hash rows are byte-identical
+
+ALL CHECKS PASS
