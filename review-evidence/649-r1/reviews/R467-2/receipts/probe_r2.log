@@ -1,0 +1,35 @@
+# probe_r2.py on a git-archive copy of 4742d2c0; real-data arms on review-evidence/649-r2/author/inputs/map
+== Part 1: round-1 probe_partition.py arm B, verbatim, against the head module
+ARM B (leaf LUT 2 -> 7): caught: census: top/leaf LUT counts 2 LUT sites, the report says 7 | census: top/leaf logic_LUT counts 2 LUT sites, the report says 7
+== Part 2: each tie / sub-check of resmap_map.py disabled, then --selftest
+ancestry: additive columns exact                                       -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+ancestry: LUT sharing adjustment never positive                        -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+census: leaf FF/RAMB/DSP cell counts                                   -> KILLED (self-test fails): resmap_map self-test: 13 of 15 arms passed
+census: every row's four LUT columns vs distinct LUT sites             -> KILLED (self-test fails): resmap_map self-test: 12 of 15 arms passed
+census: stray owner (cell owned by a non-leaf row)                     -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+flat report: top row and slices                                        -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+record: totals                                                         -> KILLED (self-test fails): resmap_map self-test: 12 of 15 arms passed
+record: a recorded scope's columns                                     -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+record: a recorded scope missing from the map (append dropped)         -> SURVIVED (self-test passes): resmap_map self-test: 15 of 15 arms passed   <-- unexpected
+depth: truncation                                                      -> KILLED (self-test fails): resmap_map self-test: 14 of 15 arms passed
+guard (stated implied): census totals equal the top row                -> SURVIVED (self-test passes): resmap_map self-test: 15 of 15 arms passed
+guard (stated implied): top own cells by name sum to its row           -> SURVIVED (self-test passes): resmap_map self-test: 15 of 15 arms passed
+== Part 3: guard fail-closed, rank, page check, sweep arms
+models: a missing guard record read as clean                           -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: a hard-error guard record read as clean                        -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: refused point kept in the stream fit                           -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: refused point kept in the processor fit                        -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: refused point kept in the TDM model                            -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: refused anchor kept in the calibration                         -> KILLED (self-test fails): resmap_models self-test: FAIL
+models: rank-deficient fit accepted                                    -> KILLED (self-test fails): resmap_models self-test: FAIL
+tables: page check reports stale as equal                              -> KILLED (self-test fails): resmap_tables self-test: FAIL
+tables: SoC variant fit with fewer than three points                   -> KILLED (self-test fails): resmap_tables self-test: FAIL
+sweep: guard refusal lines ignored                                     -> KILLED (self-test fails): yosys_sweep self-test: FAIL (1 problems)
+sweep: summary tie disabled                                            -> SURVIVED (self-test passes): yosys_sweep self-test: PASS (0 problems)   <-- unexpected
+sweep: tracked change read as clean                                    -> KILLED (self-test fails): yosys_sweep self-test: FAIL (1 problems)
+== Part 4: wrong figures planted in a copy of the real published map inputs
+control: unmodified published inputs: rc 0: TIED: 175 blocks, depth 5; LUT 50767, FF 59634, slices 15832.00, CARRY4 3506, RAMB36 79, RAMB18 27, DSP 14
+a non-processor leaf's LUT figure 3 -> 5 (KL_mac_rmon_events evt_cdc[3]): rc 1: TIE FAILED: | census: alinx_ax7101/KL_mac_rmon_events/gen_evt_cdc[3].gen_live_lane.evt_cdc LUT counts 3 LUT sites, the report says 5 | census: alinx_ax7101/KL_mac_rmon_events/gen_evt_cdc[3].gen_live_lane.evt_cdc logic_LUT counts 3 LUT sites, the report says 5
+a census LUT cell moved to another LUT site (src_level_i_2__0 SLICEL.B6LUT -> SLICEL.D6LUT): rc 1: TIE FAILED: | census: alinx_ax7101 LUT counts 50766 LUT sites, the report says 50767 | census: alinx_ax7101 logic_LUT counts 48534 LUT sites, the report says 48535 | census: alinx_ax7101/KL_mac_rmon_events LUT counts 48 LUT sites, the report says 49 | census: alinx_ax7101/KL_mac_rmon_events logic_LUT counts 48 LUT sites, the report says 49 | census: alinx_ax7101/KL_mac_rmon_events/gen_evt_cdc[3].g
+rc=0
+probe copy restored byte for byte

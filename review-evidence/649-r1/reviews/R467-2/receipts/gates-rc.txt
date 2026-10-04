@@ -1,0 +1,20 @@
+scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 188 md files + 984 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+scripts/check_em_dash.py --base fea346e76c2a57ed5cd131af8fc68dfeff57f877 rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+scripts/check_em_dash.py --base 241f91845230ae410506dffb16b71937127fd175 rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+scripts/gen_toc.py --check rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+scripts/gen_toc.py --verify-anchors rc=2
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+scripts/check_doc_paths.py rc=0
+doc path gate: OK (908 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+scripts/check_em_dash.py --base fea346e76c2a57ed5cd131af8fc68dfeff57f877 (pinned renderer, scratch venv) rc=0
+check_em_dash: 0 finding(s) over 1218 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fea346e7..HEAD]
+scripts/check_em_dash.py --base 241f91845230ae410506dffb16b71937127fd175 (pinned renderer, scratch venv) rc=0
+check_em_dash: 0 finding(s) over 1312 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [241f9184..HEAD]
+scripts/gen_toc.py --check (pinned renderer, scratch venv) rc=0
+TOC gate: OK (130 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+scripts/gen_toc.py --verify-anchors (pinned renderer, scratch venv) rc=0
+anchor check: 340 existing cross-page fragment links reproduced

@@ -1,0 +1,13 @@
+# fail-closed on real published inputs: one guard record removed / made hard-error in a copy of summary.json
+planted: missing
+models: refused, a point's guard record is not usable: streams-4: no guard record; run yosys_sweep.py guards, then summary
+rc=1
+planted: harderror
+models: refused, a point's guard record is not usable: pp-rxslots-8: the guard lint exited 0 with hard errors ['%Error: planted.sv:1:1: syntax error']
+rc=1
+planted: rc-only
+models: refused, a point's guard record is not usable: chans-2: the guard lint exited 1 with hard errors []
+rc=1
+# guard summary of the published summary.json
+points 59 with guards 59 refused ['pp-ctrl-32', 'pp-line-1152', 'pp-line-288', 'pp-line-512', 'pp-names-235', 'streams-8', 'streams-8-chans-2'] errors [] rc!=0 []
+verilator {'Verilator 5.050 2026-07-01 rev v5.050'}

@@ -1,0 +1,11 @@
+# check_census_lut.py over published inputs/map (census from map_cells.tsv.xz) and the head page
+rows 218, leaves 175, parents 43, unknown LUT-BEL primitives 0
+rows whose four LUT columns equal the census distinct LUT sites: 218 of 218
+leaf LUT sum {'LUT': 51123, 'logic': 48891, 'LUTRAM': 2228, 'SRL': 4}; image LUT 50767; difference 356
+non-zero adjustments: 17, sum -356; per sub-column adjustment sums {'logic': -356, 'LUTRAM': 0, 'SRL': 0}
+adjustment == -census shared sites for every parent: True
+positive adjustments: []
+leaves inside pp_shadow: 51; outside: 124
+page map-lut-sharing rows: 20; adjustment rows 17
+ALL CHECKS PASS []
+rc=0

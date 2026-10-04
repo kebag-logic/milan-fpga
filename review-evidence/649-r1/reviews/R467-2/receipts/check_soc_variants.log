@@ -1,0 +1,45 @@
+# check_soc_variants.py over published inputs (649-review-evidence 67855cfa) and the head recipe/page
+fpu-f: not priced (FPU (core option) F): export rc 1
+fpu-fd: not priced (FPU (core option) F+D): export rc 1
+ship-tracked: not priced (shipping -): export rc 0
+variant          SoC LUT    dLUT     dFF  dBRAM dDSP  page row ok
+cpu2               10934   +1479   +1204   +1.0   +0  True
+cpu4               13907   +4452   +3296   +3.0   +0  True
+isa-m               9881    +426    +247   +0.0   +4  True
+isa-mf             12450   +2995   +1907   +1.5   +4  True
+isa-mfd            15998   +6543   +3711   +3.5   +9  True
+l1-caches          10665   +1210   +2080   +4.0   +0  True
+l1-fetch            9592    +137    +178   +1.5   +0  True
+l1-w2              10920   +1465   +2199   +7.5   +0  True
+l1-w4              11086   +1631   +2422  +14.5   +0  True
+l1l2-16k           11965   +2510   +3776  +10.5   +0  True
+l1l2-32k           11981   +2526   +3786  +14.5   +0  True
+l1l2-8k            12029   +2574   +3869   +6.5   +0  True
+l2-16k              9455      +0      +0   +0.0   +0  True
+l2-32k              9455      +0      +0   +0.0   +0  True
+l2-8k               9455      +0      +0   +0.0   +0  True
+naxriscv           23803  +14348   +7955  +47.0   +4  True
+naxriscv-rv64      28035  +18580  +10034  +47.0  +16  True
+rv64               10622   +1167    +694   +1.5   +0  True
+rv64-fpu           10622   +1167    +694   +1.5   +0  True
+ship                9455      +0      +0   +0.0   +0  True
+fit CPU count          LUT  slope  1484.357 residuals [2.14, -3.21, 1.07]
+fit CPU count          FF   slope  1091.143 residuals [-45.14, 67.71, -22.57]
+fit CPU count          BRAM slope     1.000 residuals [0.0, 0.0, 0.0]
+    CPU count BRAM steps between the three points: [1.0, 2.0]
+fit L1 ways            LUT  slope   132.143 residuals [-49.14, 73.71, -24.57]
+fit L1 ways            FF   slope   113.643 residuals [-2.14, 3.21, -1.07]
+fit L1 ways            BRAM slope     3.500 residuals [0.0, 0.0, 0.0]
+    L1 ways BRAM steps between the three points: [3.5, 7.0]
+fit L2 KiB on L1 core  LUT  slope    -1.571 residuals [20.57, -30.86, 10.29]
+fit L2 KiB on L1 core  FF   slope    -2.875 residuals [28.0, -42.0, 14.0]
+fit L2 KiB on L1 core  BRAM slope     0.321 residuals [-0.57, 0.86, -0.29]
+    L2 KiB on L1 core BRAM steps between the three points: [4.0, 4.0]
+pricing-copy.diff: 6 removed lines, 2 added lines; removed block present verbatim in head milan_soc.py: True
+ALL CHECKS PASS []
+rc=0
+# tracked recipe untouched by the lane: diff --stat 241f9184..4742d2c0 -- sw/litex/
+(empty = unchanged); milan_soc.py blob at 241f9184, fea346e7, 4742d2c0:
+3f8c332e3f66811cd7de17e3af88cb2a0deabaa9
+3f8c332e3f66811cd7de17e3af88cb2a0deabaa9
+3f8c332e3f66811cd7de17e3af88cb2a0deabaa9

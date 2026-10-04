@@ -1,0 +1,23 @@
+# cold re-run: scripts executed from the exact-head clone 4742d2c02c109f7dd8e21d74905efb182b2dbca2 (python3 -B), inputs = review-evidence/649-r2/author/inputs at 649-review-evidence 67855cfa, .xz decompressed, census from inputs/map_cells.tsv.xz
+$ resmap_map.py map inputs/map --out mapout
+TIED: 175 blocks, depth 5; LUT 50767, FF 59634, slices 15832.00, CARRY4 3506, RAMB36 79, RAMB18 27, DSP 14
+rc=0
+$ resmap_models.py --work inputs/work --map inputs/map --out models
+models: stream_models 36, stream_models_detail 85, vivado_stream_models 2, datapath_marginals 25, processor_marginals 29, processor_models 11, adp_marginals 2, calibration 4, tdm_model 5, guards 2, in_context 35
+rc=0
+$ cmp models/models.json inputs/models/models.json
+rc=0
+$ resmap_tables.py --work inputs/work --models inputs/models --map inputs/map --soc-variants inputs/soc_prices.json --out tables.md --page <head page>
+tables: tables.md
+page: every table equals a fresh generation
+rc=0
+$ same, with the freshly regenerated models
+tables: tables2.md
+page: every table equals a fresh generation
+rc=0
+# outputs vs published outputs
+EQUAL map.json
+EQUAL blocks_ranked.md
+EQUAL partition.md
+EQUAL lut_sharing.md
+EQUAL tables.md
