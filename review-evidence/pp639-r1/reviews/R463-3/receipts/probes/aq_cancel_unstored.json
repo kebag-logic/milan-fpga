@@ -1,0 +1,15 @@
+{
+ "probe": "aq_cancel_unstored",
+ "expect": "FAIL",
+ "verdict": "FAIL",
+ "rc": 1,
+ "why": "the cancel bit (MSB) is never stored in the ring",
+ "lines": [
+  "AQ: 71258305 edges, 8270 arms issued, 28 clocks with two faces held, 4288 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks",
+  "FAIL: AQ2: the arm port and the drop counter equal the eight-queue model at every edge (134916 edges differ, the first at cycle 728089)",
+  "AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset",
+  "FAIL: AQ3: driven from the bench, the arm port and the drop counter equal the eight-queue model at every edge (45134 of 90172 edges differ, the first at cycle 71258491)",
+  "AQ: 4 checks, 2 failures",
+  "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 2 failures"
+ ]
+}

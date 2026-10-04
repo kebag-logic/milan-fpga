@@ -1,0 +1,14 @@
+%Warning-WIDTHTRUNC: hdl/top/protocol_processor_top.sv:3026:45: Operator ASSIGNDLY expects 37 bits on the Assign RHS, but Assign RHS's SEL generates 48 bits.
+                                                              : ... note: In instance 'protocol_processor_top'
+ 3026 |       if (armq_push_ok_w[g]) mem_r[wr_ix_w] <= armq_in_w[g];
+      |                                             ^~
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: hdl/top/protocol_processor_top.sv:3029:25: Operator ASSIGNW expects 48 bits on the Assign RHS, but Assign RHS's ARRAYSEL generates 37 bits.
+                                                               : ... note: In instance 'protocol_processor_top'
+ 3029 |     assign armq_hd_w[g] = mem_r[armq_hd_r[g]];
+      |                         ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Error: Exiting due to 2 warning(s)
+rc=1

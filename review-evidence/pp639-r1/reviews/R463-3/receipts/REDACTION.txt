@@ -1,0 +1,26 @@
+Path redaction applied to text receipts before publication.
+Substitutions: the container-installed Verilator prefix -> '<VERILATOR_PREFIX>', the user's home directory -> '<HOME>', this packet's directory -> '<PACKET>', the reviewed clone -> '<CLONE>', the pinned Verilator wrapper's directory -> '<VERILATOR_DIR>'. Nothing else was changed; original digests below.
+original_sha256  path
+e8cfff49b4f286331362e28139a8d777fb38eaed581d1b312a959500c0cdf127  receipts/logs/head-pp_top.log
+434d46868f4c5235e7b6081d16864d0d0982158d145b7c99ab2663b91a781c01  receipts/logs/head-acmp_listener.log
+88da078c411834975eb04d89d05eeaeeb6e3c053b3f22d84fcfa4242c8bf212a  receipts/acmp/armq_read_tail@pp_top.log
+37fe06933b89031fcf4124798d16e04449fba6d7e064e8eaaa045f6f1b4425c3  receipts/acmp/golden-pp_top--arm-queue-only.log
+6f2d2cc16f6b2dd4d6a2bf40d0db973947cfc351a3ffc965fcb3328c157251bb  receipts/acmp/rec_read_sink_zero@acmp_listener.log
+8be86c9d0fb043fdcebffdeb15f006ea47e3682f0e5381996952b537f34997d3  receipts/acmp/armq_head_stuck@pp_top.log
+44025ac9b41b399988b3909e1ef3aec4e02125dcd793cb63c1fd92e1871757f7  receipts/acmp/rec_settled_vlan_unstored@acmp_listener.log
+e1cd078d2d8b91ab754a56a2a1d21784c0ad1d86e5a8ba1bc54d1ebceab90964  receipts/acmp/armq_drop_skip_sat@pp_top.log
+0ae7bc729e09e152629f26f50ffd4ead3959a5dddbb35d401c6740498fe3899a  receipts/acmp/golden-rx_validator.log
+309c8470bcc2b1c9ad38fedb9dd4ee689dda7752d2469f8b446f8d65f1e175ef  receipts/acmp/rec_sweep_misaddressed@acmp_listener.log
+90110da6cb8d541cd44bfd5681452360e73c90185c9dd5590030499813ee8079  receipts/acmp/armq_write_at_head@pp_top.log
+63456249a75bdd97dd143775c24fc7cd0916ca3ce84943e3729e2e118a000451  receipts/acmp/golden-pp_top--acmp-only.log
+14bcc14d9ce582f346e8ad0aba0349057fe745c2f29b6f7f29348d09f273ec49  receipts/acmp/armq_full_pop_refuses@pp_top.log
+c6b1662823293256871053164eed1f0549c6e9dcfe8d24730ba83589c3bad2cd  receipts/acmp/armq_write_refused@pp_top.log
+b200fc7381e3eaacb64f36b9731a6e70e49e1d40ab22fffebdaff384609ef105  receipts/acmp/armq_write_wrap_hi@pp_top.log
+0c5a40bce66d3226061bfe347adfe934a216c7f7ffe6b75541e7d4c2d6feb4fc  receipts/acmp/armq_ring_of_three@pp_top.log
+c53fef1d364ea6f04efedbc82e11f0fbcdc1754ba7c8f7b45930267754ef7af5  receipts/acmp/rec_started_unstored@acmp_listener.log
+7bb21ca8ca4280df13ef5309b45518b4679cbb350eb75b5a64bbb003322c8d94  receipts/acmp/rec_read_in_idle@acmp_listener.log
+3ce6e03b34cadb167aa0aefd45cfcf4e0fc9b9030048872c08f1b44fe0969810  receipts/acmp/golden-acmp_listener.log
+34b2853870de9acbbeee44cb0456cf6525db53d090491e64bf584d85ad5a2711  receipts/acmp/armq_write_at_mid@pp_top.log
+c1f1fd97b6b0cc77f395fa4d2fef4c010deca35cbf38fac3f7c56b236ead0eed  receipts/aecp-td/control-pp_top-timer-defaults.log
+7145b11f9d9b2a79b2dabdc369d183e295166588e4786e0ef101f690dc21a374  receipts/aecp-td/td-lock-default-59s.log
+bd064cac43c2de0f094134a1209ea441d35ce58ebe26a45ce672c5786a3964b3  receipts/aecp-td/td-tl-default-301s.log
