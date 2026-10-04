@@ -6,13 +6,16 @@
 Input is models.json from syn/resmap/resmap_models.py, the sweep's
 summary.json, the route_map.tcl directory (tied again here through
 syn/resmap/resmap_map.py, so the map's tables come from the same check) and the
-SoC sweep's exports.json and prices.json. Output is tables.md: one `<!-- table: NAME -->` block per
-table, so a page quotes each block whole and a rerun regenerates it byte for
-byte. Nothing here measures or fits; it only formats.
+SoC sweep's exports.json and prices.json, and optionally the out-of-context prices
+of the CPU, cache and L2 variants (--soc-variants). Output is tables.md: one
+`<!-- table: NAME -->` block per table, so a page quotes each block whole and a
+rerun regenerates it byte for byte. Nothing here measures. It formats, and fits
+only the SoC variants' per-unit lines, with resmap_models.fit.
 
 Usage:
 
-    resmap_tables.py --work DIR --models DIR --map DIR --out FILE [--page PAGE [--write]]
+    resmap_tables.py --work DIR --models DIR --map DIR --out FILE [--soc-variants FILE]
+                     [--page PAGE [--write]]
     resmap_tables.py --selftest
 
 With --page, every delimited block in the page is compared with a fresh
@@ -21,9 +24,13 @@ them instead.
 """
 
 import argparse
+import contextlib
+import io
 import json
 import re
 import sys
+import tempfile
+from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -197,6 +204,83 @@ def soc_tables(work: Path) -> dict[str, str]:
             "soc-prices": table(["Variant", "Part", "LUT", "FF", "RAMB36", "RAMB18", "DSP"], priced, right_from=2)}
 
 
+#: The SoC variant parameters with a numeric axis, the unit each is fitted per, and the variants on it (the
+#: shipping variant is the 1 of the CPU-count axis; the L2 and L1 lines start at their smallest present size).
+#: The L2 line is on the core with both L1 caches: the cacheless shipping core's generator instantiates no L2.
+SOC_AXES = (("L2 bytes, both L1 caches", "KiB of L2", ("l1l2-8k", "l1l2-16k", "l1l2-32k")),
+            ("CPU count", "core", ("ship", "cpu2", "cpu4")),
+            ("L1 caches", "way of both L1 caches", ("l1-caches", "l1-w2", "l1-w4")))
+PROFILE = "not buildable under the shipping software profile"
+#: The order the variant tables list parameters in; within one, by the axis value, then by name.
+SOC_ORDER = ("shipping", "CPU count", "XLEN", "recipe --with-fpu", "ISA extensions", "FPU (core option)", "L1 caches",
+             "L2 bytes", "L2 bytes, both L1 caches", "core")
+
+
+def soc_order(item: tuple[str, dict]) -> tuple:
+    """Sort key of one priced variant: its parameter's place in SOC_ORDER, its axis value, its name."""
+    name, entry = item
+    place = SOC_ORDER.index(entry["parameter"]) if entry["parameter"] in SOC_ORDER else len(SOC_ORDER)
+    return place, entry.get("x") or 0, name
+
+
+def soc_variant_tables(prices: dict, stage: str = "synth") -> dict[str, str]:
+    """The CPU, cache and L2 variants priced out of context from the scratch recipe copy, after synthesis (the
+    black-boxed datapath stops opt_design): each variant's SoC and CPU-core figures and its change from the
+    shipping variant, the per-unit fits on the numeric axes, the variants that could not be generated with the
+    reason, and each run's receipt."""
+    ship = vivado_measures_of(prices["ship"][stage]["total"])
+    rows, missing = [], []
+    for name, entry in sorted(prices.items(), key=soc_order):
+        if name == "ship-tracked":
+            continue
+        if stage not in entry:
+            reason = entry["export"].get("reason") or (entry["export"].get("error_tail") or ["no report"])[-1]
+            missing.append([name, entry["parameter"], entry["value"], f"`{reason.strip()[:150]}`"])
+            continue
+        total, cpu = vivado_measures_of(entry[stage]["total"]), vivado_measures_of(entry[stage]["cpu"])
+        rows.append([name, entry["parameter"], entry["value"], "ships" if name == "ship" else PROFILE,
+                     *(num(total[m], 1 if m == "BRAM" else 0) for m in MEASURES),
+                     *(signed(total[m] - ship[m], 1 if m == "BRAM" else 0) for m in MEASURES),
+                     *(num(cpu[m], 1 if m == "BRAM" else 0) for m in MEASURES)])
+    fits = []
+    for parameter, unit, names in SOC_AXES:
+        present = [n for n in names if stage in prices.get(n, {})]
+        if len(present) < 3:
+            fits.append([parameter, unit, ", ".join(present), "fewer than three points", *["-"] * 5])
+            continue
+        data = [{"x": float(prices[n]["x"] if n != "ship" else 1), **vivado_measures_of(prices[n][stage]["total"])}
+                for n in present]
+        model = {m: resmap_models.fit(data, ("x",), m) for m in ("LUT", "FF", "BRAM")}
+        fits.append([parameter, unit, ", ".join(num(row["x"]) for row in data), str(len(data)),
+                     num(model["LUT"]["coefficients"]["x"], 1), num(model["FF"]["coefficients"]["x"], 1),
+                     num(model["BRAM"]["coefficients"]["x"], 2), num(model["LUT"]["rms"], 1),
+                     num(model["LUT"]["max_abs"], 1)])
+    head = ["Variant", "Parameter", "Value", "Profile", *(f"SoC {m}" for m in MEASURES),
+            *(f"Change {m}" for m in MEASURES), *(f"CPU core {m}" for m in MEASURES)]
+    out = {"soc-variant-prices": table(head, rows, right_from=4),
+           "soc-variant-fits": table(["Parameter", "Per", "Values", "Points", "LUT per unit", "FF per unit",
+                                      "BRAM per unit", "LUT residual RMS", "Largest LUT residual"], fits,
+                                     right_from=2)}
+    out["soc-variant-not-generated"] = table(["Variant", "Parameter", "Value", "Why it was not generated"],
+                                             missing or [["none", "-", "-", "-"]], right_from=4)
+    receipts = ["| Variant | rc | Minutes under the lock | Log | Log SHA-256, first 16 | Log bytes |",
+                "|---|---:|---:|---|---|---:|"]
+    for name, entry in sorted(prices.items(), key=soc_order):
+        run = entry.get("vivado")
+        if run is None:
+            continue
+        minutes = (datetime.fromisoformat(run["end"]) - datetime.fromisoformat(run["start"])).total_seconds() / 60
+        receipts.append(f"| {name} | {run['rc']} | {num(minutes, 1)} | `ooc.log` | `{run['log_sha256'][:16]}` | "
+                        f"{num(run['log_bytes'])} |")
+    out["soc-variant-receipts"] = "\n".join(receipts) + "\n"
+    return out
+
+
+def vivado_measures_of(counts: dict) -> dict[str, float]:
+    """A hierarchical-report row in the four model columns."""
+    return resmap_models.vivado_measures(counts)
+
+
 def redundancy_table(map_dir: Path) -> str:
     """The plan's per-port blocks, each as the route places it, and their sum."""
     spec = json.loads(resmap_models.yosys_sweep.PLAN.read_text())["redundancy"]
@@ -250,6 +334,7 @@ def build(args: argparse.Namespace) -> dict[str, str]:
     image = resmap_map.build(args.map, figures, scopes)
     image_table, datapath_table, names_table = resmap_map.partition_tables(image)
     sections = {"map-image": image_table, "map-datapath": datapath_table, "map-soc-names": names_table,
+                "map-lut-sharing": resmap_map.markdown_sharing(image),
                 "map-ranking": resmap_map.markdown_ranking(resmap_map.ranked(image)),
                 **stream_tables(models), **vivado_tables(models)}
     sections["datapath-marginals"] = marginal_table(models["datapath_marginals"], routed, ratio)
@@ -270,6 +355,8 @@ def build(args: argparse.Namespace) -> dict[str, str]:
          for name, messages in sorted(guards["refused"].items())] or [["none", "-"]], right_from=2)
     if (args.work / "soc" / "prices.json").is_file():
         sections.update(soc_tables(args.work))
+    if args.soc_variants is not None:
+        sections.update(soc_variant_tables(json.loads(args.soc_variants.read_text())))
     return sections
 
 
@@ -288,10 +375,62 @@ def selftest() -> int:
     text = render({"a": table(["X", "Y"], [["1", "2"]])})
     if "<!-- table: a -->\n| X | Y |\n|---|---:|\n| 1 | 2 |\n<!-- end table: a -->" not in text:
         problems.append(f"render wrong: {text!a}")
+    problems += _selftest_page_check()
+    problems += _selftest_soc_variants()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"resmap_tables self-test: {'PASS' if not problems else 'FAIL'}")
     return 1 if problems else 0
+
+
+def _selftest_soc_variants() -> list[str]:
+    """The SoC variant tables: changes are taken from the shipping variant, an exact L2 line fits with no
+    residual, an axis with fewer than three priced points is said so, and an ungenerated variant is listed."""
+    def priced(lut: float, x: float | None, parameter: str) -> dict:
+        """One priced variant: the SoC at `lut` LUTs, its core at a tenth of that."""
+        counts = {"LUT": lut, "FF": 2 * lut, "RAMB36": 1, "RAMB18": 0, "DSP": 0}
+        return {"parameter": parameter, "value": str(x), "x": x, "export": {"rc": 0},
+                "synth": {"total": counts, "cpu": {**counts, "LUT": lut / 10}}}
+    prices = {"ship": priced(1000, None, "shipping"), "cpu2": priced(1900, 2, "CPU count"),
+              **{f"l1l2-{k}k": priced(1100 + 3 * k, k, "L2 bytes, both L1 caches") for k in (8, 16, 32)},
+              "fpu-f": {"parameter": "FPU", "value": "F", "x": None,
+                        "export": {"rc": 1, "error_tail": ["[error] Can't find the service X"]}}}
+    out = soc_variant_tables(prices)
+    problems = []
+    if "| l1l2-8k | L2 bytes, both L1 caches | 8 | " + PROFILE + " | 1,124 | 2,248 | 1.0 | 0 | +124 | +248 | 0 | 0 |" \
+            not in out["soc-variant-prices"]:
+        problems.append(f"soc variants: the change from shipping is wrong: {out['soc-variant-prices']!a}")
+    if "| L2 bytes, both L1 caches | KiB of L2 | 8, 16, 32 | 3 | 3.0 | 6.0 | 0.00 | 0.0 | 0.0 |" \
+            not in out["soc-variant-fits"]:
+        problems.append(f"soc variants: the exact L2 line was not recovered: {out['soc-variant-fits']!a}")
+    if "| CPU count | core | ship, cpu2 | fewer than three points |" not in out["soc-variant-fits"]:
+        problems.append("soc variants: a two-point axis was fitted")
+    if "| fpu-f | FPU | F | `[error] Can't find the service X` |" not in out["soc-variant-not-generated"]:
+        problems.append("soc variants: the ungenerated variant is not listed with its reason")
+    return problems
+
+
+def _selftest_page_check() -> list[str]:
+    """The page check passes a page equal to a fresh generation and fails a stale block and a block with
+    no generated table, and --write fills the stale page to equality."""
+    problems = []
+    sections = {"a": "new\n"}
+    with tempfile.TemporaryDirectory(prefix="resmap-tables-") as tmp:
+        page = Path(tmp) / "page.md"
+        for label, body, want in (("an equal page", "<!-- table: a -->\nnew\n<!-- end table: a -->\n", 0),
+                                  ("a stale block", "<!-- table: a -->\nold\n<!-- end table: a -->\n", 1),
+                                  ("a block with no table", "<!-- table: z -->\nx\n<!-- end table: z -->\n", 1)):
+            page.write_text(body)
+            with contextlib.redirect_stdout(io.StringIO()):
+                got = check_page(argparse.Namespace(page=page, write=False), sections)
+            if got != want:
+                problems.append(f"page check: {label} gave {got}, wanted {want}")
+        page.write_text("<!-- table: a -->\nold\n<!-- end table: a -->\n")
+        with contextlib.redirect_stdout(io.StringIO()):
+            check_page(argparse.Namespace(page=page, write=True), sections)
+            if check_page(argparse.Namespace(page=page, write=False), sections):
+                problems.append("page check: a filled page does not then check equal")
+    return problems
 
 
 def main() -> int:
@@ -302,6 +441,8 @@ def main() -> int:
     parser.add_argument("--models", type=Path)
     parser.add_argument("--map", type=Path)
     parser.add_argument("--out", type=Path)
+    parser.add_argument("--soc-variants", type=Path,
+                        help="the CPU, cache and L2 variants' out-of-context prices (the scratch pricing receipts)")
     parser.add_argument("--page", type=Path, help="a page whose delimited table blocks are checked, or filled")
     parser.add_argument("--write", action="store_true", help="fill the page's blocks instead of checking them")
     args = parser.parse_args()
@@ -315,6 +456,12 @@ def main() -> int:
     print(f"tables: {args.out}")
     if args.page is None:
         return 0
+    return check_page(args, sections)
+
+
+def check_page(args: argparse.Namespace, sections: dict[str, str]) -> int:
+    """Fill (--write) or check the page's delimited blocks: 1 when a block has no generated table or,
+    checking, when any block differs from a fresh generation."""
     text, missing = fill(args.page.read_text(), sections)
     if missing:
         print(f"page: no generated table for {missing}")
