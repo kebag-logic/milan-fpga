@@ -381,8 +381,9 @@ The constant is independent of the audio interface.
 | Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
 | Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
 | Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
-| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
-| Clock-source settle | under CRF or AAF following: the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change, the #645 settle recentre; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
+| Clock-source settle | the at-switch #386 recentre: under CRF or AAF following, the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
+| Settle recentre (#645, #647) | armed by a source change, an aligner re-engagement, or an excursion past 4 bands; fires under following once the servo reads LOCKED for 8 windows (4.096 s), at INTERNAL once the aligner rests 2048 ticks in band; ceiling 2^20 ticks (21.8 s) | one per transient, after the plane settles; to this stage and the loopback ring (7 events at a PDU end) ([design](MEDIA_CLOCK_FOLLOWING.md#settle-recentre)) |
 | Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
 | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
 | Wire channel count change | the stream is flushed and re-prefilled | its queued rows carry the old lane layout |
@@ -484,6 +485,11 @@ Its CDC FIFO stays full: up to 16 frames more.
 
 A clock-source change arms one recentre.
 It fires once the grid has settled (table above).
+
+A settle recentre follows each change and each pull-in.
+It waits until the servo and aligner rest.
+
+Nothing moves the stage after it.
 
 The `milan_dp` leg selects CRF under a running stream.
 One recentre fires; every PDU returns to the setpoint.
