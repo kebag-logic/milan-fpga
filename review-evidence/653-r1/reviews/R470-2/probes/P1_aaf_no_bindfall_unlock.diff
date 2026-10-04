@@ -1,0 +1,11 @@
+--- $REVIEWS/r470-2-653/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-04 20:48:57.856258292 +0200
++++ scratch/aafmut/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv	2026-10-04 20:54:11.349353749 +0200
+@@ -854,7 +854,7 @@
+         //! counter zeroing stays with the NEXT bind's M_BDEC walk, so the
+         //! unlock increment always lands before any wipe (the ordering the
+         //! walker comment below already mandates).
+-        if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
++        if (1'b0 && bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
+         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
+             !(&dpdu_pend_r[s]))
+           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;
