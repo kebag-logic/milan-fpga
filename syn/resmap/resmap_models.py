@@ -25,6 +25,13 @@ The models:
 
 BRAM is counted in tiles: a RAMB36 is one, a RAMB18 half.
 
+GUARDS FAIL CLOSED. A point enters a fit, a calibration ratio or the TDM model only
+when its guard record (yosys_sweep.py guards, carried into summary.json) is clean.
+A point whose record lists a firing elaboration guard is a shape the product
+refuses: it is left out of every fit and shown in the marginal tables as refused.
+A point with no record, or whose lint hit a hard error, is not known to be
+buildable, so the build stops naming it rather than fitting it as clean.
+
 Usage:
 
     resmap_models.py --work DIR --map DIR --out DIR
@@ -118,10 +125,15 @@ def _source_module(module: str, known: set[str]) -> str:
 
 
 def fit(rows: list[dict[str, float]], terms: tuple[str, ...], target: str) -> dict:
-    """Least squares of target on 1 and the named terms; coefficients, residuals and their summary."""
+    """Least squares of target on 1 and the named terms; coefficients, residuals and their summary.
+    A design that cannot determine every term (too few or collinear points) is refused, never fitted
+    to its minimum-norm solution."""
     design = np.array([[1.0] + [row[t] for t in terms] for row in rows])
     values = np.array([row[target] for row in rows])
     coefficients, _, rank, _ = np.linalg.lstsq(design, values, rcond=None)
+    if rank < design.shape[1]:
+        raise ValueError(f"fit of {target} on {terms}: rank {rank} over {len(rows)} points, "
+                         f"{design.shape[1]} terms needed")
     residuals = values - design @ coefficients
     return {"coefficients": dict(zip(("fixed", *terms), (round(float(c), 2) for c in coefficients))),
             "residuals": [round(float(r), 2) for r in residuals], "points": len(rows), "rank": int(rank),
@@ -129,9 +141,19 @@ def fit(rows: list[dict[str, float]], terms: tuple[str, ...], target: str) -> di
             "max_abs": round(float(np.max(np.abs(residuals))), 2)}
 
 
+class GuardError(ValueError):
+    """A point carries no usable guard record, so whether the product can build its shape is unknown."""
+
+
 def refusals(summary: dict, name: str) -> list[str]:
-    """The elaboration guards that fired on one point, as yosys_sweep.py guards recorded them."""
-    return summary.get(name, {}).get("guards", {}).get("refusals", [])
+    """The elaboration guards that fired on one point, as yosys_sweep.py guards recorded them. A point
+    with no record, or whose lint hit a hard error, raises GuardError: an unchecked shape is never clean."""
+    guards = summary.get(name, {}).get("guards")
+    if guards is None:
+        raise GuardError(f"{name}: no guard record; run yosys_sweep.py guards, then summary")
+    if guards.get("errors") or (guards.get("rc") and not guards.get("refusals")):
+        raise GuardError(f"{name}: the guard lint exited {guards.get('rc')} with hard errors {guards.get('errors')}")
+    return guards.get("refusals", [])
 
 
 def stream_channel_points(plan: dict, summary: dict) -> list[tuple[str, int, int]]:
@@ -272,7 +294,7 @@ def calibration(summary: dict, anchors: dict[str, dict]) -> dict:
     """Vivado over Yosys per anchor, total and per block, for both Yosys instruments."""
     out = {}
     for name, data in anchors.items():
-        if name not in summary or "opt" not in data:
+        if name not in summary or "opt" not in data or refusals(summary, name):
             continue
         hierarchical = summary[name]["hierarchical"]
         flat = summary[name].get("flat", {}).get("totals")
@@ -321,7 +343,7 @@ def tdm_model(plan: dict, summary: dict) -> dict:
             continue
         if set(params) - {"AUDIO_IF_SLOTS_P", "AUDIO_IF_CLK_HZ_P", "AUDIO_IF_RENDER_SLOTS_P"} or point.get("shape"):
             continue
-        if point["name"] in summary:
+        if point["name"] in summary and not refusals(summary, point["name"]):
             slots = params.get("AUDIO_IF_SLOTS_P", plan["tops"]["milan_datapath"]["params"]["AUDIO_IF_SLOTS_P"])
             rows.append({"point": point["name"], "x": float(slots),
                          **yosys_measures(summary[point["name"]]["hierarchical"]["totals"])})
@@ -333,6 +355,14 @@ def build(work: Path, map_dir: Path | None) -> dict:
     """Every model and table from one work directory."""
     plan = yosys_sweep.load_plan(yosys_sweep.PLAN)
     summary = json.loads((work / "summary.json").read_text())
+    unusable = []
+    for name in sorted(summary):
+        try:
+            refusals(summary, name)
+        except GuardError as failure:
+            unusable.append(str(failure))
+    if unusable:
+        raise GuardError("; ".join(unusable))
     known = {part for point in summary.values() for block in point["hierarchical"]["blocks"]
              for part in block.split("/")}
     anchors = {p["name"]: load_anchor(work / "vivado" / p["name"], known)
@@ -347,8 +377,7 @@ def build(work: Path, map_dir: Path | None) -> dict:
               "adp_marginals": marginals(plan, summary, "KL_adp_engine", "adp-if-1"),
               "calibration": calibration(summary, anchors)}
     result["tdm_model"] = tdm_model(plan, summary)
-    result["guards"] = {"checked": sorted(name for name in summary if "guards" in summary[name]),
-                        "unchecked": sorted(name for name in summary if "guards" not in summary[name]),
+    result["guards"] = {"checked": sorted(summary),
                         "refused": {name: refusals(summary, name) for name in summary if refusals(summary, name)}}
     if map_dir is not None and "ship" in anchors:
         result["in_context"] = in_context(vivado_rows(map_dir / "map_hierarchy.rpt"), anchors["ship"], known)
@@ -358,8 +387,74 @@ def build(work: Path, map_dir: Path | None) -> dict:
 # ------------------------------------------------------------ self-test
 
 
+def _guard(*fired: str) -> dict:
+    """A clean guard record, or one whose lint saw the named guards fire."""
+    return {"rc": 0, "refusals": list(fired), "errors": []}
+
+
+def _selftest_inputs() -> tuple[dict, dict]:
+    """A synthetic plan and summary: a stream and channel plane (LUT = 100 + 10 N + C), a TDM line and a
+    processor parameter, each with guard-clean points exactly on it and one refused point far off it, so a
+    refused point that entered a fit would show as a residual and a changed coefficient."""
+    plan = {"tops": {"milan_datapath": {"params": {STREAM_PARAM: 1, CHANNEL_PARAM: 8, "AUDIO_IF_SLOTS_P": 8}},
+                     "KL_pp_shadow": {"params": {"P": 1}}}, "points": []}
+    summary = {}
+
+    def add(name: str, top: str, params: dict, lut: float, guard: dict) -> None:
+        """One point whose every column is a known function of its LUT figure."""
+        plan["points"].append({"name": name, "top": top, "params": params})
+        figures = {**dict.fromkeys(yosys_sweep.COLUMNS, 0), "LUT_TOT": lut, "FF": 2 * lut}
+        summary[name] = {"hierarchical": {"totals": figures, "blocks": {}, "blocks1": {}}, "guards": guard}
+
+    for streams in (1, 2, 4):
+        add(f"s{streams}", "milan_datapath", {STREAM_PARAM: streams}, 108 + 10 * streams, _guard())
+    for channels in (2, 4):
+        add(f"c{channels}", "milan_datapath", {CHANNEL_PARAM: channels}, 110 + channels, _guard())
+    add("s4c2", "milan_datapath", {STREAM_PARAM: 4, CHANNEL_PARAM: 2}, 142, _guard())
+    add("s8", "milan_datapath", {STREAM_PARAM: 8}, 9999, _guard("N_NAME_P=235 outside 1..128"))
+    for slots in (8, 16, 32):
+        add(f"t{slots}", "milan_datapath", {"AUDIO_IF_SLOTS_P": slots, "AUDIO_IF_RENDER_SLOTS_P": 0}, 50 + slots,
+            _guard())
+    add("t64", "milan_datapath", {"AUDIO_IF_SLOTS_P": 64, "AUDIO_IF_RENDER_SLOTS_P": 0}, 9999, _guard("slots"))
+    add("pp-ship", "KL_pp_shadow", {}, 205, _guard())
+    for value in (2, 4):
+        add(f"pp-p{value}", "KL_pp_shadow", {"P": value}, 200 + 5 * value, _guard())
+    add("pp-p8", "KL_pp_shadow", {"P": 8}, 9999, _guard("P=8 refused"))
+    return plan, summary
+
+
+def _selftest_guards() -> list[str]:
+    """A refused point leaves every fit; a missing or hard-error record stops the models, never reads clean."""
+    problems = []
+    plan, summary = _selftest_inputs()
+    streams = stream_models(plan, summary)["@total"]
+    if "s8" in [row["point"] for row in streams["data"]] or streams["LUT"]["max_abs"] > 1e-6:
+        problems.append(f"guards: the refused stream point entered the stream fit: {streams['LUT']}")
+    processor = parameter_models(plan, summary)["P"]
+    if "pp-p8" in [row["point"] for row in processor["data"]] or processor["LUT"]["max_abs"] > 1e-6:
+        problems.append(f"guards: the refused processor point entered its parameter fit: {processor['LUT']}")
+    tdm = tdm_model(plan, summary)
+    if "t64" in [row["point"] for row in tdm["data"]] or tdm["LUT"]["max_abs"] > 1e-6:
+        problems.append(f"guards: the refused TDM point entered the TDM model: {tdm['LUT']}")
+    anchors = {name: {"opt": {"totals": {"LUT": 1.0, "FF": 1.0, "BRAM": 0.0, "DSP": 0.0}, "blocks": {}}}
+               for name in ("s1", "s8")}
+    if "s8" in calibration(summary, anchors):
+        problems.append("guards: the refused anchor entered the calibration")
+    for label, damage in (("a missing record", lambda s: s["s2"].pop("guards")),
+                          ("a hard-error record", lambda s: s["s2"]["guards"].update(errors=["%Error: x.sv:1"]))):
+        _, broken = _selftest_inputs()
+        damage(broken)
+        try:
+            stream_models(plan, broken)
+            problems.append(f"guards: {label} was fitted as a guard-clean point")
+        except GuardError:
+            pass
+    return problems
+
+
 def selftest() -> int:
-    """A fit recovers known coefficients exactly; a planted point shows in its residual; reports parse."""
+    """A fit recovers known coefficients exactly; a planted point shows in its residual; a design that cannot
+    determine its terms is refused; reports parse; guard records fail closed."""
     problems = []
     rows = [{"N": n, "C": c, "NC": n * c, "y": 100 + 7 * n + 3 * c + 2 * n * c} for n, c in
             ((1, 8), (2, 8), (4, 8), (8, 8), (1, 2), (1, 4), (4, 2), (8, 2))]
@@ -370,6 +465,11 @@ def selftest() -> int:
     planted = fit(rows, ("N", "C", "NC"), "y")
     if planted["max_abs"] < 10:
         problems.append(f"a planted wrong point left no residual: {planted}")
+    try:
+        fit([row for row in rows if row["C"] == 8], ("N", "C", "NC"), "y")
+        problems.append("a fit whose points never vary C was accepted at minimum norm")
+    except ValueError:
+        pass
     report = ("| top | (top) | 9 | 9 | 0 | 0 | 7 | 1 | 0 | 0 |\n"
               "|   (top) | (top) | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 |\n"
               "|   u_a | KL_gptp_shadow_3 | 5 | 5 | 0 | 0 | 4 | 1 | 0 | 0 |\n"
@@ -381,6 +481,7 @@ def selftest() -> int:
     wanted = {"top/@own", "top/KL_gptp_shadow", "top/adp_tx_arbiter"}
     if set(blocks) != wanted or blocks["top/KL_gptp_shadow"]["BRAM"] != 1:
         problems.append(f"report blocks wrong: {blocks}")
+    problems += _selftest_guards()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"resmap_models self-test: {'PASS' if not problems else 'FAIL'}")
@@ -400,7 +501,11 @@ def main() -> int:
     if args.work is None or args.out is None:
         parser.print_help()
         return 2
-    result = build(args.work.resolve(), args.map)
+    try:
+        result = build(args.work.resolve(), args.map)
+    except GuardError as failure:
+        print(f"models: refused, a point's guard record is not usable: {failure}")
+        return 1
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "models.json").write_text(json.dumps(result, indent=1, sort_keys=True) + "\n")
     print(f"models: {', '.join(f'{k} {len(v)}' for k, v in result.items())}")
