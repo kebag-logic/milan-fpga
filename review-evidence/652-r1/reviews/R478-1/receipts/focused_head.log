@@ -1,0 +1,10 @@
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+RESULT test_name_count_fits_the_nvm_name_block PASS
+test_d8_role_pools:
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough): 8 routed channels, 123 writable names; 2/2 planted controls turned it red: 16 routed channels; no routed channel
+  [gate 24a] the over-wide (72) D8 loopback pool (747 writable names) is REFUSED at generation by the saved-state NAME capacity, naming both figures, before any write; its own overlay's ROM exceeds the 16-bit AEM store address space (D6 is the owner), and behind a planted capacity it is marked rather than emitted and --write-rtl REFUSES it; 2/2 planted controls turned their check red: capacity 747; the shipped 8x8 overlay
+  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}
+RESULT test_d8_role_pools PASS

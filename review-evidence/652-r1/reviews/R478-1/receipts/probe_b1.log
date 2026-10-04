@@ -1,0 +1,35 @@
+planted in $REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/endstation_builder.py: '    if aem_name_entries > capacity:\n' -> '    if False:\n'
+test_name_count_fits_the_nvm_name_block:
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scripts/run_focused.py", line 19, in <module>
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/test_builder.py", line 29037, in test_name_count_fits_the_nvm_name_block
+    _check_names_refused(paths[129], 129)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/test_builder.py", line 28894, in _check_names_refused
+    raise AssertionError(f"{gate}: {names} writable names accepted "
+                         f"against {capacity} NAME records")
+AssertionError: gate 38: 129 writable names accepted against 128 NAME records
+RESULT test_name_count_fits_the_nvm_name_block FAIL
+test_d8_role_pools:
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scripts/run_focused.py", line 19, in <module>
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/test_builder.py", line 25398, in test_d8_role_pools
+    _assert_physical_pool_reappears()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/test_builder.py", line 25196, in _assert_physical_pool_reappears
+    caught = [_expect_red("16 routed channels", lambda: _build_physical_pool(16),
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "writable names and the saved-state backend holds",
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          gate="gate 24a (d)"),
+                          ^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b1-no-refusal/sw/builder/test_builder.py", line 28939, in _expect_red
+    raise AssertionError(f"{gate} control {label}: the check stayed green")
+AssertionError: gate 24a (d) control 16 routed channels: the check stayed green
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+RESULT test_d8_role_pools FAIL
+PROBE b1-no-refusal rc=1

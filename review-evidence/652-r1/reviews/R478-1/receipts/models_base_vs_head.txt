@@ -1,0 +1,4 @@
+models.json: 9 keys identical; differing: ['datapath_marginals', 'guards']
+  datapath_marginals: only base ['streams-8', 'streams-8-chans-2']; only head []; changed []
+  guards: only base []; only head ['by_builder']; changed ['refused']
+    guards.refused: base={"pp-ctrl-32": ["$LANES/649-resmap/protocol-processor/hdl/top/protocol_processor_top.sv:860:5: F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)"], "pp-line-1152": ["$LANES/649-resmap/protocol-processor/hdl/aecp/KL_aecp_engine.sv:965:5: DESC_LINE_BYTES_P=1152 is above 1 head={"pp-ctrl-32": ["$LANES/649-resmap/protocol-processor/hdl/top/protocol_processor_top.sv:860:5: F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)"], "pp-line-1152": ["$LANES/649-resmap/protocol-processor/hdl/aecp/KL_aecp_engine.sv:965:5: DESC_LINE_BYTES_P=1152 is above 1

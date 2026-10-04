@@ -1,0 +1,12 @@
+planted in $REVIEWS/652-r478-1-packet/scratch/probe-b6-capacity-120/hdl/milan/KL_nvm_backend.sv: 'N_NAME_MAX_C = 128;' -> 'N_NAME_MAX_C = 120;'
+test_name_count_fits_the_nvm_name_block:
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scripts/run_focused.py", line 19, in <module>
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b6-capacity-120/sw/builder/test_builder.py", line 29027, in test_name_count_fits_the_nvm_name_block
+    assert capacity == _NAME_BLOCK_RECORDS, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 38: hdl/milan/KL_nvm_backend.sv:247 declares 120 NAME records, the block holds 128
+RESULT test_name_count_fits_the_nvm_name_block FAIL
+PROBE b6-capacity-120 rc=1

@@ -1,0 +1,15 @@
+planted in $REVIEWS/652-r478-1-packet/scratch/probe-b4-no-capacity-figure/sw/builder/endstation_builder.py: 'saved-state backend holds {capacity} NAME records' -> 'saved-state backend holds the NAME records'
+test_name_count_fits_the_nvm_name_block:
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scripts/run_focused.py", line 19, in <module>
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b4-no-capacity-figure/sw/builder/test_builder.py", line 29037, in test_name_count_fits_the_nvm_name_block
+    _check_names_refused(paths[129], 129)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b4-no-capacity-figure/sw/builder/test_builder.py", line 28900, in _check_names_refused
+    assert figure in message, (
+           ^^^^^^^^^^^^^^^^^
+AssertionError: gate 38: the 129-name refusal does not name '128 NAME records': this AEM model has 129 writable names and the saved-state backend holds the NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 1 over: remove named descriptors (streams, clusters or clock sources)
+RESULT test_name_count_fits_the_nvm_name_block FAIL
+PROBE b4-no-capacity-figure rc=1

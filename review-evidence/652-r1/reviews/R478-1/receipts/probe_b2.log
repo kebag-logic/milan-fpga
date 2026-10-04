@@ -1,0 +1,32 @@
+planted in $REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/endstation_builder.py: 'if aem_name_entries > capacity:' -> 'if aem_name_entries >= capacity:'
+test_name_count_fits_the_nvm_name_block:
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/test_builder.py", line 28871, in _check_names_accepted
+    header = eb.build(str(path), tmp)["adp_shape_svh"]
+             ~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/endstation_builder.py", line 5916, in build
+    art = _derive_artifacts(config_path)
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/endstation_builder.py", line 5757, in _derive_artifacts
+    adp_svh = emit_adp_shape_svh(cfg, overlay)
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/endstation_builder.py", line 3191, in emit_adp_shape_svh
+    aem_name_entries = _adp_name_entries(overlay)
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/endstation_builder.py", line 2743, in _adp_name_entries
+    raise ConfigError(
+    ...<5 lines>...
+        f"remove named descriptors (streams, clusters or clock sources)")
+endstation_builder.ConfigError: this AEM model has 128 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 0 over: remove named descriptors (streams, clusters or clock sources)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$REVIEWS/652-r478-1-packet/scripts/run_focused.py", line 19, in <module>
+    getattr(tb, name)()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/test_builder.py", line 29036, in test_name_count_fits_the_nvm_name_block
+    _check_names_accepted(paths[128], 128)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r478-1-packet/scratch/probe-b2-off-by-one/sw/builder/test_builder.py", line 28873, in _check_names_accepted
+    raise AssertionError(f"gate 38: {names} writable names refused: {exc}") from exc
+AssertionError: gate 38: 128 writable names refused: this AEM model has 128 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 0 over: remove named descriptors (streams, clusters or clock sources)
+RESULT test_name_count_fits_the_nvm_name_block FAIL
+PROBE b2-off-by-one rc=1

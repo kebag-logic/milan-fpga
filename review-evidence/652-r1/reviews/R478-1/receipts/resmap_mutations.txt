@@ -1,0 +1,13 @@
+r1-traceback-is-refusal SELFTEST rc=1 | SELF-TEST FAILED: outcome: a traceback read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records') 
+r2-usage-exit-is-refusal SELFTEST rc=1 | SELF-TEST FAILED: outcome: a usage error read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records') 
+r3-shapes-ignores-expectation SELFTEST rc=0 | 
+r4-run-prices-refused SELFTEST rc=1 | SELF-TEST FAILED: refused: run exited 1 or priced the refused point 
+r5-summary-accepts-priced-refused SELFTEST rc=1 | SELF-TEST FAILED: refused: a priced receipt for a refused point was summarized 
+r6-missing-outcome-is-built SELFTEST rc=1 | SELF-TEST FAILED: refused: a variant with no builder outcome was taken as built 
+r7-expect-unvalidated SELFTEST rc=1 | SELF-TEST FAILED: plan: an expectation that is neither built nor refused was accepted 
+r8-any-line-is-refusal SELFTEST rc=1 | SELF-TEST FAILED: outcome: an exit with no refusal line read as ('refused', 'Killed') 
+r9-models-ignore-builder SELFTEST rc=1 | self-test raised GuardError: s16: no guard record; run yosys_sweep.py guards, then summary 
+r10-marginal-for-unpriced SELFTEST rc=1 | self-test raised KeyError: 'hierarchical' 
+r11-by-builder-dropped SELFTEST rc=0 | 
+r12-table-who-refused SELFTEST rc=1 | SELF-TEST FAILED: refusal table: who refused each point is wrong: '| Point | Refused by | Refusal |\n|---|---|---|\n| b | elaboration guard | `9 names` |\n| g | elaboration guard | `N_P=9 outside 1..8 
+r0-unmutated-control SELFTEST rc=0 | 

@@ -1,0 +1,10 @@
+shape rm_ax7101_2x2_tdm8: builder rc=0 built
+shape rm_ax7101_4x4_tdm8: builder rc=0 built
+shape rm_ax7101_8x8_tdm8: builder rc=1 refused where the plan expects built: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_4ch: builder rc=0 built
+shape rm_ax7101_4x4_tdm8_2ch: builder rc=0 built
+shape rm_ax7101_8x8_tdm8_2ch: builder rc=1 refused where the plan expects built: CONFIG ERROR: this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)
+shape rm_ax7101_1x1_tdm8_noaafclk: builder rc=0 built
+shape rm_ax7101_1x1_tdm8_nocrf: builder rc=0 built
+SHAPES rc=1
