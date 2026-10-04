@@ -1,0 +1,14 @@
+PASS window_walks parses the three [LAW] lines, not CRF or the histogram: [(0, -58, -56, 2, 56), (2026, -1, 0, 1, 0), (984, -1043, 1042, 3, 1040)]
+PASS a zero offset printed '+0' parses
+PASS the wrap suffix does not stop the line parsing
+PASS STATED_WALK_LINE reads the stated walk: ['5']
+    [i] law boundary: the largest walk over 3 windows is 3 cycles (the unmutated gateware, ascending, +984); the leg states a walk of 5
+PASS print_the_largest_walk names walk 3 at +984 over 3 windows and stated 5
+    [PASS] mutant caught (ship --law-only): mut one - breaks "check S"
+    [PASS] mutant caught (ship --law-only): mut two - breaks "check A" and 2 more
+    [FAIL] mutant SURVIVED: mut three. The leg does not prove "check A" and 2 more.
+PASS string target quoted once
+PASS tuple target: first name quoted, then 'and 2 more', no stray quote
+PASS survivor line uses the same naming
+PASS tally (2, 1)
+rc=0

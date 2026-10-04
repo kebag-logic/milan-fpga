@@ -1,0 +1,33 @@
+rc=0 docs_check
+    docs_check: 0 finding(s) across 187 md files + 975 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 check_doc_style
+    documentation style: OK (22 current documents)
+rc=0 check_doc_paths
+    doc path gate: OK (902 cited paths all resolve, 1 allowlisted; 9 line anchor(s) within their file)
+rc=0 check_em_dash --base 241f9184
+    check_em_dash: 0 finding(s) over 94 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [241f9184..HEAD]
+rc=0 check_em_dash --base 6b96391d
+    check_em_dash: 0 finding(s) over 37 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6b96391d..HEAD]
+rc=0 gen_toc --check
+    TOC gate: OK (129 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 gen_toc --verify-anchors
+    anchor check: 331 existing cross-page fragment links reproduced
+rc=2 check_cpp_idiom
+    REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 check_py_idiom
+    REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=2 check_hygiene
+    REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor; -631eeb342ca1e3fa80e734077a56a943aee76ff1 protocol-processor); run `git submodule update --init protocol-processor gptp-processor`
+rc=0 py_compile tdm8_render_mutants
+rc=0 check_cpp_idiom (review clone, submodules initialized)
+      multi-declarator declaration: 0 <= 0
+      long function: 0 <= 0
+      build without warnings: 0 <= 0
+rc=0 check_py_idiom (review clone, submodules initialized)
+      too many parameters: 7 <= 7
+      global statement: 0 <= 0
+      over-long line: 0 <= 0
+rc=0 check_hygiene (review clone, submodules initialized)
+      CRLF line ending                         0                   0                   0
+      UTF-8 BOM                                0                   0                   0
+      tab in SystemVerilog                     0                   0                   0

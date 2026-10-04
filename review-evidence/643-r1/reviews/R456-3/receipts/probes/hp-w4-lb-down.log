@@ -1,0 +1,413 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[LAW-BOUNDARY] T30's INTERNAL law at the feed phases where a PDU end meets a pop (the ambiguity window is 5 cycles: a walk of 5 plus a guard of 0)
+  [i]    LAW: waited 4014 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T30 INTERNAL LAW +2066: over 137 steady PDU ends the first pop after the end is taken +2043..+2045 cycles from it and the pop nearest the boundary -41..-38 (walk 3); the least clearance is 38 cycles, at PDU 135 (offset -38), against the 5-cycle ambiguity window: margin 33
+  [i]    T30 INTERNAL LAW +2066: PDU ends per nearest-pop offset (offset:ends): -41:8 -40:75 -39:53 -38:1
+  [i]    T30 INTERNAL LAW +2066: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18711..18713 cycles = 8.981..8.982 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2066: 888 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2066: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2065: over 137 steady PDU ends the first pop after the end is taken +2044..+2046 cycles from it and the pop nearest the boundary -39..-37 (walk 2); the least clearance is 37 cycles, at PDU 75 (offset -37), against the 5-cycle ambiguity window: margin 32
+  [i]    T30 INTERNAL LAW +2065: PDU ends per nearest-pop offset (offset:ends): -39:25 -38:85 -37:27
+  [i]    T30 INTERNAL LAW +2065: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18712..18714 cycles = 8.982..8.983 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2065: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2065: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2064: over 137 steady PDU ends the first pop after the end is taken +2045..+2047 cycles from it and the pop nearest the boundary -39..-36 (walk 3); the least clearance is 36 cycles, at PDU 120 (offset -36), against the 5-cycle ambiguity window: margin 31
+  [i]    T30 INTERNAL LAW +2064: PDU ends per nearest-pop offset (offset:ends): -39:1 -38:54 -37:78 -36:4
+  [i]    T30 INTERNAL LAW +2064: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18713..18715 cycles = 8.982..8.983 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2064: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2064: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2063: over 137 steady PDU ends the first pop after the end is taken +2045..+2047 cycles from it and the pop nearest the boundary -38..-36 (walk 2); the least clearance is 36 cycles, at PDU 75 (offset -36), against the 5-cycle ambiguity window: margin 31
+  [i]    T30 INTERNAL LAW +2063: PDU ends per nearest-pop offset (offset:ends): -38:18 -37:92 -36:27
+  [i]    T30 INTERNAL LAW +2063: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18713..18715 cycles = 8.982..8.983 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2063: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2063: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2062: over 137 steady PDU ends the first pop after the end is taken +2047..+2049 cycles from it and the pop nearest the boundary -37..-35 (walk 2); the least clearance is 35 cycles, at PDU 30 (offset -35), against the 5-cycle ambiguity window: margin 30
+  [i]    T30 INTERNAL LAW +2062: PDU ends per nearest-pop offset (offset:ends): -37:1 -36:73 -35:63
+  [i]    T30 INTERNAL LAW +2062: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18715..18717 cycles = 8.983..8.984 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2062: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2062: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2061: over 137 steady PDU ends the first pop after the end is taken +2048..+2050 cycles from it and the pop nearest the boundary -35..-33 (walk 2); the least clearance is 33 cycles, at PDU 105 (offset -33), against the 5-cycle ambiguity window: margin 28
+  [i]    T30 INTERNAL LAW +2061: PDU ends per nearest-pop offset (offset:ends): -35:39 -34:93 -33:5
+  [i]    T30 INTERNAL LAW +2061: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18716..18718 cycles = 8.984..8.985 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2061: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2061: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2060: over 137 steady PDU ends the first pop after the end is taken +2048..+2050 cycles from it and the pop nearest the boundary -35..-33 (walk 2); the least clearance is 33 cycles, at PDU 90 (offset -33), against the 5-cycle ambiguity window: margin 28
+  [i]    T30 INTERNAL LAW +2060: PDU ends per nearest-pop offset (offset:ends): -35:18 -34:102 -33:17
+  [i]    T30 INTERNAL LAW +2060: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18716..18718 cycles = 8.984..8.985 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2060: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2060: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2059: over 137 steady PDU ends the first pop after the end is taken +2050..+2051 cycles from it and the pop nearest the boundary -34..-32 (walk 2); the least clearance is 32 cycles, at PDU 60 (offset -32), against the 5-cycle ambiguity window: margin 27
+  [i]    T30 INTERNAL LAW +2059: PDU ends per nearest-pop offset (offset:ends): -34:7 -33:100 -32:30
+  [i]    T30 INTERNAL LAW +2059: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18718..18719 cycles = 8.985..8.985 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2059: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2059: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2058: over 137 steady PDU ends the first pop after the end is taken +2051..+2053 cycles from it and the pop nearest the boundary -33..-31 (walk 2); the least clearance is 31 cycles, at PDU 45 (offset -31), against the 5-cycle ambiguity window: margin 26
+  [i]    T30 INTERNAL LAW +2058: PDU ends per nearest-pop offset (offset:ends): -33:3 -32:96 -31:38
+  [i]    T30 INTERNAL LAW +2058: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18719..18720 cycles = 8.985..8.986 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2058: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2058: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2057: over 137 steady PDU ends the first pop after the end is taken +2052..+2054 cycles from it and the pop nearest the boundary -32..-30 (walk 2); the least clearance is 30 cycles, at PDU 30 (offset -30), against the 5-cycle ambiguity window: margin 25
+  [i]    T30 INTERNAL LAW +2057: PDU ends per nearest-pop offset (offset:ends): -32:1 -31:94 -30:42
+  [i]    T30 INTERNAL LAW +2057: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18720..18721 cycles = 8.986..8.986 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2057: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2057: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2056: over 137 steady PDU ends the first pop after the end is taken +2053..+2054 cycles from it and the pop nearest the boundary -31..-29 (walk 2); the least clearance is 29 cycles, at PDU 45 (offset -29), against the 5-cycle ambiguity window: margin 24
+  [i]    T30 INTERNAL LAW +2056: PDU ends per nearest-pop offset (offset:ends): -31:1 -30:98 -29:38
+  [i]    T30 INTERNAL LAW +2056: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18721..18722 cycles = 8.986..8.987 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2056: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2056: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2055: over 137 steady PDU ends the first pop after the end is taken +2054..+2055 cycles from it and the pop nearest the boundary -30..-28 (walk 2); the least clearance is 28 cycles, at PDU 45 (offset -28), against the 5-cycle ambiguity window: margin 23
+  [i]    T30 INTERNAL LAW +2055: PDU ends per nearest-pop offset (offset:ends): -30:3 -29:106 -28:28
+  [i]    T30 INTERNAL LAW +2055: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18722..18723 cycles = 8.987..8.987 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2055: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2055: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2054: over 137 steady PDU ends the first pop after the end is taken +2055..+2056 cycles from it and the pop nearest the boundary -29..-27 (walk 2); the least clearance is 27 cycles, at PDU 75 (offset -27), against the 5-cycle ambiguity window: margin 22
+  [i]    T30 INTERNAL LAW +2054: PDU ends per nearest-pop offset (offset:ends): -29:8 -28:114 -27:15
+  [i]    T30 INTERNAL LAW +2054: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18723..18724 cycles = 8.987..8.988 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2054: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2054: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2053: over 137 steady PDU ends the first pop after the end is taken +2055..+2057 cycles from it and the pop nearest the boundary -28..-26 (walk 2); the least clearance is 26 cycles, at PDU 120 (offset -26), against the 5-cycle ambiguity window: margin 21
+  [i]    T30 INTERNAL LAW +2053: PDU ends per nearest-pop offset (offset:ends): -28:22 -27:112 -26:3
+  [i]    T30 INTERNAL LAW +2053: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18723..18725 cycles = 8.987..8.988 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2053: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2053: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2052: over 137 steady PDU ends the first pop after the end is taken +2057..+2059 cycles from it and the pop nearest the boundary -26..-25 (walk 1); the least clearance is 25 cycles, at PDU 6 (offset -25), against the 5-cycle ambiguity window: margin 20
+  [i]    T30 INTERNAL LAW +2052: PDU ends per nearest-pop offset (offset:ends): -26:52 -25:85
+  [i]    T30 INTERNAL LAW +2052: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18725..18727 cycles = 8.988..8.989 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2052: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2052: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2051: over 137 steady PDU ends the first pop after the end is taken +2058..+2059 cycles from it and the pop nearest the boundary -25..-24 (walk 1); the least clearance is 24 cycles, at PDU 15 (offset -24), against the 5-cycle ambiguity window: margin 19
+  [i]    T30 INTERNAL LAW +2051: PDU ends per nearest-pop offset (offset:ends): -25:90 -24:47
+  [i]    T30 INTERNAL LAW +2051: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18726..18727 cycles = 8.988..8.989 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2051: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2051: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2050: over 137 steady PDU ends the first pop after the end is taken +2059..+2060 cycles from it and the pop nearest the boundary -25..-23 (walk 2); the least clearance is 23 cycles, at PDU 75 (offset -23), against the 5-cycle ambiguity window: margin 18
+  [i]    T30 INTERNAL LAW +2050: PDU ends per nearest-pop offset (offset:ends): -25:7 -24:119 -23:11
+  [i]    T30 INTERNAL LAW +2050: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18727..18728 cycles = 8.989..8.989 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2050: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2050: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2049: over 137 steady PDU ends the first pop after the end is taken +2059..+2061 cycles from it and the pop nearest the boundary -24..-23 (walk 1); the least clearance is 23 cycles, at PDU 5 (offset -23), against the 5-cycle ambiguity window: margin 18
+  [i]    T30 INTERNAL LAW +2049: PDU ends per nearest-pop offset (offset:ends): -24:45 -23:92
+  [i]    T30 INTERNAL LAW +2049: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18727..18729 cycles = 8.989..8.990 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2049: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2049: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2048: over 137 steady PDU ends the first pop after the end is taken +2061..+2062 cycles from it and the pop nearest the boundary -22..-21 (walk 1); the least clearance is 21 cycles, at PDU 15 (offset -21), against the 5-cycle ambiguity window: margin 16
+  [i]    T30 INTERNAL LAW +2048: PDU ends per nearest-pop offset (offset:ends): -22:101 -21:36
+  [i]    T30 INTERNAL LAW +2048: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18729..18730 cycles = 8.990..8.990 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2048: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2048: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2047: over 137 steady PDU ends the first pop after the end is taken +2062..+2063 cycles from it and the pop nearest the boundary -22..-20 (walk 2); the least clearance is 20 cycles, at PDU 135 (offset -20), against the 5-cycle ambiguity window: margin 15
+  [i]    T30 INTERNAL LAW +2047: PDU ends per nearest-pop offset (offset:ends): -22:22 -21:114 -20:1
+  [i]    T30 INTERNAL LAW +2047: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18729..18731 cycles = 8.990..8.991 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2047: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2047: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2046: over 137 steady PDU ends the first pop after the end is taken +2063..+2064 cycles from it and the pop nearest the boundary -20..-19 (walk 1); the least clearance is 19 cycles, at PDU 7 (offset -19), against the 5-cycle ambiguity window: margin 14
+  [i]    T30 INTERNAL LAW +2046: PDU ends per nearest-pop offset (offset:ends): -20:86 -19:51
+  [i]    T30 INTERNAL LAW +2046: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18731..18732 cycles = 8.991..8.991 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2046: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2046: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2045: over 137 steady PDU ends the first pop after the end is taken +2064..+2065 cycles from it and the pop nearest the boundary -20..-18 (walk 2); the least clearance is 18 cycles, at PDU 135 (offset -18), against the 5-cycle ambiguity window: margin 13
+  [i]    T30 INTERNAL LAW +2045: PDU ends per nearest-pop offset (offset:ends): -20:15 -19:121 -18:1
+  [i]    T30 INTERNAL LAW +2045: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18731..18733 cycles = 8.991..8.992 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2045: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2045: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2044: over 137 steady PDU ends the first pop after the end is taken +2065..+2066 cycles from it and the pop nearest the boundary -18..-17 (walk 1); the least clearance is 17 cycles, at PDU 7 (offset -17), against the 5-cycle ambiguity window: margin 12
+  [i]    T30 INTERNAL LAW +2044: PDU ends per nearest-pop offset (offset:ends): -18:87 -17:50
+  [i]    T30 INTERNAL LAW +2044: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18733..18734 cycles = 8.992..8.992 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2044: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2044: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2043: over 137 steady PDU ends the first pop after the end is taken +2066..+2067 cycles from it and the pop nearest the boundary -18..-17 (walk 1); the least clearance is 17 cycles, at PDU 3 (offset -17), against the 5-cycle ambiguity window: margin 12
+  [i]    T30 INTERNAL LAW +2043: PDU ends per nearest-pop offset (offset:ends): -18:25 -17:112
+  [i]    T30 INTERNAL LAW +2043: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18733..18735 cycles = 8.992..8.993 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2043: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2043: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2042: over 137 steady PDU ends the first pop after the end is taken +2067..+2068 cycles from it and the pop nearest the boundary -16..-15 (walk 1); the least clearance is 15 cycles, at PDU 7 (offset -15), against the 5-cycle ambiguity window: margin 10
+  [i]    T30 INTERNAL LAW +2042: PDU ends per nearest-pop offset (offset:ends): -16:104 -15:33
+  [i]    T30 INTERNAL LAW +2042: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18735..18736 cycles = 8.993..8.993 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2042: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2042: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2041: over 137 steady PDU ends the first pop after the end is taken +2067..+2069 cycles from it and the pop nearest the boundary -16..-15 (walk 1); the least clearance is 15 cycles, at PDU 4 (offset -15), against the 5-cycle ambiguity window: margin 10
+  [i]    T30 INTERNAL LAW +2041: PDU ends per nearest-pop offset (offset:ends): -16:48 -15:89
+  [i]    T30 INTERNAL LAW +2041: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18735..18736 cycles = 8.993..8.993 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2041: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2041: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2040: over 137 steady PDU ends the first pop after the end is taken +2069..+2070 cycles from it and the pop nearest the boundary -15..-13 (walk 2); the least clearance is 13 cycles, at PDU 75 (offset -13), against the 5-cycle ambiguity window: margin 8
+  [i]    T30 INTERNAL LAW +2040: PDU ends per nearest-pop offset (offset:ends): -15:3 -14:127 -13:7
+  [i]    T30 INTERNAL LAW +2040: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18737..18738 cycles = 8.994..8.994 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2040: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2040: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2039: over 137 steady PDU ends the first pop after the end is taken +2070..+2071 cycles from it and the pop nearest the boundary -13..-12 (walk 1); the least clearance is 12 cycles, at PDU 6 (offset -12), against the 5-cycle ambiguity window: margin 7
+  [i]    T30 INTERNAL LAW +2039: PDU ends per nearest-pop offset (offset:ends): -13:84 -12:53
+  [i]    T30 INTERNAL LAW +2039: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18738..18739 cycles = 8.994..8.995 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2039: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2039: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2038: over 137 steady PDU ends the first pop after the end is taken +2071..+2072 cycles from it and the pop nearest the boundary -13..-12 (walk 1); the least clearance is 12 cycles, at PDU 4 (offset -12), against the 5-cycle ambiguity window: margin 7
+  [i]    T30 INTERNAL LAW +2038: PDU ends per nearest-pop offset (offset:ends): -13:36 -12:101
+  [i]    T30 INTERNAL LAW +2038: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18738..18739 cycles = 8.994..8.995 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2038: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2038: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2037: over 137 steady PDU ends the first pop after the end is taken +2072..+2073 cycles from it and the pop nearest the boundary -12..-10 (walk 2); the least clearance is 10 cycles, at PDU 60 (offset -10), against the 5-cycle ambiguity window: margin 5
+  [i]    T30 INTERNAL LAW +2037: PDU ends per nearest-pop offset (offset:ends): -12:1 -11:128 -10:8
+  [i]    T30 INTERNAL LAW +2037: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18740..18741 cycles = 8.995..8.996 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2037: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2037: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2036: over 137 steady PDU ends the first pop after the end is taken +2073..+2074 cycles from it and the pop nearest the boundary -10..-9 (walk 1); the least clearance is 9 cycles, at PDU 6 (offset -9), against the 5-cycle ambiguity window: margin 4
+  [i]    T30 INTERNAL LAW +2036: PDU ends per nearest-pop offset (offset:ends): -10:90 -9:47
+  [i]    T30 INTERNAL LAW +2036: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18741..18742 cycles = 8.996..8.996 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2036: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2036: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2035: over 137 steady PDU ends the first pop after the end is taken +2073..+2075 cycles from it and the pop nearest the boundary -10..-9 (walk 1); the least clearance is 9 cycles, at PDU 4 (offset -9), against the 5-cycle ambiguity window: margin 4
+  [i]    T30 INTERNAL LAW +2035: PDU ends per nearest-pop offset (offset:ends): -10:49 -9:88
+  [i]    T30 INTERNAL LAW +2035: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18741..18742 cycles = 8.996..8.996 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2035: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2035: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2034: over 137 steady PDU ends the first pop after the end is taken +2075..+2076 cycles from it and the pop nearest the boundary -9..-8 (walk 1); the least clearance is 8 cycles, at PDU 3 (offset -8), against the 5-cycle ambiguity window: margin 3
+  [i]    T30 INTERNAL LAW +2034: PDU ends per nearest-pop offset (offset:ends): -9:10 -8:127
+  [i]    T30 INTERNAL LAW +2034: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18743..18744 cycles = 8.997..8.997 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2034: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2034: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2033: over 137 steady PDU ends the first pop after the end is taken +2076..+2077 cycles from it and the pop nearest the boundary -7..-6 (walk 1); the least clearance is 6 cycles, at PDU 7 (offset -6), against the 5-cycle ambiguity window: margin 1
+  [i]    T30 INTERNAL LAW +2033: PDU ends per nearest-pop offset (offset:ends): -7:113 -6:24
+  [i]    T30 INTERNAL LAW +2033: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18744..18745 cycles = 8.997..8.998 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2033: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2033: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2032: over 137 steady PDU ends the first pop after the end is taken +2077..+2078 cycles from it and the pop nearest the boundary -6..-5 (walk 1); the least clearance is 5 cycles, at PDU 6 (offset -5), against the 5-cycle ambiguity window: margin 0
+  [i]    T30 INTERNAL LAW +2032: PDU ends per nearest-pop offset (offset:ends): -6:80 -5:57
+  [NOT GRADABLE] T30 INTERNAL LAW +2032: PDU 6's end has a pop taken -5 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2032: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2032: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2031: over 137 steady PDU ends the first pop after the end is taken +2077..+2079 cycles from it and the pop nearest the boundary -6..-5 (walk 1); the least clearance is 5 cycles, at PDU 4 (offset -5), against the 5-cycle ambiguity window: margin 0
+  [i]    T30 INTERNAL LAW +2031: PDU ends per nearest-pop offset (offset:ends): -6:48 -5:89
+  [NOT GRADABLE] T30 INTERNAL LAW +2031: PDU 4's end has a pop taken -5 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2031: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2031: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2030: over 137 steady PDU ends the first pop after the end is taken +2079..+2080 cycles from it and the pop nearest the boundary -5..-4 (walk 1); the least clearance is 4 cycles, at PDU 3 (offset -4), against the 5-cycle ambiguity window: margin -1
+  [i]    T30 INTERNAL LAW +2030: PDU ends per nearest-pop offset (offset:ends): -5:18 -4:119
+  [NOT GRADABLE] T30 INTERNAL LAW +2030: PDU 3's end has a pop taken -4 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2030: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2030: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2029: over 137 steady PDU ends the first pop after the end is taken +2080..+2081 cycles from it and the pop nearest the boundary -3..-2 (walk 1); the least clearance is 2 cycles, at PDU 15 (offset -2), against the 5-cycle ambiguity window: margin -3
+  [i]    T30 INTERNAL LAW +2029: PDU ends per nearest-pop offset (offset:ends): -3:124 -2:13
+  [NOT GRADABLE] T30 INTERNAL LAW +2029: PDU 15's end has a pop taken -2 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2029: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2029: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2028: over 137 steady PDU ends the first pop after the end is taken +2081..+2082 cycles from it and the pop nearest the boundary -2..-1 (walk 1); the least clearance is 1 cycles, at PDU 6 (offset -1), against the 5-cycle ambiguity window: margin -4
+  [i]    T30 INTERNAL LAW +2028: PDU ends per nearest-pop offset (offset:ends): -2:98 -1:39
+  [NOT GRADABLE] T30 INTERNAL LAW +2028: PDU 6's end has a pop taken -1 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2028: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2028: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2027: over 137 steady PDU ends the first pop after the end is taken +2081..+2082 cycles from it and the pop nearest the boundary -2..-1 (walk 1); the least clearance is 1 cycles, at PDU 5 (offset -1), against the 5-cycle ambiguity window: margin -4
+  [i]    T30 INTERNAL LAW +2027: PDU ends per nearest-pop offset (offset:ends): -2:70 -1:67
+  [NOT GRADABLE] T30 INTERNAL LAW +2027: PDU 5's end has a pop taken -1 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2027: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2027: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2026: over 137 steady PDU ends the first pop after the end is taken +2083..+2084 cycles from it and the pop nearest the boundary -1..+0 (walk 1); the least clearance is 0 cycles, at PDU 4 (offset +0), against the 5-cycle ambiguity window: margin -5
+  [i]    T30 INTERNAL LAW +2026: PDU ends per nearest-pop offset (offset:ends): -1:49 0:88
+  [NOT GRADABLE] T30 INTERNAL LAW +2026: PDU 4's end has a pop taken +0 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2026: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2026: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2025: over 137 steady PDU ends the first pop after the end is taken +1..+2084 cycles from it and the pop nearest the boundary +0..+1 (walk 1); the least clearance is 0 cycles, at PDU 2 (offset +1), against the 5-cycle ambiguity window: margin -5
+  [i]    T30 INTERNAL LAW +2025: PDU ends per nearest-pop offset (offset:ends): 0:22 1:115
+  [NOT GRADABLE] T30 INTERNAL LAW +2025: PDU 2's end has a pop taken +1 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2025: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2025: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2024: over 137 steady PDU ends the first pop after the end is taken +1..+2 cycles from it and the pop nearest the boundary +1..+2 (walk 1); the least clearance is 0 cycles, at PDU 8 (offset +1), against the 5-cycle ambiguity window: margin -5
+  [i]    T30 INTERNAL LAW +2024: PDU ends per nearest-pop offset (offset:ends): 1:3 2:134
+  [NOT GRADABLE] T30 INTERNAL LAW +2024: PDU 8's end has a pop taken +1 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2024: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2024: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2023: over 137 steady PDU ends the first pop after the end is taken +3..+4 cycles from it and the pop nearest the boundary +3..+4 (walk 1); the least clearance is 2 cycles, at PDU 2 (offset +3), against the 5-cycle ambiguity window: margin -3
+  [i]    T30 INTERNAL LAW +2023: PDU ends per nearest-pop offset (offset:ends): 3:116 4:21
+  [NOT GRADABLE] T30 INTERNAL LAW +2023: PDU 2's end has a pop taken +3 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2023: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2023: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2022: over 137 steady PDU ends the first pop after the end is taken +4..+5 cycles from it and the pop nearest the boundary +4..+5 (walk 1); the least clearance is 3 cycles, at PDU 2 (offset +4), against the 5-cycle ambiguity window: margin -2
+  [i]    T30 INTERNAL LAW +2022: PDU ends per nearest-pop offset (offset:ends): 4:101 5:36
+  [NOT GRADABLE] T30 INTERNAL LAW +2022: PDU 2's end has a pop taken +4 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2022: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2022: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2021: over 137 steady PDU ends the first pop after the end is taken +5..+6 cycles from it and the pop nearest the boundary +5..+6 (walk 1); the least clearance is 4 cycles, at PDU 2 (offset +5), against the 5-cycle ambiguity window: margin -1
+  [i]    T30 INTERNAL LAW +2021: PDU ends per nearest-pop offset (offset:ends): 5:79 6:58
+  [NOT GRADABLE] T30 INTERNAL LAW +2021: PDU 2's end has a pop taken +5 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2021: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2021: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2020: over 137 steady PDU ends the first pop after the end is taken +5..+6 cycles from it and the pop nearest the boundary +5..+6 (walk 1); the least clearance is 4 cycles, at PDU 2 (offset +5), against the 5-cycle ambiguity window: margin -1
+  [i]    T30 INTERNAL LAW +2020: PDU ends per nearest-pop offset (offset:ends): 5:55 6:82
+  [NOT GRADABLE] T30 INTERNAL LAW +2020: PDU 2's end has a pop taken +5 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2020: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2020: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2019: over 137 steady PDU ends the first pop after the end is taken +6..+7 cycles from it and the pop nearest the boundary +6..+7 (walk 1); the least clearance is 5 cycles, at PDU 2 (offset +6), against the 5-cycle ambiguity window: margin 0
+  [i]    T30 INTERNAL LAW +2019: PDU ends per nearest-pop offset (offset:ends): 6:36 7:101
+  [NOT GRADABLE] T30 INTERNAL LAW +2019: PDU 2's end has a pop taken +6 cycles from it, inside the 5-cycle ambiguity window; the law is neither passed nor failed here
+  [i]    T30 INTERNAL LAW +2019: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2019: NOT GRADABLE, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2018: over 137 steady PDU ends the first pop after the end is taken +7..+8 cycles from it and the pop nearest the boundary +7..+8 (walk 1); the least clearance is 6 cycles, at PDU 8 (offset +7), against the 5-cycle ambiguity window: margin 1
+  [i]    T30 INTERNAL LAW +2018: PDU ends per nearest-pop offset (offset:ends): 7:24 8:113
+  [i]    T30 INTERNAL LAW +2018: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16675..16676 cycles = 8.004..8.004 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2018: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2018: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2017: over 137 steady PDU ends the first pop after the end is taken +8..+9 cycles from it and the pop nearest the boundary +8..+9 (walk 1); the least clearance is 7 cycles, at PDU 8 (offset +8), against the 5-cycle ambiguity window: margin 2
+  [i]    T30 INTERNAL LAW +2017: PDU ends per nearest-pop offset (offset:ends): 8:3 9:134
+  [i]    T30 INTERNAL LAW +2017: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16676..16677 cycles = 8.004..8.005 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2017: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2017: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2016: over 137 steady PDU ends the first pop after the end is taken +10..+11 cycles from it and the pop nearest the boundary +10..+11 (walk 1); the least clearance is 9 cycles, at PDU 2 (offset +10), against the 5-cycle ambiguity window: margin 4
+  [i]    T30 INTERNAL LAW +2016: PDU ends per nearest-pop offset (offset:ends): 10:128 11:9
+  [i]    T30 INTERNAL LAW +2016: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16677..16678 cycles = 8.005..8.005 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2016: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2016: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2015: over 137 steady PDU ends the first pop after the end is taken +11..+12 cycles from it and the pop nearest the boundary +11..+12 (walk 1); the least clearance is 10 cycles, at PDU 2 (offset +11), against the 5-cycle ambiguity window: margin 5
+  [i]    T30 INTERNAL LAW +2015: PDU ends per nearest-pop offset (offset:ends): 11:119 12:18
+  [i]    T30 INTERNAL LAW +2015: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16679..16679 cycles = 8.006..8.006 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2015: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2015: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2014: over 137 steady PDU ends the first pop after the end is taken +12..+13 cycles from it and the pop nearest the boundary +12..+13 (walk 1); the least clearance is 11 cycles, at PDU 2 (offset +12), against the 5-cycle ambiguity window: margin 6
+  [i]    T30 INTERNAL LAW +2014: PDU ends per nearest-pop offset (offset:ends): 12:101 13:36
+  [i]    T30 INTERNAL LAW +2014: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16680..16681 cycles = 8.006..8.007 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2014: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2014: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2013: over 137 steady PDU ends the first pop after the end is taken +13..+14 cycles from it and the pop nearest the boundary +13..+14 (walk 1); the least clearance is 12 cycles, at PDU 2 (offset +13), against the 5-cycle ambiguity window: margin 7
+  [i]    T30 INTERNAL LAW +2013: PDU ends per nearest-pop offset (offset:ends): 13:83 14:54
+  [i]    T30 INTERNAL LAW +2013: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16681..16682 cycles = 8.007..8.007 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2013: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2013: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2012: over 137 steady PDU ends the first pop after the end is taken +13..+14 cycles from it and the pop nearest the boundary +13..+14 (walk 1); the least clearance is 12 cycles, at PDU 2 (offset +13), against the 5-cycle ambiguity window: margin 7
+  [i]    T30 INTERNAL LAW +2012: PDU ends per nearest-pop offset (offset:ends): 13:74 14:63
+  [i]    T30 INTERNAL LAW +2012: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16681..16682 cycles = 8.007..8.007 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2012: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2012: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2011: over 137 steady PDU ends the first pop after the end is taken +14..+15 cycles from it and the pop nearest the boundary +14..+15 (walk 1); the least clearance is 13 cycles, at PDU 2 (offset +14), against the 5-cycle ambiguity window: margin 8
+  [i]    T30 INTERNAL LAW +2011: PDU ends per nearest-pop offset (offset:ends): 14:58 15:79
+  [i]    T30 INTERNAL LAW +2011: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16682..16683 cycles = 8.007..8.008 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2011: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2011: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2010: over 137 steady PDU ends the first pop after the end is taken +15..+16 cycles from it and the pop nearest the boundary +15..+16 (walk 1); the least clearance is 14 cycles, at PDU 2 (offset +15), against the 5-cycle ambiguity window: margin 9
+  [i]    T30 INTERNAL LAW +2010: PDU ends per nearest-pop offset (offset:ends): 15:51 16:86
+  [i]    T30 INTERNAL LAW +2010: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16683..16684 cycles = 8.008..8.008 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2010: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2010: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2009: over 137 steady PDU ends the first pop after the end is taken +16..+17 cycles from it and the pop nearest the boundary +16..+17 (walk 1); the least clearance is 15 cycles, at PDU 2 (offset +16), against the 5-cycle ambiguity window: margin 10
+  [i]    T30 INTERNAL LAW +2009: PDU ends per nearest-pop offset (offset:ends): 16:37 17:100
+  [i]    T30 INTERNAL LAW +2009: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16684..16685 cycles = 8.008..8.009 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2009: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2009: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2008: over 137 steady PDU ends the first pop after the end is taken +17..+18 cycles from it and the pop nearest the boundary +17..+18 (walk 1); the least clearance is 16 cycles, at PDU 8 (offset +17), against the 5-cycle ambiguity window: margin 11
+  [i]    T30 INTERNAL LAW +2008: PDU ends per nearest-pop offset (offset:ends): 17:19 18:118
+  [i]    T30 INTERNAL LAW +2008: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16685..16686 cycles = 8.009..8.009 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2008: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2008: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2007: over 137 steady PDU ends the first pop after the end is taken +18..+19 cycles from it and the pop nearest the boundary +18..+19 (walk 1); the least clearance is 17 cycles, at PDU 8 (offset +18), against the 5-cycle ambiguity window: margin 12
+  [i]    T30 INTERNAL LAW +2007: PDU ends per nearest-pop offset (offset:ends): 18:9 19:128
+  [i]    T30 INTERNAL LAW +2007: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16686..16687 cycles = 8.009..8.010 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2007: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2007: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2006: over 137 steady PDU ends the first pop after the end is taken +20..+20 cycles from it and the pop nearest the boundary +20..+20 (walk 0); the least clearance is 19 cycles, at PDU 2 (offset +20), against the 5-cycle ambiguity window: margin 14
+  [i]    T30 INTERNAL LAW +2006: PDU ends per nearest-pop offset (offset:ends): 20:137
+  [i]    T30 INTERNAL LAW +2006: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16687..16688 cycles = 8.010..8.010 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2006: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2006: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2005: over 137 steady PDU ends the first pop after the end is taken +21..+22 cycles from it and the pop nearest the boundary +21..+22 (walk 1); the least clearance is 20 cycles, at PDU 2 (offset +21), against the 5-cycle ambiguity window: margin 15
+  [i]    T30 INTERNAL LAW +2005: PDU ends per nearest-pop offset (offset:ends): 21:128 22:9
+  [i]    T30 INTERNAL LAW +2005: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16688..16689 cycles = 8.010..8.011 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2005: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2005: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2004: over 137 steady PDU ends the first pop after the end is taken +22..+23 cycles from it and the pop nearest the boundary +22..+23 (walk 1); the least clearance is 21 cycles, at PDU 2 (offset +22), against the 5-cycle ambiguity window: margin 16
+  [i]    T30 INTERNAL LAW +2004: PDU ends per nearest-pop offset (offset:ends): 22:119 23:18
+  [i]    T30 INTERNAL LAW +2004: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16689..16690 cycles = 8.011..8.011 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2004: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2004: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2003: over 137 steady PDU ends the first pop after the end is taken +23..+24 cycles from it and the pop nearest the boundary +23..+24 (walk 1); the least clearance is 22 cycles, at PDU 2 (offset +23), against the 5-cycle ambiguity window: margin 17
+  [i]    T30 INTERNAL LAW +2003: PDU ends per nearest-pop offset (offset:ends): 23:116 24:21
+  [i]    T30 INTERNAL LAW +2003: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16691..16691 cycles = 8.012..8.012 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2003: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2003: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2002: over 137 steady PDU ends the first pop after the end is taken +24..+25 cycles from it and the pop nearest the boundary +24..+25 (walk 1); the least clearance is 23 cycles, at PDU 2 (offset +24), against the 5-cycle ambiguity window: margin 18
+  [i]    T30 INTERNAL LAW +2002: PDU ends per nearest-pop offset (offset:ends): 24:108 25:29
+  [i]    T30 INTERNAL LAW +2002: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16692..16693 cycles = 8.012..8.013 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2002: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2002: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2001: over 137 steady PDU ends the first pop after the end is taken +25..+26 cycles from it and the pop nearest the boundary +25..+26 (walk 1); the least clearance is 24 cycles, at PDU 2 (offset +25), against the 5-cycle ambiguity window: margin 19
+  [i]    T30 INTERNAL LAW +2001: PDU ends per nearest-pop offset (offset:ends): 25:91 26:46
+  [i]    T30 INTERNAL LAW +2001: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16693..16694 cycles = 8.013..8.013 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2001: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2001: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +2000: over 137 steady PDU ends the first pop after the end is taken +25..+26 cycles from it and the pop nearest the boundary +25..+26 (walk 1); the least clearance is 24 cycles, at PDU 2 (offset +25), against the 5-cycle ambiguity window: margin 19
+  [i]    T30 INTERNAL LAW +2000: PDU ends per nearest-pop offset (offset:ends): 25:74 26:63
+  [i]    T30 INTERNAL LAW +2000: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16693..16694 cycles = 8.013..8.013 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +2000: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +2000: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1999: over 137 steady PDU ends the first pop after the end is taken +26..+27 cycles from it and the pop nearest the boundary +26..+27 (walk 1); the least clearance is 25 cycles, at PDU 2 (offset +26), against the 5-cycle ambiguity window: margin 20
+  [i]    T30 INTERNAL LAW +1999: PDU ends per nearest-pop offset (offset:ends): 26:64 27:73
+  [i]    T30 INTERNAL LAW +1999: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16694..16695 cycles = 8.013..8.014 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1999: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1999: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1998: over 137 steady PDU ends the first pop after the end is taken +27..+28 cycles from it and the pop nearest the boundary +27..+28 (walk 1); the least clearance is 26 cycles, at PDU 2 (offset +27), against the 5-cycle ambiguity window: margin 21
+  [i]    T30 INTERNAL LAW +1998: PDU ends per nearest-pop offset (offset:ends): 27:55 28:82
+  [i]    T30 INTERNAL LAW +1998: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16695..16696 cycles = 8.014..8.014 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1998: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1998: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1997: over 137 steady PDU ends the first pop after the end is taken +28..+29 cycles from it and the pop nearest the boundary +28..+29 (walk 1); the least clearance is 27 cycles, at PDU 2 (offset +28), against the 5-cycle ambiguity window: margin 22
+  [i]    T30 INTERNAL LAW +1997: PDU ends per nearest-pop offset (offset:ends): 28:45 29:92
+  [i]    T30 INTERNAL LAW +1997: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16696..16697 cycles = 8.014..8.015 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1997: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1997: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1996: over 137 steady PDU ends the first pop after the end is taken +29..+30 cycles from it and the pop nearest the boundary +29..+30 (walk 1); the least clearance is 28 cycles, at PDU 2 (offset +29), against the 5-cycle ambiguity window: margin 23
+  [i]    T30 INTERNAL LAW +1996: PDU ends per nearest-pop offset (offset:ends): 29:39 30:98
+  [i]    T30 INTERNAL LAW +1996: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16697..16698 cycles = 8.015..8.015 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1996: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1996: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1995: over 137 steady PDU ends the first pop after the end is taken +30..+31 cycles from it and the pop nearest the boundary +30..+31 (walk 1); the least clearance is 29 cycles, at PDU 8 (offset +30), against the 5-cycle ambiguity window: margin 24
+  [i]    T30 INTERNAL LAW +1995: PDU ends per nearest-pop offset (offset:ends): 30:35 31:102
+  [i]    T30 INTERNAL LAW +1995: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16698..16699 cycles = 8.015..8.016 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1995: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1995: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1994: over 137 steady PDU ends the first pop after the end is taken +31..+32 cycles from it and the pop nearest the boundary +31..+32 (walk 1); the least clearance is 30 cycles, at PDU 8 (offset +31), against the 5-cycle ambiguity window: margin 25
+  [i]    T30 INTERNAL LAW +1994: PDU ends per nearest-pop offset (offset:ends): 31:27 32:110
+  [i]    T30 INTERNAL LAW +1994: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16699..16700 cycles = 8.016..8.016 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1994: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1994: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1993: over 137 steady PDU ends the first pop after the end is taken +32..+33 cycles from it and the pop nearest the boundary +32..+33 (walk 1); the least clearance is 31 cycles, at PDU 8 (offset +32), against the 5-cycle ambiguity window: margin 26
+  [i]    T30 INTERNAL LAW +1993: PDU ends per nearest-pop offset (offset:ends): 32:22 33:115
+  [i]    T30 INTERNAL LAW +1993: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16700..16701 cycles = 8.016..8.016 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1993: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1993: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1992: over 137 steady PDU ends the first pop after the end is taken +33..+34 cycles from it and the pop nearest the boundary +33..+34 (walk 1); the least clearance is 32 cycles, at PDU 8 (offset +33), against the 5-cycle ambiguity window: margin 27
+  [i]    T30 INTERNAL LAW +1992: PDU ends per nearest-pop offset (offset:ends): 33:18 34:119
+  [i]    T30 INTERNAL LAW +1992: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16701..16702 cycles = 8.016..8.017 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1992: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1992: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1991: over 137 steady PDU ends the first pop after the end is taken +34..+35 cycles from it and the pop nearest the boundary +34..+35 (walk 1); the least clearance is 33 cycles, at PDU 8 (offset +34), against the 5-cycle ambiguity window: margin 28
+  [i]    T30 INTERNAL LAW +1991: PDU ends per nearest-pop offset (offset:ends): 34:11 35:126
+  [i]    T30 INTERNAL LAW +1991: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16702..16703 cycles = 8.017..8.017 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1991: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1991: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1990: over 137 steady PDU ends the first pop after the end is taken +35..+36 cycles from it and the pop nearest the boundary +35..+36 (walk 1); the least clearance is 34 cycles, at PDU 38 (offset +35), against the 5-cycle ambiguity window: margin 29
+  [i]    T30 INTERNAL LAW +1990: PDU ends per nearest-pop offset (offset:ends): 35:7 36:130
+  [i]    T30 INTERNAL LAW +1990: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16703..16704 cycles = 8.017..8.018 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1990: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1990: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1989: over 137 steady PDU ends the first pop after the end is taken +37..+37 cycles from it and the pop nearest the boundary +37..+37 (walk 0); the least clearance is 36 cycles, at PDU 2 (offset +37), against the 5-cycle ambiguity window: margin 31
+  [i]    T30 INTERNAL LAW +1989: PDU ends per nearest-pop offset (offset:ends): 37:137
+  [i]    T30 INTERNAL LAW +1989: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16704..16705 cycles = 8.018..8.018 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1989: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1989: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1988: over 137 steady PDU ends the first pop after the end is taken +38..+39 cycles from it and the pop nearest the boundary +38..+39 (walk 1); the least clearance is 37 cycles, at PDU 2 (offset +38), against the 5-cycle ambiguity window: margin 32
+  [i]    T30 INTERNAL LAW +1988: PDU ends per nearest-pop offset (offset:ends): 38:133 39:4
+  [i]    T30 INTERNAL LAW +1988: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16705..16706 cycles = 8.018..8.019 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1988: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1988: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1987: over 137 steady PDU ends the first pop after the end is taken +39..+40 cycles from it and the pop nearest the boundary +39..+40 (walk 1); the least clearance is 38 cycles, at PDU 2 (offset +39), against the 5-cycle ambiguity window: margin 33
+  [i]    T30 INTERNAL LAW +1987: PDU ends per nearest-pop offset (offset:ends): 39:119 40:18
+  [i]    T30 INTERNAL LAW +1987: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16707..16707 cycles = 8.019..8.019 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1987: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1987: graded PASS, 0 check(s) failed
+  [i]    T30 INTERNAL LAW +1986: over 137 steady PDU ends the first pop after the end is taken +40..+41 cycles from it and the pop nearest the boundary +40..+41 (walk 1); the least clearance is 39 cycles, at PDU 2 (offset +40), against the 5-cycle ambiguity window: margin 34
+  [i]    T30 INTERNAL LAW +1986: PDU ends per nearest-pop offset (offset:ends): 40:101 41:36
+  [i]    T30 INTERNAL LAW +1986: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16708..16709 cycles = 8.020..8.020 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1986: 889 media ticks in the phase, 0 of them outside the settle band
+  [BOUNDARY] +1986: graded PASS, 0 check(s) failed
+== tdm8_render: checks: 298   failures: 0 ==
+RESULT: PASS

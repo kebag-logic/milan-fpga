@@ -1,0 +1,7 @@
+hp2 crfhist full hp-crfhist-full
+c4b crfhist full c4-crfhist-full
+hp2 crfw1104 --crf-only hp-crfw1104-crf
+hp clean --crf-only hp-clean-crf
+pc4c clean --crf-only c4-clean-crf
+hp clean --law-boundary=975..995 hp-clean-lb-975up
+pc4c clean --law-boundary=975..995 c4-clean-lb-975up
