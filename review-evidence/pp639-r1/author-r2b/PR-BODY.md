@@ -5,8 +5,8 @@ Relates to milan-fpga#229
 
 The #639 area lane: levers 3 and 6 of epic milan-fpga#229, from the #234 baseline
 (milan-fpga PR #638) (assignment: milan-fpga #639 comment 5976100204). Branch
-`pp639-armq-lsnrec` from `main` `5c71928a`, with `main` merged twice as it moved
-(`83999eba`, then `c050d971`); eleven commits, head `2ff8183`. Round 2 (below) adds four:
+`pp639-armq-lsnrec` from `main` `5c71928a`, with `main` merged three times as it moved
+(`83999eba`, `c050d971`, then `07b1469d` by the manager); twelve commits, head `1cba30c9`. Round 2 (below) adds four:
 tests, their controls and docs, and one HDL comment.
 
 Two storage structures move into distributed RAM. No port, parameter or register changes,
