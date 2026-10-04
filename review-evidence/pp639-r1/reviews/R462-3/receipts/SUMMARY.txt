@@ -1,0 +1,16 @@
+R462-3 receipts summary, exact head c725be12d7ea6bf96f1b64e3a56416f0d4defd6c (tree 0bb7199a)
+
+head tb/pp_top make run (six builds)    rc 0  10435 checks: 10435 PASS, 0 FAIL
+  default 9947 (HZ 189; AQ 4/4), fixture 20, identify 178, line 231, timebase 56, defaults 3 (TD 3)
+  AQ traffic (full default run): 71290136 edges, 8280 arms, 0 onto a face holding one
+  AQ drive: 90172 edges, 88003 arms; onto 0..4: 18778 48239 3636 5594 12481;
+            352294 refused in 80719 drop clocks, 78930 multi-face, 4096 at 0xFFFF; 36 / 366
+head tb/acmp_listener                   rc 0  3111 checks: 3111 PASS, 0 FAIL
+main-RTL tb/acmp_listener (head bench)  rc 0  3111 checks: 3111 PASS, 0 FAIL   (RS passes on main)
+main-RTL pp_top --arm-queue-only        rc 0  AQ: 4 checks, 0 failures; traffic 71258305 edges,
+                                              8270 arms, 28, 4288, 0; drive line identical to head
+ACMP campaign (committed driver, jobs 6) rc 0 33 of 33 KILLED; goldens PASS (4);
+                                              every arm's failing count equals its README record
+Reviewer probes (8)                     rc 0  6 KILLED as predicted, 2 equivalents PASS as predicted
+Scoped lint (2 tops, pinned 5.050)      rc 0  LINT OK KL_pp_acmp_listener, protocol_processor_top
+Clone integrity                               HEAD, tree, index, bytes, modes = exact head; no gitlinks
