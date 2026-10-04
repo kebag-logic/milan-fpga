@@ -1,0 +1,9 @@
+OK   response_first grader= RESPONSE_FIRST decoder= RESPONSE_FIRST cmd_to_rsp_us= 7.5 rsp_to_push_us= 115.5 monotonic= True expected= ('RESPONSE_FIRST', 'RESPONSE_FIRST')
+OK   counters_first grader= COUNTERS_FIRST decoder= COUNTERS_FIRST cmd_to_rsp_us= 7.5 rsp_to_push_us= -4.5 monotonic= True expected= ('COUNTERS_FIRST', 'COUNTERS_FIRST')
+OK   push_before_cmd grader= NO_UNLOCK_PUSH decoder= NO_LINES cmd_to_rsp_us= 7.5 rsp_to_push_us= None monotonic= True expected= ('NO_UNLOCK_PUSH', 'NO_LINES')
+OK   other_index_first grader= RESPONSE_FIRST decoder= RESPONSE_FIRST cmd_to_rsp_us= 7.5 rsp_to_push_us= 115.5 monotonic= True expected= ('RESPONSE_FIRST', 'RESPONSE_FIRST')
+OK   unbind_other_input_first grader= COUNTERS_FIRST decoder= RESPONSE_FIRST cmd_to_rsp_us= 7.5 rsp_to_push_us= -4.5 monotonic= True expected= ('COUNTERS_FIRST', None)
+FAILS 0
+grader sha256 435ddc80daed242582f05ef095f34758b0a9152516bdd5fc0a0c7a9c627d22e9
+decoder sha256 144fce57549660363320c626d94ee3a2dc3131122fa9a2048b93dca7ebeea5cf
+rc=0

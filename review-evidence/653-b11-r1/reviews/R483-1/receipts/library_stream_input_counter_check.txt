@@ -1,0 +1,41 @@
+upstream tarball https://codeload.github.com/L-Acoustics/avdecc/tar.gz/refs/tags/v4.3.1.1
+76aec04c0d135dcb6cbaaba695c3e0e3b981bd53502cb307f76cd67ddf1ca8c7  avdecc-v4.3.1.1.tar.gz
+--- CMakeLists.txt:13
+set(LA_AVDECC_VERSION 4.3.1.1)
+--- src/controller/avdeccControllerImpl.cpp:1589-1622
+
+void ControllerImpl::updateStreamInputCounters(ControlledEntityImpl& controlledEntity, entity::model::StreamIndex const streamIndex, entity::StreamInputCounterValidFlags const validCounters, entity::model::DescriptorCounters const& counters, TreeModelAccessStrategy::NotFoundBehavior const notFoundBehavior) const noexcept
+{
+	AVDECC_ASSERT(_controller->isSelfLocked(), "Should only be called from the network thread (where ProtocolInterface is locked)");
+
+	// Get previous counters
+	auto* const streamCounters = controlledEntity.getStreamInputCounters(streamIndex, notFoundBehavior);
+	if (streamCounters)
+	{
+		// Update (or set) counters
+		for (auto counter : validCounters)
+		{
+			(*streamCounters)[counter] = counters[validCounters.getPosition(counter)];
+		}
+
+		// If Milan device, validate counters values
+		if (controlledEntity.getCompatibilityFlags().test(ControlledEntity::CompatibilityFlag::Milan))
+		{
+			// MediaUnlocked should either be equal to MediaLocked or be one more (Milan 1.3 Clause 5.3.8.10)
+			// We are safe to get those counters, check for their presence during first enumeration has already been done
+			auto const lockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaLocked];
+			auto const unlockedValue = (*streamCounters)[entity::StreamInputCounterValidFlag::MediaUnlocked];
+			if (lockedValue != unlockedValue && lockedValue != (unlockedValue + 1))
+			{
+				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKED / MEDIA_UNLOCKED counters value on STREAM_INPUT: " + std::to_string(streamIndex) + " (" + std::to_string(lockedValue) + " / " + std::to_string(unlockedValue) + ")");
+			}
+		}
+
+		// Entity was advertised to the user, notify observers
+		if (controlledEntity.wasAdvertised())
+		{
+			notifyObserversMethod<Controller::Observer>(&Controller::Observer::onStreamInputCountersChanged, this, &controlledEntity, streamIndex, *streamCounters);
+		}
+	}
+--- every STREAM_INPUT counter value check in src/ (grep 'counters value on STREAM_INPUT'):
+avdecc-4.3.1.1/src/controller/avdeccControllerImpl.cpp:1613:				removeCompatibilityFlag(this, controlledEntity, ControlledEntity::CompatibilityFlag::Milan, "Milan 1.3 - 5.3.8.10", "Invalid MEDIA_LOCKE
