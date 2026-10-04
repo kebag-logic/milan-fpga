@@ -1,0 +1,13 @@
+git diff --stat 4298ed2595d98ec98592bea4e05c4d1744663c34 4811c21d8fe29faa1e9e713a6622bb206189e74b -- hdl syn scripts docs (round 3):
+
+(end)
+KL_adp_engine.sv blob at base/r2/head:
+d59d1e93269806ddf79c0d682c0baa6a5c58aa71
+97076cafb636246e9182550a092c3174bdc0f990
+97076cafb636246e9182550a092c3174bdc0f990
+file modes of new patches:
+100644 blob 94982e769d33222aa3e5fc28094527b839ef9025	tb/adp_engine/mutations/arc-fresh-store-max.patch
+100644 blob 33682d0b6aea38c399b1e80e10d3dc20a9aa90fd	tb/adp_engine/mutations/arc-fresh-store-plus-one.patch
+arc-fresh-store-plus-one git apply --check: ok
+arc-fresh-store-max git apply --check: ok
+arc-fresh-no-store git apply --check: ok

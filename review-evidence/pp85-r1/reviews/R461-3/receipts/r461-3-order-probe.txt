@@ -1,0 +1,7 @@
+o0-upper-first-control: rc=0 1342 checks: 1342 PASS, 0 FAIL | TB: one above first, then its repeat, no second walk; head RTL
+o1-upper-first-q1: rc=2 1342 checks: 1338 PASS, 4 FAIL | same TB, RTL: q1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): the noted index is at most 701 (Milan 5.6.4.5.2 step 3): the cell walked again, an AVAILABLE at 702 is fresh, no event (no EVT_TK_DEPARTED), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+o3-upper-first-q3: rc=0 1342 checks: 1342 PASS, 0 FAIL | same TB, RTL: q3 (fresh branch notes only on a GM match)
