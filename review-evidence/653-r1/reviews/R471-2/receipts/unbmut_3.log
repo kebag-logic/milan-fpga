@@ -1,0 +1,4 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the CRF unbind keeps the lock, so the silence timeout counts the unlock again - breaks [UNB] CRF sink 1 U4 past the silence timeouts: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED; [UNB] CRF sink 1 U3 every push after the response reads MEDIA_LOCKED = MEDIA_UNLOCKED (its tallies report 2 failure(s) across 421 checks)
+
+2 checks: 2 PASS, 0 FAIL

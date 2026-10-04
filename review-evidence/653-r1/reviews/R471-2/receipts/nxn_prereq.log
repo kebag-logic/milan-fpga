@@ -1,0 +1,7 @@
+make: Entering directory '$REVIEWS/653-r471-2-packet/scratch/nxn/tb/verilator/milan_dp'
+make: 'ltn_rom.hex' is up to date.
+make: 'ucode.hex' is up to date.
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1008 real (98.4%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 SRTO@59 FUTO@13 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+make: Leaving directory '$REVIEWS/653-r471-2-packet/scratch/nxn/tb/verilator/milan_dp'
