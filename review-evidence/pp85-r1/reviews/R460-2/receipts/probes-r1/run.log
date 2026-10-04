@@ -1,0 +1,84 @@
+control: rc=0 1334 checks: 1334 PASS, 0 FAIL failures=0
+r1-shutdown-keeps-timer: rc=2 1334 checks: 1332 PASS, 2 FAIL failures=2
+  breaks: SHUTDOWN leaves the running T-ADP-ADV / T-ADP-DELAY armed
+  expected red: SHUTDOWN x WAITING / DELAY(timer armed): the running timer is stopped
+    FAIL: P13 F04.2 SHUTDOWN x WAITING: the running timer is stopped (a cancel)
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): the running timer is stopped (a cancel)
+r2-delay-linkdown-departs: rc=2 1334 checks: 1332 PASS, 2 FAIL failures=2
+  breaks: LINK_DOWN in DELAY queues an ENTITY_DEPARTING (Milan 5.6.3.5.10 says none)
+  expected red: LINK_DOWN x DELAY: 0 frames
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): 0 frames, got 1
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): available_index 3, got 0
+r3-delay-gm-change-redraws: rc=2 1334 checks: 1329 PASS, 5 FAIL failures=5
+  breaks: GM_CHANGE in DELAY restarts the delay (Table 5.51 '-')
+  expected red: GM_CHANGE x DELAY cells
+    FAIL: P5b DELAY ignores GM_CHANGE
+    FAIL: P13 F04.2 GM_CHANGE x DELAY(draw in flight): no cancel, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DELAY(timer armed): 0 draw requests, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DELAY(timer armed): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DELAY(timer armed): no cancel, got 1
+r4-departing-increments: rc=2 1334 checks: 1328 PASS, 6 FAIL failures=6
+  breaks: the reference platform's former rule: ENTITY_DEPARTING increments, no reset
+  expected red: SHUTDOWN x WAITING / both DELAY phases: available_index 0
+    FAIL: P7 index reset to 0 after DEPARTING
+    FAIL: P7 restart advert byte-exact with index 0
+    FAIL: P11e restart advert byte-exact at the image configuration
+    FAIL: P13 F04.2 SHUTDOWN x WAITING: available_index 0, got 66
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): available_index 0, got 68
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): available_index 0, got 70
+r5-noadp-expiry-keeps-state: rc=2 1334 checks: 1330 PASS, 4 FAIL failures=4
+  breaks: a T-ADP-NOADP expiry raises DEPARTED but leaves the sink TK_DISCOVERED
+  expected red: arc DISCOVERED -> NOT (T-ADP-NOADP expiry)
+    FAIL: P9i SM left TK_DISCOVERED
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2) (Milan 5.6.4.5.4; IEEE 6.2.6.4 TIMEOUT): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+r6-fresh-no-store: rc=2 1334 checks: 1330 PASS, 4 FAIL failures=4
+  breaks: a fresh index in TK_DISCOVERED is not noted (F04.8 arc 4 'note the index')
+  expected red: any check: does the walk or a directed phase grade the noted index?
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+r7-restart-no-store: rc=2 1334 checks: 1333 PASS, 1 FAIL failures=1
+  breaks: the restart pair does not note the new index (F04.8 arc 5 'note the index')
+  expected red: any check: does the walk or a directed phase grade the noted index?
+    FAIL: P9e2 restart stored the new index
+r8-discover-no-store: rc=2 1334 checks: 1324 PASS, 10 FAIL failures=10
+  breaks: TK_NOT_DISCOVERED to TK_DISCOVERED saves neither interface_index nor index
+  expected red: arc NOT -> DISCOVERED or a later cell
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+t1-table-expects-departing: rc=2 1334 checks: 1332 PASS, 2 FAIL failures=2
+  breaks: the table (not the RTL) is changed: DELAY(armed) x LINK_DOWN expects a DEPARTING
+  expected red: LINK_DOWN x DELAY(timer armed): 1 frames
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): 1 frames, got 0
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): available_index 0, got 3
+t2-walk-skips-a-cell: rc=2 1324 checks: 1323 PASS, 1 FAIL failures=1
+  breaks: the walk loop skips DELAY(armed) x SHUTDOWN
+  expected red: P13 MTXW walked 44 F04.2 cells (want 45
+    FAIL: P13 MTXW walked 44 F04.2 cells (want 45: 9 events x 5 columns)
+t3-cell-loses-ieee-citation: rc=2 1334 checks: 1333 PASS, 1 FAIL failures=1
+  breaks: three LINK_DOWN cells lose their IEEE citation
+  expected red: P13 F04.2 cells citing ... 42 of 45
+    FAIL: P13 F04.2 cells citing Milan v1.2 5.x and IEEE 1722.1-2021 6.2.x: 42 of 45
+x1-fresh-noted-check: rc=0 1338 checks: 1338 PASS, 0 FAIL failures=0
+  breaks: nothing in the RTL: the walk gains one check that arc 4 noted the fresh index
+  expected red: nothing: the head RTL must pass it
+x2-fresh-noted-check-vs-r6: rc=2 1338 checks: 1333 PASS, 5 FAIL failures=5
+  breaks: r6's RTL fault under x1's added check
+  expected red: PROBE arc 4 noted the fresh index
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+    FAIL: PROBE arc 4 noted the fresh index: a repeat of it is the restart pair, got 0 events
+

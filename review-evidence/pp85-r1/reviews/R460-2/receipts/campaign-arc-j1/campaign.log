@@ -1,0 +1,40 @@
+control adp_engine run: rc=0 PASS
+disc-fresh-checks-gm: rc=2 failures=4 named=4 KILLED
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0) (Milan 5.6.4.5.2 steps 1 3; IEEE 6.2.6.4 AVAILABLE; 6.2.2.15): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 1 events
+disc-restart-not-rediscovered: rc=2 failures=7 named=1 KILLED
+    FAIL: P9e restart fires a pair, got 1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 1 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 1 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+arc-fresh-no-rearm: rc=2 failures=5 named=1 KILLED
+    FAIL: P9b NOADP re-armed
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-fresh-no-store: rc=2 failures=4 named=1 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-restart-detector-off-by-one: rc=2 failures=13 named=1 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 5 of 8
+6 checks: 6 PASS, 0 FAIL

@@ -1,0 +1,15 @@
+probe: round-1 (rc, failures) at a8669732 -> round-2 at 4298ed25
+control: (0, 0) -> (0, 0)
+r1-shutdown-keeps-timer: (2, 2) -> (2, 2)
+r2-delay-linkdown-departs: (2, 2) -> (2, 2)
+r3-delay-gm-change-redraws: (2, 5) -> (2, 5)
+r4-departing-increments: (2, 6) -> (2, 6)
+r5-noadp-expiry-keeps-state: (2, 4) -> (2, 4)
+r6-fresh-no-store: (0, 0) -> (2, 4)  CHANGED
+r7-restart-no-store: (2, 1) -> (2, 1)
+r8-discover-no-store: (2, 10) -> (2, 10)
+t1-table-expects-departing: (2, 2) -> (2, 2)
+t2-walk-skips-a-cell: (2, 1) -> (2, 1)
+t3-cell-loses-ieee-citation: (2, 1) -> (2, 1)
+x1-fresh-noted-check: (0, 0) -> (0, 0)
+x2-fresh-noted-check-vs-r6: (2, 1) -> (2, 5)  CHANGED

@@ -1,0 +1,27 @@
+control: rc=0 1334 checks: 1334 PASS, 0 FAIL failures=0
+  breaks: nothing
+  expected: rc 0, 1334 of 1334
+y1-fresh-store-gm-gated: rc=2 1334 checks: 1333 PASS, 1 FAIL failures=1
+  breaks: the fresh arc notes the index only when the grandmaster matches (F04.8's fresh-arc guard reads no grandmaster)
+  expected: the GM mismatch, index > last x DISCOVERED follow-up only; arc 4 (match cell) stays green
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 0 events
+y2-followup-disabled-vs-r6: rc=0 1330 checks: 1330 PASS, 0 FAIL failures=0
+  breaks: round 1's r6 fault with the round-2 follow-up step disabled
+  expected: rc 0: the follow-up step alone catches r6 (round 1's finding)
+y3-followup-fresh-only-vs-y1: rc=0 1332 checks: 1332 PASS, 0 FAIL failures=0
+  breaks: y1's fault with the follow-up step on the match cell only
+  expected: rc 0: the GM mismatch cell's follow-up is what catches y1
+y4-followup-check-inverted: rc=2 1334 checks: 1330 PASS, 4 FAIL failures=4
+  breaks: the follow-up's own grading line is inverted (head RTL)
+  expected: both follow-up lines red, arc 4 and the arc count red: the step feeds cell_ok
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): index 701 noted (Milan 5.6.4.5.2 step 3), so an AVAILABLE repeating it is EVT_TK_DEPARTED then EVT_TK_DISCOVERED (step 2), got 2 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+y5-noted-literal-drifts: rc=0 1334 checks: 1334 PASS, 0 FAIL failures=0
+  breaks: the follow-up's literal no longer equals apply_disc's last + 1 (head RTL)
+  expected: rc 0: a repeat below the noted index is still the restart pair
+y6-noted-literal-drifts-vs-r6: rc=0 1334 checks: 1334 PASS, 0 FAIL failures=0
+  breaks: y5's drift under round 1's r6 fault
+  expected: rc 0 would show the follow-up loses its teeth when the literal drifts
+
