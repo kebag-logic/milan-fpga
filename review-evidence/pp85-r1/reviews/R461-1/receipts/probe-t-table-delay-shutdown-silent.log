@@ -1,0 +1,6 @@
+probe t-table-delay-shutdown-silent patch t-table-delay-shutdown-silent.patch sha256 64608fb8f491f7fb0228a97e0a6d15a73a321002843717e7eaf1e063521cdbe0
+expected prefix: P13 F04.2 SHUTDOWN x DELAY(timer armed)
+patching file tb/adp_engine/sim_main.cpp
+rc=2 tally='1329 checks: 1327 PASS, 2 FAIL' failures=2 named_prefix=2 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): 0 frames, got 1
+FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): available_index 1, got 0

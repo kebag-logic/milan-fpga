@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.639431696 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.642000000 +0200
+@@ -640,7 +640,7 @@
+         // 6) LINK_DOWN: -> DOWN, stop timers, NO departing (Milan §5.6.3.5.6)
+         if (link_fall_w[i] && (adv_st_r[i] != ADP_ADV_DOWN)) begin
+           adv_st_r[i] <= ADP_ADV_DOWN;
+-          tpend_r[i]  <= TPEND_CANCEL;
++          tpend_r[i]  <= (adv_st_r[i] == ADP_ADV_DELAY) ? TPEND_NONE : TPEND_CANCEL;
+         end
+ 
+         // 7) entity disable = SHUTDOWN: departing from any advertising state

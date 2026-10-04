@@ -1,0 +1,5 @@
+probe r-restart-no-store patch r-restart-no-store.patch sha256 f49889d296845884cd3171bfc3072c9d114bc73bee6064eeed8844cdeab27102
+expected prefix: P
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1329 PASS, 1 FAIL' failures=1 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9e2 restart stored the new index

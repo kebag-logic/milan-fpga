@@ -1,0 +1,11 @@
+--- a/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.773648747 +0200
++++ b/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.776207987 +0200
+@@ -312,7 +312,7 @@
+   {D_I_UNB, D_I_NOT, D_DEPART},
+   {D_I_UNB, D_DISCOVER, {'I', D_DISC, EV_NONE, TM_NONE, "5.6.4.5.2 step 1", I_IFX}},
+   {D_I_UNB, {'I', D_NOT, EV_NONE, TM_NONE, "Table 5.54 -", "6.2.6.4 DEPARTING"},
+-   {'N', D_NOT, EV_DEP, TM_CANCEL, "5.6.4.5.3", "6.2.6.4 DEPARTING"}},
++   {'N', D_NOT, EV_NONE, TM_CANCEL, "5.6.4.5.3", "6.2.6.4 DEPARTING"}},
+   {D_I_UNB, {'I', D_NOT, EV_NONE, TM_NONE, "Table 5.54 -", "6.2.6.4 DEPARTING"},
+    {'I', D_DISC, EV_NONE, TM_NONE, "5.6.4.5.3 step 1", I_IFX}},
+   {{'S', D_UNB, EV_NONE, TM_NONE, "5.6.4.1 stray", I_SINK},

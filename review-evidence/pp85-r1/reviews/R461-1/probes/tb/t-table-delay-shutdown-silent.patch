@@ -1,0 +1,11 @@
+--- a/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.743000000 +0200
++++ b/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.746000000 +0200
+@@ -255,7 +255,7 @@
+               "6.2.5.3 DEPARTING, no DOWN state"},
+    {'N', ST_DOWN, 0, 0, true, true, 2, "5.6.3.5.8", I_DEP},
+    {'N', ST_DOWN, 0, 0, false, true, 2, "5.6.3.5.11", I_DEP},
+-   {'N', ST_DOWN, 0, 0, true, true, 2, "5.6.3.5.11", I_DEP}},          // SHUTDOWN
++   {'N', ST_DOWN, 0, 0, true, true, 0, "5.6.3.5.11", I_DEP}},          // SHUTDOWN
+ };
+ 
+ // The listener's discovery SM, one per sink: Milan Table 5.54 with the

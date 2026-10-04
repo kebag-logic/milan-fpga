@@ -1,0 +1,10 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.648813204 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.651254949 +0200
+@@ -649,6 +649,7 @@
+           tpend_r[i]  <= TPEND_CANCEL;
+         end
+ 
++        if (enable_fall_w && (adv_st_r[i] == ADP_ADV_DOWN)) tpend_r[i] <= TPEND_CANCEL;
+         // 8) begin/resume operation (Milan §5.6.1 gate):
+         //    enable rise with link already up -> DELAY via T-ADP-DELAY-START;
+         //    LINK_UP while enabled -> DELAY via T-ADP-DELAY (F04.2 arcs)

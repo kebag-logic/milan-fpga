@@ -1,0 +1,5 @@
+probe r-noadp-fixed-20s patch r-noadp-fixed-20s.patch sha256 94112ff90cc8dc58e037e0cc64c6b0dd9b683696d3cb7b9f0f144780ee3aa0f5
+expected prefix: P9j
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1329 PASS, 1 FAIL' failures=1 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9j NOADP = vt * 2 s (got +20000 want 10000)

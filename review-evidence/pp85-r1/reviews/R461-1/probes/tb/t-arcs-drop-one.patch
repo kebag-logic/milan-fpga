@@ -1,0 +1,10 @@
+--- a/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.754256777 +0200
++++ b/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.757000000 +0200
+@@ -332,7 +332,6 @@
+   {"DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair)", V_STALE, D_DISC},
+   {"DISCOVERED -> NOT (index <= last, GM mismatch)", V_GMS, D_DISC},
+   {"DISCOVERED -> NOT (DEPARTING, interface matches)", V_DEP, D_DISC},
+-  {"DISCOVERED -> NOT (T-ADP-NOADP expiry)", V_NOADP, D_DISC},
+ };
+ constexpr int N_F043_ARCS = int(sizeof F043_ARCS / sizeof F043_ARCS[0]);
+ 

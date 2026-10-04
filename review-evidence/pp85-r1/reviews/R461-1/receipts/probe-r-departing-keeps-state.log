@@ -1,0 +1,8 @@
+probe r-departing-keeps-state patch r-departing-keeps-state.patch sha256 7e7a125ff8954b6532bc531a500bd34f2cd6804392cbf12e2cfde0838b693a34
+expected prefix: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1326 PASS, 4 FAIL' failures=4 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9h2 departing when undiscovered: silent
+FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_DISCOVERED (sink 4) (Milan 5.6.4.5.3; IEEE 6.2.6.4 DEPARTING): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+FAIL: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches): walked and graded
+FAIL: P13 every F04.3 arc walked and graded: 7 of 8

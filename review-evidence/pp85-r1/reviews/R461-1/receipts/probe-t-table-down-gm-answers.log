@@ -1,0 +1,8 @@
+probe t-table-down-gm-answers patch t-table-down-gm-answers.patch sha256 cb73326b0783c537c1eb45f279aa64d156eaeff1a8b829279caa81482d6a8c22
+expected prefix: P13 F04.2 GM_CHANGE x DOWN
+patching file tb/adp_engine/sim_main.cpp
+rc=2 tally='1330 checks: 1326 PASS, 4 FAIL' failures=4 named_prefix=4 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 GM_CHANGE x DOWN (Milan Table 5.51 -; IEEE 6.2.7.2 UPDATE GM, no DOWN state): ends in state 2, got 0
+FAIL: P13 F04.2 GM_CHANGE x DOWN: 1 draw requests, got 0
+FAIL: P13 F04.2 GM_CHANGE x DOWN: the draw is T-ADP-DELAY (kind 2, 0..4000 ms), got kind 2 1409 ms
+FAIL: P13 F04.2 GM_CHANGE x DOWN: 1 arms of the shared slot, got 0

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Shared settings for the R461-1 receipts. Override CLONE/PACKET/VERILATOR to reproduce elsewhere.
+: "${CLONE:=$REVIEWS/r461-1-pp85}"
+: "${PACKET:=$REVIEWS/pp85-r461-1-packet}"
+: "${VERILATOR:=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator}"
+HEAD_SHA=a8669732b30436c641d51829950c204defd57a30
+BASE_SHA=5c71928ad2bf1a854a5538d69b77214dfdf1697f
+SCRATCH="$PACKET/scratch"
+RCPT="$PACKET/receipts"
+TMPDIR="$SCRATCH/tmp"
+export CLONE PACKET VERILATOR HEAD_SHA BASE_SHA SCRATCH RCPT TMPDIR

@@ -1,0 +1,5 @@
+probe r-delay-link-down-keeps-timer patch r-delay-link-down-keeps-timer.patch sha256 dd5e180d801325190e9f8a64f359616f7a4fc13204787da9ee0155ac24f8c06b
+expected prefix: P13 F04.2 LINK_DOWN x DELAY(timer armed)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1329 PASS, 1 FAIL' failures=1 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): the running timer is stopped (a cancel)

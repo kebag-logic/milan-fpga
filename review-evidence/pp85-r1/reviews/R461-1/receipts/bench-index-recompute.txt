@@ -1,0 +1,24 @@
+# sources (branch heads b6-review-evidence 36c1ea1f, 629-b7-review-evidence 897788f4, 629-b8-review-evidence 9c4de5ad)
+6c1f64475ecfb5b06b26162b8540e02068bd130e9d99b3be8bbd91822a39b718  b6.jsonl
+bfa52d19b536ae790b8a2c8a38d482edaa74d2989f789c521db85d7bde52cdf7  b7.jsonl
+65e090210a9e85c56b9657c57cdc60ac72e21a8f9bb97640c88b0f73c1dcd7d7  b8-identity.jsonl
+93ad7d6c600cba3bbdbebcaba730f7e4054aea0322fbcc8d6ce18307b9b791cd  b8-identity-resume.jsonl
+b3d098fbfd1b8d26dd5c489df19e9c1ac955e0e08ac09edb2a0a0bac50433102  b8-identity-postboot.jsonl
+b6.jsonl peer 12817 2026-10-01T11:07:47+00:00 0x0000c58b
+b6.jsonl processor 13215 2026-10-01T11:07:48+00:00 0x0000c588
+b7.jsonl peer 42441 2026-10-03T12:30:16+00:00 0x0000c58b
+b7.jsonl processor 85 2026-10-03T12:30:19+00:00 0x0000c588
+b8-identity.jsonl peer 44513 2026-10-03T15:57:36+00:00 0x0000c58b
+b8-identity.jsonl processor 1865 2026-10-03T15:57:38+00:00 0x0000c588
+b8-identity-resume.jsonl peer 44851 2026-10-03T16:31:21+00:00 0x0000c58b
+b8-identity-resume.jsonl processor 2156 2026-10-03T16:31:25+00:00 0x0000c588
+b8-identity-postboot.jsonl peer 45061 2026-10-03T16:52:18+00:00 0x0000c58b
+b8-identity-postboot.jsonl processor 19 2026-10-03T16:52:20+00:00 0x0000c588
+peer: b6.jsonl -> b7.jsonl: 12817 -> 42441 over 177749.1 s: 6.000 s per increment
+peer: b7.jsonl -> b8-identity.jsonl: 42441 -> 44513 over 12439.8 s: 6.004 s per increment
+peer: b8-identity.jsonl -> b8-identity-resume.jsonl: 44513 -> 44851 over 2025.3 s: 5.992 s per increment
+peer: b8-identity-resume.jsonl -> b8-identity-postboot.jsonl: 44851 -> 45061 over 1256.5 s: 5.983 s per increment
+processor: b6.jsonl -> b7.jsonl: 13215 -> 85 over 177750.3 s: index fell (restart)
+processor: b7.jsonl -> b8-identity.jsonl: 85 -> 1865 over 12439.3 s: 6.988 s per increment
+processor: b8-identity.jsonl -> b8-identity-resume.jsonl: 1865 -> 2156 over 2026.7 s: 6.965 s per increment
+processor: b8-identity-resume.jsonl -> b8-identity-postboot.jsonl: 2156 -> 19 over 1255.0 s: index fell (restart)

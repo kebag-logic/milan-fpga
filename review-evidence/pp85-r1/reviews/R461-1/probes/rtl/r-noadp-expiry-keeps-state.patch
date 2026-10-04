@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.695212493 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.698000000 +0200
+@@ -408,7 +408,7 @@
+     end else begin
+       // NOADP aging: expiry in TK_DISCOVERED departs the talker (F04.3)
+       if (noadp_exp_w) begin
+-        disc_st_r[noadp_exp_sink_w] <= 1'b0;
++        disc_st_r[noadp_exp_sink_w] <= disc_st_r[noadp_exp_sink_w];
+       end
+       // unbind disarms the SM silently (active-while-bound, 04 §6.2)
+       for (int unsigned s = 0; s < N_SINK_P; s++) begin

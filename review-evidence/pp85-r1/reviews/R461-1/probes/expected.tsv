@@ -1,0 +1,18 @@
+r-delay-link-down-departs	P13 F04.2 LINK_DOWN x DELAY
+r-delay-link-down-keeps-timer	P13 F04.2 LINK_DOWN x DELAY(timer armed)
+r-down-shutdown-cancels	P13 F04.2 SHUTDOWN x DOWN
+r-down-gm-cancels	P13 F04.2 GM_CHANGE x DOWN
+r-down-discover-cancels	P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN
+r-guard-ignores-domain	P13 F04.3 AVAILABLE(domain mismatch, index <= last)
+r-noadp-fixed-20s	P9j
+r-noadp-expiry-keeps-state	P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry)
+r-departing-keeps-state	P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches)
+r-departing-no-cancel	P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches)
+r-stale-foreign-no-cancel	P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch)
+r-restart-no-store	P
+r-departing-carries-zero	P13 F04.2 SHUTDOWN x WAITING
+t-table-down-gm-answers	P13 F04.2 GM_CHANGE x DOWN
+t-table-delay-shutdown-silent	P13 F04.2 SHUTDOWN x DELAY(timer armed)
+t-arcs-drop-one	P13 every F04.3 arc walked and graded
+t-cite-drop-one	P13 F04.2 cells citing
+t-table-departing-silent	P13 F04.3 arc DISCOVERED -> NOT (DEPARTING

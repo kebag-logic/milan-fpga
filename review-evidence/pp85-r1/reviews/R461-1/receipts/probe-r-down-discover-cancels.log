@@ -1,0 +1,8 @@
+probe r-down-discover-cancels patch r-down-discover-cancels.patch sha256 b4e0c042109c019326c14dcd379aee98bdcc40eb5ee54e675075b8c2692a8ad3
+expected prefix: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1326 PASS, 4 FAIL' failures=4 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): no cancel, got 1
+FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: no cancel, got 1
+FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): no cancel, got 1
+FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: no cancel, got 1

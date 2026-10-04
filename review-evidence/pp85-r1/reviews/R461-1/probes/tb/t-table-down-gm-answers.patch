@@ -1,0 +1,11 @@
+--- a/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.732084865 +0200
++++ b/tb/adp_engine/sim_main.cpp	2026-10-04 03:00:09.735000000 +0200
+@@ -245,7 +245,7 @@
+   {A_I_GATE, A_C_LUP, {'N', ST_DOWN, 0, 0, true, true, 0, "5.6.3.5.6", I_LINK},
+    {'N', ST_DOWN, 0, 0, false, true, 0, "5.6.3.5.10", I_LINK},
+    {'N', ST_DOWN, 0, 0, true, true, 0, "5.6.3.5.10", I_LINK}},         // LINK_DOWN
+-  {A_I_GATE, {'I', ST_DOWN, 0, 0, false, false, 0, "Table 5.51 -",
++  {A_I_GATE, {'N', ST_DELAY, 1, 1, false, true, 0, "Table 5.51 -",
+               "6.2.7.2 UPDATE GM, no DOWN state"},
+    {'N', ST_DELAY, 1, 1, false, true, 0, "5.6.3.5.7", "6.2.7.2 UPDATE GM; 6.2.4.3"},
+    {'I', ST_DELAY, 0, 1, false, false, 0, "Table 5.51 -", "6.2.4.3; 6.2.2.16 at the send"},

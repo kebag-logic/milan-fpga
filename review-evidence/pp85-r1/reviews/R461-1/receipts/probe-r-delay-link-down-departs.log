@@ -1,0 +1,8 @@
+probe r-delay-link-down-departs patch r-delay-link-down-departs.patch sha256 27ca49ebe8be4c484e101f35272639747d0a3dc7865eb548f17a029ace04dec4
+expected prefix: P13 F04.2 LINK_DOWN x DELAY
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1326 PASS, 4 FAIL' failures=4 named_prefix=4 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight): 0 frames, got 1
+FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight): available_index 2, got 0
+FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): 0 frames, got 1
+FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): available_index 1, got 0

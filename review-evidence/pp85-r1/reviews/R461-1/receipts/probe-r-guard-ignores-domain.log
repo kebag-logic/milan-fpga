@@ -1,0 +1,13 @@
+probe r-guard-ignores-domain patch r-guard-ignores-domain.patch sha256 668d11d4dae32f06f8a3560be50290f78d1b5521efb1e46e0bda02943f169758
+expected prefix: P13 F04.3 AVAILABLE(domain mismatch, index <= last)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1321 PASS, 9 FAIL' failures=9 named_prefix=6 verdict=KILLED-AS-PREDICTED
+FAIL: P9d domain mismatch ignored
+FAIL: P9d sink 1 still undiscovered
+FAIL: P9d matching AVAILABLE discovers sink 1
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no event, got 1 events
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no T-ADP-NOADP operation
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 2 events
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once

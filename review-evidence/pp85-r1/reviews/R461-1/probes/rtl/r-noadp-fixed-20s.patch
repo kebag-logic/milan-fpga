@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.685786709 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.688545399 +0200
+@@ -1021,7 +1021,7 @@
+       tmr_arm_valid_o       = 1'b1;
+       tmr_arm_cancel_o      = iter_cancel_w;
+       tmr_arm_slot_o        = TMR_AW_C'(TMR_SLOT_NOADP_BASE_P + 32'(sink_r));
+-      tmr_arm_deadline_ms_o = now_ms_i + adp_vt_to_ms_f(rxq_vt_r);
++      tmr_arm_deadline_ms_o = now_ms_i + 32'd20000;
+     end else if (ucancel_issue_w) begin
+       tmr_arm_valid_o  = 1'b1;
+       tmr_arm_cancel_o = 1'b1;

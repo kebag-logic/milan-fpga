@@ -1,0 +1,9 @@
+probe r-departing-no-cancel patch r-departing-no-cancel.patch sha256 fae1457e282d283248e9501227790c93a431896e90d8450b45456c8418cc7fc4
+expected prefix: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1325 PASS, 5 FAIL' failures=5 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9h NOADP 3 stopped
+FAIL: P9h NOADP 5 stopped
+FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_DISCOVERED (sink 4): T-ADP-NOADP stopped once
+FAIL: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches): walked and graded
+FAIL: P13 every F04.3 arc walked and graded: 7 of 8

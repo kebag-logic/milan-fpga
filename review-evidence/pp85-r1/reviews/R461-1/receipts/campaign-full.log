@@ -1,0 +1,340 @@
+Verilator 5.050 2026-07-01 rev v5.050
+control adp_engine run: rc=0 PASS
+control pp_top adp-config: rc=0 PASS
+cfg-read-live: rc=2 failures=1 named=1 KILLED
+    FAIL: P11c the index sampled at build 0102, never torn (0304 moved in after byte 64), got 0104
+cfg-dependent-field: rc=2 failures=14 named=3 KILLED
+    FAIL: P2 AVAILABLE byte 67: got 07 want 05
+    FAIL: P5 gm-sampled byte 67: got 07 want 05
+    FAIL: P7 DEPARTING byte 67: got 07 want 05
+    FAIL: P7 restart advert byte-exact with index 0
+    FAIL: P11a advert byte-exact at current_configuration_index 2
+    FAIL: P11b wire byte 66 did not move with the configuration: 00 -> 01
+    FAIL: P11b wire byte 67 did not move with the configuration: 07 -> 06
+    FAIL: P11b advert byte-exact: only available_index (+1) and 64..65 moved
+    FAIL: P11d ENTITY_DEPARTING byte-exact at index 0001
+    FAIL: P11e restart advert byte-exact at the image configuration
+    FAIL: P13 F04.2 TMR_DELAY x DELAY(timer armed): ENTITY_AVAILABLE byte-exact at available_index 3
+    FAIL: P13 F04.2 SHUTDOWN x WAITING: ENTITY_DEPARTING byte-exact at available_index 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): ENTITY_DEPARTING byte-exact at available_index 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): ENTITY_DEPARTING byte-exact at available_index 1
+cfg-dependent-field-top: rc=2 failures=9 named=1 KILLED
+    FAIL: AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)
+    FAIL: AD2: 1 wire bytes outside 50..53 and 64..65 moved
+    FAIL: AD3: 1 wire bytes outside 50..53 and 64..65 moved
+    FAIL: AD3: ENTITY_AVAILABLE byte-exact at configuration 1
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+    FAIL: AD9: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 1)
+cfg-frozen-at-top: rc=2 failures=4 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+cfg-overlay-only: rc=2 failures=6 named=2 KILLED
+    FAIL: AD1: first ENTITY_AVAILABLE carries the image configuration 1 (current_cfg_i, nothing set yet)
+    FAIL: AD1b: wire bytes 64..65 carry configuration 1, got 0
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD9: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+cfg-nonzero-for-valid: rc=2 failures=3 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+cfg-valid-not-sticky: rc=2 failures=7 named=2 KILLED
+    FAIL: AD2: wire bytes 64..65 carry configuration 0, got 1
+    FAIL: AD2: ENTITY_AVAILABLE byte-exact at configuration 0
+    FAIL: AD4: the set configuration outranks a moved current_cfg_i
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (187554 clocks differed)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (460 clocks differed)
+    FAIL: AD7: SET_CONFIGURATION(0) SUCCESS, GET reads 0, the flag set, the device idle (premise)
+cfg-valid-any-selector: rc=2 failures=1 named=1 KILLED
+    FAIL: AD1b: wire bytes 64..65 carry configuration 1, got 0
+cfg-valid-ucpu-bus: rc=2 failures=3 named=2 KILLED
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 1)
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (187555 clocks differed)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (461 clocks differed)
+cfg-valid-hard-reset: rc=2 failures=2 named=2 KILLED
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (106779 clocks differed)
+cfg-valid-no-reset: rc=2 failures=9 named=2 KILLED
+    FAIL: AD5: the flag the ADPDU reads equals the store's in every clock from the reset (1413 clocks differed)
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD6: the flag the ADPDU reads equals the store's in every clock from the reset (108207 clocks differed)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD7: the flag the ADPDU reads equals the store's in every clock from the reset (118268 clocks differed)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD8: the flag the ADPDU reads equals the store's in every clock from the reset (23768 clocks differed)
+    FAIL: AD9: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 0)
+    FAIL: AD9: the flag the ADPDU reads equals the store's in every clock from the reset (31268 clocks differed)
+gate-enable-dropped: rc=2 failures=30 named=4 KILLED
+    FAIL: P12 no draw request over 8220 ms with enable low, got 2
+    FAIL: P12 no timer arm or cancel with enable low, got 5
+    FAIL: P12 no committed frame and no TX request with enable low, got 2
+    FAIL: P12 dbg_adv_state DOWN in every clock, 32800 were not
+    FAIL: P1 exactly one draw, got 2
+    FAIL: P1 startup draw kind 1 (T-ADP-DELAY-START), got 2
+    FAIL: P1 delay timer armed on shared slot 0
+    FAIL: P1 SM in DELAY, got 3
+    FAIL: P2 frame committed
+    FAIL: P2 re-requested after refusals, got 2
+    FAIL: P2 AVAILABLE byte 53: got 01 want 00
+    FAIL: P2 one TX request, got 2
+    FAIL: P2 available_index incremented AFTER tx
+    FAIL: P2 SM in WAITING
+    FAIL: P2 T-ADP-ADV armed at 5 s (got 23647 want 24864)
+    FAIL: P3.1 re-draw
+    FAIL: P3.1 available_index sequence: got 2 want 1
+    FAIL: P3.1 ADV re-armed after send
+    FAIL: P3.2 available_index sequence: got 3 want 2
+    FAIL: P3.2 ADV re-armed after send
+    FAIL: P3.3 available_index sequence: got 4 want 3
+    FAIL: P3.3 ADV re-armed after send
+    FAIL: P3 index after 4 adverts, got 5
+    FAIL: P4a T-ADP-ADV cancelled
+    FAIL: P5 gm-sampled byte 53: got 07 want 06
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN) (Milan 5.6.1 not started; IEEE 6.2.4.3 before BEGIN): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 LINK_UP x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): reached (state 2)
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN) (Milan 5.6.1 not started; IEEE 6.2.4.3 before BEGIN): ends in state 0, got 2
+gate-enable-dropped-top: rc=2 failures=7 named=2 KILLED
+    FAIL: AD0: no ADPDU in 8422 ms of link up (one bounce) with entity_enable_i low
+    FAIL: AD0: the advertise SM read DOWN at every 100 ms sample, 84 did not
+    FAIL: AD1b: available_index 2 follows 0
+    FAIL: AD5: the first ENTITY_AVAILABLE carries the restored configuration 0, byte-exact (got 999)
+    FAIL: AD6: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+    FAIL: AD7: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+    FAIL: AD8: the first ENTITY_AVAILABLE carries the image default 1, byte-exact (got 999)
+walk-down-answers-discover: rc=2 failures=16 named=4 KILLED
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN) (Milan 5.6.1 not started; IEEE 6.2.4.3 before BEGIN): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x NOT STARTED(DOWN): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN (Milan Table 5.51 -; IEEE 6.2.7.2 DISCOVER, no DOWN state): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DOWN: no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN) (Milan 5.6.1 not started; IEEE 6.2.4.3 before BEGIN): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x NOT STARTED(DOWN): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN (Milan Table 5.51 -; IEEE 6.2.7.2 DISCOVER, no DOWN state): ends in state 0, got 2
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DOWN: no cancel, got 1
+walk-delay-ignores-link-down: rc=2 failures=4 named=4 KILLED
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight) (Milan 5.6.3.5.10; IEEE 6.2.7.2 LINK STATE CHANGE, no needsAdvertise): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed) (Milan 5.6.3.5.10; IEEE 6.2.7.2 LINK STATE CHANGE, no needsAdvertise): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): the running timer is stopped (a cancel)
+walk-down-answers-gm-change: rc=2 failures=8 named=4 KILLED
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN) (Milan 5.6.1 not started; IEEE 6.2.4.3 before BEGIN): ends in state 0, got 2
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): 0 draw requests, got 1
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): no cancel, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DOWN (Milan Table 5.51 -; IEEE 6.2.7.2 UPDATE GM, no DOWN state): ends in state 0, got 2
+    FAIL: P13 F04.2 GM_CHANGE x DOWN: 0 draw requests, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DOWN: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 GM_CHANGE x DOWN: no cancel, got 1
+walk-down-shutdown-departs: rc=2 failures=1 named=1 KILLED
+    FAIL: P13 F04.2 SHUTDOWN x DOWN: 0 frames, got 1
+walk-delay-answers-discover: rc=2 failures=9 named=4 KILLED
+    FAIL: P4c DELAY ignores DISCOVER (no extra draw)
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DELAY(draw in flight): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DELAY(timer armed): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DELAY(timer armed): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(eid 0) x DELAY(timer armed): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DELAY(draw in flight): no cancel, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DELAY(timer armed): 0 draw requests, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DELAY(timer armed): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 RCV_ADP_DISCOVER(own eid) x DELAY(timer armed): no cancel, got 1
+walk-delay-shutdown-silent: rc=2 failures=4 named=4 KILLED
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): 1 frames, got 0
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): available_index 0, got 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): 1 frames, got 0
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): available_index 0, got 2
+walk-stale-draw-arms: rc=2 failures=4 named=2 KILLED
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight) (Milan 5.6.3.5.10; IEEE 6.2.7.2 LINK STATE CHANGE, no needsAdvertise): ends in state 0, got 2
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(draw in flight): 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight) (Milan 5.6.3.5.11; IEEE 6.2.5.3 DEPARTING; 6.2.2.15; 6.2.2.5): ends in state 0, got 2
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): 0 arms of the shared slot, got 1
+walk-departing-keeps-index: rc=2 failures=6 named=1 KILLED
+    FAIL: P7 index reset to 0 after DEPARTING
+    FAIL: P7 restart advert byte-exact with index 0
+    FAIL: P11e restart advert byte-exact at the image configuration
+    FAIL: P13 F04.2 SHUTDOWN x WAITING: available_index 0, got 47
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): available_index 0, got 48
+    FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): available_index 0, got 49
+walk-foreign-discover-answered: rc=2 failures=8 named=4 KILLED
+    FAIL: P4d foreign eid ignored (no draw)
+    FAIL: P4d no ADV cancel
+    FAIL: P5 re-advertise draw
+    FAIL: P5 ADV cancelled
+    FAIL: P13 F04.2 ENTITY_DISCOVER(foreign eid) x WAITING (Milan 5.6.3.1 discard; IEEE 6.2.7.2 entity_id neither 0 nor own): ends in state 3, got 2
+    FAIL: P13 F04.2 ENTITY_DISCOVER(foreign eid) x WAITING: 0 draw requests, got 1
+    FAIL: P13 F04.2 ENTITY_DISCOVER(foreign eid) x WAITING: 0 arms of the shared slot, got 1
+    FAIL: P13 F04.2 ENTITY_DISCOVER(foreign eid) x WAITING: no cancel, got 1
+walk-link-down-keeps-timer: rc=2 failures=3 named=1 KILLED
+    FAIL: P6 timer cancelled
+    FAIL: P13 F04.2 LINK_DOWN x WAITING: the running timer is stopped (a cancel)
+    FAIL: P13 F04.2 LINK_DOWN x DELAY(timer armed): the running timer is stopped (a cancel)
+disc-fresh-checks-gm: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0) (Milan 5.6.4.5.2 steps 1 3; IEEE 6.2.6.4 AVAILABLE; 6.2.2.15): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-not-discovered-checks-index: rc=2 failures=14 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4) (Milan 5.6.4.5.1 steps 1-4; IEEE 6.2.6.4 AVAILABLE): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (Milan 5.6.4.5.1 steps 1-4; IEEE 6.2.6.4 AVAILABLE): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): reached
+    FAIL: P13 T-ADP-NOADP armed and expired
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): reached
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 BIND x TK_DISCOVERED (sink 0): reached
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-not-discovered-checks-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0) (Milan 5.6.4.5.1 steps 1-4; IEEE 6.2.6.4 AVAILABLE): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+disc-restart-not-rediscovered: rc=2 failures=4 named=1 KILLED
+    FAIL: P9e restart fires a pair, got 1
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 1 events
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+disc-departing-ignores-interface: rc=2 failures=3 named=3 KILLED
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7) (Milan 5.6.4.5.3 step 1; IEEE 6.2.2.20): ends in TK_DISCOVERED, got bound 1 discovered 0
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no event, got 1 events
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_DISCOVERED (sink 7): no T-ADP-NOADP operation
+disc-stray-noadp-departs: rc=2 failures=2 named=1 KILLED
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): no event, got 1 events
+disc-unbind-keeps-timer: rc=2 failures=2 named=1 KILLED
+    FAIL: P9k NOADP cancelled
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5): T-ADP-NOADP stopped once
+arc-bind-keeps-discovered: rc=2 failures=46 named=1 KILLED
+    FAIL: P9k SM disarmed
+    FAIL: P9k re-bind starts NOT_DISCOVERED
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x unbound (sink 0): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x unbound (sink 0) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): reached
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): EVT_TK_DISCOVERED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x unbound (sink 1): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x unbound (sink 1) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): reached
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x unbound (sink 4): reached
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x unbound (sink 4) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): reached
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x unbound (sink 7): reached
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x unbound (sink 7) (Milan 5.6.4.1 bound sinks only; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): reached
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): reached
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): no event, got 1 events
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_NOT_DISCOVERED (sink 3): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_NOT_DISCOVERED (sink 6): reached
+    FAIL: P13 F04.3 DEPARTING(interface_index differs) x TK_NOT_DISCOVERED (sink 6) (Milan Table 5.54 -; IEEE 6.2.6.4 DEPARTING): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): reached
+    FAIL: P13 F04.3 TMR_NO_ADP x unbound (sink 0): no event, got 1 events
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): reached
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_NOT_DISCOVERED (sink 1): no event, got 1 events
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4): reached
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4) (Milan 5.6.4.1; 04 6.2 disarm; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 UNBIND x TK_NOT_DISCOVERED (sink 4): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 UNBIND x TK_DISCOVERED (sink 5) (Milan 5.6.4.1; 04 6.2 disarm, timer stopped; IEEE none: Milan per-sink binding): ends in unbound, got bound 0 discovered 1
+    FAIL: P13 F04.3 BIND x unbound (sink 6): reached
+    FAIL: P13 F04.3 BIND x unbound (sink 6) (Milan 5.6.4.4 sink connected; F04.3 entry; IEEE none: Milan per-sink binding): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 BIND x TK_NOT_DISCOVERED (sink 7): reached
+    FAIL: P13 F04.3 arc [*] -> TK_NOT_DISCOVERED (sink bound): walked and graded
+    FAIL: P13 F04.3 arc NOT -> DISCOVERED (GM and domain match): walked and graded
+    FAIL: P13 F04.3 arc NOT -> NOT (GM or domain mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 5 of 8
+arc-discover-no-noadp-arm: rc=2 failures=13 named=1 KILLED
+    FAIL: P9a T-ADP-NOADP armed
+    FAIL: P9c NOADP sink 3
+    FAIL: P9c NOADP sink 5
+    FAIL: P9j NOADP = vt * 2 s (got +0 want 10000)
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_NOT_DISCOVERED (sink 1): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED (sink 4): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(interface_index differs) x TK_NOT_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 T-ADP-NOADP armed and expired
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2) (Milan 5.6.4.5.4; IEEE 6.2.6.4 TIMEOUT): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc NOT -> DISCOVERED (GM and domain match): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+arc-not-discovered-no-guard: rc=2 failures=14 named=1 KILLED
+    FAIL: P9d GM mismatch ignored
+    FAIL: P9d domain mismatch ignored
+    FAIL: P9d matching AVAILABLE discovers sink 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED (sink 7): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED (sink 2): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5) (Milan 5.6.4.5.1 step 1; IEEE 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no event, got 1 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED (sink 5): no T-ADP-NOADP operation
+    FAIL: P13 F04.3 arc NOT -> NOT (GM or domain mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-fresh-no-rearm: rc=2 failures=5 named=1 KILLED
+    FAIL: P9b NOADP re-armed
+    FAIL: P13 F04.3 AVAILABLE(match, index > last) x TK_DISCOVERED (sink 2): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED (sink 0): T-ADP-NOADP armed once at the received valid_time (+20000 ms)
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index > last): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-restart-detector-off-by-one: rc=2 failures=10 named=1 KILLED
+    FAIL: P13 F04.3 AVAILABLE(match, index <= last) x TK_DISCOVERED (sink 5): EVT_TK_DEPARTED then EVT_TK_DISCOVERED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> DISCOVERED (index <= last, GM matches: restart pair): walked and graded
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 6 of 8
+arc-restart-skips-guard: rc=2 failures=12 named=1 KILLED
+    FAIL: P9f DEPARTED only
+    FAIL: P9f back to TK_NOT_DISCOVERED
+    FAIL: P9f NOADP stopped
+    FAIL: P9f2 rediscovered
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): EVT_TK_DEPARTED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6) (Milan 5.6.4.5.2 steps 2a 2b; IEEE 6.2.2.15; 6.2.2.16; 6.2.2.17): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): EVT_TK_DEPARTED, got 2 events
+    FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-departing-silent: rc=2 failures=4 named=1 KILLED
+    FAIL: P9h two DEPARTED, got 0
+    FAIL: P13 F04.3 DEPARTING(interface_index matches) x TK_DISCOVERED (sink 4): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+arc-noadp-expiry-silent: rc=2 failures=4 named=1 KILLED
+    FAIL: P9i aging fires EVT_TK_DEPARTED
+    FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2): EVT_TK_DEPARTED, got 0 events
+    FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+    FAIL: P13 every F04.3 arc walked and graded: 7 of 8
+40 checks: 40 PASS, 0 FAIL

@@ -1,0 +1,5 @@
+probe r-down-shutdown-cancels patch r-down-shutdown-cancels.patch sha256 bc7f3a9a5ebbd7d6abae1073f14d7c21c4f7b10835665006d84b1d1579b5cbbf
+expected prefix: P13 F04.2 SHUTDOWN x DOWN
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1329 PASS, 1 FAIL' failures=1 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 SHUTDOWN x DOWN: no cancel, got 1

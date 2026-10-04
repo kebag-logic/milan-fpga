@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.722509727 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.726000000 +0200
+@@ -367,7 +367,7 @@
+           end else begin
+             ev_dep_w      = 1'b1;             // stale index + foreign GM
+             st_clr_w      = 1'b1;
+-            iter_cancel_w = 1'b1;
++            iter_cancel_w = 1'b0;
+           end
+         end
+       end else if (rxq_msg_r == ADP_MSG_DEPARTING_C) begin

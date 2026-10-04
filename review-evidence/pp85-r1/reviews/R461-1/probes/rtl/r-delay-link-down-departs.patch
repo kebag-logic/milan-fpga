@@ -1,0 +1,10 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.628105720 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.631000000 +0200
+@@ -688,6 +688,7 @@
+         end
+         // link loss abandons a queued advert (never a queued departing)
+         if (link_fall_w[i]) begin
++          if (adv_st_r[i] == ADP_ADV_DELAY || adv_st_r[i] == ADP_ADV_DRAW) pend_dep_r[i] <= 1'b1;
+           pend_avail_r[i] <= 1'b0;
+         end
+         // builder pick

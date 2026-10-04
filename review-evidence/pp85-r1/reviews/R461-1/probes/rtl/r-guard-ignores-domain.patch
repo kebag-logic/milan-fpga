@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.675800373 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.679000000 +0200
+@@ -324,7 +324,7 @@
+ 
+   logic gm_dom_ok_w;    // Milan §5.6.4.5.1 guard (never fires conformant, see banner)
+   assign gm_dom_ok_w = (rx_gm_r == gm_slice_f(rxq_if_r))
+-                    && (rx_dom_r == dom_slice_f(rxq_if_r));
++                    ;
+ 
+   // evaluation results (combinational, valid in RX_SINK_EX)
+   logic ev_dep_w;       // fire EVT_TK_DEPARTED for sink_r

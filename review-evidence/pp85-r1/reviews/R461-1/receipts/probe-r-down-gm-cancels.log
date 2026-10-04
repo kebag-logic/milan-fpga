@@ -1,0 +1,6 @@
+probe r-down-gm-cancels patch r-down-gm-cancels.patch sha256 cbd9fdd5fbf44c51b0c1a3b467861c92ae19d094d7fd66159f6cf7c6d4bcb582
+expected prefix: P13 F04.2 GM_CHANGE x DOWN
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1328 PASS, 2 FAIL' failures=2 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P13 F04.2 GM_CHANGE x NOT STARTED(DOWN): no cancel, got 1
+FAIL: P13 F04.2 GM_CHANGE x DOWN: no cancel, got 1

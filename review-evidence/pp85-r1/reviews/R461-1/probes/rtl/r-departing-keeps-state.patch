@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.704504838 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.707226142 +0200
+@@ -373,7 +373,7 @@
+       end else if (rxq_msg_r == ADP_MSG_DEPARTING_C) begin
+         if (disc_st_r[sink_r] && (rx_ifx_r == rec_ifx_w)) begin
+           ev_dep_w      = 1'b1;
+-          st_clr_w      = 1'b1;
++          st_clr_w      = 1'b0;
+           iter_cancel_w = 1'b1;
+         end
+       end

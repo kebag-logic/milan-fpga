@@ -1,0 +1,9 @@
+probe r-departing-carries-zero patch r-departing-carries-zero.patch sha256 562042e8bc619501b79b3a025a4b802f8627c1ef9c50d702c65b7c6578cbe081
+expected prefix: P13 F04.2 SHUTDOWN x WAITING
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1325 PASS, 5 FAIL' failures=5 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P7 DEPARTING byte 53: got 00 want 09
+FAIL: P11d ENTITY_DEPARTING byte-exact at index 0001
+FAIL: P13 F04.2 SHUTDOWN x WAITING: ENTITY_DEPARTING byte-exact at available_index 1
+FAIL: P13 F04.2 SHUTDOWN x DELAY(draw in flight): ENTITY_DEPARTING byte-exact at available_index 1
+FAIL: P13 F04.2 SHUTDOWN x DELAY(timer armed): ENTITY_DEPARTING byte-exact at available_index 1

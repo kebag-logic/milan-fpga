@@ -1,0 +1,8 @@
+probe r-noadp-expiry-keeps-state patch r-noadp-expiry-keeps-state.patch sha256 d463d7c2d22e13b0ec1362d5eb0292abec0fe68702c8fc17ff603e10ceef51fe
+expected prefix: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1326 PASS, 4 FAIL' failures=4 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9i SM left TK_DISCOVERED
+FAIL: P13 F04.3 TMR_NO_ADP x TK_DISCOVERED (sink 2) (Milan 5.6.4.5.4; IEEE 6.2.6.4 TIMEOUT): ends in TK_NOT_DISCOVERED, got bound 1 discovered 1
+FAIL: P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry): walked and graded
+FAIL: P13 every F04.3 arc walked and graded: 7 of 8

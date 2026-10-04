@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.732382112 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.735000000 +0200
+@@ -362,7 +362,7 @@
+             // talker-restart detector: departed + rediscovered pair
+             ev_dep_w    = 1'b1;
+             ev_disc_w   = 1'b1;
+-            rec_wr_en_w = 1'b1;
++            rec_wr_en_w = 1'b0;
+             iter_arm_w  = 1'b1;
+           end else begin
+             ev_dep_w      = 1'b1;             // stale index + foreign GM

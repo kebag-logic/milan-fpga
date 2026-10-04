@@ -1,0 +1,9 @@
+probe r-stale-foreign-no-cancel patch r-stale-foreign-no-cancel.patch sha256 b7730e650eeeec72f99c2784d414209a46701474e8826b988aa2af551ea0078d
+expected prefix: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch)
+patching file hdl/adp/KL_adp_engine.sv
+rc=2 tally='1330 checks: 1325 PASS, 5 FAIL' failures=5 named_prefix=1 verdict=KILLED-AS-PREDICTED
+FAIL: P9f NOADP stopped
+FAIL: P13 F04.3 AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED (sink 3): T-ADP-NOADP stopped once
+FAIL: P13 F04.3 AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED (sink 6): T-ADP-NOADP stopped once
+FAIL: P13 F04.3 arc DISCOVERED -> NOT (index <= last, GM mismatch): walked and graded
+FAIL: P13 every F04.3 arc walked and graded: 7 of 8

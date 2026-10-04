@@ -1,0 +1,11 @@
+--- a/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.740797941 +0200
++++ b/hdl/adp/KL_adp_engine.sv	2026-10-04 02:59:47.743205063 +0200
+@@ -902,7 +902,7 @@
+         B_SAMPLE: begin
+           bld_gm_r   <= gm_slice_f(bld_if_r);       // sampled at PDU build
+           bld_dom_r  <= dom_slice_f(bld_if_r);
+-          bld_aidx_r <= aidx_r[bld_if_r];           // pre-increment value
++          bld_aidx_r <= bld_dep_r ? 32'd0 : aidx_r[bld_if_r];
+           bld_cfg_r  <= current_cfg_i;              // sampled at PDU build
+           bld_st_r   <= B_ALLOC;
+         end
