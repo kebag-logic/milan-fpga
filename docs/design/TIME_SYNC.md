@@ -448,8 +448,11 @@ Frames start one serial frame apart. The wait lengthens by their difference.
 The settled-grid trigger fires once across the transition. The stage
 re-centres once.
 
-The fill at accept stays the setpoint. Every first event stays inside the law
-band.
+Each PDU end's fill is the setpoint plus that PDU. Every first event
+stays inside the law band.
+
+Both are graded at the PDU end.
+[The test plan](MEDIA_CLOCK_FOLLOWING.md#simulation) states its ambiguity window.
 
 The deselect back to INTERNAL is the same.
 
