@@ -1,0 +1,11 @@
+--- KL_aecp_notify.sv
++++ r453/own_vs_new_row.sv
+@@ -577,7 +577,7 @@
+   assign ix_key_w    = (N_IXC_C*IXC_W_C)'({rx_cmd_eid_i, rx_cmd_mac_i});
+   assign ix_row_w    = (N_IXC_C*IXC_W_C)'(ix_wr_row_w[127:16]);
+   assign ix_busy_w   = ix_clr_r || ix_set_r;
+-  assign ix_own_w    = (ix_wr_row_w[127:16] == {rx_cmd_eid_i, rx_cmd_mac_i});
++  assign ix_own_w    = (wr_row_r[127:16] == {rx_cmd_eid_i, rx_cmd_mac_i});
+ 
+   for (genvar i = 0; i < N_CTRL_P; i++) begin : g_ix_row
+     logic [N_IXC_C-1:0] ch_w;

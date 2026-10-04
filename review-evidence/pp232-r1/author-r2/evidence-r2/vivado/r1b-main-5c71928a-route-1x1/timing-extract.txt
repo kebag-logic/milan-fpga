@@ -1,0 +1,323 @@
+##  baseline_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.079        0.000                      0               181930        0.014        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+##  alinx_ax7101_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.079        0.000                      0               181930        0.014        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+##  alinx_ax7101_signoff_Slow_0C_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.079        0.000                      0               181930        0.043        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+##  alinx_ax7101_signoff_Slow_85C_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.079        0.000                      0               181930        0.043        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+##  alinx_ax7101_signoff_Fast_0C_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      1.434        0.000                      0               181930        0.014        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+##  alinx_ax7101_signoff_Fast_85C_timing.rpt:135-147
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      1.434        0.000                      0               181930        0.014        0.000                      0               181849        0.264        0.000                       0                 64352  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+
+## baseline_timing.rpt:169-189
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.345        0.000                      0                    7        0.156        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.452        0.000                      0                19393        0.071        0.000                      0                19393        3.000        0.000                       0                  7295  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       25.086        0.000                      0                 2016        0.081        0.000                      0                 2016       19.215        0.000                       0                   666  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.079        0.000                      0               155269        0.014        0.000                      0               155269        7.500        0.000                       0                 55573  
+  milansoc_crg_clkout2                                                                                                                                                               0.908        0.000                       0                   128  
+  milansoc_crg_clkout3                                                                                                                                                               0.908        0.000                       0                     6  
+  milansoc_crg_clkout4                   1.218        0.000                      0                  186        0.121        0.000                      0                  186        0.264        0.000                       0                    78  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.545        0.000                      0                 1678        0.078        0.000                      0                 1678        2.870        0.000                       0                   587  
+
+
+------------------------------------------------------------------------------------------------
+
+## baseline_timing.rpt:4484-4630 (least slack of every 'Max Delay Paths' group)
+Slack (MET) :             0.079ns  (required time - arrival time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[5]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/pp_shadow/u_pp/u_tx_arbiter/FSM_onehot_arb_st_r_reg[0]/CE
+                            (rising edge-triggered cell FDSE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        19.696ns  (logic 5.310ns (26.960%)  route 14.386ns (73.040%))
+  Logic Levels:           39  (CARRY4=6 LUT2=6 LUT3=5 LUT4=6 LUT5=3 LUT6=12 MUXF7=1)
+  Clock Path Skew:        -0.026ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.618ns = ( 26.618 - 20.000 ) 
+    Source Clock Delay      (SCD):    7.023ns
+    Clock Pessimism Removal (CPR):    0.378ns
+  Clock Uncertainty:      0.063ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=55575, routed)       1.352     7.023    milan_datapath/pp_shadow/u_pp/u_rx_validator/out
+    SLICE_X36Y128        FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[5]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X36Y128        FDRE (Prop_fdre_C_Q)         0.348     7.371 r  milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[5]/Q
+                         net (fo=18, routed)          1.064     8.434    milan_datapath/pp_shadow/u_pp/u_notify/ca_probe_r_reg[1]_i_6_0[5]
+    SLICE_X31Y126        LUT6 (Prop_lut6_I2_O)        0.242     8.676 r  milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_461/O
+                         net (fo=1, routed)           0.000     8.676    milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_1912
+    SLICE_X31Y126        CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.457     9.133 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_43/CO[3]
+                         net (fo=1, routed)           0.000     9.133    milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_43_n_0
+    SLICE_X31Y127        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098     9.231 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_38/CO[3]
+                         net (fo=1, routed)           0.000     9.231    milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_38_n_0
+    SLICE_X31Y128        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098     9.329 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_29/CO[3]
+                         net (fo=1, routed)           0.000     9.329    milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_29_n_0
+    SLICE_X31Y129        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098     9.427 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_19/CO[3]
+                         net (fo=1, routed)           0.000     9.427    milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_19_n_0
+    SLICE_X31Y130        CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.098     9.525 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_11/CO[3]
+                         net (fo=1, routed)           0.000     9.525    milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_11_n_0
+    SLICE_X31Y131        CARRY4 (Prop_carry4_CI_CO[1])
+                                                      0.132     9.657 r  milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r_reg[5]_i_5/CO[1]
+                         net (fo=1, routed)           0.781    10.438    milan_datapath/pp_shadow/u_pp/u_notify/pend_r79_out
+    SLICE_X43Y129        LUT4 (Prop_lut4_I3_O)        0.275    10.713 r  milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_12/O
+                         net (fo=8, routed)           0.384    11.096    milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_32
+    SLICE_X43Y129        LUT2 (Prop_lut2_I0_O)        0.105    11.201 r  milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_14/O
+                         net (fo=3, routed)           0.678    11.879    milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_14_n_0
+    SLICE_X43Y128        LUT4 (Prop_lut4_I3_O)        0.105    11.984 f  milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_14/O
+                         net (fo=3, routed)           0.590    12.574    milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_14_n_0
+    SLICE_X47Y127        LUT6 (Prop_lut6_I1_O)        0.105    12.679 f  milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_788/O
+                         net (fo=1, routed)           0.518    13.197    milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_70
+    SLICE_X45Y128        LUT4 (Prop_lut4_I3_O)        0.105    13.302 r  milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_39/O
+                         net (fo=5, routed)           0.577    13.879    milan_datapath/pp_shadow/u_pp/u_originator/ntfy_ca_cancel_owner_w[2]
+    SLICE_X45Y128        LUT4 (Prop_lut4_I1_O)        0.105    13.984 f  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT4_5/O
+                         net (fo=1, routed)           0.473    14.457    milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_11
+    SLICE_X47Y128        LUT6 (Prop_lut6_I5_O)        0.105    14.562 f  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_174/O
+                         net (fo=1, routed)           0.377    14.939    milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_12
+    SLICE_X47Y126        LUT6 (Prop_lut6_I5_O)        0.105    15.044 r  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_175/O
+                         net (fo=6, routed)           0.332    15.376    milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_15
+    SLICE_X47Y127        LUT2 (Prop_lut2_I1_O)        0.105    15.481 r  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT2_1/O
+                         net (fo=2, routed)           0.488    15.969    milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_16
+    SLICE_X47Y134        LUT3 (Prop_lut3_I1_O)        0.105    16.074 f  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT3_2/O
+                         net (fo=16, routed)          0.355    16.429    milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_3_n_0
+    SLICE_X45Y133        LUT2 (Prop_lut2_I1_O)        0.105    16.534 f  milan_datapath/pp_shadow/u_pp/u_originator/seq_ctr_r[0][15]_i_3/O
+                         net (fo=43, routed)          0.672    17.206    milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_cancel_o_i_1__0_n_0
+    SLICE_X44Y126        LUT3 (Prop_lut3_I0_O)        0.105    17.311 f  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT2_4_rewire/O
+                         net (fo=7, routed)           0.350    17.661    milan_datapath/pp_shadow/u_pp/u_originator/retried_r[2]_i_3_n_0
+    SLICE_X41Y126        LUT2 (Prop_lut2_I0_O)        0.105    17.766 r  milan_datapath/pp_shadow/u_pp/u_originator/fail_owner_o[3]_i_3/O
+                         net (fo=16, routed)          0.570    18.336    milan_datapath/pp_shadow/u_pp/u_originator/fail_owner_o[3]_i_1_n_0
+    SLICE_X30Y124        LUT5 (Prop_lut5_I1_O)        0.105    18.441 r  milan_datapath/pp_shadow/u_pp/u_originator/start_sent_r_i_10/O
+                         net (fo=9, routed)           0.886    19.327    milan_datapath/pp_shadow/u_pp/u_originator/org_withdraw_slot_mask_w[7]
+    SLICE_X12Y123        LUT6 (Prop_lut6_I2_O)        0.105    19.432 r  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_199/O
+                         net (fo=1, routed)           0.000    19.432    milan_datapath/pp_shadow/u_pp/u_originator/pend_r[7]_i_8_n_0
+    SLICE_X12Y123        MUXF7 (Prop_muxf7_I1_O)      0.178    19.610 r  milan_datapath/pp_shadow/u_pp/u_originator/pend_r_reg[7]_i_4/O
+                         net (fo=1, routed)           0.316    19.927    milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_withdraw_head_w0
+    SLICE_X13Y124        LUT6 (Prop_lut6_I4_O)        0.241    20.168 r  milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_201/O
+                         net (fo=3, routed)           0.135    20.303    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/age_r_reg[7][3]_0
+    SLICE_X13Y124        LUT2 (Prop_lut2_I1_O)        0.105    20.408 f  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_5/O
+                         net (fo=3, routed)           0.600    21.008    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_5_n_0
+    SLICE_X13Y113        LUT6 (Prop_lut6_I3_O)        0.105    21.113 f  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_19/O
+                         net (fo=3, routed)           0.225    21.338    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_1
+    SLICE_X13Y113        LUT6 (Prop_lut6_I4_O)        0.105    21.443 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_20/O
+                         net (fo=6, routed)           0.144    21.587    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_3
+    SLICE_X13Y113        LUT5 (Prop_lut5_I4_O)        0.105    21.692 f  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_27/O
+                         net (fo=6, routed)           0.380    22.071    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_4
+    SLICE_X13Y112        LUT3 (Prop_lut3_I0_O)        0.105    22.176 f  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_11/O
+                         net (fo=2, routed)           0.334    22.510    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_11_n_0
+    SLICE_X13Y110        LUT5 (Prop_lut5_I3_O)        0.105    22.615 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_29/O
+                         net (fo=6, routed)           0.354    22.970    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_6
+    SLICE_X13Y111        LUT3 (Prop_lut3_I2_O)        0.105    23.075 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT3_1/O
+                         net (fo=2, routed)           0.126    23.201    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_7
+    SLICE_X13Y111        LUT6 (Prop_lut6_I5_O)        0.105    23.306 f  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_21/O
+                         net (fo=1, routed)           0.232    23.538    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_8
+    SLICE_X14Y111        LUT4 (Prop_lut4_I3_O)        0.105    23.643 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_2/O
+                         net (fo=5, routed)           0.497    24.140    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_50
+    SLICE_X14Y110        LUT3 (Prop_lut3_I1_O)        0.105    24.245 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_8/O
+                         net (fo=2, routed)           0.434    24.679    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_8_n_0
+    SLICE_X15Y112        LUT6 (Prop_lut6_I3_O)        0.105    24.784 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_22/O
+                         net (fo=4, routed)           0.483    25.267    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_9
+    SLICE_X15Y111        LUT6 (Prop_lut6_I5_O)        0.105    25.372 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_23/O
+                         net (fo=1, routed)           0.112    25.483    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_10
+    SLICE_X15Y111        LUT2 (Prop_lut2_I1_O)        0.105    25.588 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT2_4/O
+                         net (fo=4, routed)           0.375    25.964    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_11
+    SLICE_X15Y112        LUT4 (Prop_lut4_I3_O)        0.105    26.069 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_3/O
+                         net (fo=8, routed)           0.147    26.216    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_12
+    SLICE_X15Y112        LUT6 (Prop_lut6_I5_O)        0.105    26.321 r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_24/O
+                         net (fo=3, routed)           0.398    26.718    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/FSM_onehot_arb_st_r[2]_i_1_n_0
+    SLICE_X14Y113        FDSE                                         r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/FSM_onehot_arb_st_r_reg[0]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                     20.000    20.000 r  <hidden>
+    R4                                                0.000    20.000 r  clk200_p
+                         net (fo=0)                   0.000    20.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    20.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    22.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    22.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    23.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.073    23.911 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.371    25.281    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.077    25.358 r  BUFG_1/O
+                         net (fo=55575, routed)       1.260    26.618    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/out
+    SLICE_X14Y113        FDSE                                         r  milan_datapath/pp_shadow/u_pp/u_tx_arbiter/FSM_onehot_arb_st_r_reg[0]/C
+                         clock pessimism              0.378    26.997    <hidden>
+                         clock uncertainty           -0.063    26.934    <hidden>
+    SLICE_X14Y113        FDSE (Setup_fdse_C_CE)      -0.136    26.798    milan_datapath/pp_shadow/u_pp/u_tx_arbiter/FSM_onehot_arb_st_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         26.798    <hidden>
+                         arrival time                         -26.718    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.079    <hidden>
+
+## baseline_timing.rpt:5968-6026 (least slack of every 'Min Delay Paths' group)
+Slack (MET) :             0.014ns  (arrival time - required time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_aecp/u_store/mreq_addr_r_reg[21]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            storage_32_reg/DIADI[21]
+                            (rising edge-triggered cell RAMB36E1 clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (milansoc_crg_clkout1 rise@0.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        0.311ns  (logic 0.148ns (47.565%)  route 0.163ns (52.435%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.054ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    3.472ns
+    Source Clock Delay      (SCD):    2.753ns
+    Clock Pessimism Removal (CPR):    0.665ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.369     0.369 r  IBUFDS/O
+                         net (fo=1, routed)           0.644     1.013    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.027     1.040 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.561     1.600    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.050     1.650 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           0.510     2.160    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.026     2.186 r  BUFG_1/O
+                         net (fo=55575, routed)       0.567     2.753    milan_datapath/pp_shadow/u_pp/u_aecp/u_store/out
+    SLICE_X62Y98         FDRE                                         r  milan_datapath/pp_shadow/u_pp/u_aecp/u_store/mreq_addr_r_reg[21]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X62Y98         FDRE (Prop_fdre_C_Q)         0.148     2.901 r  milan_datapath/pp_shadow/u_pp/u_aecp/u_store/mreq_addr_r_reg[21]/Q
+                         net (fo=1, routed)           0.163     3.064    pp_shadow/u_pp/desc_req_addr_w[21]
+    RAMB36_X1Y19         RAMB36E1                                     r  storage_32_reg/DIADI[21]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.400     0.400 r  IBUFDS/O
+                         net (fo=1, routed)           0.699     1.098    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.030     1.128 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           0.831     1.959    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.053     2.012 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           0.556     2.568    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.029     2.597 r  BUFG_1/O
+                         net (fo=55575, routed)       0.875     3.472    milan_clk
+    RAMB36_X1Y19         RAMB36E1                                     r  storage_32_reg/CLKBWRCLK
+                         clock pessimism             -0.665     2.806    <hidden>
+    RAMB36_X1Y19         RAMB36E1 (Hold_ramb36e1_CLKBWRCLK_DIADI[21])
+                                                      0.243     3.049    storage_32_reg
+  -------------------------------------------------------------------
+                         required time                         -3.049    <hidden>
+                         arrival time                           3.064    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.014    <hidden>
+

@@ -1,0 +1,11 @@
+--- $SCRATCH/r1b/lockstep/head-3ab2e4da.sv	2026-10-04 00:27:22.396000000 +0200
++++ $SCRATCH/work/lockstep/mutf/override_set_only.sv	2026-10-03 18:02:08.040215184 +0200
+@@ -575,7 +575,7 @@
+   assign ix_wr_row_w = rows_r[wr_ix_r];
+   assign ix_key_w    = (N_IXC_C*IXC_W_C)'({rx_cmd_eid_i, rx_cmd_mac_i});
+   assign ix_row_w    = (N_IXC_C*IXC_W_C)'(ix_wr_row_w[127:16]);
+-  assign ix_busy_w   = ix_clr_r || ix_set_r;
++  assign ix_busy_w   = ix_set_r;
+   assign ix_own_w    = (ix_wr_row_w[127:16] == {rx_cmd_eid_i, rx_cmd_mac_i});
+ 
+   for (genvar i = 0; i < N_CTRL_P; i++) begin : g_ix_row

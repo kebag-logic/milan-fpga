@@ -1,0 +1,21 @@
+--- KL_aecp_notify.sv
++++ r453/reindex_late.sv
+@@ -571,7 +571,7 @@
+   localparam int unsigned N_IXC_C = (112 + IXC_W_C - 1) / IXC_W_C;
+   logic [N_IXC_C*IXC_W_C-1:0] ix_key_w, ix_row_w;
+   logic [127:0]        ix_wr_row_w;
+-  logic                ix_clr_r, ix_set_r, ix_busy_w, ix_own_w;
++  logic                ix_clr_r, ix_set_r, ix_busy_w, ix_own_w, ix_late_r;
+   logic [N_CTRL_P-1:0] ix_hit_w;
+   assign ix_wr_row_w = rows_r[wr_ix_r];
+   assign ix_key_w    = (N_IXC_C*IXC_W_C)'({rx_cmd_eid_i, rx_cmd_mac_i});
+@@ -1054,7 +1054,8 @@
+     end else begin
+       wr_en_r         <= 1'b0;
+       ix_clr_r        <= 1'b0;
+-      ix_set_r        <= ix_clr_r;
++      ix_set_r        <= ix_late_r;
++      ix_late_r       <= ix_clr_r;
+       tmr_arm_valid_o <= 1'b0;
+       prng_draw_req_o <= 1'b0;
+       mon_arm_valid_o <= 1'b0;

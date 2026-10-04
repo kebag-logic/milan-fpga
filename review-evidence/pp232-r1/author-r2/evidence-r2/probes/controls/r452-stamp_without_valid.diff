@@ -1,0 +1,12 @@
+--- KL_aecp_notify.sv
++++ r452/stamp_without_valid.sv
+@@ -1095,8 +1095,7 @@
+       if (ev_ctr_i && ctr_ev_ok_w) ctr_dirty_r[ctr_ev_ix_w] <= 1'b1;
+       for (int unsigned c = 0; c < N_CTR_DESC_C; c++) begin
+         if (ctr_dirty_r[c] && !ctr_pend_r[c]
+-            && (!ctr_sent_r[c]
+-                || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin
++            && (((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin
+           ctr_dirty_r[c] <= 1'b0;
+           ctr_pend_r[c]  <= 1'b1;
+         end

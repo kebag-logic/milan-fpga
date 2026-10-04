@@ -1,0 +1,386 @@
+253:FAIL: U10a4: cancellation conserves all five shared TX slots, got 4
+254:FAIL: U10a5: canceled partial probe produces no retry or deregistration
+255:FAIL: U10a5.1: message type 0 waited for a live monitor probe
+256:FAIL: U10a5.10: message type 0 emitted one monitor cancellation
+257:FAIL: U10a5.2: message type 2 waited for a live monitor probe
+258:FAIL: U10a5.11: message type 2 emitted one monitor cancellation
+259:FAIL: U10a5.3: message type 4 waited for a live monitor probe
+260:FAIL: U10a5.12: message type 4 emitted one monitor cancellation
+261:FAIL: U10a5.4: message type 6 waited for a live monitor probe
+262:FAIL: U10a5.13: message type 6 emitted one monitor cancellation
+263:FAIL: U10a5.5: message type 8 waited for a live monitor probe
+264:FAIL: U10a5.14: message type 8 emitted one monitor cancellation
+265:FAIL: U10a5.6: message type 14 waited for a live monitor probe
+266:FAIL: U10a5.15: message type 14 emitted one monitor cancellation
+267:FAIL: U10a5r.1: reserved type 10 waited for a live monitor probe
+268:FAIL: U10a5r.7: following valid command canceled and rearmed it
+269:FAIL: U10a5r.2: reserved type 12 waited for a live monitor probe
+270:FAIL: U10a5r.8: following valid command canceled and rearmed it
+271:FAIL: U10a7: availability probe waits live in the originator queue
+272:FAIL: U10a8: queue delay longer than two budgets causes no timeout
+273:FAIL: U10a10: cancellation release aligns with serializer EOF
+274:FAIL: U10a12: both solicited responses drain after cancellation
+275:FAIL: U10a13: EOF-aligned cancellation conserves all five TX slots
+276:FAIL: U10b: first CONTROLLER_AVAILABLE command is byte-exact
+277:FAIL: U10c: first probe arrived after 66000 ms
+278:FAIL: U10e: the single retry arrived after 401 ms
+279:FAIL: U10f: probe failure sends targeted deregistration at seq 0
+280:FAIL: U10g: deregistration followed retry within 1000 ms
+281:FAIL: U10i: reused monitor owner advances its originator sequence
+282:FAIL: U10j: non-SUCCESS response re-arms and advances the next probe
+283:FAIL: U10k: response re-armed the monitor for 66000 ms
+284:FAIL: U10l: response-path first probe stayed inside the test window
+285:FAIL: U10m: a valid command supersedes the in-flight probe
+286:FAIL: U11e: canceling a non-head exchange compacts its queued handle
+287:FAIL: U11h: cleanup leaves no queued or inflight exchange
+288:FAIL: U11i: non-head cancellation conserves all five TX slots
+289:FAIL: GI LATENCY: no duplicate or unrelated response
+290:FAIL: GI LATENCY: no duplicate or unrelated response
+291:FAIL: GI LATENCY: no duplicate or unrelated response
+292:FAIL: GI LATENCY-WALK-ONE bit 26 return: exactly one unsolicited response for sink 0, got 0
+293:FAIL: GI LATENCY-WALK-ONE bit 26 return unsolicited: complete Milan response
+294:FAIL: GI LATENCY: no duplicate or unrelated response
+295:FAIL: GI LATENCY: no duplicate or unrelated response
+296:FAIL: GI LATENCY: no duplicate or unrelated response
+297:FAIL: GI LATENCY-WALK-ONE bit 27 step: exactly one unsolicited response for sink 0, got 0
+298:FAIL: GI LATENCY-WALK-ONE bit 27 step unsolicited: complete Milan response
+299:FAIL: GI LATENCY: no duplicate or unrelated response
+300:FAIL: GI LATENCY: no duplicate or unrelated response
+301:FAIL: GI LATENCY-WALK-ONE bit 27 return: exactly one unsolicited response for sink 0, got 0
+302:FAIL: GI LATENCY-WALK-ONE bit 27 return unsolicited: complete Milan response
+303:FAIL: GI LATENCY: no duplicate or unrelated response
+304:FAIL: GI LATENCY: no duplicate or unrelated response
+305:FAIL: GI LATENCY: no duplicate or unrelated response
+306:FAIL: GI LATENCY-WALK-ONE bit 28 step: exactly one unsolicited response for sink 0, got 0
+307:FAIL: GI LATENCY-WALK-ONE bit 28 step unsolicited: complete Milan response
+308:FAIL: GI LATENCY: no duplicate or unrelated response
+309:FAIL: GI LATENCY: no duplicate or unrelated response
+310:FAIL: GI LATENCY-WALK-ONE bit 28 return: exactly one unsolicited response for sink 0, got 0
+311:FAIL: GI LATENCY-WALK-ONE bit 28 return unsolicited: complete Milan response
+312:FAIL: GI LATENCY: no duplicate or unrelated response
+313:FAIL: GI LATENCY: no duplicate or unrelated response
+314:FAIL: GI LATENCY: no duplicate or unrelated response
+315:FAIL: GI LATENCY-WALK-ONE bit 29 step: exactly one unsolicited response for sink 0, got 0
+316:FAIL: GI LATENCY-WALK-ONE bit 29 step unsolicited: complete Milan response
+317:FAIL: GI LATENCY: no duplicate or unrelated response
+318:FAIL: GI LATENCY: no duplicate or unrelated response
+319:FAIL: GI LATENCY-WALK-ONE bit 29 return: exactly one unsolicited response for sink 0, got 0
+320:FAIL: GI LATENCY-WALK-ONE bit 29 return unsolicited: complete Milan response
+321:FAIL: GI LATENCY: no duplicate or unrelated response
+322:FAIL: GI LATENCY: no duplicate or unrelated response
+323:FAIL: GI LATENCY: no duplicate or unrelated response
+324:FAIL: GI LATENCY-WALK-ONE bit 30 step: exactly one unsolicited response for sink 0, got 0
+325:FAIL: GI LATENCY-WALK-ONE bit 30 step unsolicited: complete Milan response
+326:FAIL: GI LATENCY: no duplicate or unrelated response
+327:FAIL: GI LATENCY: no duplicate or unrelated response
+328:FAIL: GI LATENCY-WALK-ONE bit 30 return: exactly one unsolicited response for sink 0, got 0
+329:FAIL: GI LATENCY-WALK-ONE bit 30 return unsolicited: complete Milan response
+330:FAIL: GI LATENCY: no duplicate or unrelated response
+331:FAIL: GI LATENCY: no duplicate or unrelated response
+332:FAIL: GI LATENCY: no duplicate or unrelated response
+333:FAIL: GI LATENCY-WALK-ONE bit 31 step: exactly one unsolicited response for sink 0, got 0
+334:FAIL: GI LATENCY-WALK-ONE bit 31 step unsolicited: complete Milan response
+335:FAIL: GI LATENCY: no duplicate or unrelated response
+336:FAIL: GI LATENCY: no duplicate or unrelated response
+337:FAIL: GI LATENCY-WALK-ONE bit 31 return: exactly one unsolicited response for sink 0, got 0
+338:FAIL: GI LATENCY-WALK-ONE bit 31 return unsolicited: complete Milan response
+339:FAIL: GI LATENCY: no duplicate or unrelated response
+340:FAIL: GI LATENCY: no duplicate or unrelated response
+341:FAIL: GI LATENCY: no duplicate or unrelated response
+342:FAIL: GI LATENCY-WALK-ZERO bit 0 step: exactly one unsolicited response for sink 1, got 0
+343:FAIL: GI LATENCY-WALK-ZERO bit 0 step unsolicited: complete Milan response
+344:FAIL: GI LATENCY: no duplicate or unrelated response
+345:FAIL: GI LATENCY: no duplicate or unrelated response
+346:FAIL: GI LATENCY-WALK-ZERO bit 0 return: exactly one unsolicited response for sink 1, got 0
+347:FAIL: GI LATENCY-WALK-ZERO bit 0 return unsolicited: complete Milan response
+348:FAIL: GI LATENCY: no duplicate or unrelated response
+349:FAIL: GI LATENCY: no duplicate or unrelated response
+350:FAIL: GI LATENCY: no duplicate or unrelated response
+351:FAIL: GI LATENCY-WALK-ZERO bit 1 step: exactly one unsolicited response for sink 1, got 0
+352:FAIL: GI LATENCY-WALK-ZERO bit 1 step unsolicited: complete Milan response
+353:FAIL: GI LATENCY: no duplicate or unrelated response
+354:FAIL: GI LATENCY: no duplicate or unrelated response
+355:FAIL: GI LATENCY-WALK-ZERO bit 1 return: exactly one unsolicited response for sink 1, got 0
+356:FAIL: GI LATENCY-WALK-ZERO bit 1 return unsolicited: complete Milan response
+357:FAIL: GI LATENCY: no duplicate or unrelated response
+358:FAIL: GI LATENCY: no duplicate or unrelated response
+359:FAIL: GI LATENCY: no duplicate or unrelated response
+360:FAIL: GI LATENCY-WALK-ZERO bit 2 step: exactly one unsolicited response for sink 1, got 0
+361:FAIL: GI LATENCY-WALK-ZERO bit 2 step unsolicited: complete Milan response
+362:FAIL: GI LATENCY: no duplicate or unrelated response
+363:FAIL: GI LATENCY: no duplicate or unrelated response
+364:FAIL: GI LATENCY-WALK-ZERO bit 2 return: exactly one unsolicited response for sink 1, got 0
+365:FAIL: GI LATENCY-WALK-ZERO bit 2 return unsolicited: complete Milan response
+366:FAIL: GI LATENCY: no duplicate or unrelated response
+367:FAIL: GI LATENCY: no duplicate or unrelated response
+368:FAIL: GI LATENCY: no duplicate or unrelated response
+369:FAIL: GI LATENCY-WALK-ZERO bit 3 step: exactly one unsolicited response for sink 1, got 0
+370:FAIL: GI LATENCY-WALK-ZERO bit 3 step unsolicited: complete Milan response
+371:FAIL: GI LATENCY: no duplicate or unrelated response
+372:FAIL: GI LATENCY: no duplicate or unrelated response
+373:FAIL: GI LATENCY-WALK-ZERO bit 3 return: exactly one unsolicited response for sink 1, got 0
+374:FAIL: GI LATENCY-WALK-ZERO bit 3 return unsolicited: complete Milan response
+375:FAIL: GI LATENCY: no duplicate or unrelated response
+376:FAIL: GI LATENCY: no duplicate or unrelated response
+377:FAIL: GI LATENCY: no duplicate or unrelated response
+378:FAIL: GI LATENCY-WALK-ZERO bit 4 step: exactly one unsolicited response for sink 1, got 0
+379:FAIL: GI LATENCY-WALK-ZERO bit 4 step unsolicited: complete Milan response
+380:FAIL: GI LATENCY: no duplicate or unrelated response
+381:FAIL: GI LATENCY: no duplicate or unrelated response
+382:FAIL: GI LATENCY-WALK-ZERO bit 4 return: exactly one unsolicited response for sink 1, got 0
+383:FAIL: GI LATENCY-WALK-ZERO bit 4 return unsolicited: complete Milan response
+384:FAIL: GI LATENCY: no duplicate or unrelated response
+385:FAIL: GI LATENCY: no duplicate or unrelated response
+386:FAIL: GI LATENCY: no duplicate or unrelated response
+387:FAIL: GI LATENCY-WALK-ZERO bit 5 step: exactly one unsolicited response for sink 1, got 0
+388:FAIL: GI LATENCY-WALK-ZERO bit 5 step unsolicited: complete Milan response
+389:FAIL: GI LATENCY: no duplicate or unrelated response
+390:FAIL: GI LATENCY: no duplicate or unrelated response
+391:FAIL: GI LATENCY-WALK-ZERO bit 5 return: exactly one unsolicited response for sink 1, got 0
+392:FAIL: GI LATENCY-WALK-ZERO bit 5 return unsolicited: complete Milan response
+393:FAIL: GI LATENCY: no duplicate or unrelated response
+394:FAIL: GI LATENCY: no duplicate or unrelated response
+395:FAIL: GI LATENCY: no duplicate or unrelated response
+396:FAIL: GI LATENCY-WALK-ZERO bit 6 step: exactly one unsolicited response for sink 1, got 0
+397:FAIL: GI LATENCY-WALK-ZERO bit 6 step unsolicited: complete Milan response
+398:FAIL: GI LATENCY: no duplicate or unrelated response
+399:FAIL: GI LATENCY: no duplicate or unrelated response
+400:FAIL: GI LATENCY-WALK-ZERO bit 6 return: exactly one unsolicited response for sink 1, got 0
+401:FAIL: GI LATENCY-WALK-ZERO bit 6 return unsolicited: complete Milan response
+402:FAIL: GI LATENCY: no duplicate or unrelated response
+403:FAIL: GI LATENCY: no duplicate or unrelated response
+404:FAIL: GI LATENCY: no duplicate or unrelated response
+405:FAIL: GI LATENCY-WALK-ZERO bit 7 step: exactly one unsolicited response for sink 1, got 0
+406:FAIL: GI LATENCY-WALK-ZERO bit 7 step unsolicited: complete Milan response
+407:FAIL: GI LATENCY: no duplicate or unrelated response
+408:FAIL: GI LATENCY: no duplicate or unrelated response
+409:FAIL: GI LATENCY-WALK-ZERO bit 7 return: exactly one unsolicited response for sink 1, got 0
+410:FAIL: GI LATENCY-WALK-ZERO bit 7 return unsolicited: complete Milan response
+411:FAIL: GI LATENCY: no duplicate or unrelated response
+412:FAIL: GI LATENCY: no duplicate or unrelated response
+413:FAIL: GI LATENCY: no duplicate or unrelated response
+414:FAIL: GI LATENCY-WALK-ZERO bit 8 step: exactly one unsolicited response for sink 1, got 0
+415:FAIL: GI LATENCY-WALK-ZERO bit 8 step unsolicited: complete Milan response
+416:FAIL: GI LATENCY: no duplicate or unrelated response
+417:FAIL: GI LATENCY: no duplicate or unrelated response
+418:FAIL: GI LATENCY-WALK-ZERO bit 8 return: exactly one unsolicited response for sink 1, got 0
+419:FAIL: GI LATENCY-WALK-ZERO bit 8 return unsolicited: complete Milan response
+420:FAIL: GI LATENCY: no duplicate or unrelated response
+421:FAIL: GI LATENCY: no duplicate or unrelated response
+422:FAIL: GI LATENCY: no duplicate or unrelated response
+423:FAIL: GI LATENCY-WALK-ZERO bit 9 step: exactly one unsolicited response for sink 1, got 0
+424:FAIL: GI LATENCY-WALK-ZERO bit 9 step unsolicited: complete Milan response
+425:FAIL: GI LATENCY: no duplicate or unrelated response
+426:FAIL: GI LATENCY: no duplicate or unrelated response
+427:FAIL: GI LATENCY-WALK-ZERO bit 9 return: exactly one unsolicited response for sink 1, got 0
+428:FAIL: GI LATENCY-WALK-ZERO bit 9 return unsolicited: complete Milan response
+429:FAIL: GI LATENCY: no duplicate or unrelated response
+430:FAIL: GI LATENCY: no duplicate or unrelated response
+431:FAIL: GI LATENCY: no duplicate or unrelated response
+432:FAIL: GI LATENCY-WALK-ZERO bit 10 step: exactly one unsolicited response for sink 1, got 0
+433:FAIL: GI LATENCY-WALK-ZERO bit 10 step unsolicited: complete Milan response
+434:FAIL: GI LATENCY: no duplicate or unrelated response
+435:FAIL: GI LATENCY: no duplicate or unrelated response
+436:FAIL: GI LATENCY-WALK-ZERO bit 10 return: exactly one unsolicited response for sink 1, got 0
+437:FAIL: GI LATENCY-WALK-ZERO bit 10 return unsolicited: complete Milan response
+438:FAIL: GI LATENCY: no duplicate or unrelated response
+439:FAIL: GI LATENCY: no duplicate or unrelated response
+440:FAIL: GI LATENCY: no duplicate or unrelated response
+441:FAIL: GI LATENCY-WALK-ZERO bit 11 step: exactly one unsolicited response for sink 1, got 0
+442:FAIL: GI LATENCY-WALK-ZERO bit 11 step unsolicited: complete Milan response
+443:FAIL: GI LATENCY: no duplicate or unrelated response
+444:FAIL: GI LATENCY: no duplicate or unrelated response
+445:FAIL: GI LATENCY-WALK-ZERO bit 11 return: exactly one unsolicited response for sink 1, got 0
+446:FAIL: GI LATENCY-WALK-ZERO bit 11 return unsolicited: complete Milan response
+447:FAIL: GI LATENCY: no duplicate or unrelated response
+448:FAIL: GI LATENCY: no duplicate or unrelated response
+449:FAIL: GI LATENCY: no duplicate or unrelated response
+450:FAIL: GI LATENCY-WALK-ZERO bit 12 step: exactly one unsolicited response for sink 1, got 0
+451:FAIL: GI LATENCY-WALK-ZERO bit 12 step unsolicited: complete Milan response
+452:FAIL: GI LATENCY: no duplicate or unrelated response
+453:FAIL: GI LATENCY: no duplicate or unrelated response
+454:FAIL: GI LATENCY-WALK-ZERO bit 12 return: exactly one unsolicited response for sink 1, got 0
+455:FAIL: GI LATENCY-WALK-ZERO bit 12 return unsolicited: complete Milan response
+456:FAIL: GI LATENCY: no duplicate or unrelated response
+457:FAIL: GI LATENCY: no duplicate or unrelated response
+458:FAIL: GI LATENCY: no duplicate or unrelated response
+459:FAIL: GI LATENCY-WALK-ZERO bit 13 step: exactly one unsolicited response for sink 1, got 0
+460:FAIL: GI LATENCY-WALK-ZERO bit 13 step unsolicited: complete Milan response
+461:FAIL: GI LATENCY: no duplicate or unrelated response
+462:FAIL: GI LATENCY: no duplicate or unrelated response
+463:FAIL: GI LATENCY-WALK-ZERO bit 13 return: exactly one unsolicited response for sink 1, got 0
+464:FAIL: GI LATENCY-WALK-ZERO bit 13 return unsolicited: complete Milan response
+465:FAIL: GI LATENCY: no duplicate or unrelated response
+466:FAIL: GI LATENCY: no duplicate or unrelated response
+467:FAIL: GI LATENCY: no duplicate or unrelated response
+468:FAIL: GI LATENCY-WALK-ZERO bit 14 step: exactly one unsolicited response for sink 1, got 0
+469:FAIL: GI LATENCY-WALK-ZERO bit 14 step unsolicited: complete Milan response
+470:FAIL: GI LATENCY: no duplicate or unrelated response
+471:FAIL: GI LATENCY: no duplicate or unrelated response
+472:FAIL: GI LATENCY-WALK-ZERO bit 14 return: exactly one unsolicited response for sink 1, got 0
+473:FAIL: GI LATENCY-WALK-ZERO bit 14 return unsolicited: complete Milan response
+474:FAIL: GI LATENCY: no duplicate or unrelated response
+475:FAIL: GI LATENCY: no duplicate or unrelated response
+476:FAIL: GI LATENCY: no duplicate or unrelated response
+477:FAIL: GI LATENCY-WALK-ZERO bit 15 step: exactly one unsolicited response for sink 1, got 0
+478:FAIL: GI LATENCY-WALK-ZERO bit 15 step unsolicited: complete Milan response
+479:FAIL: GI LATENCY: no duplicate or unrelated response
+480:FAIL: GI LATENCY: no duplicate or unrelated response
+481:FAIL: GI LATENCY-WALK-ZERO bit 15 return: exactly one unsolicited response for sink 1, got 0
+482:FAIL: GI LATENCY-WALK-ZERO bit 15 return unsolicited: complete Milan response
+483:FAIL: GI LATENCY: no duplicate or unrelated response
+484:FAIL: GI LATENCY: no duplicate or unrelated response
+485:FAIL: GI LATENCY: no duplicate or unrelated response
+486:FAIL: GI LATENCY-WALK-ZERO bit 16 step: exactly one unsolicited response for sink 1, got 0
+487:FAIL: GI LATENCY-WALK-ZERO bit 16 step unsolicited: complete Milan response
+488:FAIL: GI LATENCY: no duplicate or unrelated response
+489:FAIL: GI LATENCY: no duplicate or unrelated response
+490:FAIL: GI LATENCY-WALK-ZERO bit 16 return: exactly one unsolicited response for sink 1, got 0
+491:FAIL: GI LATENCY-WALK-ZERO bit 16 return unsolicited: complete Milan response
+492:FAIL: GI LATENCY: no duplicate or unrelated response
+493:FAIL: GI LATENCY: no duplicate or unrelated response
+494:FAIL: GI LATENCY: no duplicate or unrelated response
+495:FAIL: GI LATENCY-WALK-ZERO bit 17 step: exactly one unsolicited response for sink 1, got 0
+496:FAIL: GI LATENCY-WALK-ZERO bit 17 step unsolicited: complete Milan response
+497:FAIL: GI LATENCY: no duplicate or unrelated response
+498:FAIL: GI LATENCY: no duplicate or unrelated response
+499:FAIL: GI LATENCY-WALK-ZERO bit 17 return: exactly one unsolicited response for sink 1, got 0
+500:FAIL: GI LATENCY-WALK-ZERO bit 17 return unsolicited: complete Milan response
+501:FAIL: GI LATENCY: no duplicate or unrelated response
+502:FAIL: GI LATENCY: no duplicate or unrelated response
+503:FAIL: GI LATENCY: no duplicate or unrelated response
+504:FAIL: GI LATENCY-WALK-ZERO bit 18 step: exactly one unsolicited response for sink 1, got 0
+505:FAIL: GI LATENCY-WALK-ZERO bit 18 step unsolicited: complete Milan response
+506:FAIL: GI LATENCY: no duplicate or unrelated response
+507:FAIL: GI LATENCY: no duplicate or unrelated response
+508:FAIL: GI LATENCY-WALK-ZERO bit 18 return: exactly one unsolicited response for sink 1, got 0
+509:FAIL: GI LATENCY-WALK-ZERO bit 18 return unsolicited: complete Milan response
+510:FAIL: GI LATENCY: no duplicate or unrelated response
+511:FAIL: GI LATENCY: no duplicate or unrelated response
+512:FAIL: GI LATENCY: no duplicate or unrelated response
+513:FAIL: GI LATENCY-WALK-ZERO bit 19 step: exactly one unsolicited response for sink 1, got 0
+514:FAIL: GI LATENCY-WALK-ZERO bit 19 step unsolicited: complete Milan response
+515:FAIL: GI LATENCY: no duplicate or unrelated response
+516:FAIL: GI LATENCY: no duplicate or unrelated response
+517:FAIL: GI LATENCY-WALK-ZERO bit 19 return: exactly one unsolicited response for sink 1, got 0
+518:FAIL: GI LATENCY-WALK-ZERO bit 19 return unsolicited: complete Milan response
+519:FAIL: GI LATENCY: no duplicate or unrelated response
+520:FAIL: GI LATENCY: no duplicate or unrelated response
+521:FAIL: GI LATENCY: no duplicate or unrelated response
+522:FAIL: GI LATENCY-WALK-ZERO bit 20 step: exactly one unsolicited response for sink 1, got 0
+523:FAIL: GI LATENCY-WALK-ZERO bit 20 step unsolicited: complete Milan response
+524:FAIL: GI LATENCY: no duplicate or unrelated response
+525:FAIL: GI LATENCY: no duplicate or unrelated response
+526:FAIL: GI LATENCY-WALK-ZERO bit 20 return: exactly one unsolicited response for sink 1, got 0
+527:FAIL: GI LATENCY-WALK-ZERO bit 20 return unsolicited: complete Milan response
+528:FAIL: GI LATENCY: no duplicate or unrelated response
+529:FAIL: GI LATENCY: no duplicate or unrelated response
+530:FAIL: GI LATENCY: no duplicate or unrelated response
+531:FAIL: GI LATENCY-WALK-ZERO bit 21 step: exactly one unsolicited response for sink 1, got 0
+532:FAIL: GI LATENCY-WALK-ZERO bit 21 step unsolicited: complete Milan response
+533:FAIL: GI LATENCY: no duplicate or unrelated response
+534:FAIL: GI LATENCY: no duplicate or unrelated response
+535:FAIL: GI LATENCY-WALK-ZERO bit 21 return: exactly one unsolicited response for sink 1, got 0
+536:FAIL: GI LATENCY-WALK-ZERO bit 21 return unsolicited: complete Milan response
+537:FAIL: GI LATENCY: no duplicate or unrelated response
+538:FAIL: GI LATENCY: no duplicate or unrelated response
+539:FAIL: GI LATENCY: no duplicate or unrelated response
+540:FAIL: GI LATENCY-WALK-ZERO bit 22 step: exactly one unsolicited response for sink 1, got 0
+541:FAIL: GI LATENCY-WALK-ZERO bit 22 step unsolicited: complete Milan response
+542:FAIL: GI LATENCY: no duplicate or unrelated response
+543:FAIL: GI LATENCY: no duplicate or unrelated response
+544:FAIL: GI LATENCY-WALK-ZERO bit 22 return: exactly one unsolicited response for sink 1, got 0
+545:FAIL: GI LATENCY-WALK-ZERO bit 22 return unsolicited: complete Milan response
+546:FAIL: GI LATENCY: no duplicate or unrelated response
+547:FAIL: GI LATENCY: no duplicate or unrelated response
+548:FAIL: GI LATENCY: no duplicate or unrelated response
+549:FAIL: GI LATENCY-WALK-ZERO bit 23 step: exactly one unsolicited response for sink 1, got 0
+550:FAIL: GI LATENCY-WALK-ZERO bit 23 step unsolicited: complete Milan response
+551:FAIL: GI LATENCY: no duplicate or unrelated response
+552:FAIL: GI LATENCY: no duplicate or unrelated response
+553:FAIL: GI LATENCY-WALK-ZERO bit 23 return: exactly one unsolicited response for sink 1, got 0
+554:FAIL: GI LATENCY-WALK-ZERO bit 23 return unsolicited: complete Milan response
+555:FAIL: GI LATENCY: no duplicate or unrelated response
+556:FAIL: GI LATENCY: no duplicate or unrelated response
+557:FAIL: GI LATENCY: no duplicate or unrelated response
+558:FAIL: GI LATENCY-WALK-ZERO bit 24 step: exactly one unsolicited response for sink 1, got 0
+559:FAIL: GI LATENCY-WALK-ZERO bit 24 step unsolicited: complete Milan response
+560:FAIL: GI LATENCY: no duplicate or unrelated response
+561:FAIL: GI LATENCY: no duplicate or unrelated response
+562:FAIL: GI LATENCY-WALK-ZERO bit 24 return: exactly one unsolicited response for sink 1, got 0
+563:FAIL: GI LATENCY-WALK-ZERO bit 24 return unsolicited: complete Milan response
+564:FAIL: GI LATENCY: no duplicate or unrelated response
+565:FAIL: GI LATENCY: no duplicate or unrelated response
+566:FAIL: GI LATENCY: no duplicate or unrelated response
+567:FAIL: GI LATENCY-WALK-ZERO bit 25 step: exactly one unsolicited response for sink 1, got 0
+568:FAIL: GI LATENCY-WALK-ZERO bit 25 step unsolicited: complete Milan response
+569:FAIL: GI LATENCY: no duplicate or unrelated response
+570:FAIL: GI LATENCY: no duplicate or unrelated response
+571:FAIL: GI LATENCY-WALK-ZERO bit 25 return: exactly one unsolicited response for sink 1, got 0
+572:FAIL: GI LATENCY-WALK-ZERO bit 25 return unsolicited: complete Milan response
+573:FAIL: GI LATENCY: no duplicate or unrelated response
+574:FAIL: GI LATENCY: no duplicate or unrelated response
+575:FAIL: GI LATENCY: no duplicate or unrelated response
+576:FAIL: GI LATENCY-WALK-ZERO bit 26 step: exactly one unsolicited response for sink 1, got 0
+577:FAIL: GI LATENCY-WALK-ZERO bit 26 step unsolicited: complete Milan response
+578:FAIL: GI LATENCY: no duplicate or unrelated response
+579:FAIL: GI LATENCY: no duplicate or unrelated response
+580:FAIL: GI LATENCY-WALK-ZERO bit 26 return: exactly one unsolicited response for sink 1, got 0
+581:FAIL: GI LATENCY-WALK-ZERO bit 26 return unsolicited: complete Milan response
+582:FAIL: GI LATENCY: no duplicate or unrelated response
+583:FAIL: GI LATENCY: no duplicate or unrelated response
+584:FAIL: GI LATENCY: no duplicate or unrelated response
+585:FAIL: GI LATENCY-WALK-ZERO bit 27 step: exactly one unsolicited response for sink 1, got 0
+586:FAIL: GI LATENCY-WALK-ZERO bit 27 step unsolicited: complete Milan response
+587:FAIL: GI LATENCY: no duplicate or unrelated response
+588:FAIL: GI LATENCY: no duplicate or unrelated response
+589:FAIL: GI LATENCY-WALK-ZERO bit 27 return: exactly one unsolicited response for sink 1, got 0
+590:FAIL: GI LATENCY-WALK-ZERO bit 27 return unsolicited: complete Milan response
+591:FAIL: GI LATENCY: no duplicate or unrelated response
+592:FAIL: GI LATENCY: no duplicate or unrelated response
+593:FAIL: GI LATENCY: no duplicate or unrelated response
+594:FAIL: GI LATENCY-WALK-ZERO bit 28 step: exactly one unsolicited response for sink 1, got 0
+595:FAIL: GI LATENCY-WALK-ZERO bit 28 step unsolicited: complete Milan response
+596:FAIL: GI LATENCY: no duplicate or unrelated response
+597:FAIL: GI LATENCY: no duplicate or unrelated response
+598:FAIL: GI LATENCY-WALK-ZERO bit 28 return: exactly one unsolicited response for sink 1, got 0
+599:FAIL: GI LATENCY-WALK-ZERO bit 28 return unsolicited: complete Milan response
+600:FAIL: GI LATENCY: no duplicate or unrelated response
+601:FAIL: GI LATENCY: no duplicate or unrelated response
+602:FAIL: GI LATENCY: no duplicate or unrelated response
+603:FAIL: GI LATENCY-WALK-ZERO bit 29 step: exactly one unsolicited response for sink 1, got 0
+604:FAIL: GI LATENCY-WALK-ZERO bit 29 step unsolicited: complete Milan response
+605:FAIL: GI LATENCY: no duplicate or unrelated response
+606:FAIL: GI LATENCY: no duplicate or unrelated response
+607:FAIL: GI LATENCY-WALK-ZERO bit 29 return: exactly one unsolicited response for sink 1, got 0
+608:FAIL: GI LATENCY-WALK-ZERO bit 29 return unsolicited: complete Milan response
+609:FAIL: GI LATENCY: no duplicate or unrelated response
+610:FAIL: GI LATENCY: no duplicate or unrelated response
+611:FAIL: GI LATENCY: no duplicate or unrelated response
+612:FAIL: GI LATENCY-WALK-ZERO bit 30 step: exactly one unsolicited response for sink 1, got 0
+613:FAIL: GI LATENCY-WALK-ZERO bit 30 step unsolicited: complete Milan response
+614:FAIL: GI LATENCY: no duplicate or unrelated response
+615:FAIL: GI LATENCY: no duplicate or unrelated response
+616:FAIL: GI LATENCY-WALK-ZERO bit 30 return: exactly one unsolicited response for sink 1, got 0
+617:FAIL: GI LATENCY-WALK-ZERO bit 30 return unsolicited: complete Milan response
+618:FAIL: GI LATENCY: no duplicate or unrelated response
+619:FAIL: GI LATENCY: no duplicate or unrelated response
+620:FAIL: GI LATENCY: no duplicate or unrelated response
+621:FAIL: GI LATENCY-WALK-ZERO bit 31 step: exactly one unsolicited response for sink 1, got 0
+622:FAIL: GI LATENCY-WALK-ZERO bit 31 step unsolicited: complete Milan response
+623:FAIL: GI LATENCY: no duplicate or unrelated response
+624:FAIL: GI LATENCY: no duplicate or unrelated response
+625:FAIL: GI LATENCY-WALK-ZERO bit 31 return: exactly one unsolicited response for sink 1, got 0
+626:FAIL: GI LATENCY-WALK-ZERO bit 31 return unsolicited: complete Milan response
+627:FAIL: GI LATENCY: no duplicate or unrelated response
+628:FAIL: GI LATENCY: no duplicate or unrelated response
+630:FAIL: GI FAILED-AGAIN unsolicited: complete Milan response
+631:FAIL: GI FAILED-AGAIN: solicited and unsolicited bodies agree for sink 0
+632:FAIL: GI WITHDRAWAL unsolicited: complete Milan response
+633:FAIL: GI WITHDRAWAL: solicited and unsolicited bodies agree for sink 0
+634:FAIL: GI WITHDRAWAL-PROBING unsolicited: complete Milan response
+635:FAIL: GI WITHDRAWAL-PROBING: solicited and unsolicited bodies agree for sink 0
+636:FAIL: GI DISABLED unsolicited: complete Milan response
+637:FAIL: GI DISABLED: solicited and unsolicited bodies agree for sink 0
+673:[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9536 checks, 384 failures
+674:make: *** [Makefile:156: run] Error 1
