@@ -1,0 +1,4 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the CRF unbind does not count its unlock (the engine before #653) - breaks [UNB] CRF sink 1 U3 as the response left: the source's MEDIA_LOCKED, MEDIA_UNLOCKED; [UNB] CRF sink 1 U3 right after the response: MEDIA_UNLOCKED = MEDIA_LOCKED (its tallies report 2 failure(s) across 421 checks)
+
+2 checks: 2 PASS, 0 FAIL
