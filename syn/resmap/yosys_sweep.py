@@ -849,12 +849,13 @@ def _selftest_plan() -> list[str]:
     text = variant_text(base, {"streams": 2, "channels": 4})
     if text.count('channels: 4, map_mode: dynamic') != 4:
         problems.append("plan: the 2x2 four-channel variant does not declare four four-channel streams")
-    for label, mutate in (
-            ("an expectation that is neither built nor refused", lambda v: v["rm_ax7101_8x8_tdm8"].update(
-                expect="refuse")),
-            ("an expected refusal with no pinned cause", lambda v: v["rm_ax7101_8x8_tdm8"].pop("cause")),
+    for label, mutate, reason in (
+            ("an expectation that is neither built nor refused", lambda v: v["rm_ax7101_2x2_tdm8"].update(
+                expect="refuse"), "expect must be built or refused"),
+            ("an expected refusal with no pinned cause", lambda v: v["rm_ax7101_8x8_tdm8"].pop("cause"),
+             "must pin its cause"),
             ("a cause pinned on a variant expected to build", lambda v: v["rm_ax7101_2x2_tdm8"].update(
-                cause="writable names"))):
+                cause="writable names"), "expects to build")):
         broken = json.loads(json.dumps(plan))
         mutate(broken["variants"])
         with tempfile.TemporaryDirectory(prefix="resmap-plan-") as tmp:
@@ -863,8 +864,9 @@ def _selftest_plan() -> list[str]:
             try:
                 load_plan(path)
                 problems.append(f"plan: {label} was accepted")
-            except PlanError:
-                pass
+            except PlanError as refusal:
+                if reason not in str(refusal):
+                    problems.append(f"plan: {label} was refused for another reason: {refusal}")
     return problems
 
 
