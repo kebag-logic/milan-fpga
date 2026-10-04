@@ -1,0 +1,49 @@
+# check_receipts.py (round-1, unchanged): head page vs r1 run-receipts.json vs head sweep_plan.json
+receipt points: 59 plan points: 59
+sample receipt keys: ['inputs', 'outputs', 'point', 'rc', 'roms', 'seconds']
+page receipt rows: 59
+sum of page seconds (min): 247.9
+plan points missing from page: []
+refused on page: ['pp-ctrl-32', 'pp-line-1152', 'pp-line-288', 'pp-line-512', 'pp-names-235', 'streams-8', 'streams-8-chans-2']
+ALL RECEIPT ROWS MATCH []
+rc=0
+# check_receipts2.py (round-1, unchanged)
+points with ROMs recorded: 59 of 59
+anchor ship rc 0 min 18.9 log b42c9ec112cfa29f page row True
+anchor ship-8x8 rc 0 min 29.1 log b85aa07b33221025 page row True
+anchor streams-2 rc 0 min 20.3 log 522655f46cfc6954 page row True
+anchor streams-4 rc 0 min 22.2 log 3a40bae068e72c76 page row True
+anchor streams-8 rc 1 min 0.2 log 9c2ac5ce68776d0d page row True
+route checkpoint 769a04bb733f2281 in #234 page: False
+FAILURES ['checkpoint digest not in #234 findings']
+rc=0
+# compare_tables.py (round-1, unchanged): head page vs cold-generated tables.md
+EQUAL  map-image
+EQUAL  map-datapath
+EQUAL  map-soc-names
+EQUAL  map-lut-sharing
+EQUAL  map-ranking
+EQUAL  guard-refusals
+EQUAL  vivado-opt-data
+EQUAL  vivado-opt-fit
+EQUAL  vivado-opt-blocks
+EQUAL  yosys-stream-total
+EQUAL  yosys-stream-data
+EQUAL  yosys-stream-blocks
+EQUAL  tdm-model
+EQUAL  datapath-marginals
+EQUAL  processor-parameters
+EQUAL  processor-marginals
+EQUAL  soc-outcomes
+EQUAL  soc-prices
+EQUAL  soc-variant-prices
+EQUAL  soc-variant-fits
+EQUAL  soc-variant-not-generated
+EQUAL  redundancy-blocks
+EQUAL  adp-marginals
+EQUAL  calibration-totals
+EQUAL  calibration-blocks
+EQUAL  soc-variant-receipts
+generated but not quoted: ['vivado-synth-blocks', 'vivado-synth-data', 'vivado-synth-fit']
+page blocks: 26 differing: 0
+rc=0

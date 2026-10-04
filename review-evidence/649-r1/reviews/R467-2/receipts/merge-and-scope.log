@@ -1,0 +1,38 @@
+# merge check
+da0dbc37437b58ac591467cd1b8daa9c8896cf6e
+fea346e76c2a57ed5cd131af8fc68dfeff57f877
+recorded merge tree: 44fd4adafa8fa32cdaeefec6128f7fb7e73f0a6a
+fresh merge-tree:    44fd4adafa8fa32cdaeefec6128f7fb7e73f0a6a
+merge-base: 241f91845230ae410506dffb16b71937127fd175
+# files changed by dev side 241f9184..fea346e7
+docs/design/MEDIA_CLOCK_FOLLOWING.md
+docs/design/TIME_SYNC.md
+docs/testing/TESTING.md
+tb/verilator/README.md
+tb/verilator/milan_dp_render/Makefile
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+tb/verilator/milan_dp_render/tdm8_render_mutants.py
+# diff vs dev fea346e7 -> head (name-status)
+A	docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md
+M	docs/findings/README.md
+A	syn/resmap/datapath_ooc.tcl
+A	syn/resmap/resmap_map.py
+A	syn/resmap/resmap_models.py
+A	syn/resmap/resmap_tables.py
+A	syn/resmap/route_map.tcl
+A	syn/resmap/soc_sweep.py
+A	syn/resmap/sweep_plan.json
+A	syn/resmap/yosys_sweep.py
+# overlap of dev-side files with lane files: 0
+# gitlinks at head
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 631eeb342ca1e3fa80e734077a56a943aee76ff1	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# gitlinks at fea346e7
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit 631eeb342ca1e3fa80e734077a56a943aee76ff1	protocol-processor
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# round-2 commits touching tracked recipe? sw/litex
+(end)

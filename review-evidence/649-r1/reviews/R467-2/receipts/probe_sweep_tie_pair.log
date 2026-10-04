@@ -1,0 +1,5 @@
+# yosys_sweep.py summary tie: both halves disabled together (tie(): inclusive-vs-design and blocks-sum-vs-design), then --selftest, on the git-archive copy
+SELF-TEST FAILED: expand: a planted wrong CARRY4 count tied clean
+yosys_sweep self-test: FAIL (1 problems)
+rc=1 (the tie as a whole is armed; disabling only its first half survives because the second half catches the same plant)
+copy restored: cmp equal
