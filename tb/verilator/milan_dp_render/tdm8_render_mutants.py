@@ -70,12 +70,16 @@ proves these assertions can fail, inside its own wall clock.
 `--law-boundary [--jobs N]` runs only #643's boundary-band diagnostic (see
 LAW_BOUNDARY_HALF below): the [LAW] phases at the feed phases where a PDU end
 meets a pop, on the unmutated gateware and on the two setpoint defects, N
-legs at a time. It is its own explicit target, tdm8render-law-boundary.
+legs at a time. It prints every window's nearest-pop range and walk, and the
+largest walk against the one the leg states. It is its own explicit target,
+tdm8render-law-boundary.
 
 Usage: python3 tdm8_render_mutants.py [--leg-defects | --law-boundary
                                        [--jobs N]]
                                        (run from tb/verilator/milan_dp_render)
-   or: make -C tb/verilator/milan_dp_render tdm8render-mutants
+   or: cd tb/verilator/milan_dp_render && make tdm8render-mutants
+       (not make -C: under it the nested builds read make's directory
+       banner into the datapath source list)
 Exit 0 = every mutant was caught, and every clean control still passes.
 """
 
@@ -461,7 +465,8 @@ LEG_DEFECT_CONTROLS = (("ship", "--serial-only"), ("ship", "--crf-only"))
 #: settled wait. Every phase must come out graded or NOT GRADABLE; a graded
 #: one must pass on the sound design and fail both law checks on a defect; a
 #: NOT GRADABLE one must fail nothing. Each scan must hold both kinds, or it
-#: never reached the boundary.
+#: never reached the boundary. Every window's nearest-pop range and walk is
+#: printed under its run's verdict, so the output re-measures the walk.
 LAW_BOUNDARY_HALF = 40
 LAW_ALONE_HALF = 12
 LAW_CHECK_STEMS = ("the fill at every PDU end is the setpoint plus that PDU, "
@@ -471,6 +476,13 @@ LAW_CHECK_STEMS = ("the fill at every PDU end is the setpoint plus that PDU, "
 BOUNDARY_LINE = re.compile(r"\[BOUNDARY\] \+(\d+): (graded PASS|graded FAIL|"
                            r"NOT GRADABLE), (\d+) check")
 LOCATED_LINE = re.compile(r"an end meets a pop near \+(\d+);")
+#: each window's offsets as the leg prints them: the pop nearest the boundary
+#: over its steady PDU ends, the walk, and the least clearance; and the walk
+#: the leg states, so the diagnostic's output re-measures it
+OFFSETS_LINE = re.compile(r"T30 INTERNAL LAW \+(\d+): over \d+ steady PDU ends "
+                          r".*? the pop nearest the boundary ([+-]\d+)\.\.([+-]\d+) "
+                          r"\(walk (\d+)\); the least clearance is (\d+) cycles")
+STATED_WALK_LINE = re.compile(r"the ambiguity window is \d+ cycles: a walk of (\d+)")
 
 
 def build(leg: str, overrides: dict[str, str], mdir: Path) -> Path | None:
@@ -672,16 +684,16 @@ def run_mutations(work: Path) -> Tally:
                   "that cannot build proves nothing about the leg")
             continue
         answer = verdict(*run_leg(mexe, mode), breaks)
-        named = (breaks if isinstance(breaks, str)
-                 else f"{breaks[0]}\" and {len(breaks) - 1} more")
+        named = (f"\"{breaks}\"" if isinstance(breaks, str)
+                 else f"\"{breaks[0]}\" and {len(breaks) - 1} more")
         if answer == "caught":
             passes += 1
             print(f"[PASS] mutant caught ({leg} {mode or 'whole'}): {name}"
-                  f" - breaks \"{named}\"")
+                  f" - breaks {named}")
         elif answer == "pass":
             fails += 1
             print(f"[FAIL] mutant SURVIVED: {name}. The leg does not "
-                  f"prove \"{named}\".")
+                  f"prove {named}.")
         else:
             fails += 1
             print(f"[FAIL] mutant {name!r} {answer}")
@@ -749,10 +761,33 @@ def law_boundary_designs(work: Path) -> list[tuple[str, Path | None, bool]]:
     return designs
 
 
+def window_walks(out: str) -> list[tuple[int, int, int, int, int]]:
+    """(phase, nearest-pop offset low, high, walk, least clearance) of every
+    window one --law-boundary run printed, in the order it ran them."""
+    return [(int(m[1]), int(m[2]), int(m[3]), int(m[4]), int(m[5]))
+            for m in OFFSETS_LINE.finditer(out)]
+
+
+def print_the_largest_walk(runs: list[tuple[str, str, bool, list[int], bool]],
+                           results: list[tuple[int, str]]) -> None:
+    """The largest walk over every window of the diagnostic, where it was, and
+    the walk the leg states, so the output itself re-measures the window."""
+    walks = [(walk, design, history, phase)
+             for (design, history, *_), (_, out) in zip(runs, results)
+             for phase, _, _, walk, _ in window_walks(out)]
+    stated = [m[1] for _, out in results for m in STATED_WALK_LINE.finditer(out)]
+    if walks:
+        walk, design, history, phase = max(walks)
+        print(f"  [i] law boundary: the largest walk over {len(walks)} windows "
+              f"is {walk} cycles ({design}, {history}, +{phase}); the leg "
+              f"states a walk of {stated[0] if stated else 'nothing'}")
+
+
 def judge_boundary_rounds(runs: list[tuple[str, str, bool, list[int], bool]],
                           results: list[tuple[int, str]]) -> Tally:
     """Grade every (design, history) run of the diagnostic: one line each, the
-    phases left NOT GRADABLE named, and a scan without both kinds refused."""
+    phases left NOT GRADABLE named, and a scan without both kinds refused.
+    Under it, each window's nearest-pop range, walk and least clearance."""
     passes = fails = 0
     for (design, history, sound, phases, scan), (_, out) in zip(runs, results):
         problems, outcomes = boundary_problems(out, sound, phases)
@@ -770,6 +805,11 @@ def judge_boundary_rounds(runs: list[tuple[str, str, bool, list[int], bool]],
         else:
             passes += 1
             print(f"[PASS] {line}")
+        for phase, low, high, walk, clear in window_walks(out):
+            print(f"  [i]   +{phase}: {outcomes.get(phase, 'no verdict')}; the pop "
+                  f"nearest the boundary {low:+d}..{high:+d} (walk {walk}), "
+                  f"least clearance {clear}")
+    print_the_largest_walk(runs, results)
     return passes, fails
 
 

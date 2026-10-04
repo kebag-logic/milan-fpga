@@ -187,12 +187,14 @@ constexpr long kBandSlackCycles = 1;
 //! so a pop that coincides with a PDU end is physically ambiguous at the
 //! grading instant. After settle, the offset from a PDU end to its nearest
 //! pop walks within one graded window, and where it sits at a given feed
-//! phase depends on the run's history. Measured with --law-boundary at both
-//! processor pins (docs/design/MEDIA_CLOCK_FOLLOWING.md): at most 3 cycles in
-//! a [LAW] phase, in every history, and 4 across T30's CRF window, so the walk
-//! is stated as 4 and the guard doubles it. A window with a PDU end whose
-//! nearest pop is within kLawAmbiguityCycles of that boundary is NOT GRADABLE.
-constexpr long kLawWalkCycles = 4;
+//! phase depends on the run's history. The walk is that offset's range over
+//! the window's steady ends (EndOffsets::walk). Measured at both processor
+//! pins (docs/design/MEDIA_CLOCK_FOLLOWING.md): at most 3 cycles in a [LAW]
+//! phase, in every history, and 5 across T30's CRF window at dev's pin, so
+//! the walk is stated as 5 and a guard of 4 makes the window 9. A window with
+//! a PDU end whose nearest pop is within kLawAmbiguityCycles of that boundary
+//! is NOT GRADABLE.
+constexpr long kLawWalkCycles = 5;
 constexpr long kLawGuardCycles = 4;
 constexpr long kLawAmbiguityCycles = kLawWalkCycles + kLawGuardCycles;
 //! THE ALIGNER'S SETTLED REPORT (#643), stated here as the LAW under test and
@@ -1429,9 +1431,12 @@ class TdmRenderHarness {
     void provision_the_crf_sink();
     void select_crf_under_the_running_stream();
     //! the offsets of the pops nearest the PDU ends of a span: the least
-    //! clearance and the PDU it was at, and the offsets' range across the
-    //! steady ends (both the nearest pop's and the next pop's: one of the two
-    //! wraps at a tick, never both, so the walk is the smaller range)
+    //! clearance and the PDU it was at, and the offsets' ranges across the
+    //! steady ends, the nearest pop's (d) and the first pop after's (n). The
+    //! WALK is the nearest pop's range, the measure the ambiguity window is
+    //! stated in. That range wraps only where the ends sit half a tick from
+    //! the grid and the nearest pop changes side; there, and only there, the
+    //! walk is the first pop after's range, which wraps only at the boundary.
     struct EndOffsets {
         long ends = 0;
         long dmin = 0;
@@ -1441,7 +1446,10 @@ class TdmRenderHarness {
         long clear = std::numeric_limits<long>::max();
         long clear_id = -1;
         long clear_delta = 0;
-        long walk() const { return std::min(dmax - dmin, nmax - nmin); }
+        bool walk_wraps() const {
+            return 2.0 * static_cast<double>(dmax - dmin) > kTickCycles;
+        }
+        long walk() const { return walk_wraps() ? nmax - nmin : dmax - dmin; }
     };
     EndOffsets offsets_at_pdu_ends(long from_id, long to_id) const;
     void print_the_offset_histogram(long from_id, long to_id, const char* tag) const;
@@ -3233,10 +3241,13 @@ bool TdmRenderHarness::the_window_is_gradable(long span_first, long last_id,
                 "the end is taken %+ld..%+ld cycles from it and the pop nearest "
                 "the boundary %+ld..%+ld (walk %ld); the least clearance is %ld "
                 "cycles, at PDU %ld (offset %+ld), against the %ld-cycle "
-                "ambiguity window: margin %ld\n",
+                "ambiguity window: margin %ld%s\n",
                 tag, o.ends, o.nmin, o.nmax, o.dmin, o.dmax, o.walk(), o.clear,
                 o.clear_id, o.clear_delta, kLawAmbiguityCycles,
-                o.clear - kLawAmbiguityCycles);
+                o.clear - kLawAmbiguityCycles,
+                o.walk_wraps() ? "; the nearest pop changes side half a tick "
+                                 "from the grid, so the walk is the first pop "
+                                 "after's range" : "");
     if (law_boundary) print_the_offset_histogram(span_first, last_id, tag);
     if (!gradable)
         std::printf("  [NOT GRADABLE] %s: PDU %ld's end has a pop taken %+ld "
@@ -3408,6 +3419,9 @@ void TdmRenderHarness::phase_crf() {
                                                  "T30 CRF");
     report_a_window(crf, "T30 CRF aligned");
     prove_the_aligned_window_is_the_acceptance_state(intr, crf);
+    //! unlike a [LAW] phase's span, this one does not hold the end that set
+    //! its fill reference: the settled recentre's re-snap, at a PDU end in
+    //! the dwell above, so that end's clearance is not measured
     prove_the_setpoint_law_still_holds(crf_first + 4, crf_first + 4,
                                        injected_events / kEvents - 4,
                                        "T30 CRF LAW", 0);
@@ -3472,7 +3486,8 @@ void TdmRenderHarness::wait_for_the_settled_report() {
                 media_ticks - ticks0, settle_run, kSettleErrCycles,
                 kSettleCeilTicks);
     check.that("T30 INTERNAL LAW: the aligner reported settled inside the "
-               "declared 32768-tick ceiling", settle_run >= kSettleTicks);
+               "declared 32768-tick ceiling, counted from this wait's start",
+               settle_run >= kSettleTicks);
 }
 
 //! --law-boundary: the boundary-band diagnostic. The same settled wait and
