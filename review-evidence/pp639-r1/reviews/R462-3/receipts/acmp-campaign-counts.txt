@@ -1,0 +1,37 @@
+golden-acmp_listener                          PASS     failing=   0 tally=3111 checks: 3111 PASS, 0 FAIL
+golden-pp_top--acmp-only                      PASS     failing=   0 tally=ACMP: 43 checks, 0 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 0 failures
+golden-pp_top--arm-queue-only                 PASS     failing=   0 tally=AQ: 4 checks, 0 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 0 failures
+golden-rx_validator                           PASS     failing=   0 tally=555 checks: 555 PASS, 0 FAIL
+cdl_not_44_rejected@rx_validator              KILLED   failing=  27 tally=555 checks: 528 PASS, 27 FAIL
+guard_talker_eid_dropped@acmp_listener        KILLED   failing=  40 tally=3107 checks: 3067 PASS, 40 FAIL
+guard_talker_uid_dropped@acmp_listener        KILLED   failing=  30 tally=3107 checks: 3077 PASS, 30 FAIL
+guard_ctlr_dropped@acmp_listener              KILLED   failing=  50 tally=3107 checks: 3057 PASS, 50 FAIL
+msg_ok_forced@acmp_listener                   KILLED   failing=  93 tally=3111 checks: 3018 PASS, 93 FAIL
+msg_ok_forced@pp_top                          KILLED   failing=   1 tally=ACMP: 43 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 1 failures
+st_ls_state_none@pp_top                       KILLED   failing=   7 tally=ACMP: 43 checks, 7 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 7 failures
+st_ls_teardown_as_declare@pp_top              KILLED   failing=   1 tally=ACMP: 43 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 1 failures
+st_ls_sid_da_swapped@pp_top                   KILLED   failing=   7 tally=ACMP: 43 checks, 7 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 7 failures
+st_ls_settle_as_withdraw@pp_top               KILLED   failing=   7 tally=ACMP: 43 checks, 7 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 7 failures
+cdl_not_44_rejected@pp_top                    KILLED   failing=  19 tally=ACMP: 43 checks, 19 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 19 failures
+st_ls_vid_dropped@pp_top                      KILLED   failing=   7 tally=ACMP: 43 checks, 7 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 7 failures
+st_ls_teardown_lost@pp_top                    KILLED   failing=   2 tally=ACMP: 43 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 2 failures
+bound_view_not_latched@pp_top                 KILLED   failing=   2 tally=ACMP: 43 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 2 failures
+st_ls_index_zero@pp_top                       KILLED   failing=   6 tally=ACMP: 43 checks, 6 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 6 failures
+bound_dmac_from_sid@pp_top                    KILLED   failing=   2 tally=ACMP: 43 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 2 failures
+bound_view_not_cleared@pp_top                 KILLED   failing=   1 tally=ACMP: 43 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 1 failures
+rec_read_in_idle@acmp_listener                KILLED   failing=   1 tally=3111 checks: 3110 PASS, 1 FAIL
+rec_read_sink_zero@acmp_listener              KILLED   failing= 645 tally=3080 checks: 2435 PASS, 645 FAIL
+rec_started_unstored@acmp_listener            KILLED   failing=  91 tally=3111 checks: 3020 PASS, 91 FAIL
+rec_settled_vlan_unstored@acmp_listener       KILLED   failing=  25 tally=3111 checks: 3086 PASS, 25 FAIL
+rec_sweep_misaddressed@acmp_listener          KILLED   failing=  37 tally=3111 checks: 3074 PASS, 37 FAIL
+matcher_da_ignored@pp_top                     KILLED   failing=   5 tally=ACMP: 43 checks, 5 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 5 failures
+matcher_vid_ignored@pp_top                    KILLED   failing=   5 tally=ACMP: 43 checks, 5 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 43 checks, 5 failures
+armq_head_stuck@pp_top                        KILLED   failing=   3 tally=AQ: 4 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 3 failures
+armq_write_at_mid@pp_top                      KILLED   failing=   3 tally=AQ: 4 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 3 failures
+armq_write_at_head@pp_top                     KILLED   failing=   3 tally=AQ: 4 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 3 failures
+armq_ring_of_three@pp_top                     KILLED   failing=  12 tally=AQ: 4 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 12 failures
+armq_write_refused@pp_top                     KILLED   failing=   1 tally=AQ: 4 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures
+armq_read_tail@pp_top                         KILLED   failing=  72 tally=AQ: 4 checks, 2 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1645 checks, 72 failures
+armq_write_wrap_hi@pp_top                     KILLED   failing=   1 tally=AQ: 4 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures
+armq_full_pop_refuses@pp_top                  KILLED   failing=   1 tally=AQ: 4 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures
+armq_drop_skip_sat@pp_top                     KILLED   failing=   1 tally=AQ: 4 checks, 1 failures | [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 1655 checks, 1 failures
