@@ -1,0 +1,36 @@
+# name=probe-crf-unit wd=$REVIEWS/653-r470-1-packet/scratch/headprobe verilator=Verilator 5.050 2026-07-01 rev v5.050 start=2026-10-04T17:01:58Z
+# head=77ea6cb46cc3f746a14fa717c5e49a4485fb071e cmd=python3 $REVIEWS/653-r470-1-packet/scripts/crf_unit_probes.py $REVIEWS/653-r470-1-packet/scratch/headprobe $REVIEWS/653-r470-1-packet/scratch/crf-unit-probes
+== p1_no_fall_arm: KL_crf_rx: 14287 checks, 8 failures -> CAUGHT
+   [FAIL] [5t-g3] unbind must NOT reset MEDIA_UNLOCKED   got=1 exp=2
+   [FAIL] [5t-g3b] the unbind leaves MEDIA_LOCKED == MEDIA_UNLOCKED got=2 exp=1
+   [FAIL] [UNB-a1] the unbind's own edge drops locked_o  got=1 exp=0
+   [FAIL] [UNB-a2] ...and scores ONE MEDIA_UNLOCKED      got=1 exp=2
+   [FAIL] [UNB-a4] the pair reads MEDIA_LOCKED == MEDIA_UNLOCKED got=0 exp=1
+   [FAIL] [UNB-a5] the unlock pulses dirty once          got=0 exp=1
+   [FAIL] [UNB-b2] ...and no second pulse                got=1 exp=0
+   [FAIL] [UNB-e1] the stopped input's unbind scores ONE unlock got=0 exp=1
+== p2_count_unlocked_unbind: KL_crf_rx: 14287 checks, 3 failures -> CAUGHT
+   [FAIL] [dirty-e1] the bind-rise wipe pulses dirty     got=2 exp=1
+   [FAIL] [UNB-c1] an unlocked input's unbind scores no unlock got=1 exp=0
+   [FAIL] [UNB-c2] ...and pulses nothing                 got=1 exp=0
+== p3_keep_lock: KL_crf_rx: 14287 checks, 4 failures -> CAUGHT
+   [FAIL] [UNB-a1] the unbind's own edge drops locked_o  got=1 exp=0
+   [FAIL] [UNB-b1] past the 100 ms timeout: still ONE unlock got=3 exp=2
+   [FAIL] [UNB-b2] ...and no second pulse                got=1 exp=0
+   [FAIL] [UNB-e1] the stopped input's unbind scores ONE unlock got=0 exp=1
+== p4_no_dirty: KL_crf_rx: 14287 checks, 1 failures -> CAUGHT
+   [FAIL] [UNB-a5] the unlock pulses dirty once          got=0 exp=1
+== p5_count_intr: KL_crf_rx: 14287 checks, 4 failures -> CAUGHT
+   [FAIL] [5t-f1] unbound: STREAM_INTERRUPTED cannot move got=7 exp=6
+   [FAIL] [5t-g3] unbind must NOT reset STREAM_INTERRUPTED got=2 exp=1
+   [FAIL] [UNB-a6] STREAM_INTERRUPTED does not count the unbind got=1 exp=0
+   [FAIL] [UNB-b3] ...and still no STREAM_INTERRUPTED    got=1 exp=0
+== p6_same_edge_double: KL_crf_rx: 14287 checks, 1 failures -> CAUGHT
+   [FAIL] [UNB-d2] unbind and timeout on one edge: ONE unlock got=3 exp=2
+== p7_also_drops_lockcount: KL_crf_rx: 14287 checks, 5 failures -> CAUGHT
+   [FAIL] [5t-g3] unbind must NOT reset MEDIA_LOCKED     got=1 exp=2
+   [FAIL] [5t-g3b] the unbind leaves MEDIA_LOCKED == MEDIA_UNLOCKED got=1 exp=2
+   [FAIL] [UNB-a3] MEDIA_LOCKED is unmoved               got=1 exp=2
+   [FAIL] [UNB-a4] the pair reads MEDIA_LOCKED == MEDIA_UNLOCKED got=0 exp=1
+   [FAIL] [UNB-e1] the stopped input's unbind scores ONE unlock got=0 exp=1
+# end=2026-10-04T17:02:12Z rc=0

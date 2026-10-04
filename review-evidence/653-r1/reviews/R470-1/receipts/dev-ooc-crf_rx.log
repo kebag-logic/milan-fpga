@@ -1,0 +1,7 @@
+# name=dev-ooc-crf_rx wd=$REVIEWS/653-r470-1-packet/scratch/dev verilator=Verilator 5.050 2026-07-01 rev v5.050 start=2026-10-04T16:59:16Z
+# head=fea346e76c2a57ed5cd131af8fc68dfeff57f877 cmd=env OOC_SHAPE=configs/generated/endstation_ax7101_1x1_tdm8 syn/yosys/ooc.sh KL_crf_rx
+== OOC area (synth_xilinx -family xc7 -flatten) ==
+   yosys allocator: /usr/lib/libjemalloc.so.2
+top                               LUT   LUTRAM  LUT_TOT       FF   RAMB36   RAMB18      DSP   CARRY4
+KL_crf_rx                         433        0      433      544        0        1        0      147
+# end=2026-10-04T16:59:20Z rc=0
