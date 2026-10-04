@@ -1,0 +1,7 @@
+VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+r469-td-keeps-override timer-defaults: rc=2 tally=yes fails=2 wall=105s
+      [TD] auto-unlock -1 ms after the LOCK_ENTITY, TIME_LIMITED expiry -1 ms after the REGISTER, 0 monitor probes answered
+    TD: 3 checks, 2 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 2 failures
+    FAIL: TD1: T-LOCK-UNLOCK at its default: the LOCK_ENTITY answers SUCCESS and its auto-unlock notification (LOCK_ENTITY, u = 1, locked_id 0) reaches the registered controller 60000 to 60020 ms after the command (got -1 ms)
+    FAIL: TD2: T-NOTIF-TIMELIMITED at its default: the TIME_LIMITED REGISTER answers SUCCESS and its expiry DEREGISTER (u = 1) reaches the controller 300000 to 300020 ms after the command (got -1 ms; 0 monitor probes answered)

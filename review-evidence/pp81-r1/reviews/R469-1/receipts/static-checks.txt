@@ -1,0 +1,56 @@
+# merge check
+patch-id 83999eba..7b95590: caf162b42deece1e0b3a573224648151a828009d
+patch-id c050d97..db2c4eb: caf162b42deece1e0b3a573224648151a828009d
+merge-tree 7b95590 c050d97 -> f0d2f707c92a961253cb311e5555a5f5b58c2666 (head tree f0d2f707c92a961253cb311e5555a5f5b58c2666)
+
+# the lane's own RTL diff (c050d97..db2c4eb, hdl/)
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 1237d47..b6b8a52 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1539,11 +1539,19 @@ module protocol_processor_top
+   //! key. READ_DESCRIPTOR loses nothing by it: no ACMP step writes what it
+   //! reads, a descriptor-image field or the current sampling rate, clock
+   //! source or stream format it overlays on one (issue #82), rows only the
+-  //! AECP engine's state port writes. GET_DYNAMIC_INFO does, a known gap
+-  //! (03 §6): its GET_STREAM_INFO records of a STREAM_INPUT read the listener
+-  //! binding record (the probing and ACMP status, `lstn_gsi_status_r`
+-  //! below), which ACMP listener steps write, so the batch is NOT
+-  //! serialized against them, where a stand-alone GET_STREAM_INFO is.
++  //! AECP engine's state port writes. GET_DYNAMIC_INFO would lose a
++  //! conflict: its GET_STREAM_INFO records of a STREAM_INPUT read the
++  //! listener binding record (the probing and ACMP status,
++  //! `lstn_gsi_status_r` below), which ACMP listener steps write, and the
++  //! operands latched here (@24 to @31) end before a record's descriptor.
++  //! So the batch presents MAP_CFG, whose
++  //! class-wide cross-lock (the scoreboard's rule 5) holds it against every
++  //! in-flight stream step, as a stand-alone GET_STREAM_INFO is held
++  //! against its own sink's (issue #84, R419-2 F5). That over-serializes a
++  //! read: a batch naming no stream waits too, and an ACMP stream step waits
++  //! for the batch. Its NONE key shares nothing with an ACMP read, so it
++  //! still runs beside every one, and the single-issue AECP engine never
++  //! holds a second MAP_CFG beside it.
+   logic        hz_valid_nc_w;
+   logic [2:0]  hz_protocol_w;
+   logic [15:0] hz_opcode_w;
+@@ -1634,6 +1642,8 @@ module protocol_processor_top
+           hz_key_w = hz_key(HZ_DT_AVB_IF_C, hdr_operands_r[63:48]);
+         16'h0000, 16'h0002, 16'h0007:          // the ENTITY-addressed three
+           hz_key_w = hz_key(HZ_DT_ENTITY_C, 16'd0);
++        16'h004B:                              // GET_DYNAMIC_INFO (above)
++          hz_class_w = 4'(PP_HZ_MAP_CFG);
+         default: ;
+       endcase
+     end
+
+# reset audit over hdl/**/*.sv at head
+always_ff lines: 159; not '@(posedge clk_i)': 0; 'always @': 0; negedge: 0
+
+# hazard_class/hazard_key consumers in hdl/
+hdl/packet_engine/KL_pp_normalizer.sv:20://                -> unicast). hazard_class/hazard_key come back over the
+hdl/packet_engine/KL_pp_normalizer.sv:136:    rx_txn_w.hazard_class    = pp_hazard_e'(hz_class_i);
+hdl/packet_engine/KL_pp_normalizer.sv:137:    rx_txn_w.hazard_key      = hz_key_i;
+hdl/top/protocol_processor_top.sv:3572:      sb_adm_class_w = 4'(acmp_head_w.hazard_class);
+hdl/top/protocol_processor_top.sv:3573:      sb_adm_key_w   = acmp_head_w.hazard_key;
+hdl/top/protocol_processor_top.sv:3575:      sb_adm_class_w = 4'(aecp_head_w.hazard_class);
+hdl/top/protocol_processor_top.sv:3576:      sb_adm_key_w   = aecp_head_w.hazard_key;

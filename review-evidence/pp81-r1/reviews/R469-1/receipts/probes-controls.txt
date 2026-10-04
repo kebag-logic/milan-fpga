@@ -1,0 +1,8 @@
+VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+control timer-defaults: rc=0 tally=yes fails=0 wall=107s
+      [TD] auto-unlock 60003 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300002 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+control hazards: rc=0 tally=yes fails=0 wall=19s
+    HZ: 189 checks, 0 failures
+    [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 189 checks, 0 failures

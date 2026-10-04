@@ -1,0 +1,40 @@
+VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+r469-gdi-stream-cfg hazards: rc=2 tally=yes fails=7 wall=29s
+    HZ: 189 checks, 7 failures
+    [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 189 checks, 7 failures
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted STREAM_CFG key 0xfc00 (want MAP_CFG, key 0xfc00)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ8 GET_DYNAMIC_INFO naming no stream (MAP_CFG's cross-lock, the accepted over-serialization): admitted after the ACMP key frees
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: not admitted while the held ACMP command keeps its key (refused 0 clocks)
+    FAIL: HZ13a GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1 vs a held UNBIND_RX of sink 1: admitted after the ACMP key frees
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: not admitted while the held AECP command keeps its key (refused 0 clocks)
+    FAIL: HZ13c an UNBIND_RX of sink 1 vs a held GET_DYNAMIC_INFO with a GET_STREAM_INFO record of STREAM_INPUT 1: admitted after the AECP key frees
+r469-gdi-lock-op hazards: rc=2 tally=yes fails=1 wall=27s
+    HZ: 189 checks, 1 failures
+    [build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 189 checks, 1 failures
+    FAIL: HZ1 GET_DYNAMIC_INFO: admitted LOCK_OP key 0xfc00 (want MAP_CFG, key 0xfc00)
+r469-lock-59999 timer-defaults: rc=0 tally=yes fails=0 wall=129s
+      [TD] auto-unlock 60002 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300002 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-lock-59997 timer-defaults: rc=0 tally=yes fails=0 wall=134s
+      [TD] auto-unlock 60000 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300002 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-lock-60015 timer-defaults: rc=0 tally=yes fails=0 wall=121s
+      [TD] auto-unlock 60018 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300002 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-tl-299999 timer-defaults: rc=0 tally=yes fails=0 wall=122s
+      [TD] auto-unlock 60003 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300001 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-tl-300016 timer-defaults: rc=0 tally=yes fails=0 wall=118s
+      [TD] auto-unlock 60003 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300018 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-td-prescaler-150clk timer-defaults: rc=0 tally=yes fails=0 wall=167s
+      [TD] auto-unlock 60002 ms after the LOCK_ENTITY, TIME_LIMITED expiry 300001 ms after the REGISTER, 6 monitor probes answered
+    TD: 3 checks, 0 failures
+    [build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+r469-td-keeps-override timer-defaults: rc=2 tally=no fails=0 wall=0s

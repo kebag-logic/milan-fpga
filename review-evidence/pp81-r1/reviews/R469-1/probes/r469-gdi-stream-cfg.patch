@@ -1,0 +1,11 @@
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1643,7 +1643,7 @@
+         16'h0000, 16'h0002, 16'h0007:          // the ENTITY-addressed three
+           hz_key_w = hz_key(HZ_DT_ENTITY_C, 16'd0);
+         16'h004B:                              // GET_DYNAMIC_INFO (above)
+-          hz_class_w = 4'(PP_HZ_MAP_CFG);
++          hz_class_w = 4'(PP_HZ_STREAM_CFG);
+         default: ;
+       endcase
+     end
