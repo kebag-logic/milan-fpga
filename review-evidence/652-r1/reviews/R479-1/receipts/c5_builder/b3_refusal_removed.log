@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 29037, in test_name_count_fits_the_nvm_name_block
+    _check_names_refused(paths[129], 129)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28894, in _check_names_refused
+    raise AssertionError(f"{gate}: {names} writable names accepted "
+                         f"against {capacity} NAME records")
+AssertionError: gate 38: 129 writable names accepted against 128 NAME records

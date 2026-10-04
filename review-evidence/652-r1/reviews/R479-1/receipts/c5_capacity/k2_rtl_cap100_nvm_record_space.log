@@ -1,0 +1,30 @@
+BINDING base read from the donor: REC_ID_BASE_P = 0x20, LAYOUT_VER_P = 0x02
+deadlines: T-NVM-COMMIT-TIMEOUT = 8000 ms, T-NVM-WRITER-ALIVE = 2000 ms, heartbeat = 500 ms
+endstation_arty_4x4          names= 55 records= 88 top_id=0xB6 image=  4808 B (7% of a slot) F07.8 floor= 88/256 commit<=3.10 s
+endstation_arty_8ch          names= 87 records=120 top_id=0xD6 image=  7368 B (11% of a slot) F07.8 floor=120/256 commit<=3.15 s
+endstation_arty_current      names= 29 records= 42 top_id=0x9C image=  2516 B (3% of a slot) F07.8 floor= 42/256 commit<=3.05 s
+endstation_ax7101_1x1_tdm8   names= 39 records= 54 top_id=0xA6 image=  3336 B (5% of a slot) F07.8 floor= 54/256 commit<=3.07 s
+CONFIG ERROR: this AEM model has 107 writable names and the saved-state backend holds 100 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 7 over: remove named descriptors (streams, clusters or clock sources)
+Traceback (most recent call last):
+  File "$REVIEWS/652-r479-1-packet/scratch/m2/scripts/check_nvm_record_space.py", line 998, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m2/scripts/check_nvm_record_space.py", line 978, in main
+    f, floor, census[cfg.stem] = check_one(cfg, Path(tmp), donor,
+                                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                                           not args.quiet)
+                                           ^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m2/scripts/check_nvm_record_space.py", line 744, in check_one
+    names, dc, spi, spo = build(cfg, out)
+                          ~~~~~^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m2/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '$REVIEWS/652-r479-1-packet/scratch/m2/sw/builder/endstation_builder.py', '$REVIEWS/652-r479-1-packet/scratch/m2/configs/endstation_ax7101_8x8.yaml', '-o', '/tmp/nvmrec.84xk41vi']' returned non-zero exit status 1.

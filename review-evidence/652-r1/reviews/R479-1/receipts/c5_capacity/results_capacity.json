@@ -1,0 +1,45 @@
+[
+ {
+  "probe": "k1_rtl_cap100_gate38",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "declares 100 NAME records": true
+  },
+  "tail": "    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()\n                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m2/sw/builder/test_builder.py\", line 29027, in test_name_count_fits_the_nvm_name_block\n    assert capacity == _NAME_BLOCK_RECORDS, \\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: gate 38: hdl/milan/KL_nvm_backend.sv:247 declares 100 NAME records, the block holds 128"
+ },
+ {
+  "probe": "k2_rtl_cap100_nvm_record_space",
+  "rc": 1,
+  "red": true,
+  "want_red": null,
+  "as_expected": false,
+  "grep": {},
+  "tail": "                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.14/subprocess.py\", line 578, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['/usr/bin/python3', '$REVIEWS/652-r479-1-packet/scratch/m2/sw/builder/endstation_builder.py', '$REVIEWS/652-r479-1-packet/scratch/m2/configs/endstation_ax7101_8x8.yaml', '-o', '/tmp/nvmrec.84xk41vi']' returned non-zero exit status 1."
+ },
+ {
+  "probe": "k3_rtl_cap100_build_8x8",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "107 writable names": true,
+   "100 NAME records": true
+  },
+  "tail": "CONFIG ERROR: this AEM model has 107 writable names and the saved-state backend holds 100 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 7 over: remove named descriptors (streams, clusters or clock sources)"
+ },
+ {
+  "probe": "k4_contract_name_block_100",
+  "rc": 1,
+  "red": true,
+  "want_red": null,
+  "as_expected": false,
+  "grep": {
+   "block reads 128": true
+  },
+  "tail": "FINDING: endstation_ax7101_8x8: tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt is STALE -- tb/verilator/nvm_backend would grade the region decoder against byte offsets this shape no longer has. Regenerate it with --emit-record-table\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 user name reads 107, the endstation_ax7101_8x8 inventory derives 100\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: user name block reads 128, the allocation holds 100\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 highest id reads 0xEA, the endstation_ax7101_8x8 inventory derives 0xE3\n\n11 finding(s) across 5 config(s)"
+ }
+]

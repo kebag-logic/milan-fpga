@@ -1,0 +1,93 @@
+[
+ {
+  "probe": "p0_unmutated",
+  "rc": 0,
+  "red": false,
+  "want_red": false,
+  "as_expected": true,
+  "grep": {},
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\ndocs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one\n\n0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied"
+ },
+ {
+  "probe": "p1_8x8_names_108",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "8x8 user name reads 108": true
+  },
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 user name reads 108, the endstation_ax7101_8x8 inventory derives 107\n\n1 finding(s) across 5 config(s)"
+ },
+ {
+  "probe": "p2_8x8_cell_dropped",
+  "rc": 0,
+  "red": false,
+  "want_red": true,
+  "as_expected": false,
+  "grep": {},
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\ndocs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one\n\n0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied"
+ },
+ {
+  "probe": "p3_records_total",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "records reads 165": true
+  },
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 records reads 165, the endstation_ax7101_8x8 inventory derives 164\n\n1 finding(s) across 5 config(s)"
+ },
+ {
+  "probe": "p4_name_row_deleted",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "no row for": true
+  },
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: no row for ['NAME']\n\n1 finding(s) across 5 config(s)"
+ },
+ {
+  "probe": "p5_header_changed",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "no single allocation table": true
+  },
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: no single allocation table headed '| ids | group | block | index | 1x1 | 8x8 |'\n\n1 finding(s) across 5 config(s)"
+ },
+ {
+  "probe": "p6_block_129",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "block reads 129": true
+  },
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: user name block reads 129, the allocation holds 128\n\n1 finding(s) across 5 config(s)"
+ },
+ {
+  "probe": "p7_extra_cell",
+  "rc": 0,
+  "red": false,
+  "want_red": true,
+  "as_expected": false,
+  "grep": {},
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[6]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\ndocs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one\n\n0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], every group is inside its block, every payload fits MAX_PAYLOAD_P, every image fits one erase block, the allocation is the donor's own F07.8 rule and its floor fits the namespace at every shipped shape, the worst-case commit fits T-NVM-COMMIT-TIMEOUT with 2x margin, every record round trips through a KLJ2 image, an empty user name survives it, and a CRC-clean image missing any mandatory record is refused with zero records applied"
+ },
+ {
+  "probe": "p8_highest_id",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {},
+  "tail": "endstation_ax7101_8x8: MAPS_OUT[7]: K16=10, boundary=72: journal decode, cleared-first restore, over-capacity refusal OK\nendstation_ax7101_8x8        names=107 records=164 top_id=0xEA image= 13256 B (20% of a slot) F07.8 floor=164/256 commit<=3.27 s\n\nFINDING: docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: 8x8 highest id reads 0xEB, the endstation_ax7101_8x8 inventory derives 0xEA\n\n1 finding(s) across 5 config(s)"
+ }
+]

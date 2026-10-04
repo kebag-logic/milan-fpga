@@ -1,0 +1,76 @@
+{
+ "results": [
+  {
+   "probe": "traceback_read_as_refusal",
+   "module": "syn/resmap/yosys_sweep.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: outcome: a traceback read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')",
+    "yosys_sweep self-test: FAIL (1 problems)"
+   ]
+  },
+  {
+   "probe": "any_rc_read_as_refusal",
+   "module": "syn/resmap/yosys_sweep.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: outcome: a usage error read as ('refused', 'CONFIG ERROR: this AEM model has 9 writable names and the saved-state backend holds 8 NAME records')",
+    "yosys_sweep self-test: FAIL (1 problems)"
+   ]
+  },
+  {
+   "probe": "unrun_variant_taken_as_built",
+   "module": "syn/resmap/yosys_sweep.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: refused: a variant with no builder outcome was taken as built",
+    "yosys_sweep self-test: FAIL (1 problems)"
+   ]
+  },
+  {
+   "probe": "run_prices_refused_point",
+   "module": "syn/resmap/yosys_sweep.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: refused: run exited 1 or priced the refused point",
+    "yosys_sweep self-test: FAIL (1 problems)"
+   ]
+  },
+  {
+   "probe": "summary_keeps_priced_refused_receipt",
+   "module": "syn/resmap/yosys_sweep.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: refused: a priced receipt for a refused point was summarized",
+    "yosys_sweep self-test: FAIL (1 problems)"
+   ]
+  },
+  {
+   "probe": "models_builder_record_ignored",
+   "module": "syn/resmap/resmap_models.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "  File \"$REVIEWS/652-r479-1-packet/scratch/m1/syn/resmap/resmap_models.py\", line 160, in refusals",
+    "    raise GuardError(f\"{name}: no guard record; run yosys_sweep.py guards, then summary\")",
+    "GuardError: s16: no guard record; run yosys_sweep.py guards, then summary"
+   ]
+  },
+  {
+   "probe": "tables_refused_by_always_guard",
+   "module": "syn/resmap/resmap_tables.py",
+   "selftest_rc": 1,
+   "red": true,
+   "tail": [
+    "SELF-TEST FAILED: refusal table: who refused each point is wrong: '| Point | Refused by | Refusal |\\n|---|---|---|\\n| b | elaboration guard | `9 names` |\\n| g | elaboration guard | `N_P=9 outside 1..8` |\\n'",
+    "resmap_tables self-test: FAIL"
+   ]
+  }
+ ],
+ "restored_clean": true
+}

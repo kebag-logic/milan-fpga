@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m2/sw/builder/test_builder.py", line 29027, in test_name_count_fits_the_nvm_name_block
+    assert capacity == _NAME_BLOCK_RECORDS, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 38: hdl/milan/KL_nvm_backend.sv:247 declares 100 NAME records, the block holds 128

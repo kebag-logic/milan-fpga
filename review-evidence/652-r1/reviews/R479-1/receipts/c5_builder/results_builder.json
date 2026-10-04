@@ -1,0 +1,95 @@
+[
+ {
+  "probe": "b0_unmutated_gate38",
+  "rc": 0,
+  "red": false,
+  "want_red": false,
+  "as_expected": true,
+  "grep": {},
+  "tail": "[gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:247; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127\n  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated"
+ },
+ {
+  "probe": "b1_off_by_one_ge",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "128 writable names refused": true
+  },
+  "tail": "  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 29036, in test_name_count_fits_the_nvm_name_block\n    _check_names_accepted(paths[128], 128)\n    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28873, in _check_names_accepted\n    raise AssertionError(f\"gate 38: {names} writable names refused: {exc}\") from exc\nAssertionError: gate 38: 128 writable names refused: this AEM model has 128 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 0 over: remove named descriptors (streams, clusters or clock sources)"
+ },
+ {
+  "probe": "b2_capacity_mirrored_literal",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "stayed green": true
+  },
+  "tail": "                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                              lambda c=check, n=names: c(paths[n], n), reason))\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28939, in _expect_red\n    raise AssertionError(f\"{gate} control {label}: the check stayed green\")\nAssertionError: gate 38 control capacity 127 vs 128 names: the check stayed green"
+ },
+ {
+  "probe": "b3_refusal_removed",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "129 writable names accepted": true
+  },
+  "tail": "    _check_names_refused(paths[129], 129)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28894, in _check_names_refused\n    raise AssertionError(f\"{gate}: {names} writable names accepted \"\n                         f\"against {capacity} NAME records\")\nAssertionError: gate 38: 129 writable names accepted against 128 NAME records"
+ },
+ {
+  "probe": "b4_refusal_without_capacity",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "does not name": true
+  },
+  "tail": "    _check_names_refused(paths[129], 129)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28900, in _check_names_refused\n    assert figure in message, (\n           ^^^^^^^^^^^^^^^^^\nAssertionError: gate 38: the 129-name refusal does not name '128 NAME records': this AEM model has 129 writable names and the saved-state backend holds its NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 1 over: remove named descriptors (streams, clusters or clock sources)"
+ },
+ {
+  "probe": "b5_write_before_derivation",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "came after writing": true
+  },
+  "tail": "    _check_names_refused(paths[129], 129)\n    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28896, in _check_names_refused\n    assert not out.exists(), (\n           ^^^^^^^^^^^^^^^^\nAssertionError: gate 38: the 129-name refusal came after writing []"
+ },
+ {
+  "probe": "b6_rtl_guard_on_literal",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {
+   "not N_NAME_MAX_C": true
+  },
+  "tail": "    _check_guard_reads_capacity(rtl)\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28909, in _check_guard_reads_capacity\n    assert guards == [\"N_NAME_P < 1 || N_NAME_P > N_NAME_MAX_C\"], (\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: gate 38: KL_nvm_backend's g_refuse_names guard reads ['N_NAME_P < 1 || N_NAME_P > 128'], not N_NAME_MAX_C, so the RTL and the builder can refuse at different counts"
+ },
+ {
+  "probe": "b7_gate24_unmutated",
+  "rc": 0,
+  "red": false,
+  "want_red": false,
+  "as_expected": true,
+  "grep": {},
+  "tail": "[gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered\n  [gate 24a] declaring routed channels re-introduces the physical pool AND moves the static map onto it (primary-role fallthrough): 8 routed channels, 123 writable names; 2/2 planted controls turned it red: 16 routed channels; no routed channel\n  [gate 24a] the over-wide (72) D8 loopback pool (747 writable names) is REFUSED at generation by the saved-state NAME capacity, naming both figures, before any write; its own overlay's ROM exceeds the 16-bit AEM store address space (D6 is the owner), and behind a planted capacity it is marked rather than emitted and --write-rtl REFUSES it; 2/2 planted controls turned their check red: capacity 747; the shipped 8x8 overlay\n  [gate 24a] #447 render lane: the declared width is bounded by the LANE and not the family, a shape with no render endpoint refuses a nonzero count, a TDM lane narrower than its own bus is refused with the full-bus-width rule, and every tracked config sits inside its own lane {'arty_current': ('i2s', 2, 0, 0), 'arty_4x4': ('i2s', 2, 0, 0), 'arty_8ch': ('i2s', 2, 0, 0), 'ax7101_8x8': ('tdm', 0, 2, 0), 'ax7101_1x1_tdm8': ('tdm', 8, 2, 8)}"
+ },
+ {
+  "probe": "b8_gate24_refusal_removed",
+  "rc": 1,
+  "red": true,
+  "want_red": true,
+  "as_expected": true,
+  "grep": {},
+  "tail": "                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                          gate=\"gate 24a (d)\"),\n                          ^^^^^^^^^^^^^^^^^^^^\n  File \"$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py\", line 28939, in _expect_red\n    raise AssertionError(f\"{gate} control {label}: the check stayed green\")\nAssertionError: gate 24a (d) control 16 routed channels: the check stayed green"
+ }
+]

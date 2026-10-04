@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 29039, in test_name_count_fits_the_nvm_name_block
+    caught = _name_capacity_controls(paths)
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28965, in _name_capacity_controls
+    caught.append(_expect_red(f"capacity {planted} vs {names} names",
+                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                              lambda c=check, n=names: c(paths[n], n), reason))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28939, in _expect_red
+    raise AssertionError(f"{gate} control {label}: the check stayed green")
+AssertionError: gate 38 control capacity 127 vs 128 names: the check stayed green

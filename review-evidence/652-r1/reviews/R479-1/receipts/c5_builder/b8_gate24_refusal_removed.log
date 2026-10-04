@@ -1,0 +1,18 @@
+  [gate 24a] ax7101_8x8 role-pools: 72 AUDIO_CLUSTERs (8x empty-handed in, #259; 8x pilot1+loopback8 out), 0 physical because the board routes none, talker map -> pilot (fabric lane off), 8 distinct loopback sources offered
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_d8_role_pools()
+                                                                           ~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 25398, in test_d8_role_pools
+    _assert_physical_pool_reappears()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 25196, in _assert_physical_pool_reappears
+    caught = [_expect_red("16 routed channels", lambda: _build_physical_pool(16),
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          "writable names and the saved-state backend holds",
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          gate="gate 24a (d)"),
+                          ^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28939, in _expect_red
+    raise AssertionError(f"{gate} control {label}: the check stayed green")
+AssertionError: gate 24a (d) control 16 routed channels: the check stayed green

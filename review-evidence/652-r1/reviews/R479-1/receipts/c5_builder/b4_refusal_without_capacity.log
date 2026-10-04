@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 29037, in test_name_count_fits_the_nvm_name_block
+    _check_names_refused(paths[129], 129)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28900, in _check_names_refused
+    assert figure in message, (
+           ^^^^^^^^^^^^^^^^^
+AssertionError: gate 38: the 129-name refusal does not name '128 NAME records': this AEM model has 129 writable names and the saved-state backend holds its NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 1 over: remove named descriptors (streams, clusters or clock sources)

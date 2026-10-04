@@ -1,0 +1,24 @@
+head 2f0f59291080aeab934e0d72e124fb448c105e12
+diff --git a/docs/design/SAVED_STATE_FASTCONNECT.md b/docs/design/SAVED_STATE_FASTCONNECT.md
+index a9d9c6003..2d5ffed59 100644
+--- a/docs/design/SAVED_STATE_FASTCONNECT.md
++++ b/docs/design/SAVED_STATE_FASTCONNECT.md
+@@ -280,7 +280,7 @@ exist follows from the shape, never from what the bytes happen to be.
+ | `0x50` .. `0x5F` | presentation time offset | 16 | STREAM_OUTPUT | 2 | 9 |
+ | `0x60` .. `0x6F` | channel map in | 16 | STREAM_PORT_INPUT | 1 | 8 |
+ | `0x70` .. `0x7F` | channel map out | 16 | STREAM_PORT_OUTPUT | 1 | 8 |
+-| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 | **107** |
++| `0x80` .. `0xFF` | user name | 128 | name ordinal | 39 |
+ | **records** | | | | **54** | **164** |
+ | **highest id** | | | | `0xA6` | `0xEA` |
+ 
+check_nvm_record_space rc=0
+docs/design/SAVED_STATE_FASTCONNECT.md section 4.2: every allocation-table figure at 1x1 (endstation_ax7101_1x1_tdm8), 8x8 (endstation_ax7101_8x8) is the derived one
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], e
+docs_check.py rc=0
+docs_check: 0 finding(s) across 188 md files + 984 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+check_doc_style.py rc=0
+documentation style: OK (22 current documents)
+gen_toc.py --check rc=0
+TOC gate: OK (130 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+restored

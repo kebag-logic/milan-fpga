@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,'sw/builder'); import test_builder as t; t.test_name_count_fits_the_nvm_name_block()
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 29031, in test_name_count_fits_the_nvm_name_block
+    _check_guard_reads_capacity(rtl)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "$REVIEWS/652-r479-1-packet/scratch/m1/sw/builder/test_builder.py", line 28909, in _check_guard_reads_capacity
+    assert guards == ["N_NAME_P < 1 || N_NAME_P > N_NAME_MAX_C"], (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 38: KL_nvm_backend's g_refuse_names guard reads ['N_NAME_P < 1 || N_NAME_P > 128'], not N_NAME_MAX_C, so the RTL and the builder can refuse at different counts
