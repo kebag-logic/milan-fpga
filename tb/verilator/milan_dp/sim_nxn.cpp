@@ -1729,6 +1729,12 @@ class NxnDatapathHarness {
     std::map<uint16_t, std::vector<uint8_t> > gsi_resp;
     //! ACMP answers the listener sent, keyed (message_type << 8) | sink
     std::map<unsigned, std::vector<uint8_t> > gsi_acmp_rsp;
+    //! ...and the uns_log_cycle their last byte left at, same key (#653)
+    std::map<unsigned, long> gsi_acmp_when;
+    //! the uns_log_cycle the last beat of the latest RX frame was taken at,
+    //! and that frame's subtype byte
+    long gsi_rx_last = -1;
+    uint8_t gsi_rx_last_sub = 0;
     std::array<std::vector<uint8_t>, kGsiSinks> gsi_probe;
     std::array<long, kGsiSinks> gsi_probes{};
     //! the Talker Failed the bridge declares on each sink's stream, if any:
@@ -1790,12 +1796,15 @@ class NxnDatapathHarness {
             }
         }
         hi();
+        unb_watch();
         uns_log_cycle++;
         if (rx_acc) {
             if (++gsi_rx_beat * 8 >= gsi_rx_q.front().size()) {
+                gsi_rx_last_sub = gsi_rx_q.front()[14];
                 gsi_rx_q.pop_front();
                 gsi_rx_beat = 0;
                 gsi_rx_gap = 16;
+                gsi_rx_last = uns_log_cycle;
             }
         } else if (gsi_rx_gap > 0) {
             gsi_rx_gap--;
@@ -1822,6 +1831,7 @@ class NxnDatapathHarness {
                 gsi_probes[luid]++;
             } else {
                 gsi_acmp_rsp[(msg << 8) | luid] = f;
+                gsi_acmp_when[(msg << 8) | luid] = uns_log_cycle;
             }
         } else if (f[14] == 0xFB) {
             if (aecp_is_unsolicited(f) || aecp_is_originated(f)) {
@@ -2280,6 +2290,345 @@ class NxnDatapathHarness {
         notify_clear();
     }
 
+    // ======================================================================
+    //  [UNB] #653: the UNBIND_RX response leaves before its unlock's push
+    // ======================================================================
+    //  Milan v1.2 5.3.8.10 counts a Controller Unbind of a locked Stream
+    //  Input as one MEDIA_UNLOCKED and never as a STREAM_INTERRUPTED, and
+    //  Table 5.6 then reads LOCKED = UNLOCKED: not synchronized. Milan 5.4.5
+    //  (Table 5.22) pushes that change as an unsolicited GET_COUNTERS. The
+    //  controller learns of the unbind from the UNBIND_RX response, so a push
+    //  that overtakes the response shows it a connected input losing lock,
+    //  and it flags a counter error. Per sink of the shipping AX 1x1 shape,
+    //  the AAF input 0 and the CRF input 1, this section binds, settles the
+    //  probe, locks off real PDUs, lets the row's one-second limiter reopen,
+    //  then unbinds, on the [GSI] ports, and grades off the MAC TX trunk:
+    //    U1 the UNBIND_RX response is SUCCESS;
+    //    U2 each registered controller gets a GET_COUNTERS push that reports
+    //       the unlock, and every such push leaves AFTER the response;
+    //    U3 the source pair reads LOCKED = UNLOCKED = 1 as the response's
+    //       last byte leaves, GET_COUNTERS right after the response reads it
+    //       with STREAM_INTERRUPTED = 0, and so does every push after it;
+    //    U4 past both receivers' 100 ms silence timeout, with the talker
+    //       still streaming, the pair still reads 1 = 1: the timeout did not
+    //       count the unbind's unlock a second time.
+    //  unb_mutants.py plants the response held behind the push, a CRF unbind
+    //  that does not count its unlock, one that counts it twice and one that
+    //  counts a STREAM_INTERRUPTED, and requires these checks to fail.
+    //  Each sink prints its event trace in cycles after the UNBIND_RX
+    //  command's last byte was taken.
+    // ======================================================================
+    //! one sink's events, in uns_log_cycle; -1 = not seen
+    struct UnbTrace {
+        long cmd = -1;      //! the UNBIND_RX command's last beat was taken
+        long txreq = -1;    //! the listener queued a frame: its response
+        long fall = -1;     //! the processor's debounced bind level fell
+        long mu = -1;       //! MEDIA_UNLOCKED moved at its source
+        long dirty = -1;    //! the source's Table 5.22 pulse
+        long evt = -1;      //! the descriptor arbiter delivered {5, sink}
+        long rsp = -1;      //! the response's last byte left
+        uint32_t rsp_ml = 0;    //! the source's MEDIA_LOCKED then
+        uint32_t rsp_mu = 0;    //! ...and its MEDIA_UNLOCKED
+    };
+    //! Both receivers drop lock after 100 ms without an accepted PDU: the
+    //! CRF engine at CLK_FREQ_HZ_P / 10 cycles, the AAF monitor at 100 of
+    //! its 1 ms ticks. This leg's fabric runs at milan_datapath's default
+    //! 100 MHz, so that is 10,000,000 cycles; U4 reads the pair 5 % later.
+    static constexpr long kUnbSilenceCyc = 10500000;
+    UnbTrace unb_tr;
+    int unb_sink = -1;      //! the sink being traced; -1 = off
+    uint32_t unb_mu_q = 0;
+    //! the talker: the sink whose stream is live (-1 = none) and the cycle
+    //! its next PDU is due. Class A AAF is one PDU per 125 us (12,500 cycles
+    //! at this leg's 100 MHz) and CRF one per 2 ms; it keeps streaming
+    //! across the unbind, as a talker the listener just left does
+    int unb_live = -1;
+    long unb_next = 0;
+    //! the talker's PDU sequence cursor
+    uint8_t unb_seq = 0;
+    //! the talker unique_id sink `s` binds: the sink index
+    static uint16_t unb_tuid(int s) { return static_cast<uint16_t>(s); }
+
+    //! The source's MEDIA_UNLOCKED and MEDIA_LOCKED: stream 0's write-through
+    //! shadow of the monitor RAM, or KL_crf_rx's tallies.
+    uint32_t unb_mu(int s) {
+        return s == 0 ? dut->rootp->milan_datapath__DOT__avtprx_unlocked_c
+                      : dut->rootp->milan_datapath__DOT__crf_unlockcnt_w;
+    }
+    uint32_t unb_ml(int s) {
+        return s == 0 ? dut->rootp->milan_datapath__DOT__avtprx_locked_c
+                      : dut->rootp->milan_datapath__DOT__crf_lockcnt_w;
+    }
+    bool unb_dirty(int s) {
+        return s == 0 ? (dut->rootp->milan_datapath__DOT__avtprx_dirty_p_w & 1u) != 0
+                      : dut->rootp->milan_datapath__DOT__crf_dirty_p_w != 0;
+    }
+    //! Called by gsi_tick after every edge: the first of each event.
+    void unb_watch() {
+        if (unb_live >= 0 && uns_log_cycle >= unb_next) {
+            gsi_rx_q.push_back(unb_pdu(unb_live, 2000000));
+            unb_next = uns_log_cycle + (unb_live == 0 ? 12500 : 200000);
+        }
+        if (unb_sink < 0) return;
+        const int s = unb_sink;
+        const long t = uns_log_cycle;
+        auto& r = *dut->rootp;
+        if (unb_tr.txreq < 0
+            && r.milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__lstn_txreq_valid_w)
+            unb_tr.txreq = t;
+        if (unb_tr.fall < 0
+            && !((r.milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__bound_hold_r >> s) & 1u))
+            unb_tr.fall = t;
+        if (unb_tr.mu < 0 && unb_mu(s) != unb_mu_q) unb_tr.mu = t;
+        if (unb_tr.dirty < 0 && unb_dirty(s)) unb_tr.dirty = t;
+        if (unb_tr.evt < 0 && r.milan_datapath__DOT__pp_ctr_evt_valid_w
+            && r.milan_datapath__DOT__pp_ctr_evt_type_w == 0x0005
+            && r.milan_datapath__DOT__pp_ctr_evt_index_w == static_cast<unsigned>(s))
+            unb_tr.evt = t;
+        //! the source pair on the edge the response's last byte left on
+        const auto rsp = gsi_acmp_when.find((0x09u << 8) | static_cast<unsigned>(s));
+        if (unb_tr.rsp < 0 && rsp != gsi_acmp_when.end()) {
+            unb_tr.rsp = rsp->second;
+            unb_tr.rsp_ml = unb_ml(s);
+            unb_tr.rsp_mu = unb_mu(s);
+        }
+    }
+
+    //! One clean PDU of sink `s`'s settled stream to its settled address,
+    //! timestamped `ahead_ns` past the PHC: an AAF PDU in the image's input
+    //! format (INT32, 48 kHz, 32 bit, two channels) or a CRF_AUDIO_SAMPLE
+    //! PDU (48 kHz, interval 96, one timestamp). In order, in time, neither
+    //! late nor early, so no Table 5.6 anomaly arms a push of its own.
+    std::vector<uint8_t> unb_pdu(int s, uint64_t ahead_ns) {
+        const uint64_t ts = phc_now_ns() + ahead_ns;
+        std::vector<uint8_t> f(s == 0 ? 86 : 64, 0);
+        gsi_put(f, 0, kGsiSink[s].dmac, 6);
+        gsi_put(f, 6, 0x021122334455ull, 6);
+        gsi_put(f, 12, 0x22F0, 2);
+        f[16] = unb_seq++;
+        gsi_put(f, 18, kGsiSink[s].sid, 8);
+        if (s == 0) {
+            f[14] = 0x02; f[15] = 0x81;              // AAF, sv, tv
+            gsi_put(f, 26, ts & 0xFFFFFFFFull, 4);   // avtp_timestamp
+            f[30] = 0x02; f[31] = 0x50;              // INT32, nsr 48 kHz
+            f[32] = 2; f[33] = 32;                   // channels, bit depth
+            gsi_put(f, 34, 48, 2);                   // stream_data_length
+        } else {
+            f[14] = 0x04; f[15] = 0x80; f[17] = 0x01;    // CRF, sv, AUDIO_SAMPLE
+            gsi_put(f, 26, 48000, 4);                // pull 0, base_frequency
+            gsi_put(f, 30, 8, 2);                    // crf_data_length
+            gsi_put(f, 32, 96, 2);                   // timestamp_interval
+            gsi_put(f, 34, ts, 8);
+        }
+        return f;
+    }
+
+    //! GET_COUNTERS(STREAM_INPUT, s) from `c`, answered through the ports.
+    std::vector<uint8_t> unb_ctrs(const Ctlr& c, int s) {
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00, static_cast<uint8_t>(s)};
+        return gsi_xact(c, 0x0029, key);
+    }
+    //! Is `f` an unsolicited GET_COUNTERS for STREAM_INPUT `s`?
+    bool unb_is_push(const std::vector<uint8_t>& f, int s) {
+        return aecp_is_unsolicited(f) && notify_cmd(f) == 0x0029 && f.size() >= 58
+            && gsi_be(f, 38, 2) == 0x0005 && gsi_be(f, 40, 2) == static_cast<uint64_t>(s);
+    }
+    //! the uns_log_cycle of the first push of row `s` to `c` reporting at
+    //! least `unlocked` MEDIA_UNLOCKED (-1 when none)
+    long unb_push_when(const Ctlr& c, int s, uint32_t unlocked) {
+        for (size_t i = 0; i < uns_log.size(); i++)
+            if (unb_is_push(uns_log[i], s) && notify_to(uns_log[i], c)
+                && ctr_word(uns_log[i], 1) >= unlocked)
+                return uns_log_when[i];
+        return -1;
+    }
+    //! ...and of the first GET_STREAM_INFO push for STREAM_INPUT `s` to `c`
+    long unb_gsi_when(const Ctlr& c, int s) {
+        for (size_t i = 0; i < uns_log.size(); i++) {
+            const std::vector<uint8_t>& f = uns_log[i];
+            if (aecp_is_unsolicited(f) && notify_cmd(f) == 0x000F && f.size() >= 42
+                && notify_to(f, c) && gsi_be(f, 38, 2) == 0x0005
+                && gsi_be(f, 40, 2) == static_cast<uint64_t>(s))
+                return uns_log_when[i];
+        }
+        return -1;
+    }
+
+    //! Bind sink `s`, settle its probe and lock it off real PDUs; then wait
+    //! until its row has pushed nothing for 1.1 processor seconds, so the
+    //! one-second limiter is open when the unbind lands, as on a live input.
+    void unb_bind_and_lock(int s, const char* kind) {
+        char w[160];
+        gsi_acmp_rsp.erase((0x07u << 8) | static_cast<unsigned>(s));
+        const long probes0 = gsi_probes[static_cast<size_t>(s)];
+        notify_clear();
+        gsi_bind(s, unb_tuid(s));
+        gsi_ms(kGsiWinMs);
+        snprintf(w, sizeof w, "[UNB] %s sink %d BIND_RX", kind, s);
+        gsi_ck_acmp_ok(w, 0x07, s);
+        snprintf(w, sizeof w, "[UNB] %s sink %d the bind sent its PROBE_TX", kind, s);
+        ck(w, gsi_probes[static_cast<size_t>(s)] - probes0, 1);
+        gsi_answer_probe(s, 0);
+        gsi_ms(kGsiWinMs);
+        for (int n = 0; n < 12; n++) gsi_rx_q.push_back(unb_pdu(s, 2000000));
+        gsi_ms(kGsiWinMs);
+        unb_live = s;
+        unb_next = uns_log_cycle;
+        const std::vector<uint8_t> c = unb_ctrs(CTL_A, s);
+        snprintf(w, sizeof w, "[UNB] %s sink %d locked: MEDIA_LOCKED", kind, s);
+        ck(w, ctr_word(c, 0), 1);
+        snprintf(w, sizeof w, "[UNB] %s sink %d locked: MEDIA_UNLOCKED", kind, s);
+        ck(w, ctr_word(c, 1), 0);
+        //! the lock's own push (held by the limiter behind the bind's wipe
+        //! push) goes first, then a quiet 1.1 s
+        long last = -1;
+        for (long n = 0; n < 1500L * kMsCycTb; n += kMsCycTb) {
+            gsi_ms(1);
+            if (notify_count(0x0029, &CTL_B, 0x0005, s) > 0
+                && ctr_word(notify_last(0x0029, CTL_B, 0x0005, s), 0) == 1) break;
+        }
+        for (size_t i = 0; i < uns_log.size(); i++)
+            if (unb_is_push(uns_log[i], s)) last = uns_log_when[i];
+        snprintf(w, sizeof w, "[UNB] %s sink %d the lock was pushed", kind, s);
+        ck(w, static_cast<long>(last >= 0
+                                && ctr_word(notify_last(0x0029, CTL_B, 0x0005, s), 0) == 1), 1);
+        while (uns_log_cycle - last < 1100L * kMsCycTb) gsi_tick();
+    }
+
+    //! U2 waits for the push reporting the unlock and U4 for both
+    //! receivers' silence timeout, with the talker still streaming. That is
+    //! 105 processor seconds here, past the 30 to 60 s Milan 5.4.5.3 monitor,
+    //! so both controllers send a command every 10 processor seconds to stay
+    //! registered. Ends one keepalive past the window whatever arrives.
+    void unb_wait_past_the_silence(int s) {
+        const long keep_cyc = 10000L * kMsCycTb;
+        const long t_end = (unb_tr.cmd >= 0 ? unb_tr.cmd : uns_log_cycle) + kUnbSilenceCyc;
+        long keep = uns_log_cycle + keep_cyc;
+        while (uns_log_cycle < t_end + keep_cyc
+               && (uns_log_cycle < t_end || unb_push_when(CTL_A, s, 1) < 0
+                   || unb_push_when(CTL_B, s, 1) < 0)) {
+            for (int k = 0; k < 1000; k++) gsi_tick();
+            if (uns_log_cycle >= keep) {
+                unb_ctrs(CTL_A, s);
+                unb_ctrs(CTL_B, s);
+                keep = uns_log_cycle + keep_cyc;
+            }
+        }
+    }
+
+    //! Sink `s`'s event trace, in cycles after the UNBIND_RX command's last
+    //! byte; `when` holds the first push reporting the unlock to A and to B.
+    void unb_print_trace(int s, const char* kind, const long (&when)[2]) {
+        const long t0 = unb_tr.cmd;
+        auto rel = [t0](long t) { return (t < 0 || t0 < 0) ? -1L : t - t0; };
+        printf("  [i]    [UNB] %s sink %d trace, cycles after the UNBIND_RX's last "
+               "byte: response queued +%ld, bind level fell +%ld, MEDIA_UNLOCKED "
+               "+%ld, Table 5.22 pulse +%ld, delivered +%ld, response left +%ld "
+               "(source LOCKED/UNLOCKED %u/%u), push to A left +%ld, push to B "
+               "left +%ld; GET_STREAM_INFO push to A +%ld, to B +%ld\n", kind, s,
+               rel(unb_tr.txreq), rel(unb_tr.fall), rel(unb_tr.mu), rel(unb_tr.dirty),
+               rel(unb_tr.evt), rel(unb_tr.rsp), unb_tr.rsp_ml, unb_tr.rsp_mu,
+               rel(when[0]), rel(when[1]),
+               rel(unb_gsi_when(CTL_A, s)), rel(unb_gsi_when(CTL_B, s)));
+    }
+
+    //! Unbind sink `s` and grade U1..U4; prints the trace.
+    void unb_unbind_and_grade(int s, const char* kind) {
+        char w[200];
+        const unsigned key = (0x09u << 8) | static_cast<unsigned>(s);
+        gsi_acmp_rsp.erase(key);
+        gsi_acmp_when.erase(key);
+        //! the live stream raised no push of its own: the row's limiter is
+        //! open when the unbind lands, so nothing but the order can hold the
+        //! unlock's push back
+        long last = -1;
+        for (size_t i = 0; i < uns_log.size(); i++)
+            if (unb_is_push(uns_log[i], s)) last = uns_log_when[i];
+        snprintf(w, sizeof w, "[UNB] %s sink %d the row pushed nothing in the "
+                 "second before the unbind", kind, s);
+        ck(w, static_cast<long>(last >= 0 && uns_log_cycle - last >= 1000L * kMsCycTb), 1);
+        notify_clear();
+        unb_tr = UnbTrace();
+        unb_mu_q = unb_mu(s);
+        unb_sink = s;
+        gsi_rx_last_sub = 0;
+        gsi_unbind(s, unb_tuid(s));
+        for (long n = 0; n < 200000 && gsi_rx_last_sub != 0xFC; n++) gsi_tick();
+        unb_tr.cmd = gsi_rx_last;
+        for (long n = 0; n < 200000 && gsi_acmp_rsp.count(key) == 0; n++) gsi_tick();
+        snprintf(w, sizeof w, "[UNB] %s sink %d U1 UNBIND_RX", kind, s);
+        gsi_ck_acmp_ok(w, 0x09, s);
+        const long rsp = gsi_acmp_when.count(key) ? gsi_acmp_when[key] : -1;
+        //! U3 at the source, on the edge the response left: the controller
+        //! learns of the unbind there, so the pair already says "not
+        //! synchronized"
+        snprintf(w, sizeof w, "[UNB] %s sink %d U3 as the response left: the "
+                 "source's MEDIA_LOCKED, MEDIA_UNLOCKED", kind, s);
+        ck(w, (static_cast<unsigned long>(unb_tr.rsp_ml) << 8) | unb_tr.rsp_mu, 0x0101);
+        //! ...and as the controller that unbound would ask it, at once
+        const std::vector<uint8_t> c = unb_ctrs(CTL_A, s);
+        snprintf(w, sizeof w, "[UNB] %s sink %d U3 right after the response: "
+                 "MEDIA_LOCKED", kind, s);
+        ck(w, ctr_word(c, 0), 1);
+        snprintf(w, sizeof w, "[UNB] %s sink %d U3 right after the response: "
+                 "MEDIA_UNLOCKED = MEDIA_LOCKED", kind, s);
+        ck(w, ctr_word(c, 1), 1);
+        snprintf(w, sizeof w, "[UNB] %s sink %d U3 right after the response: "
+                 "STREAM_INTERRUPTED", kind, s);
+        ck(w, ctr_word(c, 2), 0);
+        unb_wait_past_the_silence(s);
+        gsi_ms(kGsiWinMs);
+        unb_sink = -1;
+        unb_live = -1;
+        const Ctlr* const to[2] = {&CTL_A, &CTL_B};
+        const char* const nm[2] = {"A", "B"};
+        long when[2] = {};
+        for (int k = 0; k < 2; k++) {
+            when[k] = unb_push_when(*to[k], s, 1);
+            snprintf(w, sizeof w, "[UNB] %s sink %d U2 a push reporting the "
+                     "unlock reached %s", kind, s, nm[k]);
+            ck(w, static_cast<long>(when[k] >= 0), 1);
+            snprintf(w, sizeof w, "[UNB] %s sink %d U2 every push reporting the "
+                     "unlock to %s left after the UNBIND_RX response", kind, s, nm[k]);
+            ck(w, static_cast<long>(rsp >= 0 && (when[k] < 0 || when[k] > rsp)), 1);
+        }
+        long unequal = 0;
+        for (size_t i = 0; i < uns_log.size(); i++)
+            if (unb_is_push(uns_log[i], s) && uns_log_when[i] > rsp
+                && ctr_word(uns_log[i], 0) != ctr_word(uns_log[i], 1)) unequal++;
+        snprintf(w, sizeof w, "[UNB] %s sink %d U3 every push after the response "
+                 "reads MEDIA_LOCKED = MEDIA_UNLOCKED", kind, s);
+        ck(w, unequal, 0);
+        snprintf(w, sizeof w, "[UNB] %s sink %d U4 the wait outlasted both 100 ms "
+                 "silence timeouts", kind, s);
+        ck(w, static_cast<long>(unb_tr.cmd >= 0
+                                && uns_log_cycle - unb_tr.cmd >= kUnbSilenceCyc), 1);
+        const std::vector<uint8_t> e = unb_ctrs(CTL_B, s);
+        snprintf(w, sizeof w, "[UNB] %s sink %d U4 past the silence timeouts: "
+                 "MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED", kind, s);
+        ck(w, (static_cast<unsigned long>(ctr_word(e, 0)) << 16)
+              | (static_cast<unsigned long>(ctr_word(e, 1)) << 8) | ctr_word(e, 2), 0x010100);
+        unb_print_trace(s, kind, when);
+    }
+
+    void unbind_order_section() {
+        printf("-- [UNB] #653: the UNBIND_RX response leaves before the push "
+               "reporting its unlock (one processor ms = %d cycles) --\n", kMsCycTb);
+        if (kNstreamsTb + 1 != kGsiSinks) return;
+        axi_write(A_ADP_CTRL, 0x1);
+        const std::vector<uint8_t> fl0(4, 0);
+        ck("[UNB] REGISTER_UNSOLICITED_NOTIFICATION from A",
+           aecp_status(gsi_xact(CTL_A, 0x0024, fl0)), 0);
+        ck("[UNB] REGISTER_UNSOLICITED_NOTIFICATION from B",
+           aecp_status(gsi_xact(CTL_B, 0x0024, fl0)), 0);
+        const char* const kind[kGsiSinks] = {"AAF", "CRF"};
+        for (int s = 0; s < kGsiSinks; s++) {
+            unb_bind_and_lock(s, kind[s]);
+            unb_unbind_and_grade(s, kind[s]);
+        }
+        notify_clear();
+    }
+
     // stream_id wire bytes {03:00:00:00:00:03, uid 0x0001} / {04:.., uid 2}
     static constexpr uint8_t sidB[8] = {
         0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
@@ -2488,6 +2837,7 @@ class NxnDatapathHarness {
         grade_the_clock_source_set_against_the_fabric();
         notify_section(true);
         gsi_seam_section();
+        unbind_order_section();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
