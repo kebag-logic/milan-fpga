@@ -1,0 +1,78 @@
+original selftest rc 0
+figures selftest: 17 cases, OK
+real SVG image rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: carries <image>: a raster or embedded document is not editable source
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real SVG feImage rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: carries <feImage>: a raster or embedded document is not editable source
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real SVG foreignObject rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: carries <foreignObject>: a raster or embedded document is not editable source
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real SVG bad-root rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: root element is {http://www.w3.org/2000/svg}g, not an SVG-namespace <svg>
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real SVG missing-namespace rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: root element is svg, not an SVG-namespace <svg>
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real SVG truncated rc 1
+FIGURE FAIL: docs/diagrams/20-rtl-dataflow.svg: not well-formed XML (unclosed token: line 1, column 0)
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+real missing-heading rc 1
+FIGURE FAIL: docs/diagrams/README.md: no '## Inventory (hand-authored SVG)' section
+figures: inventory unreadable, FAILURES
+real empty-inventory rc 1
+FIGURE FAIL: docs/diagrams/README.md: the hand-authored inventory lists no SVG
+figures: inventory unreadable, FAILURES
+real nested file rc 1
+FIGURE FAIL: docs/diagrams/reviewer/nested.svg: not a figure format docs/README.md section 3 lists
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, 1 FAILURES
+selftest mutant image rc 1
+SELFTEST FAIL: case 6: want ['20-a.svg: carries <image>'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant feImage rc 1
+SELFTEST FAIL: case 7: want ['20-a.svg: carries <feImage>'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant foreignObject rc 1
+SELFTEST FAIL: case 8: want ['20-a.svg: carries <foreignObject>'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant root rc 1
+SELFTEST FAIL: case 9: want ['20-a.svg: root element is svg, not an SVG-namespace <svg>'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+SELFTEST FAIL: case 10: want ['20-a.svg: root element is {http://www.w3.org/2000/svg}g, not'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 2 FAILURES
+selftest mutant viewBox rc 1
+SELFTEST FAIL: case 11: want ['20-a.svg: no viewBox'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant inventory-missing rc 1
+SELFTEST FAIL: case 13: want ["no '## Inventory (hand-authored SVG)' section"] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant inventory-empty rc 1
+SELFTEST FAIL: case 12: want ['the hand-authored inventory lists no SVG'] rc 1, got rc 1
+FIGURE FAIL: docs/diagrams/20-a.svg: SVG with no .drawio source, not in the hand-authored inventory of docs/diagrams/README.md
+figures: 1 draw.io, 1 WaveDrom, 0 hand-authored, 1 FAILURES
+
+figures selftest: 17 cases, 1 FAILURES
+selftest mutant nested-format rc 1
+SELFTEST FAIL: case 2: want ['20-a.png: not a figure format'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+SELFTEST FAIL: case 5: want ['sub/20-a.svg: not a figure format'] rc 1, got rc 0
+figures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK
+
+figures selftest: 17 cases, 2 FAILURES
+restored real figures rc 0
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK

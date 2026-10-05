@@ -1,0 +1,137 @@
+Clean merge-tree reconstructions: [
+  {
+    "commit": "07b1469ddf1e2a54e4a42cac06c41f084ecffd6c",
+    "parents": [
+      "c050d97153dd0480ae741102c1647eeda9b7f273",
+      "d18270d69eea9cdf35f846c77821d5488dab97cc"
+    ],
+    "rc": 0,
+    "expected_tree": "5ff7ea39fc74c21be0d6a1df92f07496513c5fab",
+    "computed": "5ff7ea39fc74c21be0d6a1df92f07496513c5fab",
+    "stderr": ""
+  },
+  {
+    "commit": "b0a741963212e7d49a902cbab3940033266084c4",
+    "parents": [
+      "07b1469ddf1e2a54e4a42cac06c41f084ecffd6c",
+      "f9b8f0ee6604a73b9fa82c62b91811e9f53b320a"
+    ],
+    "rc": 0,
+    "expected_tree": "0e4e1c96a8bbd9fd7812dc0c1c84697a9adb6242",
+    "computed": "0e4e1c96a8bbd9fd7812dc0c1c84697a9adb6242",
+    "stderr": ""
+  },
+  {
+    "commit": "ead8036035affd53ef4b29979190f2f4f67084c0",
+    "parents": [
+      "b0a741963212e7d49a902cbab3940033266084c4",
+      "c725be12d7ea6bf96f1b64e3a56416f0d4defd6c"
+    ],
+    "rc": 0,
+    "expected_tree": "0bb7199a3caf38df44071cac4e2d56fef89f1b7c",
+    "computed": "0bb7199a3caf38df44071cac4e2d56fef89f1b7c",
+    "stderr": ""
+  },
+  {
+    "commit": "5b2199ba197cc479488603580a82d2820ba8bc35",
+    "parents": [
+      "3d5a201e0437562265cb8c1220c4c2843f6899b3",
+      "07b1469ddf1e2a54e4a42cac06c41f084ecffd6c"
+    ],
+    "rc": 0,
+    "expected_tree": "5cff66d7fb55e687df93151fa46020d3e9ad6f77",
+    "computed": "5cff66d7fb55e687df93151fa46020d3e9ad6f77",
+    "stderr": ""
+  },
+  {
+    "commit": "e2197090ddaee1794f9504526da9334088d65a8b",
+    "parents": [
+      "5b2199ba197cc479488603580a82d2820ba8bc35",
+      "b0a741963212e7d49a902cbab3940033266084c4"
+    ],
+    "rc": 0,
+    "expected_tree": "fdc846ec8e83e75a875fe354e816dca0c12c0a47",
+    "computed": "fdc846ec8e83e75a875fe354e816dca0c12c0a47",
+    "stderr": ""
+  },
+  {
+    "commit": "80588cdc43ca5605a1d3748d13dd8ed7f22f7000",
+    "parents": [
+      "e2197090ddaee1794f9504526da9334088d65a8b",
+      "ead8036035affd53ef4b29979190f2f4f67084c0"
+    ],
+    "rc": 0,
+    "expected_tree": "e20b82dacbc2a3299f47c8e8444537f979d17029",
+    "computed": "e20b82dacbc2a3299f47c8e8444537f979d17029",
+    "stderr": ""
+  }
+]
+Scan file inventory: {
+  "before": 488,
+  "after": 531,
+  "added": [
+    "tb/pp_top/mutations/hz-gdi-as-barrier.patch",
+    "tb/pp_top/mutations/hz-gdi-key-none.patch",
+    "tb/pp_top/mutations/td-lock-default-59s.patch",
+    "tb/pp_top/mutations/td-tl-default-301s.patch",
+    "tb/srp_stream_fsms/srp_walk_wrap.sv",
+    "tb/srp_stream_fsms/walk_main.cpp",
+    "tb/srp_top/mutations/slope-read-source-0.patch",
+    "tb/srp_top/mutations/slope-store-source-0-only.patch",
+    "tb/srp_top/mutations/slope-stored-at-source-0.patch",
+    "tb/srp_top/mutations/slope-stored-at-stage-2-index.patch",
+    "tb/srp_top/mutations/talker-vid-unreset.patch",
+    "tb/srp_top/mutations/tf-full-guard-31.patch",
+    "tb/srp_top/mutations/tf-head-at-write-pointer.patch",
+    "tb/srp_top/mutations/tf-heads-swapped.patch",
+    "tb/srp_top/mutations/tf-listener-push-dropped.patch",
+    "tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch",
+    "tb/srp_top/mutations/tf-ls-write-ignores-full.patch",
+    "tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch",
+    "tb/srp_top/mutations/tf-tk-head-read-ahead.patch",
+    "tb/srp_top/mutations/tf-tk-write-at-rptr.patch",
+    "tb/srp_top/mutations/tf-tk-write-ignores-full.patch",
+    "tb/srp_top/mutations/walk-record-written-on-close.patch",
+    "tb/srp_top/mutations/wid-flops-da-of-gate-source.patch",
+    "tb/srp_top/mutations/wid-flops-sid-of-source-0.patch",
+    "tb/srp_top/mutations/wid-flops-vid-of-source-0.patch",
+    "tb/srp_top/mutations/wid-ram-first-open-only.patch",
+    "tb/srp_top/mutations/wid-ram-read-at-gate-source.patch",
+    "tb/srp_top/mutations/wid-ram-read-neighbour.patch",
+    "tb/srp_top/mutations/wsid-flops-of-control-sink.patch",
+    "tb/srp_top/mutations/wsid-flops-read-sink-0.patch",
+    "tb/srp_top/mutations/wsid-ram-first-settle-only.patch",
+    "tb/srp_top/mutations/wsid-ram-written-on-teardown.patch",
+    "tb/srp_top/mutations/wsid-write-ignores-ready.patch",
+    "tb/srp_top/mutations/wtsp-first-open-only.patch",
+    "tb/srp_top/mutations/wtsp-latency-field-shifted.patch",
+    "tb/srp_top/mutations/wtsp-latency-shifted.patch",
+    "tb/srp_top/mutations/wtsp-prio-rank-swapped.patch",
+    "tb/srp_top/mutations/wtsp-rank-dropped.patch",
+    "tb/srp_top/mutations/wtsp-read-at-gate-source.patch",
+    "tb/srp_top/mutations/wtsp-read-at-source-0.patch",
+    "tb/srp_top/mutations/wtsp-write-ignores-ready.patch",
+    "tb/srp_top/srp_store_wrap.sv",
+    "tb/srp_top/store_main.cpp"
+  ],
+  "removed": [],
+  "exactly_merge_added": true
+}
+C11 hdl/tb delta against landed main: ["hdl/packet_engine/KL_pp_side_port.sv", "hdl/packet_engine/KL_pp_trace_ring.sv", "hdl/packet_engine/KL_pp_tx_slots.sv", "tb/side_port/README.md", "tb/tx_slots/README.md", "tb/tx_slots/sim_main.cpp"]
+Executable-token comparison PASS
+Source history: 80588cdc43ca5605a1d3748d13dd8ed7f22f7000 e2197090ddaee1794f9504526da9334088d65a8b ead8036035affd53ef4b29979190f2f4f67084c0 Merge main ead80360 (PR #155, milan-fpga #639, the timer-arm queue and listener-record lane) into the C11 lane
+e2197090ddaee1794f9504526da9334088d65a8b 5b2199ba197cc479488603580a82d2820ba8bc35 b0a741963212e7d49a902cbab3940033266084c4 Merge main b0a74196 (PR #157, processor #81 and #84, the scoreboard-faces lane) into the C11 lane
+5b2199ba197cc479488603580a82d2820ba8bc35 3d5a201e0437562265cb8c1220c4c2843f6899b3 07b1469ddf1e2a54e4a42cac06c41f084ecffd6c Merge main 07b1469d (PR #154, milan-fpga #230, the SRP distributed-RAM lane) into the C11 lane
+3d5a201e0437562265cb8c1220c4c2843f6899b3 0917009a3e82371b3d4526a3f09fe93a2f4587db Make check-ids read an optional segment, T-ADP-DELAY(-START) even when broken at a line end, as both IDs, and fail a parenthesis after an ID that holds anything but ID segments
+0917009a3e82371b3d4526a3f09fe93a2f4587db fa8d4798df349e69c0441c6c540f4ac8b2d8bfee Put the management host on the core clock behind the integrator's bridge in F02.9 and F02.2, say an ungranted nvm_dev_req_o is withdrawn at the deadline, and list hand-authored SVG in the GAP-14 resolution (R473-1 SUGGESTION-4, -5 and -6, R472-1 S3)
+fa8d4798df349e69c0441c6c540f4ac8b2d8bfee b827de600cdfaa3684399ae56cc816fce2919b32 Give the docs-gates job full history so make stale can fail, and pin wavedrom 2.0.3.post3 and the Mermaid CLI's mermaid 11.17.2 and puppeteer 25.12.0 (R472-1 S1, R473-1 SUGGESTION-2)
+b827de600cdfaa3684399ae56cc816fce2919b32 779d8860f7ac4ee5ae95f7276473523d83c79d5e Record in F01.5 that P-EN-PLAIN-IEEE-PROFILE has no RTL consumer, as for P-DESCR-IMAGE-BYTES (#84 What remains item 3, R469-1 S2)
+779d8860f7ac4ee5ae95f7276473523d83c79d5e 033174e24ce248cb28e6fe4eefcc853356bbccaf Drop the derived 1,800 ms from the P-MAAP-RSP-MS cell, describe F02.7 by its request-and-strobe rule in the side-port README and comment, and say the top has no dual-clock FIFO in 02 rule 2 (R473-1 RESIDUE-1, -2 and -4, R472-1 R1)
+033174e24ce248cb28e6fe4eefcc853356bbccaf df7b37e57943ca4de9e8d4b0aba297ec9d5377de Plant every fault 09 section 7 names in check-figures' self-test (foreignObject, a root that is not an SVG-namespace svg, a missing or empty inventory, a nested file) and refuse feImage too (R472-1/R473-1 F2)
+df7b37e57943ca4de9e8d4b0aba297ec9d5377de 91cef52b3c56cc69f66966b004782a69d2940a46 Make check-ids read braced members of several segments, an ID broken at a line end and a sibling's last segment as IDs, treat any other text after a hyphen as prose, narrow the numeric tail to minus one, and plant a stray per scanned tree, per form and per master-table fault in its self-test (R472-1/R473-1 F1)
+91cef52b3c56cc69f66966b004782a69d2940a46 c46f708c22bbb324ec7f1f5fa9e71379e145399e Say in the F01.2 note that the MAC FIFOs the export draws in the MAC clock domains are the integrator's, and rewrap a diagrams README line
+c46f708c22bbb324ec7f1f5fa9e71379e145399e 8bc4c980e72d2eb05e3bc0d0810445bf75ad4d47 Show the landed host_* side-port and nvm_dev_* device-face ports in 02 sections 7 and 8, and redraw F02.7 on the host_* face (#27)
+8bc4c980e72d2eb05e3bc0d0810445bf75ad4d47 1d7ffad5ac2ff08a9f28db6d61980092e19f030a Annotate the return type of check-ids.py's uses(), as the parent's Python idiom gate requires of every public function
+1d7ffad5ac2ff08a9f28db6d61980092e19f030a f160c65aebc834d89202fbb439a065e2346b448e Describe the landed byte-wide MAC faces in 02 section 3 with redrawn F02.3 and F02.4, move the class-A word stream to docs/history, and state that the integrator owns the dual-clock FIFOs and its RX FIFO delivers only complete, FCS-good frames (#27, #71)
+f160c65aebc834d89202fbb439a065e2346b448e c050d97153dd0480ae741102c1647eeda9b7f273 Fail make check on any P- or T- ID without its F01.5 or F08.1 row and on any file under docs/diagrams outside a listed figure class, give the two MAAP bounds their F01.5 rows, drop the five orphan PNGs, and run make check in the docs-gates job (#70, #75)
+Gitlinks at source head: []

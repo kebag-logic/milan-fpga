@@ -1,0 +1,74 @@
+braces ignore members rc 1
+SELFTEST FAIL: case 9: want ['T-MRP-NOPE'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 10: want ['T-NVM-RS-TYPO'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 2 FAILURES
+line break ignored rc 1
+SELFTEST FAIL: case 3: want [] rc 0, got ['T-MRP'] rc 1
+ID FAIL: tb/case/README.md:1: T-MRP has no F08.1 row
+ids: 3 files, 14 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+SELFTEST FAIL: case 13: want ['T-MRP-NOPE'] rc 1, got ['T-MRP'] rc 1
+ID FAIL: tb/case/README.md:1: T-MRP has no F08.1 row
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+ids selftest: 25 cases, 2 FAILURES
+optional omitted rc 1
+SELFTEST FAIL: case 15: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+sibling omitted rc 1
+SELFTEST FAIL: case 14: want ['T-BUDGET-AECP-XX'] rc 1, got [] rc 0
+ids: 3 files, 11 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+any numeric tail rc 1
+SELFTEST FAIL: case 19: want ['P-RX-SLOTS-2'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+docs not scanned rc 1
+SELFTEST FAIL: case 6: want ['P-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 22: want ['P-LATER'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 2 FAILURES
+hdl not scanned rc 1
+SELFTEST FAIL: case 7: want ['T-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+empty registry accepted rc 1
+SELFTEST FAIL: case 24: want ['F08.1: no T- rows parsed'] rc 1, got [] rc 0
+ids: 2 files, 5 distinct IDs used, F01.5 5 P-IDs, F08.1 0 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+duplicate registry accepted rc 1
+SELFTEST FAIL: case 23: want ['F01.5: P-ONE has two rows'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+minus-one mutant full make ids rc 0
+ids selftest: 25 cases, OK
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+original full make ids rc 2
+ids selftest: 25 cases, OK
+ID FAIL: tb/reviewer-minus-one.txt:1: P-REVIEWER-MISSING-1 has no F01.5 row
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+make: *** [Makefile:48: ids] Error 1
+original with negative plant rc 0
+ids selftest: 26 cases, OK
+minus-one mutant with negative plant rc 1
+SELFTEST FAIL: case 1: want ['P-REVIEWER-MISSING-1'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 26 cases, 1 FAILURES
+restored full make ids rc 0
+ids selftest: 25 cases, OK
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK

@@ -1,0 +1,52 @@
+braced-single present rc 0
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+braced-single missing row rc 1
+ID FAIL: docs/README.md:187: T-ACMP-CMD has no F08.1 row
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+braced-hyphenated present rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+braced-hyphenated missing row rc 1
+ID FAIL: docs/README.md:187: T-NVM-RS-AGGREGATE has no F08.1 row
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+line-broken present rc 0
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+line-broken missing row rc 1
+ID FAIL: tb/adp_engine/tb_adp_top.sv:204: T-ADP-DELAY-START has no F08.1 row
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+optional-base present rc 0
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+optional-base missing row rc 1
+ID FAIL: hdl/adp/KL_adp_engine.sv:1100: T-ADP-DELAY has no F08.1 row
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+optional-tail present rc 0
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+optional-tail missing row rc 1
+ID FAIL: hdl/adp/KL_adp_engine.sv:1100: T-ADP-DELAY-START has no F08.1 row
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+optional-line-broken present rc 0
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+optional-line-broken missing row rc 1
+ID FAIL: tb/pp_top/pp_top_wrap.sv:983: T-ADP-DELAY-START has no F08.1 row
+ids: 531 files, 90 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+minus-one present rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+minus-one missing row rc 1
+ID FAIL: hdl/common/pp_pkg.sv:325: P-RX-SLOTS-1 has no F01.5 row
+ids: 531 files, 90 distinct IDs used, F01.5 46 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+sibling present rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+sibling missing row rc 1
+ID FAIL: docs/architecture/08_timing.md:286: T-BUDGET-AECP-WC has no F08.1 row
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 35 T-IDs, 1 FAILURES
+restored rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+minus-one accepts nonexistent base: selftest rc 0
+ids selftest: 25 cases, OK
+minus-one accepts nonexistent base: real tree rc 0
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+original rejects nonexistent base: real tree rc 1
+ID FAIL: tb/reviewer-minus-one.txt:1: P-REVIEWER-MISSING-1 has no F01.5 row
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+CONFIRMED self-test survivor: unknown minus-one base
+final exact tree rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK

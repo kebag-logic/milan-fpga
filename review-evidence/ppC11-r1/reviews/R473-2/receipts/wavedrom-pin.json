@@ -1,0 +1,88 @@
+{
+  "info": {
+    "author": "Aliaksei Chapyzhenka, BreizhGeek, Kazuki Yamamoto, Stefan Wallentowitz",
+    "author_email": "k4zuki@github.com, stefan@wallentowitz.de",
+    "bugtrack_url": null,
+    "classifiers": [
+      "Development Status :: 4 - Beta",
+      "Intended Audience :: Developers",
+      "License :: OSI Approved :: MIT License",
+      "Programming Language :: Python :: 2",
+      "Programming Language :: Python :: 2.7",
+      "Programming Language :: Python :: 3",
+      "Programming Language :: Python :: 3.3",
+      "Programming Language :: Python :: 3.4",
+      "Programming Language :: Python :: 3.5",
+      "Programming Language :: Python :: 3.6",
+      "Programming Language :: Python :: 3.7",
+      "Topic :: Software Development :: Build Tools"
+    ],
+    "description": "# WaveDromPy\n\nThis is a python module and command line fully compatible with [WaveDrom](https://wavedrom.com/), which is originally implemented in JavaScript. It is useful if you want to generate wavedrom diagrams from a python environment or simply don't want to install the _Node.js_ environment just to use WaveDrom as simple command line.\n\nWaveDromPy is for example used in [sphinxcontrib-wavedrom](https://pypi.org/project/sphinxcontrib-wavedrom/) to render wavedrom for Sphinx documentation. While the original project renders the diagrams in JavaScript in the browser, WaveDromPy renders them to SVG files.\n\nThis tool is a direct translation of original Javascript file _WaveDrom.js_ to Python. No extra feature added. We seek to have it fully compatible.\n\nThe tool _WaveDromPy_ directly converts _WaveDrom_ compatible JSON files into SVG format.\n\n[![Build Status](https://travis-ci.org/wallento/wavedrompy.svg?branch=master)](https://travis-ci.org/wallento/wavedrompy)\n[![PyPI version](https://badge.fury.io/py/wavedrom.svg)](https://badge.fury.io/py/wavedrom)\n\n## Installation\n\nIt is most easy to just install wavedrom via pip/pypi:\n\n    pip install wavedrom\n    \nAlternatively you can install the latest version from this repository:\n\n    pip install git+https://github.com/wallento/wavedrompy\n    \nor from your local copy:\n\n    pip install .\n\n## Usage\n\nYou can either use the tool from Python:\n\n    import wavedrom\n    svg = wavedrom.render(\"\"\"\n    { \"signal\": [\n     { \"name\": \"CK\",   \"wave\": \"P.......\",                                              \"period\": 2  },\n     { \"name\": \"CMD\",  \"wave\": \"x.3x=x4x=x=x=x=x\", \"data\": \"RAS NOP CAS NOP NOP NOP NOP\", \"phase\": 0.5 },\n     { \"name\": \"ADDR\", \"wave\": \"x.=x..=x........\", \"data\": \"ROW COL\",                     \"phase\": 0.5 },\n     { \"name\": \"DQS\",  \"wave\": \"z.......0.1010z.\" },\n     { \"name\": \"DQ\",   \"wave\": \"z.........5555z.\", \"data\": \"D0 D1 D2 D3\" }\n    ]}\"\"\")\n    svg.saveas(\"demo1.svg\")\n    \nThis will render a waveform as:\n\n![Example 1](https://raw.githubusercontent.com/wallento/wavedrompy/2e8568d50561f534133d036fee3bd35756f416d9/doc/demo1.svg?sanitize=true \"Example 1\")\n\nYou can find more examples [in the WaveDrom tutorial](https://wavedrom.com/tutorial.html).\n\nA second feature is that WaveDrom can render logic circuit diagrams:\n\n    import wavedrom\n    svg = wavedrom.render(\"\"\"\n    { \"assign\":[\n      [\"out\",\n        [\"|\",\n          [\"&\", [\"~\", \"a\"], \"b\"],\n          [\"&\", [\"~\", \"b\"], \"a\"]\n        ]\n      ]\n    ]}\"\"\")\n    svg.saveas(\"demo2.svg\")\n \nThis will render a as:\n\n![Example 2](https://raw.githubusercontent.com/wallento/wavedrompy/2e8568d50561f534133d036fee3bd35756f416d9/doc/demo2.svg?sanitize=true \"Example 2\")\n\nYou can find more examples [in the WaveDrom tutorial2](https://wavedrom.com/tutorial2.html).\n\nFinally, wavedrom can draw registers as bitfields:\n\n    import wavedrom\n    svg = wavedrom.render(\"\"\"\n    {\"reg\": [\n      { \"name\": \"IPO\",   \"bits\": 8, \"attr\": \"RO\" },\n      {                  \"bits\": 7 },\n      { \"name\": \"<o>B</o><b>R<i>K</i></b>\",   \"bits\": 5, \"attr\": \"RW\", \"type\": 4 },\n      { \"name\": \"CPK\",   \"bits\": 1 },\n      { \"name\": \"Clear\", \"bits\": 3 },\n      { \"bits\": 8 }\n      ]\n    ]}\"\"\")\n    svg.saveas(\"demo3.svg\")\n\n    \nThis will render as:\n\n![Example 3](https://raw.githubusercontent.com/wallento/wavedrompy/2e8568d50561f534133d036fee3bd35756f416d9/doc/demo3.svg?sanitize=true \"Example 3\")\n\nThis mode is documented as part of the [bit-field](https://www.npmjs.com/package/bit-field) JavaScript package.\n\nAlternatively, WaveDromPy can be called from the command line:\n\n    wavedrompy --input input.json --svg output.svg\n\n## Important notice\n\nThe command line uses Python's JSON interpreter that is more restrictive (coherent with the JSOC spec), while the JavaScript json is more relaxed:\n\n * All strings have to be written between quotes (\"\"),\n * Extra comma (,) not supported at end of lists or dictionaries\n \n## AsciiDoctor example\n\nAn _AsciiDoctor_ example is provided to directly generate timing diagrams from _AsciiDoctor_ formatted documents.\n\n",
+    "description_content_type": "text/markdown",
+    "docs_url": null,
+    "download_url": "",
+    "downloads": {
+      "last_day": -1,
+      "last_month": -1,
+      "last_week": -1
+    },
+    "dynamic": null,
+    "home_page": "https://github.com/wallento/wavedrompy",
+    "keywords": "wavedrom svg",
+    "license": "",
+    "license_expression": null,
+    "license_files": null,
+    "maintainer": "",
+    "maintainer_email": "",
+    "name": "wavedrom",
+    "package_url": "https://pypi.org/project/wavedrom/",
+    "platform": null,
+    "project_url": "https://pypi.org/project/wavedrom/",
+    "project_urls": {
+      "Homepage": "https://github.com/wallento/wavedrompy"
+    },
+    "provides_extra": null,
+    "release_url": "https://pypi.org/project/wavedrom/2.0.3.post3/",
+    "requires_dist": null,
+    "requires_python": "",
+    "summary": "WaveDrom compatible python command line",
+    "version": "2.0.3.post3",
+    "yanked": false,
+    "yanked_reason": null
+  },
+  "last_serial": 13954033,
+  "ownership": {
+    "organization": null,
+    "roles": [
+      {
+        "role": "Owner",
+        "user": "wallento"
+      }
+    ]
+  },
+  "urls": [
+    {
+      "comment_text": "",
+      "core-metadata": false,
+      "digests": {
+        "blake2b_256": "be716739e3abac630540aaeaaece4584c39f88b5f8658ce6ca517efec455e3de",
+        "md5": "1fa386c34d9b6b59ba5e0b0556d5939b",
+        "sha256": "327b4d5dca593c81257c202fea516f7a908747fb11527c359f034f5b7af7f47b"
+      },
+      "downloads": -1,
+      "filename": "wavedrom-2.0.3.post3.tar.gz",
+      "has_sig": false,
+      "md5_digest": "1fa386c34d9b6b59ba5e0b0556d5939b",
+      "packagetype": "sdist",
+      "python_version": "source",
+      "requires_python": null,
+      "size": 137737,
+      "upload_time": "2022-05-27T11:53:09",
+      "upload_time_iso_8601": "2022-05-27T11:53:09.675681Z",
+      "url": "https://files.pythonhosted.org/packages/be/71/6739e3abac630540aaeaaece4584c39f88b5f8658ce6ca517efec455e3de/wavedrom-2.0.3.post3.tar.gz",
+      "yanked": false,
+      "yanked_reason": null
+    }
+  ],
+  "vulnerabilities": []
+}

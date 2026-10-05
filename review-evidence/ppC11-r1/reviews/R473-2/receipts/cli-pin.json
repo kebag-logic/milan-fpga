@@ -1,0 +1,142 @@
+{
+  "bin": {
+    "mmdc": "src/cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/mermaid-js/mermaid-cli/issues"
+  },
+  "dist": {
+    "shasum": "51a4dedead68073dfd66b11e269b9396a876953b",
+    "tarball": "https://registry.npmjs.org/@mermaid-js/mermaid-cli/-/mermaid-cli-11.16.0.tgz",
+    "fileCount": 16,
+    "integrity": "sha512-0InK2nbVIMtzVzCugmdvPkAuvS6wRUqU6Utntff1n8c7lgfRZAdhKY6PSKvcIK9nFmuOUzAgB5+x/XWcroZ7Zg==",
+    "signatures": [
+      {
+        "sig": "MEYCIQCWeb9ZnXXSBMQyOZzK07X6nbLHPhJawoJfAIvwH+IekQIhAKz2w6ZBcnL6V6aq4VsSuF2715AVhHKCVUf1RUzmUBbn",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      }
+    ],
+    "attestations": {
+      "url": "https://registry.npmjs.org/-/npm/v1/attestations/@mermaid-js%2fmermaid-cli@11.16.0",
+      "provenance": {
+        "predicateType": "https://slsa.dev/provenance/v1"
+      }
+    },
+    "unpackedSize": 52022
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "#(.*)": "<rootDir>/node_modules/$1"
+    }
+  },
+  "name": "@mermaid-js/mermaid-cli",
+  "type": "module",
+  "types": "./dist-types/src/index.d.ts",
+  "author": {
+    "name": "Tyler Long",
+    "email": "tyler4long@gmail.com"
+  },
+  "engines": {
+    "node": "^18.19 || >=20.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist-types/src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "gitHead": "a85b11df7064498d5b6b97ee9b2d4a7c10cb42ae",
+  "license": "MIT",
+  "scripts": {
+    "lint": "prettier --check . && eslint .",
+    "test": "cross-env-shell NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest",
+    "prepack": "tsc && vite build",
+    "prepare": "tsc && vite build",
+    "version": "node scripts/version.js",
+    "lint-fix": "prettier --write . && eslint --fix .",
+    "test:cli": "bash run-tests.sh test-positive"
+  },
+  "_npmUser": {
+    "name": "GitHub Actions",
+    "email": "npm-oidc-no-reply@github.com",
+    "trustedPublisher": {
+      "id": "github",
+      "oidcConfigId": "oidc:a4e87d94-2c79-4d2a-896e-4180b7e99066"
+    }
+  },
+  "homepage": "https://github.com/mermaid-js/mermaid-cli#readme",
+  "repository": {
+    "url": "git+ssh://git@github.com/mermaid-js/mermaid-cli.git",
+    "type": "git"
+  },
+  "_npmVersion": "11.13.0",
+  "description": "Command-line interface for mermaid",
+  "directories": {},
+  "maintainers": [
+    {
+      "name": "knsv",
+      "email": "knsv@sveido.com"
+    },
+    {
+      "name": "ugnikalnis",
+      "email": "mindaugas.laganeckas@gmail.com"
+    },
+    {
+      "name": "ashishjain0512",
+      "email": "ashishjain0512@gmail.com"
+    },
+    {
+      "name": "sidv",
+      "email": "npmjs@sidharth.dev"
+    },
+    {
+      "name": "aloisklink",
+      "email": "alois@aloisklink.com"
+    },
+    {
+      "name": "p_brolin47",
+      "email": "per@mermaidchart.com"
+    }
+  ],
+  "_nodeVersion": "24.17.0",
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "katex": "^0.16.25",
+    "mermaid": "^11.14.0",
+    "p-limit": "^6.2.0",
+    "commander": "^13.1.0",
+    "import-meta-resolve": "^4.1.0",
+    "@mermaid-js/layout-elk": "^0.1.5 || ^0.2.0",
+    "@mermaid-js/mermaid-zenuml": "^0.2.0",
+    "@fortawesome/fontawesome-free": "^6.0.0 || ^7.0.1"
+  },
+  "_hasShrinkwrap": false,
+  "packageManager": "npm@10.8.1",
+  "devDependencies": {
+    "jest": "^30.0.5",
+    "vite": "^6.0.2",
+    "eslint": "^9.0.0",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
+    "cross-env": "^7.0.3",
+    "puppeteer": "^25.0.0",
+    "@eslint/js": "^9.0.0",
+    "typescript": "^6.0.3",
+    "@types/node": "~18.19.31",
+    "@tsconfig/node18": "^18.2.4",
+    "yarn-upgrade-all": "^0.8.1",
+    "typescript-eslint": "^8.59.3"
+  },
+  "peerDependencies": {
+    "puppeteer": "^23 || ^24 || ^25"
+  },
+  "optionalDependencies": {
+    "@mermaid-js/layout-tidy-tree": "^0.2.1"
+  },
+  "_npmOperationalInternal": {
+    "tmp": "tmp/mermaid-cli_11.16.0_1782752906930_0.03378230549638839",
+    "host": "s3://npm-registry-packages-npm-production"
+  },
+  "_id": "@mermaid-js/mermaid-cli@11.16.0",
+  "version": "11.16.0"
+}
