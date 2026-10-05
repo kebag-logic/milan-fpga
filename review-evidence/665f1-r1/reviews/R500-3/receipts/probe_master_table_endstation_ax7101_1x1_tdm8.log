@@ -1,0 +1,14 @@
+endstation_ax7101_1x1_tdm8 | two TX waits slowed 4000 | max_call_us=539 ok=1 failed=0 first=0 stalled=2 max_withheld=4000 hung=0 calls=10378
+endstation_ax7101_1x1_tdm8 | two RX waits slowed 4000 | max_call_us=539 ok=1 failed=0 first=0 stalled=2 max_withheld=4000 hung=0 calls=10378
+endstation_ax7101_1x1_tdm8 | two drains slowed 4000 | max_call_us=859 ok=1 failed=0 first=0 stalled=2 max_withheld=4000 hung=0 calls=10378
+endstation_ax7101_1x1_tdm8 | TX stalled for good in one wait | max_call_us=210 ok=1 failed=1 first=0 stalled=1 max_withheld=4096 hung=0 calls=20585
+endstation_ax7101_1x1_tdm8 | a drain that never empties | max_call_us=333 ok=1 failed=1 first=0 stalled=1 max_withheld=4097 hung=0 calls=20583
+endstation_ax7101_1x1_tdm8 | a master that never answers | max_call_us=170 ok=0 failed=3 first=11 stalled=3 max_withheld=4096 hung=0 calls=109925
+endstation_ax7101_1x1_tdm8 | ten TX waits slowed | max_call_us=1859 ok=1 failed=0 first=0 stalled=10 max_withheld=4000 hung=0 calls=10378
+endstation_ax7101_1x1_tdm8 | twelve TX waits slowed | max_call_us=2189 ok=1 failed=0 first=0 stalled=12 max_withheld=4000 hung=0 calls=10378
+endstation_ax7101_1x1_tdm8 | every TX wait slowed | max_call_us=2009 ok=0 failed=3 first=12 stalled=265 max_withheld=4000 hung=0 calls=109693
+endstation_ax7101_1x1_tdm8 | every RX wait slowed (not in the suite) | max_call_us=2009 ok=0 failed=3 first=12 stalled=265 max_withheld=4000 hung=0 calls=109693
+endstation_ax7101_1x1_tdm8 | every drain slowed (not in the suite) | max_call_us=860 ok=1 failed=0 first=0 stalled=70 max_withheld=4000 hung=0 calls=109872
+endstation_ax7101_1x1_tdm8 | every TX wait slowed by 63 reads (not in the suite) | max_call_us=888 ok=1 failed=0 first=0 stalled=3910 max_withheld=63 hung=0 calls=109991
+endstation_ax7101_1x1_tdm8 | every TX wait slowed by 4095 reads (not in the suite) | max_call_us=2007 ok=0 failed=3 first=12 stalled=254 max_withheld=4095 hung=0 calls=109698
+endstation_ax7101_1x1_tdm8 worst=2189 bound=2213 WITHIN

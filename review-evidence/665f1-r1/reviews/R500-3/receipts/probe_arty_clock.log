@@ -1,0 +1,10 @@
+shape endstation_ax7101_1x1_tdm8 ships sys_clk_hz 100000000
+shape endstation_ax7101_8x8 ships sys_clk_hz 100000000
+CONFIG_CLOCK_FREQUENCY=100000000 rc=0
+shape endstation_arty_4x4 ships sys_clk_hz 83333000
+shape endstation_arty_8ch ships sys_clk_hz 83333000
+shape endstation_arty_current ships sys_clk_hz 83333000
+<checkout>/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c:68:1: error: static assertion failed: "a whole number of clocks per us"
+   68 | _Static_assert(CONFIG_CLOCK_FREQUENCY % 1000000u == 0u, "a whole number of clocks per us");
+      | ^~~~~~~~~~~~~~
+CONFIG_CLOCK_FREQUENCY=83333000 rc=1
