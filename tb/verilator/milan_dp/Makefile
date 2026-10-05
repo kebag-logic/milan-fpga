@@ -17,6 +17,9 @@
 #                 (gsi_mutants.py), outside the sweep's deadline
 #   make unb-mutants - the #653 [UNB] section's explicit mutation campaign
 #                 (unb_mutants.py), outside the sweep's deadline
+#   make dynmap - run only the #658 [DYNMAP] leg: the power-on audio maps and
+#                 the input map's adaptation against the ruling, red by record
+#                 (DYNMAP_RED=1) until the implementation lane
 #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
 #                 the acceptance's controls of it (gmstep_mutants.py)
 #   make gmstep-mutants - that leg's whole control inventory, with five
@@ -211,7 +214,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -304,6 +307,25 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(NOTIFY_MDIR) \
   -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 \
   -CFLAGS "-DNSTREAMS_TB=1 -DNOTIFY_TIMED_TB=1 -DMS_CYC_TB=100 -Wall -Wextra" \
   $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+endef
+
+# #658: the power-on audio maps and the input map's adaptation to a
+# SET_STREAM_FORMAT, graded against the ruling by sim_nxn's [DYNMAP] section
+# on the shipping AX 1x1 TDM8 geometry (the AX1X1_BUILD argv), exiting right
+# after it (DYNMAP_DEFAULT_TB). RED AT e6172750 BY RECORD: DYNMAP_RED=1 builds
+# the section's red marker, under which a ruled readback that differs is
+# reported and one that agrees fails. The implementation lane builds
+# DYNMAP_RED=0. DP_SRC and DYNMAP_MDIR are overridable like the other legs'.
+DYNMAP_RED  ?= 1
+DYNMAP_MDIR ?= obj_dynmap
+DYNMAP_RED_D = $(if $(filter 1,$(DYNMAP_RED)),-DDYNMAP_RED_TB=1,)
+define DYNMAP_BUILD
+$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(DYNMAP_MDIR) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 $(DYNMAP_RED_D) -Wall -Wextra" \
+  $(SRCS) sim_nxn.cpp -o Vmilan_dp_dynmap
 endef
 
 # #447: the shipping TDM8 render lane's two elaborations, its leg source and
@@ -484,6 +506,13 @@ gsi-mutants: notify
 unb-mutants: notify
 	python3 unb_mutants.py
 
+# #658, outside the sweep while it is red by record (see DYNMAP_BUILD).
+dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(DYNMAP_BUILD)
+
+dynmap: dynmap-build
+	$(abspath $(DYNMAP_MDIR))/Vmilan_dp_dynmap
+
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
@@ -620,4 +649,4 @@ print-dp-vflags:
 	@echo '$(GPTP_OFF_VFLAGS)'
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

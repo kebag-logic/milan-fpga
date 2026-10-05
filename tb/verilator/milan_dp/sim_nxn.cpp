@@ -2825,6 +2825,16 @@ class NxnDatapathHarness {
         //! here, after the restore proved the image, in every leg and before
         //! the timed leg's return
         prove_a_wedged_response_memory_reports_and_heals();
+        #ifdef DYNMAP_DEFAULT_TB
+        //! THE #658 LEG ENDS HERE: the image is served and AECP is
+        //! released, and nothing before this point has touched a map, so
+        //! the first GET_AUDIO_MAP below reads the power-on maps.
+        dynmap_power_on_and_adaptation_section();
+        printf("--------------------------------------------------------------\n");
+        printf("checks: %ld   failures: %ld\n", checks, fails);
+        printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
+        return true;
+        #endif
         #ifdef NOTIFY_TIMED_TB
         //! THE TIMED LEG ENDS HERE: the image is served, so the
         //! notification section has names to set, and nothing after it
@@ -3752,6 +3762,204 @@ class NxnDatapathHarness {
                axi_read(0x900) & 1, 0);
         }
         #endif
+    }
+
+    // ==================================================================
+    //  [DYNMAP] issue #658: THE POWER-ON AUDIO MAPS AND THE INPUT MAP'S
+    //  ADAPTATION TO A FORMAT CHANGE, graded against the ruling (#658
+    //  comment 5988293154) on the shipping AX7101 1x1 TDM8 geometry.
+    //
+    //  The ruling: at power-on, stream channel c maps to cluster c on BOTH
+    //  stream ports for every c below the smaller of the stream's channel
+    //  count and the port's cluster count. A SET_STREAM_FORMAT on the Stream
+    //  Input removes the input mappings whose stream channel is past the new
+    //  count, and gives each added channel the identity mapping where its
+    //  cluster has none. GET_AUDIO_MAP is the reader, because it is what a
+    //  controller sees.
+    //
+    //  Every count the expectation uses is READ, not restated: the channel
+    //  counts come from GET_STREAM_FORMAT, the cluster counts from the
+    //  shipped image's STREAM_PORT descriptors (number_of_clusters,
+    //  1722.1-2021 7.2.13, offset 12). Only the scenario's 8 -> 4 -> 8 is a
+    //  literal, because it is the scenario.
+    //
+    //  RED AT e6172750, ON RECORD (#658 stage 1). Both map stores reset
+    //  empty (milan_datapath.sv block amap_edit_commit) and SET_STREAM_FORMAT
+    //  never edits a map, so every ruled readback below differs. While that
+    //  holds the build passes -DDYNMAP_RED_TB (make dynmap, DYNMAP_RED=1): a
+    //  ruled check that differs reports [red] without failing, and one that
+    //  AGREES fails as a stale marker, so the marker cannot outlive the
+    //  behaviour it excuses. The implementation lane builds DYNMAP_RED=0.
+    //
+    //  THE MILAN 5.4.2.7 CONFLICT IS NOT DECIDED HERE. With the identity map
+    //  in force, the ruled 8 -> 4 step drops mapped channels 4..7, and Milan
+    //  v1.2 5.4.2.7 says such a SET_STREAM_FORMAT SHALL be refused with
+    //  BAD_ARGUMENTS (the #67 arm of the broad legs grades that refusal). At
+    //  this head the map is empty and the step succeeds either way, so its
+    //  status is a plain check that expects the ruling's SUCCESS.
+    // ==================================================================
+
+    //! ONE GET_AUDIO_MAP page as a controller reads it (1722.1-2021
+    //! 7.4.44.2): number_of_maps @44, number_of_mappings @46, the records
+    //! from @50 as {stream_index, stream_channel, cluster_offset,
+    //! cluster_channel}
+    struct AmapPage {
+        long status = -1;
+        long cdl = -1;
+        long nmaps = -1;
+        long nmappings = -1;
+        std::vector<std::array<uint16_t, 4> > rec;
+    };
+    uint16_t dynmap_sq = 0x6580;
+
+    AmapPage get_audio_map_page0(uint16_t ty, uint16_t ix) {
+        //! the full 7.4.44.1 command: the key, map_index 0, reserved 0
+        std::vector<uint8_t> pl = desc_key(ty, ix);
+        pl.resize(8, 0);
+        const std::vector<uint8_t> r = aecp_xact(0x002B, dynmap_sq++, pl);
+        AmapPage p;
+        p.status = aecp_status(r);
+        p.cdl = cdl_of(r);
+        if (r.size() < 50) return p;
+        p.nmaps = (r[44] << 8) | r[45];
+        p.nmappings = (r[46] << 8) | r[47];
+        for (size_t at = 50; at + 8 <= r.size()
+                 && p.rec.size() < static_cast<size_t>(p.nmappings); at += 8) {
+            std::array<uint16_t, 4> m{};
+            for (size_t f = 0; f < 4; f++)
+                m[f] = static_cast<uint16_t>((r[at + 2*f] << 8) | r[at + 2*f + 1]);
+            p.rec.push_back(m);
+        }
+        return p;
+    }
+
+    //! a stream's CURRENT channel count (GET_STREAM_FORMAT @42, the AAF
+    //! channels_per_frame field at [31:22]), and the format itself
+    long current_channels(uint16_t ty, uint16_t ix, uint64_t* fmt) {
+        const std::vector<uint8_t> r =
+            aecp_xact(0x0009, dynmap_sq++, desc_key(ty, ix));
+        if (aecp_status(r) != 0 || r.size() < 50) return -1;
+        *fmt = be64_at(r, 42);
+        return static_cast<long>((*fmt >> 22) & 0x3FF);
+    }
+
+    //! a Stream Port's number_of_clusters, out of the image this leg serves
+    long port_clusters(uint16_t ty, uint16_t ix) {
+        const std::vector<uint8_t>* d = desc_of(ty, ix);
+        if (d == nullptr || d->size() < 14) return -1;
+        return ((*d)[12] << 8) | (*d)[13];
+    }
+
+    //! A ruled check. Under the red marker a differing readback is the
+    //! recorded state of this head and an agreeing one is a stale marker.
+    long ruled_checks = 0;
+    long ruled_red = 0;
+    void ruled(const char* what, unsigned long got, unsigned long exp) {
+        ruled_checks++;
+    #ifdef DYNMAP_RED_TB
+        checks++;
+        if (got != exp) {
+            ruled_red++;
+            printf("  [red]  %-46s got=0x%lx ruled=0x%lx\n", what, got, exp);
+        } else {
+            fails++;
+            printf("  [FAIL] %-46s = 0x%lx AGREES with the ruling under the "
+                   "red marker: build DYNMAP_RED=0\n", what, got);
+        }
+    #else
+        ck(what, got, exp);
+    #endif
+    }
+
+    //! One page against the ruled identity {stream, c, c, 0} for c < n:
+    //! the answer's own shape is plain, its content is ruled.
+    void grade_identity_page(const char* tag, uint16_t ty, uint16_t stream,
+                             long n) {
+        const AmapPage p = get_audio_map_page0(ty, 0);
+        printf("  [i]    %s: status %ld, number_of_maps %ld, %ld mapping(s)",
+               tag, p.status, p.nmaps, p.nmappings);
+        for (const std::array<uint16_t, 4>& m : p.rec)
+            printf(" s%u.c%u->o%u.c%u", static_cast<unsigned>(m[0]),
+                   static_cast<unsigned>(m[1]), static_cast<unsigned>(m[2]),
+                   static_cast<unsigned>(m[3]));
+        printf("\n");
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: GET_AUDIO_MAP SUCCESS", tag);
+        ck(w, static_cast<unsigned long>(p.status), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_maps 1", tag);
+        ck(w, static_cast<unsigned long>(p.nmaps), 1);
+        snprintf(w, sizeof w, "[DYNMAP] %s: cdl carries every counted record",
+                 tag);
+        ck(w, static_cast<unsigned long>(p.cdl),
+           static_cast<unsigned long>(24 + 8 * p.nmappings));
+        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_mappings", tag);
+        ruled(w, static_cast<unsigned long>(p.nmappings),
+              static_cast<unsigned long>(n));
+        long off = std::labs(static_cast<long>(p.rec.size()) - n);
+        for (size_t i = 0; i < p.rec.size() && static_cast<long>(i) < n; i++) {
+            const uint16_t c = static_cast<uint16_t>(i);
+            const std::array<uint16_t, 4> want = {stream, c, c, 0};
+            if (p.rec[i] != want) off++;
+        }
+        snprintf(w, sizeof w, "[DYNMAP] %s: records off the identity", tag);
+        ruled(w, static_cast<unsigned long>(off), 0);
+    }
+
+    //! one SET_STREAM_FORMAT step on STREAM_INPUT 0 to `ch` channels of the
+    //! reset base, then both ports against the ruling
+    void dynmap_set_input_channels(uint64_t base, long ch, long in_cl,
+                                   long out_n, const char* tag) {
+        const uint64_t want = (base & ~(0x3FFull << 22))
+                            | (static_cast<uint64_t>(ch) << 22);
+        const std::vector<uint8_t> r =
+            aecp_xact(0x0008, dynmap_sq++, sf_pl(0x0005, 0, want));
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: SET_STREAM_FORMAT SUCCESS", tag);
+        ck(w, static_cast<unsigned long>(aecp_status(r)), 0);
+        uint64_t now = 0;
+        snprintf(w, sizeof w, "[DYNMAP] %s: GET_STREAM_FORMAT reads it", tag);
+        ck(w, static_cast<unsigned long>(
+                  current_channels(0x0005, 0, &now) == ch && now == want), 1);
+        printf("  [i]    %s: STREAM_INPUT 0 format %016llx\n", tag,
+               static_cast<unsigned long long>(now));
+        char t[64];
+        snprintf(t, sizeof t, "%s SPI 0", tag);
+        grade_identity_page(t, 0x000E, 0, std::min(ch, in_cl));
+        snprintf(t, sizeof t, "%s SPO 0", tag);
+        grade_identity_page(t, 0x000F, 0, out_n);
+    }
+
+    void dynmap_power_on_and_adaptation_section() {
+        printf("-- [DYNMAP] #658: the power-on maps and the input map's "
+               "adaptation (ruling 5988293154) --\n");
+        uint64_t fin = 0;
+        uint64_t fout = 0;
+        const long in_ch = current_channels(0x0005, 0, &fin);
+        const long out_ch = current_channels(0x0006, 0, &fout);
+        const long in_cl = port_clusters(0x000E, 0);
+        const long out_cl = port_clusters(0x000F, 0);
+        printf("  [i]    STREAM_INPUT 0 %016llx (%ld ch), STREAM_OUTPUT 0 "
+               "%016llx (%ld ch); clusters SPI 0 %ld, SPO 0 %ld\n",
+               static_cast<unsigned long long>(fin), in_ch,
+               static_cast<unsigned long long>(fout), out_ch, in_cl, out_cl);
+        //! the scenario's precondition and the image's own geometry, so a
+        //! missing descriptor or format cannot make an expectation of zero
+        ck("[DYNMAP] the reset input format is 8 channels",
+           static_cast<unsigned long>(in_ch), 8);
+        ck("[DYNMAP] the image declares both ports' clusters",
+           static_cast<unsigned long>(in_cl > 0 && out_cl > 0 && out_ch > 0), 1);
+        const long out_n = std::min(out_ch, out_cl);
+        grade_identity_page("power-on SPI 0", 0x000E, 0, std::min(in_ch, in_cl));
+        grade_identity_page("power-on SPO 0", 0x000F, 0, out_n);
+        dynmap_set_input_channels(fin, 4, in_cl, out_n, "8->4");
+        dynmap_set_input_channels(fin, 8, in_cl, out_n, "4->8");
+        //! all twelve ruled readbacks ran: two per page, six pages
+        ck("[DYNMAP] the ruled checks all ran (vacuity guard)",
+           static_cast<unsigned long>(ruled_checks), 12);
+    #ifdef DYNMAP_RED_TB
+        printf("  [i]    red marker: %ld of %ld ruled checks red at this head\n",
+               ruled_red, ruled_checks);
+    #endif
     }
 
     // ==================================================================

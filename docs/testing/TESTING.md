@@ -311,6 +311,7 @@ The #508 GET_STREAM_INFO checks stay in `obj_notify`.
 The #653 `[UNB]` unbind checks run there too.
 The #443 render CSR checks stay in `obj_aclk`.
 Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
+The #658 `dynmap` leg is outside `run`: it is red by record until its implementation lane.
 The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
 The render-law and default GM-step mutation controls run after it succeeds.
 Explicit mutation campaigns above retain their separate targets and full inventories.
