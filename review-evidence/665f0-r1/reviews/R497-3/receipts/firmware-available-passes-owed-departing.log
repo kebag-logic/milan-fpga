@@ -1,0 +1,14 @@
+  [FAIL] A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+  [FAIL] A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+  C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+  C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+  C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+  C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+  backlog: 16 event records, 30 centiseconds, 28 receive records
+  passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+  F5 the costliest pass of the backlog         105 accesses (bound 407)
+== ctrl ADP slice (fake ports and host model): checks: 107   failures: 2 ==
+RESULT: FAIL

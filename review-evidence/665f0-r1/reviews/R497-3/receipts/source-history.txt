@@ -1,0 +1,178 @@
+$ git rev-parse HEAD HEAD^{tree}
+3ebd6ca30106a006c20fd2879dcad9c79bf51dca
+58f02a8d2be6f1d5605db8df5aeab173a9ea76f1
+
+
+rc=0
+$ git show -s --format=%H%n%P%n%T%n%s HEAD
+3ebd6ca30106a006c20fd2879dcad9c79bf51dca
+5f4fe8b34a560ca43653117070b3657314c76ab7 28f9666feab2b2ba287643c63ed3a16b1e0bb863
+58f02a8d2be6f1d5605db8df5aeab173a9ea76f1
+Merge dev 28f9666f into the F0 mailbox lane (#665 F0)
+
+
+rc=0
+$ git log --first-parent --format=%H %s a3ea8ffe1..HEAD
+3ebd6ca30106a006c20fd2879dcad9c79bf51dca Merge dev 28f9666f into the F0 mailbox lane (#665 F0)
+5f4fe8b34a560ca43653117070b3657314c76ab7 Describe owed frames, the tick carry and the A7 stream on the design page, and reference the defect inventories instead of counting them (#665 F0)
+f67f055eb9fe70510cfbfc4cafcb7315883dc2d1 Pair each AXI4-Lite W with its own AW under back-to-back writes, read back (A7), with the two drain-cycle READY defects (#665 F0)
+7c2df592ea6b7bedc535ae1dc3d346ed8927bbfa Keep every owed ENTITY_DEPARTING across a restart and send it before the restart's ENTITY_AVAILABLE, with A15 to A17, E4 and three defects (#665 F0)
+592f09cbc94a41a8cfded49358bf58ec9115daf0 Check that a TICK record taken while centiseconds are carried adds to them (L8), with the overwrite defect (#665 F0)
+
+
+rc=0
+$ git diff --name-status a3ea8ffe1..HEAD
+M	docs/design/MAILBOX_SPLIT.md
+M	docs/findings/653_DISCONNECT_ORDER_BENCH.md
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/adp/adp.c
+M	sw/firmware/ctrl/adp/adp.h
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_adp.c
+M	sw/firmware/ctrl/test/test_port_loop.c
+M	tb/verilator/README.md
+M	tb/verilator/mbx/README.md
+M	tb/verilator/mbx/axil_checks.hpp
+M	tb/verilator/mbx/mutants.py
+
+
+rc=0
+$ git diff --stat fa450d30..HEAD
+ CHANGELOG.md                                 |  26 +
+ avdecc/aem_assemble.py                       |   3 +-
+ avdecc/aem_specs.py                          |   1 +
+ avdecc/gen_aemi_image.py                     |  13 +-
+ configs/endstation_ax7101_8x8.yaml           |  14 +
+ docs/ENDSTATION_BUILDER.md                   |   9 +-
+ docs/README.md                               |   1 +
+ docs/design/AREA_BUDGET.md                   |  45 +-
+ docs/design/MAILBOX_SPLIT.md                 | 466 +++++++++++++++
+ docs/design/SAVED_STATE_FASTCONNECT.md       |   6 +-
+ docs/design/SAVED_STATE_MATERIALIZATION.md   | 122 ++--
+ docs/development/CODE_QUALITY.md             |  11 +-
+ docs/diagrams/PNG_MANIFEST.json              |   4 +-
+ docs/diagrams/submodule_boundaries.drawio    |   2 +-
+ docs/diagrams/submodule_boundaries.png       | Bin 323340 -> 324291 bytes
+ docs/diagrams/submodule_boundaries.svg       |   2 +-
+ docs/findings/234_PP_SHADOW_AREA_BASELINE.md | 110 +++-
+ docs/findings/653_DISCONNECT_ORDER_BENCH.md  | 515 +++++++++++++++++
+ docs/findings/README.md                      |   6 +-
+ docs/reference/FR_NFR.md                     |   2 +-
+ docs/reference/MAILBOX_CONTRACT.md           | 647 +++++++++++++++++++++
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md    |   2 +-
+ docs/reference/PP_DESCRIPTOR_OWNERSHIP.md    |  79 ++-
+ docs/reference/REGISTER_MAP.md               |   9 +-
+ docs/reference/SUBMODULES.md                 |  38 +-
+ docs/testing/CI_WORKFLOWS.md                 |   6 +-
+ docs/traceability/MODULE_MATRIX.md           |  18 +-
+ docs/traceability/gen_module_matrix.py       |   2 +-
+ hdl/common/README-tests.md                   |   1 -
+ hdl/common/csr/README-tests.md               |   1 -
+ hdl/common/eth_event_counter/README-tests.md |   1 -
+ hdl/ieee1722/aaf/README-tests.md             |   1 -
+ hdl/ieee1722/avtp/README-tests.md            |   1 -
+ hdl/ieee1722/crf/README-tests.md             |   1 -
+ hdl/ieee1722/maap/README-tests.md            |   1 -
+ hdl/ieee17221/adp/README-tests.md            |   1 -
+ hdl/ieee8021as/gptp_plane/README-tests.md    |   1 -
+ hdl/ieee8021as/ptp_timestamp/README-tests.md |   1 -
+ hdl/ieee8021q/filtering/README-tests.md      |   1 -
+ hdl/ieee8021q/ts/README-tests.md             |   1 -
+ hdl/milan/README-tests.md                    |   1 -
+ hdl/milan/mailbox/KL_mbx.sv                  | 536 ++++++++++++++++++
+ hdl/milan/mailbox/KL_mbx_axil.sv             | 165 ++++++
+ hdl/milan/mailbox/KL_mbx_evt.sv              | 260 +++++++++
+ hdl/milan/mailbox/KL_mbx_pkg.sv              | 639 +++++++++++++++++++++
+ hdl/milan/mailbox/KL_mbx_ring.sv             |  62 ++
+ hdl/milan/mailbox/KL_mbx_rx.sv               | 374 +++++++++++++
+ hdl/milan/mailbox/KL_mbx_tx.sv               | 266 +++++++++
+ hdl/milan/mailbox/KL_mbx_wb.sv               |  74 +++
+ hdl/milan/mailbox/README-tests.md            |  20 +
+ protocol-processor                           |   2 +-
+ scripts/check_rtl_source_lists_selftest.py   |  29 +-
+ scripts/ci_scope.py                          |   6 +-
+ scripts/measure_test_evidence.py             |  16 +-
+ scripts/port_docs.budget                     |   2 +-
+ scripts/processor_yosys_tops.budget          |  18 +-
+ scripts/xvlog.budget                         |   6 +-
+ sw/builder/aem_image_checks.py               | 133 -----
+ sw/builder/endstation_builder.py             |  16 +-
+ sw/builder/test_builder.py                   | 191 +++----
+ sw/firmware/ctrl/README.md                   | 103 ++++
+ sw/firmware/ctrl/adp/adp.c                   | 279 +++++++++
+ sw/firmware/ctrl/adp/adp.h                   | 183 ++++++
+ sw/firmware/ctrl/adp/adp_entity.py           | 115 ++++
+ sw/firmware/ctrl/adp/adp_mbx.c               | 147 +++++
+ sw/firmware/ctrl/adp/adp_mbx.h               | 136 +++++
+ sw/firmware/ctrl/app/ctrl_app.c              |  27 +
+ sw/firmware/ctrl/app/ctrl_app.h              |  60 ++
+ sw/firmware/ctrl/host/mbx_model.c            | 681 ++++++++++++++++++++++
+ sw/firmware/ctrl/host/mbx_model.h            | 159 ++++++
+ sw/firmware/ctrl/host/mbx_plat_host.c        |  52 ++
+ sw/firmware/ctrl/loop/ctrl_loop.c            | 162 ++++++
+ sw/firmware/ctrl/loop/ctrl_loop.h            | 158 ++++++
+ sw/firmware/ctrl/mbx/mbx.c                   | 280 +++++++++
+ sw/firmware/ctrl/mbx/mbx.h                   | 111 ++++
+ sw/firmware/ctrl/mbx/mbx_contract.h          | 606 ++++++++++++++++++++
+ sw/firmware/ctrl/mbx/mbx_hal.h               |  48 ++
+ sw/firmware/ctrl/mbx/mbx_wire.h              |  57 ++
+ sw/firmware/ctrl/plat/mbx_plat_mmio.c        |  55 ++
+ sw/firmware/ctrl/port/ctrl_debug.c           |  48 ++
+ sw/firmware/ctrl/port/ctrl_debug.h           |  46 ++
+ sw/firmware/ctrl/port/ctrl_pool.c            | 173 ++++++
+ sw/firmware/ctrl/port/ctrl_pool.h            |  79 +++
+ sw/firmware/ctrl/port/shlan_port.c           |  55 ++
+ sw/firmware/ctrl/port/shlan_port.h           |  54 ++
+ sw/firmware/ctrl/test/adp_walk.cpp           | 440 +++++++++++++++
+ sw/firmware/ctrl/test/ctrl_arms.py           | 243 ++++++++
+ sw/firmware/ctrl/test/ctrl_build.py          | 112 ++++
+ sw/firmware/ctrl/test/ctrl_mutants.py        | 216 +++++++
+ sw/firmware/ctrl/test/ctrl_reuse.py          |  82 +++
+ sw/firmware/ctrl/test/entity_probe.c         |  70 +++
+ sw/firmware/ctrl/test/lwsrp_port.c           | 145 +++++
+ sw/firmware/ctrl/test/model_bench.hpp        |  96 ++++
+ sw/firmware/ctrl/test/model_suite.cpp        |  22 +
+ sw/firmware/ctrl/test/test_adp.c             | 808 ++++++++++++++++++++++++++
+ sw/firmware/ctrl/test/test_check.c           |  39 ++
+ sw/firmware/ctrl/test/test_check.h           |  19 +
+ sw/firmware/ctrl/test/test_ctrl_firmware.py  |  99 ++++
+ sw/firmware/ctrl/test/test_port_loop.c       | 476 ++++++++++++++++
+ sw/firmware/ctrl/wire/wire.h                 |  45 ++
+ sw/litex/milan_soc.py                        | 120 +++-
+ sw/mailbox/gen_mailbox.py                    | 277 +++++++++
+ sw/mailbox/mailbox.yaml                      | 457 +++++++++++++++
+ sw/mailbox/mailbox_emit.py                   | 267 +++++++++
+ sw/mailbox/mailbox_model.py                  | 494 ++++++++++++++++
+ sw/mailbox/mailbox_skeleton.py               | 443 +++++++++++++++
+ syn/ooc/pp_resource_baseline.json            | 500 ++++++++---------
+ syn/yosys/rom_digests.tsv                    |   2 +
+ syn/yosys/run.sh                             |   6 +
+ tb/tools/avtp_wire_truth_checks.py           |  36 +-
+ tb/tools/avtp_wire_truth_frames.py           |  11 +-
+ tb/tools/avtp_wire_truth_selftest.py         |  35 +-
+ tb/tools/avtp_wire_truth_wire.py             |   4 +
+ tb/verilator/README.md                       |   1 +
+ tb/verilator/mbx/Makefile                    |  79 +++
+ tb/verilator/mbx/README.md                   | 157 ++++++
+ tb/verilator/mbx/axil_checks.hpp             | 405 ++++++++++++++
+ tb/verilator/mbx/bench.hpp                   | 338 +++++++++++
+ tb/verilator/mbx/cosim_main.cpp              | 208 +++++++
+ tb/verilator/mbx/frames.hpp                  | 104 ++++
+ tb/verilator/mbx/mutants.py                  | 247 ++++++++
+ tb/verilator/mbx/sim_main.cpp                |  34 ++
+ tb/verilator/mbx/suite.hpp                   | 809 +++++++++++++++++++++++++++
+ tb/verilator/mbx/tb_mbx_top.sv               | 191 +++++++
+ tb/verilator/pp_shadow/README.md             |   3 +-
+ 125 files changed, 16287 insertions(+), 714 deletions(-)
+
+
+rc=0
+$ git diff --check fa450d30..HEAD
+
+
+rc=0
+$ git diff --check 28f9666f..HEAD
+
+
+rc=0

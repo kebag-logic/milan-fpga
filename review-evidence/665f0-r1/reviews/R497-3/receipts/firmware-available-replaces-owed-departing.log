@@ -1,0 +1,27 @@
+  [FAIL] A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+  [FAIL] A15 a poll without room keeps both owed
+  [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+  [FAIL] A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+  [FAIL] A15 and nothing stranded: nothing owed, a further poll sends nothing
+  [FAIL] A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1
+  [FAIL] A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+  [FAIL] A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+  [FAIL] A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+  [FAIL] A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+  [FAIL] A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+  C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+  C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+  C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+  C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+  [FAIL] E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm
+  [FAIL] E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0
+  [FAIL] E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+  [FAIL] E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+  backlog: 16 event records, 30 centiseconds, 28 receive records
+  passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+  F5 the costliest pass of the backlog         105 accesses (bound 407)
+== ctrl ADP slice (fake ports and host model): checks: 107   failures: 15 ==
+RESULT: FAIL

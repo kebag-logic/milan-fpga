@@ -1,0 +1,10 @@
+  [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+  [FAIL] D0 and is not committed                  got=12 exp=11
+  [FAIL] D0 every unread record survives the dropped frame byte for byte
+  [FAIL] D0 once released, the space takes the next frame got=13 exp=12
+  [FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=1 exp=2
+  [FAIL] D1 the record after it is still the next frame's
+  [FAIL] H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays got=23 exp=0
+  [FAIL] H0 and the frame counts in RX_DROP       got=0 exp=1
+== mbx (Wishbone host): checks: 134   failures: 8 ==
+RESULT: FAIL
