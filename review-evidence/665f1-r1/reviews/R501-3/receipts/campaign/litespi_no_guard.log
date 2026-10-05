@@ -1,0 +1,15 @@
+{
+  "mutant": "litespi_no_guard",
+  "named_checks": [
+    "port_guard"
+  ],
+  "findings_by_check": {
+    "port_guard": [
+      "--litespi: invariant while_busy=3",
+      "--litespi: invariant ls_refused=3",
+      "--litespi: the port took 4 of 4 writes outside the journal"
+    ]
+  },
+  "survivors": []
+}
+{"task": "litespi_no_guard", "unexpected_findings": []}

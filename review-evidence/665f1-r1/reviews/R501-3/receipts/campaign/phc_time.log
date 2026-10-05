@@ -1,0 +1,20 @@
+{
+  "mutant": "phc_time",
+  "named_checks": [
+    "time_base"
+  ],
+  "findings_by_check": {
+    "time_base": [
+      "--litespi: PHC -60000 ms in the window: erase None us after the change",
+      "--litespi: PHC -60000 ms in the backoff: retry None us after the failure",
+      "--litespi: PHC -60000 ms in an erase: timed out None us after it, want 3,500 ms",
+      "--litespi: PHC -60000 ms in a program: timed out None us after it, want 50 ms",
+      "--litespi: PHC 60000 ms in the window: erase 501704 us after the change",
+      "--litespi: PHC 60000 ms in the backoff: retry 159005 us after the failure",
+      "--litespi: PHC 60000 ms in an erase: timed out 498399 us after it, want 3,500 ms",
+      "--litespi: PHC 60000 ms in a program: timed out 20092 us after it, want 50 ms"
+    ]
+  },
+  "survivors": []
+}
+{"task": "phc_time", "unexpected_findings": []}

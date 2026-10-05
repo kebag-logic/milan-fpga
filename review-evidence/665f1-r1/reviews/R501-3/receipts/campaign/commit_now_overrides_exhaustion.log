@@ -1,0 +1,17 @@
+{
+  "mutant": "commit_now_overrides_exhaustion",
+  "named_checks": [
+    "dr2c_console"
+  ],
+  "findings_by_check": {
+    "dr2c_console": [
+      "model: invariant protected=3",
+      "model: console after exhaustion: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 1, 'failed': 11, 'skipped': 0, 'attempts': 3, 'exhausted': 1, 'stale': 1, 'dirty': 0, 'pending': 1, 'phase': 1, 'step_max': 256, 'step_bound': 278, 'steps': 159550, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 7, 'abandoned_vd': 11, 'unread': 0, 'read_faults': 0, 'erases': 9, 'programs': 126, 'effects': 135, 'outside': 0, 'protected': 3, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 168, 'max_polls_call': 1, 'calls': 159550, 'now_ms': 16009, 'commit_tries': 7, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}",
+      "--litespi: invariant protected=3",
+      "--litespi: invariant ls_refused=3",
+      "--litespi: console after exhaustion: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 1, 'failed': 11, 'skipped': 0, 'attempts': 3, 'exhausted': 1, 'stale': 1, 'dirty': 0, 'pending': 1, 'phase': 1, 'step_max': 256, 'step_bound': 278, 'steps': 159434, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 7, 'abandoned_vd': 11, 'unread': 0, 'read_faults': 0, 'erases': 9, 'programs': 126, 'effects': 135, 'outside': 0, 'protected': 3, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 138, 'ls_pp': 126, 'ls_se': 12, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 3, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 210, 'max_polls_call': 3, 'calls': 159434, 'now_ms': 16005, 'commit_tries': 7, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}"
+    ]
+  },
+  "survivors": []
+}
+{"task": "commit_now_overrides_exhaustion", "unexpected_findings": []}

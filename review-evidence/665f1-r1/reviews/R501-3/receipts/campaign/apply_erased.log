@@ -1,0 +1,16 @@
+{
+  "mutant": "apply_erased",
+  "named_checks": [
+    "erased_records"
+  ],
+  "findings_by_check": {
+    "erased_records": [
+      "model: erased-record counts: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 9, 'last': 0, 'first': 0, 'seq_a': 3, 'seq_b': 0, 'seq': 3, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 0, 'skipped': 0, 'attempts': 0, 'exhausted': 0, 'stale': 0, 'dirty': 0, 'pending': 0, 'phase': 1, 'step_max': 0, 'step_bound': 278, 'steps': 0, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 0, 'abandoned_vd': 0, 'unread': 0, 'read_faults': 0, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 0, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 0, 'max_polls_call': 0, 'calls': 0, 'now_ms': 4, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}",
+      "model: state of records ['0x0', '0x2', '0x12', '0x21', '0x31', '0x41'] (27 in all) differs from the slot",
+      "--litespi: erased-record counts: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 9, 'last': 0, 'first': 0, 'seq_a': 3, 'seq_b': 0, 'seq': 3, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 0, 'skipped': 0, 'attempts': 0, 'exhausted': 0, 'stale': 0, 'dirty': 0, 'pending': 0, 'phase': 1, 'step_max': 0, 'step_bound': 278, 'steps': 0, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 0, 'abandoned_vd': 0, 'unread': 0, 'read_faults': 0, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 0, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 0, 'max_polls_call': 0, 'calls': 0, 'now_ms': 0, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}",
+      "--litespi: state of records ['0x0', '0x2', '0x12', '0x21', '0x31', '0x41'] (27 in all) differs from the slot"
+    ]
+  },
+  "survivors": []
+}
+{"task": "apply_erased", "unexpected_findings": []}

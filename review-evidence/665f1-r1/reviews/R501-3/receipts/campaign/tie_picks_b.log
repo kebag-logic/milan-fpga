@@ -1,0 +1,20 @@
+{
+  "mutant": "tie_picks_b",
+  "named_checks": [
+    "newer_wins"
+  ],
+  "findings_by_check": {
+    "newer_wins": [
+      "model: seq A 0x7 B 0x7: chose 1, want 0",
+      "model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "model: seq A 0xffffffff B 0xffffffff: chose 1, want 0",
+      "model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "--litespi: seq A 0x7 B 0x7: chose 1, want 0",
+      "--litespi: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "--litespi: seq A 0xffffffff B 0xffffffff: chose 1, want 0",
+      "--litespi: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot"
+    ]
+  },
+  "survivors": []
+}
+{"task": "tie_picks_b", "unexpected_findings": []}

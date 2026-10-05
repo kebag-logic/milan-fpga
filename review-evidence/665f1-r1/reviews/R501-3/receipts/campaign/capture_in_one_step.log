@@ -1,0 +1,16 @@
+{
+  "mutant": "capture_in_one_step",
+  "named_checks": [
+    "service_bound"
+  ],
+  "findings_by_check": {
+    "service_bound": [
+      "model: invariant step_max=6040 > step_bound=278",
+      "model: step bytes 6040, want 278 (bound 278)",
+      "--litespi: invariant step_max=6040 > step_bound=278",
+      "--litespi: step bytes 6040, want 278 (bound 278)"
+    ]
+  },
+  "survivors": []
+}
+{"task": "capture_in_one_step", "unexpected_findings": []}

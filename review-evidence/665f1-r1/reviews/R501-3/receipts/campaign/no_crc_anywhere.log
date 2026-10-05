@@ -1,0 +1,18 @@
+{
+  "mutant": "no_crc_anywhere",
+  "named_checks": [
+    "powercut"
+  ],
+  "findings_by_check": {
+    "powercut": [
+      "model: power cut from blank media: {'effects': 15, 'cases': 61, 'old': 14, 'new': 1, 'bad': 46}",
+      "model: power cut from one slot: {'effects': 15, 'cases': 61, 'old': 58, 'new': 2, 'bad': 1}",
+      "model: power cut from two slots: {'effects': 15, 'cases': 61, 'old': 58, 'new': 1, 'bad': 2}",
+      "--litespi: power cut from blank media: {'effects': 15, 'cases': 61, 'old': 14, 'new': 1, 'bad': 46}",
+      "--litespi: power cut from one slot: {'effects': 15, 'cases': 61, 'old': 58, 'new': 2, 'bad': 1}",
+      "--litespi: power cut from two slots: {'effects': 15, 'cases': 61, 'old': 58, 'new': 1, 'bad': 2}"
+    ]
+  },
+  "survivors": []
+}
+{"task": "no_crc_anywhere", "unexpected_findings": []}

@@ -1,0 +1,20 @@
+{
+  "mutant": "pick_no_wrap",
+  "named_checks": [
+    "newer_wins"
+  ],
+  "findings_by_check": {
+    "newer_wins": [
+      "model: seq A 0xffffffff B 0x0: chose 0, want 1",
+      "model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "model: seq A 0x0 B 0xffffffff: chose 1, want 0",
+      "model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "--litespi: seq A 0xffffffff B 0x0: chose 0, want 1",
+      "--litespi: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot",
+      "--litespi: seq A 0x0 B 0xffffffff: chose 1, want 0",
+      "--litespi: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot"
+    ]
+  },
+  "survivors": []
+}
+{"task": "pick_no_wrap", "unexpected_findings": []}

@@ -1,0 +1,18 @@
+{
+  "mutant": "no_backoff",
+  "named_checks": [
+    "media_failures"
+  ],
+  "findings_by_check": {
+    "media_failures": [
+      "model: erase-stuck: attempts at [1006063, 1028134, 1050205] us, want three at least 1,000 ms apart",
+      "model: program-drop: attempts at [1006063, 1049643, 1093224] us, want three at least 1,000 ms apart",
+      "model: program-flip: attempts at [1006063, 1049643, 1093224] us, want three at least 1,000 ms apart",
+      "--litespi: erase-stuck: attempts at [1001805, 1023709, 1045614] us, want three at least 1,000 ms apart",
+      "--litespi: program-drop: attempts at [1001805, 1044452, 1087098] us, want three at least 1,000 ms apart",
+      "--litespi: program-flip: attempts at [1001805, 1044452, 1087098] us, want three at least 1,000 ms apart"
+    ]
+  },
+  "survivors": []
+}
+{"task": "no_backoff", "unexpected_findings": []}
