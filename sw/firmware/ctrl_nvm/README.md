@@ -121,9 +121,9 @@ The atomicity rules, from section 7 and the D3 register:
   back. A power cut at any step boots the old values or the new ones, never a
   mix.
 - **DR2c.** A failed attempt names its stage (`VD_ERASE`, `VD_PROGRAM`,
-  `VD_VERIFY`), returns its records to dirty and marks the claim stale. It is
-  retried at most three times per unchanged work set, 1,000 ms apart; a new
-  change starts a new work set.
+  `VD_VERIFY`), returns its records to dirty and marks the claim stale. An
+  unchanged work set gets at most three attempts, the first included, each
+  1,000 ms after the last failure; a new change starts a new work set.
 - **DR2b.** A capture that changed no staged byte of a VERIFIED container is
   not written. After a failed attempt the stage is not verified, so the retry
   is written.

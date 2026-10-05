@@ -7,8 +7,8 @@
  * of any IMG_LEN is judged without a buffer of its size. The newer accepted
  * slot (section 7: the wrap-safe (int32_t)(A.seq - B.seq), A on a tie as in
  * the shipping writer; the other when it fails) is read into the stage again
- * and judged again in RAM, and only
- * those bytes are applied: what is applied is what was proven. The restore
+ * and judged again in RAM, and only those bytes are applied: what is applied
+ * is what was proven. The restore
  * is one transaction (SAVED_STATE_MATERIALIZATION.md section 8.6): every
  * record in ascending id through the state port, the settle step after the
  * maps and before the names (section 8.4), and an abort rolls every value
@@ -25,13 +25,14 @@
  * authoritative slot is never erased, so at every instant of the sequence
  * one slot holds a complete container whose CRC closes (section 7), and a
  * power cut at any step boots the old content or the new one, never a mix.
- * A failed attempt returns its records to dirty and is retried at most
- * three times per unchanged work set, 1,000 ms apart (DR2c); a capture that
- * changed no staged byte of a verified container is not written (DR2b).
+ * A failed attempt returns its records to dirty; an unchanged work set gets
+ * at most three attempts, 1,000 ms apart (DR2c); a capture that changed no
+ * staged byte of a verified container is not written (DR2b).
  *
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
- * erase. The longest step is one latched record (NVM_STEP_BOUND).
+ * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
+ * stretch, or one latched record's copy and crc16.
  */
 #include "nvm_store.h"
 
