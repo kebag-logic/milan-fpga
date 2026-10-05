@@ -19,7 +19,7 @@ describe it. The numbers live in one place, the generated
 - **[The ingress filter](#the-ingress-filter)** -- Classification, the accept terms per channel with their clauses, the token bucket, and the MRPDU form the SRP channel hands lwSRP.
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
-- **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
+- **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walk and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers and the recipe.
@@ -182,8 +182,10 @@ until BREADY or RREADY. A write goes first when both wait; its B slot then
 blocks the next write for a cycle, so a waiting read goes next. The AXI4-Lite
 build adds its own checks to the suite: AW before W and W before AW, a read
 beside a write, B and R held under backpressure, a reset with a transfer half
-taken, and a probe that, on every clock of the run, moves each AXI input with
-the clock held and requires every AXI output to stay put.
+taken, back-to-back writes to distinct registers read back (each W paired with
+its own AW, beside it and running ahead of it), and a probe that, on every
+clock of the run, moves each AXI input with the clock held and requires every
+AXI output to stay put.
 
 A hard core with a weakly ordered memory model must map the window as device
 (strongly ordered) memory, or put a barrier before each doorbell write, so a
@@ -230,9 +232,10 @@ flowchart TB
   order, each to every sink; then each bound channel's receive ring, at most
   2 records each; then one poll per module. A TICK record's count is fanned
   out to every registered centisecond consumer, lwSRP's `shlan_timer_tick()`
-  among them, at most 16 centiseconds per pass with the rest carried, so
-  lwSRP's leave, LeaveAll and periodic timers run on fabric time, lose no
-  tick when the core is late, and catch up a bounded slice at a time.
+  among them, at most 16 centiseconds per pass with the rest carried (a
+  later record's count adds to what is carried), so lwSRP's leave, LeaveAll
+  and periodic timers run on fabric time, lose no tick when the core is
+  late, and catch up a bounded slice at a time.
   Register `shlan_timer_tick` once, not lwSRP's `mrp_tick()` per
   application: `mrp_tick()` calls the same global tick, so one registration
   per MRP application would advance every timer that many times per
@@ -282,6 +285,23 @@ next start: its first ENTITY_AVAILABLE carries 0. The processor's
 `KL_adp_engine` sends the same values. The host test reads the field off the
 wire for SHUTDOWN in WAITING and in DELAY, sent at once and deferred, the
 restart, and the 32-bit wrap.
+
+A frame the transmit ring has no room for is owed, and nothing that follows
+drops an owed ENTITY_DEPARTING. Each SHUTDOWN's DEPARTING keeps the index
+current at that SHUTDOWN until the ring takes it, across a restart, a timer
+expiry, a link change or another SHUTDOWN, and the oldest leaves first. A
+restart's ENTITY_AVAILABLE never passes an owed DEPARTING: if its TMR_DELAY
+expires first, the AVAILABLE is owed too, the machine stays in DELAY with no
+timer running, and the AVAILABLE leaves, TMR_ADVERTISE is armed and WAITING
+entered, only after the last owed DEPARTING. A DEPARTING queued behind another
+therefore carries 0, because its run could send no AVAILABLE. An owed AVAILABLE
+is dropped only by a link loss or a SHUTDOWN, which end the run it would have
+announced. A poll sends at most one frame, so the per-pass bound below is
+unchanged. The host test runs the case through the core's ports and through
+the driver, the model's timer and the loop: advertise, fill the ring, disable,
+enable, let the new TMR_DELAY expire, then drain. The wire carries DEPARTING
+with index 1, then AVAILABLE with index 0, then the machine is in WAITING with
+TMR_ADVERTISE armed and owes nothing.
 
 The ADPDU fields come from the entity model through the same derivations the
 fabric's engine is fed from:
@@ -357,12 +377,12 @@ simulation and is left open (see [Open items](#open-items)).
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 134 checks through the Wishbone adapter and the same 134 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then 40 AXI4-Lite handshake checks on that build |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 134 checks through the Wishbone adapter and the same 134 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own handshake checks |
 | the same suite on the host model | the 134 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
-| planted defects | 30 RTL arms (`tb/verilator/mbx/mutants.py`, four of them in the default `make`) and 28 firmware arms (`--self-test`), each caught by the check it names |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; four of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total |
 
 ## Default build
 
