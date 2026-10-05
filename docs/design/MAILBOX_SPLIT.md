@@ -192,7 +192,10 @@ flowchart TB
   finds nothing. A TICK event's count is fanned out to every registered
   centisecond consumer, lwSRP's `shlan_timer_tick()` among them, so its
   leave, LeaveAll and periodic timers run on fabric time and lose no tick
-  when the core is late.
+  when the core is late. Register `shlan_timer_tick` once, not lwSRP's
+  `mrp_tick()` per application: `mrp_tick()` calls the same global tick, so
+  one registration per MRP application would advance every timer that many
+  times per centisecond.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
   ([`adp.h`](../../sw/firmware/ctrl/adp/adp.h)) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
