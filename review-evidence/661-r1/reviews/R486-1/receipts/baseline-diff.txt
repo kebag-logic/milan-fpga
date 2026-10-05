@@ -1,0 +1,45 @@
+route-1x1 policy equal: True identity equal: True kind equal: True inputs changed: True
+  C {'LUT': 50767, 'FF': 59634, 'SLICE': 15832, 'BRAM_TILE': 92.5, 'RAMB36': 79, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.193, 'WHS_ns': 0.024, 'CARRY4': 3506}
+  D {'LUT': 50318, 'FF': 54214, 'SLICE': 15789, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 14, 'WNS_ns': 0.108, 'WHS_ns': 0.036, 'CARRY4': 3377}
+  scopes C 51 D 51 same names True
+    wrapper {'LUT': -1018, 'FF': -5510}
+    u_pp {'LUT': -1028, 'FF': -5509}
+    u_pp/u_notify {'LUT': -1043, 'FF': -2040}
+    u_pp/u_srp {'LUT': -633, 'FF': -2425}
+    u_pp/u_listener {'LUT': 67, 'FF': -56}
+    u_pp/u_aecp {'LUT': 544, 'FF': 91}
+    u_pp/u_aecp/u_d3 {'LUT': 564, 'FF': 96}
+    u_pp/u_aecp/u_store {'LUT': 1, 'FF': 0}
+    u_pp/u_aecp/u_dyn {'LUT': 18, 'FF': 0}
+    u_pp/u_nvm_port {'LUT': 83, 'FF': 33}
+    u_nvm {'LUT': 6, 'FF': 0}
+ooc-1x1 policy equal: True identity equal: True kind equal: True inputs changed: True
+  C {'LUT': 24332, 'FF': 25345, 'BRAM_TILE': 22.5, 'RAMB36': 21, 'RAMB18': 3, 'DSP': 8, 'WNS_ns': -1.616, 'WHS_ns': 0.159, 'CARRY4': 1623}
+  D {'LUT': 23178, 'FF': 19776, 'BRAM_TILE': 17.5, 'RAMB36': 16, 'RAMB18': 3, 'DSP': 8, 'WNS_ns': -2.58, 'WHS_ns': 0.159, 'CARRY4': 1494}
+  scopes C 52 D 52 same names True
+    wrapper {'LUT': -1154, 'FF': -5569}
+    u_pp {'LUT': -1161, 'FF': -5567}
+    u_pp/u_notify {'LUT': -1121, 'FF': -2044}
+    u_pp/u_srp {'LUT': -695, 'FF': -2460}
+    u_pp/u_listener {'LUT': 119, 'FF': -56}
+    u_pp/u_aecp {'LUT': 570, 'FF': 98}
+    u_pp/u_aecp/u_d3 {'LUT': 628, 'FF': 98}
+    u_pp/u_aecp/u_store {'LUT': -5, 'FF': 0}
+    u_pp/u_aecp/u_dyn {'LUT': -16, 'FF': 0}
+    u_pp/u_nvm_port {'LUT': 86, 'FF': 33}
+    u_nvm {'LUT': 7, 'FF': 0}
+ooc-8x8 policy equal: True identity equal: True kind equal: True inputs changed: True
+  C {'LUT': 31556, 'FF': 33937, 'BRAM_TILE': 28.5, 'RAMB36': 26, 'RAMB18': 5, 'DSP': 8, 'WNS_ns': -1.947, 'WHS_ns': 0.159, 'CARRY4': 2001}
+  D {'LUT': 29853, 'FF': 27370, 'BRAM_TILE': 23.5, 'RAMB36': 21, 'RAMB18': 5, 'DSP': 8, 'WNS_ns': -4.095, 'WHS_ns': 0.159, 'CARRY4': 1889}
+  scopes C 52 D 52 same names True
+    wrapper {'LUT': -1703, 'FF': -6567}
+    u_pp {'LUT': -1706, 'FF': -6567}
+    u_pp/u_notify {'LUT': -778, 'FF': -2046}
+    u_pp/u_srp {'LUT': -1531, 'FF': -3444}
+    u_pp/u_listener {'LUT': 77, 'FF': -42}
+    u_pp/u_aecp {'LUT': 1138, 'FF': 235}
+    u_pp/u_aecp/u_d3 {'LUT': 1016, 'FF': 235}
+    u_pp/u_aecp/u_store {'LUT': 79, 'FF': 0}
+    u_pp/u_aecp/u_dyn {'LUT': -23, 'FF': 0}
+    u_pp/u_nvm_port {'LUT': 64, 'FF': 33}
+    u_nvm {'LUT': 3, 'FF': 0}

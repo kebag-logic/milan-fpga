@@ -1,0 +1,63 @@
+  [gate 36b] arty_current: rates 144/3/156, sources 76/3/82 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] ax7101_8x8: rates 144/1/148, sources 76/10/96 accepted
+  [gate 36b] ax7101_1x1_tdm8: rates 144/1/148, sources 76/3/82 accepted
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+PROBE-PASS test_shipping_image_contract
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+  [gate 36b] ax7101_8x8: SoC/builder images identical
+  [gate 36b] ax7101_1x1_tdm8: SoC/builder images identical
+  [gate 36b] one rate: accepted
+  [gate 36b] eight rates: accepted
+  [gate 36b] identity sources: accepted
+  [gate 36b] one source: accepted
+  [gate 36b] current rate last: accepted
+  [gate 36b] current rate with pull: accepted
+  [gate 36b] empty rates: L10 rate-empty
+  [gate 36b] unlisted current rate: L10 current-rate
+  [gate 36b] current pull mismatch: L10 current-rate
+  [gate 36b] wrong offset: L10 rate-offset
+  [gate 36b] ninth rate: L10 rate-count
+  [gate 36b] count exceeds extent: L10 rate-length
+  [gate 36b] one byte short: L10 rate-length
+  [gate 36b] one word extra: L10 rate-length
+  [gate 36b] reversed sources: L6 domain-source-identity
+  [gate 36b] source gap: L6 domain-source-identity
+  [gate 36b] duplicate source: L6 domain-source-identity
+  [gate 36b] short audio header: L10 rate-count
+  [gate 36b] short domain header: L6 domain-source-count
+  [gate 36b] empty sources: L6 domain-source-count
+  [gate 36b] short source list: L6 domain-source-length
+  [gate 36b] source list in header: L6 domain-source-offset
+  [gate 36b] padded source offset: L6 domain-source-offset
+  [gate 36b] SoC image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] SoC image without 0x0024: L1 required-type
+PROBE-PASS test_soc_shipping_image_contract
+  [gate 36b] builder image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] builder image without 0x0024: L1 required-type
+PROBE-PASS test_shipping_image_contract_presence

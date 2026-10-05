@@ -1,0 +1,71 @@
+{
+ "head": "42f654478c11bd8f2b070969d83140587190f276",
+ "arms": [
+  {
+   "arm": "control",
+   "rc": 0,
+   "expected": 0,
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-PASS test_shipping_image_contract",
+    "PROBE-PASS test_soc_shipping_image_contract",
+    "PROBE-PASS test_shipping_image_contract_presence"
+   ]
+  },
+  {
+   "arm": "builder_lint_off",
+   "rc": 1,
+   "expected": "nonzero",
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-FAIL test_shipping_image_contract AssertionError gate 36b: empty rates accepted; missing L10 rate-empty",
+    "PROBE-PASS test_soc_shipping_image_contract",
+    "PROBE-FAIL test_shipping_image_contract_presence AssertionError gate 36b: builder image without 0x0002 accepted"
+   ]
+  },
+  {
+   "arm": "soc_lint_off",
+   "rc": 1,
+   "expected": "nonzero",
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-PASS test_shipping_image_contract",
+    "PROBE-FAIL test_soc_shipping_image_contract AssertionError gate 36b: empty rates accepted; missing L10 rate-empty",
+    "PROBE-PASS test_shipping_image_contract_presence"
+   ]
+  },
+  {
+   "arm": "overlay_drops_waiver",
+   "rc": 1,
+   "expected": "nonzero",
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-FAIL test_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-FAIL test_soc_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-PASS test_shipping_image_contract_presence"
+   ]
+  },
+  {
+   "arm": "spec_drops_waiver",
+   "rc": 1,
+   "expected": "nonzero",
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-FAIL test_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-FAIL test_soc_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-PASS test_shipping_image_contract_presence"
+   ]
+  },
+  {
+   "arm": "document_drops_waiver",
+   "rc": 1,
+   "expected": "nonzero",
+   "as_expected": true,
+   "verdicts": [
+    "PROBE-FAIL test_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-FAIL test_soc_shipping_image_contract ImageError L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 \u00a75.3.3.8)",
+    "PROBE-PASS test_shipping_image_contract_presence"
+   ]
+  }
+ ]
+}

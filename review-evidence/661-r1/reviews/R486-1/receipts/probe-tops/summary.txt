@@ -1,0 +1,9 @@
+control rc 0 planted: 
+stale_never rc 1 planted:  1 file changed, 1 insertion(+), 1 deletion(-)
+    [FAIL] a recorded name that became a top is refused as stale
+    [FAIL] its record left behind once it is a top again reaches the verdict as STALE RECORD and exit 1: rc 0: ['RTL source-list gate: OK (108 files in the milan_datapath closure, 1 of 1 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)']
+unrecorded_never rc 1 planted:  1 file changed, 1 insertion(+), 1 deletion(-)
+    [FAIL] the commented-out top is refused as unrecorded, not credited: got ([], [])
+    [FAIL] the commented-out top reaches the verdict as TOPS DRIFT and exit 1: rc 0: ['RTL source-list gate: OK (108 files in the milan_datapath closure, 1 of 1 consumer list(s) carry all of them; protocol-processor 1/2 tops, 0 recorded)']
+    [FAIL] adding a declared module that the tops array does not name is refused
+    [FAIL] removing a declared module from the tops array is refused: a top dropped from the array is exactly the drift the gate exists for

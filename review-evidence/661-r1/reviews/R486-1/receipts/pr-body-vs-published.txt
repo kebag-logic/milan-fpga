@@ -1,0 +1,26 @@
+live body sha256 11348af7394232998a08ec36d3ebb26599818c7e44d41656ddcb09c231f09af7
+published copy sha256 27827450a586d0a975fb55ee9c266f289c287193582f710e703b1595d2fc6697
+live body: 7 line(s) with an absolute host path, 1 line(s) naming an account after sudo -u
+published copy: 1 absolute-path line(s), 1 account line(s) (account kept in the copy too)
+--- published
++++ live
+@@ -1 +0,0 @@
+-[A537]
+@@ -79,3 +78,3 @@
+-export VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+-export PATH=$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin:$VALIDATION_TOOLS/pinned-verilator-5.050:$VALIDATION_STORAGE/661-a537/sv2v012/bin:$PATH
+-export DOCS_MAKE_BIN=$VALIDATION_STORAGE/661-a537/make43/bin
++export VERILATOR=<ABS-PATH>
++export PATH=<ABS-PATH>
++export DOCS_MAKE_BIN=<ABS-PATH>
+@@ -114 +113 @@
+-scripts/run_all_suites.sh $VALIDATION_STORAGE/661-review-suites
++scripts/run_all_suites.sh <ABS-PATH>
+@@ -116 +115 @@
+-  'set -e; mount --bind $VALIDATION_STORAGE/661-a537/abc-pinned/abc /usr/bin/abc; exec sudo -n -u <ACCOUNT> bash $VALIDATION_STORAGE/661-a537/pinned_synthesis.sh'
++  'set -e; mount --bind <ABS-PATH> /usr/bin/abc; exec sudo -n -u <ACCOUNT> bash <ABS-PATH>'
+@@ -118 +117 @@
+-PATH=$VALIDATION_STORAGE/661-a537/sv2v013/bin:$PATH bash protocol-processor/scripts/run_suites.sh
++PATH=<ABS-PATH> bash protocol-processor/scripts/run_suites.sh
+@@ -176,0 +176 @@
++
