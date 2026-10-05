@@ -671,6 +671,11 @@ DUT_READER_DISPOSITIONS = {
         "the push, a CRF unbind that misses, doubles or mislabels its unlock, or arms no push) "
         "into a copy of the processor tree or of the CRF engine and requires named failures "
         "beside named passes. It is the explicit unb-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/dynmap_mutants.py":
+        "mutation campaign; it plants one of four #658 power-on map defects (an empty image, no clip "
+        "of a restored input format or of an output format row, no crossbar writer) into a copy of "
+        "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
+        "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/gmstep_mutants.py":
         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
