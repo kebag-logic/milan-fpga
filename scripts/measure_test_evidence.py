@@ -657,8 +657,9 @@ DUT_READER_DISPOSITIONS = {
         "requires the named check to fail, and runs clean controls first",
     "tb/verilator/follow_ring/mutants.py":
         "mutation campaign; it plants the #645 ruling's settle-recentre controls (no pulse, "
-        "the band in place of 8 LOCKED windows) into a copy of the datapath, and the render-only "
-        "and W1 bindings by define, and requires each named check to fail",
+        "the band in place of 8 LOCKED windows) into a copy of the datapath, the loopback "
+        "recentre's overshoot into a copy of the capture crossbar, and the render-only and W1 "
+        "bindings by define, and requires each named check to fail",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
