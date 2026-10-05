@@ -10,7 +10,7 @@
 3. `run-cosim`: the control-plane firmware run on the RTL and on the host
    model, one scenario, compared frame by frame.
 
-`make mutants` runs [`mutants.py`](mutants.py), all 27 planted RTL defects;
+`make mutants` runs [`mutants.py`](mutants.py), all 30 planted RTL defects;
 the default `make` runs four of them (one per leaf, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
@@ -21,7 +21,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Twenty-seven RTL defects in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
+- **[Planted defects](#planted-defects)** -- Thirty RTL defects in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
 - **[Run](#run)** -- The two make targets.
 
 ## The top and the bench
@@ -104,6 +104,9 @@ first as positive controls.
 | `evt-gm-domain-dropped` | the GM event loses its domain | E1, GM DOMAIN |
 | `evt-expires-late` | an expiry one millisecond late | M0, at its deadline |
 | `top-irq-enable-unmasked` | IRQ_ENABLE keeps undefined bits | R1, IRQ_ENABLE mask |
+| `rx-closed-channel-stores` | FILTER_EN ignored | F0, a closed channel stores nothing |
+| `rx-second-ethertype-ignored` | a channel's second EtherType never classifies | C3, MSRP and MVRP |
+| `evt-only-exact-deadline` | a deadline already past never expires | M2, at once |
 | `wb-address-shifted` | the Wishbone adapter shifts the address | R0, CAPS |
 | `axil-read-uses-write-address` | the AXI4-Lite adapter reads at AWADDR | R0, CAPS |
 
