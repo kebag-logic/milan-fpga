@@ -1,0 +1,51 @@
+== head, tree, parent
+80b3c1b223aaad05f428164cd56595a4c1187509
+81a6a14162632f51a504005066f10bde891a8819
+356c1bbad2e9838659b433736040acf0cc4abf3e
+== files changed 356c1bbad2e9838659b433736040acf0cc4abf3e..80b3c1b223aaad05f428164cd56595a4c1187509 (raw, numstat)
+:100644 100644 0968b63 eca21b0 M	tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+5	3	tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+== git diff --check
+clean
+== blob of the patch: base, bed5f477, 356c1bba, head
+07b1469ddf1e2a54e4a42cac06c41f084ecffd6c 0968b6347d16ffbb9a9e7b1b9855c30ae9b71418
+bed5f47785839800bb640d7c747f5435f84ab5a3 0968b6347d16ffbb9a9e7b1b9855c30ae9b71418
+356c1bbad2e9838659b433736040acf0cc4abf3e 0968b6347d16ffbb9a9e7b1b9855c30ae9b71418
+80b3c1b223aaad05f428164cd56595a4c1187509 eca21b0cf86bdb35b9614f9da01001ce8daf94e7
+== blob of hdl/aecp/KL_aecp_notify.sv: bed5f477, 356c1bba, head
+bed5f47785839800bb640d7c747f5435f84ab5a3 9e97f8e7985f15da0c46e0f001d3a333f1b66e05
+356c1bbad2e9838659b433736040acf0cc4abf3e 030192f964c1b81837e43ba0387ffc0cf92114cd
+80b3c1b223aaad05f428164cd56595a4c1187509 030192f964c1b81837e43ba0387ffc0cf92114cd
+== the patch's -/+ lines, old vs new (must be identical)
+identical: 5 lines
+== hunk header arithmetic of the new patch
+@@ -1233,10 +1233,11 @@
+old lines 10, new lines 11
+== CR bytes / final newline in the new patch
+CR bytes: 0
+  \n
+== plant both: old patch at bed5f477, new patch at head (outside any work tree)
+Checking patch hdl/aecp/KL_aecp_notify.sv...
+Hunk #1 succeeded at 1298 (offset 65 lines).
+Applied patch hdl/aecp/KL_aecp_notify.sv cleanly.
+rc=0
+bf7c2b56bee3f0ef1ce5b36719cd09659212a7344f0b2beb657ef0d8d1992fbd  $REVIEWS/pp148-r476-3-packet/scratch/delta/bed/t/hdl/aecp/KL_aecp_notify.sv
+Checking patch hdl/aecp/KL_aecp_notify.sv...
+Hunk #1 succeeded at 1298 (offset 65 lines).
+Applied patch hdl/aecp/KL_aecp_notify.sv cleanly.
+rc=0
+789bfd99fe5e4bf9e6227ce700b39b98d1457b47f2a1adf6f7dcf3374a9b44bd  $REVIEWS/pp148-r476-3-packet/scratch/delta/head/t/hdl/aecp/KL_aecp_notify.sv
+== planted(bed5f477) vs planted(head) must differ exactly as the unplanted files do
+1299,1300c1299,1302
+<                   // Measure the one-second limit from emission selection,
+<                   // not from the possibly much earlier pending instant.
+---
+>                   // Provisional stamp: it keeps the window shut until the
+>                   // round's first job reaches N_EMIT_WAIT, whose stamp then
+>                   // follows each job to its send, so the limit runs from the
+>                   // round's last send (issue #148).
+same change, modulo hunk line numbers
+== planted head file, comment-stripped, equals planted bed5f477 file, comment-stripped
+identical
+== the patch's hunk, located at the head
+1299:                  // Provisional stamp: it keeps the window shut until the

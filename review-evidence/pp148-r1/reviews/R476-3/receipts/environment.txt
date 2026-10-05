@@ -1,0 +1,27 @@
+== clone
+80b3c1b223aaad05f428164cd56595a4c1187509
+81a6a14162632f51a504005066f10bde891a8819
+HEAD detached
+status --porcelain --ignored:
+(end)
+index (mode blob path) sha256: bf3d1cc4543a8d5e22836da122810442d0108dc17877dfc45705f07ba7b122c4
+HEAD tree (mode blob path) sha256: bf3d1cc4543a8d5e22836da122810442d0108dc17877dfc45705f07ba7b122c4
+gitlinks (mode 160000): 0
+worktree and index clean
+== bed5f477..head
+ hdl/aecp/KL_aecp_notify.sv                          | 6 ++++--
+ tb/pp_top/ctr_mutations/ctr-notify-one-window.patch | 8 +++++---
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+== :398-403
+  localparam logic [15:0] DT_CLOCK_DOMAIN_C  = 16'h0024;
+  //! ctr_sent_r is each stamp's valid bit: a stamp is read only once its
+  //! descriptor was sent, and is written in the cycle that sets the bit, so
+  //! the stamps are bulk data and carry no reset. They stay in flops: the
+  //! window check reads every stamp against now_ms_i in every cycle.
+  logic [N_CTR_DESC_C-1:0] ctr_dirty_r, ctr_pend_r, ctr_sent_r;
+== tools
+Verilator 5.050 2026-07-01 rev v5.050
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f  $VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+Python 3.14.7
+git version 2.55.0
+Linux 7.2.7-arch1-1
