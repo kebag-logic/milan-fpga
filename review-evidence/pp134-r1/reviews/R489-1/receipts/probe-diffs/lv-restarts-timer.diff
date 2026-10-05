@@ -1,0 +1,10 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -731,6 +731,7 @@
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+           end
+           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
++          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_ARM_C;
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;

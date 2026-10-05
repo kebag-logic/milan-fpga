@@ -1,0 +1,26 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -756,6 +756,23 @@
+     end
+   end
+ 
++  // REVIEW PROBE (no behaviour change): registrar trace
++  logic [N_SOURCES_P-1:0][1:0] probe_prev_r;
++  always_ff @(posedge clk_i) begin : review_probe
++    probe_prev_r <= reg_r;
++    if (rst_n && arm_valid_o)
++      $display("REGTRACE ms=%0d arm slot=%0d cancel=%0d deadline=%0d",
++               now_ms_i, arm_slot_o, arm_cancel_o, arm_deadline_ms_o);
++    for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
++      if (rst_n && reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV)))
++        $display("REGTRACE ms=%0d src=%0d rx=Lv reg_at_rx=%0d", now_ms_i, s, reg_r[s]);
++      if (rst_n && exp_hit_w && (exp_idx_w == s))
++        $display("REGTRACE ms=%0d src=%0d leavetimer_expiry reg=%0d", now_ms_i, s, reg_r[s]);
++      if (rst_n && (probe_prev_r[s] != reg_r[s]))
++        $display("REGTRACE ms=%0d src=%0d reg %0d->%0d", now_ms_i, s, probe_prev_r[s], reg_r[s]);
++    end
++  end
++
+   // --------------------------------------------------------- VLAN op plane
+   // lowest-index pending op drives the user face; leave before join per
+   // source (a close-then-reopen on a new VID must free the old refcount

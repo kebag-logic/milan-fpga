@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -103,7 +103,7 @@
+     //! T-MRP-PERIODIC in ms (F08.1: 1000)
+     parameter int unsigned PERIODIC_MS_P = 1000,
+     //! T-MRP-LEAVE in ms (F08.1: 5000, coupled to Δ13)
+-    parameter int unsigned LEAVE_MS_P    = 5000,
++    parameter int unsigned LEAVE_MS_P    = 5002,
+     //! default SR class A priority / VID (Milan §4.2.7.2.1)
+     parameter logic [7:0]  DOM_DEF_PRIO_P = 8'd3,
+     parameter logic [15:0] DOM_DEF_VID_P  = 16'd2,

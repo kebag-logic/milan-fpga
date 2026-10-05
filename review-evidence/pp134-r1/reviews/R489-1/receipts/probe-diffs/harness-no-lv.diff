@@ -1,0 +1,30 @@
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -822,7 +822,6 @@
+         h.idle(BENCH_GAP_CLOCKS);
+         lv1_reg = source_reg(target);
+         Msg lr = listener_rejoins(fp, target, false);
+-        lr.vecs.push_back(Vec{false, 1, fv_sid(own_sid(target)), {EV_LV}, {fp}});
+         h.feed(mrpdu_body(true, {lr, ta, tf}), true);
+       } else {
+         // the bridge's LeaveAll on every MSRP type, re-joining all but the
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -833,7 +833,6 @@
+         la_ms = h.peer_la_times.empty() ? 0 : h.peer_la_times[0];
+         h.idle(BENCH_GAP_CLOCKS);
+         lv1_reg = source_reg(target);
+-        listener_event(target, EV_LV, fp);
+       }
+       const uint32_t lv1_ms = d->now_ms_o;
+       bool kept = source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -838,7 +838,6 @@
+       bool kept = source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
+       until_ms(la_ms + 2500);
+       const int lv2_reg = source_reg(target);
+-      listener_event(target, EV_LV, fp);
+       const uint32_t lv2_ms = d->now_ms_o;
+       until_ms(la_ms + LEAVE_TIME_MS - 1);
+       kept &= source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
