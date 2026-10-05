@@ -1,0 +1,9 @@
+PROBE sequence_read_fault flips=1 auth=0 published_seq=13 staged_seq=5 restored_name=55 expected_auth=1 expected_seq=6 expected_name=66
+PROBE console_retry request=2 started=1 failed=2 exhausted=0
+PROBE console_retry request=3 started=1 failed=3 exhausted=1
+PROBE console_retry request=4 started=1 failed=4 exhausted=1
+PROBE erase_gap_us=22071 required_min_us=1000000
+PROBE erase_gap_us=22072 required_min_us=1000000
+PROBE erase_gap_us=22071 required_min_us=1000000
+PROBE backwards_clock raw_elapsed_us=3000026 port_elapsed_us=0 erases=0 dirty=1 phase=1
+REPRODUCED sequence=1 console_retry=1 backwards_clock=1
