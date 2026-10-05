@@ -85,6 +85,11 @@ id, media clock reference):
      K16 and the boundary survive journal decode and cleared-first model
      restore per port, and a CRC-clean oversized record applies nothing
  13. the complete 1x1 emitted image retains its pre-#501 SHA-256 digest
+ 14. the design page's section 4.2 allocation table reads, in its 1x1 and
+     8x8 columns, exactly the block, per-group count, record total and
+     highest id derived here for the two shapes it names -- a figure there
+     is derived, never restated, and a row without one cell per column is
+     itself a finding, so a dropped figure is never an unchecked one (#652)
 
 THE LEDGER. Check 0 does not ask the inventory what it built. `LEDGER` below
 declares, per persisted group, its clause and a cardinality rule evaluated from
@@ -135,7 +140,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # The contract, the codec and the shape derivation live beside this file; see
 # their module docstrings for the split. `FIXED`, `SEAM` and `ALLOC` are the
 # containers every `--mutate` control moves IN PLACE - never rebound - which
-# is what keeps one shared value behind all four modules.
+# is what keeps one shared value behind every module that reads them.
+from nvm_allocation_table import (                            # noqa: E402
+    ALLOCATION_COLUMNS, ALLOCATION_PAGE, allocation_findings)
 from nvm_contract import (                                    # noqa: E402
     ALIGN, ALIVE_HEARTBEATS, ALLOC, COMMIT_MARGIN, FIXED, FLASH_PAGE,
     KLJ2_HDR, KLJ2_TRAILER, LEDGER, MAP_ENTRY, MAX_PAYLOAD, NAME_BYTES, PAY,
@@ -289,7 +296,36 @@ def _mut_changed_1x1_image():
     SEAM.CHANGE_1X1_IMAGE = True
 
 
+def _mut_stale_allocation_table():
+    """Prefix a digit to the page's 1x1 user-name count, as a figure copied
+    before the shape moved would read; the allocation check must name it."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: page.replace(
+        "| user name | 128 | name ordinal | ", "| user name | 128 | name ordinal | 1", 1)
+
+
+#: The page's user-name row, up to its last cell, which is the 8x8 figure.
+_USER_NAME_ROW = re.compile(r"^(\| `0x80` \.\. `0xFF` \| user name \|(?:[^|\n]*\|){3})"
+                            r"([^|\n]*\|)$", re.M)
+
+
+def _mut_short_allocation_row():
+    """Drop the 8x8 figure from the page's user-name row, as an edit that
+    loses a cell would leave it; the check must name the missing figure
+    rather than compare the cells that are left."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: _USER_NAME_ROW.sub(r"\1", page, count=1)
+
+
+def _mut_long_allocation_row():
+    """Repeat the user-name row's last cell, as a figure pasted beside the
+    column it belongs in would read; the check must name the extra cell."""
+    SEAM.ALLOCATION_PAGE_EDIT = lambda page: _USER_NAME_ROW.sub(r"\1\2\2", page, count=1)
+
+
 MUTATIONS = {
+    "stale_allocation_table": (_mut_stale_allocation_table, "1x1 user name reads 1"),
+    "short_allocation_row": (_mut_short_allocation_row, "user name has no 8x8 figure"),
+    "long_allocation_row": (_mut_long_allocation_row,
+                            "user name has 1 cell(s) past the 8x8 column"),
     "old_output_length": (_mut_old_output_length, "output-record capacity"),
     "changed_1x1_image": (_mut_changed_1x1_image, "1x1 image digest changed"),
     "collide": (_mut_collide, "is claimed by both FMT_IN[0] and FMT_OUT[0]"),
@@ -652,10 +688,12 @@ def render_record_table(shape: Shape, recs: list[Record],
 
 
 def check_one(cfg: Path, out: Path, donor: Donor,
-              verbose: bool) -> tuple[list[str], int]:
+              verbose: bool) -> tuple[list[str], int, dict]:
     """Every finding one config earns, with the F07.8 floor its shape
-    implies. The floor comes back with the findings because the conformance
-    check is a statement about the SET of shipped shapes, not about one."""
+    implies and its record census (per-group counts, total, highest id). The
+    floor and the census come back with the findings because the conformance
+    check and the design page's allocation table are statements about the
+    SET of shipped shapes, not about one."""
     names, dc, spi, spo = build(cfg, out)
     shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
     recs = inventory(shape, donor.base)
@@ -742,7 +780,9 @@ def check_one(cfg: Path, out: Path, donor: Donor,
               f"({image * 100 // FIXED.ERASE_BLOCK}% of a slot) "
               f"F07.8 floor={floor:3d}/{FIXED.ID_SPACE} "
               f"commit<={worst / 1000.0:.2f} s")
-    return findings, floor
+    census = {"counts": Counter(g for g, _i, rid, _p, _b in recs if rid is not None),
+              "records": len(recs), "top": top}
+    return findings, floor, census
 
 
 def check_deadline_shape() -> list:
@@ -885,14 +925,25 @@ def main() -> int:
               f"heartbeat = {T_NVM_HEARTBEAT_MS} ms")
 
     findings = check_deadline_shape()
-    floors = []
+    floors, census = [], {}
     with tempfile.TemporaryDirectory(prefix="nvmrec.") as tmp:
         for cfg in cfgs:
-            f, floor = check_one(cfg, Path(tmp), donor, not args.quiet)
+            f, floor, census[cfg.stem] = check_one(cfg, Path(tmp), donor,
+                                                   not args.quiet)
             findings += f
             floors.append((cfg.stem, floor))
 
     findings += _conformance_findings(floors)
+    # the page's columns are two named shapes: a default run must have both,
+    # and a --config subset that lacks one leaves the table unchecked
+    if args.config is None or set(ALLOCATION_COLUMNS.values()) <= set(census):
+        allocation = allocation_findings(census, donor.base)
+        findings += allocation
+        if not args.quiet and not allocation:
+            print(f"{ALLOCATION_PAGE.relative_to(ROOT)} section 4.2: every "
+                  f"allocation-table figure at "
+                  f"{', '.join(f'{c} ({s})' for c, s in ALLOCATION_COLUMNS.items())}"
+                  f" is the derived one")
     return _report(findings, cfgs, args.quiet)
 
 

@@ -23,7 +23,7 @@ The opportunities at the end are recommendations, each with its cost in function
 - **Channels and the TDM bus width are free.** Eight channels per stream cost the same as two, and 32 capture slots the same as 8; the render lane is what costs, 499 routed LUTs.
 - **The optional blocks are small against the gap.** Pruning the RX address filter, the latency taps, the loopback lane and the probes could save up to about 1,200 routed LUTs, a tenth of NFR-RES-01's 12,727-LUT gap. The other optional blocks carry functions the product ships.
 - **Yosys is a direction, not a figure.** Its LUT counts are 2.2 to 2.8 times Vivado's after optimization, block ratios spread over two orders of magnitude, and it does not enforce the RTL's elaboration guards. The out-of-context Vivado anchor predicts the route within 3.3 percent.
-- **Refused shapes.** The builder accepts an eight-stream TDM8 configuration that the RTL refuses (235 writable names against the saved-state backend's 128).
+- **Refused shapes.** The builder accepted an eight-stream TDM8 configuration that the RTL refuses (235 writable names against the saved-state backend's 128). Since #652 the builder refuses it when it is generated, so the sweep records it as refused and does not price it.
 - **SoC options.** The recipe's one software profile refuses every CPU, cache and L2 option; priced from a scratch recipe copy, each further core costs about 1,480 LUTs, both L1 caches about 1,200 and NaxRiscv about 14,300, and an L2 is built only with the L1 caches. The DDR3 controller and PHY hold 2,599 of the SoC top's 6,072 flip-flops.
 - **The second port** would replicate at least 7,100 routed LUTs and 9,918 FFs of measured per-port blocks, plus its MAC; nothing is recommended about it.
 
@@ -88,7 +88,7 @@ Each point is the shipping shape with the changes it names.
 
 - Sources are the record `syn/ooc/dp_srcs.py` derives from `syn/yosys/run.sh`; none is listed by hand.
 - A `milan_datapath` point rewrites the parameter defaults of a scratch copy of the top, because `chparam` cannot re-derive that top. A processor point uses `chparam`. A package or module constant is rewritten in a scratch copy of its one source.
-- An entity shape that no tracked configuration provides is generated: the shipping configuration with only its stream section, or the named lines, changed, run through the builder in a scratch export of `HEAD`.
+- An entity shape that no tracked configuration provides is generated: the shipping configuration with only its stream section, or the named lines, changed, run through the builder in a scratch export of `HEAD`. A configuration the builder refuses is a refused point, recorded with its refusal line and not priced; the plan marks the refusals it expects and the cause each refusal line must carry, and any other outcome, a refusal for another cause among them, stops the step (#652).
 - The three ROM images come from `syn/yosys/ooc.sh` and are re-hashed against `syn/yosys/rom_digests.tsv` at every copy.
 - The instrument is the recipe's hierarchy-preserving mapping, `synth_xilinx -family xc7` without `-flatten`. Every block's cells stay in its module, so a point's blocks are read off `stat -json` and tied to Yosys's own design totals.
 - The stream-count points are also mapped flattened, the `ooc.sh` instrument.
@@ -100,7 +100,7 @@ Yosys 0.66 and sv2v v0.0.13 ran every point.
 sv2v turns an elaboration-time `$error` in a generate block into an `initial $display`, which Yosys does not enforce.
 So a point the RTL refuses still maps, with no error: neither `ooc.sh` nor `run.sh` looks for the converted message.
 `yosys_sweep.py guards` lints every point with Verilator 5.050, which evaluates those guards and reports each as `USERERROR`.
-A point whose guard fires is listed in [the refusals](#guard-refusals) and left out of every fit.
+A point whose guard fires, or whose shape the builder refuses, is listed in [the refusals](#guard-refusals) and left out of every fit.
 A point with no guard record, or whose lint hit a hard error, is not treated as clean: `resmap_models.py` stops and names it.
 
 ### Vivado calibration anchors
@@ -584,22 +584,24 @@ BRAM is in tiles: a RAMB36 is one, a RAMB18 half.
 ### Guard refusals
 
 <!-- table: guard-refusals -->
-| Point | Guard that fires |
-|---|---|
-| pp-ctrl-32 | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
-| pp-line-1152 | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
-| pp-line-288 | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8_CAP_BYTES_P=304 outside 524..1024 (the 10-bit cursor)` |
-| pp-line-512 | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
-| pp-names-235 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
-| streams-8 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
-| streams-8-chans-2 | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+| Point | Refused by | Refusal |
+|---|---|---|
+| pp-ctrl-32 | elaboration guard | `F08.4: owner tags OVERLAP at SI=2 SO=2 (8-bit expiry bus)` |
+| pp-line-1152 | elaboration guard | `DESC_LINE_BYTES_P=1152 is above 1008: 16 + line passes the 1024-byte cursor`; `RESP_D8_CAP_BYTES_P=1168 outside 524..1024 (the 10-bit cursor)` |
+| pp-line-288 | elaboration guard | `response buffer (304 B) is smaller than GET_DYNAMIC_INFO limit (524 B)`; `DESC_LINE_BYTES_P=288 is below 576: no room for a 71-record GET_AUDIO_MAP page`; `RESP_D8_CAP_BYTES_P=304 outside 524..1024 (the 10-bit cursor)` |
+| pp-line-512 | elaboration guard | `DESC_LINE_BYTES_P=512 is below 576: no room for a 71-record GET_AUDIO_MAP page` |
+| pp-names-235 | elaboration guard | `KL_nvm_backend: N_NAME_P=235 outside 1..128: the NAME block is 0x80..0xFF.` |
+| streams-8 | builder | `this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)` |
+| streams-8-chans-2 | builder | `this AEM model has 235 writable names and the saved-state backend holds 128 NAME records (N_NAME_MAX_C, hdl/milan/KL_nvm_backend.sv:247): each writable name is one saved record, so KL_nvm_backend would refuse this shape at elaboration. The model is 107 over: remove named descriptors (streams, clusters or clock sources)` |
 <!-- end table: guard-refusals -->
 
-Each refused point mapped in Yosys without an error; Verilator's lint and, for `streams-8`, Vivado refuse it.
+Each point an elaboration guard refuses mapped in Yosys without an error, and Verilator's lint refuses it.
+The builder refuses the two eight-stream TDM8 points before any shape exists (#652), so they are not priced and have no marginal.
+When #649 ran, the builder accepted them: they mapped in Yosys, and Verilator's lint and, for `streams-8`, Vivado refused them on the NAME guard.
 None of these points is in a fit, and none is a product shape.
 What the refusals measure:
 
-- **An eight-stream TDM8 product is refused.** The shipping configuration with eight 8-channel streams each way has 235 writable names, and the saved-state backend holds 128 NAME records. The builder accepts that configuration; the RTL refuses it at elaboration, and Vivado stops in synthesis with `Synth 8-6058`. The buildable eight-stream shape is the tracked `endstation_ax7101_8x8` configuration, with TDM32, no render lane and 107 names, so it is the eight-stream anchor here.
+- **An eight-stream TDM8 product is refused.** The shipping configuration with eight 8-channel streams each way has 235 writable names, and the saved-state backend holds 128 NAME records. When #649 ran, the builder accepted that configuration; the RTL refused it at elaboration, and Vivado stopped in synthesis with `Synth 8-6058`. Since #652 the builder refuses it when it is generated, naming both figures. The buildable eight-stream shape is the tracked `endstation_ax7101_8x8` configuration, with TDM32, no render lane and 107 names, so it is the eight-stream anchor here.
 - **The descriptor line holds 576 to 1,008 bytes.** Below 576 a GET_AUDIO_MAP page of 71 records does not fit, and above 1,008 the response cursor's 10 bits overflow.
 - **32 registered controllers overlap the processor's timer owner tags.** The controller fit therefore uses 4, 8 and 16 controllers, plus 12.
 
@@ -749,8 +751,6 @@ Each point below is the shipping point with the changes it names; the figures ar
 | streams-2 | `N_STREAMS`=2 | +16,980 | +3,436 | +1.0 | +1 | 7,589 | - | `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +6,390; `@own` +5,046; `KL_pp_shadow/protocol_processor_top/KL_srp_top` +2,210 |
 | streams-4 | `N_STREAMS`=4 | +39,916 | +9,570 | +2.5 | +1 | 17,839 | - | `@own` +13,209; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +10,722; `KL_pp_shadow/protocol_processor_top/KL_srp_top` +7,773 |
 | streams-4-chans-2 | `N_STREAMS`=4, `TALKER_WIRE_CHANS_P`=2 | +40,695 | +9,570 | +2.5 | +1 | 18,187 | - | `@own` +14,028; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +10,722; `KL_pp_shadow/protocol_processor_top/KL_srp_top` +7,772 |
-| streams-8 (refused by a guard) | `N_STREAMS`=8 | +86,176 | +22,063 | +5.5 | +1 | 38,513 | - | `@own` +30,406; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +20,139; `KL_pp_shadow/protocol_processor_top/KL_srp_top` +14,271 |
-| streams-8-chans-2 (refused by a guard) | `N_STREAMS`=8, `TALKER_WIRE_CHANS_P`=2 | +87,432 | +22,063 | +5.5 | +1 | 39,075 | - | `@own` +31,950; `KL_pp_shadow/protocol_processor_top/KL_acmp_talker` +19,865; `KL_pp_shadow/protocol_processor_top/KL_srp_top` +14,271 |
 | tdm16 | `AUDIO_IF_CLK_HZ_P`=49152000, `AUDIO_IF_RENDER_SLOTS_P`=0, `AUDIO_IF_SLOTS_P`=16 | -1,054 | -1,110 | 0 | 0 | -471 | - | `KL_tdm_render_master/@own` -858; `KL_tdm_render_master/cdc_pair_fifo` -139; `@own` -110 |
 | tdm32 | `AUDIO_IF_CLK_HZ_P`=98304000, `AUDIO_IF_RENDER_SLOTS_P`=0, `AUDIO_IF_SLOTS_P`=32 | -1,053 | -1,107 | 0 | 0 | -471 | - | `KL_tdm_render_master/@own` -858; `KL_tdm_render_master/cdc_pair_fifo` -139; `@own` -110 |
 | with-i2spb | `I2SPB_P`=1 | +673 | +678 | +1.0 | 0 | 301 | - | `KL_i2s_playback/@own` +440; `@own` +106; `KL_i2s_feed_mux` +83 |
@@ -1115,7 +1115,7 @@ The route itself is PR #638's: its receipts are in the [#234 findings](234_PP_SH
 The first reopen wrote its census one line at a time through indexed list access: 12,248 lines in the 190 seconds between its log's last line and the census file's last write, 64 lines a second, about 34 minutes for the 129,908 cells.
 It was stopped after 4 minutes under the lock, and `route_map.tcl` now iterates the lists in parallel.
 Round 2 changed two of that script's comments, so the reopen was run again with the committed script: its census hashes to the earlier reopen's (`b377ddec33c438bc`), and its two reports differ from the earlier ones only in their date line.
-The refused anchor stopped in synthesis on the guard named in [the refusals](#guard-refusals).
+The refused anchor stopped in synthesis on the `KL_nvm_backend` NAME guard, `N_NAME_P=235 outside 1..128`; since #652 the builder refuses its shape first ([the refusals](#guard-refusals)).
 
 The CPU, cache and L2 variants' out-of-context syntheses, each in its own directory:
 
