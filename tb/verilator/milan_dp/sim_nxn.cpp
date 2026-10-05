@@ -55,6 +55,7 @@
 #include <array>
 #include <deque>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <vector>
 #include <map>
@@ -926,12 +927,16 @@ class NxnDatapathHarness {
         uns_log.swap(moved);
         uns_log_when.push_back(-1);
     }   // `moved` owns the old buffer now, and frees it here
-    std::vector<uint8_t> await_aecp(int cyc = 200000) {
+    //! `each`, when given, runs ahead of every clock with its index: the
+    //! [DYNMAP] section holds a sweep open with it while an answer is owed
+    std::vector<uint8_t> await_aecp(int cyc = 200000,
+                                    const std::function<void(int)>& each = nullptr) {
         std::vector<uint8_t> cur, resp;
         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
         dut->m_axis_mac_tx_tready = 1;
         force_uns_log_realloc();
         for (int c = 0; c < cyc && resp.empty(); c++) {
+            if (each) each(c);
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
                 for (int l = 0; l < 8; l++)
@@ -4080,6 +4085,10 @@ class NxnDatapathHarness {
         return axi_read(0x914);
     }
 
+    static uint32_t dynmap_slot_word(uint32_t c) {
+        return 0x1000u | ((c & 1u) << 11) | 0x200u | (c >> 1);
+    }
+
     void grade_the_crossbar_rams(const char* tag, long in_n, long out_n) {
         long render_off = 0;
         long capture_off = 0;
@@ -4089,7 +4098,7 @@ class NxnDatapathHarness {
             if (r != want_r) render_off++;
             const uint32_t k = dynmap_ram_rd(0x100u | c) & 0x1FFFu;
             const uint32_t want_k = (static_cast<long>(c) < out_n)
-                ? (0x1000u | ((c & 1u) << 11) | 0x200u | (c >> 1)) : 0u;
+                ? dynmap_slot_word(c) : 0u;
             if (k != want_k) capture_off++;
         }
         char w[160];
@@ -4203,6 +4212,11 @@ class NxnDatapathHarness {
         grade_the_crossbar_rams("4->8", 4, out_n);
 
         dynmap_restored_format_section(fin, fout, in_n, out_n);
+        //! the boot writer's sweep walks the larger key space: the input
+        //! store keys one word per cluster of the dynamic input port, the
+        //! output store one per stream channel, 8 per STREAM_OUTPUT
+        dynmap_boot_window_guards_section(fin, fout, in_n, out_n,
+                                          std::max(in_cl, 8L));
         //! every page above and below ran: a GET that never answered would
         //! otherwise leave its identity checks unrun rather than failed
         ck("[DYNMAP] every identity page ran (vacuity guard)",
@@ -4272,6 +4286,243 @@ class NxnDatapathHarness {
         grade_the_crossbar_rams("restored", 4, out_n);
         dynmap_set_input_channels(fin, 8, 0, "restored 4->8");
         grade_identity_page("restored 4->8 SPI 0", 0x000E, 0, 4);
+    }
+
+    // ==================================================================
+    //  THE BOOT WINDOW'S GUARD ARMS (#658 review R490-1 F1). Four arms keep
+    //  the stores and the crossbar RAMs one map across the window's end:
+    //  the CSR writer's hold, the CLOSED terminal, the sweep after the
+    //  terminal with its drain clock, and the edit face's wait. None of them
+    //  moves a GET or a RAM word in the scenario above. Its terminal is
+    //  COMPLETE, no CSR write comes near it, and AECP's first edit arrives
+    //  long after the sweep. So each arm is staged on the clock it guards:
+    //
+    //   - THE CSR HOLD AND CLOSED. A CSR map write commits on each clock
+    //     from inside the window to past the sweep, against a restore ended
+    //     CLOSED on a chosen clock (dynmap_probes.vlt). Each write lands in
+    //     the store and the RAM or in neither. Every write refused until one
+    //     sweep after the terminal (REGISTER_MAP.md, CHMAP), and every later
+    //     one lands.
+    //   - THE SWEEP. A D3 roll-back invalidates both format rows on the
+    //     clock CLOSED ends the window, so only the sweep after the terminal
+    //     can carry the store's last value into the RAMs.
+    //   - THE EDIT FACE'S WAIT. An output ADD meets a post-terminal sweep
+    //     held open, as a longer key space or a restore that edits would
+    //     make it. It is answered only once the sweep has ended, and the
+    //     capture RAM keeps the word it committed.
+    // ==================================================================
+    static constexpr uint16_t kChmapCtrl = 0x900;
+    static constexpr uint16_t kChmapSel = 0x904;
+    static constexpr uint16_t kChmapWord = 0x908;
+
+    //! the D3 writer's CLOSED flag: from the next clock on the restore has
+    //! ended CLOSED, as an unprovable image or a failed roll-back ends it
+    void dynmap_close_the_restore() {
+        dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__closed_r = 1;
+    }
+
+    //! One CSR map write of `word` at CHMAP_SEL `sel` in a fresh boot, whose
+    //! window has run a few laps. CLOSED is set ahead of clock `close_at` of
+    //! a fixed run in which the AXI write starts at clock 32. Returns the
+    //! clock that takes the write's one-cycle commit, counted on the same
+    //! run, or -1 when none came.
+    long dynmap_csr_write_in_a_run(uint32_t sel, uint32_t word, int close_at) {
+        constexpr int kAxiAt = 32;
+        constexpr int kRun = 96;
+        bring_the_datapath_out_of_reset();
+        for (int c = 0; c < 64; c++) step();
+        axi_write(kChmapCtrl, 1);
+        axi_write(kChmapSel, sel);
+        long commit = -1;
+        for (int n = 0; n < kRun; n++) {
+            if (n == close_at) dynmap_close_the_restore();
+            if (n == kAxiAt) {
+                dut->s_axi_awaddr = kChmapWord; dut->s_axi_awvalid = 1;
+                dut->s_axi_wdata = word;  dut->s_axi_wvalid = 1;
+                dut->s_axi_wstrb = 0xF;   dut->s_axi_bready = 1;
+            }
+            dut->eval();
+            const bool acc = dut->s_axi_awvalid && dut->s_axi_awready
+                          && dut->s_axi_wready;
+            step();
+            if (acc) { dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; }
+            //! a commit seen after clock n is taken by clock n + 1
+            if (dut->rootp->milan_datapath__DOT__cfg_chmap_wr_en) commit = n + 1;
+        }
+        dut->s_axi_bready = 0;
+        return commit;
+    }
+
+    //! The store's word at input key `k` ({en, AVB, stream, channel}), and
+    //! at output key `k` its owner flag over its cluster
+    uint32_t dynmap_in_store(uint32_t k) {
+        return static_cast<uint32_t>(
+            (dut->rootp->milan_datapath__DOT__amap_in_store_r >> (8 * k)) & 0xFFu);
+    }
+    uint32_t dynmap_out_store(uint32_t k) {
+        const uint32_t v = (dut->rootp->milan_datapath__DOT__amap_out_owner_v_r >> k) & 1u;
+        const uint32_t w = dut->rootp->milan_datapath__DOT__amap_out_cluster_r[(16 * k) / 32];
+        return (v << 16) | ((w >> ((16 * k) % 32)) & 0xFFFFu);
+    }
+
+    //! One side's CSR hold across a CLOSED terminal. Key `key` holds its
+    //! power-on word in the store (`boot_store`) and the RAM (`boot_ram`);
+    //! the CSR write of `word` would make them `csr_store` and `csr_ram`.
+    //! Every commit is placed at offset d from the first clock that sees
+    //! CLOSED, d from inside the window to past the sweep.
+    void dynmap_csr_hold_across_closed(const char* side, bool capture,
+                                       uint32_t key, uint32_t word,
+                                       uint32_t boot_store, uint32_t boot_ram,
+                                       uint32_t csr_store, uint32_t csr_ram,
+                                       long sweep) {
+        const uint32_t sel = (capture ? 0x100u : 0u) | key;
+        const uint32_t ram_sel = capture ? (0x100u | key) : (2u + key);
+        const uint32_t ram_mask = capture ? 0x1FFFu : 0xFFu;
+        //! the commit's clock in a run with no CLOSED in it
+        const long at = dynmap_csr_write_in_a_run(sel, word, 1 << 20);
+        long split = 0;
+        long early = 0;
+        long late = 0;
+        long first = 1L << 20;
+        long last = -(1L << 20);
+        long seen = 0;
+        for (long d = -2; d <= sweep + 4; d++) {
+            const int close_at = static_cast<int>(at - d);
+            if (close_at < 0) continue;     //! a run cannot close before it starts
+            const long commit = dynmap_csr_write_in_a_run(sel, word, close_at);
+            if (commit < 0) continue;
+            const long off = commit - close_at;
+            seen++;
+            first = std::min(first, off);
+            last = std::max(last, off);
+            const uint32_t st = capture ? dynmap_out_store(key) : dynmap_in_store(key);
+            const uint32_t ram = dynmap_ram_rd(ram_sel) & ram_mask;
+            const bool refused = (st == boot_store) && (ram == boot_ram);
+            const bool landed = (st == csr_store) && (ram == csr_ram);
+            printf("  [i]    %s: CSR commit at CLOSED%+ld: store 0x%05x, RAM 0x%04x (%s)\n",
+                   side, off, st, ram,
+                   refused ? "refused" : landed ? "landed" : "SPLIT");
+            if (!refused && !landed) split++;
+            if (off <= sweep + 1 && !refused) early++;
+            if (off >= sweep + 2 && !landed) late++;
+        }
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: the CSR commits ran from the window to past "
+                 "the sweep (vacuity guard)", side);
+        ck(w, static_cast<unsigned long>(seen == sweep + 7 && first == -2
+                                         && last == sweep + 4), 1);
+        snprintf(w, sizeof w, "[DYNMAP] %s: no CSR write splits the store from the RAM",
+                 side);
+        ck(w, static_cast<unsigned long>(split), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: CSR refused in the window and for one sweep "
+                 "after CLOSED", side);
+        ck(w, static_cast<unsigned long>(early), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: CSR lands in both once the sweep after "
+                 "CLOSED has ended", side);
+        ck(w, static_cast<unsigned long>(late), 0);
+    }
+
+    //! A D3 roll-back resets the dynamic-state store, which invalidates every
+    //! format row, and a failed re-LOCATE ends the restore CLOSED. Both rows
+    //! hold 4 channels in the window first, so keys 4..7 are empty in both
+    //! RAMs. Then both rows are invalidated on the clock CLOSED ends the
+    //! window: the stores take the whole image on the window's last clock,
+    //! and only the sweep after the terminal can write it into the RAMs.
+    void dynmap_roll_back_to_closed(uint64_t fin, uint64_t fout, long in_n,
+                                    long out_n) {
+        auto& in_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_r;
+        auto& in_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_v_r;
+        auto& out_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
+        auto& out_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
+        bring_the_datapath_out_of_reset();
+        in_row[0] = (fin & ~(0x3FFull << 22)) | (4ull << 22);
+        out_row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
+        in_valid = static_cast<uint8_t>(in_valid | 1u);
+        out_valid = static_cast<uint8_t>(out_valid | 1u);
+        for (int c = 0; c < 64; c++) step();
+        grade_the_crossbar_rams("window, both rows staged at 4 ch", 4, 4);
+        in_valid = static_cast<uint8_t>(in_valid & ~1u);
+        out_valid = static_cast<uint8_t>(out_valid & ~1u);
+        dynmap_close_the_restore();
+        for (int c = 0; c < 64; c++) step();
+        long store_off = 0;
+        for (uint32_t c = 0; c < 8; c++) {
+            if (dynmap_in_store(c) != ((static_cast<long>(c) < in_n) ? (0x80u | c) : 0u))
+                store_off++;
+            if (dynmap_out_store(c) != ((static_cast<long>(c) < out_n) ? (0x10000u | c) : 0u))
+                store_off++;
+        }
+        ck("[DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image",
+           static_cast<unsigned long>(store_off), 0);
+        grade_the_crossbar_rams("CLOSED on the roll-back's clock", in_n, out_n);
+    }
+
+    //! An output ADD meeting the sweep after the terminal. After a COMPLETE
+    //! restore, stream channels n-2 and n-1 are removed, and stream channel
+    //! n-1 is ADDed back on cluster n-2. The sweep is held open from the
+    //! frame's arrival for kHeld clocks, well inside the processor's 4096
+    //! clock bound on a held edit phase. The edit must wait for the sweep,
+    //! and the sweep must not overwrite the word the edit commits: the boot
+    //! writer writes the power-on word of every owned key.
+    void dynmap_edit_meets_the_sweep(long out_n) {
+        constexpr int kHeld = 1000;
+        auto& last = dut->rootp->milan_datapath__DOT__amap_boot_last_r;
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
+        const uint16_t moved = static_cast<uint16_t>(out_n - 1);
+        const uint16_t onto = static_cast<uint16_t>(out_n - 2);
+        ck("[DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS",
+           static_cast<unsigned long>(identity_edit(0x002D, 0x000F, 0, 0, onto, moved)), 0);
+        const std::vector<uint8_t> pl = {
+            0x00, 0x0F, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+            0x00, 0x00, 0x00, static_cast<uint8_t>(moved),
+            0x00, static_cast<uint8_t>(onto), 0x00, 0x00};
+        const std::vector<uint8_t> f = aecp_request(0x002C, dynmap_sq++, pl);
+        last = 1;
+        inject(f.data(), f.size(), 40);
+        long answered = -1;
+        const std::vector<uint8_t> r = await_aecp(200000, [&](int c) {
+            if (c < kHeld) last = 1;
+            answered = c;
+        });
+        printf("  [i]    edit meets the sweep: ADD answered %ld clocks into the wait, "
+               "the sweep held for %d\n", answered, kHeld);
+        ck("[DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS",
+           static_cast<unsigned long>(aecp_status(r)), 0);
+        ck("[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends",
+           static_cast<unsigned long>(answered >= kHeld), 1);
+        for (int c = 0; c < 64; c++) step();
+        const AmapPage p = get_audio_map_page0(0x000F, 0);
+        std::vector<std::array<uint16_t, 4> > want;
+        for (uint16_t c = 0; c < onto; c++) want.push_back({0, c, c, 0});
+        want.push_back({0, moved, onto, 0});
+        ck("[DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster",
+           static_cast<unsigned long>(p.status == 0 && p.rec == want), 1);
+        ck("[DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word",
+           dynmap_ram_rd(0x100u | moved) & 0x1FFFu, dynmap_slot_word(onto));
+        ck("[DYNMAP] edit meets the sweep: the removed channel's capture key stays empty",
+           dynmap_ram_rd(0x100u | onto) & 0x1FFFu, 0);
+    }
+
+    void dynmap_boot_window_guards_section(uint64_t fin, uint64_t fout,
+                                           long in_n, long out_n, long sweep) {
+        //! input key n-1 moved to stream channel 3, {en, AVB, stream 0, ch 3}
+        const uint32_t ik = static_cast<uint32_t>(in_n - 1);
+        dynmap_csr_hold_across_closed("CSR hold, input", false, ik, 0x8003,
+                                      0x80u | ik, 0x80u | ik, 0x83, 0x83, sweep);
+        //! output key n-1 moved to TDM capture slot n-2: the CSR word carries
+        //! {en, source, half, pair} as {[15], [14:12], [8], [7:0]}
+        const uint32_t ok = static_cast<uint32_t>(out_n - 1);
+        const uint32_t slot = dynmap_slot_word(ok - 1);
+        const uint32_t word = (((slot >> 12) & 1u) << 15) | (((slot >> 8) & 7u) << 12)
+                            | (((slot >> 11) & 1u) << 8) | (slot & 0xFFu);
+        dynmap_csr_hold_across_closed("CSR hold, output", true, ok, word,
+                                      0x10000u | ok, dynmap_slot_word(ok),
+                                      0x10000u | (ok - 1), slot, sweep);
+        dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
+        dynmap_edit_meets_the_sweep(out_n);
     }
 
     // ==================================================================

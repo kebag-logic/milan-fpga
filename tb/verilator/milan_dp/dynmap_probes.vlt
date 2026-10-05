@@ -7,3 +7,17 @@
 `verilator_config
 public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_r"
 public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_v_r"
+// The boot window's guard arms (R490-1 F1). The input row is staged and
+// invalidated as a D3 roll-back leaves it, and the restore is ended CLOSED
+// on a chosen clock: no blank or saved window ends it there.
+public_flat_rw -module "KL_aecp_dyn_state" -var "fmtin_r"
+public_flat_rw -module "KL_aecp_dyn_state" -var "fmtin_v_r"
+public_flat_rw -module "KL_aecp_nvm_writer" -var "closed_r"
+// CLOSED keeps AECP held, so no GET can read the stores there; the CSR
+// writer's one-cycle commit places each write against the terminal.
+public_flat_rd -module "milan_datapath" -var "amap_in_store_r"
+public_flat_rd -module "milan_datapath" -var "amap_out_owner_v_r"
+public_flat_rd -module "milan_datapath" -var "amap_out_cluster_r"
+public_flat_rd -module "milan_datapath" -var "cfg_chmap_wr_en"
+// The post-terminal sweep, held open so that an edit meets it.
+public_flat_rw -module "milan_datapath" -var "amap_boot_last_r"
