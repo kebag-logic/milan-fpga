@@ -1156,6 +1156,23 @@ After the settle recentre nothing moves either ring: no loopback slip, the
 loopback ring centred, the render stage on its law. That is not declared;
 it must not happen, and the follow_ring campaigns grade it at every phase.
 
+Startup lock and reset reacquisition also arm the settle recentre. Their
+recentres are declared discontinuities, under the
+[stage-2d ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410),
+with the same bound as a source-change recentre. At the decision PDU, the
+loopback ring holds at most five pops (five repeated sample events), or
+drops one oldest event. The decision uses the first pair's pre-PDU fill;
+every pair takes the same step, and neither `SLIP_LB` counter increments
+for that step. This bound describes the recentre itself, separately from
+the frequency-pull-in slips measured above.
+
+An ordering check must account for exactly the declared step at that
+decision PDU, recording its size in events and both slip counters. It must
+reject an extra repeat or gap elsewhere, and a step larger than the one
+declared. The zero-glitch run in #396 grades steady state outside these
+declared startup, reset and source-change events; it does not turn a
+recentre into a steady-state slip allowance.
+
 **Why sixteen entries.** The former eight-entry ring had only about three
 ticks of combined early and late headroom. At the fixed target of eight,
 0 to 5 us uniform lateness caused four drops after 48 settle decisions:
