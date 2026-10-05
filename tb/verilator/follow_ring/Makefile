@@ -28,6 +28,8 @@ VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
 RTL_DIR = ../../../hdl
 DP_SRC ?= $(RTL_DIR)/milan/milan_datapath.sv
+# mutants.py builds a planted COPY of the capture crossbar through this
+CMAP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv
 SHAPE  ?= ../../../configs/generated/endstation_ax7101_1x1_tdm8
 CLK_HZ ?= 6250000
 MDIR   ?= obj_dir
@@ -41,7 +43,7 @@ SRCS = $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_grid_align.sv \
-       $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
+       $(CMAP_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv \
        follow_ring_wrap.sv
 
