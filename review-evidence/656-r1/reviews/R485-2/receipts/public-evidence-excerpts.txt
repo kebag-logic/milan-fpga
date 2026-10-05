@@ -1,0 +1,84 @@
+Public source: https://github.com/kebag-logic/milan-fpga/blob/e5cae5f54a7efc54eb1b22095e310bb8324ace4e/review-evidence/656-r1/author/logs/head-driver.log
+Published SHA-256 verified: 1b7178e02424ab5b8566e21c1006fc68277ab216c6ae490c818d03ef8dd3f9d9
+6: checks: 179   in-suite failures: 0
+9: driver rc=0
+10: checks: 179   in-suite failures: 0
+11: tally rc=0
+
+Public source: https://github.com/kebag-logic/milan-fpga/blob/e5cae5f54a7efc54eb1b22095e310bb8324ace4e/review-evidence/656-r1/author/logs/head-driver-milan_dp_gptp.log
+Published SHA-256 verified: e3c0a8e78e0bb3f54b53e3b6579f928771ae9f0860e3dfbb70100bcf3b1210a8
+483: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+491: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+519: AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+524: NOT RUN: stable-tu comparison during transition window
+549: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+559: AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+579: AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+584: NOT RUN: stable-tu comparison during transition window
+606: AUDIO result rx=37594 tx=37595 samples=225570 bad_payload=0 bad_order=0
+633: AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=0
+638: NOT RUN: stable-tu comparison during transition window
+648: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+664: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+679: AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+684: NOT RUN: stable-tu comparison during transition window
+694: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+743: NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+744: NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+746: == ax1x1gptp physical: checks: 139   failures: 0 ==
+757: == ax1x1gptp setup abort: checks: 6   failures: 0 ==
+778: == ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+793: == ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+
+Public source: https://github.com/kebag-logic/milan-fpga/blob/e5cae5f54a7efc54eb1b22095e310bb8324ace4e/review-evidence/656-r1/author/logs/ctl-fix-noA2a.log
+Published SHA-256 verified: e0bd82f787c1d98de2ef550407f396656873bc477f6c9623e6d37df9ff6d5154
+484: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+492: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+520: AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=1
+525: NOT RUN: stable-tu comparison during transition window
+550: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+560: AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+580: AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+585: NOT RUN: stable-tu comparison during transition window
+607: AUDIO result rx=37594 tx=37595 samples=225570 bad_payload=0 bad_order=3
+634: AUDIO result rx=20402 tx=20402 samples=122412 bad_payload=0 bad_order=1
+639: NOT RUN: stable-tu comparison during transition window
+649: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+665: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+680: AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=1
+685: NOT RUN: stable-tu comparison during transition window
+695: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+744: NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+745: NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+747: == ax1x1gptp physical: checks: 139   failures: 5 ==
+755: end 2026-10-05T01:39:33+02:00 wall_total_s=3291 rc=2
+
+Public source: https://github.com/kebag-logic/milan-fpga/blob/e5cae5f54a7efc54eb1b22095e310bb8324ace4e/review-evidence/656-r1/author/logs/dev-c0280fc0.log
+Published SHA-256 verified: b4ca23f09484d1951ae0d35669ce39718a7a724f032c074c7b0333679b017461
+484: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+492: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+520: AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+525: NOT RUN: stable-tu comparison during transition window
+550: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+560: AUDIO result rx=3440 tx=3440 samples=20640 bad_payload=0 bad_order=0
+580: AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+585: NOT RUN: stable-tu comparison during transition window
+607: AUDIO result rx=37595 tx=37595 samples=225570 bad_payload=0 bad_order=2
+634: AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=2
+639: NOT RUN: stable-tu comparison during transition window
+649: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+665: TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+680: AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+685: NOT RUN: stable-tu comparison during transition window
+695: AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+744: NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+745: NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+747: == ax1x1gptp physical: checks: 139   failures: 3 ==
+755: end 2026-10-05T01:30:40+02:00 wall_total_s=3297 rc=2
+
+
+Duration source: head-driver-milan_dp_gptp.log
+741: simulated_duration_seconds=16.992510280 cycles=849625514
+
+Duration source: dev-c0280fc0.log
+742: simulated_duration_seconds=16.992510280 cycles=849625514
