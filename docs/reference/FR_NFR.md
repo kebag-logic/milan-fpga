@@ -170,7 +170,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ### 2.1 Discovery  -  ADP  *(1722.1-2021 Section 6; Milan v1.2 Section 5.2)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| FR-DISC-01 | The entity MUST advertise `ENTITY_AVAILABLE` ADPDUs and re-advertise within `valid_time`, incrementing `available_index` on every state change. | M | T |
+| FR-DISC-01 | The entity MUST advertise `ENTITY_AVAILABLE` ADPDUs and re-advertise within `valid_time`; `available_index` MUST increment after each transmitted `ENTITY_AVAILABLE` and reset to 0 when an `ENTITY_DEPARTING` is transmitted or after a power cycle (1722.1-2021 Section 6.2.2.15). | M | T |
 | FR-DISC-02 | The entity MUST answer `ENTITY_DISCOVER` (global and targeted) with an advertisement. | M | T |
 | FR-DISC-03 | The entity MUST send `ENTITY_DEPARTING` on shutdown / link down. | M | T |
 | FR-DISC-04 | Advertised fields (`entity_id`, `entity_model_id`, capabilities, talker/listener counts, `gptp_grandmaster_id`, `identify_control_index`, `interface_index`) MUST equal the ENTITY descriptor in the entity model. | M | T,I |
