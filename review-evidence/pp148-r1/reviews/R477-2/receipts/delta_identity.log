@@ -1,0 +1,53 @@
+== revs
+bed5f47785839800bb640d7c747f5435f84ab5a3
+356c1bbad2e9838659b433736040acf0cc4abf3e
+f43fb15d1a5cb8852b8e680b0f29bbd429cc5f4f
+== parent of new
+bed5f47785839800bb640d7c747f5435f84ab5a3
+== changed paths old..new
+M	hdl/aecp/KL_aecp_notify.sv
+== numstat
+4	2	hdl/aecp/KL_aecp_notify.sv
+== raw diff
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 9e97f8e..030192f 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -1296,8 +1296,10 @@ module KL_aecp_notify
+                   em_excl_v_r <= 1'b0;
+                   em_ctr_ix_r <= pick_ctr_ix_w;
+                   ctr_pend_r[pick_ctr_ix_w] <= 1'b0;
+-                  // Measure the one-second limit from emission selection,
+-                  // not from the possibly much earlier pending instant.
++                  // Provisional stamp: it keeps the window shut until the
++                  // round's first job reaches N_EMIT_WAIT, whose stamp then
++                  // follows each job to its send, so the limit runs from the
++                  // round's last send (issue #148).
+                   ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+                   ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
+                 end else begin
+== changed lines are comments (+/- lines not starting with //)
+none: every changed line is a // comment
+== hdl trees: files differing
+Files $REVIEWS/pp148-r477-2-packet/scratch/delta/tree-bed5f47785839800bb640d7c747f5435f84ab5a3/hdl/aecp/KL_aecp_notify.sv and $REVIEWS/pp148-r477-2-packet/scratch/delta/tree-356c1bbad2e9838659b433736040acf0cc4abf3e/hdl/aecp/KL_aecp_notify.sv differ
+== comment-stripped source equal:
+IDENTICAL
+== module.sv2v.v
+a92a31fc6d687d9cd9e006559b85be02f85b2edf2f224d7075e30eb7bb9a0d56  tree-bed5f47785839800bb640d7c747f5435f84ab5a3/module.sv2v.v
+a92a31fc6d687d9cd9e006559b85be02f85b2edf2f224d7075e30eb7bb9a0d56  tree-356c1bbad2e9838659b433736040acf0cc4abf3e/module.sv2v.v
+module.sv2v.v IDENTICAL
+== all.sv2v.v
+68c73389695b2c10c55a0579f8d85f13c34df37f2542963bdabf2c42ae82686a  tree-bed5f47785839800bb640d7c747f5435f84ab5a3/all.sv2v.v
+68c73389695b2c10c55a0579f8d85f13c34df37f2542963bdabf2c42ae82686a  tree-356c1bbad2e9838659b433736040acf0cc4abf3e/all.sv2v.v
+all.sv2v.v IDENTICAL
+== module.vpp
+4577e0ec032cd8a7c06d37348053659deb302fd3ce615375dc3cacd68d67ff19  tree-bed5f47785839800bb640d7c747f5435f84ab5a3/module.vpp
+4577e0ec032cd8a7c06d37348053659deb302fd3ce615375dc3cacd68d67ff19  tree-356c1bbad2e9838659b433736040acf0cc4abf3e/module.vpp
+module.vpp IDENTICAL
+== lint module at new
+   86 |     logic [7:0] q;
+      |                 ^
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.273 MB sources in 7 modules, into 3.330 MB in 8 C++ files needing 0.000 MB
+- Verilator: Walltime 0.484 s (elab=0.024, cvt=0.397, bld=0.000); cpu 0.481 s on 1 threads; allocated 68.207 MB
+lint rc 0
