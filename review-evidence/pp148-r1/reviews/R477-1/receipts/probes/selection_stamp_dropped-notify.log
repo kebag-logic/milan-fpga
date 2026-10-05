@@ -1,0 +1,18 @@
+NP: 47 checks, 0 failures
+  [i] ST2: descriptor 0005:0 sent 5 rounds, closest 15136 clocks apart
+FAIL: ST2b: descriptor 0005:0 rounds 15136 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST2: descriptor 0005:1 sent 6 rounds, closest 15136 clocks apart
+FAIL: ST2b: descriptor 0005:1 rounds 15136 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST2: descriptor 0006:0 sent 6 rounds, closest 15152 clocks apart
+FAIL: ST2b: descriptor 0006:0 rounds 15152 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST2: descriptor 0009:0 sent 5 rounds, closest 15088 clocks apart
+FAIL: ST2b: descriptor 0009:0 rounds 15088 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST2: descriptor 0024:0 sent 4 rounds, closest 30128 clocks apart
+FAIL: ST2b: descriptor 0024:0 rounds 30128 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST3: worst solicited latency AECP 297337, ACMP 172 clocks
+FAIL: ST3: every solicited probe under the storm was answered (3 missing of 10)
+FAIL: ST3b: GET_CONFIGURATION answered within T-BUDGET-AECP-WC under the storm: worst 297337 clocks, bound 100001
+ST: 19 checks, 7 failures
+  [i] RN: seed 0xC6A46301, 720 steps, 2211 frames compared in 10777 ms; 11 NO_RESOURCES, 120 lock denials, 7 lock takes, 6 automatic unlocks, 220 lock-refused SETs, 409 pushes
+RN: 4 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 7 failures
