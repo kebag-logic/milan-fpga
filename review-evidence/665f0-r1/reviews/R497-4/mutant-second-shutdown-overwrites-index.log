@@ -1,0 +1,32 @@
+  [FAIL] A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+  [FAIL] A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+  [FAIL] A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+  [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+  [FAIL] A21 and so are 100000 more, each counted, the two owed unchanged
+  [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+  C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+  C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+  C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+  C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+  E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+  E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+  [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: 2 DEPARTINGs owed, the oldest index 1, 0 coalesced
+  E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+  [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+  [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: 2 DEPARTINGs owed, the oldest index 1, 0 coalesced
+  E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+  [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+  [FAIL] E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: 2 DEPARTINGs owed, the oldest index 1, 62 coalesced
+  E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+  [FAIL] E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+  [FAIL] E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: 2 DEPARTINGs owed, the oldest index 1, 62 coalesced
+  E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+  [FAIL] E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+  backlog: 16 event records, 30 centiseconds, 28 receive records
+  passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+  F5 the costliest pass of the backlog         105 accesses (bound 407)
+== ctrl ADP slice (fake ports and host model): checks: 163   failures: 14 ==
+RESULT: FAIL

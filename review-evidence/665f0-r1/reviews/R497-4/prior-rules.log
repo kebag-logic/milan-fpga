@@ -1,0 +1,6 @@
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY

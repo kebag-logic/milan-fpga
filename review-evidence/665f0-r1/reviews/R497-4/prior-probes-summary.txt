@@ -1,0 +1,14 @@
+Public probe origin: 9c149b82fd15cdcd5502382a8390a9e9c7f2aca9; source blobs in prior-probes/origin.json.
+The second-SHUTDOWN mutation is relocated from the old UINT32_MAX guard to ADP_DEPARTING_OWED_MAX; its assignment is unchanged.
+prior-bound: PASS: 12 rows match capped k+1 bound
+prior-rules: PASS: L1-L3 outcomes
+capacity-rule: PASS: 2 owed + 4294967294 coalesced
+queued-departing-keeps-first-index: CAUGHT: [FAIL] A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+poll-forgets-owed-available: CAUGHT: [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+blocked-available-not-owed: CAUGHT: [FAIL] A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+poll-sends-two-frames: CAUGHT: [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+gm-change-drops-owed-available: CAUGHT: [FAIL] A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+second-shutdown-overwrites-index: CAUGHT: [FAIL] A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+link-loss-keeps-owed-available: CAUGHT: [FAIL] A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+link-loss-drops-owed-departing: CAUGHT: [FAIL] A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+RESULT: PASS; 8/8 prior reviewer mutants compile, execute, and fail checks.
