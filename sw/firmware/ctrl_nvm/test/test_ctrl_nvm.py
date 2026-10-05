@@ -11,11 +11,13 @@ sw/litex/milan_soc.py publishes for the shipping writer, and the scenario
 runner (test/nvm_test.c) drives it over the host flash model directly and
 over the on-chip LiteSPI port on a model of the command master. The checks
 (nvm_checks.py, nvm_checks_write.py) grade the boot path with valid, absent,
-torn, corrupted and wrong-version slots and the D3 restore transaction; the
-write path's commit, its A/B atomicity and DR2a/DR2b/DR2c/DR5 rules; a power
-cut inside every media effect of a commit; the service bound; and the round
-trip against the recorded vectors of tb/verilator/nvm_backend. Every byte
-and every verdict is compared with scripts/nvm_klj2.py, the reference codec.
+torn, corrupted and wrong-version slots, read faults at every boot read, and
+the binding and D3 restore walks; the write path's commit, its A/B atomicity
+and DR2a/DR2b/DR2c/DR5 rules, the console included; a power cut inside every
+media effect of a commit; the time base under PHC steps and the counter's
+wrap; a command master that stalls; the service bound; and the round trip
+against the recorded vectors of tb/verilator/nvm_backend. Every byte and
+every verdict is compared with scripts/nvm_klj2.py, the reference codec.
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -91,7 +93,7 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
         print(f"  rv32: text={sizes['text']} data={sizes['data']} bss={sizes['bss']} "
               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
-              f"clock={sizes.get('ls_last_us')} (bytes)")
+              f"clock={sizes.get('ls_ticks', 0) + sizes.get('ls_tick_last', 0)} (bytes)")
     return found
 
 

@@ -31,15 +31,25 @@
 #define T_LOOP_US       100u      /* the event loop's own time per iteration */
 #define T_IDLE_LIMIT_US 60000000u /* the longest a run waits to go idle */
 #define T_JOURNAL       (2u * NVM_SLOT_BYTES)
+#define T_TIMES         16u       /* failure and commit times kept per run */
 
 struct t_knobs {
 	char boot_fault[48];        /* a flash-model fault armed at power on */
 	int not_ready;
-	unsigned int apply_fault;
+	int apply_fault;
+	unsigned int apply_fault_id;
 	int settle_fault;
 	int rollback_fault;
+	int unbind_fault;
 	unsigned int refuse[8];
 	unsigned int n_refuse;
+};
+
+/* When attempts failed and commits verified, read off the model's clock,
+ * which no PHC step moves: the independent clock the time checks grade. */
+struct t_times {
+	uint64_t at[T_TIMES];
+	unsigned int n;
 };
 
 struct t_run {
@@ -48,6 +58,10 @@ struct t_run {
 	uint64_t max_call_us;
 	unsigned int max_polls_call;
 	unsigned int service_calls;
+	unsigned int commit_tries;
+	unsigned int commit_refused;
+	struct t_times fails;
+	struct t_times oks;
 	unsigned int bad;           /* scenario findings printed as FAIL lines */
 };
 
@@ -84,20 +98,37 @@ static void t_boot(void)
 	if (t.knobs.boot_fault[0])
 		t_fault_arg(t.knobs.boot_fault);
 	nvm_smodel_ready(!t.knobs.not_ready);
-	nvm_smodel_fault_apply(t.knobs.apply_fault);
+	if (t.knobs.apply_fault)
+		nvm_smodel_fault_apply(t.knobs.apply_fault_id);
 	nvm_smodel_fault_settle(t.knobs.settle_fault);
-	nvm_smodel_fault_rollback(t.knobs.rollback_fault);
+	if (t.knobs.rollback_fault)
+		nvm_smodel_fault_rollback(NVM_W_D3);
+	if (t.knobs.unbind_fault)
+		nvm_smodel_fault_rollback(NVM_W_BIND);
 	for (i = 0; i < t.knobs.n_refuse; ++i)
 		nvm_smodel_refuse(t.knobs.refuse[i]);
 	nvm_store_boot(t.port, &nvm_smodel_port);
+}
+
+static void t_note(struct t_times *tt)
+{
+	if (tt->n < T_TIMES)
+		tt->at[tt->n] = nvm_fmodel_now_us();
+	tt->n++;
 }
 
 static void t_service(void)
 {
 	uint64_t before = nvm_fmodel_now_us();
 	unsigned int polls = nvm_fmodel_count()->busy_polls;
+	unsigned int failed = nvm_store_status()->commits_failed;
+	unsigned int ok = nvm_store_status()->commits_ok;
 
 	nvm_store_service();
+	if (nvm_store_status()->commits_failed != failed)
+		t_note(&t.fails);
+	if (nvm_store_status()->commits_ok != ok)
+		t_note(&t.oks);
 	if (nvm_fmodel_now_us() - before > t.max_call_us)
 		t.max_call_us = nvm_fmodel_now_us() - before;
 	if (nvm_fmodel_count()->busy_polls - polls > t.max_polls_call)
@@ -114,12 +145,14 @@ static void t_run_ms(uint64_t ms)
 		t_service();
 }
 
+/* Nothing left to do: no change waits, and what is in flight is written or
+ * has spent its attempts. */
 static int t_settled(void)
 {
 	const struct nvm_status *s = nvm_store_status();
 
-	return s->phase == NVM_P_OFF || s->exhausted ||
-	       (s->phase == NVM_P_IDLE && !s->dirty && !s->pending);
+	return s->phase == NVM_P_OFF ||
+	       (s->phase == NVM_P_IDLE && !s->dirty && (!s->pending || s->exhausted));
 }
 
 static void t_until_idle(void)
@@ -129,6 +162,18 @@ static void t_until_idle(void)
 	do
 		t_service();
 	while (!t_settled() && nvm_fmodel_now_us() < until && !nvm_fmodel_dead());
+}
+
+/* Serve until the write path reaches phase p. */
+static void t_until_phase(unsigned int p)
+{
+	uint64_t until = nvm_fmodel_now_us() + T_IDLE_LIMIT_US;
+
+	while ((unsigned int)nvm_store_status()->phase != p && nvm_fmodel_now_us() < until &&
+	       !nvm_fmodel_dead())
+		t_service();
+	if ((unsigned int)nvm_store_status()->phase != p)
+		t_fail("phase_not_reached", p, nvm_store_status()->phase);
 }
 
 /* ---- changes ------------------------------------------------------------ */
@@ -380,27 +425,70 @@ static void t_set_arg(const char *arg)
 	t_set((unsigned int)id, payload, n);
 }
 
-/* MODE[:COUNT[:SKIP]]: arm a flash-model fault. */
+/* The name at the head of MODE[:...] in names[], or -1. */
+static int t_name(const char *arg, const char *const *names, unsigned int n)
+{
+	const char *colon = strchr(arg, ':');
+	size_t len = colon ? (size_t)(colon - arg) : strlen(arg);
+	unsigned int i;
+
+	for (i = 0; i < n; ++i)
+		if (strlen(names[i]) == len && strncmp(arg, names[i], len) == 0)
+			return (int)i;
+	t_fail("unknown_mode", 0, 0);
+	return -1;
+}
+
+/* The numbers after MODE: COUNT (1 unless given), then SKIP and a last one. */
+static void t_fields(const char *arg, unsigned long *v)
+{
+	const char *p = strchr(arg, ':');
+	unsigned int i;
+
+	v[0] = 1u;
+	v[1] = 0u;
+	v[2] = 0u;
+	for (i = 0; i < 3u && p && *p == ':'; ++i) {
+		char *end = NULL;
+
+		v[i] = strtoul(p + 1, &end, 0);
+		p = end;
+	}
+}
+
+/* MODE[:COUNT[:SKIP[:AT]]]: arm a flash-model fault; AT places erase-stuck
+ * and read-flip-at. */
 static void t_fault_arg(const char *arg)
 {
 	static const char *const names[] = {
 		"none", "erase-hang", "erase-stuck", "program-hang",
 		"program-drop", "program-flip", "read-fail", "read-flip",
+		"read-flip-at", "read-alias", "program-refuse", "erase-refuse",
 	};
-	const char *colon = strchr(arg, ':');
-	size_t len = colon ? (size_t)(colon - arg) : strlen(arg);
-	char *end = NULL;
-	unsigned long count = colon ? strtoul(colon + 1, &end, 0) : 1u;
-	unsigned long skip = (end && *end == ':') ? strtoul(end + 1, NULL, 0) : 0u;
-	unsigned int i;
+	unsigned long v[3];
+	int i = t_name(arg, names, sizeof(names) / sizeof(names[0]));
 
-	for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
-		if (strlen(names[i]) == len && strncmp(arg, names[i], len) == 0) {
-			nvm_fmodel_fault((enum nvm_fault)i, (unsigned int)count, (unsigned int)skip);
-			return;
-		}
-	}
-	t_fail("unknown_fault", 0, 0);
+	t_fields(arg, v);
+	if (i < 0)
+		return;
+	nvm_fmodel_fault((enum nvm_fault)i, (unsigned int)v[0], (unsigned int)v[1]);
+	if (v[2])
+		nvm_fmodel_fault_at((uint32_t)v[2]);
+}
+
+/* KIND[:COUNT[:SKIP[:POLLS]]]: arm a command-master stall. */
+static void t_stall_arg(const char *arg)
+{
+	static const char *const names[] = {
+		"none", "tx", "rx", "drain",
+	};
+	unsigned long v[3];
+	int i = t_name(arg, names, sizeof(names) / sizeof(names[0]));
+
+	t_fields(arg, v);
+	if (i >= 0)
+		litespi_model_stall((enum litespi_stall)i, (unsigned int)v[0], (unsigned int)v[1],
+				    (unsigned int)v[2]);
 }
 
 /* The port refuses to program or erase outside the journal: the first block
@@ -445,6 +533,16 @@ static void t_times_arg(const char *arg)
 	nvm_fmodel_times((uint64_t)erase_ms * 1000u, program_us);
 }
 
+static void t_print_times(const char *tag, const struct t_times *tt)
+{
+	unsigned int i;
+
+	printf("%s", tag);
+	for (i = 0; i < tt->n && i < T_TIMES; ++i)
+		printf(" %llu", (unsigned long long)tt->at[i]);
+	printf("\n");
+}
+
 static void t_summary(void)
 {
 	const struct nvm_status *s = nvm_store_status();
@@ -456,29 +554,35 @@ static void t_summary(void)
 	printf("SUMMARY terminal=%d cause=%d vd_a=%d vd_b=%d last=%d first=%d seq_a=%u seq_b=%u "
 	       "seq=%u auth=%d applied=%u refused=%u blank=%u releases=%u ok=%u "
 	       "failed=%u skipped=%u attempts=%u exhausted=%d stale=%d dirty=%d "
-	       "pending=%d phase=%d step_max=%u step_bound=%u steps=%u\n",
+	       "pending=%d phase=%d step_max=%u step_bound=%u steps=%u bind_terminal=%d "
+	       "bind_cause=%d withheld=%u abandoned=%u abandoned_vd=%d\n",
 	       s->terminal, s->cause, s->verdict_a, s->verdict_b, s->last_verdict, s->first_failed,
 	       s->seq_a, s->seq_b, s->seq, s->auth, s->applied, s->refused, s->blank,
 	       s->releases, s->commits_ok, s->commits_failed, s->commits_skipped,
 	       s->attempts, s->exhausted, s->stale, s->dirty, s->pending, s->phase,
-	       s->step_bytes_max, (unsigned int)NVM_STEP_BOUND, s->steps);
+	       s->step_bytes_max, (unsigned int)NVM_STEP_BOUND, s->steps, s->bind_terminal,
+	       s->bind_cause, s->withheld, s->abandoned, s->abandoned_vd);
 	printf("SUMMARY erases=%u programs=%u effects=%u outside=%u protected=%u "
 	       "pagewrap=%u while_busy=%u descending=%u sm_applies=%u sm_applied=%u sm_refused=%u "
-	       "sm_settles=%u sm_rollbacks=%u sm_releases=%u sm_order=%u "
+	       "sm_settles=%u sm_rollbacks=%u sm_unbinds=%u sm_releases=%u sm_order=%u "
 	       "ls_wren=%u ls_pp=%u ls_se=%u ls_no_wel=%u ls_short=%u ls_refused=%u "
-	       "ls_unknown=%u max_call_us=%llu max_polls_call=%u calls=%u now_ms=%llu "
-	       "img_len=%u n_rec=%u bad=%u\n",
+	       "ls_unknown=%u ls_stalled=%u ls_max_withheld=%u ls_hung=%u "
+	       "max_call_us=%llu max_polls_call=%u calls=%u now_ms=%llu "
+	       "commit_tries=%u commit_refused=%u img_len=%u n_rec=%u bad=%u\n",
 	       fc->erases, fc->programs, fc->effects, fc->outside, fc->protected_hit,
 	       fc->pagewrap, fc->while_busy, fc->descending, sc->applies, sc->applied, sc->refused,
-	       sc->settles, sc->rollbacks, sc->releases, sc->order, lc->wren, lc->pp,
-	       lc->se, lc->no_wel, lc->short_cmd, lc->refused, lc->unknown,
-	       (unsigned long long)t.max_call_us, t.max_polls_call, t.service_calls,
-	       (unsigned long long)(nvm_fmodel_now_us() / 1000u),
-	       (unsigned int)NVM_IMG_LEN, (unsigned int)NVM_N_REC, t.bad);
+	       sc->settles, sc->rollbacks, sc->unbinds, sc->releases, sc->order, lc->wren, lc->pp,
+	       lc->se, lc->no_wel, lc->short_cmd, lc->refused, lc->unknown, lc->stalled,
+	       lc->max_withheld, lc->hung, (unsigned long long)t.max_call_us, t.max_polls_call,
+	       t.service_calls, (unsigned long long)(nvm_fmodel_now_us() / 1000u),
+	       t.commit_tries, t.commit_refused, (unsigned int)NVM_IMG_LEN,
+	       (unsigned int)NVM_N_REC, t.bad);
 	printf("ERASES");
 	for (i = 0; i < fc->erases && i < 16u; ++i)
 		printf(" %llu", (unsigned long long)fc->erase_start_us[i]);
 	printf("\n");
+	t_print_times("FAILS", &t.fails);
+	t_print_times("OKS", &t.oks);
 }
 
 /* A console commit: start one now and run until it settles. */
@@ -487,6 +591,14 @@ static void t_commit(void)
 	if (!nvm_store_commit_now())
 		t_fail("commit_not_started", nvm_store_status()->phase, 0);
 	t_until_idle();
+}
+
+/* A console commit that may be refused: count the try and its answer. */
+static void t_commit_try(void)
+{
+	t.commit_tries++;
+	if (!nvm_store_commit_now())
+		t.commit_refused++;
 }
 
 /* A change that leaves the value as it was (DR2b). */
@@ -508,6 +620,12 @@ static int t_word(const char *a)
 		t.knobs.settle_fault = 1;
 	else if (strcmp(a, "--rollback-fault") == 0)
 		t.knobs.rollback_fault = 1;
+	else if (strcmp(a, "--unbind-fault") == 0)
+		t.knobs.unbind_fault = 1;
+	else if (strcmp(a, "--commit-try") == 0)
+		t_commit_try();
+	else if (strcmp(a, "--mark") == 0)
+		printf("MARK %llu\n", (unsigned long long)nvm_fmodel_now_us());
 	else if (strcmp(a, "--boot") == 0)
 		t_boot();
 	else if (strcmp(a, "--blank") == 0)
@@ -538,8 +656,15 @@ static int t_word_arg(const char *a, const char *v)
 		t_times_arg(v);
 	else if (strcmp(a, "--refuse") == 0)
 		t_refuse_arg(v);
-	else if (strcmp(a, "--apply-fault") == 0)
-		t.knobs.apply_fault = (unsigned int)strtoul(v, NULL, 0);
+	else if (strcmp(a, "--apply-fault") == 0) {
+		t.knobs.apply_fault = 1;
+		t.knobs.apply_fault_id = (unsigned int)strtoul(v, NULL, 0);
+	} else if (strcmp(a, "--until-phase") == 0)
+		t_until_phase((unsigned int)strtoul(v, NULL, 0));
+	else if (strcmp(a, "--phc-step") == 0)
+		litespi_model_phc_step((int64_t)strtoll(v, NULL, 0));
+	else if (strcmp(a, "--ls-stall") == 0)
+		t_stall_arg(v);
 	else if (strcmp(a, "--set") == 0)
 		t_set_arg(v);
 	else if (strcmp(a, "--set-pattern") == 0)

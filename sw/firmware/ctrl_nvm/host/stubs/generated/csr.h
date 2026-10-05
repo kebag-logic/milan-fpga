@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
 /* Stub for the LiteX-generated CSR accessors the LiteSPI port uses: the
- * command master, routed to the host model (#665 lane F1). */
+ * command master and timer0, routed to the host model (#665 lane F1). */
 #ifndef GENERATED_CSR_H
 #define GENERATED_CSR_H
 #include "../../litespi_model.h"
@@ -14,4 +14,9 @@ static inline void spiflash_master_cs_write(uint32_t v) { litespi_model_cs(v); }
 static inline void spiflash_master_phyconfig_write(uint32_t v) { litespi_model_phyconfig(v); }
 static inline uint32_t spiflash_master_rxtx_read(void) { return litespi_model_rxtx_read(); }
 static inline void spiflash_master_rxtx_write(uint32_t v) { litespi_model_rxtx_write(v); }
+static inline void timer0_load_write(uint32_t v) { litespi_model_timer(LITESPI_TIMER_LOAD, v); }
+static inline void timer0_reload_write(uint32_t v) { litespi_model_timer(LITESPI_TIMER_RELOAD, v); }
+static inline void timer0_en_write(uint32_t v) { litespi_model_timer(LITESPI_TIMER_EN, v); }
+static inline void timer0_update_value_write(uint32_t v) { litespi_model_timer(LITESPI_TIMER_UPDATE, v); }
+static inline uint32_t timer0_value_read(void) { return litespi_model_timer_value(); }
 #endif

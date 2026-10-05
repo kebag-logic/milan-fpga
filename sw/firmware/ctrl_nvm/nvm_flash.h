@@ -18,12 +18,13 @@
  * HAL of lane F0 (sw/firmware/ctrl/mbx/mbx_hal.h): the two are reconciled
  * later, and the seam is recorded in this module's README.
  *
- * Every call that starts a media operation RETURNS AT ONCE; busy() reports
- * when it ends. The store polls busy() once per service step and never
- * spins on it in service, so the event loop keeps running through a
- * 3 s erase (docs/design/SAVED_STATE_FASTCONNECT.md section 9.4). The
- * blocking nvm_flash_wait() below exists for the boot path and the console,
- * which run before or outside the loop.
+ * EVERY CALL RETURNS IN BOUNDED TIME. A call that starts a media operation
+ * returns once the command is issued, and busy() reports when it ends. The
+ * store polls busy() once per service step and never spins on it, so the
+ * event loop keeps running through a 3 s erase
+ * (docs/design/SAVED_STATE_FASTCONNECT.md section 9.4). A controller that
+ * stops answering makes the call fail, never wait: an implementation bounds
+ * every wait it has.
  */
 #ifndef NVM_FLASH_H
 #define NVM_FLASH_H
@@ -41,13 +42,14 @@ struct nvm_flash {
 	/* 1 while a program or erase is in progress, 0 once it ended, negative
 	 * when the device cannot be asked. */
 	int (*busy)(void *ctx);
-	/* Monotonic time in microseconds; it never steps backwards. */
+	/* Elapsed time in microseconds from a LOCAL counter that only counts
+	 * up: never the PHC, which a gPTP step moves either way, so no clock
+	 * correction lengthens or shortens a window, a backoff or a deadline.
+	 * The store samples it on every service step; an implementation whose
+	 * counter wraps keeps the elapsed time exact as long as it is sampled
+	 * at least once per wrap (README, "The flash port"). */
 	uint64_t (*now_us)(void *ctx);
 	void *ctx;
 };
-
-/* Poll busy() until it reads 0 or timeout_us passes: 1 when the device went
- * idle, 0 on a timeout or a fault. Blocking: boot and console only. */
-int nvm_flash_wait(const struct nvm_flash *f, uint64_t timeout_us);
 
 #endif /* NVM_FLASH_H */

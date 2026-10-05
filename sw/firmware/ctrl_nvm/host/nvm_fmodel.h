@@ -13,9 +13,14 @@
  *     counted from 1): that effect lands only as far as `frac`/256 of it,
  *     with the cells at the edge left half-way (a deterministic pattern), and
  *     from then on nothing reaches the media and every call fails;
- *   - an erase that never ends, or that leaves a byte programmed;
- *   - a program that never ends, that drops its bytes, or that flips one;
- *   - a read that fails, or that returns one bit flipped;
+ *   - an erase that never ends, that leaves a byte programmed (at offset
+ *     `at` of the block, 5 unless set), or that is refused;
+ *   - a program that never ends, that drops its bytes, that flips one, or
+ *     that is refused;
+ *   - a read that fails; that returns one bit flipped (the middle byte, or
+ *     bit 3 of the byte at device address `at`, counting only the reads
+ *     that cover it); or that answers from the neighbouring erase block
+ *     (address bit 16 stuck: slot A reads slot B, and B reads A);
  *   - a bit flipped at rest (nvm_fmodel_flip).
  * Each fault is armed for `count` operations of its kind, after the next
  * `skip` of them pass untouched.
@@ -43,7 +48,11 @@ enum nvm_fault {
 	NVM_F_PROGRAM_DROP,
 	NVM_F_PROGRAM_FLIP,
 	NVM_F_READ_FAIL,
-	NVM_F_READ_FLIP
+	NVM_F_READ_FLIP,
+	NVM_F_READ_FLIP_AT,
+	NVM_F_READ_ALIAS,
+	NVM_F_PROGRAM_REFUSE,
+	NVM_F_ERASE_REFUSE
 };
 
 struct nvm_fmodel_count {
@@ -72,12 +81,16 @@ void nvm_fmodel_window(uint32_t lo, uint32_t hi);
 void nvm_fmodel_protect(uint32_t lo);
 void nvm_fmodel_times(uint64_t erase_us, uint64_t program_us);
 void nvm_fmodel_fault(enum nvm_fault fault, unsigned int count, unsigned int skip);
+/* Where erase-stuck and read-flip-at act (see above). */
+void nvm_fmodel_fault_at(uint32_t at);
 /* The power fails inside media effect k (from 1), frac/256 of it landed. */
 void nvm_fmodel_cut(unsigned int k, unsigned int frac);
 int nvm_fmodel_dead(void);
 void nvm_fmodel_flip(uint32_t addr, unsigned int bit);
 void nvm_fmodel_advance_us(uint64_t us);
+void nvm_fmodel_advance_ns(uint64_t ns);
 uint64_t nvm_fmodel_now_us(void);
+uint64_t nvm_fmodel_now_ns(void);
 const struct nvm_fmodel_count *nvm_fmodel_count(void);
 
 /* The flash port over this model. */

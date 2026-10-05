@@ -2,18 +2,21 @@
 /*
  * nvm_store.c - the bare-metal saved-state store (#665 lane F1).
  *
- * THE BOOT PATH. Both journal slots are judged by the section 6.2 order of
- * docs/design/SAVED_STATE_FASTCONNECT.md, streamed through the stage so a slot
- * of any IMG_LEN is judged without a buffer of its size. The newer accepted
- * slot (section 7: the wrap-safe (int32_t)(A.seq - B.seq), A on a tie as in
- * the shipping writer; the other when it fails) is read into the stage again
- * and judged again in RAM, and only those bytes are applied: what is applied
- * is what was proven. The restore
- * is one transaction (SAVED_STATE_MATERIALIZATION.md section 8.6): every
- * record in ascending id through the state port, the settle step after the
- * maps and before the names (section 8.4), and an abort rolls every value
- * back to its image default. AECP is released at COMPLETE, BLANK or
- * DEFAULTS and never at CLOSED.
+ * THE BOOT PATH. Each journal slot is read into the stage in one read and
+ * judged there by the section 6.2 order of
+ * docs/design/SAVED_STATE_FASTCONNECT.md: the CRC, the records and the
+ * sequence all come from the same bytes. The newer accepted slot (section 7:
+ * the wrap-safe (int32_t)(A.seq - B.seq), A on a tie as in the shipping
+ * writer; the other when it fails) is read into the stage again and judged
+ * again, its CRC included, and its sequence must be the one it was chosen
+ * by: what is applied and published is what was proven. The restore is the
+ * two walks of SAVED_STATE_MATERIALIZATION.md section 8.1: the binding walk
+ * first, its own unit (a fault fails it whole, with nothing preloaded), then
+ * the D3 walk as one transaction (section 8.6): every other record in
+ * ascending id through the state port, the settle step after the maps and
+ * before the names (section 8.4), and an abort rolls every D3 value back to
+ * its image default and leaves the bindings applied. AECP is released at
+ * COMPLETE, BLANK or DEFAULTS and never at CLOSED.
  *
  * THE WRITE PATH. A change marks its record dirty. After the 1,000 ms
  * first-dirty window (DR2a) a capture latches the dirty records from their
@@ -25,14 +28,17 @@
  * authoritative slot is never erased, so at every instant of the sequence
  * one slot holds a complete container whose CRC closes (section 7), and a
  * power cut at any step boots the old content or the new one, never a mix.
- * A failed attempt returns its records to dirty; an unchanged work set gets
- * at most three attempts, 1,000 ms apart (DR2c); a capture that changed no
- * staged byte of a verified container is not written (DR2b).
+ * A failed attempt keeps its records in flight; the captured work set gets
+ * at most three attempts while it is unchanged, each 1,000 ms after the last
+ * failure, and a capture that changes a staged byte starts a new one (DR2c).
+ * A capture that changed no staged byte of a verified container is not
+ * written (DR2b).
  *
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
  * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
- * stretch, or one latched record's copy and crc16.
+ * stretch, or one latched record's copy and crc16. Time is the flash port's
+ * local counter, sampled once per step.
  */
 #include "nvm_store.h"
 
@@ -47,6 +53,7 @@ struct nvm_store {
 	uint32_t dirty[NVM_WORDS];      /* changed, not yet captured */
 	uint32_t inflight[NVM_WORDS];   /* captured, not yet in a verified slot */
 	struct nvm_rec cursor;          /* the capture's next record */
+	uint64_t now_us;                /* this step's time */
 	uint64_t dirty_since_us;
 	uint64_t retry_at_us;
 	uint64_t op_start_us;
@@ -56,8 +63,8 @@ struct nvm_store {
 	uint32_t next_seq;
 	uint32_t step_bytes;
 	int target;                     /* the slot being written: 0 A, 1 B */
-	int dirty_armed;
-	int retry_armed;
+	int dirty_armed;                /* the first-dirty window is open */
+	int retry_armed;                /* a failed attempt's backoff runs */
 	int force;                      /* a console commit: write even if unchanged */
 	int stage_changed;              /* the capture changed a staged byte */
 	int stage_durable;              /* the stage equals the authoritative slot */
@@ -110,8 +117,11 @@ static void nvm_publish(void)
 
 /* ---- the boot path ------------------------------------------------------- */
 
-/* Section 6.2 over the slot at `slot`, streamed through the stage. A slot
- * that does not deliver its bytes fails rule 4 (VD_LEN). */
+/* Section 6.2 over the slot at `slot`. A container that fits the stage is
+ * read in once and judged there, so its CRC, its records and the sequence
+ * returned are the same bytes. A longer one can never be this shape's: its
+ * CRC is streamed through the stage for the verdict order alone. A slot that
+ * does not deliver its bytes fails rule 4 (VD_LEN). */
 static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 {
 	const struct nvm_flash *f = nvm.flash;
@@ -119,7 +129,6 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 	uint32_t img_len = 0;
 	uint32_t crc = 0xffffffffu;
 	uint32_t pos = 0;
-	uint32_t loaded;
 	uint8_t trailer[NVM_KLJ2_TRAILER];
 	enum nvm_verdict vd;
 
@@ -128,6 +137,14 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 	vd = nvm_klj2_check_head(nvm_stage, &img_len);
 	if (vd != NVM_VD_OK)
 		return vd;
+	if (img_len <= NVM_STAGE_BYTES) {
+		if (f->read(f->ctx, addr, nvm_stage, img_len))
+			return NVM_VD_LEN;
+		vd = nvm_klj2_check(nvm_stage, img_len);
+		if (vd == NVM_VD_OK)
+			*seq = nvm_klj2_seq(nvm_stage);
+		return vd;
+	}
 	while (pos < img_len - NVM_KLJ2_TRAILER) {
 		uint32_t n = nvm_min(NVM_STAGE_BYTES, img_len - NVM_KLJ2_TRAILER - pos);
 
@@ -140,13 +157,9 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 		return NVM_VD_LEN;
 	if (~crc != nvm_rd32le(trailer))
 		return NVM_VD_CRC;
-	loaded = nvm_min(img_len, NVM_STAGE_BYTES);
-	if (f->read(f->ctx, addr, nvm_stage, loaded))
+	if (f->read(f->ctx, addr, nvm_stage, NVM_STAGE_BYTES))
 		return NVM_VD_LEN;
-	vd = nvm_klj2_check_body(nvm_stage, img_len, loaded);
-	if (vd == NVM_VD_OK)
-		*seq = nvm_klj2_seq(nvm_stage);
-	return vd;
+	return nvm_klj2_check_body(nvm_stage, img_len, NVM_STAGE_BYTES);
 }
 
 /* Section 7: the newer of two accepted slots, wrap-safe; else the one. */
@@ -161,56 +174,89 @@ static int nvm_pick(void)
 	return (s->verdict_b == NVM_VD_OK) ? 1 : NVM_NONE;
 }
 
-/* The chosen slot into the stage, judged again in RAM: only the bytes that
- * pass are applied. */
+/* The chosen slot into the stage, judged again with its CRC: only bytes that
+ * pass, under the sequence the slot was chosen by, are applied. */
 static int nvm_stage_slot(int slot)
 {
 	const struct nvm_flash *f = nvm.flash;
+	uint32_t seq = slot ? nvm.st.seq_b : nvm.st.seq_a;
 
 	if (f->read(f->ctx, nvm_slot_addr(slot), nvm_stage, NVM_IMG_LEN))
 		return 0;
-	return nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;
+	return nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&
+	       nvm_klj2_seq(nvm_stage) == seq;
 }
 
-/* An abort names the restore by its first cause; the roll-back decides
+/* One saved record through the state port: 1 when its rule could not be
+ * judged, which ends the walk. An erased record applies nothing and its
+ * default stands. */
+static int nvm_apply_faults(struct nvm_rec r)
+{
+	const struct nvm_state *s = nvm.state;
+	const uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
+	enum nvm_apply res;
+
+	if (nvm_all_erased(rec, NVM_REC_HDR)) {
+		nvm.st.blank++;
+		return 0;
+	}
+	res = s->apply(s->ctx, r.group, r.index, rec + NVM_REC_HDR, r.plen);
+	if (res == NVM_FAULT)
+		return 1;
+	if (res == NVM_APPLIED)
+		nvm.st.applied++;
+	else
+		nvm.st.refused++;
+	return 0;
+}
+
+/* The binding walk (section 8.1 step 4): every binding record, ascending.
+ * A fault fails it whole, with nothing preloaded, and the D3 walk runs
+ * anyway; a walk whose preloads cannot be dropped leaves the listener
+ * unproven: CLOSED. */
+static enum nvm_terminal nvm_walk_bind(void)
+{
+	struct nvm_rec r;
+
+	for (r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
+		if (r.group != NVM_G_BIND || !nvm_apply_faults(r))
+			continue;
+		nvm.st.bind_cause = NVM_C_APPLY;
+		if (nvm.state->rollback(nvm.state->ctx, NVM_W_BIND) != 0)
+			return NVM_T_CLOSED;
+		return NVM_T_DEFAULTS;
+	}
+	return NVM_T_COMPLETE;
+}
+
+/* A D3 abort names the walk by its first cause; the roll-back decides
  * DEFAULTS or CLOSED (section 8.6). */
 static enum nvm_terminal nvm_abort(enum nvm_cause cause)
 {
 	nvm.st.cause = cause;
-	if (nvm.state->rollback(nvm.state->ctx) != 0)
+	if (nvm.state->rollback(nvm.state->ctx, NVM_W_D3) != 0)
 		return NVM_T_CLOSED;
 	return NVM_T_DEFAULTS;
 }
 
-/* The restore transaction over the staged, proven container. */
-static enum nvm_terminal nvm_restore(void)
+/* The D3 walk over the staged, proven container: every record but the
+ * bindings, as one transaction. */
+static enum nvm_terminal nvm_walk_d3(void)
 {
 	const struct nvm_state *s = nvm.state;
-	struct nvm_rec r = nvm_rec_first();
+	struct nvm_rec r;
 	int settled = 0;
 
-	while (r.ok) {
-		const uint8_t *rec = nvm_stage + NVM_KLJ2_HDR + r.off;
-		enum nvm_apply res;
-
+	for (r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
+		if (r.group == NVM_G_BIND)
+			continue;
 		if (r.group == NVM_G_NAME && !settled) {
 			settled = 1;
 			if (s->settle(s->ctx) == NVM_FAULT)
 				return nvm_abort(NVM_C_SETTLE);
 		}
-		if (nvm_all_erased(rec, NVM_REC_HDR)) {
-			/* never written: it applies nothing, the default stands */
-			nvm.st.blank++;
-		} else {
-			res = s->apply(s->ctx, r.group, r.index, rec + NVM_REC_HDR, r.plen);
-			if (res == NVM_FAULT)
-				return nvm_abort(NVM_C_APPLY);
-			if (res == NVM_APPLIED)
-				nvm.st.applied++;
-			else
-				nvm.st.refused++;
-		}
-		r = nvm_rec_next(r);
+		if (nvm_apply_faults(r))
+			return nvm_abort(NVM_C_APPLY);
 	}
 	if (!settled && s->settle(s->ctx) == NVM_FAULT)
 		return nvm_abort(NVM_C_SETTLE);
@@ -269,13 +315,16 @@ void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state
 	if (chosen == NVM_NONE) {
 		nvm.st.last_verdict = (nvm.st.verdict_a != NVM_VD_BLANK) ?
 				      nvm.st.verdict_a : nvm.st.verdict_b;
+		nvm.st.bind_terminal = NVM_T_BLANK;
 		nvm.st.terminal = NVM_T_BLANK;
 	} else {
 		nvm.st.auth = chosen;
-		nvm.st.seq = chosen ? nvm.st.seq_b : nvm.st.seq_a;
+		nvm.st.seq = nvm_klj2_seq(nvm_stage);
 		nvm.st.last_verdict = NVM_VD_OK;
 		nvm.stage_durable = 1;
-		nvm.st.terminal = nvm_restore();
+		nvm.st.bind_terminal = nvm_walk_bind();
+		nvm.st.terminal = (nvm.st.bind_terminal == NVM_T_CLOSED) ?
+				  NVM_T_CLOSED : nvm_walk_d3();
 	}
 	if (nvm.st.terminal == NVM_T_CLOSED)
 		return;
@@ -290,23 +339,25 @@ static void nvm_capture_begin(void)
 {
 	nvm.cursor = nvm_rec_first();
 	nvm.stage_changed = 0;
-	nvm.dirty_armed = 0;            /* a change from here opens a new window */
+	/* every change so far is this capture's; a later one opens a window */
+	nvm.dirty_armed = 0;
 	nvm.retry_armed = 0;
 	nvm.st.phase = NVM_P_CAPTURE;
 }
 
+/* DR2c spaces every attempt 1,000 ms after a failed one; DR2a starts a
+ * capture 1,000 ms after the first change it takes; a failed work set is
+ * retried while it has attempts left. */
 static void nvm_idle(void)
 {
-	uint64_t now;
+	int due;
 
-	if (!nvm_any(nvm.dirty) || nvm.st.exhausted)
+	if (nvm.retry_armed && nvm.now_us < nvm.retry_at_us)
 		return;
-	now = nvm_now();
-	if (nvm.retry_armed && now < nvm.retry_at_us)
-		return;
-	if (now - nvm.dirty_since_us < NVM_US(MILAN_NVM_DEBOUNCE_MS))
-		return;
-	nvm_capture_begin();
+	due = nvm.dirty_armed && nvm_any(nvm.dirty) &&
+	      nvm.now_us - nvm.dirty_since_us >= NVM_US(MILAN_NVM_DEBOUNCE_MS);
+	if (due || (nvm_any(nvm.inflight) && !nvm.st.exhausted))
+		nvm_capture_begin();
 }
 
 /* 1 when the staged span of r is a frame of r (its crc is then the payload's:
@@ -343,11 +394,23 @@ static void nvm_latch(struct nvm_rec r)
 	nvm.stage_durable = 0;
 }
 
+/* The capture is over: decide whether its work set is written. */
 static void nvm_seal_begin(void)
 {
 	unsigned int i;
 
-	if (!nvm.stage_changed && nvm.stage_durable && !nvm.force) {
+	if (nvm.stage_changed) {
+		/* a changed staged byte is a new work set: its own attempts */
+		nvm.st.attempts = 0;
+		nvm.st.exhausted = 0;
+	} else if (nvm.st.exhausted) {
+		/* DR2c: the unchanged set spent its attempts; a console commit
+		 * does not buy a fourth */
+		nvm.st.withheld++;
+		nvm.force = 0;
+		nvm.st.phase = NVM_P_IDLE;
+		return;
+	} else if (nvm.stage_durable && !nvm.force) {
 		/* DR2b: the verified container already holds every value */
 		for (i = 0; i < NVM_WORDS; ++i)
 			nvm.inflight[i] = 0;
@@ -370,6 +433,7 @@ static void nvm_capture_step(void)
 	while (r.ok && !nvm_bit(nvm.dirty, r.id))
 		r = nvm_rec_next(r);
 	if (!r.ok) {
+		nvm.cursor = r;
 		nvm_seal_begin();
 		return;
 	}
@@ -393,26 +457,23 @@ static void nvm_seal_step(void)
 	nvm.st.phase = NVM_P_ERASE;
 }
 
-/* A failed attempt: its records are dirty again, the claim is stale, and
- * the next attempt waits NVM_TXN_BACKOFF_MS (DR2c). */
+/* A failed attempt: its records stay in flight, the claim is stale, and the
+ * next attempt waits NVM_TXN_BACKOFF_MS (DR2c). The third failure of one
+ * work set abandons it, and the reset-sticky record says so. */
 static void nvm_fail(enum nvm_verdict vd)
 {
-	uint64_t now = nvm_now();
-	unsigned int i;
-
-	for (i = 0; i < NVM_WORDS; ++i) {
-		nvm.dirty[i] |= nvm.inflight[i];
-		nvm.inflight[i] = 0;
-	}
 	if (nvm.st.attempts == 0u)
 		nvm.st.first_failed = vd;
 	nvm.st.last_verdict = vd;
 	nvm.st.commits_failed++;
 	nvm.st.attempts++;
 	nvm.st.stale = 1;
-	if (nvm.st.attempts >= NVM_TXN_ATTEMPTS)
+	if (nvm.st.attempts >= NVM_TXN_ATTEMPTS) {
 		nvm.st.exhausted = 1;
-	nvm.retry_at_us = now + NVM_US(NVM_TXN_BACKOFF_MS);
+		nvm.st.abandoned++;
+		nvm.st.abandoned_vd = nvm.st.first_failed;
+	}
+	nvm.retry_at_us = nvm.now_us + NVM_US(NVM_TXN_BACKOFF_MS);
 	nvm.retry_armed = 1;
 	nvm.force = 0;
 	nvm.st.phase = NVM_P_IDLE;
@@ -436,7 +497,7 @@ static void nvm_erase_start(void)
 		nvm_fail(NVM_VD_ERASE);
 		return;
 	}
-	nvm.op_start_us = nvm_now();
+	nvm.op_start_us = nvm.now_us;
 	nvm.st.phase = NVM_P_ERASE_WAIT;
 }
 
@@ -449,7 +510,7 @@ static int nvm_wait(uint64_t timeout_us, enum nvm_verdict vd)
 
 	if (busy == 0)
 		return 1;
-	if (busy < 0 || nvm_now() - nvm.op_start_us > timeout_us)
+	if (busy < 0 || nvm.now_us - nvm.op_start_us > timeout_us)
 		nvm_fail(vd);
 	return 0;
 }
@@ -492,10 +553,12 @@ static void nvm_program_step(void)
 	}
 	nvm.len = n;
 	nvm.step_bytes += n;
-	nvm.op_start_us = nvm_now();
+	nvm.op_start_us = nvm.now_us;
 	nvm.st.phase = NVM_P_PROGRAM_WAIT;
 }
 
+/* The authority moves; nothing clears the abandoned-set record (DR2c). The
+ * claim heals once nothing changed is left un-durable (FASTCONNECT 9.2). */
 static void nvm_commit_done(void)
 {
 	unsigned int i;
@@ -507,7 +570,6 @@ static void nvm_commit_done(void)
 	nvm.stage_durable = 1;
 	nvm.st.commits_ok++;
 	nvm.st.attempts = 0;
-	nvm.st.exhausted = 0;
 	nvm.st.last_verdict = NVM_VD_OK;
 	nvm.st.first_failed = NVM_VD_OK;
 	if (!nvm_any(nvm.dirty))
@@ -584,6 +646,7 @@ void nvm_store_service(void)
 	if (nvm.st.phase == NVM_P_OFF)
 		return;
 	nvm.step_bytes = 0;
+	nvm.now_us = nvm_now();
 	nvm_step();
 	nvm.st.steps++;
 	if (nvm.step_bytes > nvm.st.step_bytes_max)
@@ -594,23 +657,27 @@ void nvm_store_service(void)
 void nvm_store_changed(unsigned int group, unsigned int index)
 {
 	struct nvm_rec r = nvm_rec_of(group, index);
+	int taken;
 
 	if (!r.ok || nvm.st.phase == NVM_P_OFF)
 		return;
+	/* the running capture has yet to reach r: it takes this change, and
+	 * leaves no window open behind it (DR2a) */
+	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
 	nvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);
-	if (!nvm.dirty_armed) {
+	if (!taken && !nvm.dirty_armed) {
 		nvm.dirty_armed = 1;
 		nvm.dirty_since_us = nvm_now();
 	}
-	/* a new change is a new work set: its attempts start again (DR2c) */
-	nvm.st.attempts = 0;
-	nvm.st.exhausted = 0;
 	nvm_publish();
 }
 
 int nvm_store_commit_now(void)
 {
 	if (nvm.st.phase != NVM_P_IDLE)
+		return 0;
+	/* DR2c: no attempt inside a failed one's backoff */
+	if (nvm.retry_armed && nvm_now() < nvm.retry_at_us)
 		return 0;
 	nvm.force = 1;
 	nvm_capture_begin();

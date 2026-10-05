@@ -27,6 +27,7 @@ struct fm_state {
 	enum nvm_fault fault;
 	unsigned int fault_count;
 	unsigned int fault_skip;
+	uint32_t fault_at;
 	uint32_t last_program;
 	unsigned int cut_k;
 	unsigned int cut_frac;
@@ -44,6 +45,7 @@ void nvm_fmodel_power_on(void)
 	fm.erase_ns = 20000000u;
 	fm.program_ns = 1000000u;
 	fm.hi = NVM_FMODEL_BYTES;
+	fm.fault_at = 5u;
 	/* a fixed seed: every torn edge is the same on every run */
 	fm.noise = 0x9e3779b9u;
 }
@@ -83,6 +85,11 @@ void nvm_fmodel_cut(unsigned int k, unsigned int frac)
 	fm.cut_frac = frac;
 }
 
+void nvm_fmodel_fault_at(uint32_t at)
+{
+	fm.fault_at = at;
+}
+
 int nvm_fmodel_dead(void)
 {
 	return fm.dead;
@@ -98,9 +105,19 @@ void nvm_fmodel_advance_us(uint64_t us)
 	fm.now_ns += us * 1000u;
 }
 
+void nvm_fmodel_advance_ns(uint64_t ns)
+{
+	fm.now_ns += ns;
+}
+
 uint64_t nvm_fmodel_now_us(void)
 {
 	return fm.now_ns / 1000u;
+}
+
+uint64_t nvm_fmodel_now_ns(void)
+{
+	return fm.now_ns;
 }
 
 const struct nvm_fmodel_count *nvm_fmodel_count(void)
@@ -174,9 +191,13 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 	fm.now_ns += (uint64_t)(4u + len) * FM_SPI_BYTE_NS;
 	if (fm_take(NVM_F_READ_FAIL))
 		return -1;
+	if ((addr ^ NVM_FMODEL_BLOCK) <= NVM_FMODEL_BYTES - len && fm_take(NVM_F_READ_ALIAS))
+		addr ^= NVM_FMODEL_BLOCK;
 	memcpy(dst, nvm_fmodel_mem + addr, len);
 	if (len && fm_take(NVM_F_READ_FLIP))
 		dst[len / 2u] ^= 0x10u;
+	if (addr <= fm.fault_at && fm.fault_at - addr < len && fm_take(NVM_F_READ_FLIP_AT))
+		dst[fm.fault_at - addr] ^= 0x08u;
 	return 0;
 }
 
@@ -195,7 +216,7 @@ int nvm_fmodel_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t le
 		fm.n.pagewrap++;
 		return -1;
 	}
-	if (!fm_admit(addr, len))
+	if (!fm_admit(addr, len) || fm_take(NVM_F_PROGRAM_REFUSE))
 		return -1;
 	fm.now_ns += (uint64_t)(5u + len) * FM_SPI_BYTE_NS;
 	if (fm.n.programs && addr < fm.last_program)
@@ -227,7 +248,7 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 	uint32_t base = addr & ~(NVM_FMODEL_BLOCK - 1u);
 
 	(void)ctx;
-	if (!fm_admit(base, NVM_FMODEL_BLOCK))
+	if (!fm_admit(base, NVM_FMODEL_BLOCK) || fm_take(NVM_F_ERASE_REFUSE))
 		return -1;
 	fm.now_ns += 5u * FM_SPI_BYTE_NS;
 	if (fm.n.erases < 16u)
@@ -249,7 +270,7 @@ int nvm_fmodel_erase(void *ctx, uint32_t addr)
 	}
 	memset(nvm_fmodel_mem + base, 0xff, NVM_FMODEL_BLOCK);
 	if (fm_take(NVM_F_ERASE_STUCK))
-		nvm_fmodel_mem[base + 5u] = 0x00u;
+		nvm_fmodel_mem[base + fm.fault_at % NVM_FMODEL_BLOCK] = 0x00u;
 	fm.busy_until_ns = fm.now_ns + fm.erase_ns;
 	return 0;
 }

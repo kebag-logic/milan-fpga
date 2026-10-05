@@ -18,13 +18,15 @@
 #include "nvm_klj2.h"
 #include "nvm_state.h"
 
-/* How the boot restore ended (section 8.6 and 6.2 of the D3 page). */
+/* How a walk of the boot restore ended (sections 8.6 and 6.2 of the D3
+ * page). The binding walk's DEFAULTS is its whole failure, nothing
+ * preloaded. */
 enum nvm_terminal {
 	NVM_T_NONE = 0,
 	NVM_T_COMPLETE = 1,  /* an accepted slot, every record applied or refused */
 	NVM_T_BLANK = 2,     /* no slot accepted: the entity runs on its defaults */
 	NVM_T_DEFAULTS = 3,  /* aborted and rolled back to the image defaults */
-	NVM_T_CLOSED = 4     /* the model is unproven or the roll-back failed */
+	NVM_T_CLOSED = 4     /* the model is unproven or a roll-back failed */
 };
 
 /* The first cause of an abort. */
@@ -56,8 +58,9 @@ enum nvm_phase {
 /* The most bytes any service step touches: one 256-byte stretch, or one
  * latched record's copy and its crc16 over the header and the payload. */
 #define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
-/* DR2c: firmware transaction attempts per unchanged work set, and their
- * separation (SAVED_STATE_MATERIALIZATION.md section 15.1). */
+/* DR2c: firmware transaction attempts per unchanged captured work set, and
+ * the separation after a failed one (SAVED_STATE_MATERIALIZATION.md
+ * sections 6.3 and 15.1). */
 #define NVM_TXN_ATTEMPTS 3u
 #define NVM_TXN_BACKOFF_MS 1000u
 
@@ -70,8 +73,10 @@ struct nvm_status {
 	uint32_t seq_b;
 	uint32_t seq;                   /* the authoritative container's */
 	int auth;                       /* 0 slot A, 1 slot B, -1 none */
-	enum nvm_terminal terminal;
-	enum nvm_cause cause;
+	enum nvm_terminal terminal;     /* the D3 walk's, or CLOSED */
+	enum nvm_cause cause;           /* the D3 walk's first abort cause */
+	enum nvm_terminal bind_terminal;
+	enum nvm_cause bind_cause;
 	unsigned int applied;
 	unsigned int refused;
 	unsigned int blank;
@@ -80,7 +85,12 @@ struct nvm_status {
 	unsigned int commits_failed;
 	unsigned int commits_skipped;   /* DR2b: nothing the capture saw changed */
 	unsigned int attempts;          /* failed attempts on this work set */
-	int exhausted;
+	int exhausted;                  /* this unchanged work set has none left */
+	unsigned int withheld;          /* captures of an exhausted set: no attempt */
+	/* The exhaustion record, cleared only by reset: work sets abandoned
+	 * after their third failure, and the last one's first verdict. */
+	unsigned int abandoned;
+	enum nvm_verdict abandoned_vd;
 	int stale;                      /* a failed commit left work out of every slot */
 	int dirty;                      /* changed records not yet captured */
 	int pending;                    /* captured records not yet in a verified slot */
@@ -89,14 +99,18 @@ struct nvm_status {
 	uint32_t steps;
 };
 
-/* Boot: judge both slots, stage the newer accepted one, apply it through
- * `state` as one transaction, release AECP unless CLOSED, arm the writer. */
+/* Boot: judge both slots, stage the newer accepted one, run its binding
+ * walk and then its D3 walk through `state`, release AECP unless CLOSED, arm
+ * the writer. */
 void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state);
 /* One bounded step of the write path. */
 void nvm_store_service(void);
-/* An accepted command changed the persisted value of (group, index). */
+/* An accepted command changed the persisted value of (group, index). It
+ * marks the record; whether the work set changed is the capture's finding. */
 void nvm_store_changed(unsigned int group, unsigned int index);
-/* Start a commit now, without the debounce (the console); 1 when started. */
+/* Start a capture now, without the debounce, and write it even if nothing
+ * changed (the console); 1 when started. Refused inside a failed attempt's
+ * backoff, and an exhausted unchanged work set is still not written. */
 int nvm_store_commit_now(void);
 const struct nvm_status *nvm_store_status(void);
 /* The stage, NVM_IMG_LEN bytes: the last verified container, or the one a

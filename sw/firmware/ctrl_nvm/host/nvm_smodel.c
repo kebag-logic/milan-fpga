@@ -12,12 +12,14 @@ struct sm_state {
 	uint8_t valid[NVM_ID_SPACE];
 	uint8_t refuse[NVM_ID_SPACE];
 	int ready;
-	unsigned int fault_apply;
+	int fault_apply;
+	unsigned int fault_apply_id;
 	int fault_settle;
-	int fault_rollback;
+	int fault_rollback[2];
 	int settled;
 	int released;
-	int last_id;
+	int d3_started;
+	int last_id[2];
 	struct nvm_smodel_count n;
 };
 
@@ -28,12 +30,22 @@ uint8_t nvm_smodel_default(unsigned int id, unsigned int j)
 	return (uint8_t)(id * 7u + j * 3u + 0x5au);
 }
 
-static void sm_defaults(void)
+/* The walk a record belongs to: the bindings, or D3 for every other id. */
+static enum nvm_walk sm_walk(unsigned int id)
+{
+	struct nvm_rec r = nvm_rec_by_id(id);
+
+	return (r.ok && r.group == NVM_G_BIND) ? NVM_W_BIND : NVM_W_D3;
+}
+
+static void sm_defaults(enum nvm_walk walk)
 {
 	unsigned int id;
 	unsigned int j;
 
 	for (id = 0; id < NVM_ID_SPACE; ++id) {
+		if (sm_walk(id) != walk)
+			continue;
 		for (j = 0; j < NVM_PAYLOAD_MAX; ++j)
 			sm.value[id][j] = nvm_smodel_default(id, j);
 		sm.valid[id] = 0;
@@ -43,9 +55,11 @@ static void sm_defaults(void)
 void nvm_smodel_reset(void)
 {
 	memset(&sm, 0, sizeof(sm));
-	sm_defaults();
+	sm_defaults(NVM_W_BIND);
+	sm_defaults(NVM_W_D3);
 	sm.ready = 1;
-	sm.last_id = -1;
+	sm.last_id[NVM_W_BIND] = -1;
+	sm.last_id[NVM_W_D3] = -1;
 }
 
 void nvm_smodel_ready(int ready)
@@ -58,9 +72,10 @@ void nvm_smodel_refuse(unsigned int id)
 	sm.refuse[id % NVM_ID_SPACE] = 1;
 }
 
-void nvm_smodel_fault_apply(unsigned int k)
+void nvm_smodel_fault_apply(unsigned int id)
 {
-	sm.fault_apply = k;
+	sm.fault_apply = 1;
+	sm.fault_apply_id = id;
 }
 
 void nvm_smodel_fault_settle(int on)
@@ -68,9 +83,9 @@ void nvm_smodel_fault_settle(int on)
 	sm.fault_settle = on;
 }
 
-void nvm_smodel_fault_rollback(int on)
+void nvm_smodel_fault_rollback(enum nvm_walk walk)
 {
-	sm.fault_rollback = on;
+	sm.fault_rollback[walk] = 1;
 }
 
 void nvm_smodel_set(unsigned int id, const uint8_t *value, unsigned int len)
@@ -101,17 +116,24 @@ static int sm_ready(void *ctx)
 	return sm.ready;
 }
 
-/* A format or map record must precede the settle step; a name must follow. */
+/* Every binding before the D3 walk; each walk ascending; a format or map
+ * record before the settle step, a name after it. */
 static void sm_police(unsigned int group, int id)
 {
-	if (sm.released || id <= sm.last_id)
+	enum nvm_walk walk = (group == NVM_G_BIND) ? NVM_W_BIND : NVM_W_D3;
+
+	if (sm.released || id <= sm.last_id[walk])
 		sm.n.order++;
+	if (walk == NVM_W_BIND && sm.d3_started)
+		sm.n.order++;
+	if (walk == NVM_W_D3)
+		sm.d3_started = 1;
 	if (group == NVM_G_NAME && !sm.settled)
 		sm.n.order++;
 	if (sm.settled && (group == NVM_G_FMTI || group == NVM_G_FMTO ||
 			   group == NVM_G_MAPI || group == NVM_G_MAPO))
 		sm.n.order++;
-	sm.last_id = id;
+	sm.last_id[walk] = id;
 }
 
 static enum nvm_apply sm_apply(void *ctx, unsigned int group, unsigned int index,
@@ -126,7 +148,7 @@ static enum nvm_apply sm_apply(void *ctx, unsigned int group, unsigned int index
 		return NVM_FAULT;
 	}
 	sm_police(group, r.id);
-	if (sm.fault_apply && sm.n.applies == sm.fault_apply) {
+	if (sm.fault_apply && r.id == sm.fault_apply_id) {
 		sm.n.faults++;
 		return NVM_FAULT;
 	}
@@ -147,6 +169,7 @@ static enum nvm_apply sm_settle(void *ctx)
 	if (sm.settled || sm.released)
 		sm.n.order++;
 	sm.settled = 1;
+	sm.d3_started = 1;
 	if (sm.fault_settle) {
 		sm.n.faults++;
 		return NVM_FAULT;
@@ -154,15 +177,18 @@ static enum nvm_apply sm_settle(void *ctx)
 	return NVM_APPLIED;
 }
 
-static int sm_rollback(void *ctx)
+static int sm_rollback(void *ctx, enum nvm_walk walk)
 {
 	(void)ctx;
-	sm.n.rollbacks++;
+	if (walk == NVM_W_BIND)
+		sm.n.unbinds++;
+	else
+		sm.n.rollbacks++;
 	if (sm.released)
 		sm.n.order++;
-	if (sm.fault_rollback)
+	if (sm.fault_rollback[walk])
 		return -1;
-	sm_defaults();
+	sm_defaults(walk);
 	return 0;
 }
 

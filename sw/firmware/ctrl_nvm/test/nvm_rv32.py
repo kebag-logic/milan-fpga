@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """nvm_rv32.py - the store cross-compiled freestanding for RV32I, and its sizes.
 
-The portable set (the codec, the store, the busy-wait helper) and the LiteSPI
-port are compiled with the pinned SDK's compiler for RV32I, freestanding,
-against MMIO stand-ins for the LiteX-generated headers (test/rv32/). The arm
-fails on any undefined symbol that is not a C-library memory function or a
-libgcc helper, so a heap allocator, a stdio call or an OS service cannot
-enter the store; and it reports the store's text, data and bss and each
-static buffer, which is the size of the store as the shape fixes it.
+The portable set (the codec and the store) and the LiteSPI port are compiled
+with the pinned SDK's compiler for RV32I, freestanding, against MMIO stand-ins
+for the LiteX-generated headers (test/rv32/). The arm fails on any undefined
+symbol that is not a C-library memory function or a libgcc helper, so a heap
+allocator, a stdio call or an OS service cannot enter the store; and it
+reports the store's text, data and bss and each static buffer, which is the
+size of the store as the shape fixes it.
 """
 
 from __future__ import annotations
@@ -23,9 +23,9 @@ RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc")
                    "riscv32-linux-gcc", "riscv32-unknown-elf-gcc", "riscv64-unknown-elf-gcc")
 RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-Os", "-std=c11", "-ffreestanding",
               "-Wall", "-Wextra", "-Werror")
-PORTABLE = ("nvm_klj2.c", "nvm_store.c", "nvm_flash.c", "plat/nvm_flash_litespi.c")
+PORTABLE = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
 LIBC_OK = frozenset({"memcpy", "memset", "memmove", "memcmp"})
-BUFFERS = ("nvm_stage", "nvm_payload", "nvm_chunk", "nvm", "ls_last_us")
+BUFFERS = ("nvm_stage", "nvm_payload", "nvm_chunk", "nvm", "ls_ticks", "ls_tick_last")
 
 
 def compiler() -> str | None:

@@ -33,7 +33,7 @@ from check_nvm_record_space import expected_payloads                   # noqa: E
 from flash_map import literal                                          # noqa: E402
 
 #: The store as it ships, both flash ports, both host models and the runner.
-SOURCES = ("nvm_klj2.c", "nvm_store.c", "nvm_flash.c", "plat/nvm_flash_litespi.c",
+SOURCES = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c",
            "host/nvm_fmodel.c", "host/nvm_smodel.c", "host/litespi_model.c",
            "test/nvm_test.c")
 #: The journal, read out of the SoC source the way every other consumer reads it.
@@ -47,6 +47,9 @@ SUMMARY_RE = re.compile(r"^SUMMARY (.*)$", re.M)
 POWERCUT_RE = re.compile(r"^POWERCUT (.*)$", re.M)
 GUARD_RE = re.compile(r"^GUARD took=(\d+)$", re.M)
 ERASES_RE = re.compile(r"^ERASES(.*)$", re.M)
+FAILS_RE = re.compile(r"^FAILS(.*)$", re.M)
+OKS_RE = re.compile(r"^OKS(.*)$", re.M)
+MARK_RE = re.compile(r"^MARK (\d+)$", re.M)
 
 
 class Refusal(Exception):
@@ -63,6 +66,11 @@ class Run:
     guard: int | None
     erases: list[int]
     fails: list[str]
+    #: model-clock times (us) of each failed attempt, each verified commit,
+    #: and each --mark
+    fail_at: list[int]
+    ok_at: list[int]
+    marks: list[int]
 
 
 @dataclass
@@ -124,13 +132,20 @@ class Bench:
             summary.update({k: int(v) for k, v in (kv.split("=") for kv in line.split())})
         cut = POWERCUT_RE.search(r.stdout)
         guard = GUARD_RE.search(r.stdout)
-        erases = ERASES_RE.search(r.stdout)
         return Run(out=r.stdout, s=summary,
                    powercut={k: int(v) for k, v in (kv.split("=") for kv in cut.group(1).split())}
                    if cut else {},
                    guard=int(guard.group(1)) if guard else None,
-                   erases=[int(x) for x in erases.group(1).split()] if erases else [],
-                   fails=re.findall(r"^FAIL .*$", r.stdout, re.M))
+                   erases=_times(ERASES_RE, r.stdout),
+                   fails=re.findall(r"^FAIL .*$", r.stdout, re.M),
+                   fail_at=_times(FAILS_RE, r.stdout), ok_at=_times(OKS_RE, r.stdout),
+                   marks=[int(x) for x in MARK_RE.findall(r.stdout)])
+
+
+def _times(pattern: re.Pattern[str], out: str) -> list[int]:
+    """The numbers on the runner's line `pattern` matches."""
+    m = pattern.search(out)
+    return [int(x) for x in m.group(1).split()] if m else []
 
 
 def shape_header(shape: Shape, donor: Donor, ident: Ident) -> str:

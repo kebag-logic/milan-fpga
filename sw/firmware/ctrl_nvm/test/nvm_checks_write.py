@@ -14,13 +14,19 @@ import struct
 import zlib
 from collections.abc import Callable
 
-from nvm_bench import SLOT, Bench
-from nvm_checks import (BOTH, LITESPI, STEP_BYTES, TABLE_DIR, changed_frames, expect, go,
-                        pages, reseal, rid_payloads, set_args, state_matches)
+from nvm_bench import SLOT, Bench, Run
+from nvm_checks import (BOTH, CALL_BOUND_US, DIRECT, LITESPI, STEP_BYTES, TABLE_DIR,
+                        changed_frames, expect, go, pages, reseal, rid_payloads, set_args,
+                        state_matches)
 from nvm_contract import KLJ2_HDR, REC_HDR, VD_ERASE, VD_OK, VD_PROGRAM, VD_SHAPE, VD_VERIFY
 
 T_BLANK = 2
-CALL_BOUND_US = 1000
+#: The write path's phases (nvm_store.h enum nvm_phase).
+P_CAPTURE, P_SEAL, P_ERASE, P_ERASE_WAIT, P_PROGRAM, P_PROGRAM_WAIT = 2, 3, 4, 5, 7, 8
+#: The port's no-progress bound on one wait (plat/nvm_flash_litespi.c
+#: LS_POLL_MAX), and a drain's one extra read.
+POLL_MAX = 4096
+MS = 1000
 
 
 def _slot(b: Bench, name: str) -> bytes:
@@ -33,11 +39,16 @@ def _padded(blob: bytes) -> bytes:
     return blob + b"\xff" * (SLOT - len(blob))
 
 
+def _value(b: Bench, rid: int, seed: int) -> bytes:
+    """A payload for record rid that no golden frame carries."""
+    plen = len(b.frames[rid]) - REC_HDR
+    return bytes((rid * 13 + j * 11 + seed) & 0xFF for j in range(plen))
+
+
 def _one_change(b: Bench, seed: int) -> tuple[int, bytes]:
     """The last record of the shape with a new payload."""
     rid = max(b.frames)
-    plen = len(b.frames[rid]) - REC_HDR
-    return rid, bytes((rid * 13 + j * 11 + seed) & 0xFF for j in range(plen))
+    return rid, _value(b, rid, seed)
 
 
 def check_first_commit_bytes(b: Bench, port: str) -> list[str]:
@@ -83,9 +94,22 @@ def check_change_commit_bytes(b: Bench, port: str) -> list[str]:
     return f
 
 
+def _after_mark(r: Run, k: int) -> int | None:
+    """The k-th erase's start, in us after the run's last mark."""
+    return r.erases[k] - r.marks[-1] if len(r.erases) > k and r.marks else None
+
+
+def _in(value: int | None, lo: int, hi: int) -> bool:
+    """lo <= value <= hi, and a value at all."""
+    return value is not None and lo <= value <= hi
+
+
 def check_debounce(b: Bench, port: str) -> list[str]:
     """DR2a: a change commits after the 1,000 ms first-dirty window and not
-    before, and a second change inside the window does not extend it."""
+    before, and a second change inside the window does not extend it. A
+    change the running capture takes leaves no window behind it, so the next
+    change gets its own full window; a change the capture has passed opens
+    one of its own."""
     f: list[str] = []
     g = b.file("g.bin", b.assemble(b.frames, 5))
     rid, new = _one_change(b, 1)
@@ -97,6 +121,21 @@ def check_debounce(b: Bench, port: str) -> list[str]:
     expect(f, r.s["erases"] == 1, f"no erase 1,050 ms after the change: {r.s['erases']}")
     r = go(b, port, f, *one, "--run-ms", "500", "--set", f"{rid}:{new2.hex()}", "--run-ms", "560")
     expect(f, r.s["erases"] == 1, "a second change extended the first-dirty window")
+    first = min(b.frames)
+    # the capture has latched nothing yet: it takes the change to the last record
+    r = go(b, port, f, "--slot-b", g, "--boot", "--set-pattern", "1", "--until-phase", str(P_CAPTURE),
+           "--set", f"{rid}:{new.hex()}", "--until-idle", "--run-ms", "5000", "--mark",
+           "--set", f"{rid}:{new2.hex()}", "--until-idle")
+    expect(f, r.s["ok"] == 2 and _in(_after_mark(r, 1), 1000 * MS, 1050 * MS),
+           f"a change after a commit that took one mid-capture: erase {_after_mark(r, 1)} us "
+           f"after it, want 1,000 to 1,050 ms: {r.s}")
+    # the capture is over: a change now waits for a window of its own
+    r = go(b, port, f, "--slot-b", g, "--boot", "--set", f"{rid}:{new.hex()}",
+           "--until-phase", str(P_SEAL), "--mark", "--set", f"{first}:{_value(b, first, 9).hex()}",
+           "--until-idle")
+    expect(f, r.s["ok"] == 2 and _in(_after_mark(r, 1), 1000 * MS, 1050 * MS),
+           f"a change after the capture: erase {_after_mark(r, 1)} us after it, "
+           f"want 1,000 to 1,050 ms: {r.s}")
     return f
 
 
@@ -135,8 +174,9 @@ FAILURES = (("erase-hang", VD_ERASE, True), ("erase-stuck", VD_ERASE, False),
 
 def check_media_failures(b: Bench, port: str) -> list[str]:
     """DR2c: an erase, program or read-back that fails names its verdict,
-    returns the change to dirty, marks the claim stale, retries at most three
-    times 1,000 ms apart and then stops; the authoritative slot is untouched."""
+    keeps the change in flight, marks the claim stale, retries at most three
+    times 1,000 ms apart and then stops, recording the abandoned set; the
+    authoritative slot is untouched."""
     f: list[str] = []
     golden = b.assemble(b.frames, 5)
     rid, new = _one_change(b, 4)
@@ -149,7 +189,8 @@ def check_media_failures(b: Bench, port: str) -> list[str]:
         s = r.s
         expect(f, s["failed"] == 3 and s["exhausted"] == 1 and s["first"] == verdict
                and s["last"] == (VD_ERASE if hang else verdict) and s["stale"] == 1
-               and s["dirty"] == 1 and s["pending"] == 0 and s["ok"] == 0, f"{mode}: {s}")
+               and s["dirty"] == 0 and s["pending"] == 1 and s["ok"] == 0
+               and s["abandoned"] == 1 and s["abandoned_vd"] == verdict, f"{mode}: {s}")
         expect(f, _slot(b, "b.bin") == _padded(golden), f"{mode}: the authoritative slot changed")
         if not hang:
             gaps = [y - x for x, y in zip(r.erases, r.erases[1:])]
@@ -160,7 +201,9 @@ def check_media_failures(b: Bench, port: str) -> list[str]:
 
 def check_recovers_after_failure(b: Bench, port: str) -> list[str]:
     """A third attempt that succeeds clears the stale claim; after exhaustion,
-    a new change is a new work set and commits once the media answers."""
+    a changed value is a new work set and commits once the media answers. The
+    stale claim heals (FASTCONNECT section 9.2); the record of the abandoned
+    set does not."""
     f: list[str] = []
     g = b.file("g.bin", b.assemble(b.frames, 5))
     rid, new = _one_change(b, 5)
@@ -175,9 +218,199 @@ def check_recovers_after_failure(b: Bench, port: str) -> list[str]:
            "--set", f"{rid}:{new.hex()}", "--run-ms", "15000", "--fault", "none:0",
            "--set", f"{rid}:{new2.hex()}", "--until-idle", "--dump-slot-a", "a.bin")
     expect(f, r.s["ok"] == 1 and r.s["failed"] == 3 and r.s["exhausted"] == 0
-           and r.s["stale"] == 0, f"new work set after exhaustion: {r.s}")
+           and r.s["stale"] == 0 and r.s["abandoned"] == 1 and r.s["abandoned_vd"] == VD_VERIFY,
+           f"new work set after exhaustion: {r.s}")
     expect(f, rid_payloads(b, _slot(b, "a.bin")[:len(b.assemble(b.frames, 0))]).get(rid) == new2,
            "the new work set is not in the slot")
+    return f
+
+
+def check_dr2c_unchanged_set(b: Bench, port: str) -> list[str]:
+    """DR2c: an unchanged captured work set gets three attempts in all. A
+    change call that leaves the value as it was, made every 5 s for 60 s,
+    buys no fourth, and neither does the medium healing; a value that really
+    changes is a new set, commits, and leaves the abandoned set's record."""
+    f: list[str] = []
+    g = b.file("g.bin", b.assemble(b.frames, 5))
+    rid, new = _one_change(b, 21)
+    touches = [w for _ in range(12) for w in ("--touch", str(rid), "--run-ms", "5000")]
+    r = go(b, port, f, "--slot-b", g, "--boot", "--protect-auth", "--fault", "program-drop:99999",
+           "--set", f"{rid}:{new.hex()}", "--run-ms", "5000", *touches, "--fault", "none:0",
+           "--touch", str(rid), "--run-ms", "3000")
+    s = r.s
+    expect(f, s["failed"] == 3 and s["erases"] == 3 and s["ok"] == 0 and s["exhausted"] == 1
+           and s["withheld"] == 13 and s["abandoned"] == 1, f"unchanged set held: {s}")
+    newer = _value(b, rid, 22)
+    r = go(b, port, f, "--slot-b", g, "--boot", "--fault", "program-drop:99999",
+           "--set", f"{rid}:{new.hex()}", "--run-ms", "5000", "--fault", "none:0",
+           "--set", f"{rid}:{newer.hex()}", "--until-idle", "--dump-slot-a", "a.bin")
+    s = r.s
+    expect(f, s["ok"] == 1 and s["failed"] == 3 and s["erases"] == 4 and s["stale"] == 0
+           and s["abandoned"] == 1 and s["abandoned_vd"] == VD_VERIFY,
+           f"a changed set after exhaustion: {s}")
+    expect(f, rid_payloads(b, _slot(b, "a.bin")[:len(b.assemble(b.frames, 0))]).get(rid) == newer,
+           "the changed set is not in the slot")
+    return f
+
+
+def check_dr2c_console(b: Bench, port: str) -> list[str]:
+    """DR2c binds the console too: a commit asked for inside a failed
+    attempt's backoff is refused and the retry still waits 1,000 ms; asked
+    for after the set is exhausted, it writes nothing while the set is
+    unchanged, and a changed set commits."""
+    f: list[str] = []
+    g = b.file("g.bin", b.assemble(b.frames, 5))
+    rid, new = _one_change(b, 23)
+    r = go(b, port, f, "--slot-b", g, "--boot", "--fault", "program-drop:1",
+           "--set", f"{rid}:{new.hex()}", "--until-phase", str(P_PROGRAM_WAIT), "--run-ms", "200",
+           "--commit-try", "--run-ms", "300", "--commit-try", "--until-idle")
+    gap = r.erases[1] - r.fail_at[0] if len(r.erases) > 1 and r.fail_at else None
+    expect(f, r.s["commit_tries"] == 2 and r.s["commit_refused"] == 2 and r.s["failed"] == 1
+           and r.s["ok"] == 1 and _in(gap, 1000 * MS, 1050 * MS),
+           f"console inside the backoff: retry {gap} us after the failure: {r.s}")
+    tries = [w for _ in range(5) for w in ("--commit-try", "--run-ms", "1500")]
+    newer = _value(b, rid, 24)
+    r = go(b, port, f, "--slot-b", g, "--boot", "--protect-auth", "--fault", "program-drop:99999",
+           "--set", f"{rid}:{new.hex()}", "--run-ms", "5000", *tries, "--fault", "none:0",
+           "--commit-try", "--run-ms", "1500", "--set", f"{rid}:{newer.hex()}", "--commit-try",
+           "--until-idle")
+    s = r.s
+    expect(f, s["commit_tries"] == 7 and s["commit_refused"] == 0 and s["withheld"] == 6
+           and s["failed"] == 3 and s["ok"] == 1 and s["erases"] == 4 and s["abandoned"] == 1,
+           f"console after exhaustion: {s}")
+    return f
+
+
+def _fails_then_recovers(b: Bench, port: str, f: list[str], fault: str, verdict: int,
+                         seed: int) -> None:
+    """With `fault` armed after boot, the first attempt fails with `verdict`
+    and nothing commits before the backoff ends; run on, the retry commits
+    the change into the other slot and the authority was never touched."""
+    g = b.file("g.bin", b.assemble(b.frames, 5))
+    rid, new = _one_change(b, seed)
+    head = ["--slot-b", g, "--boot", "--protect-auth", "--fault", fault, "--set", f"{rid}:{new.hex()}"]
+    r = go(b, port, f, *head, "--run-ms", "1500")
+    expect(f, r.s["failed"] == 1 and r.s["first"] == verdict and r.s["ok"] == 0,
+           f"{fault}: want the first failure {verdict}: {r.s}")
+    r = go(b, port, f, *head, "--until-idle", "--dump-slot-a", "a.bin")
+    expect(f, r.s["failed"] == 1 and r.s["ok"] == 1 and r.s["auth"] == 0 and r.s["seq"] == 6,
+           f"{fault}: no recovery: {r.s}")
+    expect(f, rid_payloads(b, _slot(b, "a.bin")[:len(b.assemble(b.frames, 0))]).get(rid) == new,
+           f"{fault}: the retried change is not in the slot")
+
+
+def check_verify_tail(b: Bench, port: str) -> list[str]:
+    """The read-back covers the whole container to the trailer: a dropped
+    LAST page fails the attempt VD_VERIFY, the authority stays, and the retry
+    commits."""
+    f: list[str] = []
+    _fails_then_recovers(b, port, f, f"program-drop:1:{pages(b) - 1}", VD_VERIFY, 25)
+    return f
+
+
+def check_blankcheck_tail(b: Bench, port: str) -> list[str]:
+    """The blank check covers the whole container span to its last byte: an
+    erase that leaves the last byte programmed fails VD_ERASE before any page
+    is programmed, and the retry commits."""
+    f: list[str] = []
+    last = len(b.assemble(b.frames, 0)) - 1
+    _fails_then_recovers(b, port, f, f"erase-stuck:1:0:{last}", VD_ERASE, 26)
+    return f
+
+
+def check_media_verdicts(b: Bench, port: str) -> list[str]:
+    """Each failure is named by the step that met it, not a later one: a
+    read that fails in the blank check is VD_ERASE and in the read-back
+    VD_VERIFY, never passed over; a program or erase the port refuses is
+    VD_PROGRAM or VD_ERASE. Each attempt is retried and the retry commits."""
+    f: list[str] = []
+    n = pages(b)
+    for fault, verdict in ((f"read-fail:1:{n // 2}", VD_ERASE),
+                           (f"read-fail:1:{n + n // 2}", VD_VERIFY),
+                           ("program-refuse:1:2", VD_PROGRAM), ("erase-refuse:1", VD_ERASE)):
+        _fails_then_recovers(b, port, f, fault, verdict, 27)
+    return f
+
+
+def check_time_base(b: Bench, port: str) -> list[str]:
+    """The windows and deadlines run on the port's local counter, never the
+    PHC: a gPTP step of 60 s either way in the debounce window, the backoff,
+    an erase and a program changes no elapsed time, and the counter's wrap
+    (2^32 clocks, 42.9 s) does not either. Every time is graded on the
+    model's own clock, which no step moves."""
+    f: list[str] = []
+    g = b.file("g.bin", b.assemble(b.frames, 5))
+    rid, new = _one_change(b, 28)
+    change = ["--slot-b", g, "--boot", "--set", f"{rid}:{new.hex()}"]
+    hang = ("while_busy", "ls_refused")
+    for step in ("-60000", "60000"):
+        r = go(b, port, f, "--slot-b", g, "--boot", "--mark", "--set", f"{rid}:{new.hex()}",
+               "--run-ms", "500", "--phc-step", step, "--run-ms", "1000")
+        expect(f, _in(_after_mark(r, 0), 1000 * MS, 1050 * MS),
+               f"PHC {step} ms in the window: erase {_after_mark(r, 0)} us after the change")
+        r = go(b, port, f, *change, "--fault", "program-drop:1", "--run-ms", "1200",
+               "--phc-step", step, "--run-ms", "2000")
+        gap = r.erases[1] - r.fail_at[0] if len(r.erases) > 1 and r.fail_at else None
+        expect(f, _in(gap, 1000 * MS, 1050 * MS),
+               f"PHC {step} ms in the backoff: retry {gap} us after the failure")
+        r = go(b, port, f, *change, "--fault", "erase-hang:1", "--run-ms", "1500",
+               "--phc-step", step, "--run-ms", "5000", allow=hang)
+        took = r.fail_at[0] - r.erases[0] if r.fail_at and r.erases else None
+        expect(f, _in(took, 3500 * MS, 3510 * MS),
+               f"PHC {step} ms in an erase: timed out {took} us after it, want 3,500 ms")
+        r = go(b, port, f, *change, "--fault", "program-hang:1", "--until-phase",
+               str(P_PROGRAM_WAIT), "--mark", "--run-ms", "20", "--phc-step", step,
+               "--run-ms", "200", allow=hang)
+        took = r.fail_at[0] - r.marks[0] if r.fail_at and r.marks else None
+        expect(f, _in(took, 49 * MS, 51 * MS),
+               f"PHC {step} ms in a program: timed out {took} us after it, want 50 ms")
+    r = go(b, port, f, "--slot-b", g, "--boot", "--run-ms", "42500", "--mark",
+           "--set", f"{rid}:{new.hex()}", "--run-ms", "1500")
+    expect(f, _in(_after_mark(r, 0), 1000 * MS, 1050 * MS),
+           f"a window across the counter's wrap: erase {_after_mark(r, 0)} us after the change")
+    return f
+
+
+def check_port_stall(b: Bench, port: str) -> list[str]:
+    """Every wait on the command master is bounded: a master slow by 4,000
+    status reads a wait (TX, RX or a drain) still completes; one that stops answering (TX, RX,
+    or a receive side that never drains) fails the call within
+    LS_POLL_MAX reads, chip select released, so the step returns, the
+    attempt fails under the step's verdict, the authority is untouched and
+    the retry commits; a master that never answers exhausts the set while
+    the loop keeps running."""
+    f: list[str] = []
+    golden = b.assemble(b.frames, 5)
+    g = b.file("g.bin", golden)
+    rid, new = _one_change(b, 29)
+    head = ["--slot-b", g, "--boot", "--protect-auth", "--set", f"{rid}:{new.hex()}"]
+    cut = ("ls_short", "while_busy", "ls_refused")
+    for stall in ("tx:2:0:4000", "rx:2:0:4000", "drain:2:0:4000"):
+        r = go(b, port, f, *head, "--until-phase", str(P_PROGRAM), "--ls-stall", stall,
+               "--until-idle")
+        expect(f, r.s["failed"] == 0 and r.s["ok"] == 1 and r.s["ls_stalled"] == 2
+               and r.s["ls_max_withheld"] == 4000, f"slow master {stall}: {r.s}")
+    for phase, stall, verdict in ((P_PROGRAM, "tx:1:10:0", VD_PROGRAM),
+                                  (P_PROGRAM, "rx:1:200:0", VD_PROGRAM),
+                                  (P_PROGRAM, "drain:1:0:0", VD_PROGRAM),
+                                  (P_ERASE, "tx:1:3:0", VD_ERASE),
+                                  (P_ERASE_WAIT, "rx:1:0:0", VD_ERASE)):
+        r = go(b, port, f, *head, "--until-phase", str(phase), "--ls-stall", stall,
+               "--run-ms", "100", "--dump-slot-b", "b.bin", allow=cut)
+        # the port gives up after LS_POLL_MAX reads; a drain reads once more
+        expect(f, r.s["failed"] == 1 and r.s["first"] == verdict and r.s["ls_stalled"] == 1
+               and r.s["ls_max_withheld"] == POLL_MAX + stall.startswith("drain"),
+               f"stalled master {stall}: {r.s}")
+        expect(f, _slot(b, "b.bin") == _padded(golden), f"{stall}: the authoritative slot changed")
+        r = go(b, port, f, *head, "--until-phase", str(phase), "--ls-stall", stall,
+               "--until-idle", allow=cut)
+        expect(f, r.s["failed"] == 1 and r.s["ok"] == 1, f"{stall}: no recovery: {r.s}")
+    r = go(b, port, f, *head, "--until-phase", str(P_ERASE), "--ls-stall", "tx:99999:0:0",
+           "--run-ms", "10000", "--dump-slot-b", "b.bin", allow=cut)
+    expect(f, r.s["failed"] == 3 and r.s["exhausted"] == 1 and r.s["first"] == VD_ERASE
+           and r.s["calls"] >= 90_000 and r.s["max_call_us"] <= CALL_BOUND_US,
+           f"dead master: {r.s}")
+    expect(f, _slot(b, "b.bin") == _padded(golden), "dead master: the authoritative slot changed")
     return f
 
 
@@ -313,12 +546,25 @@ WRITE_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
     "failed_commit_not_skipped": check_failed_commit_not_skipped,
     "media_failures": check_media_failures,
     "recovers_after_failure": check_recovers_after_failure,
+    "dr2c_unchanged_set": check_dr2c_unchanged_set,
+    "dr2c_console": check_dr2c_console,
+    "verify_tail": check_verify_tail,
+    "blankcheck_tail": check_blankcheck_tail,
+    "media_verdicts": check_media_verdicts,
     "refused_slot_kept": check_refused_slot_kept,
     "service_bound": check_service_bound,
     "powercut": check_powercut,
     "vector_round_trip": check_vector_round_trip,
+    "time_base": check_time_base,
+    "port_stall": check_port_stall,
     "port_guard": check_port_guard,
 }
 
+#: The flash model's read and refusal faults reach the store through the
+#: model's port only (LiteSPI reads are memory-mapped and its refusals are
+#: the guard's); the PHC, timer0 and the command master exist on the LiteSPI
+#: port only.
 WRITE_PORTS = {name: BOTH for name in WRITE_CHECKS}
-WRITE_PORTS["port_guard"] = (LITESPI,)
+WRITE_PORTS["media_verdicts"] = DIRECT
+for _name in ("time_base", "port_stall", "port_guard"):
+    WRITE_PORTS[_name] = (LITESPI,)

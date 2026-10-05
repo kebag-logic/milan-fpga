@@ -19,7 +19,7 @@ import zlib
 from collections.abc import Callable
 from pathlib import Path
 
-from nvm_bench import ROOT, SLOT, Bench, Run, default_payload, read_state
+from nvm_bench import JOURNAL, ROOT, SLOT, Bench, Run, default_payload, read_state
 
 sys.path.insert(0, str(ROOT / "sw/firmware/nvm_hosttest"))
 
@@ -33,11 +33,15 @@ T_COMPLETE, T_BLANK, T_DEFAULTS, T_CLOSED = 1, 2, 3, 4
 C_APPLY, C_SETTLE, C_MODEL, C_STAGE = 1, 2, 3, 5
 PAGE = 256
 STEP_BYTES = 256
-#: The longest one service call may hold the loop on the 1x link, in model
-#: time: one 256-byte read-back or page program and its command bytes.
+#: The longest one service call may hold the loop, in model time: the link
+#: time of one 256-byte read-back or page program and its command bytes, the
+#: command master's CSR accesses at 40 ns each, and one stalled wait given up
+#: (README, "The service bound"). CPU work costs no model time.
 CALL_BOUND_US = 1000
 TABLE_DIR = ROOT / "tb/verilator/nvm_backend"
 LITESPI = "--litespi"
+SLOT_A = JOURNAL["offset"]
+SLOT_B = SLOT_A + SLOT
 
 
 def contract(b: Bench, r: Run, allow: tuple[str, ...] = ()) -> list[str]:
@@ -47,7 +51,7 @@ def contract(b: Bench, r: Run, allow: tuple[str, ...] = ()) -> list[str]:
     latency, and on the LiteSPI port a write enable before every PP and SE."""
     s = r.s
     zero = ["outside", "protected", "pagewrap", "while_busy", "descending", "sm_order", "bad",
-            "ls_no_wel", "ls_short", "ls_refused", "ls_unknown"]
+            "ls_no_wel", "ls_short", "ls_refused", "ls_unknown", "ls_hung"]
     found = [f"invariant {k}={s.get(k)}" for k in zero if k not in allow and s.get(k) != 0]
     if s.get("step_max", 0) > s.get("step_bound", 0):
         found.append(f"invariant step_max={s.get('step_max')} > step_bound={s.get('step_bound')}")
@@ -95,6 +99,21 @@ def state_matches(b: Bench, path: Path, saved: dict[int, bytes]) -> list[str]:
 def reseal(blob: bytes) -> bytes:
     """Recompute the CRC-32 trailer after an edit above it."""
     return blob[:-4] + struct.pack("<I", zlib.crc32(blob[:-4]) & 0xFFFF_FFFF)
+
+
+def binding_ids(b: Bench) -> list[int]:
+    """The record ids of the binding walk (D3 section 8.1 step 4)."""
+    return sorted(rid for g, _i, rid, _p, _b in _inventory(b) if g == "BINDING")
+
+
+def d3_ids(b: Bench) -> list[int]:
+    """The record ids of the D3 walk: every other record."""
+    return sorted(set(b.frames) - set(binding_ids(b)))
+
+
+def stage_seq(b: Bench, name: str) -> int:
+    """The sequence word of a dumped stage."""
+    return struct.unpack_from("<I", (b.work / name).read_bytes(), 8)[0]
 
 
 def changed_frames(b: Bench, seed: int) -> tuple[dict[int, bytes], dict[int, bytes]]:
@@ -177,13 +196,19 @@ def check_erased_records(b: Bench, port: str) -> list[str]:
 
 
 def check_newer_wins(b: Bench, port: str) -> list[str]:
-    """The newer accepted slot wins, by the wrap-safe compare of section 7."""
+    """The newer accepted slot wins, by the wrap-safe compare of section 7,
+    and its records are the ones applied; on equal sequences slot A wins, as
+    in the shipping writer (milan_baremetal.c nvm_pick_slot)."""
     f: list[str] = []
-    for seq_a, seq_b, want in ((9, 10, 1), (10, 9, 0), (0xFFFF_FFFF, 0, 1), (0, 0xFFFF_FFFF, 0)):
-        r = go(b, port, f, "--slot-a", b.file("a.bin", b.assemble(b.frames, seq_a)),
-               "--slot-b", b.file("b.bin", b.assemble(b.frames, seq_b)), "--boot")
+    frames, _ = changed_frames(b, 0x2B)
+    for seq_a, seq_b, want in ((9, 10, 1), (10, 9, 0), (0xFFFF_FFFF, 0, 1), (0, 0xFFFF_FFFF, 0),
+                               (7, 7, 0)):
+        imgs = (b.assemble(b.frames, seq_a), b.assemble(frames, seq_b))
+        r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]),
+               "--slot-b", b.file("b.bin", imgs[1]), "--boot", "--dump-state", "st.txt")
         expect(f, r.s["auth"] == want and r.s["terminal"] == T_COMPLETE,
                f"seq A {seq_a:#x} B {seq_b:#x}: chose {r.s['auth']}, want {want}")
+        f += state_matches(b, b.work / "st.txt", rid_payloads(b, imgs[want]))
     return f
 
 
@@ -272,12 +297,91 @@ def check_read_flip_at_stage(b: Bench, port: str) -> list[str]:
     older = b.assemble(b.frames, 3)
     frames, _ = changed_frames(b, 0x41)
     newer = b.assemble(frames, 4)
-    # four reads judge each slot; the ninth read re-stages slot B
+    # two reads judge each slot (the header, then the container); the fifth
+    # read re-stages slot B
     r = go(b, port, f, "--slot-a", b.file("a.bin", older), "--slot-b", b.file("b.bin", newer),
-           "--boot-fault", "read-flip:1:8", "--boot", "--dump-state", "st.txt")
+           "--boot-fault", "read-flip:1:4", "--boot", "--dump-state", "st.txt")
     expect(f, r.s["cause"] == C_STAGE and r.s["auth"] == 0 and r.s["seq"] == 3
            and r.s["vd_b"] == VD_LEN and r.s["terminal"] == T_COMPLETE, f"flipped re-stage: {r.s}")
     f += state_matches(b, b.work / "st.txt", rid_payloads(b, older))
+    return f
+
+
+def _two_slots(b: Bench, seq_a: int, seq_b: int) -> tuple[bytes, bytes]:
+    """Slot A holds the golden records at seq_a, slot B others at seq_b, so
+    which slot was applied shows in every group."""
+    frames, _ = changed_frames(b, 0x37)
+    return b.assemble(b.frames, seq_a), b.assemble(frames, seq_b)
+
+
+def _consistent(b: Bench, f: list[str], r: Run, imgs: tuple[bytes, bytes], seqs: tuple[int, int],
+                what: str) -> None:
+    """The slot the store names is the one applied, under the sequence it
+    holds: published SEQ = staged SEQ = that slot's own, and the state is its
+    records."""
+    auth = r.s["auth"]
+    expect(f, r.s["terminal"] == T_COMPLETE and auth in (0, 1), f"{what}: {r.s}")
+    if auth not in (0, 1):
+        return
+    expect(f, r.s["seq"] == seqs[auth] == stage_seq(b, "stage.bin"),
+           f"{what}: slot {auth} holds seq {seqs[auth]:#x}, published {r.s['seq']:#x}, "
+           f"staged {stage_seq(b, 'stage.bin'):#x}")
+    f += [f"{what}: {x}" for x in state_matches(b, b.work / "st.txt", rid_payloads(b, imgs[auth]))]
+
+
+def check_read_flip_boot(b: Bench, port: str) -> list[str]:
+    """A bit a boot read flips in a slot's sequence word (bit 3 of byte 8:
+    5 reads as 13) never selects a slot on that word: on every
+    read that covers it, of either slot, across the wrap, the store applies
+    one slot's own records under that slot's own sequence, and a flip in the
+    OLDER slot never displaces the newer one."""
+    f: list[str] = []
+    for seq_a, seq_b in ((5, 6), (6, 5), (0xFFFF_FFFF, 0), (0, 0xFFFF_FFFF)):
+        imgs = _two_slots(b, seq_a, seq_b)
+        newer = 0 if ((seq_a - seq_b) & 0xFFFF_FFFF) < 0x8000_0000 else 1
+        for slot, base in ((0, SLOT_A), (1, SLOT_B)):
+            for k in range(3):
+                what = f"seq A {seq_a:#x} B {seq_b:#x}, flip in slot {slot} read {k}"
+                r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]),
+                       "--slot-b", b.file("b.bin", imgs[1]),
+                       "--boot-fault", f"read-flip-at:1:{k}:{base + 8:#x}", "--boot",
+                       "--dump-stage", "stage.bin", "--dump-state", "st.txt")
+                _consistent(b, f, r, imgs, (seq_a, seq_b), what)
+                expect(f, slot == newer or r.s["auth"] == newer,
+                       f"{what}: the older slot's flipped word displaced the newer: {r.s}")
+    return f
+
+
+def check_read_alias_at_stage(b: Bench, port: str) -> list[str]:
+    """The re-stage read of the chosen slot answering from the other slot (an
+    address line stuck) is caught by its sequence: the bytes are valid but
+    not the chosen slot's, so the other slot is offered and applied under its
+    own sequence."""
+    f: list[str] = []
+    imgs = _two_slots(b, 6, 5)
+    # reads 0-3 judge the two slots; read 4 re-stages slot A
+    r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]), "--slot-b", b.file("b.bin", imgs[1]),
+           "--boot-fault", "read-alias:1:4", "--boot", "--dump-stage", "stage.bin",
+           "--dump-state", "st.txt")
+    _consistent(b, f, r, imgs, (6, 5), "aliased re-stage")
+    expect(f, r.s["auth"] == 1 and r.s["cause"] == C_STAGE and r.s["vd_a"] == VD_LEN,
+           f"aliased re-stage: {r.s}")
+    return f
+
+
+def check_read_fail_boot(b: Bench, port: str) -> list[str]:
+    """A slot whose read fails is refused VD_LEN (rule 4), the newer one
+    included, and the older is applied; a re-stage read that fails offers
+    the other slot."""
+    f: list[str] = []
+    imgs = _two_slots(b, 5, 6)
+    for skip, cause in ((3, 0), (4, C_STAGE)):
+        r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]),
+               "--slot-b", b.file("b.bin", imgs[1]), "--boot-fault", f"read-fail:1:{skip}",
+               "--boot", "--dump-stage", "stage.bin", "--dump-state", "st.txt")
+        _consistent(b, f, r, imgs, (5, 6), f"read {skip} failed")
+        expect(f, r.s["auth"] == 0 and r.s["vd_b"] == VD_LEN and r.s["cause"] == cause,
+               f"read {skip} failed: {r.s}")
     return f
 
 
@@ -287,25 +391,58 @@ def _golden_boot(b: Bench, port: str, f: list[str], *knobs: str) -> Run:
               "--boot", "--dump-state", "st.txt")
 
 
+def _bindings_saved(b: Bench) -> dict[int, bytes]:
+    """The golden slot's bindings: what a D3 roll-back leaves applied."""
+    saved = rid_payloads(b, b.assemble(b.frames, 5))
+    return {rid: saved[rid] for rid in binding_ids(b)}
+
+
 def check_apply_fault_rolls_back(b: Bench, port: str) -> list[str]:
-    """A value rule that cannot be judged aborts the restore and rolls every
-    value back to its image default: DEFAULTS, AECP released."""
+    """A value rule that cannot be judged aborts the D3 walk and rolls every
+    D3 value back to its image default: DEFAULTS, AECP released. The binding
+    walk ran first and its bindings stay applied (D3 section 8.6)."""
     f: list[str] = []
-    r = _golden_boot(b, port, f, "--apply-fault", str(len(b.frames) // 2))
+    rid = d3_ids(b)[len(d3_ids(b)) // 2]
+    r = _golden_boot(b, port, f, "--apply-fault", str(rid))
     expect(f, r.s["terminal"] == T_DEFAULTS and r.s["cause"] == C_APPLY
-           and r.s["sm_rollbacks"] == 1 and r.s["releases"] == 1 and r.s["phase"] == 1,
-           f"apply fault: {r.s}")
-    f += state_matches(b, b.work / "st.txt", {})
+           and r.s["sm_rollbacks"] == 1 and r.s["sm_unbinds"] == 0
+           and r.s["bind_terminal"] == T_COMPLETE and r.s["releases"] == 1
+           and r.s["phase"] == 1, f"apply fault: {r.s}")
+    f += state_matches(b, b.work / "st.txt", _bindings_saved(b))
     return f
 
 
 def check_settle_fault_rolls_back(b: Bench, port: str) -> list[str]:
-    """A formats-against-maps judgement that cannot be made rolls back too."""
+    """A formats-against-maps judgement that cannot be made rolls the D3
+    walk back too, and leaves the bindings applied."""
     f: list[str] = []
     r = _golden_boot(b, port, f, "--settle-fault")
     expect(f, r.s["terminal"] == T_DEFAULTS and r.s["cause"] == C_SETTLE
-           and r.s["sm_rollbacks"] == 1 and r.s["releases"] == 1, f"settle fault: {r.s}")
-    f += state_matches(b, b.work / "st.txt", {})
+           and r.s["sm_rollbacks"] == 1 and r.s["sm_unbinds"] == 0
+           and r.s["releases"] == 1, f"settle fault: {r.s}")
+    f += state_matches(b, b.work / "st.txt", _bindings_saved(b))
+    return f
+
+
+def check_binding_walk(b: Bench, port: str) -> list[str]:
+    """The binding walk is its own unit (D3 section 8.1 step 4, 8.6): a
+    binding whose rule cannot be judged fails that walk whole, nothing
+    preloaded, and the D3 walk still restores every other record; a walk
+    whose preloads cannot be dropped ends CLOSED. The state model polices
+    that every binding precedes the D3 walk."""
+    f: list[str] = []
+    golden = b.assemble(b.frames, 5)
+    saved = rid_payloads(b, golden)
+    last = binding_ids(b)[-1]
+    r = _golden_boot(b, port, f, "--apply-fault", str(last))
+    expect(f, r.s["bind_terminal"] == T_DEFAULTS and r.s["bind_cause"] == C_APPLY
+           and r.s["sm_unbinds"] == 1 and r.s["terminal"] == T_COMPLETE
+           and r.s["sm_rollbacks"] == 0 and r.s["releases"] == 1, f"binding fault: {r.s}")
+    f += state_matches(b, b.work / "st.txt",
+                       {rid: p for rid, p in saved.items() if rid not in binding_ids(b)})
+    r = _golden_boot(b, port, f, "--apply-fault", str(last), "--unbind-fault")
+    expect(f, r.s["bind_terminal"] == T_CLOSED and r.s["terminal"] == T_CLOSED
+           and r.s["releases"] == 0 and r.s["phase"] == 0, f"binding undo fault: {r.s}")
     return f
 
 
@@ -316,7 +453,7 @@ def check_rollback_fault_closes(b: Bench, port: str) -> list[str]:
     rid = max(b.frames)
     plen = len(b.frames[rid]) - REC_HDR
     r = go(b, port, f, "--slot-b", b.file("g.bin", b.assemble(b.frames, 5)),
-           "--apply-fault", "3", "--rollback-fault", "--boot",
+           "--apply-fault", str(d3_ids(b)[2]), "--rollback-fault", "--boot",
            "--set", f"{rid}:{bytes(plen).hex()}", "--run-ms", "3000")
     expect(f, r.s["terminal"] == T_CLOSED and r.s["releases"] == 0 and r.s["sm_releases"] == 0
            and r.s["phase"] == 0 and r.s["erases"] == 0, f"rollback fault: {r.s}")
@@ -358,8 +495,12 @@ BOOT_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
     "verdict_parity": check_verdict_parity,
     "wrong_version_falls_back": check_wrong_version_falls_back,
     "read_flip_at_stage": check_read_flip_at_stage,
+    "read_flip_boot": check_read_flip_boot,
+    "read_alias_at_stage": check_read_alias_at_stage,
+    "read_fail_boot": check_read_fail_boot,
     "apply_fault_rolls_back": check_apply_fault_rolls_back,
     "settle_fault_rolls_back": check_settle_fault_rolls_back,
+    "binding_walk": check_binding_walk,
     "rollback_fault_closes": check_rollback_fault_closes,
     "model_unproven_closes": check_model_unproven_closes,
     "refused_keeps_default": check_refused_keeps_default,
@@ -370,4 +511,5 @@ BOOT_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
 #: memory map, where the flash model's read faults do not reach.
 BOTH = ("", LITESPI)
 DIRECT = ("",)
-BOOT_PORTS = {name: (DIRECT if name == "read_flip_at_stage" else BOTH) for name in BOOT_CHECKS}
+READ_FAULTS = ("read_flip_at_stage", "read_flip_boot", "read_alias_at_stage", "read_fail_boot")
+BOOT_PORTS = {name: (DIRECT if name in READ_FAULTS else BOTH) for name in BOOT_CHECKS}

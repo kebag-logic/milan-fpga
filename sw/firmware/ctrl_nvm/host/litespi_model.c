@@ -4,7 +4,8 @@
  * lane F1). A chip-select window collects the bytes the firmware clocks out;
  * raising chip select executes the command against the flash model, as the
  * N25Q128 executes WREN, PP and SE on the deselect edge. RDSR answers from
- * the model's busy state on every byte after the command.
+ * the model's busy state on every byte after the command. Every CSR access
+ * costs model time, so a firmware that polls is seen to spend it.
  */
 #include <string.h>
 
@@ -18,6 +19,14 @@
 #define LM_CSR_WORDS 0x400u
 #define LM_TOD_RD_LO (0x530u / 4u)
 #define LM_TOD_RD_HI (0x534u / 4u)
+#define LM_TX_READY 1u
+#define LM_RX_READY 2u
+/* One CSR access on the model's bus, and one clock of the 100 MHz system
+ * clock timer0 counts. */
+#define LM_CSR_NS 40u
+#define LM_SYS_NS 10u
+/* The PHC's time at model time zero: a domain time well past any step. */
+#define LM_PHC_EPOCH_NS 1700000000000000000ull
 
 struct lm_state {
 	uint8_t buf[4u + 256u + 8u];
@@ -26,6 +35,21 @@ struct lm_state {
 	int wel;
 	int rx_pending;
 	uint8_t resp;
+	/* the stall armed, and the wait in progress */
+	enum litespi_stall stall;
+	unsigned int stall_count;
+	unsigned int stall_skip;
+	unsigned int stall_polls;
+	enum litespi_stall wait;
+	int wait_stalled;
+	unsigned int wait_withheld;
+	/* timer0 */
+	uint32_t t_load;
+	uint32_t t_reload;
+	uint32_t t_value;
+	int t_en;
+	uint64_t t_start_ns;
+	int64_t phc_step_ns;
 	struct litespi_model_count n;
 };
 
@@ -43,14 +67,82 @@ const struct litespi_model_count *litespi_model_count(void)
 	return &lm.n;
 }
 
+void litespi_model_stall(enum litespi_stall kind, unsigned int count, unsigned int skip,
+			 unsigned int polls)
+{
+	lm.stall = kind;
+	lm.stall_count = count;
+	lm.stall_skip = skip;
+	lm.stall_polls = polls;
+}
+
+/* A status read waits for TX, for RX, or (before a select) for the drain. */
+static enum litespi_stall lm_kind(void)
+{
+	if (!lm.cs)
+		return LITESPI_STALL_DRAIN;
+	return lm.rx_pending ? LITESPI_STALL_RX : LITESPI_STALL_TX;
+}
+
+/* 1 when the wait that starts now is one the stall withholds. */
+static int lm_take(enum litespi_stall kind)
+{
+	if (lm.stall != kind || lm.stall_count == 0)
+		return 0;
+	if (lm.stall_skip) {
+		lm.stall_skip--;
+		return 0;
+	}
+	if (--lm.stall_count == 0)
+		lm.stall = LITESPI_STALL_NONE;
+	lm.n.stalled++;
+	return 1;
+}
+
+/* Any access but a status read ends the wait, except the reads of a drain. */
+static void lm_end_wait(void)
+{
+	lm.wait = LITESPI_STALL_NONE;
+	lm.wait_stalled = 0;
+}
+
 uint32_t litespi_model_status(void)
 {
-	return 1u | ((uint32_t)lm.rx_pending << 1);
+	enum litespi_stall kind = lm_kind();
+	uint32_t st = LM_TX_READY | (lm.rx_pending ? LM_RX_READY : 0u);
+
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	if (kind != lm.wait) {
+		lm.wait = kind;
+		lm.wait_withheld = 0;
+		lm.wait_stalled = lm_take(kind);
+	}
+	if (!lm.wait_stalled)
+		return st;
+	if (lm.stall_polls && lm.wait_withheld >= lm.stall_polls) {
+		lm.wait_stalled = 0;
+		return st;
+	}
+	if (lm.wait_withheld >= LITESPI_HANG_POLLS) {
+		lm.n.hung++;
+		lm.wait_stalled = 0;
+		return st;
+	}
+	lm.wait_withheld++;
+	if (lm.wait_withheld > lm.n.max_withheld)
+		lm.n.max_withheld = lm.wait_withheld;
+	if (kind == LITESPI_STALL_TX)
+		return st & ~LM_TX_READY;
+	if (kind == LITESPI_STALL_RX)
+		return st & ~LM_RX_READY;
+	return st | LM_RX_READY;
 }
 
 void litespi_model_phyconfig(uint32_t v)
 {
 	(void)v;
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	lm_end_wait();
 }
 
 static uint32_t lm_addr(void)
@@ -95,6 +187,8 @@ static void lm_execute(void)
 
 void litespi_model_cs(uint32_t v)
 {
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	lm_end_wait();
 	if (lm.cs && !v)
 		lm_execute();
 	lm.cs = v != 0;
@@ -103,6 +197,8 @@ void litespi_model_cs(uint32_t v)
 
 void litespi_model_rxtx_write(uint32_t v)
 {
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	lm_end_wait();
 	if (lm.cs && lm.len < sizeof(lm.buf))
 		lm.buf[lm.len++] = (uint8_t)v;
 	if (lm.len > 1u && lm.buf[0] == LM_CMD_RDSR)
@@ -114,20 +210,64 @@ void litespi_model_rxtx_write(uint32_t v)
 
 uint32_t litespi_model_rxtx_read(void)
 {
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	if (lm.wait != LITESPI_STALL_DRAIN)
+		lm_end_wait();
 	lm.rx_pending = 0;
 	return lm.resp;
 }
 
+/* LiteX's timer: enabled, it counts down from load, and from zero it
+ * reloads; disabled, it holds load. */
+static uint32_t lm_timer_now(void)
+{
+	uint64_t n;
+
+	if (!lm.t_en)
+		return lm.t_load;
+	n = (nvm_fmodel_now_ns() - lm.t_start_ns) / LM_SYS_NS;
+	if (n <= lm.t_load)
+		return lm.t_load - (uint32_t)n;
+	return lm.t_reload - (uint32_t)((n - lm.t_load - 1u) % ((uint64_t)lm.t_reload + 1u));
+}
+
+void litespi_model_timer(enum litespi_timer_reg reg, uint32_t v)
+{
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	switch (reg) {
+	case LITESPI_TIMER_LOAD:
+		lm.t_load = v;
+		break;
+	case LITESPI_TIMER_RELOAD:
+		lm.t_reload = v;
+		break;
+	case LITESPI_TIMER_EN:
+		if (v && !lm.t_en)
+			lm.t_start_ns = nvm_fmodel_now_ns();
+		lm.t_en = v != 0;
+		break;
+	default:
+		lm.t_value = lm_timer_now();
+		break;
+	}
+}
+
+uint32_t litespi_model_timer_value(void)
+{
+	nvm_fmodel_advance_ns(LM_CSR_NS);
+	return lm.t_value;
+}
+
 uintptr_t litespi_model_csr_base(void)
 {
-	uint64_t ns = nvm_fmodel_now_us() * 1000u;
+	uint64_t ns = LM_PHC_EPOCH_NS + nvm_fmodel_now_ns() + (uint64_t)lm.phc_step_ns;
 
 	lm_csr[LM_TOD_RD_LO] = (uint32_t)ns;
 	lm_csr[LM_TOD_RD_HI] = (uint32_t)(ns >> 32);
 	return (uintptr_t)lm_csr;
 }
 
-void litespi_model_cdelay(int cycles)
+void litespi_model_phc_step(int64_t ms)
 {
-	nvm_fmodel_advance_us((uint64_t)(cycles > 0 ? cycles : 0) / 100u + 1u);
+	lm.phc_step_ns += ms * 1000000;
 }
