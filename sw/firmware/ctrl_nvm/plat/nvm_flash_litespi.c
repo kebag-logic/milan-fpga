@@ -18,8 +18,12 @@
  *     without the readiness it waits for end the call with a failure and
  *     chip select released. That is the no-progress rule of
  *     docs/design/SAVED_STATE_MATERIALIZATION.md section 8.8: the bound
- *     counts reads without progress, so a master that is slow but moving
- *     never trips it;
+ *     counts reads without progress;
+ *   - every call is bounded too: a master that is slow but moving keeps each
+ *     wait inside LS_POLL_MAX, so a call also fails, chip select released,
+ *     once it has run LS_CALL_US of timer0 time. The check runs every
+ *     LS_LATE_EVERY status reads that find the master not ready, counted
+ *     over the whole call;
  *   - program and erase are refused outside the reserved journal;
  *   - time is timer0, not the PHC.
  *
@@ -55,21 +59,52 @@
  * call fails. One byte is 8 clocks of the 12.5 MHz link, 0.64 us; at two
  * system clocks or more per CSR read, 4,096 reads are 82 us or more. */
 #define LS_POLL_MAX 4096u
+/* The longest one call runs, in timer0 time: a page program clocks 261
+ * bytes, 167 us on the 1x link, and the deadline is twelve times that. */
+#define LS_CALL_US 2000u
+#define LS_LATE_EVERY 64u
 #define LS_TICKS_PER_US (CONFIG_CLOCK_FREQUENCY / 1000000u)
 
 _Static_assert(CONFIG_CLOCK_FREQUENCY % 1000000u == 0u, "a whole number of clocks per us");
 
 static uint32_t ls_tick_last;   /* timer0 at the last read */
 static uint64_t ls_ticks;       /* system clocks since nvm_flash_litespi_power_on */
+static uint32_t ls_call_start;  /* timer0 when this call started */
+static uint32_t ls_waited;      /* status reads this call found the master not ready */
 
-/* 1 once the master shows `bit`; 0 after LS_POLL_MAX reads without it. */
+static uint32_t ls_timer(void)
+{
+	timer0_update_value_write(1);
+	return timer0_value_read();
+}
+
+static void ls_call_begin(void)
+{
+	ls_call_start = ls_timer();
+	ls_waited = 0;
+}
+
+/* One more status read found the master not ready: 1 once this call has run
+ * past LS_CALL_US. The timer counts down; the difference is wrap-safe. */
+static int ls_late(void)
+{
+	if (++ls_waited % LS_LATE_EVERY)
+		return 0;
+	return (uint32_t)(ls_call_start - ls_timer()) > LS_CALL_US * LS_TICKS_PER_US;
+}
+
+/* 1 once the master shows `bit`; 0 after LS_POLL_MAX reads without it, or
+ * once the call is late. */
 static int ls_ready(uint32_t bit)
 {
 	uint32_t n;
 
-	for (n = 0; n < LS_POLL_MAX; ++n)
+	for (n = 0; n < LS_POLL_MAX; ++n) {
 		if (spiflash_master_status_read() & bit)
 			return 1;
+		if (ls_late())
+			return 0;
+	}
 	return 0;
 }
 
@@ -80,7 +115,7 @@ static int ls_open(void)
 	uint32_t n = 0;
 
 	while (spiflash_master_status_read() & LS_RX_READY) {
-		if (++n > LS_POLL_MAX)
+		if (++n > LS_POLL_MAX || ls_late())
 			return -1;
 		spiflash_master_rxtx_read();
 	}
@@ -163,6 +198,7 @@ static int ls_program(void *ctx, uint32_t addr, const uint8_t *src, uint32_t len
 	if (len == 0 || len > LS_PAGE || (addr % LS_PAGE) + len > LS_PAGE ||
 	    !ls_in_journal(addr, len))
 		return -1;
+	ls_call_begin();
 	ls_command(cmd, LS_CMD_PP, addr);
 	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))
 		return -1;
@@ -177,6 +213,7 @@ static int ls_erase(void *ctx, uint32_t addr)
 	(void)ctx;
 	if (!ls_in_journal(base, LS_BLOCK))
 		return -1;
+	ls_call_begin();
 	ls_command(cmd, LS_CMD_SE, base);
 	if (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, 0, 0u))
 		return -1;
@@ -187,10 +224,12 @@ static int ls_erase(void *ctx, uint32_t addr)
  * the command byte, and the fourth byte is taken. */
 static int ls_busy(void *ctx)
 {
-	int status = ls_open();
+	int status;
 	unsigned int i;
 
 	(void)ctx;
+	ls_call_begin();
+	status = ls_open();
 	for (i = 0; i < 4u && status >= 0; ++i)
 		status = ls_xfer(i ? 0u : LS_CMD_RDSR);
 	ls_close();
@@ -204,8 +243,7 @@ static uint64_t ls_now_us(void *ctx)
 	uint32_t v;
 
 	(void)ctx;
-	timer0_update_value_write(1);
-	v = timer0_value_read();
+	v = ls_timer();
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
 	ls_ticks += (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;

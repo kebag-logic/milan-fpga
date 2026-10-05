@@ -15,7 +15,7 @@ import json
 import re
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -89,6 +89,9 @@ class Bench:
     #: the same store compiled under the recorded vectors' identity, for the
     #: shapes tb/verilator/nvm_backend records a vector of
     vector: Bench | None = None
+    #: the longest service call of any run, in model time (us): "nominal"
+    #: with no command-master stall armed, "stalled" with one
+    call_max: dict[str, int] = field(default_factory=dict)
 
     @property
     def stem(self) -> str:
@@ -130,6 +133,8 @@ class Bench:
         summary: dict[str, int] = {}
         for line in SUMMARY_RE.findall(r.stdout):
             summary.update({k: int(v) for k, v in (kv.split("=") for kv in line.split())})
+        kind = "stalled" if summary.get("ls_stalled") else "nominal"
+        self.call_max[kind] = max(self.call_max.get(kind, 0), summary.get("max_call_us", 0))
         cut = POWERCUT_RE.search(r.stdout)
         guard = GUARD_RE.search(r.stdout)
         return Run(out=r.stdout, s=summary,

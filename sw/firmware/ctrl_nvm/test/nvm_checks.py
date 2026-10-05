@@ -31,13 +31,25 @@ import test_nvm_firmware as hosttest                                            
 
 T_COMPLETE, T_BLANK, T_DEFAULTS, T_CLOSED = 1, 2, 3, 4
 C_APPLY, C_SETTLE, C_MODEL, C_STAGE = 1, 2, 3, 5
+P_OFF, P_IDLE, P_HELD = 0, 1, 10
 PAGE = 256
 STEP_BYTES = 256
-#: The longest one service call may hold the loop, in model time: the link
-#: time of one 256-byte read-back or page program and its command bytes, the
-#: command master's CSR accesses at 40 ns each, and one stalled wait given up
-#: (README, "The service bound"). CPU work costs no model time.
-CALL_BOUND_US = 1000
+#: Boot reads of one slot, judgements or re-stages (nvm_store.h NVM_READ_TRIES).
+READ_TRIES = 3
+#: The LiteSPI port's deadline on one call, in timer0 time
+#: (plat/nvm_flash_litespi.c LS_CALL_US).
+LS_CALL_US = 2000
+#: The link time of one page program, (5 + 256) bytes at 0.64 us, 167.04 us
+#: rounded up: the command-master model charges it when chip select rises.
+PAGE_LINK_US = 168
+#: The longest one service call may hold the loop, in model time, whatever
+#: the master does (README, "The service bound"): the deadline; one check
+#: interval, 64 status reads and two timer reads at 40 ns; and the link time
+#: of the window the call closes. CPU work costs no model time.
+CALL_BOUND_US = LS_CALL_US + 3 + PAGE_LINK_US
+#: A call with no stall armed: one page program's link time and its
+#: 1,050-odd command-master accesses at 40 ns, 42 us.
+NOMINAL_CALL_US = 250
 TABLE_DIR = ROOT / "tb/verilator/nvm_backend"
 LITESPI = "--litespi"
 SLOT_A = JOURNAL["offset"]
@@ -48,15 +60,18 @@ def contract(b: Bench, r: Run, allow: tuple[str, ...] = ()) -> list[str]:
     """The port contract every run keeps: the journal only, never the
     authoritative slot, no program across a page or while busy, pages in
     ascending order, the step bound, the state port's order, one call's
-    latency, and on the LiteSPI port a write enable before every PP and SE."""
+    latency (the nominal figure with no stall armed, the cumulative bound
+    with one), and on the LiteSPI port a write enable before every PP and
+    SE."""
     s = r.s
     zero = ["outside", "protected", "pagewrap", "while_busy", "descending", "sm_order", "bad",
             "ls_no_wel", "ls_short", "ls_refused", "ls_unknown", "ls_hung"]
     found = [f"invariant {k}={s.get(k)}" for k in zero if k not in allow and s.get(k) != 0]
     if s.get("step_max", 0) > s.get("step_bound", 0):
         found.append(f"invariant step_max={s.get('step_max')} > step_bound={s.get('step_bound')}")
-    if s.get("max_call_us", 0) > CALL_BOUND_US:
-        found.append(f"invariant max_call_us={s.get('max_call_us')} > {CALL_BOUND_US}")
+    bound = CALL_BOUND_US if s.get("ls_stalled") else NOMINAL_CALL_US
+    if s.get("max_call_us", 0) > bound:
+        found.append(f"invariant max_call_us={s.get('max_call_us')} > {bound}")
     found += [f"runner {x}" for x in r.fails]
     return found
 
@@ -197,12 +212,13 @@ def check_erased_records(b: Bench, port: str) -> list[str]:
 
 def check_newer_wins(b: Bench, port: str) -> list[str]:
     """The newer accepted slot wins, by the wrap-safe compare of section 7,
-    and its records are the ones applied; on equal sequences slot A wins, as
-    in the shipping writer (milan_baremetal.c nvm_pick_slot)."""
+    and its records are the ones applied; on equal sequences slot A wins
+    (#665 decision 1, as the shipping writer's nvm_pick_slot), at the wrap
+    too, the two slots holding different payloads."""
     f: list[str] = []
     frames, _ = changed_frames(b, 0x2B)
     for seq_a, seq_b, want in ((9, 10, 1), (10, 9, 0), (0xFFFF_FFFF, 0, 1), (0, 0xFFFF_FFFF, 0),
-                               (7, 7, 0)):
+                               (7, 7, 0), (0xFFFF_FFFF, 0xFFFF_FFFF, 0)):
         imgs = (b.assemble(b.frames, seq_a), b.assemble(frames, seq_b))
         r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]),
                "--slot-b", b.file("b.bin", imgs[1]), "--boot", "--dump-state", "st.txt")
@@ -292,17 +308,27 @@ def check_wrong_version_falls_back(b: Bench, port: str) -> list[str]:
 
 def check_read_flip_at_stage(b: Bench, port: str) -> list[str]:
     """The chosen slot is read again and judged again in RAM: a bit the read
-    flips after the slot was judged is never applied; the other slot is."""
+    flips after the slot was judged is never applied. One flipped re-stage
+    is read again and the slot applied; a slot whose NVM_READ_TRIES
+    re-stages all flip is UNREAD, the other slot is applied, and the writer
+    is held (#665 decision 2)."""
     f: list[str] = []
     older = b.assemble(b.frames, 3)
     frames, _ = changed_frames(b, 0x41)
     newer = b.assemble(frames, 4)
+    slots = ["--slot-a", b.file("a.bin", older), "--slot-b", b.file("b.bin", newer)]
     # two reads judge each slot (the header, then the container); the fifth
     # read re-stages slot B
-    r = go(b, port, f, "--slot-a", b.file("a.bin", older), "--slot-b", b.file("b.bin", newer),
-           "--boot-fault", "read-flip:1:4", "--boot", "--dump-state", "st.txt")
+    r = go(b, port, f, *slots, "--boot-fault", "read-flip:1:4", "--boot", "--dump-state", "st.txt")
+    expect(f, r.s["auth"] == 1 and r.s["seq"] == 4 and r.s["cause"] == 0 and r.s["unread"] == 0
+           and r.s["read_faults"] == 1 and r.s["phase"] == P_IDLE
+           and r.s["terminal"] == T_COMPLETE, f"one flipped re-stage: {r.s}")
+    f += state_matches(b, b.work / "st.txt", rid_payloads(b, newer))
+    r = go(b, port, f, *slots, "--boot-fault", f"read-flip:{READ_TRIES}:4", "--boot",
+           "--dump-state", "st.txt")
     expect(f, r.s["cause"] == C_STAGE and r.s["auth"] == 0 and r.s["seq"] == 3
-           and r.s["vd_b"] == VD_LEN and r.s["terminal"] == T_COMPLETE, f"flipped re-stage: {r.s}")
+           and r.s["vd_b"] == VD_LEN and r.s["unread"] == 2 and r.s["phase"] == P_HELD
+           and r.s["terminal"] == T_COMPLETE, f"every re-stage flipped: {r.s}")
     f += state_matches(b, b.work / "st.txt", rid_payloads(b, older))
     return f
 
@@ -355,33 +381,72 @@ def check_read_flip_boot(b: Bench, port: str) -> list[str]:
 def check_read_alias_at_stage(b: Bench, port: str) -> list[str]:
     """The re-stage read of the chosen slot answering from the other slot (an
     address line stuck) is caught by its sequence: the bytes are valid but
-    not the chosen slot's, so the other slot is offered and applied under its
-    own sequence."""
+    not the chosen slot's. Every re-stage aliased, the slot is UNREAD and the
+    other is offered and applied under its own sequence, the writer held;
+    one aliased re-stage is read again and the chosen slot applied."""
     f: list[str] = []
     imgs = _two_slots(b, 6, 5)
+    slots = ["--slot-a", b.file("a.bin", imgs[0]), "--slot-b", b.file("b.bin", imgs[1])]
     # reads 0-3 judge the two slots; read 4 re-stages slot A
-    r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]), "--slot-b", b.file("b.bin", imgs[1]),
-           "--boot-fault", "read-alias:1:4", "--boot", "--dump-stage", "stage.bin",
-           "--dump-state", "st.txt")
-    _consistent(b, f, r, imgs, (6, 5), "aliased re-stage")
-    expect(f, r.s["auth"] == 1 and r.s["cause"] == C_STAGE and r.s["vd_a"] == VD_LEN,
-           f"aliased re-stage: {r.s}")
+    r = go(b, port, f, *slots, "--boot-fault", f"read-alias:{READ_TRIES}:4", "--boot",
+           "--dump-stage", "stage.bin", "--dump-state", "st.txt")
+    _consistent(b, f, r, imgs, (6, 5), "every re-stage aliased")
+    expect(f, r.s["auth"] == 1 and r.s["cause"] == C_STAGE and r.s["vd_a"] == VD_LEN
+           and r.s["unread"] == 1 and r.s["phase"] == P_HELD, f"every re-stage aliased: {r.s}")
+    r = go(b, port, f, *slots, "--boot-fault", "read-alias:1:4", "--boot",
+           "--dump-stage", "stage.bin", "--dump-state", "st.txt")
+    _consistent(b, f, r, imgs, (6, 5), "one aliased re-stage")
+    expect(f, r.s["auth"] == 0 and r.s["unread"] == 0 and r.s["phase"] == P_IDLE,
+           f"one aliased re-stage: {r.s}")
     return f
 
 
 def check_read_fail_boot(b: Bench, port: str) -> list[str]:
-    """A slot whose read fails is refused VD_LEN (rule 4), the newer one
-    included, and the older is applied; a re-stage read that fails offers
-    the other slot."""
+    """A read the port fails is a media fault, never a verdict: the slot is
+    read again, NVM_READ_TRIES reads in all. Two failed reads of the newer
+    slot, then a good one, and it is applied; its container read failing on
+    every try, or its re-stage, and it is UNREAD (VD_LEN, rule 4): the older
+    is applied and the writer held (#665 decision 2). One failed re-stage is
+    read again."""
     f: list[str] = []
     imgs = _two_slots(b, 5, 6)
-    for skip, cause in ((3, 0), (4, C_STAGE)):
-        r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]),
-               "--slot-b", b.file("b.bin", imgs[1]), "--boot-fault", f"read-fail:1:{skip}",
-               "--boot", "--dump-stage", "stage.bin", "--dump-state", "st.txt")
-        _consistent(b, f, r, imgs, (5, 6), f"read {skip} failed")
-        expect(f, r.s["auth"] == 0 and r.s["vd_b"] == VD_LEN and r.s["cause"] == cause,
-               f"read {skip} failed: {r.s}")
+    slots = ["--slot-a", b.file("a.bin", imgs[0]), "--slot-b", b.file("b.bin", imgs[1])]
+    # reads 0 and 1 judge slot A, 2 and 3 slot B (its header, then its
+    # container); the container's middle covers SLOT_B + 0x100, the header not
+    body = f"{SLOT_B + 0x100:#x}"
+    for fault, auth, cause, faults in (("read-fail:2:2", 1, 0, 2),
+                                       (f"read-fail-at:{READ_TRIES}:0:{body}", 0, 0, READ_TRIES),
+                                       (f"read-fail:{READ_TRIES}:4", 0, C_STAGE, READ_TRIES),
+                                       ("read-fail:1:4", 1, 0, 1)):
+        r = go(b, port, f, *slots, "--boot-fault", fault, "--boot", "--dump-stage", "stage.bin",
+               "--dump-state", "st.txt")
+        _consistent(b, f, r, imgs, (5, 6), fault)
+        held = auth == 0
+        expect(f, r.s["auth"] == auth and r.s["cause"] == cause and r.s["read_faults"] == faults
+               and r.s["unread"] == (2 if held else 0)
+               and r.s["vd_b"] == (VD_LEN if held else VD_OK)
+               and r.s["phase"] == (P_HELD if held else P_IDLE), f"{fault}: {r.s}")
+    return f
+
+
+def check_fallback_restage(b: Bench, port: str) -> list[str]:
+    """The slot offered after the newer fails its re-stage is re-staged and
+    judged again too: both re-staged NVM_READ_TRIES times with a bit flipped
+    every time, neither is applied. The boot ends BLANK on the defaults with
+    both slots UNREAD, so the writer is held and no commit restarts the
+    sequence below either."""
+    f: list[str] = []
+    imgs = _two_slots(b, 5, 6)
+    r = go(b, port, f, "--slot-a", b.file("a.bin", imgs[0]), "--slot-b", b.file("b.bin", imgs[1]),
+           "--boot-fault", f"read-flip:{2 * READ_TRIES}:4", "--boot", "--dump-state", "st.txt",
+           "--set", f"{max(b.frames)}:{bytes(len(b.frames[max(b.frames)]) - REC_HDR).hex()}",
+           "--run-ms", "3000", "--commit-try")
+    expect(f, r.s["terminal"] == T_BLANK and r.s["cause"] == C_STAGE and r.s["sm_applies"] == 0
+           and r.s["vd_a"] == VD_LEN and r.s["vd_b"] == VD_LEN and r.s["unread"] == 3
+           and r.s["read_faults"] == 2 * READ_TRIES and r.s["releases"] == 1
+           and r.s["phase"] == P_HELD and r.s["erases"] == 0 and r.s["commit_refused"] == 1,
+           f"both re-stages flipped: {r.s}")
+    f += state_matches(b, b.work / "st.txt", {})
     return f
 
 
@@ -461,11 +526,20 @@ def check_rollback_fault_closes(b: Bench, port: str) -> list[str]:
 
 
 def check_model_unproven_closes(b: Bench, port: str) -> list[str]:
-    """No entity model to judge against: CLOSED, nothing applied, AECP held."""
+    """No entity model to judge against (D3 section 8.1 step 6): the binding
+    walk, which needs none, has run first (steps 4 and 5) and its bindings
+    stay; nothing of the D3 walk is applied, the restore ends CLOSED, AECP
+    is held and no writer runs. On blank media too."""
     f: list[str] = []
     r = _golden_boot(b, port, f, "--not-ready")
     expect(f, r.s["terminal"] == T_CLOSED and r.s["cause"] == C_MODEL and r.s["releases"] == 0
-           and r.s["sm_applies"] == 0 and r.s["phase"] == 0, f"unproven model: {r.s}")
+           and r.s["bind_terminal"] == T_COMPLETE and r.s["sm_applies"] == len(binding_ids(b))
+           and r.s["sm_settles"] == 0 and r.s["sm_unbinds"] == 0 and r.s["phase"] == P_OFF,
+           f"unproven model: {r.s}")
+    f += state_matches(b, b.work / "st.txt", _bindings_saved(b))
+    r = go(b, port, f, "--blank", "--not-ready", "--boot")
+    expect(f, r.s["terminal"] == T_CLOSED and r.s["cause"] == C_MODEL and r.s["releases"] == 0
+           and r.s["sm_applies"] == 0 and r.s["phase"] == P_OFF, f"unproven model, blank: {r.s}")
     return f
 
 
@@ -498,6 +572,7 @@ BOOT_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
     "read_flip_boot": check_read_flip_boot,
     "read_alias_at_stage": check_read_alias_at_stage,
     "read_fail_boot": check_read_fail_boot,
+    "fallback_restage": check_fallback_restage,
     "apply_fault_rolls_back": check_apply_fault_rolls_back,
     "settle_fault_rolls_back": check_settle_fault_rolls_back,
     "binding_walk": check_binding_walk,
@@ -511,5 +586,6 @@ BOOT_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
 #: memory map, where the flash model's read faults do not reach.
 BOTH = ("", LITESPI)
 DIRECT = ("",)
-READ_FAULTS = ("read_flip_at_stage", "read_flip_boot", "read_alias_at_stage", "read_fail_boot")
+READ_FAULTS = ("read_flip_at_stage", "read_flip_boot", "read_alias_at_stage", "read_fail_boot",
+               "fallback_restage")
 BOOT_PORTS = {name: (DIRECT if name in READ_FAULTS else BOTH) for name in BOOT_CHECKS}

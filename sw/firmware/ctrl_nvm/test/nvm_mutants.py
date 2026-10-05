@@ -77,8 +77,7 @@ TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 	uint32_t v;
 
 	(void)ctx;
-	timer0_update_value_write(1);
-	v = timer0_value_read();
+	v = ls_timer();
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
 	ls_ticks += (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
@@ -87,6 +86,10 @@ TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
                "\t       nvm_klj2_seq(nvm_stage) == seq;")
 FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);\n"
+STANDS = "\t\tif (vd == NVM_VD_OK || vd == prev)"
+BIND_WALK = "\t\tnvm.st.bind_terminal = nvm_walk_bind();"
+BIND_CLOSED = "\tif (nvm.st.bind_terminal == NVM_T_CLOSED) {\n\t\tnvm.st.terminal = NVM_T_CLOSED;\n" \
+              "\t\treturn;\n\t}\n"
 
 MUTANTS = (
     # ---- the boot path ----
@@ -104,7 +107,7 @@ MUTANTS = (
        "(int32_t)(s->seq_a - s->seq_b) >= 0) ? 1 : 0;", "newer_wins"),
     _m("pick_no_wrap", STORE, "((int32_t)(s->seq_a - s->seq_b) >= 0) ? 0 : 1;",
        "(s->seq_a >= s->seq_b) ? 0 : 1;", "newer_wins"),
-    # section 7's pseudo-code read literally: B on equal sequences
+    # B on equal sequences, the rule #665 decision 1 did not take
     _m("tie_picks_b", STORE, "((int32_t)(s->seq_a - s->seq_b) >= 0) ? 0 : 1;",
        "((int32_t)(s->seq_a - s->seq_b) > 0) ? 0 : 1;", "newer_wins"),
     _m("erased_header_only", CODEC,
@@ -149,8 +152,27 @@ MUTANTS = (
              "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;")),
            ("read_flip_boot",)),
     _m("slot_read_fail_ignored", STORE,
-       "\t\tif (f->read(f->ctx, addr, nvm_stage, img_len))\n\t\t\treturn NVM_VD_LEN;\n",
+       "\t\tif (f->read(f->ctx, addr, nvm_stage, img_len))\n\t\t\treturn NVM_UNREAD;\n",
        "\t\t(void)f->read(f->ctx, addr, nvm_stage, img_len);\n", "read_fail_boot"),
+    # ---- #665 decision 2: a media read fault leaves the authority unknown ----
+    # the round-2 store: an unread slot is merely refused and the next commit
+    # restarts the sequence below it
+    _m("unread_not_held", STORE, "\t\tnvm.st.phase = nvm.st.unread ? NVM_P_HELD : NVM_P_IDLE;",
+       "\t\tnvm.st.phase = NVM_P_IDLE;", "authority_unknown", "fallback_restage"),
+    _m("read_not_retried", STORE,
+       "\t\t\tcontinue;       /* the port failed a read: read the slot again */",
+       "\t\t\tbreak;", "read_fail_boot", "authority_unknown"),
+    _m("refusal_unconfirmed", STORE, STANDS, "\t\tif (1)", "authority_unknown"),
+    _m("blank_unconfirmed", STORE, STANDS, "\t\tif (vd == NVM_VD_OK || vd == NVM_VD_BLANK || vd == prev)",
+       "authority_unknown"),
+    _m("restage_not_retried", STORE,
+       "\tfor (i = 0; i < NVM_READ_TRIES; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
+       "\tfor (i = 0; i < 1u; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
+       "read_flip_at_stage", "read_alias_at_stage", "read_fail_boot"),
+    # the slot offered second is applied without its own re-stage
+    _m("fallback_restage_unchecked", STORE,
+       "\twhile (chosen != NVM_NONE && !nvm_stage_slot(chosen)) {",
+       "\tif (chosen != NVM_NONE && !nvm_stage_slot(chosen)) {", "fallback_restage"),
     _m("no_rollback", STORE,
        "\tif (nvm.state->rollback(nvm.state->ctx, NVM_W_D3) != 0)\n\t\treturn NVM_T_CLOSED;\n"
        "\treturn NVM_T_DEFAULTS;", "\treturn NVM_T_DEFAULTS;",
@@ -173,8 +195,12 @@ MUTANTS = (
        "\tstruct nvm_rec r;\n\tint settled = 0;\n\n\ts->release(s->ctx);\n", "golden_restore"),
     _m("apply_erased", STORE, "\tif (nvm_all_erased(rec, NVM_REC_HDR)) {", "\tif (0) {",
        "erased_records"),
-    _m("model_ready_ignored", STORE, "\tif (!state->model_ready(state->ctx)) {", "\tif (0) {",
-       "model_unproven_closes"),
+    _m("model_ready_ignored", STORE, "\tif (nvm.state->model_ready(nvm.state->ctx))\n\t\treturn 1;",
+       "\tif (1)\n\t\treturn 1;", "model_unproven_closes"),
+    # the round-2 order: the model check before the binding walk
+    _m("bindings_skipped_unproven", STORE, BIND_WALK,
+       "\t\tnvm.st.bind_terminal = nvm.state->model_ready(nvm.state->ctx) ?\n"
+       "\t\t\t\t\t nvm_walk_bind() : NVM_T_NONE;", "model_unproven_closes"),
     # ---- the two walks (D3 sections 8.1 and 8.6) ----
     _m("d3_rollback_takes_bindings", STORE,
        "\tif (nvm.state->rollback(nvm.state->ctx, NVM_W_D3) != 0)",
@@ -184,14 +210,11 @@ MUTANTS = (
     # one walk: the bindings inside the D3 transaction
     Mutant("bindings_in_d3_walk",
            ((STORE, "\t\tif (r.group == NVM_G_BIND)\n\t\t\tcontinue;\n", ""),
-            (STORE, "\t\tnvm.st.bind_terminal = nvm_walk_bind();",
-             "\t\tnvm.st.bind_terminal = NVM_T_COMPLETE;")),
+            (STORE, BIND_WALK, "\t\tnvm.st.bind_terminal = NVM_T_COMPLETE;")),
            ("binding_walk", "golden_restore")),
-    _m("binding_fault_aborts_d3", STORE,
-       "\t\tnvm.st.terminal = (nvm.st.bind_terminal == NVM_T_CLOSED) ?\n"
-       "\t\t\t\t  NVM_T_CLOSED : nvm_walk_d3();",
-       "\t\tnvm.st.terminal = (nvm.st.bind_terminal != NVM_T_COMPLETE) ?\n"
-       "\t\t\t\t  nvm_abort(NVM_C_APPLY) : nvm_walk_d3();", "binding_walk"),
+    _m("binding_fault_aborts_d3", STORE, BIND_CLOSED,
+       BIND_CLOSED + "\tif (nvm.st.bind_terminal == NVM_T_DEFAULTS) {\n"
+       "\t\tnvm.st.terminal = nvm_abort(NVM_C_APPLY);\n\t\treturn;\n\t}\n", "binding_walk"),
     _m("binding_fault_keeps_preloads", STORE,
        "\t\tif (nvm.state->rollback(nvm.state->ctx, NVM_W_BIND) != 0)\n\t\t\treturn NVM_T_CLOSED;\n",
        "", "binding_walk"),
@@ -202,6 +225,8 @@ MUTANTS = (
     # a change the running capture takes still arms the window
     _m("capture_leaves_window_armed", STORE, "\tif (!taken && !nvm.dirty_armed) {",
        "\tif (!nvm.dirty_armed) {", "debounce"),
+    # the record the capture examines next counted as passed
+    _m("taken_off_by_one", STORE, "r.id >= nvm.cursor.id", "r.id > nvm.cursor.id", "debounce"),
     # ---- DR2b ----
     _m("dr2b_ignores_durability", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {",
        "\t} else if (!nvm.force) {", "failed_commit_not_skipped"),
@@ -231,6 +256,9 @@ MUTANTS = (
        "recovers_after_failure", "dr2c_unchanged_set"),
     _m("stale_kept", STORE, "\tif (!nvm_any(nvm.dirty))\n\t\tnvm.st.stale = 0;\n", "",
        "recovers_after_failure"),
+    # a DR2b suppression leaves the claim stale with nothing outside a slot
+    _m("dr2b_keeps_stale", STORE, "\t\tnvm.st.commits_skipped++;\n\t\tnvm_heal();",
+       "\t\tnvm.st.commits_skipped++;", "recovers_after_failure"),
     # ---- the write sequence ----
     _m("no_blankcheck", STORE, "\t\t\tnvm.st.phase = NVM_P_BLANKCHECK;",
        "\t\t\tnvm.st.phase = NVM_P_PROGRAM;", "media_failures"),
@@ -304,9 +332,19 @@ MUTANTS = (
        "\treturn ls_ticks / LS_TICKS_PER_US;",
        "\tls_tick_last = v;\n\treturn (0xffffffffu - v) / LS_TICKS_PER_US;", "time_base"),
     # a wait on the command master with no bound
-    _m("xfer_unbounded", LITESPI, "\tfor (n = 0; n < LS_POLL_MAX; ++n)\n", "\tfor (n = 0;; ++n)\n",
+    Mutant("xfer_unbounded",
+           ((LITESPI, "\tfor (n = 0; n < LS_POLL_MAX; ++n) {", "\tfor (n = 0;; ++n) {"),
+            (LITESPI, "\t\tif (ls_late())\n\t\t\treturn 0;\n", "")),
+           ("port_stall",)),
+    _m("open_unbounded", LITESPI, "\t\tif (++n > LS_POLL_MAX || ls_late())\n\t\t\treturn -1;\n", "",
        "port_stall"),
-    _m("open_unbounded", LITESPI, "\t\tif (++n > LS_POLL_MAX)\n\t\t\treturn -1;\n", "", "port_stall"),
+    # a call bounded per wait only: a master slow in every wait holds it
+    _m("call_deadline_ignored", LITESPI,
+       "\treturn (uint32_t)(ls_call_start - ls_timer()) > LS_CALL_US * LS_TICKS_PER_US;",
+       "\treturn 0;", "port_deadline"),
+    _m("deadline_per_wait", LITESPI, "\tuint32_t n;\n\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
+       "\tuint32_t n;\n\n\tls_call_begin();\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
+       "port_deadline"),
     _m("stall_ignored", LITESPI,
        "\tif (ls_window(&ls_wren, 1u, 0, 0u) || ls_window(cmd, 4u, src, len))\n\t\treturn -1;",
        "\t(void)ls_window(&ls_wren, 1u, 0, 0u);\n\t(void)ls_window(cmd, 4u, src, len);",

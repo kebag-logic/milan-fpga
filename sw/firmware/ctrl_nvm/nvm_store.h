@@ -50,7 +50,9 @@ enum nvm_phase {
 	NVM_P_BLANKCHECK = 6,
 	NVM_P_PROGRAM = 7,   /* start one page program */
 	NVM_P_PROGRAM_WAIT = 8,
-	NVM_P_VERIFY = 9     /* read back and compare */
+	NVM_P_VERIFY = 9,    /* read back and compare */
+	NVM_P_HELD = 10      /* a slot's authority is unknown: changes are marked,
+			      * nothing is written until reset */
 };
 
 /* Bytes one service step may touch, besides one latched record. */
@@ -63,6 +65,11 @@ enum nvm_phase {
  * sections 6.3 and 15.1). */
 #define NVM_TXN_ATTEMPTS 3u
 #define NVM_TXN_BACKOFF_MS 1000u
+/* Boot reads of one slot: judgements, and then re-stages of the chosen one
+ * (README, "Boot"). A slot that gives no standing verdict, or never reads
+ * back as judged, within this many is UNREAD (#665 decision 2, issue
+ * comment 5997929153). */
+#define NVM_READ_TRIES 3u
 
 struct nvm_status {
 	enum nvm_verdict verdict_a;
@@ -91,6 +98,10 @@ struct nvm_status {
 	 * after their third failure, and the last one's first verdict. */
 	unsigned int abandoned;
 	enum nvm_verdict abandoned_vd;
+	/* Slots never read without a media fault at boot (bit 0 A, bit 1 B):
+	 * their authority is unknown, so the writer is HELD until reset. */
+	unsigned int unread;
+	unsigned int read_faults;       /* boot reads that failed or did not read back */
 	int stale;                      /* a failed commit left work out of every slot */
 	int dirty;                      /* changed records not yet captured */
 	int pending;                    /* captured records not yet in a verified slot */
@@ -100,8 +111,8 @@ struct nvm_status {
 };
 
 /* Boot: judge both slots, stage the newer accepted one, run its binding
- * walk and then its D3 walk through `state`, release AECP unless CLOSED, arm
- * the writer. */
+ * walk, prove the model and run the D3 walk through `state`, release AECP
+ * unless CLOSED, and arm the writer, or hold it when a slot is UNREAD. */
 void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state);
 /* One bounded step of the write path. */
 void nvm_store_service(void);
@@ -110,7 +121,8 @@ void nvm_store_service(void);
 void nvm_store_changed(unsigned int group, unsigned int index);
 /* Start a capture now, without the debounce, and write it even if nothing
  * changed (the console); 1 when started. Refused inside a failed attempt's
- * backoff, and an exhausted unchanged work set is still not written. */
+ * backoff and while HELD, and an exhausted unchanged work set is still not
+ * written. */
 int nvm_store_commit_now(void);
 const struct nvm_status *nvm_store_status(void);
 /* The stage, NVM_IMG_LEN bytes: the last verified container, or the one a

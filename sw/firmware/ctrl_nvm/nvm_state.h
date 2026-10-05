@@ -14,13 +14,15 @@
  * same set of writes, one call per record, so the firmware restore can drive
  * whichever owner a build places each function in.
  *
- * THE TWO WALKS (section 8.1 steps 4 and 5, section 8.6). The binding walk
+ * THE TWO WALKS (section 8.1 steps 4 to 8, section 8.6). The binding walk
  * restores the listener's bindings first and is its own unit of atomicity:
  * a fault fails it whole, with nothing preloaded, and the D3 walk runs
- * either way. The D3 walk restores every other record as one transaction; a
- * D3 roll-back leaves a completed binding walk applied, because its owners
- * are the two stores and the map plane, never the listener or the binding
- * manager.
+ * either way. It needs no entity model; the D3 walk does, so model_ready()
+ * is asked between the two (step 6), and an unproven model ends the restore
+ * CLOSED with the bindings kept. The D3 walk restores every other record as
+ * one transaction; a D3 roll-back leaves a completed binding walk applied,
+ * because its owners are the two stores and the map plane, never the
+ * listener or the binding manager.
  *
  *   apply()     one saved record. APPLIED or REFUSED by the group's value
  *               rule (section 8.3: a refused value keeps its image default
@@ -63,7 +65,8 @@ enum nvm_walk {
 
 struct nvm_state {
 	/* 1 when the entity model the values are judged against is loaded and
-	 * proven (the AEM image, CRC checked); 0 ends the restore CLOSED. */
+	 * proven (the AEM image, CRC checked); 0 ends the restore CLOSED after
+	 * the binding walk. */
 	int (*model_ready)(void *ctx);
 	enum nvm_apply (*apply)(void *ctx, unsigned int group, unsigned int index,
 				const uint8_t *payload, unsigned int len);

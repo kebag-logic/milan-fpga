@@ -5,18 +5,25 @@
  * THE BOOT PATH. Each journal slot is read into the stage in one read and
  * judged there by the section 6.2 order of
  * docs/design/SAVED_STATE_FASTCONNECT.md: the CRC, the records and the
- * sequence all come from the same bytes. The newer accepted slot (section 7:
- * the wrap-safe (int32_t)(A.seq - B.seq), A on a tie as in the shipping
- * writer; the other when it fails) is read into the stage again and judged
- * again, its CRC included, and its sequence must be the one it was chosen
- * by: what is applied and published is what was proven. The restore is the
- * two walks of SAVED_STATE_MATERIALIZATION.md section 8.1: the binding walk
- * first, its own unit (a fault fails it whole, with nothing preloaded), then
- * the D3 walk as one transaction (section 8.6): every other record in
+ * sequence all come from the same bytes. A slot gets at most NVM_READ_TRIES
+ * reads: an OK verdict stands on one, any other only when two agree, and a
+ * slot that gives neither is UNREAD. The newer accepted slot (section 7: the
+ * wrap-safe (int32_t)(A.seq - B.seq) >= 0, A on a tie by #665 decision 1;
+ * the other when it fails) is read into the stage again and judged again,
+ * its CRC included, and its sequence must be the one it was chosen by: what
+ * is applied and published is what was proven. A slot that never reads back
+ * so is UNREAD too. The restore is the order of
+ * SAVED_STATE_MATERIALIZATION.md section 8.1: the binding walk first, its
+ * own unit (a fault fails it whole, with nothing preloaded); then the entity
+ * model must be proven, or the restore ends CLOSED with the bindings kept;
+ * then the D3 walk as one transaction (section 8.6): every other record in
  * ascending id through the state port, the settle step after the maps and
  * before the names (section 8.4), and an abort rolls every D3 value back to
  * its image default and leaves the bindings applied. AECP is released at
- * COMPLETE, BLANK or DEFAULTS and never at CLOSED.
+ * COMPLETE, BLANK or DEFAULTS and never at CLOSED. An UNREAD slot leaves
+ * the authority unknown (#665 decision 2): the writer is HELD until reset,
+ * because a commit could restart the sequence below a container that
+ * survives it.
  *
  * THE WRITE PATH. A change marks its record dirty. After the 1,000 ms
  * first-dirty window (DR2a) a capture latches the dirty records from their
@@ -117,12 +124,15 @@ static void nvm_publish(void)
 
 /* ---- the boot path ------------------------------------------------------- */
 
-/* Section 6.2 over the slot at `slot`. A container that fits the stage is
- * read in once and judged there, so its CRC, its records and the sequence
- * returned are the same bytes. A longer one can never be this shape's: its
- * CRC is streamed through the stage for the verdict order alone. A slot that
- * does not deliver its bytes fails rule 4 (VD_LEN). */
-static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
+/* Not a verdict: the port did not deliver the bytes. */
+#define NVM_UNREAD NVM_VD_COUNT
+
+/* Section 6.2 over one read of the slot at `slot`. A container that fits the
+ * stage is read in once and judged there, so its CRC, its records and the
+ * sequence returned are the same bytes. A longer one can never be this
+ * shape's: its CRC is streamed through the stage for the verdict order
+ * alone. NVM_UNREAD when the port fails a read. */
+static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq)
 {
 	const struct nvm_flash *f = nvm.flash;
 	uint32_t addr = nvm_slot_addr(slot);
@@ -133,13 +143,13 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 	enum nvm_verdict vd;
 
 	if (f->read(f->ctx, addr, nvm_stage, NVM_KLJ2_HDR))
-		return NVM_VD_LEN;
+		return NVM_UNREAD;
 	vd = nvm_klj2_check_head(nvm_stage, &img_len);
 	if (vd != NVM_VD_OK)
 		return vd;
 	if (img_len <= NVM_STAGE_BYTES) {
 		if (f->read(f->ctx, addr, nvm_stage, img_len))
-			return NVM_VD_LEN;
+			return NVM_UNREAD;
 		vd = nvm_klj2_check(nvm_stage, img_len);
 		if (vd == NVM_VD_OK)
 			*seq = nvm_klj2_seq(nvm_stage);
@@ -149,17 +159,52 @@ static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 		uint32_t n = nvm_min(NVM_STAGE_BYTES, img_len - NVM_KLJ2_TRAILER - pos);
 
 		if (f->read(f->ctx, addr + pos, nvm_stage, n))
-			return NVM_VD_LEN;
+			return NVM_UNREAD;
 		crc = nvm_crc32_update(crc, nvm_stage, n);
 		pos += n;
 	}
 	if (f->read(f->ctx, addr + pos, trailer, NVM_KLJ2_TRAILER))
-		return NVM_VD_LEN;
+		return NVM_UNREAD;
 	if (~crc != nvm_rd32le(trailer))
 		return NVM_VD_CRC;
 	if (f->read(f->ctx, addr, nvm_stage, NVM_STAGE_BYTES))
-		return NVM_VD_LEN;
+		return NVM_UNREAD;
 	return nvm_klj2_check_body(nvm_stage, img_len, NVM_STAGE_BYTES);
+}
+
+/* A slot whose authority is unknown (#665 decision 2): refused VD_LEN, the
+ * rule 4 verdict of a slot that did not deliver its bytes, and recorded, so
+ * the writer is held until reset. Nothing is read from it. */
+static enum nvm_verdict nvm_unread(int slot)
+{
+	nvm.st.unread |= 1u << slot;
+	return NVM_VD_LEN;
+}
+
+/* The slot's verdict, from at most NVM_READ_TRIES reads of it. OK stands on
+ * one read: its CRC-32 covers every byte, the sequence included. Any other
+ * verdict, BLANK included, stands only when two reads agree, because a read
+ * that went wrong without the port saying so looks like a refusal or like a
+ * blank slot, and either would let the next commit restart the sequence
+ * below a container that survives. A slot whose reads fail or never agree
+ * is UNREAD. */
+static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
+{
+	enum nvm_verdict prev = NVM_UNREAD;
+	enum nvm_verdict vd;
+	unsigned int i;
+
+	for (i = 0; i < NVM_READ_TRIES; ++i) {
+		vd = nvm_slot_read(slot, seq);
+		if (vd == NVM_UNREAD) {
+			nvm.st.read_faults++;
+			continue;       /* the port failed a read: read the slot again */
+		}
+		if (vd == NVM_VD_OK || vd == prev)
+			return vd;
+		prev = vd;              /* a refusal stands once a second read agrees */
+	}
+	return nvm_unread(slot);
 }
 
 /* Section 7: the newer of two accepted slots, wrap-safe; else the one. */
@@ -174,17 +219,32 @@ static int nvm_pick(void)
 	return (s->verdict_b == NVM_VD_OK) ? 1 : NVM_NONE;
 }
 
-/* The chosen slot into the stage, judged again with its CRC: only bytes that
- * pass, under the sequence the slot was chosen by, are applied. */
-static int nvm_stage_slot(int slot)
+/* One re-stage of the chosen slot, judged again with its CRC: 1 when the
+ * bytes pass under the sequence the slot was chosen by. */
+static int nvm_restage_once(int slot, uint32_t seq)
 {
 	const struct nvm_flash *f = nvm.flash;
-	uint32_t seq = slot ? nvm.st.seq_b : nvm.st.seq_a;
 
 	if (f->read(f->ctx, nvm_slot_addr(slot), nvm_stage, NVM_IMG_LEN))
 		return 0;
 	return nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&
 	       nvm_klj2_seq(nvm_stage) == seq;
+}
+
+/* The chosen slot into the stage: only bytes that pass again are applied.
+ * A re-stage that fails, or reads other bytes than were judged, is a media
+ * fault and is tried again, NVM_READ_TRIES in all. */
+static int nvm_stage_slot(int slot)
+{
+	uint32_t seq = slot ? nvm.st.seq_b : nvm.st.seq_a;
+	unsigned int i;
+
+	for (i = 0; i < NVM_READ_TRIES; ++i) {
+		if (nvm_restage_once(slot, seq))
+			return 1;
+		nvm.st.read_faults++;
+	}
+	return 0;
 }
 
 /* One saved record through the state port: 1 when its rule could not be
@@ -263,8 +323,10 @@ static enum nvm_terminal nvm_walk_d3(void)
 	return NVM_T_COMPLETE;
 }
 
-/* Judge both slots and stage the one to offer; NVM_NONE for blank media or
- * two refusals, with the stage then holding the blank container. */
+/* Judge both slots and stage the one to offer: the newer accepted one, then
+ * the other when it does not read back as it was judged (section 7), each
+ * re-staged and judged again. NVM_NONE for blank media or two refusals,
+ * with the stage then holding the blank container. */
 static int nvm_choose(void)
 {
 	int chosen;
@@ -272,46 +334,40 @@ static int nvm_choose(void)
 	nvm.st.verdict_a = nvm_slot_check(0, &nvm.st.seq_a);
 	nvm.st.verdict_b = nvm_slot_check(1, &nvm.st.seq_b);
 	chosen = nvm_pick();
-	if (chosen != NVM_NONE && !nvm_stage_slot(chosen)) {
-		/* the slot did not read back as it was judged: offer the other */
+	while (chosen != NVM_NONE && !nvm_stage_slot(chosen)) {
+		/* the slot did not read back as it was judged: its authority is
+		 * unknown, and the other is offered */
 		nvm.st.cause = NVM_C_STAGE;
 		if (chosen == 0)
-			nvm.st.verdict_a = NVM_VD_LEN;
+			nvm.st.verdict_a = nvm_unread(0);
 		else
-			nvm.st.verdict_b = NVM_VD_LEN;
+			nvm.st.verdict_b = nvm_unread(1);
 		chosen = nvm_pick();
-		if (chosen != NVM_NONE && !nvm_stage_slot(chosen))
-			chosen = NVM_NONE;
 	}
 	if (chosen == NVM_NONE)
 		nvm_klj2_blank(nvm_stage);
 	return chosen;
 }
 
-void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state)
+/* Section 8.1 step 6: 1 when the entity model the values are judged against
+ * is proven. Else the restore ends CLOSED: AECP stays held until reset, and
+ * a binding walk that ran keeps the listener's bindings. */
+static int nvm_model_proven(void)
 {
-	int chosen;
+	if (nvm.state->model_ready(nvm.state->ctx))
+		return 1;
+	nvm.st.cause = NVM_C_MODEL;
+	nvm.st.terminal = NVM_T_CLOSED;
+	return 0;
+}
 
-	nvm = nvm_reset_value;
-	nvm.flash = flash;
-	nvm.state = state;
-	nvm.st.auth = NVM_NONE;
-	nvm.st.phase = NVM_P_OFF;
-	if (!state->model_ready(state->ctx)) {
-		/* nothing can be judged: AECP stays held until reset */
-		nvm.st.cause = NVM_C_MODEL;
-		nvm.st.terminal = NVM_T_CLOSED;
-		return;
-	}
-	if (!nvm_shape_consistent()) {
-		/* persistence disabled; the entity runs on its defaults (DR3b) */
-		nvm.st.cause = NVM_C_SHAPE;
-		nvm.st.terminal = NVM_T_DEFAULTS;
-		state->release(state->ctx);
-		nvm.st.releases++;
-		return;
-	}
-	chosen = nvm_choose();
+/* The restore of section 8.1: the slots judged and one staged (step 3), the
+ * binding walk, which needs no entity model (steps 4 and 5), the model
+ * check (step 6), then the D3 walk (steps 7 and 8). */
+static void nvm_restore(void)
+{
+	int chosen = nvm_choose();
+
 	if (chosen == NVM_NONE) {
 		nvm.st.last_verdict = (nvm.st.verdict_a != NVM_VD_BLANK) ?
 				      nvm.st.verdict_a : nvm.st.verdict_b;
@@ -323,14 +379,41 @@ void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state
 		nvm.st.last_verdict = NVM_VD_OK;
 		nvm.stage_durable = 1;
 		nvm.st.bind_terminal = nvm_walk_bind();
-		nvm.st.terminal = (nvm.st.bind_terminal == NVM_T_CLOSED) ?
-				  NVM_T_CLOSED : nvm_walk_d3();
+	}
+	if (nvm.st.bind_terminal == NVM_T_CLOSED) {
+		nvm.st.terminal = NVM_T_CLOSED;
+		return;
+	}
+	/* blank media too: nothing is released over an unproven model */
+	if (nvm_model_proven() && chosen != NVM_NONE)
+		nvm.st.terminal = nvm_walk_d3();
+}
+
+void nvm_store_boot(const struct nvm_flash *flash, const struct nvm_state *state)
+{
+	int shaped;
+
+	nvm = nvm_reset_value;
+	nvm.flash = flash;
+	nvm.state = state;
+	nvm.st.auth = NVM_NONE;
+	nvm.st.phase = NVM_P_OFF;
+	shaped = nvm_shape_consistent();
+	if (shaped) {
+		nvm_restore();
+	} else if (nvm_model_proven()) {
+		/* persistence disabled: no slot is read or walked, and the
+		 * entity runs on its defaults (DR3b) */
+		nvm.st.cause = NVM_C_SHAPE;
+		nvm.st.terminal = NVM_T_DEFAULTS;
 	}
 	if (nvm.st.terminal == NVM_T_CLOSED)
 		return;
 	state->release(state->ctx);
 	nvm.st.releases++;
-	nvm.st.phase = NVM_P_IDLE;
+	/* decision 2: while a slot's authority is unknown, nothing is written */
+	if (shaped)
+		nvm.st.phase = nvm.st.unread ? NVM_P_HELD : NVM_P_IDLE;
 }
 
 /* ---- the write path ------------------------------------------------------- */
@@ -394,6 +477,14 @@ static void nvm_latch(struct nvm_rec r)
 	nvm.stage_durable = 0;
 }
 
+/* The claim heals once nothing changed is left out of a verified slot
+ * (FASTCONNECT section 9.2): it clears the state, not just the view. */
+static void nvm_heal(void)
+{
+	if (!nvm_any(nvm.dirty))
+		nvm.st.stale = 0;
+}
+
 /* The capture is over: decide whether its work set is written. */
 static void nvm_seal_begin(void)
 {
@@ -415,6 +506,7 @@ static void nvm_seal_begin(void)
 		for (i = 0; i < NVM_WORDS; ++i)
 			nvm.inflight[i] = 0;
 		nvm.st.commits_skipped++;
+		nvm_heal();
 		nvm.st.phase = NVM_P_IDLE;
 		return;
 	}
@@ -557,8 +649,7 @@ static void nvm_program_step(void)
 	nvm.st.phase = NVM_P_PROGRAM_WAIT;
 }
 
-/* The authority moves; nothing clears the abandoned-set record (DR2c). The
- * claim heals once nothing changed is left un-durable (FASTCONNECT 9.2). */
+/* The authority moves; nothing clears the abandoned-set record (DR2c). */
 static void nvm_commit_done(void)
 {
 	unsigned int i;
@@ -572,8 +663,7 @@ static void nvm_commit_done(void)
 	nvm.st.attempts = 0;
 	nvm.st.last_verdict = NVM_VD_OK;
 	nvm.st.first_failed = NVM_VD_OK;
-	if (!nvm_any(nvm.dirty))
-		nvm.st.stale = 0;
+	nvm_heal();
 	nvm.force = 0;
 	nvm.st.phase = NVM_P_IDLE;
 }

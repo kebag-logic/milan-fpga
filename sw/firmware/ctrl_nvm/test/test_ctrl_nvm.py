@@ -13,11 +13,13 @@ over the on-chip LiteSPI port on a model of the command master. The checks
 (nvm_checks.py, nvm_checks_write.py) grade the boot path with valid, absent,
 torn, corrupted and wrong-version slots, read faults at every boot read, and
 the binding and D3 restore walks; the write path's commit, its A/B atomicity
-and DR2a/DR2b/DR2c/DR5 rules, the console included; a power cut inside every
-media effect of a commit; the time base under PHC steps and the counter's
-wrap; a command master that stalls; the service bound; and the round trip
-against the recorded vectors of tb/verilator/nvm_backend. Every byte and
-every verdict is compared with scripts/nvm_klj2.py, the reference codec.
+and DR2a/DR2b/DR2c/DR5 rules, the console included; the writer held while a
+read fault leaves the authority unknown; a power cut inside every media
+effect of a commit; the time base under PHC steps and the counter's wrap; a
+command master that stalls or slows every wait; the service bound; and the
+round trip against the recorded vectors of tb/verilator/nvm_backend. Every
+byte and every verdict is compared with scripts/nvm_klj2.py, the reference
+codec.
 
 THE RV32 ARM (nvm_rv32.py) cross-compiles the store and the LiteSPI port
 freestanding for RV32I and reports their static sizes per shape. Without a
@@ -93,7 +95,7 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
         print(f"  rv32: text={sizes['text']} data={sizes['data']} bss={sizes['bss']} "
               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
-              f"clock={sizes.get('ls_ticks', 0) + sizes.get('ls_tick_last', 0)} (bytes)")
+              f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
     return found
 
 
@@ -125,6 +127,9 @@ def run_shape(cfg: Path, work: Path, args: argparse.Namespace) -> tuple[list[str
     bad = sum(1 for name in names if result[name])
     print(f"{cfg.stem:<28} records={len(b.frames):3d} image={len(b.assemble(b.frames, 0)):5d} B "
           f"checks={len(names)} failed={bad} runs={b.runs + (b.vector.runs if b.vector else 0)}")
+    calls = {k: max(x.call_max.get(k, 0) for x in (b, b.vector) if x) for k in ("nominal", "stalled")}
+    print(f"  longest service call, model time: {calls['nominal']} us with no stall armed, "
+          f"{calls['stalled']} us with a command-master stall")
     findings += [f"{cfg.stem}: {x}" for x in rv32_arm(inputs, work, args.require_rv32)]
     return findings, inputs
 

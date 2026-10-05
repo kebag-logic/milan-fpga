@@ -191,6 +191,8 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 	fm.now_ns += (uint64_t)(4u + len) * FM_SPI_BYTE_NS;
 	if (fm_take(NVM_F_READ_FAIL))
 		return -1;
+	if (addr <= fm.fault_at && fm.fault_at - addr < len && fm_take(NVM_F_READ_FAIL_AT))
+		return -1;
 	if ((addr ^ NVM_FMODEL_BLOCK) <= NVM_FMODEL_BYTES - len && fm_take(NVM_F_READ_ALIAS))
 		addr ^= NVM_FMODEL_BLOCK;
 	memcpy(dst, nvm_fmodel_mem + addr, len);

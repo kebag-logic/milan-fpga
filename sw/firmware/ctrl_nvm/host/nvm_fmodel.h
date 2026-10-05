@@ -17,10 +17,11 @@
  *     `at` of the block, 5 unless set), or that is refused;
  *   - a program that never ends, that drops its bytes, that flips one, or
  *     that is refused;
- *   - a read that fails; that returns one bit flipped (the middle byte, or
- *     bit 3 of the byte at device address `at`, counting only the reads
- *     that cover it); or that answers from the neighbouring erase block
- *     (address bit 16 stuck: slot A reads slot B, and B reads A);
+ *   - a read that fails (any read, or only the reads that cover device
+ *     address `at`: a bad region); that returns one bit flipped (the middle
+ *     byte, or bit 3 of the byte at `at`, counting only the reads that cover
+ *     it); or that answers from the neighbouring erase block (address bit 16
+ *     stuck: slot A reads slot B, and B reads A);
  *   - a bit flipped at rest (nvm_fmodel_flip).
  * Each fault is armed for `count` operations of its kind, after the next
  * `skip` of them pass untouched.
@@ -52,7 +53,8 @@ enum nvm_fault {
 	NVM_F_READ_FLIP_AT,
 	NVM_F_READ_ALIAS,
 	NVM_F_PROGRAM_REFUSE,
-	NVM_F_ERASE_REFUSE
+	NVM_F_ERASE_REFUSE,
+	NVM_F_READ_FAIL_AT
 };
 
 struct nvm_fmodel_count {
@@ -81,7 +83,7 @@ void nvm_fmodel_window(uint32_t lo, uint32_t hi);
 void nvm_fmodel_protect(uint32_t lo);
 void nvm_fmodel_times(uint64_t erase_us, uint64_t program_us);
 void nvm_fmodel_fault(enum nvm_fault fault, unsigned int count, unsigned int skip);
-/* Where erase-stuck and read-flip-at act (see above). */
+/* Where erase-stuck, read-fail-at and read-flip-at act (see above). */
 void nvm_fmodel_fault_at(uint32_t at);
 /* The power fails inside media effect k (from 1), frac/256 of it landed. */
 void nvm_fmodel_cut(unsigned int k, unsigned int frac);

@@ -145,13 +145,13 @@ static void t_run_ms(uint64_t ms)
 		t_service();
 }
 
-/* Nothing left to do: no change waits, and what is in flight is written or
- * has spent its attempts. */
+/* Nothing left to do: no writer, a held one, or no change waits and what is
+ * in flight is written or has spent its attempts. */
 static int t_settled(void)
 {
 	const struct nvm_status *s = nvm_store_status();
 
-	return s->phase == NVM_P_OFF ||
+	return s->phase == NVM_P_OFF || s->phase == NVM_P_HELD ||
 	       (s->phase == NVM_P_IDLE && !s->dirty && (!s->pending || s->exhausted));
 }
 
@@ -456,14 +456,15 @@ static void t_fields(const char *arg, unsigned long *v)
 	}
 }
 
-/* MODE[:COUNT[:SKIP[:AT]]]: arm a flash-model fault; AT places erase-stuck
- * and read-flip-at. */
+/* MODE[:COUNT[:SKIP[:AT]]]: arm a flash-model fault; AT places erase-stuck,
+ * read-fail-at and read-flip-at. */
 static void t_fault_arg(const char *arg)
 {
 	static const char *const names[] = {
 		"none", "erase-hang", "erase-stuck", "program-hang",
 		"program-drop", "program-flip", "read-fail", "read-flip",
 		"read-flip-at", "read-alias", "program-refuse", "erase-refuse",
+		"read-fail-at",
 	};
 	unsigned long v[3];
 	int i = t_name(arg, names, sizeof(names) / sizeof(names[0]));
@@ -555,13 +556,14 @@ static void t_summary(void)
 	       "seq=%u auth=%d applied=%u refused=%u blank=%u releases=%u ok=%u "
 	       "failed=%u skipped=%u attempts=%u exhausted=%d stale=%d dirty=%d "
 	       "pending=%d phase=%d step_max=%u step_bound=%u steps=%u bind_terminal=%d "
-	       "bind_cause=%d withheld=%u abandoned=%u abandoned_vd=%d\n",
+	       "bind_cause=%d withheld=%u abandoned=%u abandoned_vd=%d unread=%u "
+	       "read_faults=%u\n",
 	       s->terminal, s->cause, s->verdict_a, s->verdict_b, s->last_verdict, s->first_failed,
 	       s->seq_a, s->seq_b, s->seq, s->auth, s->applied, s->refused, s->blank,
 	       s->releases, s->commits_ok, s->commits_failed, s->commits_skipped,
 	       s->attempts, s->exhausted, s->stale, s->dirty, s->pending, s->phase,
 	       s->step_bytes_max, (unsigned int)NVM_STEP_BOUND, s->steps, s->bind_terminal,
-	       s->bind_cause, s->withheld, s->abandoned, s->abandoned_vd);
+	       s->bind_cause, s->withheld, s->abandoned, s->abandoned_vd, s->unread, s->read_faults);
 	printf("SUMMARY erases=%u programs=%u effects=%u outside=%u protected=%u "
 	       "pagewrap=%u while_busy=%u descending=%u sm_applies=%u sm_applied=%u sm_refused=%u "
 	       "sm_settles=%u sm_rollbacks=%u sm_unbinds=%u sm_releases=%u sm_order=%u "

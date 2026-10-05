@@ -15,10 +15,12 @@ import zlib
 from collections.abc import Callable
 
 from nvm_bench import SLOT, Bench, Run
-from nvm_checks import (BOTH, CALL_BOUND_US, DIRECT, LITESPI, STEP_BYTES, TABLE_DIR,
-                        changed_frames, expect, go, pages, reseal, rid_payloads, set_args,
-                        state_matches)
-from nvm_contract import KLJ2_HDR, REC_HDR, VD_ERASE, VD_OK, VD_PROGRAM, VD_SHAPE, VD_VERIFY
+from nvm_checks import (BOTH, CALL_BOUND_US, DIRECT, LITESPI, LS_CALL_US, NOMINAL_CALL_US,
+                        P_HELD, P_IDLE, READ_TRIES, SLOT_A, SLOT_B, STEP_BYTES, T_COMPLETE,
+                        TABLE_DIR, changed_frames, expect, go, pages, reseal, rid_payloads,
+                        set_args, state_matches)
+from nvm_contract import (KLJ2_HDR, REC_HDR, VD_ERASE, VD_LEN, VD_OK, VD_PROGRAM, VD_SHAPE,
+                          VD_VERIFY)
 
 T_BLANK = 2
 #: The write path's phases (nvm_store.h enum nvm_phase).
@@ -108,8 +110,9 @@ def check_debounce(b: Bench, port: str) -> list[str]:
     """DR2a: a change commits after the 1,000 ms first-dirty window and not
     before, and a second change inside the window does not extend it. A
     change the running capture takes leaves no window behind it, so the next
-    change gets its own full window; a change the capture has passed opens
-    one of its own."""
+    change gets its own full window: a change to the last record, and one to
+    the very record the capture examines next; a change the capture has
+    passed opens one of its own."""
     f: list[str] = []
     g = b.file("g.bin", b.assemble(b.frames, 5))
     rid, new = _one_change(b, 1)
@@ -122,13 +125,16 @@ def check_debounce(b: Bench, port: str) -> list[str]:
     r = go(b, port, f, *one, "--run-ms", "500", "--set", f"{rid}:{new2.hex()}", "--run-ms", "560")
     expect(f, r.s["erases"] == 1, "a second change extended the first-dirty window")
     first = min(b.frames)
-    # the capture has latched nothing yet: it takes the change to the last record
-    r = go(b, port, f, "--slot-b", g, "--boot", "--set-pattern", "1", "--until-phase", str(P_CAPTURE),
-           "--set", f"{rid}:{new.hex()}", "--until-idle", "--run-ms", "5000", "--mark",
-           "--set", f"{rid}:{new2.hex()}", "--until-idle")
-    expect(f, r.s["ok"] == 2 and _in(_after_mark(r, 1), 1000 * MS, 1050 * MS),
-           f"a change after a commit that took one mid-capture: erase {_after_mark(r, 1)} us "
-           f"after it, want 1,000 to 1,050 ms: {r.s}")
+    # the capture has latched nothing yet: it takes a change to the last
+    # record, and one to the first, the record it examines next
+    for taken in (rid, first):
+        r = go(b, port, f, "--slot-b", g, "--boot", "--set-pattern", "1",
+               "--until-phase", str(P_CAPTURE), "--set", f"{taken}:{_value(b, taken, 1).hex()}",
+               "--until-idle", "--run-ms", "5000", "--mark",
+               "--set", f"{taken}:{_value(b, taken, 2).hex()}", "--until-idle")
+        expect(f, r.s["ok"] == 2 and _in(_after_mark(r, 1), 1000 * MS, 1050 * MS),
+               f"a change after a commit that took one mid-capture (record {taken:#x}): erase "
+               f"{_after_mark(r, 1)} us after it, want 1,000 to 1,050 ms: {r.s}")
     # the capture is over: a change now waits for a window of its own
     r = go(b, port, f, "--slot-b", g, "--boot", "--set", f"{rid}:{new.hex()}",
            "--until-phase", str(P_SEAL), "--mark", "--set", f"{first}:{_value(b, first, 9).hex()}",
@@ -202,8 +208,9 @@ def check_media_failures(b: Bench, port: str) -> list[str]:
 def check_recovers_after_failure(b: Bench, port: str) -> list[str]:
     """A third attempt that succeeds clears the stale claim; after exhaustion,
     a changed value is a new work set and commits once the media answers. The
-    stale claim heals (FASTCONNECT section 9.2); the record of the abandoned
-    set does not."""
+    stale claim heals (FASTCONNECT section 9.2), also when the change left
+    after the recovering commit set the value it already had and DR2b writes
+    nothing; the record of the abandoned set does not heal."""
     f: list[str] = []
     g = b.file("g.bin", b.assemble(b.frames, 5))
     rid, new = _one_change(b, 5)
@@ -213,6 +220,14 @@ def check_recovers_after_failure(b: Bench, port: str) -> list[str]:
     expect(f, r.s["ok"] == 1 and r.s["failed"] == 2 and r.s["stale"] == 0
            and r.s["last"] == VD_OK and r.s["first"] == VD_OK and r.s["attempts"] == 0
            and len(r.erases) == 3 and all(g >= 1_000_000 for g in gaps), f"third attempt: {r.s}")
+    # the first attempt fails; the same value is set again while the retry
+    # writes, so the retry's commit leaves it dirty and DR2b suppresses it
+    r = go(b, port, f, "--slot-b", g, "--boot", "--fault", "program-drop:1",
+           "--set", f"{rid}:{new.hex()}", "--until-phase", str(P_ERASE_WAIT),
+           "--until-phase", str(P_IDLE), "--until-phase", str(P_ERASE_WAIT),
+           "--set", f"{rid}:{new.hex()}", "--until-idle")
+    expect(f, r.s["ok"] == 1 and r.s["failed"] == 1 and r.s["skipped"] == 1 and r.s["stale"] == 0
+           and r.s["dirty"] == 0 and r.s["pending"] == 0, f"a repeated value after recovery: {r.s}")
     _rid, new2 = _one_change(b, 6)
     r = go(b, port, f, "--slot-b", g, "--boot", "--fault", "program-drop:99999",
            "--set", f"{rid}:{new.hex()}", "--run-ms", "15000", "--fault", "none:0",
@@ -372,13 +387,14 @@ def check_time_base(b: Bench, port: str) -> list[str]:
 
 
 def check_port_stall(b: Bench, port: str) -> list[str]:
-    """Every wait on the command master is bounded: a master slow by 4,000
-    status reads a wait (TX, RX or a drain) still completes; one that stops answering (TX, RX,
-    or a receive side that never drains) fails the call within
-    LS_POLL_MAX reads, chip select released, so the step returns, the
-    attempt fails under the step's verdict, the authority is untouched and
-    the retry commits; a master that never answers exhausts the set while
-    the loop keeps running."""
+    """Every wait on the command master is bounded: two waits of one page
+    program slowed by 4,000 status reads each (TX, RX or a drain) still
+    complete; a master that stops answering in one wait (TX, RX, or a
+    receive side that never drains) fails the call within LS_POLL_MAX reads,
+    chip select released, so the step returns, the attempt fails under the
+    step's verdict, the authority is untouched and the retry commits; a
+    master that never answers exhausts the set while the loop keeps
+    running. The case that slows every wait is port_deadline's."""
     f: list[str] = []
     golden = b.assemble(b.frames, 5)
     g = b.file("g.bin", golden)
@@ -414,6 +430,112 @@ def check_port_stall(b: Bench, port: str) -> list[str]:
     return f
 
 
+def check_port_deadline(b: Bench, port: str) -> list[str]:
+    """No call outlasts the port's deadline, LS_CALL_US of timer0 time, even
+    when the master keeps progressing inside every wait. Ten waits slowed by
+    4,000 status reads each (1.6 ms in one page program) and the call
+    completes. Every wait slowed by 4,000 reads, none of them reaching
+    LS_POLL_MAX, and each page program fails at the deadline: the attempt
+    fails VD_PROGRAM, the authority is untouched, three attempts are spent
+    and the loop keeps running; once the master is well, a changed value
+    commits. Every call stays within CALL_BOUND_US of model time."""
+    f: list[str] = []
+    golden = b.assemble(b.frames, 5)
+    g = b.file("g.bin", golden)
+    rid, new = _one_change(b, 30)
+    head = ["--slot-b", g, "--boot", "--protect-auth", "--set", f"{rid}:{new.hex()}",
+            "--until-phase", str(P_PROGRAM)]
+    r = go(b, port, f, *head, "--ls-stall", "tx:10:0:4000", "--until-idle")
+    expect(f, r.s["ok"] == 1 and r.s["failed"] == 0 and r.s["ls_stalled"] == 10
+           and 1600 <= r.s["max_call_us"] < LS_CALL_US, f"ten slowed waits: {r.s}")
+    r = go(b, port, f, *head, "--ls-stall", "tx:999999:0:4000", "--run-ms", "10000",
+           "--dump-slot-b", "b.bin", "--ls-stall", "none:0",
+           "--set", f"{rid}:{_value(b, rid, 31).hex()}", "--until-idle", allow=("ls_short",))
+    expect(f, r.s["failed"] == 3 and r.s["abandoned_vd"] == VD_PROGRAM and r.s["abandoned"] == 1
+           and r.s["ok"] == 1 and r.s["ls_max_withheld"] == 4000
+           and LS_CALL_US <= r.s["max_call_us"] <= CALL_BOUND_US and r.s["calls"] >= 50_000,
+           f"every wait slowed: {r.s}")
+    expect(f, _slot(b, "b.bin") == _padded(golden), "every wait slowed: the authority changed")
+    return f
+
+
+#: Sequences the generation restart meets differently: a tie with 1, an
+#: ordinary one, the half-range point and the wrap.
+AUTH_SEQS = (1, 5, 0x8000_0000, 0xFFFF_FFFF)
+
+
+def _authority_case(b: Bench, port: str, f: list[str], x: int, seq: int,
+                    case: tuple[str, bool]) -> None:
+    """Slot x valid at seq, the other blank, the case's fault armed at boot
+    (held: whether it must hold the writer); a change; then a clean reboot,
+    a change, its commit and a clean reboot."""
+    fault, held = case
+    frames, _ = changed_frames(b, 0x60 + x)
+    img = b.assemble(frames, seq)
+    saved = rid_payloads(b, img)
+    rid, new = _one_change(b, 32)
+    _rid, new2 = _one_change(b, 33)
+    what = f"slot {'AB'[x]} at {seq:#x}, {fault}"
+    console = ["--run-ms", "3000", "--commit-try"] if held else []
+    r = go(b, port, f, "--slot-a" if x == 0 else "--slot-b", b.file("x.bin", img),
+           "--boot-fault", fault, "--boot", "--dump-state", "st0.txt", "--set", f"{rid}:{new.hex()}",
+           "--until-idle", *console, "--dump-slot-a", "a1.bin", "--dump-slot-b", "b1.bin")
+    s = r.s
+    if held:
+        expect(f, s["unread"] == 1 << x and s["phase"] == P_HELD and s["terminal"] == T_BLANK
+               and s["vd_" + "ab"[x]] == VD_LEN and s["ok"] == 0 and s["erases"] == 0
+               and s["programs"] == 0 and s["dirty"] == 1 and s["commit_refused"] == 1,
+               f"{what}: the writer is not held: {s}")
+    else:
+        expect(f, s["unread"] == 0 and s["terminal"] == T_COMPLETE and s["ok"] == 1
+               and s["auth"] == 1 - x and s["seq"] == (seq + 1) & 0xFFFF_FFFF,
+               f"{what}: the slot was not read again and applied: {s}")
+    f += [f"{what}: at boot: {e}" for e in state_matches(b, b.work / "st0.txt", {} if held else saved)]
+    # whatever the store reported committed, a clean reboot restores
+    durable = {**saved, **({rid: new} if s["ok"] else {})}
+    want_seq = (seq + (1 if s["ok"] else 0)) & 0xFFFF_FFFF
+    r = go(b, port, f, "--slot-a", str(b.work / "a1.bin"), "--slot-b", str(b.work / "b1.bin"),
+           "--boot", "--dump-state", "st1.txt", "--set", f"{rid}:{new2.hex()}", "--until-idle",
+           "--dump-slot-a", "a2.bin", "--dump-slot-b", "b2.bin")
+    expect(f, r.s["seq"] == (want_seq + 1) & 0xFFFF_FFFF and r.s["ok"] == 1 and r.s["unread"] == 0,
+           f"{what}: the change after a clean reboot: {r.s}")
+    f += [f"{what}: clean reboot: {e}" for e in state_matches(b, b.work / "st1.txt", durable)]
+    r = go(b, port, f, "--slot-a", str(b.work / "a2.bin"), "--slot-b", str(b.work / "b2.bin"),
+           "--boot", "--dump-state", "st2.txt")
+    expect(f, r.s["seq"] == (want_seq + 1) & 0xFFFF_FFFF and r.s["terminal"] == T_COMPLETE,
+           f"{what}: the reboot after that commit: {r.s}")
+    f += [f"{what}: last reboot: {e}"
+          for e in state_matches(b, b.work / "st2.txt", {**durable, rid: new2})]
+
+
+def check_authority_unknown(b: Bench, port: str) -> list[str]:
+    """#665 decision 2: a slot refused by a media read fault leaves the
+    authority unknown, so nothing is committed until reset. One slot valid
+    and the other blank, both ways round, at sequence 1, 5, 0x80000000 and
+    0xFFFFFFFF. The valid slot's reads failing NVM_READ_TRIES times: the
+    boot is BLANK, the writer HELD, a change is reported dirty, nothing is
+    erased or written and the console is refused; a clean reboot restores
+    the slot. Two failed reads, one read flipping a bit unreported, or one
+    read answering from the blank slot (so the valid one reads blank): the
+    slot is read again and applied, and the change commits at the next
+    sequence. Either way a later change commits and a clean reboot restores
+    it with every other value, and nothing reported committed is lost on a
+    clean reboot."""
+    f: list[str] = []
+    for x in (0, 1):
+        # a blank slot stands on two header reads, a valid one on its header
+        # and its container; slot A is judged first
+        first = 0 if x == 0 else 2
+        body = f"{(SLOT_A, SLOT_B)[x] + 0x100:#x}"
+        for seq in AUTH_SEQS:
+            for case in ((f"read-fail:{READ_TRIES}:{first}", True),
+                         (f"read-fail:{READ_TRIES - 1}:{first}", False),
+                         (f"read-flip-at:1:0:{body}", False),
+                         (f"read-alias:1:{first}", False)):
+                _authority_case(b, port, f, x, seq, case)
+    return f
+
+
 def check_refused_slot_kept(b: Bench, port: str) -> list[str]:
     """DR5: with no slot accepted, a blank slot takes the first commit before
     a refused one, so a refused image is not erased merely for being refused."""
@@ -434,7 +556,7 @@ def check_refused_slot_kept(b: Bench, port: str) -> list[str]:
 def check_service_bound(b: Bench, port: str) -> list[str]:
     """Every service step is bounded and returns: no step touches more than
     one latched record or one 256-byte stretch, no call holds the loop past
-    CALL_BOUND_US of link time, and the loop keeps running through a 3 s
+    NOMINAL_CALL_US of model time, and the loop keeps running through a 3 s
     erase (one status poll per call)."""
     f: list[str] = []
     r = go(b, port, f, "--slot-b", b.file("g.bin", b.assemble(b.frames, 5)), "--boot",
@@ -444,7 +566,7 @@ def check_service_bound(b: Bench, port: str) -> list[str]:
     want = max(STEP_BYTES, 2 * maxplen + 6)
     expect(f, s["ok"] == 1 and s["step_max"] == want == s["step_bound"],
            f"step bytes {s['step_max']}, want {want} (bound {s['step_bound']})")
-    expect(f, s["max_call_us"] <= CALL_BOUND_US and s["calls"] >= 3_000_000 // 100
+    expect(f, s["max_call_us"] <= NOMINAL_CALL_US and s["calls"] >= 3_000_000 // 100
            and s["max_polls_call"] <= 3, f"the loop did not keep running: {s}")
     return f
 
@@ -557,7 +679,9 @@ WRITE_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
     "vector_round_trip": check_vector_round_trip,
     "time_base": check_time_base,
     "port_stall": check_port_stall,
+    "port_deadline": check_port_deadline,
     "port_guard": check_port_guard,
+    "authority_unknown": check_authority_unknown,
 }
 
 #: The flash model's read and refusal faults reach the store through the
@@ -565,6 +689,7 @@ WRITE_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
 #: the guard's); the PHC, timer0 and the command master exist on the LiteSPI
 #: port only.
 WRITE_PORTS = {name: BOTH for name in WRITE_CHECKS}
-WRITE_PORTS["media_verdicts"] = DIRECT
-for _name in ("time_base", "port_stall", "port_guard"):
+for _name in ("media_verdicts", "authority_unknown"):
+    WRITE_PORTS[_name] = DIRECT
+for _name in ("time_base", "port_stall", "port_deadline", "port_guard"):
     WRITE_PORTS[_name] = (LITESPI,)

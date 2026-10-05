@@ -24,7 +24,8 @@
  * event loop keeps running through a 3 s erase
  * (docs/design/SAVED_STATE_FASTCONNECT.md section 9.4). A controller that
  * stops answering makes the call fail, never wait: an implementation bounds
- * every wait it has.
+ * every wait it has, and the call as a whole, so a controller that keeps
+ * answering slowly cannot hold one call past a stated figure either.
  */
 #ifndef NVM_FLASH_H
 #define NVM_FLASH_H
@@ -32,7 +33,9 @@
 #include <stdint.h>
 
 struct nvm_flash {
-	/* Copy len bytes at device byte address addr into dst; 0 on success. */
+	/* Copy len bytes at device byte address addr into dst; 0 on success,
+	 * nonzero when the bytes could not be read: a media fault, never a
+	 * verdict on the bytes. */
 	int (*read)(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len);
 	/* Start a page program: write enable, then len bytes (1 to
 	 * NVM_FLASH_PAGE) at addr, all inside one page. 0 when started. */
