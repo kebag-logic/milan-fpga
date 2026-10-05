@@ -10,7 +10,7 @@ Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #
 
 - **[Summary](#summary)** -- The baseline, the gap, what the levers add up to, and the decisions the plan waits on.
 - **[Target](#target)** -- NFR-RES-01's 38,040-LUT limit, the plan's 5 percent margin, the timing gate and the due date.
-- **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- The routed shipping image and `KL_pp_shadow` at 1x1 measured at this head, per hierarchy down to each protocol engine, and the second pin adoption's projected image.
+- **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- The routed shipping image and `KL_pp_shadow` at 1x1 measured at this head, per hierarchy down to each protocol engine, and the second pin adoption's measured image.
 - **[Inventory](#inventory)** -- Every hierarchy above 500 LUTs: its protocol function and clause, how it is built, and which of its cost a standard sets.
 - **[Levers](#levers)** -- Twelve levers, each with its saving and basis, risk, verification cost and protocol-visible effect.
 - **[Ledger](#ledger)** -- What the shared sequencer displaces, block by block, and every lever subtracted from the projected start at central, low and high estimates.
@@ -22,10 +22,10 @@ Milestone 12 is due 2026-12-15, before the release gate of milestone 6, so the #
 ## Summary
 
 - **The baseline.** At dev `e6172750` the routed shipping image uses 50,702 LUTs, 79.97 percent of the device: 12,662 over NFR-RES-01's 38,040 and 14,562 over this plan's 36,140. The protocol processor holds 24,051 of them, the gPTP plane 4,999, the CSR plane 2,907 and the SoC side 8,564.
-- **The start.** The second pin adoption (#661), which carries the #232, #230 and #639 area work, is projected at about 49,960 LUTs from those lanes' own measured routes. #661 had not published its route when this was written.
-- **The gap.** From that start, 11,920 LUTs must go to meet the limit and 13,820 to meet the plan target: about 28 percent of the image. Most of the area is in the processor, as #649 found.
-- **What the levers give.** Inside today's requirements, the ten hardware levers in the [ledger](#ledger) sum to about 12,750 LUTs at central estimates and reach 37,210: under the limit by 830, short of the plan target by 1,070. One more engine-sharing lever reaches 36,010. Across the levers' ranges the result lies between about 32,600 and 41,600.
-- **What that rests on.** About 6,000 of the saving is one redesign that no prototype has measured yet: the protocol engines time-multiplexed onto one micro-coded sequencer (L1). Another 3,300 is the SoC side (on-chip main memory and a smaller control core), which needs owner decisions and a change to #70's staging buffers. Without the SoC levers the image stays near 40,500, over the limit.
+- **The start.** The second pin adoption (#661), which carries the #232, #230 and #639 area work, measured its route at 50,318 LUTs (author evidence under review): 384 below this head, 358 above what the three lanes' own deltas added up to.
+- **The gap.** From that start, 12,278 LUTs must go to meet the limit and 14,178 to meet the plan target: about 28 percent of the image. Most of the area is in the processor, as #649 found.
+- **What the levers give.** Inside today's requirements, the ten hardware levers in the [ledger](#ledger) sum to about 12,750 LUTs at central estimates and reach 37,568: under the limit by 472, short of the plan target by 1,428. One more engine-sharing lever reaches 36,368, still 228 above the plan target. Across the levers' ranges the result lies between about 33,000 and 41,900. **No priced sequence reaches the 5 percent margin at central estimates** (D8).
+- **What that rests on.** About 6,000 of the saving is one redesign that no prototype has measured yet: the protocol engines time-multiplexed onto one micro-coded sequencer (L1). Another 3,300 is the SoC side (on-chip main memory and a smaller control core), which needs owner decisions and a change to #70's staging buffers. Without the SoC levers the image stays near 40,900, over the limit.
 - **The RISC-V direction** (L2) is the one lever large enough to reach the target on its own, and it needs REQUIREMENTS section 1, NFR-SCOUT-02, NFR-SCOUT-03 and the ownership rule changed. It is priced, not planned.
 - **The schedule.** Ten weeks hold only if the [decisions](#decisions-needed) are taken before week 1 and the sequencer's three sub-lanes run in parallel from week 1. The plan should be re-measured when the sequencer's first sub-lane routes, in week 4.
 - **No RTL, configuration or parameter changed here.** The resource gate's record is unchanged; it is re-recorded only by the lane that reaches the target (D7).
@@ -180,8 +180,18 @@ The two hierarchies attribute differently: the AECP dynamic-state store is 152 L
 ### After the second pin adoption
 
 The second pin adoption (#661) moves the processor to `ead80360`, which carries #232, #230 and #639.
-It had published no measured image when this page was written; its lane re-records the gate, and its figures replace this projection when they are published.
-Until then the starting point is projected from the three area lanes' own routes, each measured against the same base route with the C8, P2-P1 and C10 parent patches:
+Its lane published its measured image on 2026-10-05 ([REVIEW READY](https://github.com/kebag-logic/milan-fpga/issues/661#issuecomment-5990292142), head `42f65447`, on dev `506d91db`, which already carries #653).
+That is author evidence under review, not a merged record; this plan starts from it because it is the only measurement of the adopted image.
+
+| Endpoint | LUT | FF | Slice | RAMB36 | WNS / WHS ns | Against the gate's record |
+|---|---:|---:|---:|---:|---:|---|
+| Route, second pin (#661) | 50,318 | 54,214 | 15,789 | 74 | +0.108 / +0.036 | -449 LUT, -5,420 FF, -43 slices, -5 RAMB36 |
+| Route, this head | 50,702 | 59,677 | 15,828 | 79 | +0.244 / +0.036 | -65 LUT, +43 FF, -4 slices |
+| Standalone 1x1, second pin (#661) | 23,178 | 19,776 | - | - | - | -1,154 LUT, -5,569 FF |
+| Standalone 8x8, second pin (#661) | 29,853 | 27,370 | - | - | - | -1,703 LUT, -6,567 FF |
+
+So the adoption moves the route by -384 LUTs against this head and leaves 61 slices free.
+The three area lanes' own routes, each measured against one base route with the C8, P2-P1 and C10 parent patches, explain most of it:
 
 | Change | Base route LUT / FF | Head route LUT / FF | LUT change | FF change | Other |
 |---|---:|---:|---:|---:|---|
@@ -189,10 +199,10 @@ Until then the starting point is projected from the three area lanes' own routes
 | #232, notification registry in distributed RAM (processor PR #153) | 51,434 / 59,691 | 50,671 / 57,660 | -763 | -2,031 | `u_notify` -927 LUT |
 | #230, SRP timer FIFOs and walk storage (processor PR #154) | 51,434 / 59,691 | 51,005 / 57,262 | -429 | -2,429 | `u_srp` 4,340 to 3,711 LUT |
 | #639, timer-arm rings and listener records (processor PR #155) | 51,434 / 59,691 | 51,152 / 58,598 | -282 | -1,093 | RAMB36 79 to 74 |
-| **Projected second-pin image**, if the three are additive | | **49,960 / 54,138** | **-807** against the gate's record, -742 against this head's route | | RAMB36 74 |
+| The three added, as a projection | | 49,960 / 54,138 | -807 against the record | | |
 
-The three lanes changed disjoint blocks, which is why their deltas are added; #661's own route is the measurement.
-Processor PRs #152 and #157 are in the pin too and were not in any of these routes: #152 changes tests only, #157 one GET_DYNAMIC_INFO classifier hunk.
+The measured adoption is 358 LUTs and 76 FFs above that projection: the lanes' deltas do not add exactly, and processor PRs #152 (tests) and #157 (one GET_DYNAMIC_INFO classifier hunk) were in none of those routes.
+The [ledger](#ledger) starts from the measured 50,318.
 
 ## Inventory
 
@@ -489,49 +499,51 @@ The notification, saved-state writer and listener rows take the second pin's mea
 L1b is figured the same way from the standalone SRP rows: the talker and listener FSMs (662 and 420 LUTs, share 0.7), admission (337, 0.5), the encoder's tables (1,461, 0.4) and the glue #230 left (354 LUTs standalone after #230, 0.3): 1,616 displaced, less about 300 (200 to 600) for its tables and state regions on the shared engine, about 1,300 (700 to 1,700).
 
 **The ledger, central estimates and ranges.**
-The start is the second pin's projected image; each row subtracts one lever.
+The start is the second pin's measured image (#661, under review); each row subtracts one lever.
 
 | Lane | Lever | Central | Range | Image after, central | Low end | High end |
 |---|---|---:|---:|---:|---:|---:|
-| M0 | the second pin adoption, projected | - | - | 49,960 | 49,960 | 49,960 |
-| M1 | L6 diagnostics off | -700 | 650 to 750 | 49,260 | 49,310 | 49,210 |
-| M2 | L3 block RAM tables outside L1 | -800 | 500 to 1,200 | 48,460 | 48,810 | 48,010 |
-| M3 | L1a the shared sequencer | -4,700 | 2,800 to 6,400 | 43,760 | 46,010 | 41,610 |
-| M3 | L4 and L5, widths and the #233 items | -250 | 130 to 500 | 43,510 | 45,880 | 41,110 |
-| M4 | L1b SRP onto the sequencer | -1,300 | 700 to 1,700 | 42,210 | 45,180 | 39,410 |
-| M5 | L8 CSR read path | -600 | 400 to 1,000 | 41,610 | 44,780 | 38,410 |
-| M6 | L9 datapath contexts in RAM | -600 | 400 to 900 | 41,010 | 44,380 | 37,510 |
-| M7 | L10a gPTP tables | -500 | 300 to 700 | 40,510 | 44,080 | 36,810 |
-| M8 | L11a on-chip main memory | -1,600 | 1,200 to 2,000 | 38,910 | 42,880 | 34,810 |
-| M8 | L11b smaller control core | -1,700 | 1,300 to 2,200 | 37,210 | 41,580 | 32,610 |
-| M10 | L10b one engine for gPTP and AECP | -1,200 | 900 to 1,500 | 36,010 | 40,680 | 31,110 |
+| M0 | the second pin adoption, measured by #661 | - | - | 50,318 | 50,318 | 50,318 |
+| M1 | L6 diagnostics off | -700 | 650 to 750 | 49,618 | 49,668 | 49,568 |
+| M2 | L3 block RAM tables outside L1 | -800 | 500 to 1,200 | 48,818 | 49,168 | 48,368 |
+| M3 | L1a the shared sequencer | -4,700 | 2,800 to 6,400 | 44,118 | 46,368 | 41,968 |
+| M3 | L4 and L5, widths and the #233 items | -250 | 130 to 500 | 43,868 | 46,238 | 41,468 |
+| M4 | L1b SRP onto the sequencer | -1,300 | 700 to 1,700 | 42,568 | 45,538 | 39,768 |
+| M5 | L8 CSR read path | -600 | 400 to 1,000 | 41,968 | 45,138 | 38,768 |
+| M6 | L9 datapath contexts in RAM | -600 | 400 to 900 | 41,368 | 44,738 | 37,868 |
+| M7 | L10a gPTP tables | -500 | 300 to 700 | 40,868 | 44,438 | 37,168 |
+| M8 | L11a on-chip main memory | -1,600 | 1,200 to 2,000 | 39,268 | 43,238 | 35,168 |
+| M8 | L11b smaller control core | -1,700 | 1,300 to 2,200 | 37,568 | 41,938 | 32,968 |
+| M10 | L10b one engine for gPTP and AECP | -1,200 | 900 to 1,500 | 36,368 | 41,038 | 31,468 |
 
 The limit is 38,040 and the plan target 36,140.
+At central estimates every hardware lever but L10b reaches 37,568, under the limit by 472 (1.2 percent); with L10b, 36,368, still 228 above the plan target.
 
 ## Lane sequence
 
 The sequence orders lanes by saving per unit of risk, keeps processor and parent lanes running in parallel, and puts every decision a lane needs in front of it.
 Weeks count from Monday 2026-10-12, after the second pin adoption; the milestone's due date, 2026-12-15, falls in week 10.
-"Image after" is the projected routed LUT count once that lane and every lane above it have landed, at central estimates.
+"Image after" is the projected routed LUT count once that lane and every lane above it have landed, at central estimates, from #661's measured route.
 
 | Lane | Weeks | Levers | Repository | Image after (LUT) | Needs first |
 |---|---|---|---|---:|---|
-| M0 | before week 1 | the second pin adoption (#661) | parent | 49,960 (projection; #661 measures it) | in flight |
-| M1 | 1-2 | L6 diagnostics off in the shipping build | parent; the trace ring's parameter in the processor | 49,260 | D2 |
-| M2 | 1-4 | L3 block RAM for the tables outside L1 | processor, gPTP processor, parent | 48,460 | none |
-| M3 | 1-8 | L1a the shared sequencer, in three sub-lanes: notification and originator; ACMP and ADP; the record managers and AECP dispatch. L4 and L5 ride with it | processor | 43,510 | D1, D3 |
-| M4 | 3-8 | L1b SRP onto the sequencer, or L7 alone if L1b is refused | processor | 42,210 | D1, D3 |
-| M5 | 2-6 | L8 CSR read path | parent | 41,610 | none |
-| M6 | 2-6 | L9 datapath contexts in RAM | parent | 41,010 | none |
-| M7 | 3-6 | L10a gPTP plane tables | gPTP processor, parent | 40,510 | none |
-| M8 | 2-8 | L11a on-chip main memory; L11b once the smaller core is shown to hold the capture bound | parent SoC, firmware | 37,210 | D4, D5, #70 |
-| M10 | 6-9, if needed | L10b one engine for gPTP and AECP | gPTP processor, processor | 36,010 | D6 |
-| M9 | 9-10 | the pin adoptions, the integrated route, timing closure, the resource gate re-recorded at the target, every suite and campaign, the bench suite | parent | at most 36,140 | every lane above |
+| M0 | before week 1 | the second pin adoption (#661), at review | parent | 50,318 (measured by #661, under review) | in flight |
+| M1 | 1-2 | L6 diagnostics off in the shipping build | parent; the trace ring's parameter in the processor | 49,618 | D2 |
+| M2 | 1-4 | L3 block RAM for the tables outside L1 | processor, gPTP processor, parent | 48,818 | none |
+| M3 | 1-8 | L1a the shared sequencer, in three sub-lanes: notification and originator; ACMP and ADP; the record managers and AECP dispatch. L4 and L5 ride with it | processor | 43,868 | D1, D3 |
+| M4 | 3-8 | L1b SRP onto the sequencer, or L7 alone if L1b is refused | processor | 42,568 | D1, D3 |
+| M5 | 2-6 | L8 CSR read path | parent | 41,968 | none |
+| M6 | 2-6 | L9 datapath contexts in RAM | parent | 41,368 | none |
+| M7 | 3-6 | L10a gPTP plane tables | gPTP processor, parent | 40,868 | none |
+| M8 | 2-8 | L11a on-chip main memory; L11b once the smaller core is shown to hold the capture bound | parent SoC, firmware | 37,568 | D4, D5, #70 |
+| M10 | 6-9, if needed | L10b one engine for gPTP and AECP | gPTP processor, processor | 36,368 | D6 |
+| M9 | 9-10 | the pin adoptions, the integrated route, timing closure, the resource gate re-recorded at the target, every suite and campaign, the bench suite | parent | at most 38,040; 36,140 needs D8 | every lane above |
 
-At central estimates M0 to M8 reach 37,210 LUTs: under the 38,040 limit by 830, short of the 36,140 plan target by 1,070.
-M10 closes that, to 36,010, and only M10 or a lever outside this plan does.
-At the low end of every range the same sequence stops near 41,600 (40,700 with M10), above the limit; at the high end near 32,600.
-Without the SoC lane M8 it stops near 40,500 at central estimates: the limit is not reached inside today's requirements without the SoC decisions.
+At central estimates M0 to M8 reach 37,568 LUTs: under the 38,040 limit by 472, short of the 36,140 plan target by 1,428.
+M10 brings it to 36,368, still 228 above the plan target: no priced lever closes the margin at central estimates, and D8 asks how it is closed.
+At the low end of every range the same sequence stops near 41,900 (41,000 with M10), above the limit; at the high end near 33,000 (31,500).
+Without the SoC lane M8 it stops near 40,900 at central estimates: the limit is not reached inside today's requirements without the SoC decisions.
+The plan is re-measured when M3's first sub-lane routes (week 4); that measurement decides whether M10 and D8's options are needed.
 
 Per lane, its own LUT target, the files it changes, what it must show before its review, its risks and what it waits on:
 
@@ -546,7 +558,7 @@ Per lane, its own LUT target, the files it changes, what it must show before its
 | M7 | -500 | `gptp-processor/hdl/top/KL_gptp_engine.sv` and its state regions, `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` | gPTP processor suites, `gptp_plane`, `gptp_shadow`, `gptp_txts`, `milan_dp_gptp` | timestamp path timing | none |
 | M8 | -3,300 | `sw/litex/milan_soc.py`, `sw/firmware/milan_baremetal/milan_baremetal.c`, the saved-state staging layout | firmware host tests, `nvm_cosim`, `nvm_capture_cpu`, `check_nvm_capture.py`, builder and deploy gates, bench boot and saved-state cycle | #70's staging redesign, memory map, core performance | D4, D5, #70 |
 | M10 | -1,200 | `gptp-processor/hdl/ucpu/`, `protocol-processor/hdl/aecp/KL_aecp_ucpu.sv`, `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` | gPTP and processor suites, a turnaround proof, gPTP bench evidence | time-critical handlers on a shared engine | D6 |
-| M9 | to at most 36,140 | the `protocol-processor` and `gptp-processor` gitlinks, `syn/ooc/pp_resource_baseline.json`, the [area budget](AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) | everything in [what holds throughout](#what-holds-throughout) | timing closure at the new density | all |
+| M9 | to at most 38,040, and 36,140 if D8 provides the rest | the `protocol-processor` and `gptp-processor` gitlinks, `syn/ooc/pp_resource_baseline.json`, the [area budget](AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) | everything in [what holds throughout](#what-holds-throughout) | timing closure at the new density | all |
 
 Each lane measures itself with the #234 recipe in a scratch parent, as #232, #230 and #639 did: the route and both standalone endpoints, before and after, one Vivado at a time under the host lock.
 
@@ -568,9 +580,9 @@ Each lane measures itself with the #234 recipe in a scratch parent, as #232, #23
 - **D3, internal timing is not protocol-visible.** Whether a change of internal latency inside every normative timeout, with no wire change, counts as "no protocol-visible effect" for L1 and L7. #230's ruling excluded it from the cycle-exact pre-adoption track only.
 - **D4, on-chip main memory.** Whether the SoC drops DDR3 (L11a). It needs #70's staging buffers sized to the container and a memory-map change.
 - **D5, the control core.** Whether the control hart becomes a smaller cacheless RV32I core (L11b, about 1,700 LUTs, priced here), provided it holds the saved-state capture bound and the boot timing.
-- **D6, one engine for gPTP and AECP** (L10b), if M0 to M8 leave the margin short.
+- **D6, one engine for gPTP and AECP** (L10b): at central estimates M0 to M8 leave the margin short, so it is needed for any margin above 1.2 percent.
 - **D7, the re-baseline rule during Mark II.** The budget's rule makes every image-moving merge record its own re-baseline; the assignment re-records only at the target. Proposed: Mark II lanes record their measured image in this plan's ledger and leave the gate's record alone, since an improvement already passes; the rule's purpose, that growth is never hidden, holds because the gate still judges each lane against the last record.
-- **D8, the margin.** This plan reads "about 5 %" as 5 percent of the limit: at most 36,140 LUTs, 57.0 percent of the device. Read as 5 points of the device, the target is 34,870, which no central estimate here reaches.
+- **D8, the margin.** This plan reads "about 5 %" as 5 percent of the limit: at most 36,140 LUTs, 57.0 percent of the device; read as 5 points of the device it is 34,870. At central estimates the priced levers reach 37,568 (472 under the limit) without L10b and 36,368 with it, so neither reading is met. The ruling needed: accept a smaller margin, or close the last 1,400 to 2,700 LUTs with part of L2 (which needs D9), or decide after M3's first measured route.
 - **D9, the RISC-V direction** (L2). Its saving is the largest single figure here, and it needs REQUIREMENTS section 1, NFR-SCOUT-02 and NFR-SCOUT-03 and the ownership rule changed. It is not schedulable by 2026-12-15.
 
 **Not a decision, a follow-up.** The [area budget](AREA_BUDGET.md#allocation-to-the-protocol-processor) still places the redesign "after Instrument verification"; the owner's correction of 2026-10-05 puts milestone 12 before P3 ([comment](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)). The budget page is not edited here.
