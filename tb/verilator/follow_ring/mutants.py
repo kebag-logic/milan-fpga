@@ -51,7 +51,9 @@ PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
 
 #: (name, wrapper define or None, [(shipped text, planted text)] in the datapath,
 #:  [(shipped text, planted text)] in the capture crossbar, leg, the check that must fail)
-MUTANTS = (
+Plant = list[tuple[str, str]]
+Mutant = tuple[str, str | None, Plant, Plant, list[str], str]
+MUTANTS: tuple[Mutant, ...] = (
     ("NO-SETTLE", None,
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
@@ -83,9 +85,9 @@ def plant(src: Path, edits: list[tuple[str, str]], out: Path) -> str | None:
     return None
 
 
-def run_one(mdir_root: Path, name: str, define: str | None, edits: list[tuple[str, str]],
-            cmap_edits: list[tuple[str, str]], leg: list[str], check: str) -> tuple[str, bool, str]:
+def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     """Build one mutant through the suite's own recipe and run its leg."""
+    name, define, edits, cmap_edits, leg, check = mutant
     mdir = mdir_root / name.lower()
     mdir.mkdir(parents=True, exist_ok=True)
     make = ["make", "-s", "--no-print-directory", "-C", str(HERE), "build", f"MDIR={mdir}"]
@@ -114,7 +116,7 @@ def main() -> int:
     a = ap.parse_args()
     survivors = 0
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as pool:
-        futs = {pool.submit(run_one, a.mdir, *m): m for m in MUTANTS}
+        futs = {pool.submit(run_one, a.mdir, m): m for m in MUTANTS}
         for fut in cf.as_completed(futs):
             name, killed, out = fut.result()
             check = futs[fut][5]
