@@ -1,0 +1,16 @@
+  [ok]   [NOTIFY-CRF] the CRF bind edge pushed GET_COUNTERS(STREAM_INPUT, N) to A = 0x1
+  [ok]   [NOTIFY-CRF] ...and to B                       = 0x1
+  [ok]   [NOTIFY-CRF] ...status SUCCESS with the full cdl-148 body = 0x1
+  [ok]   [NOTIFY-CRF] ...claiming the Table 5.16 ten (0xF3F) = 0xf3f
+  [ok]   [NOTIFY-CRF] ...byte-identical from the body on to the solicited answer = 0x1
+  [ok]   [NOTIFY-CRF] ...and so is A's copy             = 0x1
+  [ok]   [NOTIFY-CRF] a second change inside the second is WITHHELD = 0x1
+  [dbg] drain_tx returned mid-frame at t=563459: 48 bytes dropped, DA 68:05:ca:95:b2:d1
+  [ok]   [NOTIFY-CRF] ...and RELEASED exactly once after it = 0x2
+  [ok]   [NOTIFY-CRF] ...no earlier than one second after the first = 0x1
+  [ok]   [NOTIFY-CRF] ...and no further push to B in the next two seconds without a change = 0x2
+  [FAIL] [NOTIFY-CRF] ...nor to A                       got=0x1 exp=0x2
+  [dbg] #0 t=462344 ms(rel t1)=-7 to=A u=1 cmd=0029 desc=0005:1 seq=1
+  [dbg] #1 t=463107 ms(rel t1)=0 to=B u=1 cmd=0029 desc=0005:1 seq=2
+  [dbg] #2 t=564356 ms(rel t1)=1012 to=B u=1 cmd=0029 desc=0005:1 seq=3
+checks: 383   failures: 1

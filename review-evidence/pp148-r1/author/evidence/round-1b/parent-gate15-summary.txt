@@ -1,0 +1,37 @@
+== gmstep: checks: 104   failures: 0 ==
+RESULT: PASS
+182 checks: 182 PASS, 0 FAIL
+182 checks: 182 PASS, 0 FAIL
+milan_datapath: 236 checks, 0 failures
+---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----
+  [i]    CRF row pushes to B 1012 ms apart
+  [ok]   [NOTIFY-CRF] ...nor to A                       = 0x2
+checks: 383   failures: 0
+RESULT: PASS
+---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+checks: 416   failures: 0
+RESULT: PASS
+checks: 1961   failures: 0
+RESULT: PASS
+---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+checks: 1961   failures: 0
+RESULT: PASS
+checks: 3746   failures: 0
+RESULT: PASS
+---- the shipping Arty shape: 4 streams x 4 wire channels ----
+checks: 1961   failures: 0
+RESULT: PASS
+---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+milan_datapath: 236 checks, 0 failures
+---- all six tier-1 blocks pruned ----
+checks: 33   failures: 0
+RESULT: PASS
+---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+milan_datapath: 233 checks, 0 failures
+---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+media_aclk: 193 checks, 0 failures
+RESULT: PASS
+---- #386 render law: the same leg against mutated setpoint stages and datapath ----
+6 checks: 6 PASS, 0 FAIL
+---- #387 GM step re-base: the gmstep leg against the acceptance's controls ----
+6 checks: 6 PASS, 0 FAIL

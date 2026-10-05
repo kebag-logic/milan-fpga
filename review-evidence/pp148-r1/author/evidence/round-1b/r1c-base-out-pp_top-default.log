@@ -1,0 +1,42 @@
+  [B4] command byte 0 -> response byte 0: 2363 clocks (0.024 % of the 10,000,000-clock AECP budget)
+  [B4b] at 143 clocks (~1424 ns) per access: 7523 clocks for a 316-byte payload over 40 lane writes (0.075 % of budget)
+GI latency walks added: 5568 checks, 0 failures
+NW: 85 checks, 0 failures
+D3: 319 checks, 0 failures
+D3V: 11 checks, 0 failures
+  [i] D3KR cfg: 32 seeds over 15 clocks; at the cut A whole 3, erased 7, torn header 13, torn payload 1, B whole 8
+  [i] D3KR rate: 32 seeds over 17 clocks; at the cut A whole 5, erased 3, torn header 8, torn payload 8, B whole 8
+  [i] D3KR clks: 32 seeds over 15 clocks; at the cut A whole 5, erased 5, torn header 9, torn payload 5, B whole 8
+  [i] D3KR fmti: 32 seeds over 21 clocks; at the cut A whole 5, erased 2, torn header 11, torn payload 8, B whole 6
+  [i] D3KR fmto: 32 seeds over 21 clocks; at the cut A whole 4, erased 3, torn header 9, torn payload 9, B whole 7
+  [i] D3KR ptof: 32 seeds over 17 clocks; at the cut A whole 3, erased 4, torn header 12, torn payload 4, B whole 9
+  [i] D3KR name: 32 seeds over 77 clocks; at the cut A whole 0, erased 2, torn header 2, torn payload 27, B whole 1
+  [i] D3KR bind: 32 seeds over 33 clocks; at the cut A whole 3, erased 2, torn header 7, torn payload 18, B whole 2
+D3KR: 1000 checks, 0 failures
+  AC: 18924 ms of simulated time on its own model
+ACMP: 43 checks, 0 failures
+AD: 67 checks, 0 failures
+AX: 231 checks, 0 failures
+  [DL1] kill 9947 clocks after reception, forced response's first byte at 13354 (budget 10000, T-AECP-RESP 24000)
+  [DL2] kill 9923 clocks after reception, the SET_NAME's own response at 18969
+  [DL3] the stall answered at 13354, the queued GET_MILAN_INFO at 13396 clocks after its reception
+  [DL4] the voided batch answered 12085 clocks after reception
+  [DL6] kill 9933 clocks after reception, the edit's own response at 12225
+DL: 64 checks, 0 failures
+HZ: 189 checks, 0 failures
+ID: 3 checks, 0 failures
+NP: 47 checks, 0 failures
+  [i] ST2: descriptor 0005:0 sent 5 rounds, closest 100000 clocks apart
+  [i] ST2: descriptor 0005:1 sent 5 rounds, closest 100000 clocks apart
+  [i] ST2: descriptor 0006:0 sent 5 rounds, closest 100000 clocks apart
+  [i] ST2: descriptor 0009:0 sent 4 rounds, closest 99994 clocks apart
+  [i] ST2: descriptor 0024:0 sent 4 rounds, closest 99994 clocks apart
+  [i] ST3: worst solicited latency AECP 70681, ACMP 249 clocks
+ST: 19 checks, 0 failures
+  [i] RN: seed 0xC6A46301, 720 steps, 2211 frames compared in 10777 ms; 11 NO_RESOURCES, 120 lock denials, 7 lock takes, 6 automatic unlocks, 220 lock-refused SETs, 409 pushes
+RN: 4 checks, 0 failures
+K-AVB: 28 checks, 0 failures
+AQ: 71290136 edges, 8280 arms issued, 28 clocks with two faces held, 4291 pushed as a face's one arm left, 0 onto a face still holding one, 0 filled a face, 0 drop clocks
+AQ drive: 90172 edges, 88003 arms issued; pushed onto a face holding 0, 1, 2, 3 and 4 arms (at 4 its head leaving): 18778, 48239, 3636, 5594, 12481; 352294 arms refused in 80719 drop clocks, 78930 of them with two or more faces dropping, 4096 with the counter held at 0xFFFF; 36 resets with arms queued, 366 arms offered in reset
+AQ: 4 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9947 checks, 0 failures

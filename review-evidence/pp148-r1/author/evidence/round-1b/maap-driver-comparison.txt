@@ -1,0 +1,34 @@
+32 checks: 32 PASS, 0 FAIL
+compare-mac-forward [maap]: rc=2 tally=(194, 9) named=1 KILLED
+compare-mac-forward [pp_top]: rc=2 tally=(34, 5) named=5 KILLED
+control maap run: rc=0 tally=(196, 0) PASS
+control pp_top maap-internal: rc=0 tally=(34, 0) PASS
+control rx_validator run: rc=0 tally=(555, 0) PASS
+defend-rdefend-ignored [maap]: rc=2 tally=(194, 8) named=4 KILLED
+defend-rdefend-no-tiebreak [maap]: rc=2 tally=(196, 2) named=1 KILLED
+drain-waits-for-the-link [maap]: rc=2 tally=(196, 5) named=2 KILLED
+fit-compare-forced-true [maap]: rc=2 tally=(196, 5) named=4 KILLED
+fit-compare-off-by-one [maap]: rc=2 tally=(195, 7) named=3 KILLED
+idle-serves-a-latched-expiry-first [maap]: rc=2 tally=(196, 3) named=3 KILLED
+ival-sends-after-release [maap]: rc=2 tally=(196, 8) named=1 KILLED
+off-waits-for-an-edge [maap]: rc=2 tally=(189, 9) named=3 KILLED
+post-publishes-after-release [maap]: rc=2 tally=(194, 4) named=2 KILLED
+probe-rannounce-tiebreak [maap]: rc=2 tally=(196, 7) named=2 KILLED
+probe-rprobe-never-yields [maap]: rc=2 tally=(196, 2) named=2 KILLED
+release-keeps-draw-mark [maap]: rc=2 tally=(194, 9) named=3 KILLED
+release-waits-for-draw [maap]: rc=2 tally=(196, 1) named=1 KILLED
+rx-release-returns-to-idle [maap]: rc=2 tally=(195, 3) named=2 KILLED
+seed-clamp-off-by-one [maap]: rc=2 tally=(196, 2) named=2 KILLED
+seed-clamp-removed [maap]: rc=2 tally=(196, 6) named=4 KILLED
+seed-rearmed-on-idle-release-only [maap]: rc=2 tally=(196, 2) named=2 KILLED
+teardown-keeps-announce-timer [maap]: rc=2 tally=(196, 1) named=1 KILLED
+tx-path-absorbs-release [maap]: rc=2 tally=(190, 10) named=3 KILLED
+tx-set-omits-alloc [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-commit [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-gwait [maap]: rc=2 tally=(196, 3) named=3 KILLED
+tx-set-omits-lane [maap]: rc=2 tally=(194, 6) named=3 KILLED
+tx-set-omits-write [maap]: rc=2 tally=(192, 7) named=3 KILLED
+validator-maap-version-1-only [pp_top]: rc=2 tally=(34, 4) named=4 KILLED
+validator-maap-version-1-only [rx_validator]: rc=2 tally=(555, 47) named=47 KILLED
+yield-reuses-range [maap]: rc=2 tally=(196, 8) named=1 KILLED
+All driver records, return codes, failing-check counts and named-check counts agree at base and head.

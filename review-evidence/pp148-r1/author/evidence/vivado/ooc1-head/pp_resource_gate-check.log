@@ -1,0 +1,22 @@
+endpoint ooc-1x1: $VALIDATION_STORAGE/pp148-a532/meas/head/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              24332       23434      -898  ok, below the baseline
+FF               25345       20969     -4376  ok, below the baseline
+RAMB36              21          21         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+re-baseline recommended: LUT, FF improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  wrapper: LUT -898, FF -4376
+  u_pp: LUT -887, FF -4374
+  u_pp/u_srp: LUT -656, FF -2460
+  u_pp/u_notify: LUT -861, FF -2043
+  u_pp/u_aecp/u_d3: LUT +618, FF +98
+  u_pp/u_aecp: LUT +478, FF +97
+  u_pp/u_srp/u_talker: LUT -33, FF -104
+  u_pp/u_nvm_port: LUT +77, FF +33
+  u_pp/u_srp/u_admission: LUT -46, FF -64
+  u_pp/u_rx_validator: LUT -94, FF +0
+  u_pp/u_tx_arbiter: LUT -58, FF +0
+  u_pp/u_aecp/u_resp: LUT -57, FF +0
+RESULT: PASS

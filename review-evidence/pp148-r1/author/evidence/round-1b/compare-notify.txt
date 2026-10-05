@@ -1,0 +1,11 @@
+DIFF counter_limit_500ms.log: base 12 FAIL lines, head 7
+     - FAIL: ST#: descriptor #:# churned at # Hz for # ms emitted # rounds, want at least # and at most one per second
+ONLY head: counter_limit_500ms_cs.log (3 FAIL lines)
+ONLY head: counter_spacing_from_selection.log (2 FAIL lines)
+ONLY head: counter_spacing_from_selection_tw.log (2 FAIL lines)
+ONLY head: counter_stamp_at_send_only.log (1 FAIL lines)
+ONLY head: counter_stamp_first_job_only.log (2 FAIL lines)
+FIGURES entry_seq_not_advanced.log: same 13 checks, other figures, e.g. ["FAIL: ST2c: 320 GET_COUNTERS notifications, every one byte-exact at its row's own sequence_id (319 not)"]
+ONLY head: golden-pp_top-spacing-only.log (0 FAIL lines)
+ONLY head: registry_holds_15_cs.log (6 FAIL lines)
+52 of 53 common logs identical in failing checks (1 with other figures); 0 only at base, 7 only at head

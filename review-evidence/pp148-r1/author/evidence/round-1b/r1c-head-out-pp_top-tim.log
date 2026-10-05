@@ -1,0 +1,19 @@
+  [TB] histogram, MAC command byte 0 to MAC response byte 0:
+  [TB]   TB1 GET_MILAN_INFO at the suite latency                         248 clocks  0.0010 % of T-AECP-RESP
+  [TB]   TB1 GET_SYSTEM_UNIQUE_ID (not implemented) at the suite latency      169 clocks  0.0007 % of T-AECP-RESP
+  [TB]   TB1 GET_MILAN_INFO at 143 clocks per access                     746 clocks  0.0031 % of T-AECP-RESP
+  [TB]   TB1 GET_SYSTEM_UNIQUE_ID (not implemented) at 143 clocks per access      169 clocks  0.0007 % of T-AECP-RESP
+  [TB]   TB2 oversize READ_DESCRIPTOR at the suite latency              3157 clocks  0.0132 % of T-AECP-RESP
+  [TB]   TB2 GET_DYNAMIC_INFO with all thirteen getters at the suite latency     4426 clocks  0.0184 % of T-AECP-RESP
+  [TB]   TB2 oversize READ_DESCRIPTOR at 143 clocks per access         12587 clocks  0.0524 % of T-AECP-RESP
+  [TB]   TB2 GET_DYNAMIC_INFO with all thirteen getters at 143 clocks per access    12852 clocks  0.0536 % of T-AECP-RESP
+  [TB]   TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143          12709 clocks  0.0530 % of T-AECP-RESP
+  [TB]   TB3 oversize READ_DESCRIPTOR behind a 15-frame fan-out, at 143    24550 clocks  0.1023 % of T-AECP-RESP
+  [TB]   TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143    24681 clocks  0.1028 % of T-AECP-RESP
+  [TB]   TB4 GET_MILAN_INFO, response memory at 4,000 clocks           16174 clocks  0.0674 % of T-AECP-RESP
+  [TB]   TB5 GET_RX_STATE, idle                                          172 clocks  0.0034 % of T-BUDGET-ACMP-RESP
+  [TB]   TB5 GET_TX_STATE, idle                                          154 clocks  0.0031 % of T-BUDGET-ACMP-RESP
+  [TB]   TB5 GET_RX_STATE beside an oversize READ_DESCRIPTOR, at 143      172 clocks  0.0034 % of T-BUDGET-ACMP-RESP
+  [TB]   TB5 GET_TX_STATE during a 15-frame fan-out, at 143              154 clocks  0.0031 % of T-BUDGET-ACMP-RESP
+TB: 56 checks, 0 failures
+[build timebase, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 56 checks, 0 failures
