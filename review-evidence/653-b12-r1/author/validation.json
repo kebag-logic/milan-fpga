@@ -1,0 +1,49 @@
+{
+  "head": "bef8dd7036f711bf286929fa4cba6bf724c7118d",
+  "cwd": "$LANES/653-b12-bench",
+  "checks": [
+    {
+      "name": "docs_check",
+      "command": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py",
+      "rc": 0,
+      "log": "gate-docs_check.txt"
+    },
+    {
+      "name": "check_doc_style",
+      "command": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py",
+      "rc": 0,
+      "log": "gate-check_doc_style.txt"
+    },
+    {
+      "name": "gen_toc",
+      "command": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check",
+      "rc": 0,
+      "log": "gate-gen_toc.txt"
+    },
+    {
+      "name": "check_em_dash",
+      "command": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base fa450d30",
+      "rc": 0,
+      "log": "gate-check_em_dash.txt"
+    },
+    {
+      "name": "check_doc_paths",
+      "command": "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py",
+      "rc": 0,
+      "log": "gate-check_doc_paths.txt"
+    },
+    {
+      "name": "check_baremetal_only",
+      "command": "python3 scripts/check_baremetal_only.py --check",
+      "rc": 0,
+      "log": "gate-check_baremetal_only.txt"
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "rc": 0,
+      "log": "gate-diff_check.txt"
+    }
+  ],
+  "initial_wording_failure": "The bare-metal gate rejected a capture-statistics word. The wording was corrected without changing the measured result. The initial log is retained."
+}

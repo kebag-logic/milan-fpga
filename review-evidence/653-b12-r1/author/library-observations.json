@@ -1,0 +1,402 @@
+{
+ "builds": [
+  {
+   "session": "B-long-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "A-long-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "edges-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "B-CRF-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "A-CRF-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "B-AAF-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "A-AAF-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  },
+  {
+   "session": "pilot-probe",
+   "protocol": "5.0.0-beta1",
+   "controller": "5.0.0-beta1"
+  }
+ ],
+ "events": [
+  {
+   "session": "B-long-probe",
+   "t": 1791200765702171,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-long-probe",
+   "t": 1791200768171194,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-long-probe",
+   "t": 1791200769211036,
+   "ev": "compat_changed",
+   "who": "peer",
+   "compat": "0x43",
+   "compat_names": "IEEE17221|Milan|MilanWarning",
+   "milan": 16908288,
+   "last_event": [
+    {
+     "i": 0,
+     "prev": "0x3",
+     "new": "0x43",
+     "prev_milan": 16908288,
+     "new_milan": 16908288,
+     "clause": "Milan 1.2 - 5.4.2.10.1",
+     "msg": "StreamInfoFlag bit 24 is reserved and must be set to 0",
+     "ts_us": 1791200769211011
+    }
+   ]
+  },
+  {
+   "session": "A-long-probe",
+   "t": 1791200115230725,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "A-long-probe",
+   "t": 1791200115300706,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "edges-probe",
+   "t": 1791199851764868,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "edges-probe",
+   "t": 1791199851924807,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "edges-probe",
+   "t": 1791199905614197,
+   "ev": "compat_changed",
+   "who": "peer",
+   "compat": "0x43",
+   "compat_names": "IEEE17221|Milan|MilanWarning",
+   "milan": 16908288,
+   "last_event": [
+    {
+     "i": 0,
+     "prev": "0x3",
+     "new": "0x43",
+     "prev_milan": 16908288,
+     "new_milan": 16908288,
+     "clause": "Milan 1.2 - 5.4.2.10.1",
+     "msg": "StreamInfoFlag bit 24 is reserved and must be set to 0",
+     "ts_us": 1791199905614095
+    }
+   ]
+  },
+  {
+   "session": "B-CRF-probe",
+   "t": 1791199602669756,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-CRF-probe",
+   "t": 1791199605193177,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-CRF-probe",
+   "t": 1791199606212989,
+   "ev": "compat_changed",
+   "who": "peer",
+   "compat": "0x43",
+   "compat_names": "IEEE17221|Milan|MilanWarning",
+   "milan": 16908288,
+   "last_event": [
+    {
+     "i": 0,
+     "prev": "0x3",
+     "new": "0x43",
+     "prev_milan": 16908288,
+     "new_milan": 16908288,
+     "clause": "Milan 1.2 - 5.4.2.10.1",
+     "msg": "StreamInfoFlag bit 24 is reserved and must be set to 0",
+     "ts_us": 1791199606212964
+    }
+   ]
+  },
+  {
+   "session": "A-CRF-probe",
+   "t": 1791199376659840,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "A-CRF-probe",
+   "t": 1791199376963729,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-AAF-probe",
+   "t": 1791199135825729,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-AAF-probe",
+   "t": 1791199138089497,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "B-AAF-probe",
+   "t": 1791199139209273,
+   "ev": "compat_changed",
+   "who": "peer",
+   "compat": "0x43",
+   "compat_names": "IEEE17221|Milan|MilanWarning",
+   "milan": 16908288,
+   "last_event": [
+    {
+     "i": 0,
+     "prev": "0x3",
+     "new": "0x43",
+     "prev_milan": 16908288,
+     "new_milan": 16908288,
+     "clause": "Milan 1.2 - 5.4.2.10.1",
+     "msg": "StreamInfoFlag bit 24 is reserved and must be set to 0",
+     "ts_us": 1791199139209248
+    }
+   ]
+  },
+  {
+   "session": "A-AAF-probe",
+   "t": 1791198896285215,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "A-AAF-probe",
+   "t": 1791198896425476,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "pilot-probe",
+   "t": 1791198847428536,
+   "ev": "online",
+   "who": "dut",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  },
+  {
+   "session": "pilot-probe",
+   "t": 1791198847788843,
+   "ev": "online",
+   "who": "peer",
+   "compat": "0x3",
+   "compat_names": "IEEE17221|Milan",
+   "milan": 16908288,
+   "subscribed": true,
+   "unsol_supported": true,
+   "events": [],
+   "diag": {
+    "redundancyWarning": false,
+    "controlOutOfBounds": 0,
+    "streamInputOverLatency": []
+   }
+  }
+ ]
+}

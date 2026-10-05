@@ -1,0 +1,42 @@
+[
+  {
+    "control": "response-first",
+    "expected": "RESPONSE_FIRST",
+    "result": "RESPONSE_FIRST"
+  },
+  {
+    "control": "reversed",
+    "expected": "COUNTERS_FIRST",
+    "result": "COUNTERS_FIRST"
+  },
+  {
+    "control": "missing-push",
+    "expected": "NO_UNLOCK_PUSH",
+    "result": "NO_UNLOCK_PUSH"
+  },
+  {
+    "control": "prior-unlock",
+    "expected": "NO_UNLOCK_PUSH",
+    "result": "NO_UNLOCK_PUSH"
+  },
+  {
+    "control": "foreign-controller",
+    "expected": "NO_UNLOCK_PUSH",
+    "result": "NO_UNLOCK_PUSH"
+  },
+  {
+    "control": "foreign-input",
+    "expected": "NO_UNLOCK_PUSH",
+    "result": "NO_UNLOCK_PUSH"
+  },
+  {
+    "control": "foreign-response-sequence",
+    "expected": "NO_MATCH",
+    "result": "NO_MATCH"
+  },
+  {
+    "control": "solicited-zero-before-first-push",
+    "expected": "RESPONSE_FIRST",
+    "result": "RESPONSE_FIRST"
+  }
+]
