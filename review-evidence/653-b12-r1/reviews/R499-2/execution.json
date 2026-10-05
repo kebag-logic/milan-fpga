@@ -1,0 +1,134 @@
+[
+  {
+    "name": "checkout-initial",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "<review-output>/verify_checkout.py",
+      "<checkout>"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.269
+  },
+  {
+    "name": "startup-replay",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "<packet>/check_startup.py",
+      "<packet>"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.067
+  },
+  {
+    "name": "startup-decode",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "<packet>/startup_decode.py",
+      "<packet>/startup-headers.json"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.036
+  },
+  {
+    "name": "restore-replay",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "<packet>/restore_compare.py",
+      "<packet>/restore-start.json",
+      "<packet>/restore-end.json"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.067
+  },
+  {
+    "name": "restore-controls",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "<packet>/check_restore.py",
+      "<packet>",
+      "<review-output>/scratch/restore-controls"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.668
+  },
+  {
+    "name": "docs",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.598
+  },
+  {
+    "name": "style",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.065
+  },
+  {
+    "name": "contents",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 4.785
+  },
+  {
+    "name": "punctuation",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa450d301805881ad713b67521477bf042ddadfd"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 3.691
+  },
+  {
+    "name": "paths",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.115
+  },
+  {
+    "name": "policy",
+    "command": [
+      "<review-output>/scratch/venv/bin/python",
+      "-B",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 2,
+    "elapsed_seconds": 0.114
+  },
+  {
+    "name": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "fa450d301805881ad713b67521477bf042ddadfd..2263c6288956a5edd841df62252326780edd4870"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.004
+  }
+]

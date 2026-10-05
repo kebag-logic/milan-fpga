@@ -1,0 +1,171 @@
+{
+  "passed": true,
+  "cycles": 182,
+  "nonidentity_wire_headers_equal": 546,
+  "table_intervals_matched": 182,
+  "matrix_counts": {
+    "('A', 'AAF', 'exact')": 36,
+    "('A', 'AAF', 'after')": 5,
+    "('A', 'AAF', 'before')": 5,
+    "('A', 'CRF', 'after')": 5,
+    "('A', 'CRF', 'before')": 5,
+    "('A', 'CRF', 'exact')": 35,
+    "('B', 'AAF', 'exact')": 36,
+    "('B', 'AAF', 'after')": 5,
+    "('B', 'AAF', 'before')": 5,
+    "('B', 'CRF', 'after')": 5,
+    "('B', 'CRF', 'before')": 5,
+    "('B', 'CRF', 'exact')": 35
+  },
+  "early_polls": 546,
+  "long_hold_polls": 600,
+  "restoration_observations_per_endpoint": 43,
+  "restore_inventory": {
+    "('dut', 'bindings')": 4,
+    "('dut', 'clocks')": 2,
+    "('dut', 'formats')": 4,
+    "('dut', 'maps')": 2,
+    "('peer', 'bindings')": 14,
+    "('peer', 'clocks')": 1,
+    "('peer', 'formats')": 14,
+    "('peer', 'maps')": 2
+  },
+  "peer_entity_identity_matches": [],
+  "startup": [
+    {
+      "cycle": "BAAF0300-2",
+      "first_two_hex": [
+        "d9353fed",
+        "d7ccf250"
+      ],
+      "first_step_ns": -23612829,
+      "later_steps_min_ns": 124999,
+      "later_steps_max_ns": 125020,
+      "tap_spacing_ns": 125025,
+      "tap_bind_interval_ns": 20227033,
+      "sequence": [
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195
+      ],
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0,
+      "controller_intervals_us": [
+        29880,
+        278656,
+        318532
+      ],
+      "first_nonzero_utc": "2026-10-05T11:19:03.730732+00:00",
+      "frames_rx": 68
+    },
+    {
+      "cycle": "BAAF0900-5",
+      "first_two_hex": [
+        "113d7f85",
+        "3050f58d"
+      ],
+      "first_step_ns": 521369096,
+      "later_steps_min_ns": 124999,
+      "later_steps_max_ns": 125019,
+      "tap_spacing_ns": 125016,
+      "tap_bind_interval_ns": 20407250,
+      "sequence": [
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41
+      ],
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0,
+      "controller_intervals_us": [
+        29947,
+        878672,
+        418654
+      ],
+      "first_nonzero_utc": "2026-10-05T11:20:09.640696+00:00",
+      "frames_rx": 67
+    },
+    {
+      "cycle": "BAAF0300-1",
+      "first_two_hex": [
+        "cdcb2d53",
+        "cdcd159a"
+      ],
+      "first_step_ns": 124999,
+      "later_steps_min_ns": 124999,
+      "later_steps_max_ns": 125019,
+      "tap_spacing_ns": 123944,
+      "tap_bind_interval_ns": 222566994,
+      "sequence": [
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199
+      ],
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0
+    },
+    {
+      "cycle": "BAAF0900-4",
+      "first_two_hex": [
+        "dba7c762",
+        "dba9afa9"
+      ],
+      "first_step_ns": 124999,
+      "later_steps_min_ns": 124999,
+      "later_steps_max_ns": 125019,
+      "tap_spacing_ns": 125000,
+      "tap_bind_interval_ns": 20091409,
+      "sequence": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0
+    }
+  ],
+  "gptp_correlation": "NOT RUN: capture filters and retained EtherTypes contain no gPTP reference; no cross-clock mapping supplied."
+}

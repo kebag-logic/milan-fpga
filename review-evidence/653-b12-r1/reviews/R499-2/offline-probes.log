@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "case": "response-first",
+      "result": "RESPONSE_FIRST"
+    },
+    {
+      "case": "reversed",
+      "result": "COUNTERS_FIRST"
+    },
+    {
+      "case": "missing-unlock",
+      "result": "NO_UNLOCK_PUSH"
+    },
+    {
+      "case": "prior-unlock",
+      "result": "NO_UNLOCK_PUSH"
+    },
+    {
+      "case": "wrong-controller",
+      "result": "NO_UNLOCK_PUSH"
+    },
+    {
+      "case": "wrong-input",
+      "result": "NO_UNLOCK_PUSH"
+    },
+    {
+      "case": "wrong-sequence",
+      "result": "NO_MATCH"
+    },
+    {
+      "case": "solicited-baseline",
+      "result": "RESPONSE_FIRST"
+    },
+    {
+      "case": "startup-tv",
+      "rc": 1,
+      "rejected": true
+    },
+    {
+      "case": "startup-tu",
+      "rc": 1,
+      "rejected": true
+    },
+    {
+      "case": "startup-mr",
+      "rc": 1,
+      "rejected": true
+    },
+    {
+      "case": "startup-sp",
+      "rc": 1,
+      "rejected": true
+    },
+    {
+      "case": "startup-timestamp",
+      "rc": 1,
+      "rejected": true
+    },
+    {
+      "case": "rule-normal",
+      "rc": 0,
+      "stdout": "Eight rule controls PASS"
+    },
+    {
+      "case": "rule-inverted",
+      "rc": 1,
+      "stdout": ""
+    }
+  ]
+}
