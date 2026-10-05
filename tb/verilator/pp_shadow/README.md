@@ -68,7 +68,8 @@ The default run includes a dynamic-output fixture.
 Both input and output maps use their real parent owners.
 GET_NAME and GET_AUDIO_MAP independently confirm the accepted values.
 All eight name lanes change in K10.
-K12 ADD starts with an empty map and durable status.
+Each boot clears the #658 power-on maps through the CSR window.
+So K12 ADD starts with an empty map and durable status.
 REMOVE and duplicate controls each preload a mapping through CSRs.
 Each then starts separately with durable status.
 The duplicate must succeed, preserve the map and leave pending clear.
