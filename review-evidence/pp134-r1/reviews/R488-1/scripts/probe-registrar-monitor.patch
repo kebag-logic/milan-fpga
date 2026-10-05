@@ -1,0 +1,33 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv	2026-10-05 07:36:41.000000000 +0200
++++ b/hdl/srp/KL_srp_talker_fsm.sv	2026-10-05 09:45:03.209000000 +0200
+@@ -756,6 +756,30 @@
+     end
+   end
+ 
++  // R488 PROBE (observation only): registrar trace for the lvleave review
++  logic [N_SOURCES_P-1:0][1:0] probe_prev_r;
++  always_ff @(posedge clk_i) begin : r488_probe
++    if (rst_n) begin
++      if (leaveall_own_i) $display("PROBE ms=%0d own_leaveall(sLA)", now_ms_i);
++      if (leaveall_rx_i[SRP_LA_LISTENER_C]) $display("PROBE ms=%0d rx_leaveall_listener_lane", now_ms_i);
++      if (arm_valid_o) $display("PROBE ms=%0d arm slot=%0d cancel=%0d deadline_ms=%0d",
++                                now_ms_i, arm_slot_o, arm_cancel_o, arm_deadline_ms_o);
++      for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
++        if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV)))
++          $display("PROBE ms=%0d src=%0d rLv reg_before=%0d", now_ms_i, s, reg_r[s]);
++        if (exp_hit_w && (exp_idx_w == s))
++          $display("PROBE ms=%0d src=%0d leavetimer_expiry reg_before=%0d tpend=%0d",
++                   now_ms_i, s, reg_r[s], tpend_r[s]);
++        if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV)) && exp_hit_w && (exp_idx_w == s))
++          $display("PROBE ms=%0d src=%0d COLLIDE rLv_and_expiry_same_clock reg_before=%0d",
++                   now_ms_i, s, reg_r[s]);
++        if (reg_r[s] != probe_prev_r[s])
++          $display("PROBE ms=%0d src=%0d reg %0d->%0d", now_ms_i, s, probe_prev_r[s], reg_r[s]);
++      end
++    end
++    probe_prev_r <= reg_r;
++  end
++
+   // --------------------------------------------------------- VLAN op plane
+   // lowest-index pending op drives the user face; leave before join per
+   // source (a close-then-reopen on a new VID must free the old refcount

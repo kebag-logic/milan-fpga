@@ -1,0 +1,70 @@
+PROBE ms=0 src=0 reg 0->1
+PROBE ms=3 src=3 reg 0->1
+PROBE ms=3 src=7 reg 0->1
+PROBE ms=705 rx_leaveall_listener_lane
+PROBE ms=705 src=0 reg 1->2
+PROBE ms=705 src=3 reg 1->2
+PROBE ms=705 src=7 reg 1->2
+PROBE ms=705 arm slot=16 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=19 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=23 cancel=0 deadline_ms=5705
+PROBE ms=706 src=3 reg 2->1
+PROBE ms=706 arm slot=19 cancel=1 deadline_ms=5706
+PROBE ms=706 src=7 reg 2->1
+PROBE ms=706 arm slot=23 cancel=1 deadline_ms=5706
+PROBE ms=5705 src=0 leavetimer_expiry reg_before=2 tpend=0
+PROBE_CAL fp=2 target=0 la_ms=705 close_ms=5705 close_off_clocks=199858 reg=0
+PROBE ms=0 src=0 reg 0->1
+PROBE ms=3 src=3 reg 0->1
+PROBE ms=3 src=7 reg 0->1
+PROBE ms=705 rx_leaveall_listener_lane
+PROBE ms=705 src=0 reg 1->2
+PROBE ms=705 src=3 reg 1->2
+PROBE ms=705 src=7 reg 1->2
+PROBE ms=705 arm slot=16 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=19 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=23 cancel=0 deadline_ms=5705
+PROBE ms=706 src=3 reg 2->1
+PROBE ms=706 arm slot=19 cancel=1 deadline_ms=5706
+PROBE ms=706 src=7 reg 2->1
+PROBE ms=706 arm slot=23 cancel=1 deadline_ms=5706
+PROBE ms=5705 src=0 leavetimer_expiry reg_before=2 tpend=0
+PROBE ms=5705 src=0 reg 2->0
+PROBE ms=5705 src=0 rLv reg_before=0
+PROBE_K k=0 la_ms=705 reg=0 lstn=0 active=0 stops=1 CLOSED
+PROBE ms=0 src=0 reg 0->1
+PROBE ms=3 src=3 reg 0->1
+PROBE ms=3 src=7 reg 0->1
+PROBE ms=705 rx_leaveall_listener_lane
+PROBE ms=705 src=0 reg 1->2
+PROBE ms=705 src=3 reg 1->2
+PROBE ms=705 src=7 reg 1->2
+PROBE ms=705 arm slot=16 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=19 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=23 cancel=0 deadline_ms=5705
+PROBE ms=706 src=3 reg 2->1
+PROBE ms=706 arm slot=19 cancel=1 deadline_ms=5706
+PROBE ms=706 src=7 reg 2->1
+PROBE ms=706 arm slot=23 cancel=1 deadline_ms=5706
+PROBE ms=5705 src=0 leavetimer_expiry reg_before=2 tpend=0
+PROBE ms=5705 src=0 reg 2->0
+PROBE ms=5705 src=0 rLv reg_before=0
+PROBE_K k=1 la_ms=705 reg=0 lstn=0 active=0 stops=1 CLOSED
+PROBE ms=0 src=0 reg 0->1
+PROBE ms=3 src=3 reg 0->1
+PROBE ms=3 src=7 reg 0->1
+PROBE ms=705 rx_leaveall_listener_lane
+PROBE ms=705 src=0 reg 1->2
+PROBE ms=705 src=3 reg 1->2
+PROBE ms=705 src=7 reg 1->2
+PROBE ms=705 arm slot=16 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=19 cancel=0 deadline_ms=5705
+PROBE ms=705 arm slot=23 cancel=0 deadline_ms=5705
+PROBE ms=706 src=3 reg 2->1
+PROBE ms=706 arm slot=19 cancel=1 deadline_ms=5706
+PROBE ms=706 src=7 reg 2->1
+PROBE ms=706 arm slot=23 cancel=1 deadline_ms=5706
+PROBE ms=5705 src=0 leavetimer_expiry reg_before=2 tpend=0
+PROBE ms=5705 src=0 reg 2->0
+PROBE ms=5705 src=0 rLv reg_before=0
+PROBE_K k=2 la_ms=705 reg=0 lstn=0 active=0 stops=1 CLOSED

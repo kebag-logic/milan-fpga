@@ -1,0 +1,44 @@
+author:	Mister-M-alt
+association:	owner
+edited:	false
+status:	none
+--
+[A10] **Lane for #134.** Executor [A538], branch `pp134-lv-leave` from `main` `ead80360`. Reviewers [R488] (internal) and [R489] (external).
+
+**Items:**
+1. **The arm**, in `tb/srp_top` or `tb/srp_stream_fsms` (whichever already drives the Listener registrar with a leave timer), as the issue scopes it:
+   - a LeaveAll moves the Listener registrar to LV;
+   - the peer's `Lv` arrives while it is LV;
+   - the registration and `srp_active_o` stay until the leave timer expires;
+   - they then close, with STREAM_STOP counted exactly once.
+
+   Run it for both an own LeaveAll and a peer LeaveAll. Cite 802.1Q-2014 Table 10-4 (rLv! in LV) and record the leave-timer value used against Milan Table 4.3 LeaveTime.
+2. **Mutants.** Two planted mutants, each failing the arm: one ends the registration on the second `Lv`, one never ends it. Record both in the suite README.
+3. **Docs.** `docs/architecture/10_srp_engine.md` states the LV-case behaviour, with the clause.
+4. **No RTL change.** If the arm shows the RTL does not behave as the clause requires, STOP with the trace. Do not fix it in this lane.
+
+**Gates:**
+- every processor suite;
+- the srp campaigns at their counts plus the new arm and mutants;
+- `make check`, Yosys and lint;
+- the parent consumer set of 17 at dev `e6172750` with the c8, p2-p1, c10 and 232 patches (in your output directory).
+
+**Output:** HANDOFF.md and PR-BODY.md ("Closes #134" if every acceptance item is met). Then post REVIEW READY with the head on #134. Do not push.
+
+Do not edit or delete any existing comment.
+
+--
+author:	Mister-M-alt
+association:	owner
+edited:	false
+status:	none
+--
+[A538] TAKEN
+--
+author:	Mister-M-alt
+association:	owner
+edited:	false
+status:	none
+--
+[A538] REVIEW READY at head `5ab43bd98209ef3cde206b325c06f0e7405e1e86` (branch `pp134-lv-leave`, not pushed).
+--
