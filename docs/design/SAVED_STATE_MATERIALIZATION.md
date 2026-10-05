@@ -10,7 +10,11 @@
 > processor PR #133, with the parent glue of section 5.2.
 > The firmware's AEM-first boot order (section 5.3, change 1) is adopted
 > with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
-> User names and channel maps (stages 2 and 3) are not implemented.
+> From pin `ead80360` the processor's D3 writer and walk also carry the user
+> names (stage 2; [processor PR #150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150), lane P1).
+> The parent's lane 3 (section 18.3) has not adopted them: name pending is not
+> transferred, and no parent test grades a name across a power cycle.
+> Channel maps (stage 3) are not implemented.
 > Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
 > maps (stage 3) are the parent's to write, restore and roll back, and the
 > processor's roll-back resets its two stores only (section 15 item 2, amended; #637).
