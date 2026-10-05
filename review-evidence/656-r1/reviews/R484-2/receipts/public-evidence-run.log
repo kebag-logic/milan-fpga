@@ -1,0 +1,31 @@
+PASS: immutable public log hashes matched 8 of 8
+review-evidence/656-r1/author/logs/head-driver.log 
+review-evidence/656-r1/author/logs/head-driver-milan_dp_gptp.log == ax1x1gptp physical: checks: 139   failures: 0 ==; == ax1x1gptp setup abort: checks: 6   failures: 0 ==; == ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==; == ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+review-evidence/656-r1/author/logs/c-0b074298.log == ax1x1gptp physical: checks: 139   failures: 0 ==; == ax1x1gptp setup abort: checks: 6   failures: 0 ==; == ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==; == ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+review-evidence/656-r1/author/logs/c-d676ecfd.log == ax1x1gptp physical: checks: 139   failures: 3 ==
+review-evidence/656-r1/author/logs/ctl-dev-noA2a.log == ax1x1gptp physical: checks: 139   failures: 0 ==; == ax1x1gptp setup abort: checks: 6   failures: 0 ==; == ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==; == ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+review-evidence/656-r1/author/logs/ctl-fix-noA2a.log == ax1x1gptp physical: checks: 139   failures: 5 ==
+review-evidence/656-r1/author/logs/trace-dev.log == ax1x1gptp physical: checks: 139   failures: 3 ==
+review-evidence/656-r1/author/logs/gates/head-test_builder.log ALL GATES PASS EXCEPT 1 NOT RUN
+yosys-portability success
+verilator-suites success
+rtl-fast success
+Physical gPTP (nightly and manual) skipped
+Verilator shard 3/5 success
+Verilator shard 1/5 success
+Verilator shard 0/5 success
+Yosys shard 2/4 success
+Verilator shard 4/5 success
+Yosys shard 3/4 success
+Verilator shard 2/5 success
+Yosys shard 1/4 success
+Yosys shard 0/4 success
+yosys-elaboration success
+verilator-lint success
+full-ci-gate success
+bdd-conformance success
+elaborate success
+wire-accountability success
+docs-check success
+changes success
+docs-check-no-git success

@@ -1,0 +1,15 @@
+--- published-author-PR-BODY.md
++++ live-PR-662-body.md
+@@ -188,8 +188,10 @@
+   `sim_ax1x1gptp.cpp` (`tb/verilator/milan_dp/Makefile:496` is its only recipe), and the
+   README edit is prose. Lint, `xvlog`, Yosys, synthesis and area: no RTL change.
+ - **INTERNAL against an asynchronous talker is not graded by this leg.** It still slips
+-  about 0.51/s per 10 ppm on the loopback path, counted on `SLIP_LB`. That is A2-a's
+-  documented consequence; before A2-a the slip sat at the TDM junction. A zero-glitch run
++  about 0.48 events/s per fed pair per 10 ppm on the loopback path (0.51/s at plan A's
++  10.64 ppm), counted on `SLIP_LB`. That is A2-a's documented consequence. For this leg's
++  old axis-paced talker the slip sat at the TDM junction before A2-a; a talker on any other
++  clock slipped on the loopback path at INTERNAL before A2-a too. A zero-glitch run
+   through the loopback lane (#396) needs the DUT to follow the talker, or the talker to follow
+   the DUT.
+ - **The exact 160-PDU pin.** `verify_abort.py` pins the no-TX control's 20 ms window at
