@@ -357,7 +357,7 @@
 //! talker the stream. The loopback bucket de-interleaves the depacketizer
 //! payload clone
 //! (IEEE 1722-2016 7.3.3/7.3.5) into per-(stream, channel pair) elastic
-//! queues (depth 8 = one PDU + margin) popped one event per media tick -
+//! queues (depth 16 = one PDU + margin) popped one event per media tick -
 //! paced in-order replay of a bursty source, dup-on-empty / drop-oldest-on-
 //! full counted honestly, flushed on bind wipe. Single clock, no CDC.
 
