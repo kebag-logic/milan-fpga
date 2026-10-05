@@ -21,10 +21,11 @@ Only these two values are accepted, independently of make flags.
 Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
 The mutation driver starts only after every ordinary simulation succeeds.
 
-Five `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
-`obj_notify`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
+Six `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
+`obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
 Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
 Those include the private `gen/adp_shape_defaults.svh` shape header.
+`obj_dynmap` also writes one unique `milan_nvm_*` directory: its saved-state window.
 Timestamp and file-operation audits found no repository writes.
 The other six legs write no data files.
 All private write sets are disjoint; no exclusive marks remain.
@@ -73,7 +74,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
 | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
-| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`) | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF; built only by `make dynmap`, outside `run` | `[DYNMAP]` (#658): GET_AUDIO_MAP on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0 at power-on and after SET_STREAM_FORMAT 8 -> 4 -> 8 on STREAM_INPUT 0, graded against the identity default and the input map's adaptation the #658 ruling sets. Red by record at `e6172750`: `DYNMAP_RED=1` (the default) reports each differing ruled readback as `[red]` and fails one that agrees; the implementation lane builds `DYNMAP_RED=0` |
+| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
@@ -92,6 +93,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+- **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip and a restored format, with the leg's planted controls.
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -715,6 +717,46 @@ Its 4 failures are exactly the four U2 order checks; nothing else in the leg mov
 The last mutant's 2 are the push to A and to B.
 The campaign runs explicitly: five mutant elaborations and six runs.
 
+## The #658 power-on audio maps (`obj_dynmap`)
+
+The leg runs the shipping AX7101 1x1 TDM8 geometry and stops after `[DYNMAP]`.
+It grades #658's rulings (comments 5988293154 and 5988843004).
+
+- **The power-on map.** On both stream ports, stream channel c maps to
+  cluster c, for c below the smaller of the channel and cluster counts. Each
+  page is read with GET_AUDIO_MAP. The two crossbar RAMs are read through the
+  CSR snapshot: render keys 2..9 and capture keys 0..7.
+- **A format change.** Milan v1.2 5.4.2.7 governs. With channels 4..7 mapped,
+  8 -> 4 is refused BAD_ARGUMENTS, the format and both maps unchanged. A
+  REMOVE of channels 4..7 lets 8 -> 4 succeed, and 4 -> 8 keeps 4 mappings.
+- **The output clip.** No command can place a narrower output format, so
+  `dynmap_probes.vlt` opens the processor's output format row. The leg stages
+  4 channels there in a fresh boot window, and capture keys 4..7 must empty.
+  With the row invalid again, as a D3 roll-back leaves it, they must refill.
+- **A restore.** `gen_nvm_window.py` frames a saved-state window for the
+  shipping config, from `scripts/nvm_shape.py`'s record set and
+  `scripts/nvm_klj2.py`'s codec. Record `0x30` holds a 4-channel input format
+  and every other record is erased. The script writes nothing unless the
+  codec's own decoder accepts the container. The leg loads it as `nvm_boot()`
+  does: re-base, fill, RELOAD, publish. Then it starts the restore walk. GET
+  reads 4 channels and 4 identity mappings, and SET of 8 channels succeeds.
+
+The media path is graded end to end elsewhere, with no map command issued.
+The listener: `tb/verilator/milan_dp_render`, `T18 POWER-ON`, decodes stream
+channel c at TDM8 serial slot c. The talker: `tb/verilator/capture_coherence`,
+the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
+
+**Failing arms.** `make dynmap-mutants` runs `dynmap_mutants.py`. It plants
+each defect in a copy of `milan_datapath.sv`. Each mutant must fail its named
+check.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 39 of 142 |
+| no clip after the restore | `[DYNMAP] restored SPI 0: number_of_mappings` | 5 of 142 |
+| no output clip | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 1 of 142 |
+| the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 12 of 142 |
+
 ## GM step re-base leg (#387)
 
 The true-ratio leg also commands an absolute software settime.
@@ -1106,10 +1148,12 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
   `clk_audio` 1:1 with `axis_clk`, so the static path measured 195.3 kHz and
   looked like a 6× cadence defect. `[T66]` now leaves the crossbar armed and
   `[T67]`'s banner states which grid it is on.
-* **The `0x002C` boot seed.** There is no seeder any more, so key 0 reads empty.
-  The check grades the two halves of the new structural truth — the read mux is
-  still live, the RAM is empty, `CHMAP_CTRL[0]` is 0 — and will fail the day a
-  seeder returns in any form.
+* **The `0x002C` boot seed.** Until #658 there was no seeder, so key 0 read
+  empty, and the check was written to fail the day a seeder returned. One did:
+  the parent's boot writer fills the capture RAM with the power-on map. The
+  check now reads key 0 as the Pilot word, every output port's GET page as the
+  identity and every capture key as its cluster's word, with `CHMAP_CTRL[0]`
+  still 0.
 
 Issue #443 adds `RENDER-CSR` checks to `obj_aclk`.
 They read `RENDER_STAT` (`0x8DC`) through AXI-Lite.

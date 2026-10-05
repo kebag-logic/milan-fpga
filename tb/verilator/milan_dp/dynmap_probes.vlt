@@ -1,0 +1,9 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// #658: stage a STREAM_OUTPUT format row in the processor's dynamic-state
+// store while the boot window is open. It is the only stimulus that reaches
+// the parent's output clip: the format verdict admits no narrower output
+// format, so neither a restore nor a SET_STREAM_FORMAT can place one there.
+`verilator_config
+public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_r"
+public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_v_r"
