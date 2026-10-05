@@ -22,6 +22,7 @@ describe it. The numbers live in one place, the generated
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, fields from the entity model, the tag rule for raced expiries, and the service-latency bound of every response path.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walk and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, and the gateware-export comparison that shows every shipped config unchanged when off.
+- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers and the recipe.
 - **[Open items](#open-items)** -- The datapath tap, the listener's ADP terms, lwSRP's transmit hook, the CPU-cycle measurement and MMRP.
 
 ## What moves, and what the fabric keeps
@@ -291,6 +292,47 @@ configs at their shipping arguments. This LiteX checkout refuses the three
 Arty configs at their 83.333 MHz system clock, at the base exactly as at the
 head, so they are compared at 100 MHz instead, where all 22 files compare
 equal too.
+
+## Measured area
+
+The switch-on skeleton, `KL_mbx` behind `KL_mbx_wb` wired as the SoC wires
+them (`tb_mbx_top` with `HOST_P=0`), out of context on `xc7a100tfgg484-2` at
+the 100 MHz system clock, Vivado 2026.1 default directives, synthesized,
+placed and routed (2026-10-05, the lane's head):
+
+| Block | LUT | FF | RAMB36 | RAMB18 |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` (filter, buckets, RX writer) | 1,006 | 994 | 0 | 0 |
+| `KL_mbx_evt` (16 timer slots, poster, tick) | 711 | 978 | 0 | 0 |
+| `KL_mbx_tx` (TX merge) | 678 | 256 | 0 | 0 |
+| `KL_mbx` registers, decode, read mux | 276 | 484 | 0 | 0 |
+| the eleven rings (flattened into `KL_mbx`) | | | 1 | 10 |
+| `KL_mbx_wb` | 66 | 1 | 0 | 0 |
+| **Total** | **2,756** | **2,713** | **1** | **10** |
+
+All nets routed, WNS +0.311 ns at 10 ns, no DSP. The rows sum to 2,737 LUT:
+the remainder is logic of the flattened rings and LUTs Vivado combined across
+the hierarchy. The eleven rings (ten channel rings and the event ring) are one
+block RAM each: the SRP RX ring the RAMB36, every other a RAMB18. There is no
+bar yet (#665). It is above the
+#640 estimate of 1,500 to 2,000 LUT for the added fabric; the obvious levers
+are the timer bank (sixteen 48-bit slots in flip-flops, scanned one per clock,
+which fits distributed RAM) and the filter's per-term 64-bit field registers,
+which one shared field register per frame would replace.
+
+```tcl
+read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
+  hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
+  hdl/milan/mailbox/KL_mbx.sv hdl/milan/mailbox/KL_mbx_wb.sv hdl/milan/mailbox/KL_mbx_axil.sv \
+  tb/verilator/mbx/tb_mbx_top.sv]
+synth_design -mode out_of_context -top tb_mbx_top -part xc7a100tfgg484-2 -generic HOST_P=0
+create_clock -period 10.000 -name clk [get_ports clk_i]
+opt_design
+place_design
+route_design
+report_utilization -hierarchical
+report_timing_summary -delay_type max
+```
 
 ## Open items
 

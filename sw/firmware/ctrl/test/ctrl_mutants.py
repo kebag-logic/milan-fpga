@@ -80,6 +80,10 @@ MUTANTS = (
            "D3 a held merge fills the ring"),
     Mutant("lanes-big-endian", "mbx/mbx_wire.h", "\t\tword |= (uint32_t)p[i] << (8u * i);",
            "\t\tword |= (uint32_t)p[i] << (8u * (3u - i));", "model", "F1 frame byte k is ring word"),
+    Mutant("frame-sources-from-sinks", "adp/adp.c", "wire_put_be(pdu + 24, e->talker_stream_sources, 2);",
+           "wire_put_be(pdu + 24, e->listener_stream_sinks, 2);", "entity", "talker_stream_sources"),
+    Mutant("pool-falls-back-to-heap", "port/shlan_port.c", "\treturn ctrl_pool_alloc(port_pool, size);",
+           "\treturn __builtin_malloc(size);", "rv32", "symbols outside the C library"),
     Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
            "\tif (ch->tokens == 0u && false) {",
            "model", "T0 the frames past it count in RATE_DROP"),
@@ -110,7 +114,8 @@ def caught(m: Mutant, outcome: Outcome) -> bool:
 def campaign(root: Path, reuse: Path) -> bool:
     """Plant every mutant; True when one escaped."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
-            "walk": ctrl_arms.arm_walk}
+            "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
     escaped = 0
     for m in MUTANTS:
         tree = Tree(plant(m, root), root / m.name / "build", reuse)
