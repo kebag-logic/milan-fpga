@@ -1,0 +1,98 @@
+endstation_arty_4x4          clock=83333000 Hz records= 88 image= 4808 B checks=42 failed=0 runs=411
+  longest service call, model time: 210 us with no stall armed, 2190 us with a command-master stall
+  rv32 at 83333000 Hz: text=12360 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_arty_8ch          clock=83333000 Hz records=120 image= 7368 B checks=42 failed=0 runs=411
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  rv32 at 83333000 Hz: text=12360 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_arty_current      clock=83333000 Hz records= 42 image= 2516 B checks=42 failed=0 runs=411
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  rv32 at 83333000 Hz: text=12352 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz records= 54 image= 3336 B checks=42 failed=0 runs=415
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  rv32 at 100000000 Hz: text=12368 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+endstation_ax7101_8x8        clock=100000000 Hz records=164 image=13256 B checks=42 failed=0 runs=415
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  rv32 at 100000000 Hz: text=12372 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+  self-test OK: no_crc_check               caught by torn_falls_back, verdict_parity; first: model: torn newer slot: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 7, 'last': 0, 'first': 0, 'seq_a': 9, '
+  self-test OK: no_crc_anywhere            caught by powercut; first: model: power cut from blank media: {'effects': 15, 'cases': 61, 'old': 14, 'new': 1, 'bad': 46}
+  self-test OK: pick_older                 caught by newer_wins; first: model: seq A 0x9 B 0xa: chose 0, want 1
+  self-test OK: pick_no_wrap               caught by newer_wins; first: model: seq A 0xffffffff B 0x0: chose 0, want 1
+  self-test OK: tie_picks_b                caught by newer_wins; first: model: seq A 0x7 B 0x7: chose 1, want 0
+  self-test OK: erased_header_only         caught by verdict_parity; first: model: parity: erased header, live payload: store 0, klj2_decode 7
+  self-test OK: no_ascending               caught by verdict_parity; first: model: parity: duplicate record id: store 0, klj2_decode 7
+  self-test OK: overrun_as_rec             caught by verdict_parity; first: model: parity: framed record overruns the area: store 7, klj2_decode 3
+  self-test OK: incomplete_accepted        caught by verdict_parity; first: model: parity: truncated by one record: store 0, klj2_decode 10
+  self-test OK: no_version_check           caught by wrong_version_falls_back; first: model: major 1: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 3, 'seq_b': 
+  self-test OK: no_blank_verdict           caught by blank_boot; first: model: blank boot state: {'terminal': 2, 'cause': 0, 'vd_a': 1, 'vd_b': 1, 'last': 1, 'first': 0, 'seq_a': 0, 
+  self-test OK: pad_not_zero               caught by blank_boot; first: model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: header_n_rec               caught by blank_boot, first_commit_bytes; first: model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: frame_crc_init             caught by vector_round_trip, change_commit_bytes; first: model: the vector container differs from nvm_klj2.py's
+  self-test OK: no_blank_stage             caught by blank_boot; first: model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: verdict_not_named          caught by both_torn_blank; first: model: two torn slots: {'terminal': 2, 'cause': 0, 'vd_a': 4, 'vd_b': 4, 'last': 9, 'first': 0, 'seq_a': 0, 's
+  self-test OK: stage_not_rechecked        caught by read_flip_at_stage; first: model: one flipped re-stage: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a':
+  self-test OK: stage_seq_unchecked        caught by read_alias_at_stage; first: model: every re-stage aliased: slot 0 holds seq 0x6, published 0x5, staged 0x5
+  self-test OK: select_on_unchecked_reread caught by read_flip_boot; first: model: seq A 0x5 B 0x6, flip in slot 0 read 2: the older slot's flipped word displaced the newer: {'terminal':
+  self-test OK: slot_read_fail_ignored     caught by read_fail_boot; first: model: read-fail-at:3:0:0xef0100: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 4, 'last': 0, 'first': 0, 'se
+  self-test OK: unread_not_held            caught by authority_unknown, fallback_restage, read_disagreement; first: model: slot A at 0x1, read-fail:3:0: the writer is not held: {'terminal': 2, 'cause': 0, 'vd_a': 3, 'vd_b': 9,
+  self-test OK: read_not_retried           caught by read_fail_boot, authority_unknown; first: model: read-fail:2:2: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 3, 'last': 0, 'first': 0, 'seq_a': 5, 'se
+  self-test OK: refusal_unconfirmed        caught by authority_unknown, read_disagreement; first: model: slot A at 0x1, read-flip-at:1:0:0xee0100: the slot was not read again and applied: {'terminal': 2, 'cau
+  self-test OK: blank_unconfirmed          caught by authority_unknown; first: model: slot A at 0x1, read-alias:1:0: the slot was not read again and applied: {'terminal': 2, 'cause': 0, 'vd
+  self-test OK: refusal_by_verdict         caught by read_disagreement; first: model: slot A at 0x1, read-vary-at:2:0:0xee0000: the slot was not read again and applied: {'terminal': 2, 'cau
+  self-test OK: restage_not_retried        caught by read_flip_at_stage, read_alias_at_stage, read_fail_boot; first: model: one flipped re-stage: {'terminal': 1, 'cause': 5, 'vd_a': 0, 'vd_b': 3, 'last': 0, 'first': 0, 'seq_a':
+  self-test OK: fallback_restage_unchecked caught by fallback_restage; first: model: both re-stages flipped: {'terminal': 1, 'cause': 5, 'vd_a': 0, 'vd_b': 3, 'last': 0, 'first': 0, 'seq_a
+  self-test OK: no_rollback                caught by apply_fault_rolls_back, settle_fault_rolls_back; first: model: apply fault: {'terminal': 3, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_
+  self-test OK: rollback_failure_ignored   caught by rollback_fault_closes; first: model: rollback fault: {'terminal': 3, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 's
+  self-test OK: release_on_closed          caught by rollback_fault_closes; first: model: rollback fault: {'terminal': 4, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 's
+  self-test OK: fault_as_refusal           caught by apply_fault_rolls_back, binding_walk; first: model: apply fault: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_
+  self-test OK: refusal_aborts             caught by refused_keeps_default; first: model: refusals: {'terminal': 3, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b':
+  self-test OK: settle_fault_ignored       caught by settle_fault_rolls_back; first: model: settle fault: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq
+  self-test OK: settle_after_names         caught by golden_restore; first: model: invariant sm_order=39
+  self-test OK: release_before_apply       caught by golden_restore; first: model: invariant sm_order=54
+  self-test OK: apply_erased               caught by erased_records; first: model: erased-record counts: {'terminal': 1, 'cause': 0, 'vd_a': 0, 'vd_b': 9, 'last': 0, 'first': 0, 'seq_a':
+  self-test OK: model_ready_ignored        caught by model_unproven_closes; first: model: unproven model: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 's
+  self-test OK: bindings_skipped_unproven  caught by model_unproven_closes; first: model: unproven model: {'terminal': 4, 'cause': 3, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 's
+  self-test OK: d3_rollback_takes_bindings caught by apply_fault_rolls_back, settle_fault_rolls_back; first: model: apply fault: {'terminal': 3, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_
+  self-test OK: bindings_in_d3_walk        caught by binding_walk, golden_restore; first: model: invariant sm_order=2
+  self-test OK: binding_fault_aborts_d3    caught by binding_walk; first: model: binding fault: {'terminal': 3, 'cause': 1, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'se
+  self-test OK: binding_fault_keeps_preloads caught by binding_walk; first: model: binding fault: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'se
+  self-test OK: quiet_period               caught by debounce; first: model: a second change extended the first-dirty window
+  self-test OK: no_debounce                caught by debounce; first: model: an erase inside the debounce window: 1
+  self-test OK: capture_leaves_window_armed caught by debounce; first: model: a change after a commit that took one mid-capture (record 0xa6): erase 1704 us after it, want 1,000 to 
+  self-test OK: taken_off_by_one           caught by debounce; first: model: a change after a commit that took one mid-capture (record 0x0): erase 1704 us after it, want 1,000 to 1
+  self-test OK: dr2b_ignores_durability    caught by failed_commit_not_skipped; first: model: retry after a failed attempt: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 13, 'first': 13
+  self-test OK: no_dr2b                    caught by unchanged_no_erase; first: model: unchanged value: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, '
+  self-test OK: no_backoff                 caught by media_failures; first: model: erase-stuck: attempts at [1006063, 1028134, 1050205] us, want three at least 1,000 ms apart
+  self-test OK: unbounded_attempts         caught by media_failures; first: model: erase-hang: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq
+  self-test OK: budget_rearmed_by_change   caught by dr2c_unchanged_set; first: model: unchanged set held: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0
+  self-test OK: budget_rearmed_by_capture  caught by dr2c_unchanged_set; first: model: unchanged set held: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0
+  self-test OK: commit_now_overrides_exhaustion caught by dr2c_console; first: model: invariant protected=3
+  self-test OK: commit_now_ignores_backoff caught by dr2c_console; first: model: console inside the backoff: retry 183703 us after the failure: {'terminal': 1, 'cause': 0, 'vd_a': 9, '
+  self-test OK: success_forgives_exhaustion caught by recovers_after_failure, dr2c_unchanged_set; first: model: new work set after exhaustion: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0,
+  self-test OK: stale_kept                 caught by recovers_after_failure; first: model: third attempt: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'se
+  self-test OK: dr2b_keeps_stale           caught by recovers_after_failure; first: model: a repeated value after recovery: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 
+  self-test OK: no_blankcheck              caught by media_failures; first: model: erase-stuck: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_
+  self-test OK: blankcheck_first_stretch_only caught by blankcheck_tail; first: model: erase-stuck:1:0:3335: want the first failure 11: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'las
+  self-test OK: blankcheck_read_fail_ignored caught by media_verdicts; first: model: read-fail:1:7: want the first failure 11: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 
+  self-test OK: no_verify                  caught by media_failures, failed_commit_not_skipped; first: model: program-drop: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq
+  self-test OK: verify_skips_last_stretch  caught by verify_tail; first: model: program-drop:1:13: want the first failure 13: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last':
+  self-test OK: verify_read_fail_ignored   caught by media_verdicts; first: model: read-fail:1:21: want the first failure 13: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0,
+  self-test OK: program_refusal_ignored    caught by media_verdicts; first: model: program-refuse:1:2: want the first failure 12: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last'
+  self-test OK: no_timeout                 caught by media_failures; first: model: erase-hang: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b
+  self-test OK: same_sequence              caught by change_commit_bytes; first: model: change commit: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'se
+  self-test OK: refused_slot_overwritten   caught by refused_slot_kept; first: model: refused slot A: {'terminal': 2, 'cause': 0, 'vd_a': 6, 'vd_b': 9, 'last': 0, 'first': 0, 'seq_a': 0, 's
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: model: invariant protected=3
+  self-test OK: descending_pages           caught by first_commit_bytes; first: model: invariant descending=13
+  self-test OK: capture_in_one_step        caught by service_bound; first: model: invariant step_max=6040 > step_bound=278
+  self-test OK: spin_wait                  caught by service_bound; first: model: invariant max_call_us=2999900 > 250
+  self-test OK: litespi_no_wren            caught by first_commit_bytes; first: --litespi: invariant ls_no_wel=14
+  self-test OK: litespi_status_ignored     caught by first_commit_bytes; first: --litespi: invariant while_busy=14
+  self-test OK: litespi_no_guard           caught by port_guard; first: --litespi: invariant while_busy=3
+  self-test OK: phc_time                   caught by time_base; first: --litespi: PHC -60000 ms in the window: erase None us after the change
+  self-test OK: clock_not_accumulated      caught by time_base; first: --litespi: a window across the counter's wrap: erase 502406 us after the change
+  self-test OK: ticks_per_us_truncated     caught by port_clock, time_base at 83333000 Hz; first: --litespi: built at 83333000 Hz with a deadline of 166000 clocks; the config's 83333000 Hz makes it 166666
+  self-test OK: xfer_unbounded             caught by port_stall; first: --litespi: invariant ls_hung=1
+  self-test OK: open_unbounded             caught by port_stall; first: --litespi: invariant ls_hung=1
+  self-test OK: call_deadline_ignored      caught by port_deadline; first: --litespi: invariant protected=3
+  self-test OK: deadline_per_wait          caught by port_deadline; first: --litespi: invariant max_call_us=2231 > 2213
+  self-test OK: stall_ignored              caught by port_stall; first: --litespi: stalled master tx:1:10:0: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 13, 'first': 13
+saved-state store gate (#665 F1): OK across 5 shape(s), 42 checks, and all 82 planted defects reddened

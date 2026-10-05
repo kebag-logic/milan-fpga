@@ -1,0 +1,306 @@
+[
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-1-header",
+    "seq_before": 1,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2,
+    "seq_clean_reboot": 2,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-1-body",
+    "seq_before": 1,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2,
+    "seq_clean_reboot": 2,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-5-header",
+    "seq_before": 5,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 6,
+    "seq_clean_reboot": 6,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-5-body",
+    "seq_before": 5,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 6,
+    "seq_clean_reboot": 6,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-2147483648-header",
+    "seq_before": 2147483648,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2147483649,
+    "seq_clean_reboot": 2147483649,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-2147483648-body",
+    "seq_before": 2147483648,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2147483649,
+    "seq_clean_reboot": 2147483649,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-4294967295-header",
+    "seq_before": 4294967295,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 0,
+    "seq_clean_reboot": 0,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15597568 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-0-seq-4294967295-body",
+    "seq_before": 4294967295,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 0,
+    "seq_clean_reboot": 0,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15597568 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-1-header",
+    "seq_before": 1,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2,
+    "seq_clean_reboot": 2,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-1-body",
+    "seq_before": 1,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2,
+    "seq_clean_reboot": 2,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-5-header",
+    "seq_before": 5,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 6,
+    "seq_clean_reboot": 6,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-5-body",
+    "seq_before": 5,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 6,
+    "seq_clean_reboot": 6,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-2147483648-header",
+    "seq_before": 2147483648,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2147483649,
+    "seq_clean_reboot": 2147483649,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-2147483648-body",
+    "seq_before": 2147483648,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 2147483649,
+    "seq_clean_reboot": 2147483649,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=16 returned=104"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-4294967295-header",
+    "seq_before": 4294967295,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 0,
+    "seq_clean_reboot": 0,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=8 returned=67",
+      "PROBE_READ addr=15663104 len=40 offset=0 xor=16 returned=91"
+    ]
+  },
+  {
+    "case": "endstation_ax7101_1x1_tdm8-slot-1-seq-4294967295-body",
+    "seq_before": 4294967295,
+    "unread": 0,
+    "faults_reported": 1,
+    "commits_ok": 1,
+    "committed_seq": 0,
+    "seq_clean_reboot": 0,
+    "changed_record_lost": false,
+    "changed_record": 166,
+    "expected_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "observed_valid": 1,
+    "observed_value": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+    "wrong_records_after_reboot": [],
+    "differing_reads": [
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=8 returned=112",
+      "PROBE_READ addr=15663104 len=3336 offset=256 xor=16 returned=104"
+    ]
+  }
+]
