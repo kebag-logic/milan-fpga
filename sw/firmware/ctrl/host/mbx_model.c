@@ -1,0 +1,668 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+//
+// mbx_model.c - the fabric side of the packet-mailbox contract, modeled at
+// the transaction level (see mbx_model.h). Each rule below is the RTL's
+// (hdl/milan/mailbox), stated in the leaf that implements it:
+//
+//   KL_mbx_rx   classification by EtherType and subtype, the accept terms,
+//               the record committed whole or dropped (RX_DROP for size or
+//               space, RATE_DROP for an empty bucket), one token per refill
+//               period up to the burst;
+//   KL_mbx_tx   round-robin over the channels with records, a record checked
+//               before a byte leaves, a refused record counted and the ring
+//               flushed to TX_HEAD;
+//   KL_mbx_evt  timers expiring at their deadline, every source coalesced,
+//               posted only into four free words, in the priority link,
+//               grandmaster, lowest slot, tick;
+//   KL_mbx      the register file, the GM_LO snapshot, the sticky ERR, the
+//               refusal of a partial write, the interrupt levels.
+
+#include "mbx_model.h"
+
+#include <string.h>
+
+#include "mbx_wire.h"
+
+static const uint32_t rx_base[MBX_N_CH] = MBX_CH_RX_BASE_TBL;
+static const uint32_t rx_words[MBX_N_CH] = MBX_CH_RX_WORDS_TBL;
+static const uint32_t tx_base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
+static const uint32_t tx_words[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
+static const uint32_t max_frame[MBX_N_CH] = MBX_CH_MAX_FRAME_BYTES_TBL;
+static const uint32_t ethertype0[MBX_N_CH] = MBX_CH_ETHERTYPE0_TBL;
+static const uint32_t ethertype1[MBX_N_CH] = MBX_CH_ETHERTYPE1_TBL;
+static const uint32_t has_subtype[MBX_N_CH] = MBX_CH_HAS_SUBTYPE_TBL;
+static const uint32_t subtype[MBX_N_CH] = MBX_CH_SUBTYPE_TBL;
+static const uint32_t burst[MBX_N_CH] = MBX_CH_RATE_BURST_TBL;
+static const uint32_t refill_ms[MBX_N_CH] = MBX_CH_RATE_REFILL_MS_TBL;
+static const uint32_t term_test[MBX_N_CH * MBX_MAX_TERMS] = MBX_TERM_TEST_TBL;
+static const uint32_t term_offset[MBX_N_CH * MBX_MAX_TERMS] = MBX_TERM_OFFSET_TBL;
+static const uint32_t term_mask[MBX_N_CH * MBX_MAX_TERMS] = MBX_TERM_MASK_TBL;
+
+static uint32_t *ring_word(struct mbx_model *m, uint32_t base, uint32_t words, uint32_t index)
+{
+	return &m->window[(base + 4u * (index & (words - 1u))) / 4u];
+}
+
+static uint16_t sat16(uint16_t v)
+{
+	return v == 0xFFFFu ? v : (uint16_t)(v + 1u);
+}
+
+// ---- the event poster -----------------------------------------------------
+
+static bool next_source(const struct mbx_model *m, uint32_t w[4])
+{
+	uint32_t w0_if = 0;
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		if (m->link_up[i] != m->posted_up[i]) {
+			w[0] = mbx_place(MBX_EV_TYPE_LINK, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) |
+			       mbx_place(i, MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+			w[1] = mbx_place(m->link_up[i] ? 1u : 0u, MBX_EV_LINK_W1_UP_LSB, MBX_EV_LINK_W1_UP_WIDTH);
+			w[2] = 0;
+			w[3] = m->now_ms;
+			return true;
+		}
+	}
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		if (m->gm_pending[i]) {
+			w0_if = mbx_place(i, MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+			w[0] = mbx_place(MBX_EV_TYPE_GM, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) | w0_if;
+			w[1] = (uint32_t)m->gm_id[i];
+			w[2] = (uint32_t)(m->gm_id[i] >> 32);
+			w[3] = mbx_place(m->domain[i], MBX_EV_GM_W3_DOMAIN_LSB, MBX_EV_GM_W3_DOMAIN_WIDTH);
+			return true;
+		}
+	}
+	for (unsigned s = 0; s < MBX_N_TIMERS; ++s) {
+		if (m->timers[s].pending) {
+			w[0] = mbx_place(MBX_EV_TYPE_TIMER, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH);
+			w[1] = mbx_place(m->timers[s].tag, MBX_EV_TIMER_W1_TAG_LSB, MBX_EV_TIMER_W1_TAG_WIDTH) |
+			       mbx_place(s, MBX_EV_TIMER_W1_SLOT_LSB, MBX_EV_TIMER_W1_SLOT_WIDTH);
+			w[2] = m->timers[s].deadline_ms;
+			w[3] = m->now_ms;
+			return true;
+		}
+	}
+	if (m->tick_count != 0u) {
+		w[0] = mbx_place(MBX_EV_TYPE_TICK, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH);
+		w[1] = mbx_place(m->tick_count, MBX_EV_TICK_W1_COUNT_LSB, MBX_EV_TICK_W1_COUNT_WIDTH);
+		w[2] = 0;
+		w[3] = m->now_ms;
+		return true;
+	}
+	return false;
+}
+
+// Clear the source the record in w[] came from.
+static void source_posted(struct mbx_model *m, const uint32_t w[4])
+{
+	uint32_t type = mbx_field(w[0], MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH);
+	uint32_t i = mbx_field(w[0], MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+	if (type == MBX_EV_TYPE_LINK) {
+		m->posted_up[i] = m->link_up[i];
+	} else if (type == MBX_EV_TYPE_GM) {
+		m->gm_pending[i] = false;
+	} else if (type == MBX_EV_TYPE_TIMER) {
+		m->timers[mbx_field(w[1], MBX_EV_TIMER_W1_SLOT_LSB, MBX_EV_TIMER_W1_SLOT_WIDTH)].pending = false;
+	} else {
+		m->tick_count = 0;
+	}
+}
+
+static void post(struct mbx_model *m)
+{
+	uint32_t w[4];
+	for (;;) {
+		uint16_t free_words = (uint16_t)(MBX_EVT_WORDS - (uint16_t)(m->evt_head - m->evt_tail));
+		if (free_words < MBX_EV_WORDS || !next_source(m, w)) {
+			return;
+		}
+		w[0] |= mbx_place(m->seq, MBX_EVREC_W0_SEQ_LSB, MBX_EVREC_W0_SEQ_WIDTH);
+		for (uint32_t k = 0; k < MBX_EV_WORDS; ++k) {
+			*ring_word(m, MBX_EVT_BASE, MBX_EVT_WORDS, (uint32_t)m->evt_head + k) = w[k];
+		}
+		source_posted(m, w);
+		m->evt_head = (uint16_t)(m->evt_head + MBX_EV_WORDS);
+		m->seq = (uint16_t)(m->seq + 1u);
+	}
+}
+
+// ---- the timer bank and time ---------------------------------------------------
+
+static void timers_expire(struct mbx_model *m)
+{
+	for (unsigned s = 0; s < MBX_N_TIMERS; ++s) {
+		struct mbx_model_timer *t = &m->timers[s];
+		if (t->armed && (int32_t)(m->now_ms - t->deadline_ms) >= 0) {
+			t->armed = false;
+			t->pending = true;
+		}
+	}
+}
+
+static void one_ms(struct mbx_model *m)
+{
+	m->now_ms++;
+	for (unsigned c = 0; c < MBX_N_CH; ++c) {
+		struct mbx_model_channel *ch = &m->ch[c];
+		if ((uint32_t)ch->refill + 1u >= refill_ms[c]) {
+			ch->refill = 0;
+			if (ch->tokens < burst[c]) {
+				ch->tokens++;
+			}
+		} else {
+			ch->refill++;
+		}
+	}
+	if (m->tick_ctl != 0u) {
+		bool tick = (uint32_t)m->tick_div + 1u >= MBX_TICK_MS;
+		m->tick_div = tick ? 0u : (uint8_t)(m->tick_div + 1u);
+		if (tick) {
+			m->tick_count = sat16(m->tick_count);
+		}
+	}
+	timers_expire(m);
+	post(m);
+}
+
+void mbx_model_advance_ms(struct mbx_model *m, uint32_t ms)
+{
+	for (uint32_t k = 0; k < ms; ++k) {
+		one_ms(m);
+	}
+}
+
+static void timer_command(struct mbx_model *m, uint32_t v)
+{
+	uint32_t slot = mbx_field(v, MBX_TMR_CMD_SLOT_LSB, MBX_TMR_CMD_SLOT_WIDTH);
+	uint32_t op = mbx_field(v, MBX_TMR_CMD_OP_LSB, MBX_TMR_CMD_OP_WIDTH);
+	if (slot >= MBX_N_TIMERS || (op != MBX_TMR_OP_ARM && op != MBX_TMR_OP_CANCEL)) {
+		m->bus_err = sat16(m->bus_err);
+		m->err = true;
+		return;
+	}
+	struct mbx_model_tmr_op *log = &m->tmr_log[m->tmr_ops % MBX_MODEL_TMR_LOG];
+	log->op = (uint8_t)op;
+	log->slot = (uint8_t)slot;
+	log->tag = (uint16_t)mbx_field(v, MBX_TMR_CMD_TAG_LSB, MBX_TMR_CMD_TAG_WIDTH);
+	log->deadline_ms = m->tmr_deadline;
+	log->now_ms = m->now_ms;
+	m->tmr_ops++;
+	struct mbx_model_timer *t = &m->timers[slot];
+	t->pending = false;
+	t->armed = op == MBX_TMR_OP_ARM;
+	if (t->armed) {
+		t->tag = log->tag;
+		t->deadline_ms = m->tmr_deadline;
+	}
+	timers_expire(m);
+}
+
+// ---- the TX merge ----------------------------------------------------------------
+
+static bool tx_record_ok(struct mbx_model *m, unsigned c, uint32_t w0, uint32_t w1)
+{
+	uint32_t len = mbx_field(w0, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH);
+	uint32_t occ = (uint16_t)(m->ch[c].tx_head - m->ch[c].tx_tail);
+	uint32_t record = MBX_TX_HDR_WORDS + (len + 3u) / 4u;
+	return mbx_field(w0, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH) == MBX_TX_KIND &&
+	       mbx_field(w0, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) < MBX_N_IF && len >= 14u &&
+	       len <= max_frame[c] && occ <= tx_words[c] && record <= occ && w1 == 0u;
+}
+
+static void tx_capture(struct mbx_model *m, unsigned c, uint32_t w0)
+{
+	struct mbx_model_tx *f = &m->tx[m->tx_sent % MBX_MODEL_TX_CAPTURE];
+	struct mbx_model_channel *ch = &m->ch[c];
+	f->len = (uint16_t)mbx_field(w0, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH);
+	f->interface = (uint8_t)mbx_field(w0, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH);
+	f->channel = (uint8_t)c;
+	f->now_ms = m->now_ms;
+	for (uint32_t k = 0; k < f->len; k += 4u) {
+		uint32_t word = *ring_word(m, tx_base[c], tx_words[c], (uint32_t)ch->tx_tail + MBX_TX_HDR_WORDS + k / 4u);
+		ring_lanes_unpack(word, &f->bytes[k], f->len - k > 4u ? 4u : f->len - k);
+	}
+	m->tx_sent++;
+}
+
+static void tx_drain(struct mbx_model *m)
+{
+	while (!m->tx_paused) {
+		unsigned c = MBX_N_CH;
+		for (unsigned k = 1; k <= MBX_N_CH && c == MBX_N_CH; ++k) {
+			unsigned cand = (m->tx_last_ch + k) % MBX_N_CH;
+			if (m->ch[cand].tx_head != m->ch[cand].tx_tail) {
+				c = cand;
+			}
+		}
+		if (c == MBX_N_CH) {
+			return;
+		}
+		struct mbx_model_channel *ch = &m->ch[c];
+		uint32_t w0 = *ring_word(m, tx_base[c], tx_words[c], ch->tx_tail);
+		uint32_t w1 = *ring_word(m, tx_base[c], tx_words[c], (uint32_t)ch->tx_tail + 1u);
+		if (tx_record_ok(m, c, w0, w1)) {
+			tx_capture(m, c, w0);
+			uint32_t len = mbx_field(w0, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH);
+			ch->tx_tail = (uint16_t)(ch->tx_tail + MBX_TX_HDR_WORDS + (len + 3u) / 4u);
+		} else {
+			ch->tx_err = sat16(ch->tx_err);
+			m->err = true;
+			ch->tx_tail = ch->tx_head;
+		}
+		m->tx_last_ch = (uint8_t)c;
+	}
+}
+
+void mbx_model_tx_pause(struct mbx_model *m, bool paused)
+{
+	m->tx_paused = paused;
+	tx_drain(m);
+}
+
+// ---- the ingress filter ----------------------------------------------------------
+
+static int classify(const uint8_t *frame, size_t len)
+{
+	if (len <= MBX_SUBTYPE_BYTE) {
+		return -1;                                      // ends before the subtype byte
+	}
+	uint32_t et = wire_be16(frame + MBX_ETHERTYPE_BYTE);
+	for (unsigned c = 0; c < MBX_N_CH; ++c) {
+		if ((et == ethertype0[c] || et == ethertype1[c]) &&
+		    (has_subtype[c] == 0u || frame[MBX_SUBTYPE_BYTE] == subtype[c])) {
+			return (int)c;
+		}
+	}
+	return -1;
+}
+
+static bool maap_overlap(const struct mbx_model *m, uint64_t start, uint32_t count)
+{
+	if (count == 0u || m->maap_count == 0u) {
+		return false;
+	}
+	uint64_t own_end = m->maap_base + m->maap_count - 1u;
+	uint64_t req_end = start + count - 1u;
+	return start <= own_end && m->maap_base <= req_end;
+}
+
+static bool term_holds(const struct mbx_model *m, unsigned j, const uint8_t *frame, size_t len)
+{
+	uint32_t off = term_offset[j];
+	bool field_ok = len >= (size_t)off + MBX_TERM_FIELD_BYTES;
+	switch (term_test[j]) {
+	case MBX_TEST_ANY:
+		return true;
+	case MBX_TEST_EQ_OWN:
+		return field_ok && wire_be64(frame + off) == m->own_eid;
+	case MBX_TEST_EQ_ZERO:
+		return field_ok && wire_be64(frame + off) == 0u;
+	case MBX_TEST_RANGE_OVERLAP:
+		return field_ok && maap_overlap(m, wire_be64(frame + off) >> 16, wire_be16(frame + off + 6u));
+	default:
+		return false;
+	}
+}
+
+static bool rule_passes(const struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len)
+{
+	uint32_t msg = len > MBX_MSG_TYPE_BYTE ? frame[MBX_MSG_TYPE_BYTE] & 0x0Fu : 0u;
+	for (unsigned t = 0; t < MBX_MAX_TERMS; ++t) {
+		unsigned j = c * MBX_MAX_TERMS + t;
+		if (((term_mask[j] >> msg) & 1u) != 0u && term_holds(m, j, frame, len)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static void rx_commit(struct mbx_model *m, unsigned c, const uint8_t *frame, size_t len, unsigned interface)
+{
+	struct mbx_model_channel *ch = &m->ch[c];
+	*ring_word(m, rx_base[c], rx_words[c], ch->rx_head) =
+		mbx_place((uint32_t)len, MBX_RXREC_W0_LEN_LSB, MBX_RXREC_W0_LEN_WIDTH) |
+		mbx_place(interface, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) |
+		mbx_place(MBX_RX_KIND, MBX_RXREC_W0_KIND_LSB, MBX_RXREC_W0_KIND_WIDTH);
+	*ring_word(m, rx_base[c], rx_words[c], (uint32_t)ch->rx_head + 1u) = m->now_ms;
+	for (size_t k = 0; k < len; k += 4u) {
+		*ring_word(m, rx_base[c], rx_words[c], (uint32_t)ch->rx_head + MBX_RX_HDR_WORDS + (uint32_t)(k / 4u)) =
+			ring_lanes_pack(frame + k, len - k > 4u ? 4u : (unsigned)(len - k));
+	}
+	ch->rx_head = (uint16_t)(ch->rx_head + MBX_RX_HDR_WORDS + (len + 3u) / 4u);
+	ch->rx_pass = (uint16_t)(ch->rx_pass + 1u);
+	ch->tokens--;
+}
+
+bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface)
+{
+	int found = classify(frame, len);
+	if (found < 0 || ((m->filter_en >> found) & 1u) == 0u) {
+		return false;
+	}
+	unsigned c = (unsigned)found;
+	if (!rule_passes(m, c, frame, len)) {
+		return false;
+	}
+	struct mbx_model_channel *ch = &m->ch[c];
+	uint32_t used = (uint16_t)(ch->rx_head - ch->rx_tail);
+	uint32_t free_words = used > rx_words[c] ? 0u : rx_words[c] - used;
+	if (len > max_frame[c] || MBX_RX_HDR_WORDS + (len + 3u) / 4u > free_words) {
+		ch->rx_drop = sat16(ch->rx_drop);
+		m->err = true;
+		return false;
+	}
+	if (ch->tokens == 0u) {
+		ch->rate_drop = sat16(ch->rate_drop);
+		m->err = true;
+		return false;
+	}
+	rx_commit(m, c, frame, len, interface);
+	return true;
+}
+
+// ---- the inputs the gPTP plane and the PHY drive ----------------------------------
+
+void mbx_model_set_link(struct mbx_model *m, unsigned interface, bool up)
+{
+	m->link_up[interface] = up;
+	post(m);
+}
+
+void mbx_model_set_gm(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain)
+{
+	m->gm_id[interface] = gm_id;
+	m->domain[interface] = domain;
+}
+
+void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain)
+{
+	mbx_model_set_gm(m, interface, gm_id, domain);
+	m->gm_pending[interface] = true;
+	post(m);
+}
+
+// ---- the register file ------------------------------------------------------------
+
+void mbx_model_reset(struct mbx_model *m)
+{
+	memset(m, 0, sizeof *m);
+	for (unsigned c = 0; c < MBX_N_CH; ++c) {
+		m->ch[c].tokens = (uint8_t)burst[c];
+	}
+	m->tx_last_ch = MBX_N_CH - 1u;
+}
+
+static uint32_t irq_status(const struct mbx_model *m)
+{
+	uint32_t rx = 0;
+	for (unsigned c = 0; c < MBX_N_CH; ++c) {
+		if (m->ch[c].rx_head != m->ch[c].rx_tail) {
+			rx |= 1u << c;
+		}
+	}
+	return mbx_place(rx, MBX_IRQ_STATUS_RX_LSB, MBX_IRQ_STATUS_RX_WIDTH) |
+	       mbx_place(m->evt_head != m->evt_tail ? 1u : 0u, MBX_IRQ_STATUS_EVT_LSB, MBX_IRQ_STATUS_EVT_WIDTH) |
+	       mbx_place(m->err ? 1u : 0u, MBX_IRQ_STATUS_ERR_LSB, MBX_IRQ_STATUS_ERR_WIDTH);
+}
+
+bool mbx_model_irq(const struct mbx_model *m)
+{
+	return (irq_status(m) & m->irq_enable) != 0u;
+}
+
+static uint32_t read_identity(uint32_t off)
+{
+	if (off == MBX_REG_ID) {
+		return mbx_place(MBX_VERSION_MINOR, MBX_ID_MINOR_LSB, MBX_ID_MINOR_WIDTH) |
+		       mbx_place(MBX_VERSION_MAJOR, MBX_ID_MAJOR_LSB, MBX_ID_MAJOR_WIDTH) |
+		       mbx_place(MBX_MAGIC, MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH);
+	}
+	uint32_t log2 = 0;
+	while ((1u << log2) < MBX_EVT_WORDS) {
+		log2++;
+	}
+	return mbx_place(MBX_N_CH, MBX_CAPS_N_CH_LSB, MBX_CAPS_N_CH_WIDTH) |
+	       mbx_place(MBX_N_IF, MBX_CAPS_N_IF_LSB, MBX_CAPS_N_IF_WIDTH) |
+	       mbx_place(MBX_N_TIMERS, MBX_CAPS_N_TIMERS_LSB, MBX_CAPS_N_TIMERS_WIDTH) |
+	       mbx_place(log2, MBX_CAPS_EVT_WORDS_LOG2_LSB, MBX_CAPS_EVT_WORDS_LOG2_WIDTH);
+}
+
+static uint32_t read_global(const struct mbx_model *m, uint32_t off)
+{
+	uint32_t link = 0;
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		link |= (m->link_up[i] ? 1u : 0u) << i;
+	}
+	switch (off) {
+	case MBX_REG_ID:
+	case MBX_REG_CAPS:
+		return read_identity(off);
+	case MBX_REG_IRQ_STATUS:
+		return irq_status(m);
+	case MBX_REG_IRQ_ENABLE:
+		return m->irq_enable;
+	case MBX_REG_NOW_MS:
+		return m->now_ms;
+	case MBX_REG_LINK:
+		return mbx_place(link, MBX_LINK_UP_LSB, MBX_LINK_UP_WIDTH);
+	case MBX_REG_TICK_CTL:
+		return m->tick_ctl;
+	case MBX_REG_OWN_EID_LO:
+		return (uint32_t)m->own_eid;
+	case MBX_REG_OWN_EID_HI:
+		return (uint32_t)(m->own_eid >> 32);
+	case MBX_REG_FILTER_EN:
+		return m->filter_en;
+	case MBX_REG_MAAP_BASE_LO:
+		return (uint32_t)m->maap_base;
+	case MBX_REG_MAAP_BASE_HI:
+		return (uint32_t)(m->maap_base >> 32);
+	case MBX_REG_MAAP_COUNT:
+		return m->maap_count;
+	case MBX_REG_TMR_DEADLINE:
+		return m->tmr_deadline;
+	case MBX_REG_EVT_HEAD:
+		return m->evt_head;
+	case MBX_REG_EVT_TAIL:
+		return m->evt_tail;
+	case MBX_REG_BUS_ERR:
+		return m->bus_err;
+	default:
+		return 0;
+	}
+}
+
+static uint32_t read_channel(const struct mbx_model *m, unsigned c, uint32_t reg)
+{
+	const struct mbx_model_channel *ch = &m->ch[c];
+	switch (reg) {
+	case MBX_CH_REG_RX_HEAD:
+		return ch->rx_head;
+	case MBX_CH_REG_RX_TAIL:
+		return ch->rx_tail;
+	case MBX_CH_REG_TX_HEAD:
+		return ch->tx_head;
+	case MBX_CH_REG_TX_TAIL:
+		return ch->tx_tail;
+	case MBX_CH_REG_RX_DROP:
+		return ch->rx_drop;
+	case MBX_CH_REG_RATE_DROP:
+		return ch->rate_drop;
+	case MBX_CH_REG_TX_ERR:
+		return ch->tx_err;
+	case MBX_CH_REG_RX_PASS:
+		return ch->rx_pass;
+	default:
+		return 0;
+	}
+}
+
+static uint32_t read_interface(struct mbx_model *m, unsigned i, uint32_t reg)
+{
+	if (reg == MBX_IF_REG_GM_LO) {
+		m->gm_hi_snap[i] = (uint32_t)(m->gm_id[i] >> 32);
+		m->domain_snap[i] = m->domain[i];
+		return (uint32_t)m->gm_id[i];
+	}
+	if (reg == MBX_IF_REG_GM_HI) {
+		return m->gm_hi_snap[i];
+	}
+	return reg == MBX_IF_REG_DOMAIN ? m->domain_snap[i] : 0u;
+}
+
+// The ring a byte offset falls in, as an RX ring of channel *c, or the event
+// ring (*c = MBX_N_CH); -1 when it falls in none the host may read.
+static int readable_ring(uint32_t off, unsigned *c)
+{
+	if (off >= MBX_EVT_BASE && off < MBX_EVT_BASE + 4u * MBX_EVT_WORDS) {
+		*c = MBX_N_CH;
+		return 0;
+	}
+	for (unsigned k = 0; k < MBX_N_CH; ++k) {
+		if (off >= rx_base[k] && off < rx_base[k] + 4u * rx_words[k]) {
+			*c = k;
+			return 0;
+		}
+	}
+	return -1;
+}
+
+uint32_t mbx_model_read(struct mbx_model *m, uint32_t byte_offset)
+{
+	uint32_t off = byte_offset & (MBX_WINDOW_BYTES - 4u);
+	unsigned c = 0;
+	m->reads++;
+	if (off < MBX_IF_BASE) {
+		return read_global(m, off);
+	}
+	if (off < MBX_IF_BASE + MBX_IF_STRIDE * MBX_N_IF) {
+		return read_interface(m, (off - MBX_IF_BASE) / MBX_IF_STRIDE, (off - MBX_IF_BASE) % MBX_IF_STRIDE);
+	}
+	if (off >= MBX_CH_BASE && off < MBX_CH_BASE + MBX_CH_STRIDE * MBX_N_CH) {
+		return read_channel(m, (off - MBX_CH_BASE) / MBX_CH_STRIDE, (off - MBX_CH_BASE) % MBX_CH_STRIDE);
+	}
+	if (off < MBX_REGISTER_SPACE_BYTES) {
+		return read_global(m, off);
+	}
+	return readable_ring(off, &c) == 0 ? m->window[off / 4u] : 0u;
+}
+
+static uint32_t masked(uint32_t v, uint32_t lsb, uint32_t width)
+{
+	return mbx_place(mbx_field(v, lsb, width), lsb, width);
+}
+
+static void write_channel(struct mbx_model *m, unsigned c, uint32_t reg, uint32_t v)
+{
+	if (reg == MBX_CH_REG_RX_TAIL) {
+		m->ch[c].rx_tail = (uint16_t)mbx_field(v, MBX_RX_TAIL_WORDS_LSB, MBX_RX_TAIL_WORDS_WIDTH);
+	} else if (reg == MBX_CH_REG_TX_HEAD) {
+		m->ch[c].tx_head = (uint16_t)mbx_field(v, MBX_TX_HEAD_WORDS_LSB, MBX_TX_HEAD_WORDS_WIDTH);
+		tx_drain(m);
+	}
+}
+
+static void write_tick_ctl(struct mbx_model *m, uint32_t v)
+{
+	m->tick_ctl = masked(v, MBX_TICK_CTL_EN_LSB, MBX_TICK_CTL_EN_WIDTH);
+	if (m->tick_ctl == 0u) {
+		m->tick_div = 0;
+		m->tick_count = 0;
+	}
+}
+
+static void write_global(struct mbx_model *m, uint32_t off, uint32_t v)
+{
+	switch (off) {
+	case MBX_REG_IRQ_STATUS:
+		if (mbx_field(v, MBX_IRQ_STATUS_ERR_LSB, MBX_IRQ_STATUS_ERR_WIDTH) != 0u) {
+			m->err = false;
+		}
+		break;
+	case MBX_REG_IRQ_ENABLE:
+		m->irq_enable = masked(v, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
+				masked(v, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH) |
+				masked(v, MBX_IRQ_ENABLE_ERR_LSB, MBX_IRQ_ENABLE_ERR_WIDTH);
+		break;
+	case MBX_REG_TICK_CTL:
+		write_tick_ctl(m, v);
+		break;
+	case MBX_REG_OWN_EID_LO:
+		m->own_eid = (m->own_eid & 0xFFFFFFFF00000000ull) | v;
+		break;
+	case MBX_REG_OWN_EID_HI:
+		m->own_eid = (m->own_eid & 0xFFFFFFFFull) | ((uint64_t)v << 32);
+		break;
+	case MBX_REG_FILTER_EN:
+		m->filter_en = masked(v, MBX_FILTER_EN_OPEN_LSB, MBX_FILTER_EN_OPEN_WIDTH);
+		break;
+	case MBX_REG_MAAP_BASE_LO:
+		m->maap_base = (m->maap_base & 0xFFFF00000000ull) | v;
+		break;
+	case MBX_REG_MAAP_BASE_HI:
+		m->maap_base = (m->maap_base & 0xFFFFFFFFull) |
+			       ((uint64_t)mbx_field(v, MBX_MAAP_BASE_HI_ADDR_LSB, MBX_MAAP_BASE_HI_ADDR_WIDTH) << 32);
+		break;
+	case MBX_REG_MAAP_COUNT:
+		m->maap_count = (uint16_t)mbx_field(v, MBX_MAAP_COUNT_COUNT_LSB, MBX_MAAP_COUNT_COUNT_WIDTH);
+		break;
+	case MBX_REG_TMR_DEADLINE:
+		m->tmr_deadline = v;
+		break;
+	case MBX_REG_TMR_CMD:
+		timer_command(m, v);
+		break;
+	case MBX_REG_EVT_TAIL:
+		m->evt_tail = (uint16_t)mbx_field(v, MBX_EVT_TAIL_WORDS_LSB, MBX_EVT_TAIL_WORDS_WIDTH);
+		break;
+	default:
+		break;
+	}
+}
+
+static bool writable_ring(uint32_t off)
+{
+	for (unsigned k = 0; k < MBX_N_CH; ++k) {
+		if (off >= tx_base[k] && off < tx_base[k] + 4u * tx_words[k]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, uint8_t strobes)
+{
+	uint32_t off = byte_offset & (MBX_WINDOW_BYTES - 4u);
+	m->writes++;
+	if (strobes != 0xFu) {
+		m->bus_err = sat16(m->bus_err);
+		m->err = true;
+		return;
+	}
+	if (off >= MBX_CH_BASE && off < MBX_CH_BASE + MBX_CH_STRIDE * MBX_N_CH) {
+		write_channel(m, (off - MBX_CH_BASE) / MBX_CH_STRIDE, (off - MBX_CH_BASE) % MBX_CH_STRIDE, value);
+	} else if (off < MBX_REGISTER_SPACE_BYTES) {
+		write_global(m, off, value);
+	} else if (writable_ring(off)) {
+		m->window[off / 4u] = value;
+	}
+	post(m);
+}
+
+const struct mbx_model_tx *mbx_model_tx_frame(const struct mbx_model *m, uint32_t k)
+{
+	if (k >= m->tx_sent || m->tx_sent - k > MBX_MODEL_TX_CAPTURE) {
+		return NULL;
+	}
+	return &m->tx[k % MBX_MODEL_TX_CAPTURE];
+}
+
+const struct mbx_model_tmr_op *mbx_model_tmr_op(const struct mbx_model *m, uint32_t k)
+{
+	if (k >= m->tmr_ops || m->tmr_ops - k > MBX_MODEL_TMR_LOG) {
+		return NULL;
+	}
+	return &m->tmr_log[k % MBX_MODEL_TMR_LOG];
+}
