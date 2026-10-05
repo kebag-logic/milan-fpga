@@ -30,7 +30,7 @@
 //     first ENTITY_AVAILABLE, which carries 0 (the ruling on PR #668,
 //     comment 5994972330).
 //
-// A FRAME THE SEND PORT REFUSES IS OWED, NEVER DROPPED BY WHAT FOLLOWS. Every
+// A FRAME THE SEND PORT REFUSES IS OWED, NEVER DROPPED BY WHAT FOLLOWS. A
 // SHUTDOWN's ENTITY_DEPARTING stays owed, with the index current at that
 // SHUTDOWN, until the port takes it, across any restart, timer expiry, link
 // change or later SHUTDOWN; adp_poll sends the oldest first. An
@@ -40,7 +40,21 @@
 // after the last owed DEPARTING has left. So a DEPARTING queued behind another
 // always carries 0: its run could send no AVAILABLE, and its index never left
 // 0. An owed AVAILABLE is dropped only by a link loss or a SHUTDOWN, which end
-// the run it would have announced. Owed DEPARTINGs are counted to 2^32 - 1.
+// the run it would have announced.
+//
+// AT MOST TWO DEPARTINGS ARE OWED (ADP_DEPARTING_OWED_MAX), by construction
+// (the round-4 assignment on #665, comment 5999248955): the oldest, with its
+// index, and one queued behind it, which carries 0. A SHUTDOWN that finds both
+// owed adds no third: it is coalesced into the queued one and counted
+// (departing_coalesced). Its DEPARTING would carry 0 as well, and nothing this
+// interface sends can leave between the two, so it could only repeat the
+// queued frame back to back. The wire therefore keeps every distinct frame, in
+// order, and drops only that repeat, which no receiver acts on: a Milan
+// listener that took the DEPARTING before it is in TK_NOT_DISCOVERED, where
+// RCV_ADP_DEPARTING is ignored (Milan v1.2 Table 5.54), and IEEE
+// 1722.1-2021's removeEntity (6.2.6.3.5) finds no record left to remove. So at
+// most two frames are owed ahead of an ENTITY_AVAILABLE, and with room it
+// leaves in the third poll at the latest (adp_mbx.h, owed frames).
 //
 // The ADPDU's fields are the entity model's (struct adp_entity, generated
 // from the end-station config by adp_entity.py, the same derivation the
@@ -70,6 +84,7 @@ extern "C" {
 #define ADP_ADVERTISE_MS 5000u          // Milan v1.2 Table 5.50, TMR_ADVERTISE
 #define ADP_DELAY_MAX_MS 4000u          // Milan v1.2 Table 5.50, TMR_DELAY
 #define ADP_DELAY_STARTUP_MAX_MS 2000u  // Milan v1.2 5.6.3.5.2
+#define ADP_DEPARTING_OWED_MAX 2u       // owed ENTITY_DEPARTINGs at most (see the top of this file)
 
 // IEEE 1722.1-2021 Table 6-1
 #define ADP_MSG_ENTITY_AVAILABLE 0u
@@ -142,9 +157,9 @@ struct adp {
 	uint32_t rng;                       // xorshift32 state of the random delays
 	// frames owed because the send port had no room (see the top of this file)
 	bool available_owed;                // ENTITY_AVAILABLE due in DELAY, not yet sent
-	uint32_t departing_owed;            // ENTITY_DEPARTINGs not yet sent
+	uint32_t departing_owed;            // ENTITY_DEPARTINGs not yet sent, 0 to ADP_DEPARTING_OWED_MAX
 	uint32_t departing_index;           // available_index the oldest of them carries
-	// diagnostics
+	// diagnostics, each counted modulo 2^32
 	uint32_t gm_changed;                // GPTP_GM_CHANGED
 	uint32_t draws;                     // random delays drawn
 	uint32_t last_draw_ms;
@@ -152,6 +167,7 @@ struct adp {
 	uint32_t stray_expiries;            // an expiry with no timer running
 	uint32_t discarded;                 // ADPDUs discarded (Milan v1.2 5.6.3.1)
 	uint32_t deferred_sends;            // sends the port had no room for
+	uint32_t departing_coalesced;       // SHUTDOWNs coalesced into the queued DEPARTING
 };
 
 void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_ports *ports,

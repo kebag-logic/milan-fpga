@@ -28,7 +28,8 @@
 // THE BOUND. An input is taken by pass CTRL_LOOP_EVT_PASSES (an event) or
 // CTRL_LOOP_RX_PASSES(rx_words) (a record of a channel), counted from the
 // first pass that starts after the fabric posted it, and the module's
-// response is committed in the pass that takes it. A pass costs at most the
+// response is committed in the pass that takes it (A3 says when it is
+// not). A pass costs at most the
 // budgets below times the modules' stated costs. That holds under four
 // assumptions:
 //   A1 backlog: at most a full event ring (CTRL_LOOP_EVT_BACKLOG records,
@@ -39,9 +40,14 @@
 //   A2 callbacks: a sink, a handler, a centisecond consumer and a poll each
 //      cost at most the accesses its module states (adp_mbx.h for ADP) and
 //      none waits on the fabric;
-//   A3 transmit room: a response finds room in its transmit ring. When it
-//      does not, its module owes it, the loop keeps passing, and it is
-//      committed in the first pass after the merge frees the room;
+//   A3 transmit room: a response finds room in its transmit ring, and its
+//      module owes no frame ahead of it. When it does not, its module owes
+//      it and the loop keeps passing; a poll sends one owed frame per pass
+//      and interface, oldest first. A response with k frames owed ahead of
+//      it is committed in pass k + 1 counted from the first pass that starts
+//      after the merge frees the room, and not before the pass that takes
+//      its input. A module bounds k and states the figure (adp_mbx.h, owed
+//      frames: k <= 2 for ADP);
 //   A4 bus: the bound counts mailbox accesses. Time is that count times the
 //      platform's cost per access, which this lane has not measured.
 // A protocol composes its own figures from these (ADP_MBX_PASS_MAX).

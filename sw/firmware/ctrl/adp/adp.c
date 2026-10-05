@@ -104,7 +104,7 @@ static bool send(struct adp *a, uint8_t message_type, uint32_t available_index)
 	return false;
 }
 
-// Send the oldest owed ENTITY_DEPARTING; the ones behind it carry 0 (adp.h).
+// Send the oldest owed ENTITY_DEPARTING; the one behind it carries 0 (adp.h).
 static void depart(struct adp *a)
 {
 	if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {
@@ -167,8 +167,10 @@ static void shutdown(struct adp *a)
 		a->departing_index = index;
 		a->departing_owed = 1u;
 		depart(a);                                              // owed if no room
-	} else if (a->departing_owed != UINT32_MAX) {
-		a->departing_owed++;                                    // queued behind the owed one(s)
+	} else if (a->departing_owed < ADP_DEPARTING_OWED_MAX) {
+		a->departing_owed++;                                    // queued behind the oldest, carrying 0
+	} else {
+		a->departing_coalesced++;                               // the queued one stands for it (adp.h)
 	}
 }
 

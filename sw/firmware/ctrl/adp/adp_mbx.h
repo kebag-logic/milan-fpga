@@ -24,7 +24,8 @@
 // path, stated and tested), under the assumptions A1 to A4 of ctrl_loop.h.
 //
 // One path's own cost. Every input is handled inside the pass that takes it,
-// with a fixed number of mailbox accesses and no wait on the fabric.
+// with a fixed number of mailbox accesses and no wait on the fabric, and its
+// response is committed there when A3 holds (otherwise see owed frames).
 // ADP_MBX_LAT_* is that number for ONE pass with nothing else pending,
 // derived below and counted access by access on the host model (test_adp.c,
 // C0 to C6), which fails a path that exceeds it:
@@ -58,12 +59,27 @@
 // above already exceeds). An event is taken by pass CTRL_LOOP_EVT_PASSES (2)
 // and an ADP record by pass CTRL_LOOP_RX_PASSES(256) (21: the ring holds 42
 // records of the smallest frame the filter passes), counted from the first
-// pass that starts after the fabric posted it, and its response is committed
-// in that pass. With the pass already running when the input arrived, that
-// is ADP_MBX_EVT_ACCESSES and ADP_MBX_RX_ACCESSES mailbox accesses from input
-// to committed response. test_adp.c (F0 to F7) fills both rings with legal
-// records, coalesces ticks behind them, and fails a pass or a path that
-// exceeds these figures.
+// pass that starts after the fabric posted it, and under A3 its response is
+// committed in that pass. With the pass already running when the input
+// arrived, that is ADP_MBX_EVT_ACCESSES and ADP_MBX_RX_ACCESSES mailbox
+// accesses from input to committed response. test_adp.c (F0 to F7) fills
+// both rings with legal records, coalesces ticks behind them, and fails a
+// pass or a path that exceeds these figures.
+//
+// Owed frames (A3). A frame the transmit ring had no room for is sent by the
+// poll, one per pass, the oldest first. An ENTITY_AVAILABLE has at most
+// ADP_DEPARTING_OWED_MAX (2) ENTITY_DEPARTINGs owed ahead of it (adp.h). With
+// k of them owed when the room returns, it is committed in pass k + 1 counted
+// from the first pass that starts after the room returned, or in the pass
+// that takes its TMR_DELAY expiry if that comes later (by pass 2, as any
+// event). Either way it is committed by pass ADP_MBX_OWED_PASSES (3), counted
+// from the first pass that starts after both the room's return and the
+// expiry's posting, and with a pass already running then, within
+// ADP_MBX_OWED_ACCESSES (4 x 407 = 1,628) accesses. A DEPARTING has at most
+// one owed ahead of it. test_adp.c E5 runs 1, 2 and 64 SHUTDOWNs behind a full
+// ring through the driver, the model and the loop, the expiry taken before
+// and after the room returns, and fails a commit later than pass k + 1 or
+// beyond these figures.
 //
 // In time (A4): at an assumed 1 us per access, which this lane has not
 // measured, the RX figure is under 9 ms, against Milan v1.2's 0 to 4 s
@@ -102,6 +118,10 @@ extern "C" {
 	 CTRL_LOOP_RX_PER_PASS * (ADP_MBX_RX_RECORD_MAX + ADP_MBX_HANDLER_MAX) + MBX_N_IF * ADP_MBX_POLL_MAX)
 #define ADP_MBX_EVT_ACCESSES ((CTRL_LOOP_EVT_PASSES + 1u) * ADP_MBX_PASS_MAX)
 #define ADP_MBX_RX_ACCESSES ((CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) + 1u) * ADP_MBX_PASS_MAX)
+// An owed ENTITY_AVAILABLE: the later of k + 1 <= 3 and the event's pass 2.
+#define ADP_MBX_OWED_PASSES \
+	(ADP_DEPARTING_OWED_MAX + 1u > CTRL_LOOP_EVT_PASSES ? ADP_DEPARTING_OWED_MAX + 1u : CTRL_LOOP_EVT_PASSES)
+#define ADP_MBX_OWED_ACCESSES ((ADP_MBX_OWED_PASSES + 1u) * ADP_MBX_PASS_MAX)
 
 struct adp_mbx_if {
 	struct adp adp;

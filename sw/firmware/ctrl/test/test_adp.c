@@ -7,7 +7,8 @@
 //       demand: a send the port refuses (deferred, retried, dropped by a
 //       link loss), a stray expiry, the firmware's own 5.6.3.1 discard
 //       (the fabric filter normally spares it the work), the two draw kinds,
-//       and an owed ENTITY_DEPARTING across a restart (A15 to A17);
+//       an owed ENTITY_DEPARTING across a restart (A15 to A17), and the bound
+//       on owed DEPARTINGs (A21);
 //   B   the mailbox adapter on the model: an expiry that raced a re-arm is
 //       discarded by its tag;
 //   C   the service-latency bound of every response path (adp_mbx.h), counted
@@ -16,7 +17,8 @@
 //       sleeps until the mailbox interrupt: the loop must not sleep on it,
 //       and once the ring drains the frame leaves with its timer restarted;
 //       and the same through the mailbox for a DEPARTING owed across a
-//       restart whose TMR_DELAY expires first (E4);
+//       restart whose TMR_DELAY expires first (E4); and the pass in which an
+//       ENTITY_AVAILABLE behind owed DEPARTINGs is committed (E5);
 //   F   the bound with full legal backlogs (ctrl_loop.h A1 to A4): both
 //       rings full, ticks coalesced behind them, every pass and path held to
 //       the stated figures, events first in every pass.
@@ -384,6 +386,41 @@ static void core_owed_departing(void)
 		      a.state == ADP_STATE_WAITING);
 }
 
+// R497-3-F1: at most ADP_DEPARTING_OWED_MAX DEPARTINGs are owed; a SHUTDOWN
+// beyond them is coalesced into the queued one and counted (adp.h).
+static void core_departing_capacity(void)
+{
+	struct adp a;
+	advertise_then_depart_owed(&a);
+	adp_timer_expired(&a);
+	adp_set_enable(&a, false);
+	check("A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced",
+	      a.departing_owed == ADP_DEPARTING_OWED_MAX && a.departing_owed == 2u && a.departing_index == 1u &&
+		      a.departing_coalesced == 0u);
+	adp_set_enable(&a, true);
+	adp_timer_expired(&a);
+	adp_set_enable(&a, false);
+	check("A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped",
+	      a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 1u && !a.available_owed &&
+		      a.state == ADP_STATE_DOWN && fk.sends == 1u);
+	for (unsigned k = 0; k < 100000u; ++k) {
+		adp_set_enable(&a, true);
+		adp_set_enable(&a, false);
+	}
+	check("A21 and so are 100000 more, each counted, the two owed unchanged",
+	      a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 100001u && fk.sends == 1u);
+	adp_set_enable(&a, true);
+	fk.room = true;
+	(void)adp_poll(&a);
+	bool owed = adp_poll(&a);
+	check("A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed",
+	      fk.sends == 3u && took(1, ADP_MSG_ENTITY_DEPARTING, 1) && took(2, ADP_MSG_ENTITY_DEPARTING, 0) && !owed &&
+		      !adp_poll(&a) && fk.sends == 3u);
+	adp_timer_expired(&a);
+	check("A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING",
+	      fk.sends == 4u && took(3, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING);
+}
+
 static void core_draws(void)
 {
 	struct adp a;
@@ -648,6 +685,70 @@ static void owed_departing_wake(void)
 	mbx_model_bind(&model, NULL, NULL);
 }
 
+// R496-3-F1 through the driver, the model's timer and the loop (adp_mbx.h,
+// owed frames): `shutdowns` SHUTDOWN-and-restart pairs behind a full ring
+// leave k = min(shutdowns, 2) DEPARTINGs owed ahead of the last restart's
+// ENTITY_AVAILABLE. Its TMR_DELAY expiry is taken while the ring is still
+// full, or once the room has returned (`room_first`). The AVAILABLE must be
+// committed in pass k + 1 after the room returns, within the stated figures.
+static void owed_bound(unsigned shutdowns, bool room_first)
+{
+	char what[192];
+	unsigned k = shutdowns < ADP_DEPARTING_OWED_MAX ? shutdowns : ADP_DEPARTING_OWED_MAX;
+	const char *when = room_first ? "expiry taken after the room" : "expiry taken before the room";
+	boot();
+	mbx_model_set_link(&model, 0, true);
+	settle();
+	to_waiting();
+	mbx_model_tx_pause(&model, true);
+	uint8_t filler[ADP_FRAME_BYTES];
+	adp_build(adp0(), ADP_MSG_ENTITY_AVAILABLE, 0x0F0F0F0Fu, filler);
+	while (mbx_tx_send(MBX_CH_ADP, 0, filler, sizeof filler) == MBX_STATUS_OK) {
+	}
+	for (unsigned s = 0; s < shutdowns; ++s) {
+		adp_mbx_set_enable(&app.adp, false);
+		adp_mbx_set_enable(&app.adp, true);
+	}
+	snprintf(what, sizeof what, "E5 %u SHUTDOWNs behind a full ring, %s: %u DEPARTINGs owed, the oldest index 1, "
+		 "%u coalesced", shutdowns, when, k, shutdowns - k);
+	check(what, adp0()->departing_owed == k && adp0()->departing_index == 1u &&
+	      adp0()->departing_coalesced == shutdowns - k);
+	const struct mbx_model_tmr_op *arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+	mbx_model_advance_ms(&model, arm->deadline_ms - model.now_ms);
+	if (!room_first) {
+		for (unsigned p = 0; p < 4u; ++p) {
+			(void)pass();
+		}
+		snprintf(what, sizeof what, "E5 %u SHUTDOWNs behind a full ring, %s: the ENTITY_AVAILABLE owed behind them",
+			 shutdowns, when);
+		check(what, adp0()->available_owed && adp0()->state == ADP_STATE_DELAY && !app.adp.ifs[0].armed);
+	}
+	mbx_model_tx_pause(&model, false);
+	uint32_t base = model.tx_sent;
+	uint64_t accesses = 0;
+	unsigned at = 0;
+	for (unsigned p = 1; p <= 8u && at == 0u; ++p) {
+		accesses += pass();
+		for (uint32_t j = base; j < model.tx_sent; ++j) {
+			at = model_sent(j, ADP_MSG_ENTITY_AVAILABLE, 0) ? p : at;
+		}
+	}
+	snprintf(what, sizeof what, "E5 %u SHUTDOWNs behind a full ring, %s: the ENTITY_AVAILABLE is committed in pass "
+		 "k + 1 = %u after the room returns, within ADP_MBX_OWED_PASSES", shutdowns, when, k + 1u);
+	check(what, at == k + 1u && at <= ADP_MBX_OWED_PASSES);
+	snprintf(what, sizeof what, "E5 %u SHUTDOWNs, %s: room to ENTITY_AVAILABLE", shutdowns, when);
+	bound(what, at != 0u ? accesses : UINT64_MAX, ADP_MBX_OWED_ACCESSES);
+	snprintf(what, sizeof what, "E5 %u SHUTDOWNs behind a full ring, %s: the wire carries DEPARTING 1, %sAVAILABLE 0",
+		 shutdowns, when, k == 2u ? "DEPARTING 0, " : "");
+	check(what, model.tx_sent == base + k + 1u && model_sent(base, ADP_MSG_ENTITY_DEPARTING, 1) &&
+	      (k < 2u || model_sent(base + 1u, ADP_MSG_ENTITY_DEPARTING, 0)) &&
+	      model_sent(base + k, ADP_MSG_ENTITY_AVAILABLE, 0));
+	snprintf(what, sizeof what, "E5 %u SHUTDOWNs behind a full ring, %s: then WAITING, TMR_ADVERTISE armed, "
+		 "nothing owed", shutdowns, when);
+	check(what, adp0()->state == ADP_STATE_WAITING && app.adp.ifs[0].armed && !adp0()->available_owed &&
+	      adp0()->departing_owed == 0u);
+}
+
 // ---- the bound with full backlogs (ctrl_loop.h A1 to A4, adp_mbx.h) -----------------
 
 static unsigned ticks_seen;
@@ -798,11 +899,17 @@ int main(void)
 	core_deferred();
 	core_departing_index();
 	core_owed_departing();
+	core_departing_capacity();
 	core_draws();
 	adapter_race();
 	latency();
 	pending_wake();
 	owed_departing_wake();
+	static const unsigned shutdowns[] = {1u, 2u, 64u};
+	for (unsigned s = 0; s < sizeof shutdowns / sizeof shutdowns[0]; ++s) {
+		owed_bound(shutdowns[s], false);
+		owed_bound(shutdowns[s], true);
+	}
 	backlog_bound();
 	return check_report("ctrl ADP slice (fake ports and host model)");
 }
