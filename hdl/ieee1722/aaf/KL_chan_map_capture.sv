@@ -184,7 +184,7 @@
 
                   * STORAGE: LB_PAIRS_C x LB_QDEPTH_C x 48 b, one flat
                     single-write single-read array (512 x 48 at the 8x8 ship
-                    shape = one RAMB36; 64 x 48 LUTRAM at 1x1; the array takes
+                    shape fits one RAMB36; 64 x 48 at 1x1; the array takes
                     no reset - the per-pair pointers make unwritten words
                     unreachable). LB_QDEPTH_C = 16 = one class-A PDU (6 sample
                     events, Milan 6.3.5) + 10 events of arrival-jitter margin.

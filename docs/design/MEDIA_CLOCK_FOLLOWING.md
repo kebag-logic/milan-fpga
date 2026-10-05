@@ -1104,9 +1104,10 @@ fires in the #386 dwell's own cycle, so the render stage executes one
 recentre (`milan_dp_render` T31).
 
 **Storage and arrival envelope.** The ring holds one class-A PDU plus ten
-events of margin. At 1x1 it uses 64 words of 48-bit LUTRAM, up from 32;
+events of margin. At 1x1 it uses 64 words of 48 bits, up from 32;
 at 8x8 it is 512 by 48 bits, still within one RAMB36. Each pair pointer
-gains one bit. The ruled PDU arrival envelope is 0 to 60 us late against
+gains one bit. Synthesis chooses the memory primitive; the vendor area
+report records the mapping. The ruled PDU arrival envelope is 0 to 60 us late against
 the nominal PDU grid (about 2.9 ticks). Both the empty-side margin and the
 full-side margin must remain at least one tick at every campaign phase.
 The empty-side measure is the first event's push-to-pop interval; the
