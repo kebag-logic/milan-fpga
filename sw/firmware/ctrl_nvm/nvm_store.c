@@ -5,8 +5,9 @@
  * THE BOOT PATH. Both journal slots are judged by the section 6.2 order of
  * docs/design/SAVED_STATE_FASTCONNECT.md, streamed through the stage so a slot
  * of any IMG_LEN is judged without a buffer of its size. The newer accepted
- * slot (section 7: newer = (int32_t)(A.seq - B.seq) > 0, the other when it
- * fails) is read into the stage again and judged again in RAM, and only
+ * slot (section 7: the wrap-safe (int32_t)(A.seq - B.seq), A on a tie as in
+ * the shipping writer; the other when it fails) is read into the stage again
+ * and judged again in RAM, and only
  * those bytes are applied: what is applied is what was proven. The restore
  * is one transaction (SAVED_STATE_MATERIALIZATION.md section 8.6): every
  * record in ascending id through the state port, the settle step after the

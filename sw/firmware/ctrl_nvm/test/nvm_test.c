@@ -31,7 +31,6 @@
 #define T_LOOP_US       100u      /* the event loop's own time per iteration */
 #define T_IDLE_LIMIT_US 60000000u /* the longest a run waits to go idle */
 #define T_JOURNAL       (2u * NVM_SLOT_BYTES)
-#define T_STEP_BOUND    NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
 
 struct t_knobs {
 	char boot_fault[48];        /* a flash-model fault armed at power on */
@@ -462,7 +461,7 @@ static void t_summary(void)
 	       s->seq_a, s->seq_b, s->seq, s->auth, s->applied, s->refused, s->blank,
 	       s->releases, s->commits_ok, s->commits_failed, s->commits_skipped,
 	       s->attempts, s->exhausted, s->stale, s->dirty, s->pending, s->phase,
-	       s->step_bytes_max, (unsigned int)T_STEP_BOUND, s->steps);
+	       s->step_bytes_max, (unsigned int)NVM_STEP_BOUND, s->steps);
 	printf("SUMMARY erases=%u programs=%u effects=%u outside=%u protected=%u "
 	       "pagewrap=%u while_busy=%u descending=%u sm_applies=%u sm_applied=%u sm_refused=%u "
 	       "sm_settles=%u sm_rollbacks=%u sm_releases=%u sm_order=%u "
