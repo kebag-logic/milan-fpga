@@ -1,0 +1,116 @@
+
+docs/design/SAVED_STATE_MATERIALIZATION.md
+1034: ADP advertises nothing the restore is about to change. The ADPDU carries
+1035: the current configuration index from the dynamic state (the processor's
+1036: `04_adp_engine.md`), and no ADPDU leaves before the enable. `available_index`
+1037: is volatile and 0 at reset. It increments after each transmitted
+1038: ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING (IEEE
+1039: 1722.1-2021 Section 6.2.2.15, from processor pin `ead80360`;
+1040: [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
+1041: first ADPDU after a power cycle already carries the restored index and no
+1042: index is spent on a value that changes. The writer holds the state bus from
+
+avdecc/gen_aemi_image.py
+103: #! gen_aem_store cannot slip through as zeros the way this whole set did.
+104: UNBAKED_SPANS = {
+105:     #! available_index counts THIS entity's advertisements: it increments
+106:     #! after each ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING
+107:     #! (1722.1-2021 6.2.2.15; KL_adp_engine aidx_r). A flat image cannot
+108:     #! track a counter. 0 is what it holds before the first advertisement,
+109:     #! and Table 7-2 points a controller that cares at the ADPDU, which is
+110:     #! live.
+111:     "AVAIL_IDX",
+
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+154: | 5.6.3 / 5.6.4 | advertise + discovery state machines, valid_time | implemented -- PP adp_engine; SILICON discovery by controllers; available_index increments after each ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15, from processor pin `ead80360`) |
+
+sw/builder/test_builder.py
+26235:         if src in ident and any(ident[src]):
+26236:             assert len(ident[src]) == nbytes
+26237:     #! available_index is the one field here that genuinely cannot be
+26238:     #! baked: it counts THIS entity's advertisements, incrementing after
+26239:     #! each ENTITY_AVAILABLE and resetting to 0 after an ENTITY_DEPARTING
+26240:     #! (6.2.2.15). Pinned so that baking a counter into a static image is a
+26241:     #! visible diff.
+26242:     assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
+26243:         "available_index is a live counter; a flat image cannot state it"
+
+tb/tools/avtp_wire_truth_checks.py
+551:         return out
+552: 
+553:     def check_adp_frame_rule(self) -> list[Verdict]:
+554:         """The 82-byte ADPDU rule and the available_index monotonicity.
+555: 
+556:         1722.1-2021 6.2.1: the ADPDU is 68 octets, so 82 on the wire, and
+557:         control_data_length is 56.  6.2.2.15: available_index increments after
+558:         each transmitted ENTITY_AVAILABLE and resets to 0 after an
+559:         ENTITY_DEPARTING.  Any other repeated value makes a controller treat
+560:         the entity as incoherent, which is exactly what bump-on-change-only
+561:         did to us in 2026-07-12; the 0 that follows an ENTITY_DEPARTING is the
+562:         one repeat the clause allows.
+563:         """
+564:         out = []
+565:         if not self.adp:
+566:             out += [_nothing_to_check(n, "IEEE 1722.1-2021 6.2.1 / 6.2.2.15",
+567:                                       "ADPDUs")
+568:                     for n in ("wt.adp.frame-82",
+569:                               "wt.adp.available-index-advances")]
+570:         for eid, recs in sorted(self.adp.items()):
+571:             wrong_len = [(n, l) for n, (_, l, _, _) in enumerate(recs)
+572:                          if l != ADP_FRAME_LEN]
+573:             wrong_cdl = [(n, c.control_data_length)
+574:                          for n, (_, _, c, _) in enumerate(recs)
+575:                          if c.control_data_length != ADP_CDL]
+576:             out.append(_v(f"wt.adp.frame-82.{eid:016x}",
+577:                           not wrong_len and not wrong_cdl,
+578:                           "IEEE 1722.1-2021 6.2.1: a 4-octet control header + "
+579:                           "an 8-octet entity_id + 56 octets = 68, i.e. 82 on "
+580:                           "the wire with the Ethernet header",
+581:                           expected_frame_len=ADP_FRAME_LEN,
+582:                           expected_cdl=ADP_CDL,
+583:                           wrong_length=wrong_len[:8],
+584:                           wrong_cdl=wrong_cdl[:8], adpdus=len(recs)))
+585:             idx = [(c.message_type, ai) for _, _, c, ai in recs
+586:                    if ai is not None]
+587:             # The reset is exempt even when the ENTITY_DEPARTING itself
+588:             # carried 0: an entity disabled before its first advertisement.
+589:             resets = {i for i in range(1, len(idx))
+590:                       if idx[i - 1][0] == ADP_ENTITY_DEPARTING
+591:                       and idx[i][1] == 0}
+592:             repeats = [i for i in range(1, len(idx))
+593:                        if _mod_delta(idx[i][1], idx[i - 1][1], 1 << 32) == 0
+594:                        and i not in resets]
+595:             out.append(_v(f"wt.adp.available-index-advances.{eid:016x}",
+596:                           not repeats and len(idx) > 1,
+597:                           "IEEE 1722.1-2021 6.2.2.15: available_index "
+598:                           "increments after each ENTITY_AVAILABLE and resets "
+599:                           "to 0 after an ENTITY_DEPARTING; any other repeated "
+600:                           "index reads as an incoherent entity",
+601:                           adpdus=len(idx), repeats=len(repeats),
+602:                           departing_resets=len(resets),
+603:                           first=idx[0][1] if idx else None,
+604:                           last=idx[-1][1] if idx else None))
+605:         for eid in self.expect.adp_entity_ids:
+606:             e = int(eid)
+607:             out.append(_v(f"wt.adp.alive.{e:016x}", e in self.adp,
+
+docs/reference/REGISTER_MAP.md
+1032: `available_index` increments after EVERY transmitted ENTITY_AVAILABLE: periodic
+1033: re-advertise and discover response alike (controllers treat a repeated index as an
+1034: incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12). An
+1035: ENTITY_DEPARTING carries the current value, and the index then resets to 0
+1036: (IEEE 1722.1-2021 Section 6.2.2.15, as processor PR #152 notes), so the next
+1037: ENTITY_AVAILABLE carries 0.
+
+docs/reference/FR_NFR.md
+170: ### 2.1 Discovery  -  ADP  *(1722.1-2021 Section 6; Milan v1.2 Section 5.2)*
+171: | ID | Requirement | Pri | Ver |
+172: |----|-------------|-----|-----|
+173: | FR-DISC-01 | The entity MUST advertise `ENTITY_AVAILABLE` ADPDUs and re-advertise within `valid_time`, incrementing `available_index` on every state change. | M | T |
+174: | FR-DISC-02 | The entity MUST answer `ENTITY_DISCOVER` (global and targeted) with an advertisement. | M | T |
+175: | FR-DISC-03 | The entity MUST send `ENTITY_DEPARTING` on shutdown / link down. | M | T |
+176: | FR-DISC-04 | Advertised fields (`entity_id`, `entity_model_id`, capabilities, talker/listener counts, `gptp_grandmaster_id`, `identify_control_index`, `interface_index`) MUST equal the ENTITY descriptor in the entity model. | M | T,I |
+177: | FR-DISC-05 | `entity_id` MUST be an EUI-64 derived from the AVB_INTERFACE MAC and be stable across reboots. | M | A |
+
+docs/findings/README.md
+26: | [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 blocks, each block's LUT, FF, RAMB and DSP figures read from both the utilization report and the placed-cell census, its CARRY4 and slices from the census, and the totals tied to the `route-1x1` record, and the resource cost of every design parameter: 59 Yosys sweep points (52 guard-clean, 7 refused), four Vivado anchors at 1, 2, 4 and 8 streams, the SoC options with the CPU, cache and L2 variants priced out of context from a scratch recipe copy, and the redundancy second port | Current, measurement only. Each stream per direction costs 3,828 LUT out of context, two thirds in the processor, with a falling cost per added stream; channels and the TDM capture width cost nothing; the low-function-cost prunes total up to about 1,200 routed LUT, a tenth of the NFR-RES-01 gap. Yosys does not enforce the RTL's elaboration guards, and the builder accepts an 8x8 TDM8 configuration the saved-state backend refuses (235 names against 128) |
