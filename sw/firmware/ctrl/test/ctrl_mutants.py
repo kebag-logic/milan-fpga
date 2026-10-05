@@ -33,8 +33,13 @@ class Mutant:
 
 MUTANTS = (
     Mutant("departing-keeps-index", "adp/adp.c",
-           "\ta->available_index = 0;                                         // 6.2.2.15",
-           "\t// 6.2.2.15", "walk", "available_index"),
+           "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
+           "\tuint32_t index = a->available_index;\n", "walk", "available_index"),
+    # R497-1-F2's reading, which the ruling on PR #668 (5994972330) rejects.
+    Mutant("departing-sends-zero", "adp/adp.c", "(void)send(a, ADP_MSG_ENTITY_DEPARTING, index);",
+           "(void)send(a, ADP_MSG_ENTITY_DEPARTING, index & 0u);", "adp", "A10 SHUTDOWN in WAITING"),
+    Mutant("own-discover-discarded", "adp/adp.c", "if (target != 0u && target != a->entity->entity_id) {",
+           "if (target != 0u) {", "walk", "RCV_ADP_DISCOVER(own eid) x WAITING"),
     Mutant("down-answers-discover", "adp/adp.c", "if (!a->enabled || a->state != ADP_STATE_WAITING) {",
            "if (!a->enabled) {", "walk", "RCV_ADP_DISCOVER(eid 0) x DOWN"),
     Mutant("link-down-departs", "adp/adp.c", "\t\ttimer_stop(a);                                          // 5.6.3.5.6",
@@ -78,6 +83,23 @@ MUTANTS = (
            "for (uint32_t k = 0; k < (count != 0u ? 1u : 0u); ++k) {", "port", "L4 every centisecond"),
     Mutant("rx-pass-unbounded", "loop/ctrl_loop.c", "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {",
            "for (unsigned k = 0; k < 64u; ++k) {", "port", "L2 a pass takes at most"),
+    Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}", "adp",
+           "E1 the loop does not sleep while a frame is owed"),
+    Mutant("events-halved", "loop/ctrl_loop.c", "while (n < CTRL_LOOP_EVENTS_PER_PASS && mbx_event_take(&ev)) {",
+           "while (n < CTRL_LOOP_EVENTS_PER_PASS / 2u && mbx_event_take(&ev)) {", "adp",
+           "F2 all 16 event records are taken by pass"),
+    Mutant("rx-before-events", "loop/ctrl_loop.c",
+           "\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n",
+           "\tunsigned work = 0;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
+           "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n"
+           "\twork += service_events(l);\n", "adp", "F1 events first"),
+    Mutant("tick-slice-unbounded", "loop/ctrl_loop.c",
+           "ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked);",
+           "ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked + l->ticks_owed);", "port",
+           "L7 at most CTRL_LOOP_TICKS_PER_PASS"),
+    Mutant("owed-ticks-let-it-sleep", "loop/ctrl_loop.c", "\tbool owed = l->ticks_owed != 0u;",
+           "\tbool owed = false;", "port", "L7 and the loop keeps passing"),
     Mutant("filter-opened-before-eid", "loop/ctrl_loop.c", "\tmbx_filter_set_own_eid(entity_id);\n",
            "\tmbx_filter_open(open);\n\tmbx_filter_set_own_eid(entity_id);\n", "port", "L1 OWN_EID is written before"),
     Mutant("rx-no-resync", "mbx/mbx.c",
@@ -98,7 +120,8 @@ MUTANTS = (
     Mutant("seq-not-stamped", "mbx/mbx.c", "\ttx_seq = (uint16_t)(tx_seq + 1u);\n", "", "port",
            "D3 ACMP, ACMP, AECP committed by the driver"),
     Mutant("model-round-robin", "host/mbx_model.c",
-           "if (c == MBX_N_CH || ((uint16_t)(seq - best) & 0x8000u) != 0u) {", "if (c == MBX_N_CH) {", "model",
+           "if (c == MBX_N_CH || ((uint16_t)(seq - best) & 0x8000u) != 0u) {",
+           "if (c == MBX_N_CH || ((uint16_t)(seq - best) & 0u) != 0u) {", "model",
            "X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame"),
     Mutant("model-gm-hi-live", "host/mbx_model.c", "\t\treturn m->gm_hi_snap[i];",
            "\t\treturn (uint32_t)(m->gm_id[i] >> 32);", "model", "G0 GM_HI reads the snapshot"),
@@ -122,6 +145,38 @@ def plant(m: Mutant, root: Path) -> Path:
 def caught(m: Mutant, outcome: Outcome) -> bool:
     """The named check of the named arm failed in a completed run."""
     return outcome.rc == 1 and any("[FAIL]" in ln and m.needle in ln for ln in outcome.log.splitlines())
+
+
+def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
+    """The lwSRP pin refuses, by name, a scratch clone of the pin with one
+    edit to a compiled source, and the same clone at another revision.
+    Returns the escapes."""
+    clone = root / "lwsrp-pin"
+    if clone.exists():
+        shutil.rmtree(clone)
+    res = ctrl_arms.run(["git", "clone", "--quiet", "--no-hardlinks", str(lwsrp), str(clone)])
+    if res.returncode != 0:
+        raise Refusal(f"cannot clone {lwsrp} for the pin arms: {res.stderr.strip()}")
+    ctrl_arms.run(["git", "-C", str(clone), "checkout", "--quiet", ctrl_arms.LWSRP_REV])
+    escaped = 0
+    target = clone / ctrl_arms.LWSRP_SOURCES[0]
+    pristine = target.read_text(encoding="utf-8")
+    arms = (("a compiled source edited", lambda: target.write_text(pristine + "/* local */\n", encoding="utf-8"),
+             "differs from the pinned"),
+            ("another revision checked out",
+             lambda: ctrl_arms.run(["git", "-C", str(clone), "checkout", "--quiet", "HEAD~1"]), "is not the pinned"))
+    for what, spoil, needle in arms:
+        target.write_text(pristine, encoding="utf-8")
+        spoil()
+        try:
+            ctrl_arms.lwsrp_pin(clone)
+            ok, detail = False, "accepted"
+        except Refusal as exc:
+            ok, detail = needle in str(exc), str(exc)
+        print(f"[{'ok' if ok else 'ESCAPED'}] lwSRP pin, {what}: {detail}")
+        escaped += 0 if ok else 1
+    shutil.rmtree(clone)
+    return escaped
 
 
 def campaign(root: Path, reuse: Path) -> bool:

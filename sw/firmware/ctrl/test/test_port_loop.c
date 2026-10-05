@@ -264,6 +264,7 @@ struct loop_probe {
 	unsigned ticks_b;
 	uint32_t order;         // the tick consumers' call order, two bits per call
 	unsigned calls;
+	bool owing;             // what the probe's poll reports
 };
 
 static struct loop_probe probe;
@@ -282,10 +283,11 @@ static void probe_event(void *ctx, const struct mbx_event *ev)
 	probe.events++;
 }
 
-static void probe_poll(void *ctx)
+static bool probe_poll(void *ctx)
 {
 	(void)ctx;
 	probe.polls++;
+	return probe.owing;
 }
 
 static void tick_a(void)
@@ -400,6 +402,40 @@ static void loop_ticks_and_events(struct ctrl_loop *l)
 	check_eq("L5 and no handler saw it", probe.rx, rx_before);
 }
 
+static void loop_owed_and_tick_slices(struct ctrl_loop *l)
+{
+	while (ctrl_loop_service(l) != 0u) {
+	}
+	probe.owing = true;
+	check("L6 a pass after which a module still owes output asks for the next pass at once",
+	      ctrl_loop_service(l) != 0u);
+	probe.owing = false;
+	check_eq("L6 a pass that handled nothing and owes nothing lets the loop sleep", ctrl_loop_service(l), 0);
+
+	// A late core: the event ring full while 40 centiseconds pass, which the
+	// fabric coalesces into one TICK record.
+	for (unsigned s = 0; s < MBX_EVT_WORDS / MBX_EV_WORDS; ++s) {
+		mbx_timer_arm(s % MBX_N_TIMERS, 0x300u, mbx_now_ms());
+	}
+	mbx_model_advance_ms(&model, 40u * MBX_TICK_MS);
+	probe.ticks_a = 0;
+	unsigned most = 0;
+	bool slept_owing = false;
+	for (unsigned passes = 0; passes < 16u; ++passes) {
+		unsigned before = probe.ticks_a;
+		unsigned work = ctrl_loop_service(l);
+		unsigned slice = probe.ticks_a - before;
+		most = slice > most ? slice : most;
+		if (work == 0u) {
+			slept_owing = l->ticks_owed != 0u;
+			break;
+		}
+	}
+	check_eq("L7 every one of 40 coalesced centiseconds reaches the consumer", probe.ticks_a, 40);
+	check("L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass", most == CTRL_LOOP_TICKS_PER_PASS);
+	check("L7 and the loop keeps passing until the last is dispatched", !slept_owing && l->ticks_owed == 0u);
+}
+
 int main(void)
 {
 	static struct ctrl_loop loop;
@@ -414,5 +450,6 @@ int main(void)
 	driver_events();
 	loop_open_and_bounds(&loop);
 	loop_ticks_and_events(&loop);
+	loop_owed_and_tick_slices(&loop);
 	return check_report("ctrl port, driver and loop (host model)");
 }

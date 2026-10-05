@@ -10,7 +10,13 @@
 //   B   the mailbox adapter on the model: an expiry that raced a re-arm is
 //       discarded by its tag;
 //   C   the service-latency bound of every response path (adp_mbx.h), counted
-//       access by access on the model, in the pass that takes the input.
+//       access by access on the model, in the pass that takes the input;
+//   E   a frame owed behind a full transmit ring, with a HAL that really
+//       sleeps until the mailbox interrupt: the loop must not sleep on it,
+//       and once the ring drains the frame leaves with its timer restarted;
+//   F   the bound with full legal backlogs (ctrl_loop.h A1 to A4): both
+//       rings full, ticks coalesced behind them, every pass and path held to
+//       the stated figures, events first in every pass.
 
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +25,7 @@
 #include "adp_mbx.h"
 #include "ctrl_app.h"
 #include "mbx_model.h"
+#include "mbx_wire.h"
 #include "test_check.h"
 #include "wire.h"
 
@@ -216,13 +223,75 @@ static void core_deferred(void)
 	adp_link_change(&a, false);
 	fk.room = true;
 	adp_poll(&a);
-	check("A8 a link loss does not drop it; the next poll sends it with the pre-reset index",
+	check("A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN",
 	      fk.last[15] == ADP_MSG_ENTITY_DEPARTING && wire_be32(fk.last + 50) == index && wire_be16(fk.last + 16) == 56u);
 	unsigned sends = fk.sends;
 	fk.link = false;
 	adp_set_enable(&a, true);
 	adp_set_enable(&a, false);
 	check_eq("A8 SHUTDOWN in DOWN sends nothing (Table 5.51)", fk.sends, sends);
+}
+
+// IEEE 1722.1-2021 6.2.2.15 with Figures 6-2 and 6-3 and 6.2.5.2.2 (the
+// ruling on PR #668, comment 5994972330): ENTITY_DEPARTING carries the
+// CURRENT available_index, and the first ENTITY_AVAILABLE after a restart
+// carries 0. Every value below is read off the frame the port was given.
+static uint32_t wire_index(void)
+{
+	return wire_be32(fk.last + 50);
+}
+
+static bool wire_is(uint8_t msg, uint32_t index)
+{
+	return (fk.last[15] & 0x0Fu) == msg && wire_index() == index;
+}
+
+static void core_departing_index(void)
+{
+	struct adp a;
+	fresh(&a, true);
+	adp_set_enable(&a, true);
+	adp_timer_expired(&a);
+	check("A10 the first ENTITY_AVAILABLE carries 0", wire_is(ADP_MSG_ENTITY_AVAILABLE, 0));
+	adp_timer_expired(&a);
+	adp_timer_expired(&a);
+	check("A10 the second carries 1", wire_is(ADP_MSG_ENTITY_AVAILABLE, 1));
+	check_eq("A10 SHUTDOWN is taken in WAITING", a.state, ADP_STATE_WAITING);
+	adp_set_enable(&a, false);
+	check("A10 SHUTDOWN in WAITING, sent at once: ENTITY_DEPARTING carries the current index, 2",
+	      wire_is(ADP_MSG_ENTITY_DEPARTING, 2));
+	adp_set_enable(&a, true);
+	adp_timer_expired(&a);
+	check("A11 the first ENTITY_AVAILABLE after a restart carries 0", wire_is(ADP_MSG_ENTITY_AVAILABLE, 0));
+	adp_timer_expired(&a);
+	check_eq("A12 SHUTDOWN is taken in DELAY", a.state, ADP_STATE_DELAY);
+	adp_set_enable(&a, false);
+	check("A12 SHUTDOWN in DELAY, sent at once: ENTITY_DEPARTING carries the current index, 1",
+	      wire_is(ADP_MSG_ENTITY_DEPARTING, 1));
+	adp_set_enable(&a, true);
+	adp_timer_expired(&a);
+	adp_timer_expired(&a);
+	adp_timer_expired(&a);
+	fk.room = false;
+	adp_set_enable(&a, false);
+	check("A13 SHUTDOWN with no room leaves ENTITY_DEPARTING owed", a.pending == ADP_PENDING_DEPARTING);
+	fk.room = true;
+	adp_poll(&a);
+	check("A13 sent from a later poll, it carries the index current at SHUTDOWN, 2",
+	      wire_is(ADP_MSG_ENTITY_DEPARTING, 2));
+	adp_set_enable(&a, true);
+	adp_timer_expired(&a);
+	check("A13 and the restart's first ENTITY_AVAILABLE carries 0", wire_is(ADP_MSG_ENTITY_AVAILABLE, 0));
+	adp_timer_expired(&a);
+	a.available_index = 0xFFFFFFFFu;
+	adp_timer_expired(&a);
+	check("A14 available_index 0xFFFFFFFF goes on the wire", wire_is(ADP_MSG_ENTITY_AVAILABLE, 0xFFFFFFFFu));
+	adp_timer_expired(&a);
+	adp_timer_expired(&a);
+	check("A14 the next ENTITY_AVAILABLE carries 0, modulo 2^32", wire_is(ADP_MSG_ENTITY_AVAILABLE, 0));
+	adp_set_enable(&a, false);
+	check("A14 SHUTDOWN after the wrap: ENTITY_DEPARTING carries the current index, 1",
+	      wire_is(ADP_MSG_ENTITY_DEPARTING, 1));
 }
 
 static void core_draws(void)
@@ -360,13 +429,228 @@ static void latency(void)
 	bound("C6 SHUTDOWN -> ENTITY_DEPARTING committed", n, ADP_MBX_LAT_SHUTDOWN);
 }
 
+// ---- a frame owed behind a full transmit ring, and a HAL that sleeps ----------------
+
+struct waiter {
+	unsigned waits;         // mbx_hal_wait() calls
+	unsigned dead;          // waits no interrupt ended within 30 s
+};
+
+static struct waiter waiter;
+
+// mbx_hal_wait() as a core that sleeps until the mailbox interrupt: model
+// time runs until the line rises, for 30 s at most. A wait that reaches the
+// end had no wake source.
+static void wait_for_irq(void *ctx)
+{
+	struct waiter *w = ctx;
+	w->waits++;
+	for (unsigned ms = 0; ms < 30000u && !mbx_model_irq(&model); ++ms) {
+		mbx_model_advance_ms(&model, 1);
+	}
+	w->dead += mbx_model_irq(&model) ? 0u : 1u;
+}
+
+static void pending_wake(void)
+{
+	boot();
+	memset(&waiter, 0, sizeof waiter);
+	mbx_model_bind(&model, wait_for_irq, &waiter);
+	mbx_model_set_link(&model, 0, true);
+	for (unsigned k = 0; k < 8u && adp0()->state != ADP_STATE_DELAY; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check_eq("E0 LINK_UP takes the machine to DELAY", adp0()->state, ADP_STATE_DELAY);
+	mbx_model_tx_pause(&model, true);
+	uint8_t filler[ADP_FRAME_BYTES];
+	adp_build(adp0(), ADP_MSG_ENTITY_AVAILABLE, 0, filler);
+	while (mbx_tx_send(MBX_CH_ADP, 0, filler, sizeof filler) == MBX_STATUS_OK) {
+	}
+	for (unsigned k = 0; k < 8u && adp0()->deferred_sends == 0u; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check("E0 TMR_DELAY expires behind a full transmit ring: ENTITY_AVAILABLE is owed",
+	      adp0()->pending == ADP_PENDING_AVAILABLE && adp0()->state == ADP_STATE_DELAY);
+	check("E0 and nothing else can wake the core: no RX, no event, TICK off",
+	      !mbx_model_irq(&model) && model.tick_ctl == 0u);
+	unsigned waits = waiter.waits;
+	for (unsigned k = 0; k < 16u; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check_eq("E1 the loop does not sleep while a frame is owed", waiter.waits, waits);
+	uint32_t sent = model.tx_sent;
+	mbx_model_tx_pause(&model, false);
+	uint32_t drained = model.tx_sent;
+	ctrl_loop_step(&app.loop);
+	const struct mbx_model_tx *t = mbx_model_tx_frame(&model, model.tx_sent - 1u);
+	const struct mbx_model_tmr_op *arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+	check("E2 once the ring drains, the next pass sends the owed ENTITY_AVAILABLE",
+	      drained > sent && model.tx_sent == drained + 1u && t != NULL && t->bytes[15] == ADP_MSG_ENTITY_AVAILABLE &&
+		      adp0()->pending == ADP_PENDING_NONE);
+	check("E2 and restarts its timer: TMR_ADVERTISE armed 5 s after the frame left, the machine in WAITING",
+	      t != NULL && arm->op == MBX_TMR_OP_ARM && arm->deadline_ms == t->now_ms + ADP_ADVERTISE_MS &&
+		      app.adp.ifs[0].armed && adp0()->state == ADP_STATE_WAITING);
+	for (unsigned k = 0; k < 8u && adp0()->state != ADP_STATE_DELAY; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check("E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it",
+	      waiter.waits > waits && waiter.dead == 0u && adp0()->state == ADP_STATE_DELAY);
+	mbx_model_bind(&model, NULL, NULL);
+}
+
+// ---- the bound with full backlogs (ctrl_loop.h A1 to A4, adp_mbx.h) -----------------
+
+static unsigned ticks_seen;
+
+static void count_tick(void)
+{
+	ticks_seen++;
+}
+
+static bool rx_touched;         // this pass has touched the ADP receive ring
+static unsigned out_of_order;   // event-ring accesses after a receive-ring access in one pass
+
+static void trace_order(void *ctx, bool write, uint32_t off, uint32_t value)
+{
+	(void)ctx;
+	(void)write;
+	(void)value;
+	bool rx = off == MBX_CH_BASE + MBX_CH_STRIDE * MBX_CH_ADP + MBX_CH_REG_RX_HEAD ||
+		  off == MBX_CH_BASE + MBX_CH_STRIDE * MBX_CH_ADP + MBX_CH_REG_RX_TAIL ||
+		  (off >= MBX_CH_ADP_RX_BASE && off < MBX_CH_ADP_RX_BASE + 4u * MBX_CH_ADP_RX_WORDS);
+	bool evt = off == MBX_REG_EVT_HEAD || off == MBX_REG_EVT_TAIL ||
+		   (off >= MBX_EVT_BASE && off < MBX_EVT_BASE + 4u * MBX_EVT_WORDS);
+	rx_touched = rx_touched || rx;
+	out_of_order += evt && rx_touched ? 1u : 0u;
+}
+
+static void backlog_bound(void)
+{
+	mbx_model_reset(&model);
+	mbx_model_bind(&model, NULL, NULL);
+	ctrl_loop_init(&app.loop);
+	check("F0 the F0 composition with a centisecond consumer comes up",
+	      adp_mbx_init(&app.adp, &entity, CTRL_APP_ADP_FIRST_SLOT, 2) && adp_mbx_attach(&app.adp, &app.loop) &&
+		      ctrl_loop_add_tick(&app.loop, count_tick) && ctrl_loop_open(&app.loop, entity.entity_id));
+	adp_mbx_set_enable(&app.adp, true);
+	mbx_model_set_link(&model, 0, true);
+	settle();
+	to_waiting();
+	uint8_t f[ADP_FRAME_BYTES];
+	discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
+	(void)mbx_model_rx(&model, f, sizeof f, 0);
+	settle();
+	const struct mbx_model_tmr_op *arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+	uint32_t deadline = arm->deadline_ms;
+
+	// The backlog, posted while the loop does not run. Events: an expiry on
+	// each of the 15 slots ADP does not own, then ADP's own TMR_DELAY expiry
+	// (the costliest sink path) as the 16th record, which fills the ring;
+	// then, once the receive ring is full too, 30 centiseconds the fabric
+	// coalesces behind them. The tick is held off until then, so the 16
+	// records are exactly these.
+	mbx_tick_enable(false);
+	for (unsigned slot = 1; slot < MBX_N_TIMERS; ++slot) {
+		mbx_timer_arm(slot, 0x77u, mbx_now_ms());
+	}
+	mbx_model_advance_ms(&model, 0);
+	mbx_model_advance_ms(&model, deadline - model.now_ms);
+	uint32_t last = model.window[(MBX_EVT_BASE + 4u * ((uint32_t)(model.evt_head - 3u) & (MBX_EVT_WORDS - 1u))) / 4u];
+	check("F0 the event ring is full, ADP's TMR_DELAY expiry its 16th record",
+	      (uint16_t)(model.evt_head - model.evt_tail) == MBX_EVT_WORDS &&
+		      mbx_field(last, MBX_EV_TIMER_W1_SLOT_LSB, MBX_EV_TIMER_W1_SLOT_WIDTH) == CTRL_APP_ADP_FIRST_SLOT);
+	// Receive: the smallest ENTITY_DISCOVER the filter passes (26 bytes,
+	// through entity_id) until the ring refuses one, at the rate the
+	// channel's token bucket admits.
+	unsigned stored = 0;
+	for (unsigned k = 0; k < 100000u && model.ch[MBX_CH_ADP].rx_drop == 0u; ++k) {
+		if (mbx_model_rx(&model, f, 26u, 0)) {
+			stored++;
+		} else if (model.ch[MBX_CH_ADP].rx_drop == 0u) {
+			mbx_model_advance_ms(&model, 1);
+		}
+	}
+	check("F0 the receive ring is full: it refuses the next frame", model.ch[MBX_CH_ADP].rx_drop == 1u);
+	mbx_tick_enable(true);
+	mbx_model_advance_ms(&model, 30u * MBX_TICK_MS);
+	uint32_t ticks_due = model.tick_count;
+	check_eq("F0 30 centiseconds wait coalesced behind the full event ring", ticks_due, 30);
+	check("F0 and holds no more records than A1 assumes",
+	      stored > 0u && stored <= CTRL_LOOP_RX_BACKLOG(MBX_CH_ADP_RX_WORDS));
+	printf("  backlog: 16 event records, %u centiseconds, %u receive records\n", (unsigned)ticks_due, stored);
+
+	ticks_seen = 0;
+	out_of_order = 0;
+	uint32_t events0 = app.loop.stats.events;
+	uint32_t rx0 = app.loop.stats.rx_records;
+	uint32_t sent0 = model.tx_sent;
+	unsigned evt_at = 0;
+	unsigned answer_at = 0;
+	unsigned rx_at = 0;
+	unsigned idle_at = 0;
+	unsigned most_ticks = 0;
+	uint64_t worst = 0;
+	uint64_t total = 0;
+	uint64_t answer_accesses = 0;
+	uint64_t rx_accesses = 0;
+	mbx_host_trace(trace_order, NULL);
+	for (unsigned p = 1; p <= 64u && idle_at == 0u; ++p) {
+		rx_touched = false;
+		unsigned t0 = ticks_seen;
+		uint64_t before = model.reads + model.writes;
+		unsigned work = ctrl_loop_service(&app.loop);
+		uint64_t n = model.reads + model.writes - before;
+		total += n;
+		worst = n > worst ? n : worst;
+		most_ticks = ticks_seen - t0 > most_ticks ? ticks_seen - t0 : most_ticks;
+		if (evt_at == 0u && app.loop.stats.events - events0 >= 16u) {
+			evt_at = p;
+		}
+		if (answer_at == 0u && model.tx_sent > sent0) {
+			answer_at = p;
+			answer_accesses = total;
+		}
+		if (rx_at == 0u && app.loop.stats.rx_records - rx0 >= stored) {
+			rx_at = p;
+			rx_accesses = total;
+		}
+		if (work == 0u) {
+			idle_at = p;
+		}
+	}
+	mbx_host_trace(NULL, NULL);
+	printf("  passes: events by %u, ENTITY_AVAILABLE in %u (%u accesses), receive ring by %u (%u accesses), "
+	       "idle at %u; worst pass %u accesses\n",
+	       evt_at, answer_at, (unsigned)answer_accesses, rx_at, (unsigned)rx_accesses, idle_at, (unsigned)worst);
+	check_eq("F1 events first: no event-ring access follows a receive-ring access in a pass", out_of_order, 0);
+	check("F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES",
+	      evt_at != 0u && evt_at <= CTRL_LOOP_EVT_PASSES);
+	check("F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it",
+	      answer_at != 0u && answer_at <= CTRL_LOOP_EVT_PASSES && answer_at == evt_at);
+	check("F2 within ADP_MBX_EVT_ACCESSES of the backlog's first access",
+	      answer_at != 0u && answer_accesses <= ADP_MBX_EVT_ACCESSES);
+	check("F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS)",
+	      rx_at == (stored + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS);
+	check("F3 within CTRL_LOOP_RX_PASSES(256) passes and ADP_MBX_RX_ACCESSES accesses",
+	      rx_at != 0u && rx_at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) && rx_accesses <= ADP_MBX_RX_ACCESSES);
+	check_eq("F4 every coalesced centisecond reaches the consumer", ticks_seen, ticks_due);
+	check("F4 at most CTRL_LOOP_TICKS_PER_PASS of them in a pass", most_ticks <= CTRL_LOOP_TICKS_PER_PASS);
+	bound("F5 the costliest pass of the backlog", worst, ADP_MBX_PASS_MAX);
+	check("F6 the loop passes until the backlog is gone, then may sleep",
+	      idle_at != 0u && idle_at > rx_at && idle_at > evt_at && app.loop.ticks_owed == 0u);
+	check_eq("F7 the backlog left exactly one frame, the ENTITY_AVAILABLE", model.tx_sent, sent0 + 1u);
+}
+
 int main(void)
 {
 	core_schedule();
 	core_discard();
 	core_deferred();
+	core_departing_index();
 	core_draws();
 	adapter_race();
 	latency();
+	pending_wake();
+	backlog_bound();
 	return check_report("ctrl ADP slice (fake ports and host model)");
 }

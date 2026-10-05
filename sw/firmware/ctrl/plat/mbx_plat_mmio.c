@@ -12,8 +12,17 @@
 // does not say where the window is fails here rather than guessing.
 //
 // mbx_hal_wait() returns at once unless the platform defines CTRL_MBX_WFI,
-// in which case the core waits for an interrupt (the mailbox line is one of
-// its wake sources). Returning early is always correct: the loop polls.
+// in which case the core waits for an interrupt. Returning early is always
+// correct: the loop polls. The loop sleeps only after a pass that handled
+// nothing and owes nothing (ctrl_loop.h), so every wake it then needs is a
+// mailbox interrupt cause; a platform that defines CTRL_MBX_WFI must also
+// enable that line as a wake source (on the switch-on SoC, the `ctrl_mbx`
+// EventManager source and the CPU's interrupt mask).
+//
+// A hard core with a weakly ordered memory model must map the window as
+// device (strongly ordered) memory, or give these functions a barrier before
+// each write, so a record's words reach the window before the doorbell
+// (TX_HEAD, RX_TAIL, EVT_TAIL) that commits or releases them.
 
 #include <stdint.h>
 

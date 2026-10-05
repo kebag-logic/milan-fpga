@@ -16,13 +16,19 @@
 //
 //   * ENTITY_AVAILABLE on its schedule (5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.5,
 //     5.6.3.5.9): a random TMR_DELAY, the frame, then TMR_ADVERTISE (5 s),
-//     with available_index incremented after each one sent and reset to 0 by
-//     ENTITY_DEPARTING (IEEE 1722.1-2021 6.2.2.15);
+//     with available_index incremented after each one sent (IEEE
+//     1722.1-2021 6.2.2.15; Figure 6-2, WAITING);
 //   * the ENTITY_DISCOVER answer (5.6.3.1, 5.6.3.5.4): entity_id 0 or this
 //     entity, in WAITING only;
 //   * the re-advertise on a grandmaster change (5.6.3.5.7);
 //   * ENTITY_DEPARTING on SHUTDOWN (5.6.3.5.8, 5.6.3.5.11), never on a link
-//     change (5.6.3.5.6, 5.6.3.5.10).
+//     change (5.6.3.5.6, 5.6.3.5.10). It carries the CURRENT available_index:
+//     Figure 6-3's DEPARTING calls txEntityDeparting(), which sets every
+//     field but the per-interface ones from entityInfo (6.2.5.2.2), and only
+//     Figure 6-2's INITIALIZE zeroes it. 6.2.2.15's reset to 0 "when
+//     transmitting an ENTITY_DEPARTING" therefore shows on the next start's
+//     first ENTITY_AVAILABLE, which carries 0 (the ruling on PR #668,
+//     comment 5994972330).
 //
 // The ADPDU's fields are the entity model's (struct adp_entity, generated
 // from the end-station config by adp_entity.py, the same derivation the
@@ -156,8 +162,8 @@ void adp_timer_expired(struct adp *a);
 void adp_link_change(struct adp *a, bool up);
 void adp_gm_change(struct adp *a);
 
-// Retry a frame the send port had no room for.
-void adp_poll(struct adp *a);
+// Retry a frame the send port had no room for; true while one is still owed.
+bool adp_poll(struct adp *a);
 
 // The ADPDU this instance would send now, built into frame[ADP_FRAME_BYTES].
 void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame);

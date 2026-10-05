@@ -122,12 +122,15 @@ static void on_event(void *ctx, const struct mbx_event *ev)
 	}
 }
 
-static void on_poll(void *ctx)
+// True while an interface still owes a frame, so the loop does not sleep on it.
+static bool on_poll(void *ctx)
 {
 	struct adp_mbx *m = ctx;
+	bool owed = false;
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
-		adp_poll(&m->ifs[k].adp);
+		owed = adp_poll(&m->ifs[k].adp) || owed;
 	}
+	return owed;
 }
 
 bool adp_mbx_attach(struct adp_mbx *m, struct ctrl_loop *l)

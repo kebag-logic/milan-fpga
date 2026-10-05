@@ -25,7 +25,7 @@ is the gate: exit 0 = every arm passed and every planted defect was caught.
 | [`wire/`](wire) | the big-endian wire layer every protocol shares |
 | [`mbx/`](mbx) | the generated contract header, the three-function bus port (`mbx_hal.h`), the ring lanes and the driver |
 | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
-| [`loop/`](loop) | the event loop: bounded passes, the TICK fan-out, the bring-up order |
+| [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
 | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
 | [`app/`](app) | the static composition a platform starts |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
@@ -41,12 +41,12 @@ directory, and runs these arms:
 | Arm | Source | What it shows |
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
-| `port` | `test_port_loop.c` | the pool, the debug sink, the driver on the model, the loop's order, bounds and tick fan-out |
-| `adp` | `test_adp.c` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds), the tag race, the latency bound of every path |
+| `port` | `test_port_loop.c` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices |
+| `adp` | `test_adp.c` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, and the bound with both rings full and ticks coalesced |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_probe.c` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
-| `lwsrp` | `lwsrp_port.c` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks |
+| `lwsrp` | `lwsrp_port.c` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 
 ### Reusing the processor's stimulus
 
@@ -69,10 +69,15 @@ tag the firmware did not issue.
 
 `--self-test` writes each defect of `ctrl_mutants.py` into a copy of this
 tree and requires the arm it names to exit 1 with a `[FAIL]` naming the
-check. 28 arms: ADP clause defects caught by the walk (one per walked row), adapter and latency
-defects by `adp`, pool, sink, loop and driver defects by `port`, lane and
-model defects by `model`, a wrong ADPDU field source by `entity`, and a heap
-call by `rv32`.
+check. 37 arms: ADP clause defects caught by the walk (one per walked
+Table 5.51 row but the foreign DISCOVER, which the fabric filter drops and
+`adp`'s A4 catches), adapter, latency, owed-output, events-first and
+available_index defects by `adp`, pool, sink, loop, tick-slice and driver
+defects (TX commit order included) by `port`, lane, model and model
+commit-order defects by `model`, a wrong ADPDU field source by `entity`, and
+a heap call by `rv32`. With `--lwsrp` it also requires the pin to refuse a
+scratch clone with one compiled source edited, and the same clone at
+another revision.
 
 ## Run
 
@@ -83,4 +88,15 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 ```
 
 Needs a host C and C++ compiler, PyYAML, and for `rv32` the pinned RV32 SDK
-(`scripts/ci_rv32_sdk.py`). lwSRP is referenced, never vendored.
+(`scripts/ci_rv32_sdk.py`). lwSRP is referenced, never vendored, at the
+revision `ctrl_arms.LWSRP_REV` records,
+`19f5796b63652eb1151906de73cb827d4980a53f`:
+
+```sh
+git clone https://github.com/kebag-logic/lwSRP lwSRP
+git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+```
+
+The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
+source and header it compiles) differs from that revision. Moving the pin is
+a reviewed change to `LWSRP_REV`.

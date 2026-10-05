@@ -28,10 +28,13 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            for RV32I with the pinned SDK, every undefined symbol a C-library
            string or format function or a libgcc helper (no heap, no OS);
   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
-           the mailbox (lwsrp_port.c). lwSRP is referenced, never vendored.
+           the mailbox (lwsrp_port.c). lwSRP is referenced, never vendored:
+           the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
+           with its src/ unmodified, or the arm refuses.
 
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
-firmware tree and requires the named check of the named arm to fail.
+firmware tree and requires the named check of the named arm to fail; with
+--lwsrp it also requires the pin to refuse an edited and a moved clone.
 
 Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
@@ -82,6 +85,12 @@ def main(argv: list[str] | None = None) -> int:
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
             failed = ctrl_mutants.campaign(out / "mutants", tree.reuse)
+            if args.lwsrp is not None:
+                try:
+                    failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+                except Refusal as exc:
+                    print(f"REFUSED: {exc}")
+                    return 2
     print(f"test_ctrl_firmware: {'FAIL' if failed else 'PASS'}")
     return 1 if failed else 0
 

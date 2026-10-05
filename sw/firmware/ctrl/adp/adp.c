@@ -145,8 +145,10 @@ static void shutdown(struct adp *a)
 		return;
 	}
 	timer_stop(a);
+	// ENTITY_DEPARTING carries the current index (Figure 6-3, 6.2.5.2.2); the
+	// reset (6.2.2.15) shows on the next start's first ENTITY_AVAILABLE.
 	uint32_t index = a->available_index;
-	a->available_index = 0;                                         // 6.2.2.15: reset by DEPARTING
+	a->available_index = 0;
 	a->state = ADP_STATE_DOWN;
 	(void)send(a, ADP_MSG_ENTITY_DEPARTING, index);                 // pending if no room
 }
@@ -243,17 +245,16 @@ void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
 	enter_delay(a, ADP_DRAW_DELAY);                                 // steps 2 and 3
 }
 
-void adp_poll(struct adp *a)
+bool adp_poll(struct adp *a)
 {
 	if (a->pending == ADP_PENDING_DEPARTING) {
 		(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->pending_index);
-		return;
-	}
-	if (a->pending == ADP_PENDING_AVAILABLE) {
+	} else if (a->pending == ADP_PENDING_AVAILABLE) {
 		if (a->enabled && a->state == ADP_STATE_DELAY) {
 			advertise(a);
 		} else {
 			a->pending = ADP_PENDING_NONE;
 		}
 	}
+	return a->pending != ADP_PENDING_NONE;
 }

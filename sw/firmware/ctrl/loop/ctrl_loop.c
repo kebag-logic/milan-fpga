@@ -75,23 +75,29 @@ bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id)
 	return true;
 }
 
-static void dispatch_tick(struct ctrl_loop *l, uint16_t count)
+// Dispatch owed centiseconds, at most `budget`; returns how many.
+static uint32_t dispatch_ticks(struct ctrl_loop *l, uint32_t budget)
 {
+	uint32_t count = l->ticks_owed < budget ? l->ticks_owed : budget;
 	for (uint32_t k = 0; k < count; ++k) {
 		for (unsigned i = 0; i < l->n_ticks; ++i) {
 			l->ticks[i]();
 		}
 	}
+	l->ticks_owed -= count;
 	l->stats.ticks += count;
+	return count;
 }
 
 static unsigned service_events(struct ctrl_loop *l)
 {
 	struct mbx_event ev;
 	unsigned n = 0;
+	uint32_t ticked = dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS);
 	while (n < CTRL_LOOP_EVENTS_PER_PASS && mbx_event_take(&ev)) {
 		if (ev.type == MBX_EV_TYPE_TICK) {
-			dispatch_tick(l, ev.tick_count);
+			l->ticks_owed += ev.tick_count;
+			ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked);
 		}
 		for (unsigned i = 0; i < l->n_sinks; ++i) {
 			l->sinks[i].fn(l->sinks[i].ctx, &ev);
@@ -129,18 +135,28 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 			work += service_rx(l, ch);
 		}
 	}
+	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
-		l->polls[i].fn(l->polls[i].ctx);
+		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
 	}
 	l->stats.passes++;
+	if (owed) {
+		l->stats.owed_passes++;
+		work++;
+	}
 	return work;
+}
+
+void ctrl_loop_step(struct ctrl_loop *l)
+{
+	if (ctrl_loop_service(l) == 0u) {
+		mbx_hal_wait();
+	}
 }
 
 void ctrl_loop_run(struct ctrl_loop *l)
 {
 	for (;;) {
-		if (ctrl_loop_service(l) == 0u) {
-			mbx_hal_wait();
-		}
+		ctrl_loop_step(l);
 	}
 }

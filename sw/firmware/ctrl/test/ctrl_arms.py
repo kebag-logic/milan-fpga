@@ -176,12 +176,41 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
 
 LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c", "src/modules/mvrp.c")
 
+#: The lwSRP revision port/shlan_port.h is written against (it restates that
+#: revision's src/ports/alloc.h). Fetch it with
+#:     git clone https://github.com/kebag-logic/lwSRP lwSRP
+#:     git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+#: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
+LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
+LWSRP_REV = "19f5796b63652eb1151906de73cb827d4980a53f"
+#: Every source and header the arm compiles lives under this directory.
+LWSRP_TREE = "src"
+
+
+def lwsrp_pin(lwsrp: Path) -> str:
+    """Refuse a checkout that is not the pin, or whose compiled tree differs from it.
+
+    `--no-optional-locks` keeps `git status` from refreshing the index, so a
+    read-only checkout is read and never written.
+    """
+    head = run(["git", "-C", str(lwsrp), "rev-parse", "HEAD"]).stdout.strip()
+    if head != LWSRP_REV:
+        raise Refusal(f"lwSRP at {head or 'no git HEAD'} is not the pinned {LWSRP_REV} "
+                      f"(fetch {LWSRP_URL} and check the pin out)")
+    dirty = run(["git", "--no-optional-locks", "-C", str(lwsrp), "status", "--porcelain", "--untracked-files=all",
+                 "--", LWSRP_TREE])
+    if dirty.returncode != 0 or dirty.stdout.strip():
+        changed = ", ".join(ln[3:] for ln in dirty.stdout.splitlines()) or dirty.stderr.strip()
+        raise Refusal(f"lwSRP's {LWSRP_TREE}/ differs from the pinned {LWSRP_REV[:8]}: {changed}")
+    return head
+
 
 def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
     """lwSRP's own core and MVRP, unmodified, against the static pool, the loop's tick and the SRP channel."""
     missing = [s for s in LWSRP_SOURCES if not (lwsrp / s).is_file()]
     if missing:
         raise Refusal(f"{lwsrp} is not a lwSRP checkout: no {', '.join(missing)}")
+    head = lwsrp_pin(lwsrp)
     lw_inc = (f"-I{lwsrp / 'src/include'}", f"-I{lwsrp / 'src'}")
     ours = compile_c(tree, sources(tree, PORTABLE + HOST), "lwsrp")
     test = compile_c(tree, [tree.src / "test/lwsrp_port.c"], "lwsrp_test", lw_inc)
@@ -196,7 +225,6 @@ def arm_lwsrp(tree: Tree, lwsrp: Path) -> Outcome:
         if res.returncode != 0:
             raise Refusal(f"lwSRP {src} does not compile:\n{res.stderr}")
         theirs.append(obj)
-    head = run(["git", "-C", str(lwsrp), "rev-parse", "HEAD"]).stdout.strip() or "unknown"
     outcome = execute("lwsrp", link(tree, "lwsrp_port", ours + test + theirs))
     return Outcome("lwsrp", outcome.rc, f"  lwSRP at {head}\n{outcome.log}")
 
