@@ -1,0 +1,52 @@
+{
+  "head": "2263c6288956a5edd841df62252326780edd4870",
+  "parent": "bef8dd7036f711bf286929fa4cba6bf724c7118d",
+  "cwd": "$LANES/653-b12-bench",
+  "foreground": true,
+  "unpiped": true,
+  "bench_access": false,
+  "checks": [
+    {
+      "name": "docs_check",
+      "command": "rtk proxy timeout 50s $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/docs_check.py",
+      "rc": 0,
+      "log": "gate-r2-docs_check.txt"
+    },
+    {
+      "name": "check_doc_style",
+      "command": "rtk proxy timeout 50s $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_style.py",
+      "rc": 0,
+      "log": "gate-r2-check_doc_style.txt"
+    },
+    {
+      "name": "gen_toc",
+      "command": "rtk proxy timeout 50s $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/gen_toc.py --check",
+      "rc": 0,
+      "log": "gate-r2-gen_toc.txt"
+    },
+    {
+      "name": "check_em_dash",
+      "command": "rtk proxy timeout 50s $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_em_dash.py --base fa450d30",
+      "rc": 0,
+      "log": "gate-r2-check_em_dash.txt"
+    },
+    {
+      "name": "check_doc_paths",
+      "command": "rtk proxy timeout 50s $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python scripts/check_doc_paths.py",
+      "rc": 0,
+      "log": "gate-r2-check_doc_paths.txt"
+    },
+    {
+      "name": "check_baremetal_only",
+      "command": "rtk proxy timeout 50s python3 -B scripts/check_baremetal_only.py --check",
+      "rc": 0,
+      "log": "gate-r2-check_baremetal_only.txt"
+    },
+    {
+      "name": "diff_check",
+      "command": "rtk proxy timeout 50s git diff --check",
+      "rc": 0,
+      "log": "gate-r2-diff_check.txt"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Eight controls on the extracted probe rule: PASS, rc 0.
+Cases: disconnected unlock ignored; connected unlock counted; five unconditional errors; reset; fast-connecting unlock ignored; unrelated flag ignored; wrap; absent entity cache.
+Mutation: invert the Connected predicate. Expected rc 1; observed rc 1.
+Source: rule_controls.cpp; mutation changes only the predicate.

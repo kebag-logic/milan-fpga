@@ -1,0 +1,874 @@
+{
+  "schema": "b12-startup-v2",
+  "projection": "Original first 24 AVTP bytes with bytes 4:12 (stream identity) zeroed. Ethernet and audio payload excluded. Bind ACMP identity fields replaced consistently by neutral tokens; all timing and status bytes preserved.",
+  "gptp_correlation": {
+    "status": "NOT RUN",
+    "reason": "Retained cycle captures select EtherType 0x22f0. No gPTP Sync/Follow_Up or measured mapping from the tap clock to gPTP time is retained. Absolute presentation lead/lag at the listener and timestamp fault ownership cannot be determined."
+  },
+  "cycles": [
+    {
+      "cycle": "BAAF0300-2",
+      "classification": "EARLY",
+      "sources": [
+        {
+          "file": "653-b12-B-AAF-BAAF0300-2-plain.pcap",
+          "bytes": 1916,
+          "sha256": "2a24eccfa9c8c78f3b266b09fe303dceada43f78472face9e8adaa9af1120916"
+        },
+        {
+          "file": "653-b12-B-AAF-BAAF0300-2-vlan.pcap",
+          "bytes": 653640,
+          "sha256": "2190fb844d12dfaa1fa81bbe49a9d091c47e9bf99c90a70424b34b8a7b9d801b"
+        },
+        {
+          "file": "BAAF0300-2-result.json",
+          "bytes": 34304,
+          "sha256": "f90cf6ccc92c27d2ea1dbdcf9fd1769764c63a6ed35c3c1943e1b8e2ddda1dcd"
+        }
+      ],
+      "bind_command": {
+        "record": 3,
+        "tap_ns": 350249350273148,
+        "port": 2,
+        "acmp_header": "fc06002c00000000000000000000000000000001000000000000000200000000000000030000000000000000000000000014000000000000d97c8041"
+      },
+      "first_twelve_pdus": [
+        {
+          "record": 1,
+          "tap_ns": 350249370500181,
+          "port": 3,
+          "avtp_header": "0281b8000000000000000000d9353fed0250082000c00000"
+        },
+        {
+          "record": 2,
+          "tap_ns": 350249370625206,
+          "port": 3,
+          "avtp_header": "0281b9000000000000000000d7ccf2500250082000c00000"
+        },
+        {
+          "record": 3,
+          "tap_ns": 350249370750206,
+          "port": 3,
+          "avtp_header": "0281ba000000000000000000d7ceda970250082000c00000"
+        },
+        {
+          "record": 4,
+          "tap_ns": 350249370875198,
+          "port": 3,
+          "avtp_header": "0281bb000000000000000000d7d0c2de0250082000c00000"
+        },
+        {
+          "record": 5,
+          "tap_ns": 350249371000199,
+          "port": 3,
+          "avtp_header": "0281bc000000000000000000d7d2ab260250082000c00000"
+        },
+        {
+          "record": 6,
+          "tap_ns": 350249371125207,
+          "port": 3,
+          "avtp_header": "0281bd000000000000000000d7d4936d0250082000c00000"
+        },
+        {
+          "record": 7,
+          "tap_ns": 350249371250207,
+          "port": 3,
+          "avtp_header": "0281be000000000000000000d7d67bb40250082000c00000"
+        },
+        {
+          "record": 8,
+          "tap_ns": 350249371375208,
+          "port": 3,
+          "avtp_header": "0281bf000000000000000000d7d864100250082000c00000"
+        },
+        {
+          "record": 9,
+          "tap_ns": 350249371500208,
+          "port": 3,
+          "avtp_header": "0281c0000000000000000000d7da4c570250082000c00000"
+        },
+        {
+          "record": 10,
+          "tap_ns": 350249371625200,
+          "port": 3,
+          "avtp_header": "0281c1000000000000000000d7dc349e0250082000c00000"
+        },
+        {
+          "record": 11,
+          "tap_ns": 350249371750200,
+          "port": 3,
+          "avtp_header": "0281c2000000000000000000d7de1ce50250082000c00000"
+        },
+        {
+          "record": 12,
+          "tap_ns": 350249371875209,
+          "port": 3,
+          "avtp_header": "0281c3000000000000000000d7e0052d0250082000c00000"
+        }
+      ],
+      "media_ether_types": {
+        "22f0": 2403
+      },
+      "controller": {
+        "bind_submit_us": 1791199143700852,
+        "unbind_submit_us": 1791199144009388,
+        "polls": [
+          {
+            "phase": "pre-bind",
+            "send_us": 1791199143695820,
+            "response_us": 1791199143700775,
+            "utc": "2026-10-05T11:19:03.700775+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 730,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 730
+            }
+          },
+          {
+            "phase": "first-pdus-20",
+            "send_us": 1791199143729389,
+            "response_us": 1791199143730732,
+            "utc": "2026-10-05T11:19:03.730732+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 68,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 1,
+              "FRX": 68
+            }
+          },
+          {
+            "phase": "first-pdus-100",
+            "send_us": 1791199143809387,
+            "response_us": 1791199143810765,
+            "utc": "2026-10-05T11:19:03.810765+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 708,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 1,
+              "FRX": 708
+            }
+          },
+          {
+            "phase": "first-pdus-250",
+            "send_us": 1791199143959393,
+            "response_us": 1791199143960786,
+            "utc": "2026-10-05T11:19:03.960786+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 1908,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 1,
+              "FRX": 1908
+            }
+          },
+          {
+            "phase": "post-unbind",
+            "send_us": 1791199145814427,
+            "response_us": 1791199145815742,
+            "utc": "2026-10-05T11:19:05.815742+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 2307,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 1,
+              "FRX": 2307
+            }
+          }
+        ],
+        "callback_us": 1791199144049264
+      }
+    },
+    {
+      "cycle": "BAAF0900-5",
+      "classification": "LATE",
+      "sources": [
+        {
+          "file": "653-b12-B-AAF-BAAF0900-5-plain.pcap",
+          "bytes": 2024,
+          "sha256": "471086357aa6112f8ca6b48621279fe343e347885e1fea5dfff4589db71e037b"
+        },
+        {
+          "file": "653-b12-B-AAF-BAAF0900-5-vlan.pcap",
+          "bytes": 1955704,
+          "sha256": "0ca04e0dbafbfc477075274cdb1976963b5cc3daae56044f6d8d2a8081c9cb93"
+        },
+        {
+          "file": "BAAF0900-5-result.json",
+          "bytes": 39780,
+          "sha256": "49ae4b9c9e34d2b4cede372ba47b8cf9836bca40fcfb566251564d6d4bf5a25e"
+        }
+      ],
+      "bind_command": {
+        "record": 4,
+        "tap_ns": 350315260200378,
+        "port": 2,
+        "acmp_header": "fc06002c0000000000000000000000000000000100000000000000020000000000000003000000000000000000000000002e000000000000c586934d"
+      },
+      "first_twelve_pdus": [
+        {
+          "record": 1,
+          "tap_ns": 350315280607628,
+          "port": 3,
+          "avtp_header": "02811e000000000000000000113d7f850250082000c00000"
+        },
+        {
+          "record": 2,
+          "tap_ns": 350315280732644,
+          "port": 3,
+          "avtp_header": "02811f0000000000000000003050f58d0250082000c00000"
+        },
+        {
+          "record": 3,
+          "tap_ns": 350315280857644,
+          "port": 3,
+          "avtp_header": "0281200000000000000000003052ddd40250082000c00000"
+        },
+        {
+          "record": 4,
+          "tap_ns": 350315280982652,
+          "port": 3,
+          "avtp_header": "0281210000000000000000003054c61b0250082000c00000"
+        },
+        {
+          "record": 5,
+          "tap_ns": 350315281107645,
+          "port": 3,
+          "avtp_header": "0281220000000000000000003056ae630250082000c00000"
+        },
+        {
+          "record": 6,
+          "tap_ns": 350315281232645,
+          "port": 3,
+          "avtp_header": "028123000000000000000000305896aa0250082000c00000"
+        },
+        {
+          "record": 7,
+          "tap_ns": 350315281357645,
+          "port": 3,
+          "avtp_header": "028124000000000000000000305a7ef10250082000c00000"
+        },
+        {
+          "record": 8,
+          "tap_ns": 350315281482646,
+          "port": 3,
+          "avtp_header": "028125000000000000000000305c674c0250082000c00000"
+        },
+        {
+          "record": 9,
+          "tap_ns": 350315281607654,
+          "port": 3,
+          "avtp_header": "028126000000000000000000305e4f940250082000c00000"
+        },
+        {
+          "record": 10,
+          "tap_ns": 350315281732646,
+          "port": 3,
+          "avtp_header": "028127000000000000000000306037db0250082000c00000"
+        },
+        {
+          "record": 11,
+          "tap_ns": 350315281857647,
+          "port": 3,
+          "avtp_header": "028128000000000000000000306220220250082000c00000"
+        },
+        {
+          "record": 12,
+          "tap_ns": 350315281982647,
+          "port": 3,
+          "avtp_header": "0281290000000000000000003064086a0250082000c00000"
+        }
+      ],
+      "media_ether_types": {
+        "22f0": 7190
+      },
+      "controller": {
+        "bind_submit_us": 1791199209610749,
+        "unbind_submit_us": 1791199210519368,
+        "polls": [
+          {
+            "phase": "pre-bind",
+            "send_us": 1791199209605732,
+            "response_us": 1791199209610716,
+            "utc": "2026-10-05T11:20:09.610716+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 7109,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 7109
+            }
+          },
+          {
+            "phase": "first-pdus-20",
+            "send_us": 1791199209639351,
+            "response_us": 1791199209640696,
+            "utc": "2026-10-05T11:20:09.640696+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 67,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 1,
+              "EARLY": 0,
+              "FRX": 67
+            }
+          },
+          {
+            "phase": "first-pdus-100",
+            "send_us": 1791199209719355,
+            "response_us": 1791199209720750,
+            "utc": "2026-10-05T11:20:09.720750+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 707,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 1,
+              "EARLY": 0,
+              "FRX": 707
+            }
+          },
+          {
+            "phase": "first-pdus-250",
+            "send_us": 1791199209869357,
+            "response_us": 1791199209870741,
+            "utc": "2026-10-05T11:20:09.870741+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 1907,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 1,
+              "EARLY": 0,
+              "FRX": 1907
+            }
+          },
+          {
+            "phase": "post-unbind",
+            "send_us": 1791199212324482,
+            "response_us": 1791199212325796,
+            "utc": "2026-10-05T11:20:12.325796+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 7107,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 1,
+              "EARLY": 0,
+              "FRX": 7107
+            }
+          }
+        ],
+        "callback_us": 1791199210059350
+      }
+    },
+    {
+      "cycle": "BAAF0300-1",
+      "classification": "clean control",
+      "sources": [
+        {
+          "file": "653-b12-B-AAF-BAAF0300-1-plain.pcap",
+          "bytes": 2254,
+          "sha256": "e49342007aec473337b9cd50addd9d6cf5526fe9030ad1dfb95aec6398c13f04"
+        },
+        {
+          "file": "653-b12-B-AAF-BAAF0300-1-vlan.pcap",
+          "bytes": 416728,
+          "sha256": "523cc0ddd8dbffdb85b40f5d6a610c5eeeb41d848d156a69f8d82af3bb72e8ec"
+        },
+        {
+          "file": "BAAF0300-1-result.json",
+          "bytes": 36122,
+          "sha256": "0af303858fb62d9f4fa492d6e273ff0e39aba39e89cf646914839fcfb75baa6e"
+        }
+      ],
+      "bind_command": {
+        "record": 6,
+        "tap_ns": 350244685166514,
+        "port": 2,
+        "acmp_header": "fc06002c00000000000000000000000000000001000000000000000200000000000000030000000000000000000000000012000000000000e3495022"
+      },
+      "first_twelve_pdus": [
+        {
+          "record": 1,
+          "tap_ns": 350244907733508,
+          "port": 3,
+          "avtp_header": "0281bc000000000000000000cdcb2d530250082000c00000"
+        },
+        {
+          "record": 2,
+          "tap_ns": 350244907857452,
+          "port": 3,
+          "avtp_header": "0281bd000000000000000000cdcd159a0250082000c00000"
+        },
+        {
+          "record": 3,
+          "tap_ns": 350244907982453,
+          "port": 3,
+          "avtp_header": "0281be000000000000000000cdcefdf50250082000c00000"
+        },
+        {
+          "record": 4,
+          "tap_ns": 350244908107445,
+          "port": 3,
+          "avtp_header": "0281bf000000000000000000cdd0e63c0250082000c00000"
+        },
+        {
+          "record": 5,
+          "tap_ns": 350244908232445,
+          "port": 3,
+          "avtp_header": "0281c0000000000000000000cdd2ce840250082000c00000"
+        },
+        {
+          "record": 6,
+          "tap_ns": 350244908357446,
+          "port": 3,
+          "avtp_header": "0281c1000000000000000000cdd4b6cb0250082000c00000"
+        },
+        {
+          "record": 7,
+          "tap_ns": 350244908482446,
+          "port": 3,
+          "avtp_header": "0281c2000000000000000000cdd69f120250082000c00000"
+        },
+        {
+          "record": 8,
+          "tap_ns": 350244908607454,
+          "port": 3,
+          "avtp_header": "0281c3000000000000000000cdd8875a0250082000c00000"
+        },
+        {
+          "record": 9,
+          "tap_ns": 350244908732455,
+          "port": 3,
+          "avtp_header": "0281c4000000000000000000cdda6fa10250082000c00000"
+        },
+        {
+          "record": 10,
+          "tap_ns": 350244908857447,
+          "port": 3,
+          "avtp_header": "0281c5000000000000000000cddc57e80250082000c00000"
+        },
+        {
+          "record": 11,
+          "tap_ns": 350244908982447,
+          "port": 3,
+          "avtp_header": "0281c6000000000000000000cdde402f0250082000c00000"
+        },
+        {
+          "record": 12,
+          "tap_ns": 350244909107447,
+          "port": 3,
+          "avtp_header": "0281c7000000000000000000cde028770250082000c00000"
+        }
+      ],
+      "media_ether_types": {
+        "22f0": 1532
+      },
+      "controller": {
+        "bind_submit_us": 1791199139035753,
+        "unbind_submit_us": 1791199139349444,
+        "polls": [
+          {
+            "phase": "pre-bind",
+            "send_us": 1791199139030759,
+            "response_us": 1791199139035720,
+            "utc": "2026-10-05T11:18:59.035720+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 48433,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 48433
+            }
+          },
+          {
+            "phase": "first-pdus-20",
+            "send_us": 1791199139069434,
+            "response_us": 1791199139070737,
+            "utc": "2026-10-05T11:18:59.070737+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 0,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 0,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 0
+            }
+          },
+          {
+            "phase": "first-pdus-100",
+            "send_us": 1791199139149435,
+            "response_us": 1791199139150747,
+            "utc": "2026-10-05T11:18:59.150747+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 0,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 0,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 0
+            }
+          },
+          {
+            "phase": "first-pdus-250",
+            "send_us": 1791199139299437,
+            "response_us": 1791199139300749,
+            "utc": "2026-10-05T11:18:59.300749+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 330,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 330
+            }
+          },
+          {
+            "phase": "post-unbind",
+            "send_us": 1791199141154416,
+            "response_us": 1791199141155790,
+            "utc": "2026-10-05T11:19:01.155790+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 730,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 730
+            }
+          }
+        ],
+        "callback_us": null
+      }
+    },
+    {
+      "cycle": "BAAF0900-4",
+      "classification": "clean control",
+      "sources": [
+        {
+          "file": "653-b12-B-AAF-BAAF0900-4-plain.pcap",
+          "bytes": 2228,
+          "sha256": "f967326e8f9819075c85b2b0299ef8f62c38bcb60629a869d32631c1b01db01a"
+        },
+        {
+          "file": "653-b12-B-AAF-BAAF0900-4-vlan.pcap",
+          "bytes": 1956520,
+          "sha256": "b98e7941d3989a76b80051466ca7b321cb65c3ef61f74ccd534a36ac2800ec81"
+        },
+        {
+          "file": "BAAF0900-4-result.json",
+          "bytes": 41997,
+          "sha256": "8cdbbf1b6e3f433e3a641f9a8f56eec1426cf9acf5f54b402fb422880b36e0cd"
+        }
+      ],
+      "bind_command": {
+        "record": 3,
+        "tap_ns": 350309545252549,
+        "port": 2,
+        "acmp_header": "fc06002c0000000000000000000000000000000100000000000000020000000000000003000000000000000000000000002c000000000000ec970cda"
+      },
+      "first_twelve_pdus": [
+        {
+          "record": 1,
+          "tap_ns": 350309565343958,
+          "port": 3,
+          "avtp_header": "028105000000000000000000dba7c7620250082000c00000"
+        },
+        {
+          "record": 2,
+          "tap_ns": 350309565468958,
+          "port": 3,
+          "avtp_header": "028106000000000000000000dba9afa90250082000c00000"
+        },
+        {
+          "record": 3,
+          "tap_ns": 350309565593959,
+          "port": 3,
+          "avtp_header": "028107000000000000000000dbab97f10250082000c00000"
+        },
+        {
+          "record": 4,
+          "tap_ns": 350309565718959,
+          "port": 3,
+          "avtp_header": "028108000000000000000000dbad80380250082000c00000"
+        },
+        {
+          "record": 5,
+          "tap_ns": 350309565843951,
+          "port": 3,
+          "avtp_header": "028109000000000000000000dbaf687f0250082000c00000"
+        },
+        {
+          "record": 6,
+          "tap_ns": 350309565968984,
+          "port": 3,
+          "avtp_header": "02810a000000000000000000dbb150c60250082000c00000"
+        },
+        {
+          "record": 7,
+          "tap_ns": 350309566093984,
+          "port": 3,
+          "avtp_header": "02810b000000000000000000dbb3390e0250082000c00000"
+        },
+        {
+          "record": 8,
+          "tap_ns": 350309566218976,
+          "port": 3,
+          "avtp_header": "02810c000000000000000000dbb521550250082000c00000"
+        },
+        {
+          "record": 9,
+          "tap_ns": 350309566343977,
+          "port": 3,
+          "avtp_header": "02810d000000000000000000dbb7099c0250082000c00000"
+        },
+        {
+          "record": 10,
+          "tap_ns": 350309566468977,
+          "port": 3,
+          "avtp_header": "02810e000000000000000000dbb8f1e40250082000c00000"
+        },
+        {
+          "record": 11,
+          "tap_ns": 350309566593977,
+          "port": 3,
+          "avtp_header": "02810f000000000000000000dbbada2b0250082000c00000"
+        },
+        {
+          "record": 12,
+          "tap_ns": 350309566718986,
+          "port": 3,
+          "avtp_header": "028110000000000000000000dbbcc2860250082000c00000"
+        }
+      ],
+      "media_ether_types": {
+        "22f0": 7193
+      },
+      "controller": {
+        "bind_submit_us": 1791199203895797,
+        "unbind_submit_us": 1791199204804422,
+        "polls": [
+          {
+            "phase": "pre-bind",
+            "send_us": 1791199203890774,
+            "response_us": 1791199203895734,
+            "utc": "2026-10-05T11:20:03.895734+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 7117,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 7117
+            }
+          },
+          {
+            "phase": "first-pdus-20",
+            "send_us": 1791199203924460,
+            "response_us": 1791199203925735,
+            "utc": "2026-10-05T11:20:03.925735+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 69,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 69
+            }
+          },
+          {
+            "phase": "first-pdus-100",
+            "send_us": 1791199204004481,
+            "response_us": 1791199204005739,
+            "utc": "2026-10-05T11:20:04.005739+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 710,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 710
+            }
+          },
+          {
+            "phase": "first-pdus-250",
+            "send_us": 1791199204154480,
+            "response_us": 1791199204155731,
+            "utc": "2026-10-05T11:20:04.155731+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 0,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 1910,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 1910
+            }
+          },
+          {
+            "phase": "post-unbind",
+            "send_us": 1791199206609494,
+            "response_us": 1791199206610796,
+            "utc": "2026-10-05T11:20:06.610796+00:00",
+            "status": "Success.",
+            "counters": {
+              "ML": 1,
+              "MU": 1,
+              "SI": 0,
+              "SEQ": 0,
+              "MRST": 0,
+              "TU": 0,
+              "TSV": 7109,
+              "TSNV": 0,
+              "UF": 0,
+              "LATE": 0,
+              "EARLY": 0,
+              "FRX": 7109
+            }
+          }
+        ],
+        "callback_us": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,887 @@
+{
+  "schema": "b12-restore-v2",
+  "endpoint": "end",
+  "sources": [
+    {
+      "file": "census-end.jsonl",
+      "bytes": 12099,
+      "sha256": "a5774c17e47f3d073e05aaf2eca08c7f6160f863042a785ee489afbde5c7cc40"
+    },
+    {
+      "file": "dut-descs-end.jsonl",
+      "bytes": 4346,
+      "sha256": "0108f08603e03fe8823ac9b5a49a9d0ab4c0ec1c57bef4474a89e6abf94063d1"
+    },
+    {
+      "file": "peer-descs-end.jsonl",
+      "bytes": 22221,
+      "sha256": "8ef99ee5ada0dd0deb60764459e5f37fbd8ed2f325251f84605773d41e66638f"
+    }
+  ],
+  "projection": "Complete effective values for the 43 assigned observations. Entity, controller, transport and descriptor-name identities omitted; reserved bytes excluded. No effective value or response status redacted.",
+  "observations": [
+    {
+      "observation": "rx-state-dut-0",
+      "role": "dut",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 0,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 2
+    },
+    {
+      "observation": "rx-state-dut-1",
+      "role": "dut",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 1,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 3
+    },
+    {
+      "observation": "tx-state-dut-0",
+      "role": "dut",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 0,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 4
+    },
+    {
+      "observation": "tx-state-dut-1",
+      "role": "dut",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 1,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 5
+    },
+    {
+      "observation": "census-clock-dut",
+      "role": "dut",
+      "category": "clocks",
+      "command": "GET_CLOCK_SOURCE",
+      "descriptor_type": 36,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "source": 1
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 6
+    },
+    {
+      "observation": "format-dut-5-0",
+      "role": "dut",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 10
+    },
+    {
+      "observation": "format-dut-5-1",
+      "role": "dut",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 1,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 11
+    },
+    {
+      "observation": "format-dut-6-0",
+      "role": "dut",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022002006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 12
+    },
+    {
+      "observation": "format-dut-6-1",
+      "role": "dut",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 1,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 13
+    },
+    {
+      "observation": "map-dut-0x000e-0-0",
+      "role": "dut",
+      "category": "maps",
+      "command": "GET_AUDIO_MAP",
+      "descriptor_type": 14,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "map_index": 0,
+        "number_of_maps": 1,
+        "number_of_mappings": 1,
+        "mappings": [
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 14
+    },
+    {
+      "observation": "map-dut-0x000f-0-0",
+      "role": "dut",
+      "category": "maps",
+      "command": "GET_AUDIO_MAP",
+      "descriptor_type": 15,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "map_index": 0,
+        "number_of_maps": 1,
+        "number_of_mappings": 0,
+        "mappings": []
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 15
+    },
+    {
+      "observation": "rx-state-peer-0",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 0,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 16
+    },
+    {
+      "observation": "rx-state-peer-1",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 1,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 17
+    },
+    {
+      "observation": "rx-state-peer-2",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 2,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 18
+    },
+    {
+      "observation": "rx-state-peer-3",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 3,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 19
+    },
+    {
+      "observation": "rx-state-peer-4",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 4,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 20
+    },
+    {
+      "observation": "rx-state-peer-5",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 5,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 21
+    },
+    {
+      "observation": "rx-state-peer-6",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 6,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 22
+    },
+    {
+      "observation": "rx-state-peer-7",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 7,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 23
+    },
+    {
+      "observation": "rx-state-peer-8",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 8,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 24
+    },
+    {
+      "observation": "rx-state-peer-9",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_RX_STATE",
+      "descriptor_type": 5,
+      "descriptor_index": 9,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 25
+    },
+    {
+      "observation": "tx-state-peer-0",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 0,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 26
+    },
+    {
+      "observation": "tx-state-peer-1",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 1,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 27
+    },
+    {
+      "observation": "tx-state-peer-2",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 2,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 28
+    },
+    {
+      "observation": "tx-state-peer-3",
+      "role": "peer",
+      "category": "bindings",
+      "command": "GET_TX_STATE",
+      "descriptor_type": 6,
+      "descriptor_index": 3,
+      "status": 0,
+      "value": {
+        "connections": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 29
+    },
+    {
+      "observation": "census-clock-peer",
+      "role": "peer",
+      "category": "clocks",
+      "command": "GET_CLOCK_SOURCE",
+      "descriptor_type": 36,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "source": 0
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 30
+    },
+    {
+      "observation": "format-peer-5-0",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022002006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 33
+    },
+    {
+      "observation": "format-peer-5-1",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 1,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022002006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 34
+    },
+    {
+      "observation": "format-peer-5-2",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 2,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 35
+    },
+    {
+      "observation": "format-peer-5-3",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 3,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 36
+    },
+    {
+      "observation": "format-peer-5-4",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 4,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 37
+    },
+    {
+      "observation": "format-peer-5-5",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 5,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 38
+    },
+    {
+      "observation": "format-peer-5-6",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 6,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 39
+    },
+    {
+      "observation": "format-peer-5-7",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 7,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 40
+    },
+    {
+      "observation": "format-peer-5-8",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 8,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 41
+    },
+    {
+      "observation": "format-peer-5-9",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 5,
+      "descriptor_index": 9,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 42
+    },
+    {
+      "observation": "format-peer-6-0",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 43
+    },
+    {
+      "observation": "format-peer-6-1",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 1,
+      "status": "SUCCESS",
+      "value": {
+        "format": "0205022001006000"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 44
+    },
+    {
+      "observation": "format-peer-6-2",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 2,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 45
+    },
+    {
+      "observation": "format-peer-6-3",
+      "role": "peer",
+      "category": "formats",
+      "command": "GET_STREAM_FORMAT",
+      "descriptor_type": 6,
+      "descriptor_index": 3,
+      "status": "SUCCESS",
+      "value": {
+        "format": "041060010000bb80"
+      },
+      "source_file": "census-end.jsonl",
+      "source_line": 46
+    },
+    {
+      "observation": "clock-dut",
+      "role": "dut",
+      "category": "clocks",
+      "command": "GET_CLOCK_SOURCE",
+      "descriptor_type": 36,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "source": 1
+      },
+      "source_file": "dut-descs-end.jsonl",
+      "source_line": 11
+    },
+    {
+      "observation": "map-peer-0x000e-0-0",
+      "role": "peer",
+      "category": "maps",
+      "command": "GET_AUDIO_MAP",
+      "descriptor_type": 14,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "map_index": 0,
+        "number_of_maps": 1,
+        "number_of_mappings": 32,
+        "mappings": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            2,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            3,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            2,
+            0
+          ],
+          [
+            1,
+            3,
+            3,
+            0
+          ],
+          [
+            2,
+            0,
+            4,
+            0
+          ],
+          [
+            2,
+            1,
+            5,
+            0
+          ],
+          [
+            2,
+            2,
+            6,
+            0
+          ],
+          [
+            2,
+            3,
+            7,
+            0
+          ],
+          [
+            3,
+            0,
+            4,
+            0
+          ],
+          [
+            3,
+            1,
+            5,
+            0
+          ],
+          [
+            3,
+            2,
+            6,
+            0
+          ],
+          [
+            3,
+            3,
+            7,
+            0
+          ],
+          [
+            4,
+            0,
+            8,
+            0
+          ],
+          [
+            4,
+            1,
+            9,
+            0
+          ],
+          [
+            4,
+            2,
+            10,
+            0
+          ],
+          [
+            4,
+            3,
+            11,
+            0
+          ],
+          [
+            5,
+            0,
+            8,
+            0
+          ],
+          [
+            5,
+            1,
+            9,
+            0
+          ],
+          [
+            5,
+            2,
+            10,
+            0
+          ],
+          [
+            5,
+            3,
+            11,
+            0
+          ],
+          [
+            6,
+            0,
+            12,
+            0
+          ],
+          [
+            6,
+            1,
+            13,
+            0
+          ],
+          [
+            6,
+            2,
+            14,
+            0
+          ],
+          [
+            6,
+            3,
+            15,
+            0
+          ],
+          [
+            7,
+            0,
+            12,
+            0
+          ],
+          [
+            7,
+            1,
+            13,
+            0
+          ],
+          [
+            7,
+            2,
+            14,
+            0
+          ],
+          [
+            7,
+            3,
+            15,
+            0
+          ]
+        ]
+      },
+      "source_file": "peer-descs-end.jsonl",
+      "source_line": 54
+    },
+    {
+      "observation": "map-peer-0x000f-0-0",
+      "role": "peer",
+      "category": "maps",
+      "command": "GET_AUDIO_MAP",
+      "descriptor_type": 15,
+      "descriptor_index": 0,
+      "status": "SUCCESS",
+      "value": {
+        "map_index": 0,
+        "number_of_maps": 1,
+        "number_of_mappings": 8,
+        "mappings": [
+          [
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            2,
+            2,
+            0
+          ],
+          [
+            0,
+            3,
+            3,
+            0
+          ],
+          [
+            1,
+            0,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            2,
+            2,
+            0
+          ],
+          [
+            1,
+            3,
+            3,
+            0
+          ]
+        ]
+      },
+      "source_file": "peer-descs-end.jsonl",
+      "source_line": 60
+    }
+  ]
+}
