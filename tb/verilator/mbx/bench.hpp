@@ -9,10 +9,18 @@
 // the top was built with (Wishbone or AXI4-Lite), cycle by cycle, with the
 // handshake each bus defines. Nothing here pokes KL_mbx's host port, so a
 // check that passes has passed through a real adapter.
+//
+// On the AXI4-Lite build every clock is also a structural probe: before the
+// edge, each AXI input is moved in turn (every VALID and READY flipped, the
+// addresses, data and strobes scrambled) and every AXI output must stay
+// where it was, since IHI0022H A3.1.1 and A3.2.1 forbid a combinational
+// path from an input to an output. `comb_paths` counts the cycles where one
+// moved, over every state the checks visit.
 
 #ifndef MBX_BENCH_HPP
 #define MBX_BENCH_HPP
 
+#include <array>
 #include <cstdint>
 #include <deque>
 #include <vector>
@@ -51,6 +59,9 @@ class Bench {
         dut_->tx_ready_i = tx_ready_now() ? 1 : 0;
         dut_->clk_i = 0;
         dut_->eval();
+        if (host_ == 1) {
+            probe_axil();
+        }
         const bool rx_taken = dut_->rx_valid_i && dut_->rx_ready_o;
         if (dut_->tx_valid_o && dut_->tx_ready_i) {
             take_tx_byte();
@@ -150,6 +161,8 @@ class Bench {
 
     std::vector<TxFrame> tx_frames;   //!< every frame the merge sent, in order
     unsigned bus_timeouts = 0;        //!< accesses the adapter never answered
+    unsigned comb_paths = 0;          //!< AXI4-Lite cycles where an output followed an input
+    std::uint64_t probed = 0;         //!< AXI4-Lite cycles the structural probe ran on
 
     //! Clocks per modeled millisecond: enough for the 16-slot timer scan.
     static constexpr unsigned kClocksPerMs = 24;
@@ -175,6 +188,47 @@ class Bench {
     }
 
     bool tx_ready_now() const { return ((tx_pattern_ >> (cycles_ % 8)) & 1u) != 0; }
+
+    //! Every AXI4-Lite output, as one comparable value.
+    std::array<std::uint64_t, 8> axil_outputs() const {
+        return {dut_->s_awready_o, dut_->s_wready_o, dut_->s_arready_o, dut_->s_bvalid_o,
+                dut_->s_bresp_o,   dut_->s_rvalid_o, dut_->s_rdata_o,   dut_->s_rresp_o};
+    }
+
+    //! Move each AXI input in turn with the clock held; count a cycle once if
+    //! any output followed. The inputs are restored before the edge.
+    void probe_axil() {
+        ++probed;
+        const auto before = axil_outputs();
+        bool moved = false;
+        auto flip = [&](auto& sig) {
+            sig ^= 1u;
+            dut_->eval();
+            moved = moved || axil_outputs() != before;
+            sig ^= 1u;
+        };
+        flip(dut_->s_awvalid_i);
+        flip(dut_->s_wvalid_i);
+        flip(dut_->s_arvalid_i);
+        flip(dut_->s_bready_i);
+        flip(dut_->s_rready_i);
+        const auto aw = dut_->s_awaddr_i;
+        const auto ar = dut_->s_araddr_i;
+        const auto wd = dut_->s_wdata_i;
+        const auto ws = dut_->s_wstrb_i;
+        dut_->s_awaddr_i = ~aw & 0x7FFCu;
+        dut_->s_araddr_i = ~ar & 0x7FFCu;
+        dut_->s_wdata_i = ~wd;
+        dut_->s_wstrb_i = ~ws & 0xFu;
+        dut_->eval();
+        moved = moved || axil_outputs() != before;
+        dut_->s_awaddr_i = aw;
+        dut_->s_araddr_i = ar;
+        dut_->s_wdata_i = wd;
+        dut_->s_wstrb_i = ws;
+        dut_->eval();
+        comb_paths += moved ? 1u : 0u;
+    }
 
     void take_tx_byte() {
         if (!tx_open_) {
@@ -210,6 +264,7 @@ class Bench {
         return data;
     }
 
+    //! AW and W offered together; each is withdrawn after its own handshake.
     void axil_write(std::uint32_t byte_offset, std::uint32_t value, std::uint8_t strobes) {
         dut_->s_awvalid_i = 1;
         dut_->s_wvalid_i = 1;
@@ -217,20 +272,25 @@ class Bench {
         dut_->s_wdata_i = value;
         dut_->s_wstrb_i = strobes;
         dut_->s_bready_i = 1;
-        bool taken = false;
+        bool aw_taken = false;
+        bool w_taken = false;
         bool answered = false;
         for (int i = 0; i < 16 && !answered; ++i) {
             dut_->clk_i = 0;
             dut_->eval();
-            const bool hs = dut_->s_awready_o && dut_->s_wready_o;
+            const bool aw_hs = dut_->s_awvalid_i && dut_->s_awready_o;
+            const bool w_hs = dut_->s_wvalid_i && dut_->s_wready_o;
             const bool resp = dut_->s_bvalid_o != 0;
             step();
-            if (hs) {
-                taken = true;
+            if (aw_hs) {
+                aw_taken = true;
                 dut_->s_awvalid_i = 0;
+            }
+            if (w_hs) {
+                w_taken = true;
                 dut_->s_wvalid_i = 0;
             }
-            answered = taken && resp;
+            answered = aw_taken && w_taken && resp;
         }
         dut_->s_bready_i = 0;
         bus_timeouts += answered ? 0u : 1u;
@@ -246,7 +306,7 @@ class Bench {
         for (int i = 0; i < 16 && !answered; ++i) {
             dut_->clk_i = 0;
             dut_->eval();
-            const bool hs = dut_->s_arready_o != 0;
+            const bool hs = dut_->s_arvalid_i && dut_->s_arready_o;
             const bool resp = dut_->s_rvalid_o != 0;
             if (resp) {
                 data = dut_->s_rdata_o;

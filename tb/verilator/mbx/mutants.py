@@ -121,8 +121,30 @@ ARMS = (
     Arm("wb-address-shifted", "KL_mbx_wb.sv", "assign host_addr_o  = wb_adr_i[MBX_ADDR_W_C-1:0];",
         "assign host_addr_o  = {wb_adr_i[MBX_ADDR_W_C-2:0], 1'b0};", 0, "R0 CAPS.N_CH"),
     Arm("axil-read-uses-write-address", "KL_mbx_axil.sv",
-        "assign host_addr_o  = take_w_w ? s_awaddr_i[MBX_ADDR_W_C+1:2] : s_araddr_i[MBX_ADDR_W_C+1:2];",
-        "assign host_addr_o  = s_awaddr_i[MBX_ADDR_W_C+1:2];", 1, "R0 CAPS.N_CH"),
+        "assign host_addr_o  = go_wr_w ? aw_addr_r : ar_addr_r;", "assign host_addr_o  = aw_addr_r;", 1,
+        "R0 CAPS.N_CH"),
+    # The two combinational READYs of the adapter this one replaced: AR
+    # yielding to a write offered in the same cycle, and AW waiting for W.
+    Arm("axil-arready-follows-awvalid", "KL_mbx_axil.sv", "assign s_arready_o  = !ar_full_r;",
+        "assign s_arready_o  = !ar_full_r && !s_awvalid_i;", 1, "A0 no AXI4-Lite output followed"),
+    Arm("axil-awready-waits-for-wvalid", "KL_mbx_axil.sv", "assign s_awready_o  = !aw_full_r;",
+        "assign s_awready_o  = !aw_full_r && s_wvalid_i;", 1, "A0 no AXI4-Lite output followed"),
+    Arm("axil-write-without-w", "KL_mbx_axil.sv", "assign wr_ok_w = aw_full_r && w_full_r && !bvalid_r && !busy_r;",
+        "assign wr_ok_w = aw_full_r && !bvalid_r && !busy_r;", 1, "A1 and no B answers it before its W"),
+    Arm("axil-write-ignores-b-slot", "KL_mbx_axil.sv",
+        "assign wr_ok_w = aw_full_r && w_full_r && !bvalid_r && !busy_r;",
+        "assign wr_ok_w = aw_full_r && w_full_r && !busy_r;", 1, "A4 each write is answered by exactly one B"),
+    Arm("axil-b-dropped-without-bready", "KL_mbx_axil.sv", "else if (s_bready_i) bvalid_r <= 1'b0;",
+        "else bvalid_r <= 1'b0;", 1, "A4 BVALID holds for 10 clocks"),
+    Arm("axil-r-dropped-without-rready", "KL_mbx_axil.sv",
+        "end else if (s_rready_i) begin\n        rvalid_r <= 1'b0;", "end else begin\n        rvalid_r <= 1'b0;", 1,
+        "A5 RVALID holds for 10 clocks"),
+    Arm("axil-rdata-follows-port", "KL_mbx_axil.sv", "assign s_rdata_o    = rdata_r;",
+        "assign s_rdata_o    = host_rdata_i;", 1, "A5 RDATA and RRESP hold with it"),
+    Arm("axil-read-before-write", "KL_mbx_axil.sv", "assign go_rd_w = rd_ok_w && !wr_ok_w;",
+        "assign go_rd_w = rd_ok_w;", 1, "A3 the read answers its own address"),
+    Arm("axil-reset-keeps-aw", "KL_mbx_axil.sv", "      aw_full_r <= 1'b0;\n      aw_addr_r <= '0;\n",
+        "      aw_addr_r <= '0;\n", 1, "A6 an AW taken before a reset is forgotten"),
 )
 
 
