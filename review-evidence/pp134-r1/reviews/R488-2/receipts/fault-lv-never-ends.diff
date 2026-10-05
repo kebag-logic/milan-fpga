@@ -1,0 +1,11 @@
+diff -ru --label head --label lv-never-ends head lv-never-ends
+--- head
++++ lv-never-ends
+@@ -737,6 +737,7 @@
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+           end
+           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
++          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;

@@ -1,0 +1,60 @@
+start 2026-10-05T18:44:42Z
+Verilator 5.050 2026-07-01 rev v5.050
+verilator --cc --exe --build -j 0 --top-module srp_stream_fsms_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp134-r488-2-packet/scratch/m-expiry-over-renewal-fsms/tb/srp_stream_fsms -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_stream_fsms_wrap.sv sim_main.cpp -o Vsrp_stream_fsms_sim
+make[1]: Entering directory '$REVIEWS/pp134-r488-2-packet/scratch/m-expiry-over-renewal-fsms/tb/srp_stream_fsms/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/pp134-r488-2-packet/scratch/m-expiry-over-renewal-fsms/tb/srp_stream_fsms/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 16 threads; allocated 16.492 MB
+./obj_dir/Vsrp_stream_fsms_sim
+FAIL: SC1: plane=talker cause=peer variant=0 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=0 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=0 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=0 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=0 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=0 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=peer variant=1 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=0 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=talker cause=own variant=1 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=0 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=peer variant=1 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=0 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=0 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=0 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=0 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=7 event=0 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=7 event=1 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+FAIL: SC1: plane=listener cause=own variant=1 slot=7 event=3 expiry then event: reg=0 want=1 timer=0 indications=0 published=0
+1347 checks: 1299 PASS, 48 FAIL
+make: *** [Makefile:49: run] Error 1

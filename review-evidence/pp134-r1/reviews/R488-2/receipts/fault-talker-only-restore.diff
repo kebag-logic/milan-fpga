@@ -1,0 +1,33 @@
+diff -ru --label head --label talker-only-restore head talker-only-restore
+--- head
++++ talker-only-restore
+@@ -717,9 +717,6 @@
+         tpend_r[tsel_ix_w] <= T_NOP_C;
+       end
+ 
+-      // Table 10-4, expiry before reception: New/Join finish IN and cancel
+-      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
+-      // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-source registrar events ----------------------------------
+       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+@@ -729,9 +726,6 @@
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+           reg_r[s]      <= R_IN_C;
+           lstn_val_r[s] <= evt_fourpacked_i;
+-        end else if (exp_hit_w && (exp_idx_w == s)
+-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+           if (reg_r[s] == R_IN_C) begin
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+@@ -740,6 +734,9 @@
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
++        end else if (exp_hit_w && (exp_idx_w == s)
++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end
+         // gate re-open arms a fresh tracker for the (possibly new) stream
+         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
