@@ -371,13 +371,13 @@ within 3 x 407 = 1,221 accesses and an ADP record's within 22 x 407 = 8,954.
 At an assumed 1 us per access, which is not a measurement, that is under 9 ms
 against Milan's 0 to 4 s TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50).
 
-An owed response (A3) is not committed in the pass that takes its input. An
+An owed response (A3) can leave after the pass that takes its input. An
 ENTITY_AVAILABLE behind k owed DEPARTINGs (k at most 2) is committed in pass
-k + 1, counted from the first pass that starts after the room returns. If its
-TMR_DELAY expiry is taken later than that, by pass 2 as any event, it is
-committed in the pass that takes the expiry. Either way it is committed by pass
-3, counted from the first pass that starts after both the room's return and
-the expiry. With a pass already running then, that is within 4 x 407 = 1,628
+k + 1, counted from the first pass that starts after the room returns. If the
+pass that takes its TMR_DELAY expiry comes later (by pass 2, as for any
+event), it is committed in that pass. Either way it is committed by pass 3,
+counted from the first pass that starts after both the room's return and the
+expiry. With a pass already running then, that is within 4 x 407 = 1,628
 accesses (`ADP_MBX_OWED_PASSES`, `ADP_MBX_OWED_ACCESSES`). The host test
 leaves 1, 2 and 64 SHUTDOWNs behind a full ring, takes the expiry before and
 after the room returns, and requires the AVAILABLE in pass k + 1 (measured: 63
