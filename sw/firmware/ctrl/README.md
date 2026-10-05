@@ -69,7 +69,7 @@ tag the firmware did not issue.
 
 `--self-test` writes each defect of `ctrl_mutants.py` into a copy of this
 tree and requires the arm it names to exit 1 with a `[FAIL]` naming the
-check. 25 arms: ADP clause defects caught by the walk, adapter and latency
+check. 28 arms: ADP clause defects caught by the walk (one per walked row), adapter and latency
 defects by `adp`, pool, sink, loop and driver defects by `port`, lane and
 model defects by `model`, a wrong ADPDU field source by `entity`, and a heap
 call by `rv32`.
