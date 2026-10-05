@@ -1,0 +1,13 @@
+NP: 47 checks, 0 failures
+  [i] ST2: descriptor 0005:0 sent 1 rounds, closest 1099511627776 clocks apart
+FAIL: ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 1 rounds, want at least 3 and at most one per second
+  [i] ST2: descriptor 0005:1 sent 5 rounds, closest 99585 clocks apart
+FAIL: ST2b: descriptor 0005:1 rounds 99585 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)
+  [i] ST2: descriptor 0006:0 sent 5 rounds, closest 99949 clocks apart
+  [i] ST2: descriptor 0009:0 sent 4 rounds, closest 99964 clocks apart
+  [i] ST2: descriptor 0024:0 sent 4 rounds, closest 99973 clocks apart
+  [i] ST3: worst solicited latency AECP 70681, ACMP 501 clocks
+ST: 19 checks, 2 failures
+  [i] RN: seed 0xC6A46301, 720 steps, 2211 frames compared in 10777 ms; 11 NO_RESOURCES, 120 lock denials, 7 lock takes, 6 automatic unlocks, 220 lock-refused SETs, 409 pushes
+RN: 4 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 2 failures

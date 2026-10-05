@@ -1,0 +1,234 @@
+[
+ {
+  "probe": "kind_guard_dropped",
+  "runs": {
+   "aecp_notify": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "[build default] 30 checks, 0 failures",
+     "[build identify] 4 checks, 0 failures",
+     "34 checks: 34 PASS, 0 FAIL"
+    ]
+   },
+   "spacing": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "CS: 9 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 0 failures"
+    ]
+   },
+   "notify": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "NP: 47 checks, 0 failures",
+     "ST: 19 checks, 0 failures",
+     "RN: 4 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 0 failures"
+    ]
+   },
+   "counters": {
+    "rc": 1,
+    "fails": [
+     "K14: the two changes go out as one push per controller, 0 ms after the first, byte-exact with the latest counts LINK_UP 4, GPTP_GM_CHANGED 6 (got 0 and 0)",
+     "K15: a change a second after the last push goes out at once with LINK_DOWN 4 (0)"
+    ],
+    "tallies": [
+     "K-AVB: 28 checks, 2 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 2 failures"
+    ]
+   }
+  },
+  "pp_top_build_rc": 0
+ },
+ {
+  "probe": "slot_from_live_pick",
+  "runs": {
+   "aecp_notify": {
+    "rc": 2,
+    "fails": [
+     "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+     "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+    ],
+    "tallies": [
+     "[build default] 30 checks, 2 failures"
+    ]
+   },
+   "spacing": {
+    "rc": 1,
+    "fails": [
+     "CS2a: churn started 0 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99585 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+     "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99555 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+     "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99590 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)"
+    ],
+    "tallies": [
+     "CS: 9 checks, 3 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 3 failures"
+    ]
+   },
+   "notify": {
+    "rc": 1,
+    "fails": [
+     "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 1 rounds, want at least 3 and at most one per second",
+     "ST2b: descriptor 0005:1 rounds 99585 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)"
+    ],
+    "tallies": [
+     "NP: 47 checks, 0 failures",
+     "ST: 19 checks, 2 failures",
+     "RN: 4 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 2 failures"
+    ]
+   },
+   "counters": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "K-AVB: 28 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 0 failures"
+    ]
+   }
+  },
+  "pp_top_build_rc": 0
+ },
+ {
+  "probe": "slot_zero",
+  "runs": {
+   "aecp_notify": {
+    "rc": 2,
+    "fails": [
+     "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+     "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+    ],
+    "tallies": [
+     "[build default] 30 checks, 2 failures"
+    ]
+   },
+   "spacing": {
+    "rc": 1,
+    "fails": [
+     "CS2a: churn started 0 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99585 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+     "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99555 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+     "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99590 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)"
+    ],
+    "tallies": [
+     "CS: 9 checks, 3 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 3 failures"
+    ]
+   },
+   "notify": {
+    "rc": 1,
+    "fails": [
+     "ST2: descriptor 0005:0 churned at 10 Hz for 5000 ms emitted 1 rounds, want at least 3 and at most one per second",
+     "ST2b: descriptor 0005:1 rounds 99585 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)"
+    ],
+    "tallies": [
+     "NP: 47 checks, 0 failures",
+     "ST: 19 checks, 2 failures",
+     "RN: 4 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 2 failures"
+    ]
+   },
+   "counters": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "K-AVB: 28 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 0 failures"
+    ]
+   }
+  },
+  "pp_top_build_rc": 0
+ },
+ {
+  "probe": "selection_stamp_dropped",
+  "runs": {
+   "aecp_notify": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "[build default] 30 checks, 0 failures",
+     "[build identify] 4 checks, 0 failures",
+     "34 checks: 34 PASS, 0 FAIL"
+    ]
+   },
+   "spacing": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "CS: 9 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 0 failures"
+    ]
+   },
+   "notify": {
+    "rc": 1,
+    "fails": [
+     "ST2b: descriptor 0005:0 rounds 15136 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+     "ST2b: descriptor 0005:1 rounds 15136 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+     "ST2b: descriptor 0006:0 rounds 15152 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+     "ST2b: descriptor 0009:0 rounds 15088 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+     "ST2b: descriptor 0024:0 rounds 30128 clocks apart, want at least 1000 ms less the one tick the limiter reads (Milan Table 5.22)",
+     "ST3: every solicited probe under the storm was answered (3 missing of 10)",
+     "ST3b: GET_CONFIGURATION answered within T-BUDGET-AECP-WC under the storm: worst 297337 clocks, bound 100001"
+    ],
+    "tallies": [
+     "NP: 47 checks, 0 failures",
+     "ST: 19 checks, 7 failures",
+     "RN: 4 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 7 failures"
+    ]
+   },
+   "counters": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "K-AVB: 28 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 0 failures"
+    ]
+   }
+  },
+  "pp_top_build_rc": 0
+ },
+ {
+  "probe": "golden",
+  "runs": {
+   "aecp_notify": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "[build default] 30 checks, 0 failures",
+     "[build identify] 4 checks, 0 failures",
+     "34 checks: 34 PASS, 0 FAIL"
+    ]
+   },
+   "spacing": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "CS: 9 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 0 failures"
+    ]
+   },
+   "notify": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "NP: 47 checks, 0 failures",
+     "ST: 19 checks, 0 failures",
+     "RN: 4 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 70 checks, 0 failures"
+    ]
+   },
+   "counters": {
+    "rc": 0,
+    "fails": [],
+    "tallies": [
+     "K-AVB: 28 checks, 0 failures",
+     "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 28 checks, 0 failures"
+    ]
+   }
+  },
+  "pp_top_build_rc": 0
+ }
+]
