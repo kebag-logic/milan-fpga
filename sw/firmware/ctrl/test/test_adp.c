@@ -7,8 +7,9 @@
 //       demand: a send the port refuses (deferred, retried, dropped by a
 //       link loss), a stray expiry, the firmware's own 5.6.3.1 discard
 //       (the fabric filter normally spares it the work), the two draw kinds,
-//       an owed ENTITY_DEPARTING across a restart (A15 to A17), and the bound
-//       on owed DEPARTINGs (A21);
+//       an owed ENTITY_DEPARTING across a restart (A15 to A17), the owed-frame
+//       rule across a link loss, a GM change, a DISCOVER and a stray expiry
+//       (A18 to A20), and the bound on owed DEPARTINGs (A21);
 //   B   the mailbox adapter on the model: an expiry that raced a re-arm is
 //       discarded by its tag;
 //   C   the service-latency bound of every response path (adp_mbx.h), counted
@@ -384,6 +385,78 @@ static void core_owed_departing(void)
 	check("A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order",
 	      fk.sends == 3u && took(1, ADP_MSG_ENTITY_DEPARTING, 1) && took(2, ADP_MSG_ENTITY_AVAILABLE, 0) && !owed &&
 		      a.state == ADP_STATE_WAITING);
+}
+
+// R496-3-F2: the legs of the owed-frame rule (adp.h) A15 to A17 leave open.
+static void core_owed_rules(void)
+{
+	struct adp a;
+	uint8_t f[ADP_FRAME_BYTES];
+
+	// A link loss while the restart runs, before and after its TMR_DELAY expiry.
+	advertise_then_depart_owed(&a);
+	adp_link_change(&a, false);
+	check("A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1",
+	      a.state == ADP_STATE_DOWN && a.timer == ADP_TIMER_NONE && a.departing_owed == 1u &&
+		      a.departing_index == 1u && fk.sends == 1u);
+	adp_link_change(&a, true);
+	check("A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3)",
+	      a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_DELAY &&
+		      a.departing_owed == 1u && a.departing_index == 1u);
+	adp_timer_expired(&a);
+	adp_link_change(&a, false);
+	check("A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING",
+	      a.state == ADP_STATE_DOWN && !a.available_owed && a.departing_owed == 1u && a.departing_index == 1u &&
+		      fk.sends == 1u);
+	adp_link_change(&a, true);
+	fk.room = true;
+	bool owed = adp_poll(&a);
+	check("A18 with room the ENTITY_DEPARTING leaves, index 1", !owed && fk.sends == 2u &&
+	      took(1, ADP_MSG_ENTITY_DEPARTING, 1));
+	adp_timer_expired(&a);
+	check("A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING",
+	      fk.sends == 3u && took(2, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING);
+
+	// Inputs that leave an owed ENTITY_AVAILABLE owed: Milan v1.2 Table 5.51
+	// ignores GM_CHANGE and RCV_ADP_DISCOVER in DELAY, and a stray is no input.
+	fresh(&a, true);
+	adp_set_enable(&a, true);
+	fk.room = false;
+	adp_timer_expired(&a);
+	unsigned starts = fk.starts;
+	adp_gm_change(&a);
+	check("A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started",
+	      a.available_owed && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_NONE && fk.starts == starts);
+	discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
+	adp_rx(&a, f, sizeof f);
+	check("A19 so does an ENTITY_DISCOVER",
+	      a.available_owed && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_NONE && fk.starts == starts);
+	adp_timer_expired(&a);
+	check("A19 and a stray expiry, which is counted",
+	      a.available_owed && a.stray_expiries == 1u && a.state == ADP_STATE_DELAY && fk.sends == 0u);
+	fk.room = true;
+	owed = adp_poll(&a);
+	check("A19 the next poll with room sends it, index 0, then WAITING with TMR_ADVERTISE 5 s",
+	      !owed && fk.sends == 1u && took(0, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING &&
+		      a.timer == ADP_TIMER_ADVERTISE && fk.last_delay == ADP_ADVERTISE_MS);
+
+	// A link loss itself drops an owed ENTITY_AVAILABLE, with no poll between.
+	fresh(&a, true);
+	adp_set_enable(&a, true);
+	fk.room = false;
+	adp_timer_expired(&a);
+	adp_link_change(&a, false);
+	check("A20 a link loss drops the owed ENTITY_AVAILABLE at once, before any poll (5.6.3.5.10)",
+	      !a.available_owed && a.state == ADP_STATE_DOWN && a.departing_owed == 0u);
+	adp_link_change(&a, true);
+	fk.room = true;
+	owed = adp_poll(&a);
+	check("A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3)",
+	      !owed && fk.sends == 0u && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY &&
+		      a.last_draw == ADP_DRAW_DELAY);
+	adp_timer_expired(&a);
+	check("A20 whose expiry sends the ENTITY_AVAILABLE, index 0; WAITING",
+	      fk.sends == 1u && took(0, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING);
 }
 
 // R497-3-F1: at most ADP_DEPARTING_OWED_MAX DEPARTINGs are owed; a SHUTDOWN
@@ -899,6 +972,7 @@ int main(void)
 	core_deferred();
 	core_departing_index();
 	core_owed_departing();
+	core_owed_rules();
 	core_departing_capacity();
 	core_draws();
 	adapter_race();
