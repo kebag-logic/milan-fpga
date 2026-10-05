@@ -351,8 +351,9 @@ def check_time_base(b: Bench, port: str) -> list[str]:
     """The windows and deadlines run on the port's local counter, never the
     PHC: a gPTP step of 60 s either way in the debounce window, the backoff,
     an erase and a program changes no elapsed time, and the counter's wrap
-    (2^32 clocks, 42.9 s) does not either. Every time is graded on the
-    model's own clock, which no step moves."""
+    at the shape's own clock (2^32 clocks: 42.9 s at 100 MHz, 51.5 s at
+    83.333 MHz) inside the window does not either. Every time is graded on
+    the model's own clock, which no step moves."""
     f: list[str] = []
     g = b.file("g.bin", b.assemble(b.frames, 5))
     rid, new = _one_change(b, 28)
@@ -379,10 +380,37 @@ def check_time_base(b: Bench, port: str) -> list[str]:
         took = r.fail_at[0] - r.marks[0] if r.fail_at and r.marks else None
         expect(f, _in(took, 49 * MS, 51 * MS),
                f"PHC {step} ms in a program: timed out {took} us after it, want 50 ms")
-    r = go(b, port, f, "--slot-b", g, "--boot", "--run-ms", "42500", "--mark",
+    # model time starts at the boot's power on, and so does the counter
+    wrap_us = (1 << 32) * 1_000_000 // b.clock_hz
+    r = go(b, port, f, "--slot-b", g, "--boot", "--run-ms", str(wrap_us // MS - 500), "--mark",
            "--set", f"{rid}:{new.hex()}", "--run-ms", "1500")
+    expect(f, bool(r.marks) and r.marks[0] < wrap_us < r.marks[0] + 1000 * MS,
+           f"the window does not hold the counter's wrap at {wrap_us} us: change at {r.marks}")
     expect(f, _in(_after_mark(r, 0), 1000 * MS, 1050 * MS),
            f"a window across the counter's wrap: erase {_after_mark(r, 0)} us after the change")
+    return f
+
+
+def check_port_clock(b: Bench, port: str) -> list[str]:
+    """The port keeps time at the shape's own system clock, a whole number
+    of MHz or not. The runner is built at the config's sys_clk_hz (83,333,000
+    Hz at the three Arty shapes). The per-call deadline is LS_CALL_US of that
+    clock in timer0 clocks, exactly: 166,666 at 83.333 MHz, 200,000 at
+    100 MHz. Over 120 s of service, two counter wraps or more, the port's
+    elapsed time equals the model's to 2 us."""
+    f: list[str] = []
+    r = go(b, port, f, "--slot-b", b.file("g.bin", b.assemble(b.frames, 5)), "--boot",
+           "--clock", "--run-ms", "120000", "--clock")
+    ticks = LS_CALL_US * b.clock_hz // 1_000_000
+    expect(f, r.s["clock_hz"] == b.clock_hz and r.s["ls_call_ticks"] == ticks,
+           f"built at {r.s['clock_hz']} Hz with a deadline of {r.s['ls_call_ticks']} clocks; "
+           f"the config's {b.clock_hz} Hz makes it {ticks}")
+    if len(r.clocks) != 2:
+        expect(f, False, f"clock readings: {r.clocks}")
+        return f
+    (port0, model0), (port1, model1) = r.clocks
+    expect(f, abs((port1 - port0) - (model1 - model0)) <= 2,
+           f"over {model1 - model0} us of model time the port counted {port1 - port0} us")
     return f
 
 
@@ -470,10 +498,10 @@ AUTH_SEQS = (1, 5, 0x8000_0000, 0xFFFF_FFFF)
 
 
 def _authority_case(b: Bench, port: str, f: list[str], x: int, seq: int,
-                    case: tuple[str, bool]) -> None:
+                    case: tuple[str, bool]) -> dict[str, int]:
     """Slot x valid at seq, the other blank, the case's fault armed at boot
     (held: whether it must hold the writer); a change; then a clean reboot,
-    a change, its commit and a clean reboot."""
+    a change, its commit and a clean reboot. The faulted boot's summary."""
     fault, held = case
     frames, _ = changed_frames(b, 0x60 + x)
     img = b.assemble(frames, seq)
@@ -511,6 +539,7 @@ def _authority_case(b: Bench, port: str, f: list[str], x: int, seq: int,
            f"{what}: the reboot after that commit: {r.s}")
     f += [f"{what}: last reboot: {e}"
           for e in state_matches(b, b.work / "st2.txt", {**durable, rid: new2})]
+    return s
 
 
 def check_authority_unknown(b: Bench, port: str) -> list[str]:
@@ -538,6 +567,30 @@ def check_authority_unknown(b: Bench, port: str) -> list[str]:
                          (f"read-flip-at:1:0:{body}", False),
                          (f"read-alias:1:{first}", False)):
                 _authority_case(b, port, f, x, seq, case)
+    return f
+
+
+def check_read_disagreement(b: Bench, port: str) -> list[str]:
+    """Two reads stand a refusal only when they return the same bytes, never
+    on equal verdicts alone (#665 issue comment 5999350068; R501-3's probe,
+    kept as a check). One slot valid and the other blank, both ways round, at
+    sequence 1, 5, 0x80000000 and 0xFFFFFFFF. The valid slot's first header
+    byte, or its byte at offset 0x100 in the body, reads XOR 8 and then XOR
+    16, so two reads refuse it alike on different bytes. It then reads
+    clean, and that read is applied, with one media fault counted. Read
+    wrong a third way too (XOR 32), no two reads agree: the slot is UNREAD
+    and the writer HELD. Every case goes on through a clean reboot, a change,
+    its commit and a clean reboot, and nothing reported committed is lost."""
+    f: list[str] = []
+    for x in (0, 1):
+        for seq in AUTH_SEQS:
+            for where in (0, 0x100):
+                at = f"{(SLOT_A, SLOT_B)[x] + where:#x}"
+                for count, held in ((2, False), (3, True)):
+                    s = _authority_case(b, port, f, x, seq, (f"read-vary-at:{count}:0:{at}", held))
+                    expect(f, s["read_faults"] == count - 1,
+                           f"slot {'AB'[x]} at {seq:#x}, {count} reads wrong at {at}: "
+                           f"{s['read_faults']} media faults counted, want {count - 1}")
     return f
 
 
@@ -683,10 +736,12 @@ WRITE_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
     "powercut": check_powercut,
     "vector_round_trip": check_vector_round_trip,
     "time_base": check_time_base,
+    "port_clock": check_port_clock,
     "port_stall": check_port_stall,
     "port_deadline": check_port_deadline,
     "port_guard": check_port_guard,
     "authority_unknown": check_authority_unknown,
+    "read_disagreement": check_read_disagreement,
 }
 
 #: The flash model's read and refusal faults reach the store through the
@@ -694,7 +749,7 @@ WRITE_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
 #: the guard's); the PHC, timer0 and the command master exist on the LiteSPI
 #: port only.
 WRITE_PORTS = {name: BOTH for name in WRITE_CHECKS}
-for _name in ("media_verdicts", "authority_unknown"):
+for _name in ("media_verdicts", "authority_unknown", "read_disagreement"):
     WRITE_PORTS[_name] = DIRECT
-for _name in ("time_base", "port_stall", "port_deadline", "port_guard"):
+for _name in ("time_base", "port_clock", "port_stall", "port_deadline", "port_guard"):
     WRITE_PORTS[_name] = (LITESPI,)

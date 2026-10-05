@@ -9,6 +9,8 @@
  */
 #include <string.h>
 
+#include <generated/soc.h>
+
 #include "litespi_model.h"
 #include "nvm_fmodel.h"
 
@@ -21,10 +23,10 @@
 #define LM_TOD_RD_HI (0x534u / 4u)
 #define LM_TX_READY 1u
 #define LM_RX_READY 2u
-/* One CSR access on the model's bus, and one clock of the 100 MHz system
- * clock timer0 counts. */
+/* One CSR access on the model's bus. timer0 counts the shape's system clock,
+ * CONFIG_CLOCK_FREQUENCY hertz, which the suite writes from its config. */
 #define LM_CSR_NS 40u
-#define LM_SYS_NS 10u
+#define LM_NS_PER_S 1000000000u
 /* The PHC's time at model time zero: a domain time well past any step. */
 #define LM_PHC_EPOCH_NS 1700000000000000000ull
 
@@ -217,6 +219,14 @@ uint32_t litespi_model_rxtx_read(void)
 	return lm.resp;
 }
 
+/* The system clocks in `ns` of model time: whole seconds, then the rest,
+ * exact at any clock in hertz. */
+static uint64_t lm_clocks(uint64_t ns)
+{
+	return ns / LM_NS_PER_S * CONFIG_CLOCK_FREQUENCY +
+	       ns % LM_NS_PER_S * CONFIG_CLOCK_FREQUENCY / LM_NS_PER_S;
+}
+
 /* LiteX's timer: enabled, it counts down from load, and from zero it
  * reloads; disabled, it holds load. */
 static uint32_t lm_timer_now(void)
@@ -225,7 +235,7 @@ static uint32_t lm_timer_now(void)
 
 	if (!lm.t_en)
 		return lm.t_load;
-	n = (nvm_fmodel_now_ns() - lm.t_start_ns) / LM_SYS_NS;
+	n = lm_clocks(nvm_fmodel_now_ns() - lm.t_start_ns);
 	if (n <= lm.t_load)
 		return lm.t_load - (uint32_t)n;
 	return lm.t_reload - (uint32_t)((n - lm.t_load - 1u) % ((uint64_t)lm.t_reload + 1u));

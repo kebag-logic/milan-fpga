@@ -4,7 +4,9 @@
 
 The portable set (the codec and the store) and the LiteSPI port are compiled
 with the pinned SDK's compiler for RV32I, freestanding, against MMIO stand-ins
-for the LiteX-generated headers (test/rv32/). The arm fails on any undefined
+for the LiteX-generated CSR and memory headers (test/rv32/) and the shape's
+own generated/soc.h, which the bench writes from its config's system clock,
+so each shape is built at the clock it ships. The arm fails on any undefined
 symbol that is not a C-library memory function or a libgcc helper, so a heap
 allocator, a stdio call or an OS service cannot enter the store; and it
 reports the store's text, data and bss and each static buffer, which is the

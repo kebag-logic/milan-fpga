@@ -27,6 +27,7 @@ struct fm_state {
 	enum nvm_fault fault;
 	unsigned int fault_count;
 	unsigned int fault_skip;
+	unsigned int varied;        /* reads read-vary-at has changed */
 	uint32_t fault_at;
 	uint32_t last_program;
 	unsigned int cut_k;
@@ -200,6 +201,8 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 		dst[len / 2u] ^= 0x10u;
 	if (addr <= fm.fault_at && fm.fault_at - addr < len && fm_take(NVM_F_READ_FLIP_AT))
 		dst[fm.fault_at - addr] ^= 0x08u;
+	if (addr <= fm.fault_at && fm.fault_at - addr < len && fm_take(NVM_F_READ_VARY_AT))
+		dst[fm.fault_at - addr] ^= (uint8_t)(0x08u << (fm.varied++ % 5u));
 	return 0;
 }
 

@@ -13,6 +13,10 @@
  * timer0. Program and erase are refused outside the reserved journal. */
 extern const struct nvm_flash nvm_flash_litespi;
 
+/* The per-call deadline in timer0 clocks: 2,000 us at the system clock
+ * CONFIG_CLOCK_FREQUENCY. */
+extern const uint32_t nvm_flash_litespi_call_ticks;
+
 /* Start the port's clock: timer0 free-running from 0xffffffff, the elapsed
  * count at zero. Call once at power on, before nvm_store_boot(); the host
  * suite calls it at every modelled power on. */

@@ -25,12 +25,14 @@ LITESPI = "plat/nvm_flash_litespi.c"
 
 @dataclass(frozen=True)
 class Mutant:
-    """One planted defect: its seams (file, exact text, replacement) and the
-    checks that must fail on it."""
+    """One planted defect: its seams (file, exact text, replacement), the
+    checks that must fail on it, and the shape it is graded at when not the
+    self-test's own (a defect that only shows at one clock)."""
 
     name: str
     seams: tuple[tuple[str, str, str], ...]
     kills: tuple[str, ...]
+    shape: str = ""
 
 
 def _m(name: str, path: str, old: str, new: str, *kills: str) -> Mutant:
@@ -72,6 +74,7 @@ static uint64_t ls_now_us(void *ctx)
 	ls_last_us = now;
 	return now;
 }"""
+TO_US = "\treturn ls_ticks / LS_HZ * 1000000u + ls_ticks % LS_HZ * 1000000u / LS_HZ;"
 TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 {
 	uint32_t v;
@@ -81,12 +84,19 @@ TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
 	ls_ticks += (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
-	return ls_ticks / LS_TICKS_PER_US;
-}"""
+	/* whole seconds, then the rest: fewer clocks than one second's, so
+	 * times 10^6 it stays inside 64 bits */
+""" + TO_US + "\n}"
+CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
+              "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
 RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
                "\t       nvm_klj2_seq(nvm_stage) == seq;")
 FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);\n"
-STANDS = "\t\tif (vd == NVM_VD_OK || vd == prev)"
+STANDS = "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))"
+SAME_BYTES = ("seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&\n"
+              "\t\t    seen[j].bytes == seen[n].bytes")
+#: A shape whose system clock is not a whole number of MHz.
+ARTY = "endstation_arty_current"
 BIND_WALK = "\t\tnvm.st.bind_terminal = nvm_walk_bind();"
 BIND_CLOSED = "\tif (nvm.st.bind_terminal == NVM_T_CLOSED) {\n\t\tnvm.st.terminal = NVM_T_CLOSED;\n" \
               "\t\treturn;\n\t}\n"
@@ -146,25 +156,32 @@ MUTANTS = (
     # never compared again
     Mutant("select_on_unchecked_reread",
            ((STORE, "\t\tif (vd == NVM_VD_OK)\n\t\t\t*seq = nvm_klj2_seq(nvm_stage);",
-             "\t\tif (vd == NVM_VD_OK && !f->read(f->ctx, addr, nvm_stage, NVM_KLJ2_HDR))\n"
+             "\t\tif (vd == NVM_VD_OK &&\n"
+             "\t\t    !nvm.flash->read(nvm.flash->ctx, addr, nvm_stage, NVM_KLJ2_HDR))\n"
              "\t\t\t*seq = nvm_klj2_seq(nvm_stage);"),
             (STORE, RESTAGE_SEQ,
              "\t(void)seq;\n\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK;")),
            ("read_flip_boot",)),
     _m("slot_read_fail_ignored", STORE,
-       "\t\tif (f->read(f->ctx, addr, nvm_stage, img_len))\n\t\t\treturn NVM_UNREAD;\n",
-       "\t\t(void)f->read(f->ctx, addr, nvm_stage, img_len);\n", "read_fail_boot"),
+       "\t\tif (nvm_take(rd, addr, nvm_stage, img_len))\n\t\t\treturn NVM_UNREAD;\n",
+       "\t\t(void)nvm_take(rd, addr, nvm_stage, img_len);\n", "read_fail_boot"),
     # ---- #665 decision 2: a media read fault leaves the authority unknown ----
     # the round-2 store: an unread slot is merely refused and the next commit
     # restarts the sequence below it
     _m("unread_not_held", STORE, "\t\tnvm.st.phase = nvm.st.unread ? NVM_P_HELD : NVM_P_IDLE;",
-       "\t\tnvm.st.phase = NVM_P_IDLE;", "authority_unknown", "fallback_restage"),
+       "\t\tnvm.st.phase = NVM_P_IDLE;", "authority_unknown", "fallback_restage",
+       "read_disagreement"),
     _m("read_not_retried", STORE,
        "\t\t\tcontinue;       /* the port failed a read: read the slot again */",
        "\t\t\tbreak;", "read_fail_boot", "authority_unknown"),
-    _m("refusal_unconfirmed", STORE, STANDS, "\t\tif (1)", "authority_unknown"),
-    _m("blank_unconfirmed", STORE, STANDS, "\t\tif (vd == NVM_VD_OK || vd == NVM_VD_BLANK || vd == prev)",
+    _m("refusal_unconfirmed", STORE, STANDS, "\t\tif (1)", "authority_unknown",
+       "read_disagreement"),
+    _m("blank_unconfirmed", STORE, STANDS,
+       "\t\tif (seen[n].vd == NVM_VD_OK || seen[n].vd == NVM_VD_BLANK || nvm_agrees(seen, n))",
        "authority_unknown"),
+    # the round-3 store: two reads agree when their verdicts do, whatever
+    # bytes they returned (R501-3)
+    _m("refusal_by_verdict", STORE, SAME_BYTES, "seen[j].vd == seen[n].vd", "read_disagreement"),
     _m("restage_not_retried", STORE,
        "\tfor (i = 0; i < NVM_READ_TRIES; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
        "\tfor (i = 0; i < 1u; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
@@ -328,9 +345,15 @@ MUTANTS = (
     # time from the PHC, held on a backward step
     _m("phc_time", LITESPI, TIMER_NOW, PHC_NOW, "time_base"),
     _m("clock_not_accumulated", LITESPI,
-       "\tls_ticks += (uint32_t)(ls_tick_last - v);\n\tls_tick_last = v;\n"
-       "\treturn ls_ticks / LS_TICKS_PER_US;",
-       "\tls_tick_last = v;\n\treturn (0xffffffffu - v) / LS_TICKS_PER_US;", "time_base"),
+       "\tls_ticks += (uint32_t)(ls_tick_last - v);\n\tls_tick_last = v;\n",
+       "\tls_ticks = 0xffffffffu - v;\n\tls_tick_last = v;\n", "time_base"),
+    # the round-3 port: a whole number of clocks per us, 83 at the Arty
+    # shapes' 83.333 MHz, for the time base and the deadline (R500-3)
+    Mutant("ticks_per_us_truncated",
+           ((LITESPI, TO_US, "\treturn ls_ticks / (CONFIG_CLOCK_FREQUENCY / 1000000u);"),
+            (LITESPI, CALL_TICKS, "const uint32_t nvm_flash_litespi_call_ticks = "
+                                  "LS_CALL_US * (CONFIG_CLOCK_FREQUENCY / 1000000u);")),
+           ("port_clock", "time_base"), ARTY),
     # a wait on the command master with no bound
     Mutant("xfer_unbounded",
            ((LITESPI, "\tfor (n = 0; n < LS_POLL_MAX; ++n) {", "\tfor (n = 0;; ++n) {"),
@@ -340,7 +363,7 @@ MUTANTS = (
        "port_stall"),
     # a call bounded per wait only: a master slow in every wait holds it
     _m("call_deadline_ignored", LITESPI,
-       "\treturn (uint32_t)(ls_call_start - ls_timer()) > LS_CALL_US * LS_TICKS_PER_US;",
+       "\treturn (uint32_t)(ls_call_start - ls_timer()) > nvm_flash_litespi_call_ticks;",
        "\treturn 0;", "port_deadline"),
     _m("deadline_per_wait", LITESPI, "\tuint32_t n;\n\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
        "\tuint32_t n;\n\n\tls_call_begin();\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",

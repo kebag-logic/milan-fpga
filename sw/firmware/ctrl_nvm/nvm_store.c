@@ -6,13 +6,13 @@
  * judged there by the section 6.2 order of
  * docs/design/SAVED_STATE_FASTCONNECT.md: the CRC, the records and the
  * sequence all come from the same bytes. A slot gets at most NVM_READ_TRIES
- * reads: an OK verdict stands on one, any other only when two agree, and a
- * slot that gives neither is UNREAD. The newer accepted slot (section 7: the
- * wrap-safe (int32_t)(A.seq - B.seq) >= 0, A on a tie by #665 decision 1;
- * the other when it fails) is read into the stage again and judged again,
- * its CRC included, and its sequence must be the one it was chosen by: what
- * is applied and published is what was proven. A slot that never reads back
- * so is UNREAD too. The restore is the order of
+ * reads: an OK verdict stands on one, any other only when two reads return
+ * the same bytes, and a slot that gives neither is UNREAD. The newer accepted
+ * slot (section 7: the wrap-safe (int32_t)(A.seq - B.seq) >= 0, A on a tie by
+ * #665 decision 1; the other when it fails) is read into the stage again and
+ * judged again, its CRC included, and its sequence must be the one it was
+ * chosen by: what is applied and published is what was proven. A slot that
+ * never reads back so is UNREAD too. The restore is the order of
  * SAVED_STATE_MATERIALIZATION.md section 8.1: the binding walk first, its
  * own unit (a fault fails it whole, with nothing preloaded); then the entity
  * model must be proven, or the restore ends CLOSED with the bindings kept;
@@ -127,14 +127,34 @@ static void nvm_publish(void)
 /* Not a verdict: the port did not deliver the bytes. */
 #define NVM_UNREAD NVM_VD_COUNT
 
-/* Section 6.2 over one read of the slot at `slot`. A container that fits the
- * stage is read in once and judged there, so its CRC, its records and the
- * sequence returned are the same bytes. A longer one can never be this
- * shape's: its CRC is streamed through the stage for the verdict order
- * alone. NVM_UNREAD when the port fails a read. */
-static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq)
+/* What one read of a slot returned: its verdict, and a CRC-32 over every
+ * byte the port delivered for it, with their count. The verdict is judged on
+ * exactly those bytes, so two reads that return the same bytes are judged
+ * alike; two that do not were not both read cleanly. */
+struct nvm_read {
+	enum nvm_verdict vd;
+	uint32_t digest;
+	uint32_t bytes;
+};
+
+/* One port read for the slot read `rd`: 0 when the port delivered the bytes,
+ * which are then counted into its digest. */
+static int nvm_take(struct nvm_read *rd, uint32_t addr, uint8_t *dst, uint32_t len)
 {
-	const struct nvm_flash *f = nvm.flash;
+	if (nvm.flash->read(nvm.flash->ctx, addr, dst, len))
+		return -1;
+	rd->digest = nvm_crc32_update(rd->digest, dst, len);
+	rd->bytes += len;
+	return 0;
+}
+
+/* Section 6.2 over one read of the slot at `slot`, recorded in `rd`. A
+ * container that fits the stage is read in once and judged there, so its
+ * CRC, its records and the sequence returned are the same bytes. A longer one
+ * can never be this shape's: its CRC is streamed through the stage for the
+ * verdict order alone. NVM_UNREAD when the port fails a read. */
+static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq, struct nvm_read *rd)
+{
 	uint32_t addr = nvm_slot_addr(slot);
 	uint32_t img_len = 0;
 	uint32_t crc = 0xffffffffu;
@@ -142,13 +162,15 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq)
 	uint8_t trailer[NVM_KLJ2_TRAILER];
 	enum nvm_verdict vd;
 
-	if (f->read(f->ctx, addr, nvm_stage, NVM_KLJ2_HDR))
+	rd->digest = 0xffffffffu;
+	rd->bytes = 0;
+	if (nvm_take(rd, addr, nvm_stage, NVM_KLJ2_HDR))
 		return NVM_UNREAD;
 	vd = nvm_klj2_check_head(nvm_stage, &img_len);
 	if (vd != NVM_VD_OK)
 		return vd;
 	if (img_len <= NVM_STAGE_BYTES) {
-		if (f->read(f->ctx, addr, nvm_stage, img_len))
+		if (nvm_take(rd, addr, nvm_stage, img_len))
 			return NVM_UNREAD;
 		vd = nvm_klj2_check(nvm_stage, img_len);
 		if (vd == NVM_VD_OK)
@@ -158,16 +180,16 @@ static enum nvm_verdict nvm_slot_read(int slot, uint32_t *seq)
 	while (pos < img_len - NVM_KLJ2_TRAILER) {
 		uint32_t n = nvm_min(NVM_STAGE_BYTES, img_len - NVM_KLJ2_TRAILER - pos);
 
-		if (f->read(f->ctx, addr + pos, nvm_stage, n))
+		if (nvm_take(rd, addr + pos, nvm_stage, n))
 			return NVM_UNREAD;
 		crc = nvm_crc32_update(crc, nvm_stage, n);
 		pos += n;
 	}
-	if (f->read(f->ctx, addr + pos, trailer, NVM_KLJ2_TRAILER))
+	if (nvm_take(rd, addr + pos, trailer, NVM_KLJ2_TRAILER))
 		return NVM_UNREAD;
 	if (~crc != nvm_rd32le(trailer))
 		return NVM_VD_CRC;
-	if (f->read(f->ctx, addr, nvm_stage, NVM_STAGE_BYTES))
+	if (nvm_take(rd, addr, nvm_stage, NVM_STAGE_BYTES))
 		return NVM_UNREAD;
 	return nvm_klj2_check_body(nvm_stage, img_len, NVM_STAGE_BYTES);
 }
@@ -181,28 +203,45 @@ static enum nvm_verdict nvm_unread(int slot)
 	return NVM_VD_LEN;
 }
 
+/* 1 when read n of `seen` returned the same bytes as an earlier one: the same
+ * count and digest, and so the same verdict. */
+static int nvm_agrees(const struct nvm_read *seen, unsigned int n)
+{
+	unsigned int j;
+
+	for (j = 0; j < n; ++j)
+		if (seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&
+		    seen[j].bytes == seen[n].bytes)
+			return 1;
+	return 0;
+}
+
 /* The slot's verdict, from at most NVM_READ_TRIES reads of it. OK stands on
  * one read: its CRC-32 covers every byte, the sequence included. Any other
- * verdict, BLANK included, stands only when two reads agree, because a read
- * that went wrong without the port saying so looks like a refusal or like a
- * blank slot, and either would let the next commit restart the sequence
- * below a container that survives. A slot whose reads fail or never agree
- * is UNREAD. */
+ * verdict, BLANK included, stands only when two reads return the same bytes
+ * (#665 issue comment 5999350068): a read that went wrong without the port
+ * saying so looks like a refusal or like a blank slot, and either would let
+ * the next commit restart the sequence below a container that survives. Two
+ * reads whose bytes differ are a media fault, however alike their verdicts,
+ * and the slot is read again. A slot whose reads fail or never return the
+ * same bytes is UNREAD. */
 static enum nvm_verdict nvm_slot_check(int slot, uint32_t *seq)
 {
-	enum nvm_verdict prev = NVM_UNREAD;
-	enum nvm_verdict vd;
+	struct nvm_read seen[NVM_READ_TRIES];
+	unsigned int n = 0;
 	unsigned int i;
 
 	for (i = 0; i < NVM_READ_TRIES; ++i) {
-		vd = nvm_slot_read(slot, seq);
-		if (vd == NVM_UNREAD) {
+		seen[n].vd = nvm_slot_read(slot, seq, &seen[n]);
+		if (seen[n].vd == NVM_UNREAD) {
 			nvm.st.read_faults++;
 			continue;       /* the port failed a read: read the slot again */
 		}
-		if (vd == NVM_VD_OK || vd == prev)
-			return vd;
-		prev = vd;              /* a refusal stands once a second read agrees */
+		if (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))
+			return seen[n].vd;
+		if (n)
+			nvm.st.read_faults++;   /* other bytes than every earlier read */
+		n++;
 	}
 	return nvm_unread(slot);
 }

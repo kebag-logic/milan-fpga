@@ -101,7 +101,9 @@ struct nvm_status {
 	/* Slots never read without a media fault at boot (bit 0 A, bit 1 B):
 	 * their authority is unknown, so the writer is HELD until reset. */
 	unsigned int unread;
-	unsigned int read_faults;       /* boot reads that failed or did not read back */
+	/* Boot reads that failed, returned other bytes than every earlier read
+	 * of the slot, or did not read back as judged. */
+	unsigned int read_faults;
 	int stale;                      /* a failed commit left work out of every slot */
 	int dirty;                      /* changed records not yet captured */
 	int pending;                    /* captured records not yet in a verified slot */

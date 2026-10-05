@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <generated/soc.h>
+
 #include "../host/litespi_model.h"
 #include "../host/nvm_fmodel.h"
 #include "../host/nvm_smodel.h"
@@ -457,14 +459,14 @@ static void t_fields(const char *arg, unsigned long *v)
 }
 
 /* MODE[:COUNT[:SKIP[:AT]]]: arm a flash-model fault; AT places erase-stuck,
- * read-fail-at and read-flip-at. */
+ * read-fail-at, read-flip-at and read-vary-at. */
 static void t_fault_arg(const char *arg)
 {
 	static const char *const names[] = {
 		"none", "erase-hang", "erase-stuck", "program-hang",
 		"program-drop", "program-flip", "read-fail", "read-flip",
 		"read-flip-at", "read-alias", "program-refuse", "erase-refuse",
-		"read-fail-at",
+		"read-fail-at", "read-vary-at",
 	};
 	unsigned long v[3];
 	int i = t_name(arg, names, sizeof(names) / sizeof(names[0]));
@@ -570,7 +572,8 @@ static void t_summary(void)
 	       "ls_wren=%u ls_pp=%u ls_se=%u ls_no_wel=%u ls_short=%u ls_refused=%u "
 	       "ls_unknown=%u ls_stalled=%u ls_max_withheld=%u ls_hung=%u "
 	       "max_call_us=%llu max_polls_call=%u calls=%u now_ms=%llu "
-	       "commit_tries=%u commit_refused=%u img_len=%u n_rec=%u bad=%u\n",
+	       "commit_tries=%u commit_refused=%u img_len=%u n_rec=%u clock_hz=%u "
+	       "ls_call_ticks=%u bad=%u\n",
 	       fc->erases, fc->programs, fc->effects, fc->outside, fc->protected_hit,
 	       fc->pagewrap, fc->while_busy, fc->descending, sc->applies, sc->applied, sc->refused,
 	       sc->settles, sc->rollbacks, sc->unbinds, sc->releases, sc->order, lc->wren, lc->pp,
@@ -578,7 +581,8 @@ static void t_summary(void)
 	       lc->max_withheld, lc->hung, (unsigned long long)t.max_call_us, t.max_polls_call,
 	       t.service_calls, (unsigned long long)(nvm_fmodel_now_us() / 1000u),
 	       t.commit_tries, t.commit_refused, (unsigned int)NVM_IMG_LEN,
-	       (unsigned int)NVM_N_REC, t.bad);
+	       (unsigned int)NVM_N_REC, (unsigned int)CONFIG_CLOCK_FREQUENCY,
+	       (unsigned int)nvm_flash_litespi_call_ticks, t.bad);
 	printf("ERASES");
 	for (i = 0; i < fc->erases && i < 16u; ++i)
 		printf(" %llu", (unsigned long long)fc->erase_start_us[i]);
@@ -601,6 +605,16 @@ static void t_commit_try(void)
 	t.commit_tries++;
 	if (!nvm_store_commit_now())
 		t.commit_refused++;
+}
+
+/* The port's elapsed time and the model's, read together: the time check
+ * grades the first against the second. */
+static void t_clock(void)
+{
+	uint64_t port_us = t.port->now_us(t.port->ctx);
+
+	printf("CLOCK %llu %llu\n", (unsigned long long)port_us,
+	       (unsigned long long)nvm_fmodel_now_us());
 }
 
 /* A change that leaves the value as it was (DR2b). */
@@ -628,6 +642,8 @@ static int t_word(const char *a)
 		t_commit_try();
 	else if (strcmp(a, "--mark") == 0)
 		printf("MARK %llu\n", (unsigned long long)nvm_fmodel_now_us());
+	else if (strcmp(a, "--clock") == 0)
+		t_clock();
 	else if (strcmp(a, "--boot") == 0)
 		t_boot();
 	else if (strcmp(a, "--blank") == 0)

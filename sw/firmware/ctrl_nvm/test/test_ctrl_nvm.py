@@ -7,16 +7,20 @@ WHAT IT RUNS. sw/firmware/ctrl_nvm is portable C11 with no heap: the KLJ2
 codec, the store (the boot restore and the write-back) and two flash ports.
 For every shipped shape (configs/endstation_*.yaml) the builder fixes the
 shape and the identity, the store is compiled against the same constants
-sw/litex/milan_soc.py publishes for the shipping writer, and the scenario
+sw/litex/milan_soc.py publishes for the shipping writer and at the shape's
+own system clock (its config's sys_clk_hz: 83,333,000 Hz at the three Arty
+shapes, 100 MHz at the two AX7101 ones), and the scenario
 runner (test/nvm_test.c) drives it over the host flash model directly and
 over the on-chip LiteSPI port on a model of the command master. The checks
 (nvm_checks.py, nvm_checks_write.py) grade the boot path with valid, absent,
 torn, corrupted and wrong-version slots, read faults at every boot read, and
 the binding and D3 restore walks; the write path's commit, its A/B atomicity
 and DR2a/DR2b/DR2c/DR5 rules, the console included; the writer held while a
-read fault leaves the authority unknown; a power cut inside every media
-effect of a commit; the time base under PHC steps and the counter's wrap; a
-command master that stalls or slows every wait; the service bound; and the
+read fault leaves the authority unknown, and reads that refuse a slot alike
+on different bytes; a power cut inside every media effect of a commit; the
+time base under PHC steps, at the shape's clock and across the counter's
+wrap; a command master that stalls or slows every wait; the service bound;
+and the
 round trip against the recorded vectors of tb/verilator/nvm_backend. Every
 byte and every verdict is compared with scripts/nvm_klj2.py, the reference
 codec.
@@ -26,7 +30,8 @@ freestanding for RV32I and reports their static sizes per shape. Without a
 compiler it is SKIPPED, visibly; --require-rv32 refuses instead.
 
 NEGATIVE CONTROLS. --self-test plants every defect of nvm_mutants.py into a
-copy of the tree, one at a time, at the shipping 1x1 shape, and requires each
+copy of the tree, one at a time, at the shipping 1x1 shape (or the shape a
+defect names: a clock defect is graded at 83.333 MHz), and requires each
 check the defect names to fail. Every check is named by at least one defect.
 
 Usage:
@@ -92,28 +97,36 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
         return []
     found, sizes = nvm_rv32.build(TREE, work / "rv32", work / "store" / "gen", cc)
     if sizes:
-        print(f"  rv32: text={sizes['text']} data={sizes['data']} bss={sizes['bss']} "
+        print(f"  rv32 at {inputs.clock_hz} Hz: text={sizes['text']} data={sizes['data']} "
+              f"bss={sizes['bss']} "
               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
               f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
     return found
 
 
-def self_test(inputs: ShapeInputs, work: Path) -> list[str]:
-    """Plant every defect; each check it names must fail."""
+def self_test(inputs_by_stem: dict[str, ShapeInputs], work: Path) -> list[str]:
+    """Plant every defect; each check it names must fail, at the shipping
+    1x1 shape unless the defect names another (one that shows only at a
+    clock that is not a whole number of MHz)."""
     found = [f"self-test: no defect names the check {n}"
              for n in nvm_mutants.unnamed_checks(list(CHECKS))]
     for m in nvm_mutants.MUTANTS:
+        stem = m.shape or SELF_TEST_SHAPE
+        if stem not in inputs_by_stem:
+            inputs_by_stem[stem] = shape_inputs(ROOT / "configs" / f"{stem}.yaml", work / stem)
         tree = work / m.name / "tree"
         nvm_mutants.plant(m, tree)
-        b = bench_for(inputs, work / m.name, tree)
+        b = bench_for(inputs_by_stem[stem], work / m.name, tree)
         result = grade(b, list(m.kills))
         alive = nvm_mutants.survivors(m, result)
         if alive:
-            found.append(f"self-test: {m.name} was NOT caught by {', '.join(alive)}")
+            found.append(f"self-test: {m.name} at {stem} was NOT caught by {', '.join(alive)}")
         else:
             first = next(x for k in m.kills for x in result[k])
-            print(f"  self-test OK: {m.name:<26} caught by {', '.join(m.kills)}; first: {first[:110]}")
+            at = f" at {b.clock_hz} Hz" if m.shape else ""
+            print(f"  self-test OK: {m.name:<26} caught by {', '.join(m.kills)}{at}; "
+                  f"first: {first[:110]}")
     return found
 
 
@@ -125,8 +138,9 @@ def run_shape(cfg: Path, work: Path, args: argparse.Namespace) -> tuple[list[str
     result = grade(b, names)
     findings = [f"{cfg.stem}: {name}: {x}" for name in names for x in result[name]]
     bad = sum(1 for name in names if result[name])
-    print(f"{cfg.stem:<28} records={len(b.frames):3d} image={len(b.assemble(b.frames, 0)):5d} B "
-          f"checks={len(names)} failed={bad} runs={b.runs + (b.vector.runs if b.vector else 0)}")
+    print(f"{cfg.stem:<28} clock={inputs.clock_hz} Hz records={len(b.frames):3d} "
+          f"image={len(b.assemble(b.frames, 0)):5d} B checks={len(names)} failed={bad} "
+          f"runs={b.runs + (b.vector.runs if b.vector else 0)}")
     calls = {k: max(x.call_max.get(k, 0) for x in (b, b.vector) if x) for k in ("nominal", "stalled")}
     print(f"  longest service call, model time: {calls['nominal']} us with no stall armed, "
           f"{calls['stalled']} us with a command-master stall")
@@ -156,8 +170,7 @@ def main() -> int:
                 findings += got
                 inputs_by_stem[cfg.stem] = inputs
             if args.self_test and not findings:
-                target = inputs_by_stem.get(SELF_TEST_SHAPE) or next(iter(inputs_by_stem.values()))
-                findings += self_test(target, Path(tmp) / "self-test")
+                findings += self_test(inputs_by_stem, Path(tmp) / "self-test")
     except Refusal as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 2

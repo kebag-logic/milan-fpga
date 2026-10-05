@@ -32,10 +32,12 @@
  * whole uptime (docs/design/PRESENTATION_TIME_WRAP.md, "The causal chain").
  * The store's windows and deadlines need elapsed time, so this port owns the
  * LiteX timer0: free-running down from 0xffffffff at the system clock
- * (CONFIG_CLOCK_FREQUENCY), its 32-bit difference accumulated into 64 bits
- * at every read. A read at least once per wrap (2^32 clocks, 42.9 s at
- * 100 MHz) keeps the elapsed time exact, and the store reads it on every
- * service step. Nothing else in the image may reprogram timer0.
+ * (CONFIG_CLOCK_FREQUENCY, in hertz), its 32-bit difference accumulated into
+ * 64 bits at every read. A read at least once per wrap (2^32 clocks: 42.9 s
+ * at 100 MHz, 51.5 s at the Arty shapes' 83,333,000 Hz) keeps the elapsed
+ * time exact, and the store reads it on every service step. Nothing else in
+ * the image may reprogram timer0. Clocks become microseconds exactly at any
+ * clock, a whole number of MHz or not: there is no whole ticks-per-us.
  */
 #include <stdint.h>
 
@@ -57,15 +59,20 @@
 #define LS_RX_READY (1u << CSR_SPIFLASH_MASTER_STATUS_RX_READY_OFFSET)
 /* Status reads one wait makes without the readiness it waits for before the
  * call fails. One byte is 8 clocks of the 12.5 MHz link, 0.64 us; at two
- * system clocks or more per CSR read, 4,096 reads are 82 us or more. */
+ * system clocks or more per CSR read, 4,096 reads are 82 us or more at
+ * 100 MHz, 98 us or more at 83.333 MHz. */
 #define LS_POLL_MAX 4096u
 /* The longest one call runs, in timer0 time: a page program clocks 261
  * bytes, 167 us on the 1x link, and the deadline is twelve times that. */
 #define LS_CALL_US 2000u
 #define LS_LATE_EVERY 64u
-#define LS_TICKS_PER_US (CONFIG_CLOCK_FREQUENCY / 1000000u)
+/* timer0's clock in hertz, in 64 bits for the conversions below. */
+#define LS_HZ ((uint64_t)CONFIG_CLOCK_FREQUENCY)
 
-_Static_assert(CONFIG_CLOCK_FREQUENCY % 1000000u == 0u, "a whole number of clocks per us");
+/* LS_CALL_US in timer0 clocks, computed in 64 bits and exact for any clock:
+ * 166,666 at 83,333,000 Hz, 200,000 at 100 MHz. ls_late() compares with it,
+ * and the host suite holds it to the clock of the shape's config. */
+const uint32_t nvm_flash_litespi_call_ticks = (uint32_t)(LS_CALL_US * LS_HZ / 1000000u);
 
 static uint32_t ls_tick_last;   /* timer0 at the last read */
 static uint64_t ls_ticks;       /* system clocks since nvm_flash_litespi_power_on */
@@ -90,7 +97,7 @@ static int ls_late(void)
 {
 	if (++ls_waited % LS_LATE_EVERY)
 		return 0;
-	return (uint32_t)(ls_call_start - ls_timer()) > LS_CALL_US * LS_TICKS_PER_US;
+	return (uint32_t)(ls_call_start - ls_timer()) > nvm_flash_litespi_call_ticks;
 }
 
 /* 1 once the master shows `bit`; 0 after LS_POLL_MAX reads without it, or
@@ -247,7 +254,9 @@ static uint64_t ls_now_us(void *ctx)
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
 	ls_ticks += (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
-	return ls_ticks / LS_TICKS_PER_US;
+	/* whole seconds, then the rest: fewer clocks than one second's, so
+	 * times 10^6 it stays inside 64 bits */
+	return ls_ticks / LS_HZ * 1000000u + ls_ticks % LS_HZ * 1000000u / LS_HZ;
 }
 
 void nvm_flash_litespi_power_on(void)
