@@ -1,0 +1,687 @@
+[
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-originator-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-identify-only",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-obj_idn_Vpp_top_idn",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "ident_seq_per_frame",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1b:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 82
+ },
+ {
+  "mutant": "ident_two_frames",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 35
+ },
+ {
+  "mutant": "ident_no_rearm",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID2: held 2.5 s"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 58
+ },
+ {
+  "mutant": "ident_rearm_from_third_frame",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID2: held 2.5 s",
+   "ID2d: burst 2 starts"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 58
+ },
+ {
+  "mutant": "ident_burst_100ms",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1c:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 39
+ },
+ {
+  "mutant": "ident_t0_at_request",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID2d: burst 3 starts"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 58
+ },
+ {
+  "mutant": "ident_burst_from_t0",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7i:",
+   "ID5k:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 21
+ },
+ {
+  "mutant": "ident_departure_is_retirement",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7d:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 9
+ },
+ {
+  "mutant": "ident_departure_unwired",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID7d:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 9
+ },
+ {
+  "mutant": "ident_next_burst_at_once",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID3f:",
+   "ID7r:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 20
+ },
+ {
+  "mutant": "ident_wait_ignores_gap",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8c:",
+   "ID8h:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 18
+ },
+ {
+  "mutant": "ident_press_not_latched",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8: a 30 ms press"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 41
+ },
+ {
+  "mutant": "ident_burst_press_not_latched",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID8o:",
+   "ID8s:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 8
+ },
+ {
+  "mutant": "ident_departure_ignores_ready",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID9d:",
+   "ID9h:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "ident_burst_deadline_one_tick_short",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT2:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "ident_t0_same_ms",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT4:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "ident_cut_on_release",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 39
+ },
+ {
+  "mutant": "ident_release_ignored",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three",
+   "ID2e:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 45
+ },
+ {
+  "mutant": "ident_unicast_da",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID1: one press sends three"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 25
+ },
+ {
+  "mutant": "ident_face_taken_mid_job",
+  "suite": "./obj_idn/Vpp_top_idn",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID5f:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "ident_built_at_default",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID0: with the parameter at 0"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "enq_dropped_configuration",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): exactly one"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "enq_dropped_stream_info",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: exactly one"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "class_4_mapped_to_rate",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP4 SET_CONTROL(IDENTIFY 255): exactly one"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "class_9_mapped_to_control",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP6 STOP_STREAMING: exactly one"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "requester_not_excluded",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1 SET_CONFIGURATION(1): the requester receives no"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "entry_seq_not_advanced",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP1b SET_CONFIGURATION(0): it is byte-exact"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 13
+ },
+ {
+  "mutant": "stream_info_get_body",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "NP3 SET_STREAM_INFO: it is byte-exact"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "counter_limit_500ms",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST2: descriptor 0005:0",
+   "ST2b: descriptor 0005:0"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "fan_out_skips_row_0",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ST1b:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 9
+ },
+ {
+  "mutant": "refresh_resets_seq",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "foreign_unlock_allowed",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "lock_taker_notified",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "registry_holds_15",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "deregister_keeps_row",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "inflight_highest_free_id",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 15
+ },
+ {
+  "mutant": "inflight_match_ignores_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 7
+ },
+ {
+  "mutant": "inflight_cancel_keeps_timer",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "set_control_ignores_lock",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "inflight_shared_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 10
+ },
+ {
+  "mutant": "ix_old_identity_kept",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX1:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "ix_new_identity_unset",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX3:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "ix_last_chunk_ignored",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX2:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "ix_rewrite_unmatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX4:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "override_set_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX6:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "own_compare_new_row",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX5:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "stamp_read_without_valid",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TS3:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ }
+]

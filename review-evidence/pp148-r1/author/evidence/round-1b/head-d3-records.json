@@ -1,0 +1,1529 @@
+[
+ {
+  "mutant": "golden-acmp_nvm",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-adp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-cuts-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-pp_top-volatile-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "golden-rx_validator",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "verdict": "PASS",
+  "failing_checks_count": 0
+ },
+ {
+  "mutant": "hold_released_at_go",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: released at"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 19
+ },
+ {
+  "mutant": "image_unproven_continues",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O2: CLOSED at",
+   "D3O3: CLOSED"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 9
+ },
+ {
+  "mutant": "latch_ignores_program",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S9"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "TRG_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 cfg"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 17
+ },
+ {
+  "mutant": "own_taken_at_the_walk",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R9: the held SET"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "TRG_rate",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 rate"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 17
+ },
+ {
+  "mutant": "TRG_fmti",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 fmti"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 18
+ },
+ {
+  "mutant": "TRG_clks",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 clks"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 24
+ },
+ {
+  "mutant": "taint_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S4 taint",
+   "D3N6 taint"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "clear_by_group",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S6 group"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 18
+ },
+ {
+  "mutant": "TRG_fmto",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 fmto"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 18
+ },
+ {
+  "mutant": "clear_wins_same_edge",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S5 same edge"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "clear_by_index",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S6 index"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 14
+ },
+ {
+  "mutant": "TRG_ptof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S1 ptof"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 38
+ },
+ {
+  "mutant": "dispatch_not_held",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: without the walk the writer owns every cycle"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 6
+ },
+ {
+  "mutant": "identify_is_a_change",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S7"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "RPL_rate",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 rate"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "RPL_fmti",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 fmti"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 8
+ },
+ {
+  "mutant": "RPL_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 cfg"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "unchanged_compare_ignores_validity",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S8 validity"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "RPL_clks",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 clks"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "rule_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R2: COMPLETE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 8
+ },
+ {
+  "mutant": "RPL_fmto",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 fmto"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 8
+ },
+ {
+  "mutant": "unframed_reads_as_device_error",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R6: an erased device restores blank"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 132
+ },
+ {
+  "mutant": "desc_error_is_a_refusal",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R7"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 6
+ },
+ {
+  "mutant": "RPL_ptof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1 ptof"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 12
+ },
+ {
+  "mutant": "device_error_reads_as_blank",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R5 device error on the header",
+   "D3R6: the one saved record"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "no_restore_watchdog",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8: a READ granted",
+   "D3R8b"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 7
+ },
+ {
+  "mutant": "passes_may_disagree",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4:",
+   "D3R4b"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "store_not_cleared",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: every row at its reset value"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 25
+ },
+ {
+  "mutant": "done_without_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: the enable requested from reset",
+   "D3R1: COMPLETE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 124
+ },
+ {
+  "mutant": "restore_writes_are_changes",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: no restore write is a change"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "enable_not_released_by_restore",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: the enable requested from reset",
+   "D3C6"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "blank_ignores_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: COMPLETE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "no_rollback",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 19
+ },
+ {
+  "mutant": "rollback_ignores_debt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 16000"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "closed_releases_the_entity",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R12"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "dyn_not_rolled_back",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4:"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "quarantine_released_by_time",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R5: once the device ends the drained read a later SET persists"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 10
+ },
+ {
+  "mutant": "store_not_rolled_back",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R10 5000",
+   "D3N5"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "no_backoff_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E9 DR2c timing"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "no_backoff_d3",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "valid_not_cleared",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: every row at its reset value"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 21
+ },
+ {
+  "mutant": "fourth_attempt_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E8 DR2c count"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "alarm_forgiven_binding",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E11 DR2c revocation"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "fourth_attempt",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 count"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "alarm_forgiven_by_success",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 revocation"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "backoff_derivation",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 timing"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "backoff_holds_dispatch",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3S10 backoff"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "disagree_one_direction",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4b"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "rollback_one_cycle",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R4 strobe"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "pass1_read_not_drained",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R5b: once the device ends the drained pass-1 READ"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "rate_walk_stuck_on_first_lane",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 7"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "judge_wait_unwatched",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8b"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "rate_walk_unbounded",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R3b entry 8"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "no_aggregate_deadline",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock",
+   "D3R13 pass 1"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 16
+ },
+ {
+  "mutant": "aggregate_mirrored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 19
+ },
+ {
+  "mutant": "aggregate_from_the_walk",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R13 pass 0: DEFAULTS at clock"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 21
+ },
+ {
+  "mutant": "per_wait_floor",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R8 deadline"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "agg_closes_before_proof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R14 image valid: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 11
+ },
+ {
+  "mutant": "binding_walk_ignores_aggregate",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R14 image valid: the binding walk",
+   "D3R14 image refused: the binding walk"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 10
+ },
+ {
+  "mutant": "proof_reads_records_past_bound",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R14 image valid: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 6
+ },
+ {
+  "mutant": "drain_misses_issue_cycle_m1",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N10 a manager-1 READ abandoned in its issue cycle"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "issue_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11b manager 1's abort in the issue cycle of each of the walk's READs"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "agg_not_stopped_at_terminal",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R16 COMPLETE",
+   "D3R16 DEFAULTS",
+   "D3R16 CLOSED"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "agg_not_in_rollback",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R15 debt wait: CLOSED",
+   "D3R15 re-LOCATE: CLOSED"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "agg_fires_with_event_in_hand",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R17: the writer's grant",
+   "D3R17: once the device ends"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "issue_arm_ignores_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "issue_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "drain_misses_issue_cycle",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R18: the READ abandoned in its issue cycle",
+   "D3R18: once the device ends"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "issue_arm_stale_we",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort",
+   "N11c a manager-1 READ abandoned in its issue cycle after a WRITE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "owned_arm_write_too",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11a a manager-1 WRITE presented with its abort"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "owned_arm_cross_intent",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "cross_own_m1_drains_m0",
+  "suite": "tb/acmp_nvm",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "N11d manager 1's abort held while manager 0 owns each of the walk's READs"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "agg_closes_during_proof",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R19 inside the LOCATE: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "proof_default_only_from_img",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R19 past the bound: DEFAULTS",
+   "D3R19 inside the LOCATE: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "proof_past_needs_fire",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R20 W_IMG: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "proof_past_bound_needs_fired",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R20 W_IMG: DEFAULTS",
+   "D3R20 W_IMGLOC: DEFAULTS"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "aecp_hold_unbounded",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O5: in CLOSED each GET_RX_STATE",
+   "D3O6: during the slowed walk"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 7
+ },
+ {
+  "mutant": "agg_o_pulse",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R21: the binding walk fails whole"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 3
+ },
+ {
+  "mutant": "validator_admits_held_aecp",
+  "suite": "tb/rx_validator",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F28 held AECP",
+   "F28 rx_aecp_held counts both"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "resident_never_returned",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O7: the returned slot frees the share"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "held_drop_uncounted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O5: one AECP command held",
+   "D3O6: at the terminal"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 5
+ },
+ {
+  "mutant": "registry_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V5",
+   "D3V8",
+   "D3V9"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "lock_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V4",
+   "D3V7"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "clks_restore_index_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C4 at the count",
+   "D3C4 above the count"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "cfg_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD8: the first ENTITY_AVAILABLE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "clks_restore_count_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C3 restore"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "clks_row_two_bits",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C1 readback",
+   "D3C3 save"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 10
+ },
+ {
+  "mutant": "identify_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V3"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "clks_restore_bound_inclusive",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C4 at the count"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 4
+ },
+ {
+  "mutant": "torn_read_not_an_abort_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD9: the torn read"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "blank_applies_zero_cfg",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AD7: the first ENTITY_AVAILABLE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 7
+ },
+ {
+  "mutant": "clks_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 corrupt"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "torn_read_not_an_abort",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 torn"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "blank_applies_zero",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C5 blank"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 26
+ },
+ {
+  "mutant": "frame_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3K ptof cut at byte 11 of 12: the restore",
+   "D3K name cut at byte 71 of 72: the restore"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 8
+ },
+ {
+  "mutant": "TRG_name",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N1 ordinal"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 27
+ },
+ {
+  "mutant": "RPL_name",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 17
+ },
+ {
+  "mutant": "name_rule_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N4: COMPLETE"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "name_empty_refused",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: COMPLETE",
+   "D3N3 ordinal 2"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "name_record_id_shifted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N1 ordinal"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 25
+ },
+ {
+  "mutant": "name_entry_shifted",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 14
+ },
+ {
+  "mutant": "name_lanes_partial",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3 ordinal 1"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 2
+ },
+ {
+  "mutant": "name_taint_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N6 taint"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "name_restore_pulses",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: the restore's name writes"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "name_restore_is_a_change",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N3: the restore's name writes"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 1
+ },
+ {
+  "mutant": "names_before_the_image",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3N7"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 18
+ },
+ {
+  "mutant": "cut_binding_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3KR bind seed"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 20
+ },
+ {
+  "mutant": "cut_frame_crc_ignored",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3KR ptof seed",
+   "D3KR name seed"
+  ],
+  "missing": [],
+  "verdict": "KILLED",
+  "failing_checks_count": 30
+ }
+]

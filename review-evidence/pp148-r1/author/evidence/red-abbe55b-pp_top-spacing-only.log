@@ -1,0 +1,7 @@
+  [i] CS2a: churn 0 clocks after ST's phase, closest rounds 99994 clocks apart (row 15, descriptor 0006:0), fewest rounds at a row 4
+  [i] CS2b: churn 30 clocks after ST's phase, closest rounds 99854 clocks apart (row 0, descriptor 0006:0), fewest rounds at a row 4
+FAIL: CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99854 clocks (row 0, descriptor 0006:0), want at least 99900, and at least 3 rounds at each row (fewest 4)
+  [i] CS2c: churn 95 clocks after ST's phase, closest rounds 99590 clocks apart (row 0, descriptor 0005:1), fewest rounds at a row 4
+FAIL: CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99590 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 4)
+CS: 9 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9 checks, 2 failures

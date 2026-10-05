@@ -1,0 +1,56 @@
+--- sim_main.orig.cpp	2026-10-04 20:14:40.242000000 +0200
++++ tb/aecp_notify/sim_main.cpp	2026-10-04 20:13:05.430903712 +0200
+@@ -62,6 +62,7 @@
+   uint32_t retire();
+   void hold_until(uint32_t ms);
+   void round_waits_for_tx();
++  void dereg_mid_round();
+ 
+   void tick() {
+     d->now_ms_i = now;
+@@ -236,6 +237,7 @@
+   rewrite_window();
+   counter_stamps();
+   round_waits_for_tx();
++  dereg_mid_round();
+   return fails ? 1 : 0;
+ }
+ 
+@@ -515,6 +517,37 @@
+   d->uns_done_i = 1;
+ }
+ 
++
++// EXPERIMENT: a TIME_LIMITED expiry drained between two jobs of a counter round
++void Harness::dereg_mid_round() {
++  constexpr uint64_t EID_D = 0x4444000000000004ull;
++  constexpr uint64_t MAC_D = 0x020000000004ull;
++  warm_reset();
++  d->uns_done_i = 0;
++  now = 20000;
++  register_row(EID_C, MAC_C, true);         // row 0, TIME_LIMITED
++  register_row(EID_D, MAC_D, false);        // row 1
++  counter_change();
++  const Job c1 = counter_presented(now + 8);
++  printf("  [x] job 1: ms %u mac %012llx kind %u dt %04x di %u\n", c1.ms,
++         (unsigned long long)c1.mac, unsigned(d->uns_kind_o), unsigned(d->uns_desc_type_o), unsigned(d->uns_desc_index_o));
++  expire(REGMON_BASE, OWN_TL);              // C's registration expires now
++  (void)retire();
++  for (int i = 0; i < 40; ++i) {
++    d->clk_i = 0;
++    d->eval();
++    if (d->uns_valid_o) {
++      printf("  [x] job: cycle %d mac %012llx kind %u dt %04x di %u seq %u\n", i,
++             (unsigned long long)d->uns_mac_o, unsigned(d->uns_kind_o), unsigned(d->uns_desc_type_o),
++             unsigned(d->uns_desc_index_o), unsigned(d->uns_seq_o));
++      (void)retire();
++    } else {
++      tick();
++      ++now;
++    }
++  }
++  d->uns_done_i = 1;
++}
+ #else
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,

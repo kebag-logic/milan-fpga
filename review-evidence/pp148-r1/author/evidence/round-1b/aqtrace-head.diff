@@ -1,0 +1,38 @@
+--- tb/pp_top/sim_main.cpp
++++ tb/pp_top/sim_main.cpp
+@@ -44,8 +44,11 @@
+ // the harness is already the one object that owns every other piece of run
+ // state. CHECK therefore names `h`, exactly as it used to name the globals,
+ // and every use of it sits inside the scope where `h` is the harness.
++static bool g_aq_trace = true;
++#define AQ_FIRST_ARG(a, ...) a
+ #define CHECK(cond, ...) do { \
+   ++h.checks; \
++  if (g_aq_trace) { printf("CHK e=%llu t=%llu %.60s\n", (unsigned long long)h.aq.edges, (unsigned long long)h.t, AQ_FIRST_ARG(__VA_ARGS__, "")); } \
+   if (!(cond)) { ++h.fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+ } while (0)
+ 
+@@ -781,6 +784,7 @@
+       left[k] = f.empty();
+       popped = static_cast<int>(k);
+       ++arms;
++      if (g_aq_trace) printf("AQI e=%llu k=%zu arm=%016llx\n", (unsigned long long)edges, k, (unsigned long long)port);
+       break;
+     }
+     int dropping = 0;
+@@ -796,6 +800,7 @@
+       ++onto[f.size() + (k == popped ? 1 : 0)];
+       f.push_back((static_cast<uint64_t>(d.dbg_aq_arm_o[2 * k + 1]) << 32)
+                   | d.dbg_aq_arm_o[2 * k]);
++      if (g_aq_trace) printf("AQP e=%llu k=%d arm=%016llx\n", (unsigned long long)edges, k, (unsigned long long)f.back());
+       if (f.size() == DEPTH) ++full;
+     }
+     refused += static_cast<uint64_t>(dropping);
+@@ -13964,6 +13969,7 @@
+         "edge (%llu edges differ, the first at cycle %ld)", n(m.bad), m.first_bad);
+   const ArmQueueModel was = m;
+   h.aq.first_bad = -1;
++  g_aq_trace = false;
+   drive_arm_faces(h);
+   const auto dn = [&n](uint64_t now, uint64_t before) { return n(now - before); };
+   std::array<unsigned long long, ArmQueueModel::DEPTH + 1> onto{};

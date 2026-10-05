@@ -1,0 +1,30 @@
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp (debug probe, scratch only)
+@@ -914,6 +914,10 @@
+             hi();
+             uns_log_cycle++;
+         }
++        if (!cur.empty())
++            printf("  [dbg] drain_tx returned mid-frame at t=%ld: %zu bytes dropped, DA %02x:%02x:%02x:%02x:%02x:%02x\n",
++                   uns_log_cycle, cur.size(), cur[0], cur.size() > 1 ? cur[1] : 0, cur.size() > 2 ? cur[2] : 0,
++                   cur.size() > 3 ? cur[3] : 0, cur.size() > 4 ? cur[4] : 0, cur.size() > 5 ? cur[5] : 0);
+     }
+     std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
+                                           const std::vector<uint8_t>& pl,
+@@ -1418,6 +1422,16 @@
+         ck("[NOTIFY-CRF] ...and no further push to B in the next two seconds "
+            "without a change", notify_count(0x0029, &CTL_B, 0x0005, ix), 2);
+         ck("[NOTIFY-CRF] ...nor to A", notify_count(0x0029, &CTL_A, 0x0005, ix), 2);
++        for (size_t i = 0; i < uns_log.size(); i++) {
++            const std::vector<uint8_t>& f = uns_log[i];
++            if (f.size() < 42) continue;
++            printf("  [dbg] #%zu t=%ld ms(rel t1)=%ld to=%s u=%d cmd=%04x desc=%04x:%u seq=%u\n", i,
++                   uns_log_when[i], (uns_log_when[i] - t1) / kMsCycTb,
++                   notify_to(f, CTL_A) ? "A" : notify_to(f, CTL_B) ? "B" : "?",
++                   aecp_is_unsolicited(f) ? 1 : 0, notify_cmd(f),
++                   (static_cast<unsigned>(f[38]) << 8) | f[39], (static_cast<unsigned>(f[40]) << 8) | f[41],
++                   (static_cast<unsigned>(f[34]) << 8) | f[35]);
++        }
+         crf_lever(false);
+     }
+ 
