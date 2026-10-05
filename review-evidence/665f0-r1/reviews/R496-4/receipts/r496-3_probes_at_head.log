@@ -1,0 +1,85 @@
+PROBE k=0 room_first=1 owed_departing=0 available_committed_in_pass=1 (passes_after_room) accesses_from_room=39 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=1 passes_before_room=0
+PROBE k=0 room_first=0 owed_departing=0 available_committed_in_pass=1 (passes_after_room) accesses_from_room=33 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=1 passes_before_room=4
+PROBE k=1 room_first=1 owed_departing=1 available_committed_in_pass=2 (passes_after_room) accesses_from_room=69 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=2 passes_before_room=0
+PROBE k=1 room_first=0 owed_departing=1 available_committed_in_pass=2 (passes_after_room) accesses_from_room=63 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=2 passes_before_room=4
+PROBE k=2 room_first=1 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=99 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=0
+PROBE k=2 room_first=0 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=93 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=4
+PROBE k=3 room_first=1 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=99 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=0
+PROBE k=3 room_first=0 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=93 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=4
+PROBE k=16 room_first=1 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=99 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=0
+PROBE k=16 room_first=0 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=93 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=4
+PROBE k=64 room_first=1 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=99 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=0
+PROBE k=64 room_first=0 owed_departing=2 available_committed_in_pass=3 (passes_after_room) accesses_from_room=93 ADP_MBX_EVT_ACCESSES=1221 ADP_MBX_PASS_MAX=407 frames_after_room=3 passes_before_room=4
+control test_adp: rc=0 ['== ctrl ADP slice (fake ports and host model): checks: 163   failures: 0 ==']
+control test_port_loop: rc=0 ['== ctrl port, driver and loop (host model): checks: 81   failures: 0 ==']
+queued-departing-keeps-first-index test_adp: rc=1 fails=6
+    [FAIL] A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+    [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+    [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+    [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+queued-departing-keeps-first-index test_port_loop: rc=0 fails=0
+poll-forgets-owed-available test_adp: rc=1 fails=4
+    [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+    [FAIL] E1 the loop does not sleep while a frame is owed         got=0x11 exp=0x1
+    [FAIL] E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+    [FAIL] E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+poll-forgets-owed-available test_port_loop: rc=0 fails=0
+blocked-available-not-owed test_adp: rc=1 fails=40
+    [FAIL] A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+    [FAIL] A15 a poll without room keeps both owed
+    [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+    [FAIL] A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+blocked-available-not-owed test_port_loop: rc=0 fails=0
+poll-sends-two-frames test_adp: rc=1 fails=8
+    [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+    [FAIL] E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+    [FAIL] E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+    [FAIL] E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+poll-sends-two-frames test_port_loop: rc=0 fails=0
+gm-change-drops-owed-available test_adp: rc=1 fails=4
+    [FAIL] A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+    [FAIL] A19 so does an ENTITY_DISCOVER
+    [FAIL] A19 and a stray expiry, which is counted
+    [FAIL] A19 the next poll with room sends it, index 0, then WAITING with TMR_ADVERTISE 5 s
+gm-change-drops-owed-available test_port_loop: rc=0 fails=0
+second-shutdown-overwrites-index: PATCH SITE NOT UNIQUE (0)
+link-loss-keeps-owed-available test_adp: rc=1 fails=5
+    [FAIL] A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+    [FAIL] A18 with room the ENTITY_DEPARTING leaves, index 1
+    [FAIL] A20 a link loss drops the owed ENTITY_AVAILABLE at once, before any poll (5.6.3.5.10)
+    [FAIL] A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3)
+link-loss-keeps-owed-available test_port_loop: rc=0 fails=0
+link-loss-drops-owed-departing test_adp: rc=1 fails=5
+    [FAIL] A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+    [FAIL] A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3)
+    [FAIL] A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+    [FAIL] A18 with room the ENTITY_DEPARTING leaves, index 1
+link-loss-drops-owed-departing test_port_loop: rc=0 fails=0
+=== build: head
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: link-loss-drops-owed-departing
+L1 wire: AVAILABLE(0) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) LOST
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: gm-change-drops-owed-available
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire:
+L2 state=2 timer=0 available_owed=0 -> WEDGED: DELAY with no timer and nothing owed
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: link-loss-keeps-owed-available
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire: AVAILABLE(0)
+L3 sends_before_TMR_DELAY=1 timer=2 -> AVAILABLE SENT WITHOUT ITS TMR_DELAY

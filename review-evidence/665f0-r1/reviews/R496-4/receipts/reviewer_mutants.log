@@ -1,0 +1,35 @@
+[as-expected] rv-cap-three: KILLED rc=1 (expected kill)  failed=5
+    [FAIL] A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+    [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    [FAIL] A21 and so are 100000 more, each counted, the two owed unchanged
+[as-expected] rv-cap-le: KILLED rc=1 (expected kill)  failed=10
+    [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    [FAIL] A21 and so are 100000 more, each counted, the two owed unchanged
+    [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+[as-expected] rv-depart-keeps-oldest-index: KILLED rc=1 (expected kill)  failed=6
+    [FAIL] A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+    [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+    [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+[as-expected] rv-poll-two-frames: KILLED rc=1 (expected kill)  failed=8
+    [FAIL] A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+    [FAIL] E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+    [FAIL] E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+[as-expected] rv-queue-counts-as-coalesced: KILLED rc=1 (expected kill)  failed=7
+    [FAIL] A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+    [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    [FAIL] A21 and so are 100000 more, each counted, the two owed unchanged
+[as-expected] rv-coalesce-drops-both: KILLED rc=1 (expected kill)  failed=10
+    [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    [FAIL] A21 and so are 100000 more, each counted, the two owed unchanged
+    [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+[as-expected] rv-coalesce-keeps-available-owed: KILLED rc=1 (expected kill)  failed=2
+    [FAIL] A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+    [FAIL] A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+[as-expected] rv-loop-polls-twice: KILLED rc=1 (expected kill)  failed=6
+    [FAIL] E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+    [FAIL] E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+    [FAIL] E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+[as-expected] rv-owed-passes-inflated: SURVIVED rc=0 (expected survive)  failed=0
+[as-expected] rv-link-loss-while-disabled-drops-departing: KILLED rc=1 (expected kill)  failed=1
+    [FAIL] A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+reviewer mutants: 10 of 10 as expected
