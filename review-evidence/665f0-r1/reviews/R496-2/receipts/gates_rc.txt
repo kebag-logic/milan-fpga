@@ -1,0 +1,11 @@
+ci_scope_selftest rc=0
+ci_events_check rc=0
+ci_events_selftest rc=0
+gen_mailbox_check rc=0
+gen_mailbox_selftest rc=0
+gen_module_matrix_check rc=0
+diff_check_dev rc=0
+diff_check_base rc=0
+lint_rtl_check rc=2
+lint_rtl_selftest rc=0
+lint_rtl_check (rerun, verilog-axis initialised) rc=0

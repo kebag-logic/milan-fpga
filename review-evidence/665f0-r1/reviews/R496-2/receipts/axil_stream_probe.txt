@@ -1,0 +1,8 @@
+axilprobe rc=0
+== mbx (AXI4-Lite host): checks: 179   failures: 0 ==
+axilprobe_mut rc=2
+  [FAIL] RP0 four back-to-back writes each get one B got=3 exp=4
+  [FAIL] RP0 each back-to-back write lands at its own address got=0xa0000002 exp=0xa0000001
+  [FAIL] RP0 each back-to-back write lands at its own address got=0xa0000003 exp=0xa0000002
+  [FAIL] RP0 each back-to-back write lands at its own address got=0x0 exp=0xa0000003
+== mbx (AXI4-Lite host): checks: 179   failures: 4 ==

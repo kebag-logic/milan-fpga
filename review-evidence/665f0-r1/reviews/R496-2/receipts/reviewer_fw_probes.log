@@ -1,0 +1,10 @@
+[caught] p-step-sleeps-when-only-owed (adp, rc 1): 2 [FAIL]; first: [FAIL] E1 the loop does not sleep while a frame is owed         got=0x11 exp=0x1
+[caught] p-poll-owes-departing-only (adp, rc 1): 2 [FAIL]; first: [FAIL] E1 the loop does not sleep while a frame is owed         got=0x11 exp=0x1
+[caught] p-seq-stamped-zero (port, rc 1): 1 [FAIL]; first: [FAIL] D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+[ESCAPED] p-carried-ticks-overwritten (port, rc 0): 0 [FAIL]; first: RESULT: PASS
+[ESCAPED] p-carried-ticks-overwritten-adp (adp, rc 0): 0 [FAIL]; first: RESULT: PASS
+[caught] p-carry-not-dispatched-first (port, rc 1): 2 [FAIL]; first: [FAIL] L7 every one of 40 coalesced centiseconds reaches the consumer got=0x10 exp=0x28
+[caught] p-carry-not-dispatched-first-adp (adp, rc 1): 2 [FAIL]; first: [FAIL] F4 every coalesced centisecond reaches the consumer      got=0x10 exp=0x1e
+[ESCAPED] p-bad-record-ends-rx-stage (port, rc 0): 0 [FAIL]; first: RESULT: PASS
+[caught] p-departing-index-plus-one (adp, rc 1): 5 [FAIL]; first: [FAIL] A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+reviewer firmware probes: 6 of 9 caught
