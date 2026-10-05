@@ -230,6 +230,10 @@ class Seams:
         #: whose payload bytes are not all ERASED is a torn or foreign span
         #: and must be refused (VD_REC). The control accepts the header alone.
         self.ERASED_HEADER_ONLY = False
+        #: #652: an edit applied to the design page's text before its
+        #: section 4.2 allocation table is read, the seam a stale-figure
+        #: control plants a restated count through.
+        self.ALLOCATION_PAGE_EDIT = None
 
 
 SEAM = Seams()

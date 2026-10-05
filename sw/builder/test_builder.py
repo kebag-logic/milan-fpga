@@ -263,6 +263,17 @@ Gates (gaps item 4, generator round):
       decide whether to wait for it.  A port number planted in the overlay
       and the pre-#463 generator restored for one build are both refused by
       the comparison the tracked configs pass.
+  38. NO MODEL OUTGROWS THE SAVED-STATE NAME BLOCK (gate 38, issue #652):
+      each writable name is one record in KL_nvm_backend's NAME block, and
+      the builder refuses a model with more names than the block's
+      N_NAME_MAX_C, read from KL_nvm_backend.sv, before writing anything.
+      128 names build, 129 and the 8x8 TDM8 point (235) are refused naming
+      both figures and the declaration; the RTL's g_refuse_names guard
+      bounds N_NAME_P by that same declaration.  Planted capacities, a
+      refusal without figures or after a write, a guard on a literal and
+      three unreadable declarations each turn their check red.  Where a
+      Verilator is on PATH, KL_nvm_backend elaborates at 128, refuses 129,
+      and follows a planted N_NAME_MAX_C.
 
 BOTH NEED LiteX, which is why they were worth the trouble: no CI job in this
 repository elaborated the SoC, so a behavioural proof of these chains existed
@@ -25168,9 +25179,35 @@ def _render_lanes_pinned_to_the_rtl(dp: str) -> tuple[dict, int]:
     return lanes, phys_c
 
 
+#: Gate 24a (d)'s routed capture channels: enough for a physical pool, few
+#: enough that the model's writable names fit the saved-state NAME block. Its
+#: size until #652, 16, carries 187 names, and the builder refuses it.
+_PHYSICAL_POOL_CAPTURE = 8
+
+
 def _assert_physical_pool_reappears():
     """Gate 24a (d): declaring routed channels re-introduces the physical
     pool AND moves the static map onto it."""
+    capture = _PHYSICAL_POOL_CAPTURE
+    r = _build_physical_pool(capture)
+    names = nvm_shape.expected_names(r["overlay"]["descriptor_counts"])
+    # The controls: the size this gate had until #652 is refused by the NAME
+    # capacity, and with no routed channel there is no physical pool to find.
+    caught = [_expect_red("16 routed channels", lambda: _build_physical_pool(16),
+                          "writable names and the saved-state backend holds",
+                          gate="gate 24a (d)"),
+              _expect_red("no routed channel", lambda: _build_physical_pool(0),
+                          "not physical, pilot, loopback", gate="gate 24a (d)")]
+    print("  [gate 24a] declaring routed channels re-introduces the physical "
+          "pool AND moves the static map onto it (primary-role fallthrough): "
+          f"{capture} routed channels, {names} writable names; "
+          f"{len(caught)}/{len(caught)} planted controls turned it red: "
+          f"{'; '.join(caught)}")
+
+
+def _build_physical_pool(capture: int) -> dict[str, Any]:
+    """Gate 24a (d)'s variant at `capture` routed channels, built and
+    checked; returns the build."""
     # (d) physical pool APPEARS when the platform declares routed channels
     # render 0, not 8 or 16: this gate's subject is the OUTPUT (capture) pool
     # and the render count is incidental to it. #447 bounds the render count by
@@ -25179,14 +25216,16 @@ def _assert_physical_pool_reappears():
     # lane cannot back at all - so any nonzero render count here would declare
     # a shape the fabric refuses to elaborate. The dedicated refusals, in both
     # directions, are gate 24a (f).
-    p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
+    p = _pools_variant("ax7101_8x8", {"capture": capture, "render": 0},
                        {"pilot": True, "loopback": 2})
     try:
         r = eb.build(p, OUT / "_pools")
         P = r["overlay"]["stream_ports"]["output"][0]
-        assert [g["role"] for g in P["pool"]] == \
-            ["physical", "pilot", "loopback"], P
-        assert P["clusters"] == 16 + 1 + 2
+        roles = [g["role"] for g in P["pool"]]
+        assert roles == ["physical", "pilot", "loopback"], (
+            f"gate 24a (d): the talker pools are {roles}, not physical, "
+            "pilot, loopback")
+        assert P["clusters"] == capture + 1 + 2
         # With physical present the static map still does NOT go to loopback -
         # that was and remains the point of this assertion. The 0x0043
         # old preference order lost its subject when the retired pool was
@@ -25209,17 +25248,47 @@ def _assert_physical_pool_reappears():
         assert "Pilot Tone" in names
     finally:
         p.unlink()
-    print("  [gate 24a] declaring routed channels re-introduces the physical "
-          "pool AND moves the static map onto it (primary-role fallthrough)")
+    return r
 
 
-def _assert_overwide_pool_is_marked_not_emitted():
-    """Gate 24a (e): the over-wide D8 loopback pool VALIDATES, overflows
-    the 16-bit store, is marked rather than emitted, and --write-rtl
-    refuses it."""
+def _check_rom_ceiling(cfg: dict[str, Any], overlay: dict[str, Any]) -> None:
+    """The AEM ROM of `overlay` is refused at the 16-bit store's address
+    space, never emitted and never wrapped."""
+    try:
+        eb.emit_aem_rom_svh(cfg, overlay)
+    except ValueError as exc:
+        assert "exceeds the 16-bit store address space" in str(exc), exc
+    else:
+        raise AssertionError("gate 24a (e): the AEM ROM was emitted, so a "
+                             "model past 64 KiB would wrap the 16-bit store")
+
+
+def _check_rom_ceiling_marked(p: Path) -> None:
+    """Behind the NAME capacity, the builder marks a ROM past the 16-bit
+    store rather than emitting it, and --write-rtl refuses the shape."""
+    r = eb.build(p, OUT / "_pools")
+    assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
+    assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
+    assert "planned" in r["plan"]
+    try:
+        # write_fragment=False: the refusal fires AFTER the fragment
+        # write, so the probe would otherwise hand the tracked
+        # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
+        eb.build(p, OUT / "_pools", write_rtl=True, write_fragment=False)
+        assert False, "--write-rtl must refuse a shape with no ROM"
+    except eb.ConfigError as e:
+        assert "entity definition is incomplete" in str(e), e
+
+
+def _assert_overwide_pool_is_refused():
+    """Gate 24a (e): the over-wide D8 loopback pool is refused when it is
+    generated, by the saved-state NAME capacity with both figures named
+    (#652), and its own overlay's ROM is past the 16-bit store. With the
+    capacity planted at its name count, the ROM ceiling is the refusal
+    behind it: marked rather than emitted, and --write-rtl refuses it."""
     # (e) BOUNDARY: an over-wide loopback pool is the shape D8 sketches and
-    #     D6 predicted could not be stored - it must VALIDATE and be marked,
-    #     not crash and not silently wrap the 16-bit ROM address space.
+    #     D6 predicted could not be stored - it must be refused, not crash
+    #     and not silently wrap the 16-bit ROM address space.
     #     With only live fabric roles, loopback widens 64 -> 72 so the
     #     per-output-port total stays 89
     #     and the deliberate overflow is preserved: the ROM stays past the
@@ -25231,30 +25300,33 @@ def _assert_overwide_pool_is_marked_not_emitted():
     # at all - so any nonzero render count here would declare a shape the
     # fabric refuses to elaborate. The dedicated refusals are gate 24a (f), and
     # the INPUT half is then empty, which the total below states.
+    gate = "gate 24a (e)"
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 0},
                        {"pilot": True, "loopback": 72})
     try:
-        r = eb.build(p, OUT / "_pools")
-        assert r["overlay"]["descriptor_counts"]["AUDIO_CLUSTER"] == \
-            8*(16+1+72), r["overlay"]["descriptor_counts"]
-        assert r["aem_rom_svh"] is None, "a 64 KiB+ ROM must NOT be emitted"
-        assert "16-bit" in r["aem_rom_unsupported"], r["aem_rom_unsupported"]
-        # builder contract: it VALIDATES and lands in the plan, never errors
-        assert "planned" in r["plan"]
-        try:
-            # write_fragment=False: the refusal fires AFTER the fragment
-            # write, so the probe would otherwise hand the tracked
-            # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
-            eb.build(p, OUT / "_pools", write_rtl=True,
-                     write_fragment=False)
-            assert False, "--write-rtl must refuse a shape with no ROM"
-        except eb.ConfigError as e:
-            assert "entity definition is incomplete" in str(e), e
+        cfg = eb.load_config(p)
+        overlay = eb.emit_aem_overlay(cfg)
+        counts = overlay["descriptor_counts"]
+        assert counts["AUDIO_CLUSTER"] == 8*(16+1+72), counts
+        names = nvm_shape.expected_names(counts)
+        _check_names_refused(p, names, gate=gate)
+        _check_rom_ceiling(cfg, overlay)
+        with _planted_backend(_NAME_CAPACITY_DECL, f"N_NAME_MAX_C = {names};"):
+            caught = [_expect_red(f"capacity {names}", lambda: _check_names_refused(
+                p, names, gate=gate), f"{names} writable names accepted", gate=gate)]
+            _check_rom_ceiling_marked(p)
     finally:
         p.unlink()
-    print("  [gate 24a] the over-wide (72) D8 loopback pool VALIDATES, "
-          "exceeds the 16-bit AEM store address space, is marked rather "
-          "than emitted, and --write-rtl REFUSES it (D6 is the owner)")
+    shipped = eb.load_config(CONFIGS["ax7101_8x8"])
+    caught.append(_expect_red("the shipped 8x8 overlay", lambda: _check_rom_ceiling(
+        shipped, eb.emit_aem_overlay(shipped)), "the AEM ROM was emitted", gate=gate))
+    print(f"  [gate 24a] the over-wide (72) D8 loopback pool ({names} writable "
+          "names) is REFUSED at generation by the saved-state NAME capacity, "
+          "naming both figures, before any write; its own overlay's ROM "
+          "exceeds the 16-bit AEM store address space (D6 is the owner), and "
+          "behind a planted capacity it is marked rather than emitted and "
+          f"--write-rtl REFUSES it; {len(caught)}/{len(caught)} planted "
+          f"controls turned their check red: {'; '.join(caught)}")
 
 
 def test_d8_role_pools() -> None:
@@ -25326,7 +25398,7 @@ def test_d8_role_pools() -> None:
     _assert_physical_pool_reappears()
 
 
-    _assert_overwide_pool_is_marked_not_emitted()
+    _assert_overwide_pool_is_refused()
 
 
     _assert_render_lane_bounds_the_declared_width()
@@ -28715,6 +28787,234 @@ def test_rom_clock_skip_reaches_the_ledger() -> None:
           "NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger")
 
 
+# ================================================================== gate 38 ===
+#: The saved-state NAME block is record ids 0x80..0xFF
+#: (docs/design/SAVED_STATE_FASTCONNECT.md section 4.2). Pinned here, not read,
+#: so a moved bound reddens this gate rather than moving it with the builder.
+_NAME_BLOCK_RECORDS = 128
+#: The declaration the builder reads it from, as a control rewrites it.
+_NAME_CAPACITY_DECL = f"N_NAME_MAX_C = {_NAME_BLOCK_RECORDS};"
+#: Gate 38's shapes, by writable-name count: (listeners, talkers, clock
+#: sources) over the shipping 1x1 TDM8 config, each stream a numbered copy of
+#: its one stream line and None keeping the config's clock sources. Six
+#: talkers carry 129 names, dropping the per-listener stream clock source
+#: removes exactly one, and eight 8-channel streams each way is the point #649
+#: found the RTL refusing at elaboration.
+_NAME_BOUNDARY_SHAPES = {
+    128: (1, 6, ["internal", "crf"]),
+    129: (1, 6, None),
+    235: (8, 8, None),
+}
+
+
+def _name_boundary_variant(names: int) -> Path:
+    """A temp config with `names` writable names; the caller unlinks it. The
+    count is graded by the record-space gate's name slots over the builder's
+    overlay, not by the builder's own count, which is what is under test."""
+    listeners, talkers, sources = _NAME_BOUNDARY_SHAPES[names]
+
+    def widen(cfg: dict) -> None:
+        """Copy the one stream line per direction, numbered."""
+        streams = cfg["streams"]
+        first_in, first_out = streams["listeners"][0], streams["talkers"][0]
+        streams["listeners"] = [dict(first_in, name=f"Stream In {k}") for k in range(listeners)]
+        streams["talkers"] = [dict(first_out, name=f"Stream Out {k}") for k in range(talkers)]
+        if sources is not None:
+            cfg["clocking"]["media_clock_sources"] = sources
+
+    path = _variant(CONFIGS["ax7101_1x1_tdm8"], widen)
+    counts = eb.emit_aem_overlay(eb.load_config(path))["descriptor_counts"]
+    if nvm_shape.expected_names(counts) != names:
+        path.unlink()
+        raise AssertionError(f"gate 38: the {names}-name shape carries "
+                             f"{nvm_shape.expected_names(counts)} writable names")
+    return path
+
+
+def _check_names_accepted(path: Path, names: int) -> None:
+    """The config builds, and its shape header binds `names` name entries."""
+    with tempfile.TemporaryDirectory(prefix="gate38.") as tmp:
+        try:
+            header = eb.build(str(path), tmp)["adp_shape_svh"]
+        except eb.ConfigError as exc:
+            raise AssertionError(f"gate 38: {names} writable names refused: {exc}") from exc
+    bound = re.search(r"AEM_NAME_ENTRIES_C = (\d+);", header)
+    assert bound and int(bound.group(1)) == names, (
+        f"gate 38: the {names}-name shape header binds "
+        f"{bound.group(1) if bound else 'no'} name entries")
+
+
+def _check_names_refused(path: Path, names: int,
+                         build: Callable[[str, str], Any] = eb.build,
+                         gate: str = "gate 38") -> None:
+    """The config is refused before anything is written, naming its count,
+    the capacity and the declaration that capacity is read from. `build` is
+    the builder's, or a control's stand-in for it."""
+    capacity, where = eb.nvm_name_capacity()
+    with tempfile.TemporaryDirectory(prefix="gate38.") as tmp:
+        out = Path(tmp) / "out"
+        try:
+            build(str(path), str(out))
+        except eb.ConfigError as exc:
+            message = str(exc)
+        else:
+            raise AssertionError(f"{gate}: {names} writable names accepted "
+                                 f"against {capacity} NAME records")
+        assert not out.exists(), (
+            f"{gate}: the {names}-name refusal came after writing "
+            f"{sorted(p.name for p in out.rglob('*'))}")
+    for figure in (f"{names} writable names", f"{capacity} NAME records", where):
+        assert figure in message, (
+            f"{gate}: the {names}-name refusal does not name {figure!r}: {message}")
+
+
+def _check_guard_reads_capacity(rtl: str) -> None:
+    """KL_nvm_backend's one g_refuse_names guard bounds N_NAME_P by the
+    declaration the builder reads, so the two refuse at the same count."""
+    code = "\n".join(line.split("//", 1)[0] for line in rtl.splitlines())
+    guards = re.findall(r"\(([^()]*)\)\s*begin\s*:\s*g_refuse_names\b", code)
+    assert guards == ["N_NAME_P < 1 || N_NAME_P > N_NAME_MAX_C"], (
+        f"gate 38: KL_nvm_backend's g_refuse_names guard reads {guards}, not "
+        "N_NAME_MAX_C, so the RTL and the builder can refuse at different counts")
+
+
+@contextlib.contextmanager
+def _planted_backend(old: str, new: str) -> Iterator[Path]:
+    """eb.NVM_BACKEND_SV pointed at a copy of the backend with `old`, which
+    must occur once, replaced by `new`; the real path restored on exit."""
+    real = eb.NVM_BACKEND_SV
+    text = real.read_text(encoding="utf-8")
+    assert text.count(old) == 1, f"gate 38: control anchor {old!r} is not unique"
+    with tempfile.TemporaryDirectory(prefix="gate38-rtl.") as tmp:
+        planted = Path(tmp) / real.name
+        planted.write_text(text.replace(old, new), encoding="utf-8")
+        eb.NVM_BACKEND_SV = planted
+        try:
+            yield planted
+        finally:
+            eb.NVM_BACKEND_SV = real
+
+
+def _expect_red(label: str, check: Callable[[], None], reason: str,
+                gate: str = "gate 38") -> str:
+    """A planted defect: `check` must fail, and for `reason`."""
+    try:
+        check()
+    except (AssertionError, eb.ConfigError) as exc:
+        assert reason in str(exc), f"{gate} control {label}: red for another cause: {exc}"
+    else:
+        raise AssertionError(f"{gate} control {label}: the check stayed green")
+    return label
+
+
+def _raise_bare(_config: str, _outdir: str) -> None:
+    """A refusal that names no figure."""
+    raise eb.ConfigError("too many names")
+
+
+def _write_then_refuse(config: str, outdir: str) -> None:
+    """A refusal that comes after a file is written."""
+    Path(outdir).mkdir(parents=True)
+    (Path(outdir) / "soc_params.json").write_text("{}\n")
+    _raise_bare(config, outdir)
+
+
+def _name_capacity_controls(paths: dict[int, Path]) -> list[str]:
+    """Each boundary check, the refusal's wording and timing, the guard tie
+    and the reader's own refusals, each turned red by a planted defect."""
+    decl = _NAME_CAPACITY_DECL
+    caught = []
+    for planted, names, check, reason in (
+            (127, 128, _check_names_accepted, "128 writable names refused"),
+            (129, 129, _check_names_refused, "129 writable names accepted"),
+            (235, 235, _check_names_refused, "235 writable names accepted")):
+        with _planted_backend(decl, f"N_NAME_MAX_C = {planted};"):
+            caught.append(_expect_red(f"capacity {planted} vs {names} names",
+                                      lambda c=check, n=names: c(paths[n], n), reason))
+    caught.append(_expect_red("refusal naming no figure", lambda: _check_names_refused(
+        paths[129], 129, _raise_bare), "does not name"))
+    caught.append(_expect_red("refusal after a write", lambda: _check_names_refused(
+        paths[129], 129, _write_then_refuse), "came after writing"))
+    rtl = eb.NVM_BACKEND_SV.read_text(encoding="utf-8")
+    caught.append(_expect_red("guard on a literal", lambda: _check_guard_reads_capacity(
+        rtl.replace("N_NAME_P > N_NAME_MAX_C", f"N_NAME_P > {_NAME_BLOCK_RECORDS}")), "not N_NAME_MAX_C"))
+    for label, new, reason in (
+            ("declaration commented out", f"// {decl}", "0 live"),
+            ("declaration in hex", "N_NAME_MAX_C = 'h80;", "0 live"),
+            ("declaration repeated", f"{decl}\n  localparam int unsigned {decl}", "2 live")):
+        with _planted_backend(decl, new):
+            caught.append(_expect_red(label, eb.nvm_name_capacity, reason))
+    return caught
+
+
+def _name_guard_verdict(verilator: str, source: Path, names: int) -> str:
+    """KL_nvm_backend elaborated alone at N_NAME_P=`names`: "" when it
+    elaborates, else the g_refuse_names message; any other failure raises."""
+    with tempfile.TemporaryDirectory(prefix="gate38-vl.") as tmp:
+        run = subprocess.run(
+            [verilator, "--lint-only", "-Wall", "--Mdir", tmp, "--top-module",
+             "KL_nvm_backend", f"-GN_NAME_P={names}", str(source)],
+            capture_output=True, text=True, timeout=300)
+    if run.returncode == 0:
+        return ""
+    refusal = re.search(r"KL_nvm_backend: N_NAME_P=\d+ outside [^\n]*", run.stderr)
+    assert refusal, f"gate 38: KL_nvm_backend at N_NAME_P={names} failed otherwise: {run.stderr[-2000:]}"
+    return refusal.group(0)
+
+
+def _name_guard_elaborations() -> str:
+    """The RTL guard's verdict at the builder's boundary, and its tie to the
+    declaration the builder reads, where a Verilator is on PATH."""
+    verilator = shutil.which("verilator")
+    if verilator is None:
+        skip("gate 38", "no Verilator on this runner, so KL_nvm_backend was not "
+             "elaborated at 128 and 129 names: the builder's boundary was not "
+             "compared with the RTL guard's")
+        return "RTL elaboration not run"
+    real = eb.NVM_BACKEND_SV
+    assert _name_guard_verdict(verilator, real, 128) == "", \
+        "gate 38: KL_nvm_backend refuses the 128 names the builder accepts"
+    assert "N_NAME_P=129 outside 1..128" in _name_guard_verdict(verilator, real, 129), \
+        "gate 38: KL_nvm_backend accepts the 129 names the builder refuses"
+    with _planted_backend(_NAME_CAPACITY_DECL, "N_NAME_MAX_C = 127;") as planted:
+        assert "N_NAME_P=128 outside 1..127" in _name_guard_verdict(verilator, planted, 128), \
+            "gate 38: the RTL guard does not follow N_NAME_MAX_C"
+    return ("KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 "
+            "with N_NAME_MAX_C planted at 127")
+
+
+def test_name_count_fits_the_nvm_name_block() -> None:
+    """Gate 38 (#652): a model with more writable names than the saved-state
+    NAME block holds is refused when it is generated, not at synthesis. The
+    capacity is read from KL_nvm_backend.sv; 128 names build, 129 and the
+    8x8 TDM8 point (235) are refused naming both figures, and each check
+    has a planted control that turns it red."""
+    capacity, where = eb.nvm_name_capacity()
+    rtl = eb.NVM_BACKEND_SV.read_text(encoding="utf-8")
+    assert capacity == _NAME_BLOCK_RECORDS, \
+        f"gate 38: {where} declares {capacity} NAME records, the block holds {_NAME_BLOCK_RECORDS}"
+    assert _NAME_CAPACITY_DECL in rtl.splitlines()[int(where.rsplit(":", 1)[1]) - 1], \
+        f"gate 38: {where} is not the N_NAME_MAX_C declaration"
+    _check_guard_reads_capacity(rtl)
+    paths = {}
+    try:
+        for names in _NAME_BOUNDARY_SHAPES:
+            paths[names] = _name_boundary_variant(names)
+        _check_names_accepted(paths[128], 128)
+        _check_names_refused(paths[129], 129)
+        _check_names_refused(paths[235], 235)
+        caught = _name_capacity_controls(paths)
+        rtl_note = _name_guard_elaborations()
+    finally:
+        for path in paths.values():
+            path.unlink()
+    print(f"  [gate 38] capacity {capacity} read from {where}; 128 names built, "
+          "129 and the 8x8 TDM8 point (235) refused before any write, naming "
+          f"both figures; {rtl_note}")
+    print(f"  [gate 38] {len(caught)}/{len(caught)} planted defects turned their "
+          f"check red: {'; '.join(caught)}")
+
+
 if __name__ == "__main__":
     from test_declarations import test_declaration_contracts
     from test_clock_contract import (
@@ -28805,7 +29105,8 @@ if __name__ == "__main__":
                test_shipping_image_contract,
                test_soc_shipping_image_contract, test_shipping_image_contract_presence,
                test_pp_shadow_audio_unit_rates_match_config,
-               test_descriptor_fields_name_this_device):
+               test_descriptor_fields_name_this_device,
+               test_name_count_fits_the_nvm_name_block):
         print(f"{fn.__name__}:")
         fn()
     # The verdict names what did not run.  Printing SKIP inside a gate and

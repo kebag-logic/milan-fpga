@@ -170,6 +170,7 @@ Packet lengths and channel fields are checked separately.
 | Response memory | Ordered 592-byte store for AECP gPTP getters |
 | Descriptor memory | Builder-generated AEM image; 12-cycle initial read latency |
 | Auxiliary feedback | MMCM locked; DRP/phase acknowledgments idle; INTERNAL media selection |
+| Peer AAF talker | Six samples per PDU, one PDU per 3,072 audio-clock rising edges: it follows the DUT's INTERNAL media clock (#656) |
 | Ethernet liveness | Synthetic receive/transmit clock toggles |
 
 The ROM is separately generated as `gptp_ax1x1_ucode.hex`.
@@ -195,6 +196,15 @@ Audio uses diagnostic provisioning through documented CSR windows.
 The listener stream override and capture-map window select loopback.
 This run is **not licensed end-to-end streaming evidence**.
 The closed admission gate is checked before enabling bypass.
+
+The peer talker follows the DUT's media clock.
+It sends one six-sample PDU per 3,072 rising edges of the modeled audio clock.
+Since #629's A2-a the grid aligner holds the packet grid on that clock's FSYNC at INTERNAL.
+The loopback queue fills from the received PDUs and drains on the packet grid.
+A talker paced on the axis clock runs 10.64 ppm faster than that grid.
+The queue then drops one sample every 1.958 s and counts it at `SLIP_LB`.
+That honest slip between two clocks failed the order checks below (#656).
+No duplicate or gap is the expectation only for a talker on the DUT's media clock.
 
 Incoming PCM32 encodes channel identity and a monotonic sample index.
 All eight returned channels must match that supplied ramp.

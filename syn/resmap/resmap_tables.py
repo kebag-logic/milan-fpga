@@ -296,6 +296,16 @@ def redundancy_table(map_dir: Path) -> str:
     return table(["Routed block", "LUT", "FF", "RAMB36", "RAMB18", "DSP"], rows)
 
 
+def refusal_table(guards: dict) -> str:
+    """Every refused point, who refused it (the builder, before any shape existed, or an elaboration
+    guard) and the refusal, its location prefix dropped."""
+    builder = set(guards.get("by_builder", []))
+    rows = [[name, "builder" if name in builder else "elaboration guard",
+             "; ".join(f"`{message.split(': ', 1)[-1]}`" for message in messages)]
+            for name, messages in sorted(guards["refused"].items())]
+    return table(["Point", "Refused by", "Refusal"], rows or [["none", "-", "-"]], right_from=3)
+
+
 def render(sections: dict[str, str]) -> str:
     """Every table in a named, delimited block."""
     return "".join(f"<!-- table: {name} -->\n{body}<!-- end table: {name} -->\n\n" for name, body in sections.items())
@@ -348,11 +358,7 @@ def build(args: argparse.Namespace) -> dict[str, str]:
                                                                         for m in MEASURES)] for row in tdm["data"]])
     sections.update(calibration_tables(models))
     sections["redundancy-blocks"] = redundancy_table(args.map)
-    guards = models["guards"]
-    sections["guard-refusals"] = table(
-        ["Point", "Guard that fires"],
-        [[name, "; ".join(f"`{message.split(': ', 1)[-1]}`" for message in messages)]
-         for name, messages in sorted(guards["refused"].items())] or [["none", "-"]], right_from=2)
+    sections["guard-refusals"] = refusal_table(models["guards"])
     if (args.work / "soc" / "prices.json").is_file():
         sections.update(soc_tables(args.work))
     if args.soc_variants is not None:
@@ -361,7 +367,7 @@ def build(args: argparse.Namespace) -> dict[str, str]:
 
 
 def selftest() -> int:
-    """Formatting: separators, signs and the block delimiters."""
+    """Formatting: separators, signs, the block delimiters and who refused each refused point."""
     problems = []
     if num(50767) != "50,767" or num(0.5, 1) != "0.5" or num(None) != "-":
         problems.append("num formats wrong")
@@ -377,6 +383,11 @@ def selftest() -> int:
         problems.append(f"render wrong: {text!a}")
     problems += _selftest_page_check()
     problems += _selftest_soc_variants()
+    refused = refusal_table({"refused": {"g": ["a.sv:1:5: N_P=9 outside 1..8"], "b": ["CONFIG ERROR: 9 names"]},
+                             "by_builder": ["b"]})
+    if "| b | builder | `9 names` |" not in refused or "| g | elaboration guard | `N_P=9 outside 1..8` |" \
+            not in refused:
+        problems.append(f"refusal table: who refused each point is wrong: {refused!a}")
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"resmap_tables self-test: {'PASS' if not problems else 'FAIL'}")

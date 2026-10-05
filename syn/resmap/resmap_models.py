@@ -29,8 +29,11 @@ GUARDS FAIL CLOSED. A point enters a fit, a calibration ratio or the TDM model o
 when its guard record (yosys_sweep.py guards, carried into summary.json) is clean.
 A point whose record lists a firing elaboration guard is a shape the product
 refuses: it is left out of every fit and shown in the marginal tables as refused.
-A point with no record, or whose lint hit a hard error, is not known to be
-buildable, so the build stops naming it rather than fitting it as clean.
+A point whose shape the builder refused (summary.json's "builder" record, #652)
+was never priced: it is refused with the builder's line, left out of every fit,
+and has no marginal. A point with no record, or whose lint hit a hard error, is
+not known to be buildable, so the build stops naming it rather than fitting it as
+clean.
 
 Usage:
 
@@ -146,8 +149,12 @@ class GuardError(ValueError):
 
 
 def refusals(summary: dict, name: str) -> list[str]:
-    """The elaboration guards that fired on one point, as yosys_sweep.py guards recorded them. A point
-    with no record, or whose lint hit a hard error, raises GuardError: an unchecked shape is never clean."""
+    """The elaboration guards that fired on one point, as yosys_sweep.py guards recorded them, or the
+    builder's refusal of its shape. A point with neither record, or whose lint hit a hard error, raises
+    GuardError: an unchecked shape is never clean."""
+    builder = summary.get(name, {}).get("builder")
+    if builder is not None:
+        return [builder["refusal"]]
     guards = summary.get(name, {}).get("guards")
     if guards is None:
         raise GuardError(f"{name}: no guard record; run yosys_sweep.py guards, then summary")
@@ -228,7 +235,7 @@ def marginals(plan: dict, summary: dict, top: str, reference: str) -> dict:
     out = {}
     for point in plan["points"]:
         name = point["name"]
-        if point["top"] != top or name == reference or name not in summary:
+        if point["top"] != top or name == reference or "hierarchical" not in summary.get(name, {}):
             continue
         mine = summary[name]["hierarchical"]
         delta = {m: yosys_measures(mine["totals"])[m] - yosys_measures(base["totals"])[m] for m in MEASURES}
@@ -351,9 +358,9 @@ def tdm_model(plan: dict, summary: dict) -> dict:
     return {"data": rows, **{m: fit(rows, ("x",), m) for m in MEASURES}} if len(rows) >= 2 else {}
 
 
-def build(work: Path, map_dir: Path | None) -> dict:
-    """Every model and table from one work directory."""
-    plan = yosys_sweep.load_plan(yosys_sweep.PLAN)
+def build(work: Path, map_dir: Path | None, plan_path: Path = yosys_sweep.PLAN) -> dict:
+    """Every model and table from one work directory, under the tracked plan unless another is named."""
+    plan = yosys_sweep.load_plan(plan_path)
     summary = json.loads((work / "summary.json").read_text())
     unusable = []
     for name in sorted(summary):
@@ -363,7 +370,7 @@ def build(work: Path, map_dir: Path | None) -> dict:
             unusable.append(str(failure))
     if unusable:
         raise GuardError("; ".join(unusable))
-    known = {part for point in summary.values() for block in point["hierarchical"]["blocks"]
+    known = {part for point in summary.values() for block in point.get("hierarchical", {}).get("blocks", {})
              for part in block.split("/")}
     anchors = {p["name"]: load_anchor(work / "vivado" / p["name"], known)
                for p in plan["points"] if p.get("anchor") and (work / "vivado" / p["name"]).is_dir()}
@@ -379,6 +386,9 @@ def build(work: Path, map_dir: Path | None) -> dict:
     result["tdm_model"] = tdm_model(plan, summary)
     result["guards"] = {"checked": sorted(summary),
                         "refused": {name: refusals(summary, name) for name in summary if refusals(summary, name)}}
+    builder = sorted(name for name, entry in summary.items() if "builder" in entry)
+    if builder:
+        result["guards"]["by_builder"] = builder
     if map_dir is not None and "ship" in anchors:
         result["in_context"] = in_context(vivado_rows(map_dir / "map_hierarchy.rpt"), anchors["ship"], known)
     return result
@@ -420,11 +430,18 @@ def _selftest_inputs() -> tuple[dict, dict]:
     for value in (2, 4):
         add(f"pp-p{value}", "KL_pp_shadow", {"P": value}, 200 + 5 * value, _guard())
     add("pp-p8", "KL_pp_shadow", {"P": 8}, 9999, _guard("P=8 refused"))
+    plan["points"].append({"name": "s16", "top": "milan_datapath", "params": {STREAM_PARAM: 16}})
+    summary["s16"] = {"builder": {"refusal": BUILDER_REFUSAL_SELFTEST}}
     return plan, summary
 
 
+#: The refusal the synthetic builder-refused point carries: it was never priced, so it has no figures.
+BUILDER_REFUSAL_SELFTEST = "CONFIG ERROR: this AEM model has 999 writable names"
+
+
 def _selftest_guards() -> list[str]:
-    """A refused point leaves every fit; a missing or hard-error record stops the models, never reads clean."""
+    """A refused point leaves every fit; a point the builder refused is refused with its line and has no
+    marginal; a missing or hard-error record stops the models, never reads clean."""
     problems = []
     plan, summary = _selftest_inputs()
     streams = stream_models(plan, summary)["@total"]
@@ -440,6 +457,11 @@ def _selftest_guards() -> list[str]:
                for name in ("s1", "s8")}
     if "s8" in calibration(summary, anchors):
         problems.append("guards: the refused anchor entered the calibration")
+    if refusals(summary, "s16") != [BUILDER_REFUSAL_SELFTEST]:
+        problems.append(f"guards: the builder-refused point reads {refusals(summary, 's16')}")
+    margins = marginals(plan, summary, "milan_datapath", "s1")
+    if "s16" in margins or not margins.get("s8", {}).get("refusals"):
+        problems.append(f"guards: the marginals hold {sorted(margins)}: the unpriced point has none, s8 is refused")
     for label, damage in (("a missing record", lambda s: s["s2"].pop("guards")),
                           ("a hard-error record", lambda s: s["s2"]["guards"].update(errors=["%Error: x.sv:1"]))):
         _, broken = _selftest_inputs()
@@ -449,6 +471,28 @@ def _selftest_guards() -> list[str]:
             problems.append(f"guards: {label} was fitted as a guard-clean point")
         except GuardError:
             pass
+    return problems
+
+
+def _selftest_build() -> list[str]:
+    """build() over the synthetic inputs names the builder-refused point in guards.by_builder, beside its
+    refusal line, and writes no by_builder when no point carries a builder record."""
+    problems = []
+    plan, summary = _selftest_inputs()
+    plan["tops"]["milan_datapath"]["shape"] = yosys_sweep.BASE_CONFIG
+    plan["variants"] = {}
+    unrefused = {name: entry for name, entry in summary.items() if "builder" not in entry}
+    with tempfile.TemporaryDirectory(prefix="resmap-build-") as tmp:
+        work = Path(tmp)
+        (work / "plan.json").write_text(json.dumps(plan))
+        for label, entries, by_builder, line in (
+                ("a builder-refused point", summary, ["s16"], [BUILDER_REFUSAL_SELFTEST]),
+                ("no builder-refused point", unrefused, None, None)):
+            (work / "summary.json").write_text(json.dumps(entries))
+            guards = build(work, None, work / "plan.json")["guards"]
+            if guards.get("by_builder") != by_builder or guards["refused"].get("s16") != line:
+                problems.append(f"build: with {label}, guards.by_builder is {guards.get('by_builder')} and s16 "
+                                f"is refused by {guards['refused'].get('s16')}")
     return problems
 
 
@@ -481,7 +525,7 @@ def selftest() -> int:
     wanted = {"top/@own", "top/KL_gptp_shadow", "top/adp_tx_arbiter"}
     if set(blocks) != wanted or blocks["top/KL_gptp_shadow"]["BRAM"] != 1:
         problems.append(f"report blocks wrong: {blocks}")
-    problems += _selftest_guards()
+    problems += _selftest_guards() + _selftest_build()
     for problem in problems:
         print(f"SELF-TEST FAILED: {problem}")
     print(f"resmap_models self-test: {'PASS' if not problems else 'FAIL'}")
