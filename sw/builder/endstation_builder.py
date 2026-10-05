@@ -72,7 +72,6 @@ ROOT = HERE.parent.parent
 # anywhere on sys.path would win an import of it.
 BAREMETAL_CLK_HZ = runpy.run_path(ROOT / "tb/verilator/nvm_capture_cpu/recipe.py")["CPU_HZ"]
 sys.path.insert(0, str(ROOT))
-from sw.builder import aem_image_checks  # noqa: E402
 
 SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
@@ -2338,14 +2337,12 @@ def _entity_model_image(cfg, overlay):
     model = _aem.build_model(_aem.spec_from_overlay(overlay))
     # 576 = PP_DESC_LINE_BYTES_P. A descriptor longer than the store's line
     # buffer cannot be answered, and the packer is the only place that sees it.
+    # build() also lints the model by default (processor 07 section 3.1, L6
+    # and L10 among its rules) and refuses one the store cannot serve; gate
+    # 36b holds this emitter to that.
     blob, report = _img.build(
         _join.model_to_document(model, _join.identity_from_overlay(overlay)),
         576)
-    # Check the packed bytes served by the store, after every producer ran.
-    try:
-        aem_image_checks.validate_shipping_image(blob)
-    except aem_image_checks.ImageCheckError as exc:
-        raise ConfigError(f"aem_desc.bin: {exc}") from exc
     base = int(cfg["platform"]["pp_mem_phys"])
     manifest = {
         "desc_base": base,

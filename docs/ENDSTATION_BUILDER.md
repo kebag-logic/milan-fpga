@@ -579,11 +579,11 @@ read-only fetch master: the whole entity model lives in main memory at a
 `main_ram`.
 `milan_soc.build_desc_image()` packs the builder overlay using both generators:
 `avdecc/gen_aemi_image.py` and the processor's `gen_desc_image.py`.
-It checks the final bytes with `validate_shipping_image()`.
+The packer's `build()` lints the model by default (processor 07 section 3.1).
 The SoC CRC-binds those bytes into firmware constants.
 It writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` beside gateware.
-`_entity_model_image()` independently packs and checks test and audit images.
-Gate 36b tests both emitters and their packed-byte refusals.
+`_entity_model_image()` independently packs test and audit images the same way.
+Gate 36b tests both emitters against the lint's named L6, L10 and L1 refusals.
 Bare-metal boot verifies the image before copying and enabling advertisement.
 
 The bare-metal boot checks the generated image length and CRC before copying
