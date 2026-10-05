@@ -1,0 +1,30 @@
+| Check | Ports | What it proves | Planted defects that must fail it |
+|---|---|---|---|
+| `blank_boot` | model, LiteSPI | A blank board boots BLANK, releases AECP once, applies nothing, and stages the all-erased container the Python encoder writes. | `no_blank_verdict`, `pad_not_zero`, `header_n_rec`, `no_blank_stage` |
+| `golden_restore` | model, LiteSPI | A golden slot is chosen, every record is applied in the D3 order (the settle step once, between the maps and the names) and the state equals what klj2_decode reads out of the same bytes. | `settle_after_names`, `release_before_apply` |
+| `erased_records` | model, LiteSPI | An erased record applies nothing and keeps its image default; the framed ones beside it are applied (section 6.1, the erased-record rule). | `apply_erased` |
+| `newer_wins` | model, LiteSPI | The newer accepted slot wins, by the wrap-safe compare of section 7. | `pick_older`, `pick_no_wrap` |
+| `torn_falls_back` | model, LiteSPI | A torn newer slot falls back to the older one, whose records apply. | `no_crc_check` |
+| `both_torn_blank` | model, LiteSPI | Two torn slots boot on the defaults, naming the failure. | `verdict_not_named` |
+| `verdict_parity` | model, LiteSPI | For every section 6.2 refusal, both faces of the erased-record rule and a blank slot, the store's verdict equals klj2_decode's for the same bytes (the shipping writer suite's table, plus parity_extra). | `no_crc_check`, `erased_header_only`, `no_ascending`, `overrun_as_rec`, `incomplete_accepted` |
+| `wrong_version_falls_back` | model, LiteSPI | A newer slot of another major version is refused VD_VER, never reinterpreted, and the older slot is offered. | `no_version_check` |
+| `read_flip_at_stage` | model | The chosen slot is read again and judged again in RAM: a bit the read flips after the slot was judged is never applied; the other slot is. | `stage_not_rechecked` |
+| `apply_fault_rolls_back` | model, LiteSPI | A value rule that cannot be judged aborts the restore and rolls every value back to its image default: DEFAULTS, AECP released. | `no_rollback`, `fault_as_refusal` |
+| `settle_fault_rolls_back` | model, LiteSPI | A formats-against-maps judgement that cannot be made rolls back too. | `no_rollback`, `settle_fault_ignored` |
+| `rollback_fault_closes` | model, LiteSPI | A roll-back that fails ends CLOSED: AECP is never released and the writer never runs, so a later change reaches no slot. | `rollback_failure_ignored`, `release_on_closed` |
+| `model_unproven_closes` | model, LiteSPI | No entity model to judge against: CLOSED, nothing applied, AECP held. | `model_ready_ignored` |
+| `refused_keeps_default` | model, LiteSPI | A value its rule refuses keeps its image default and the walk goes on to apply every later record (section 8.3). | `refusal_aborts` |
+| `first_commit_bytes` | model, LiteSPI | A console commit on a blank board writes slot A with the all-erased container at sequence 1, byte for byte as nvm_klj2.py writes it, in one erase and one program per page. | `header_n_rec`, `descending_pages`, `litespi_no_wren`, `litespi_status_ignored` |
+| `change_commit_bytes` | model, LiteSPI | A change to the first record of every group commits into the slot that is not authoritative, at the next sequence, byte for byte as nvm_klj2.py writes the same records; the authoritative slot is untouched; and a boot from the result applies exactly the changed values (the round trip). | `frame_crc_init`, `same_sequence`, `erase_authoritative` |
+| `debounce` | model, LiteSPI | DR2a: a change commits after the 1,000 ms first-dirty window and not before, and a second change inside the window does not extend it. | `quiet_period`, `no_debounce` |
+| `unchanged_no_erase` | model, LiteSPI | DR2b: a change that leaves every persisted value as the verified slot holds it erases nothing. | `no_dr2b` |
+| `failed_commit_not_skipped` | model, LiteSPI | DR2b only suppresses what a VERIFIED slot holds: after a failed attempt, the retry writes the value again although the stage already carries it. | `dr2b_ignores_durability`, `no_verify` |
+| `media_failures` | model, LiteSPI | DR2c: an erase, program or read-back that fails names its verdict, returns the change to dirty, marks the claim stale, retries at most three times 1,000 ms apart and then stops; the authoritative slot is untouched. | `no_backoff`, `unbounded_attempts`, `no_blankcheck`, `no_verify`, `no_timeout` |
+| `recovers_after_failure` | model, LiteSPI | A third attempt that succeeds clears the stale claim; after exhaustion, a new change is a new work set and commits once the media answers. | `attempts_kept`, `stale_kept` |
+| `refused_slot_kept` | model, LiteSPI | DR5: with no slot accepted, a blank slot takes the first commit before a refused one, so a refused image is not erased merely for being refused. | `refused_slot_overwritten` |
+| `service_bound` | model, LiteSPI | Every service step is bounded and returns: no step touches more than one latched record or one 256-byte stretch, no call holds the loop past CALL_BOUND_US of link time, and the loop keeps running through a 3 s erase (one status poll per call). | `capture_in_one_step`, `spin_wait` |
+| `powercut` | model, LiteSPI | A power cut inside every media effect of a commit (the erase and every page program, at 0, 1/256, 1/2 and 255/256 of it) and during the read-back: the board boots the old values or the new ones exactly, never a mix, never touching the authoritative slot, and the next change commits. Three starting points: blank media, one slot, two slots. | `no_crc_anywhere`, `erase_authoritative` |
+| `vector_round_trip` | model, LiteSPI | The round trip against the parent's recorded vector: the store, given the vector's records, commits the container tb/verilator/nvm_backend grades the RTL against (its length, CRC-32 and every record's offset), byte for byte as nvm_klj2.py assembles it, and boots it back to the same values. | `frame_crc_init` |
+| `port_guard` | LiteSPI | The LiteSPI port refuses to program or erase outside the journal. | `litespi_no_guard` |
+
+46 planted defects; every check is named by at least one: True
