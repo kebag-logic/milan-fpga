@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P7-writer-writes-image/milan_datapath.sv	2026-10-05 16:46:36.457000000 +0200
+@@ -4597,7 +4597,7 @@
+           && ADP_DMAP_IN_RPHYS_C[k][6]) begin
+         amap_boot_iwr_w = 1'b1;
+         amap_boot_iaddr_w = ADP_DMAP_IN_RPHYS_C[k][5:0];
+-        amap_boot_iword_w = amap_in_store_r[k*8 +: 8];
++        amap_boot_iword_w = AMAP_IN_IMAGE_C[k*8 +: 8];
+       end
+     for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+       if ((32'(amap_boot_k_r) == k) && aecp_odmap_dyn_w) begin

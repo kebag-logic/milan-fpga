@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P4-clip-off-by-one/milan_datapath.sv	2026-10-05 16:45:59.288000000 +0200
+@@ -4538,7 +4538,7 @@
+       for (int s = 0; s < AMAP_IN_PORTS_C; s++)
+         if (AMAP_IN_IMAGE_C[k*8 + 7]
+             && (32'(AMAP_IN_IMAGE_C[k*8 + 3 +: 3]) == s)
+-            && (32'(AMAP_IN_IMAGE_C[k*8 +: 3]) < 32'(amap_in_ch_w[s])))
++            && (32'(AMAP_IN_IMAGE_C[k*8 +: 3]) <= 32'(amap_in_ch_w[s])))
+           amap_in_boot_w[k*8 +: 8] = AMAP_IN_IMAGE_C[k*8 +: 8];
+     amap_out_boot_w = '0;
+     for (int k = 0; k < AMAP_OUT_KEYS_C; k++)

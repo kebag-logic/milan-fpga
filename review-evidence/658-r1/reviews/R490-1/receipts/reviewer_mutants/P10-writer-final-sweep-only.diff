@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P10-writer-final-sweep-only/milan_datapath.sv	2026-10-05 16:46:37.114000000 +0200
+@@ -4556,7 +4556,7 @@
+   logic                      amap_boot_r, amap_boot_last_r, amap_boot_drain_r;
+   logic [AMAP_BOOT_KW_C-1:0] amap_boot_k_r;
+   wire amap_boot_wrap_w = (32'(amap_boot_k_r) == AMAP_BOOT_KEYS_C - 1);
+-  wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;
++  wire amap_boot_wr_w   = amap_boot_last_r;
+   assign amap_boot_busy_w = amap_boot_wr_w || amap_boot_drain_r;
+ 
+   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_boot_walk

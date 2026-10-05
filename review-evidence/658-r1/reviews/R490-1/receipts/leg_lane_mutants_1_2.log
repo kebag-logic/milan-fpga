@@ -1,0 +1,5 @@
+[PASS] the unmutated gateware still passes the dynmap leg
+[PASS] mutant caught: an empty reset: the power-on image holds no mapping - breaks "[DYNMAP] power-on SPI 0: number_of_mappings" (its tallies report 39 failure(s) across 142 checks)
+[PASS] mutant caught: no clip after the restore: the window ignores a restored input format - breaks "[DYNMAP] restored SPI 0: number_of_mappings" (its tallies report 5 failure(s) across 142 checks)
+
+3 checks: 3 PASS, 0 FAIL

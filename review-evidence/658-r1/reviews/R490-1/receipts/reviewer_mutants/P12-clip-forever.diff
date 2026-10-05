@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P12-clip-forever/milan_datapath.sv	2026-10-05 16:47:16.539720301 +0200
+@@ -4759,7 +4759,7 @@
+               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
+       end
+       //! #658 boot clip: the window holds the stores at the clipped image
+-      if (amap_boot_r) begin
++      if (1'b1) begin
+         amap_in_store_r <= amap_in_boot_w;
+         amap_out_owner_v_r <= amap_out_boot_w;
+         amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);

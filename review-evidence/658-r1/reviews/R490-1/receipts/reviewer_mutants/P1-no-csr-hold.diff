@@ -1,0 +1,38 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P1-no-csr-hold/milan_datapath.sv	2026-10-05 16:45:59.281000000 +0200
+@@ -1256,7 +1256,7 @@
+     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
+                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
+                     (!aecp_odmap_wr_p_w && !amap_edit_txn_active_r
+-                     && !amap_boot_busy_w && !aecp_locked
++                     && !aecp_locked
+                      && cfg_chmap_wr_en &&
+                      cfg_chmap_wr_side &&
+                      32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
+@@ -4739,7 +4739,7 @@
+         endcase
+       end
+       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+-          && !amap_boot_busy_w && !aecp_locked
++          && !aecp_locked
+           && cfg_chmap_wr_en && cfg_chmap_wr_side
+           && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
+         amap_out_owner_v_r[
+@@ -4751,7 +4751,7 @@
+           <= cfg_cmap_cluster_w[15:0];
+       end
+       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+-          && !amap_boot_busy_w && !aecp_locked
++          && !aecp_locked
+           && cfg_chmap_wr_en && !cfg_chmap_wr_side
+           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
+         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+@@ -6783,7 +6783,7 @@
+     .map_wr_en_i   ((aecp_dmap_wr_p_w &&
+                      32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
+                     (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
+-                     && !amap_boot_busy_w && !aecp_locked
++                     && !aecp_locked
+                      && cfg_chmap_wr_en &&
+                      !cfg_chmap_wr_side &&
+                      cfg_chmap_rphys_w[6]

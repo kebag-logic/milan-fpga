@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P2-no-edit-wait/milan_datapath.sv	2026-10-05 16:45:59.281000000 +0200
+@@ -4355,7 +4355,7 @@
+     endcase
+   end : amap_edit_validate
+ 
+-  assign pp_amap_edit_wait_w = amap_boot_busy_w;
++  assign pp_amap_edit_wait_w = 1'b0;
+ 
+   // Preserve the store's input-change priority. The same comparisons feed
+   // the shadow's pending input on this axis_clk edge.
