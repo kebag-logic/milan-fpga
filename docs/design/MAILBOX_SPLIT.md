@@ -392,19 +392,22 @@ equal too.
 The switch-on skeleton, `KL_mbx` behind `KL_mbx_wb` wired as the SoC wires
 them (`tb_mbx_top` with `HOST_P=0`), out of context on `xc7a100tfgg484-2` at
 the 100 MHz system clock, Vivado 2026.1 default directives, synthesized,
-placed and routed (2026-10-05, the lane's head):
+placed and routed (2026-10-05, the lane's round-2 RTL):
 
 | Block | LUT | FF | RAMB36 | RAMB18 |
 |---|---:|---:|---:|---:|
-| `KL_mbx_rx` (filter, buckets, RX writer) | 1,006 | 994 | 0 | 0 |
-| `KL_mbx_evt` (16 timer slots, poster, tick) | 711 | 978 | 0 | 0 |
-| `KL_mbx_tx` (TX merge) | 678 | 256 | 0 | 0 |
-| `KL_mbx` registers, decode, read mux | 276 | 484 | 0 | 0 |
+| `KL_mbx_rx` (filter, buckets, RX writer) | 1,003 | 994 | 0 | 0 |
+| `KL_mbx_evt` (16 timer slots, poster, tick) | 731 | 978 | 0 | 0 |
+| `KL_mbx_tx` (TX merge in commit order) | 546 | 280 | 0 | 0 |
+| `KL_mbx` registers, decode, read mux | 275 | 484 | 0 | 0 |
 | the eleven rings (flattened into `KL_mbx`) | | | 1 | 10 |
 | `KL_mbx_wb` | 66 | 1 | 0 | 0 |
-| **Total** | **2,756** | **2,713** | **1** | **10** |
+| **Total** | **2,641** | **2,737** | **1** | **10** |
 
-All nets routed, WNS +0.311 ns at 10 ns, no DSP. The rows sum to 2,737 LUT:
+All 5,524 routable nets routed, WNS +0.240 ns at 10 ns, no DSP. The
+commit-order scan replaced the round-robin arbiter's modulo logic, so the
+merge is 132 LUT smaller than the round-1 merge (678), and the whole skeleton
+115 smaller (2,756 at the round-1 RTL). The rows sum to 2,621 LUT:
 the remainder is logic of the flattened rings and LUTs Vivado combined across
 the hierarchy. The eleven rings (ten channel rings and the event ring) are one
 block RAM each: the SRP receive ring the RAMB36, every other a RAMB18. There is no
