@@ -431,14 +431,16 @@ def check_port_stall(b: Bench, port: str) -> list[str]:
 
 
 def check_port_deadline(b: Bench, port: str) -> list[str]:
-    """No call outlasts the port's deadline, LS_CALL_US of timer0 time, even
-    when the master keeps progressing inside every wait. Ten waits slowed by
-    4,000 status reads each (1.6 ms in one page program) and the call
-    completes. Every wait slowed by 4,000 reads, none of them reaching
-    LS_POLL_MAX, and each page program fails at the deadline: the attempt
-    fails VD_PROGRAM, the authority is untouched, three attempts are spent
-    and the loop keeps running; once the master is well, a changed value
-    commits. Every call stays within CALL_BOUND_US of model time."""
+    """No call is still waiting on the master past the port's deadline,
+    LS_CALL_US of timer0 time, even when the master keeps progressing inside
+    every wait. Ten waits slowed by 4,000 status reads each (1.6 ms in one
+    page program) and the call completes. Twelve, the slow part ending just
+    before the deadline, and the call completes past it at the ready pace,
+    within CALL_BOUND_US. Every wait slowed by 4,000 reads, none of them
+    reaching LS_POLL_MAX, and each page program fails at the deadline: the
+    attempt fails VD_PROGRAM, the authority is untouched, three attempts are
+    spent and the loop keeps running; once the master is well, a changed
+    value commits. Every call stays within CALL_BOUND_US of model time."""
     f: list[str] = []
     golden = b.assemble(b.frames, 5)
     g = b.file("g.bin", golden)
@@ -448,6 +450,9 @@ def check_port_deadline(b: Bench, port: str) -> list[str]:
     r = go(b, port, f, *head, "--ls-stall", "tx:10:0:4000", "--until-idle")
     expect(f, r.s["ok"] == 1 and r.s["failed"] == 0 and r.s["ls_stalled"] == 10
            and 1600 <= r.s["max_call_us"] < LS_CALL_US, f"ten slowed waits: {r.s}")
+    r = go(b, port, f, *head, "--ls-stall", "tx:12:0:4000", "--until-idle")
+    expect(f, r.s["ok"] == 1 and r.s["failed"] == 0 and r.s["ls_stalled"] == 12
+           and LS_CALL_US < r.s["max_call_us"] <= CALL_BOUND_US, f"twelve slowed waits: {r.s}")
     r = go(b, port, f, *head, "--ls-stall", "tx:999999:0:4000", "--run-ms", "10000",
            "--dump-slot-b", "b.bin", "--ls-stall", "none:0",
            "--set", f"{rid}:{_value(b, rid, 31).hex()}", "--until-idle", allow=("ls_short",))

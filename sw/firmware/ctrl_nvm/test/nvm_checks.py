@@ -42,13 +42,17 @@ LS_CALL_US = 2000
 #: The link time of one page program, (5 + 256) bytes at 0.64 us, 167.04 us
 #: rounded up: the command-master model charges it when chip select rises.
 PAGE_LINK_US = 168
+#: One page program's 1,050-odd command-master accesses at 40 ns, the master
+#: ready for each.
+PAGE_ACCESS_US = 42
 #: The longest one service call may hold the loop, in model time, whatever
 #: the master does (README, "The service bound"): the deadline; one check
-#: interval, 64 status reads and two timer reads at 40 ns; and the link time
-#: of the window the call closes. CPU work costs no model time.
-CALL_BOUND_US = LS_CALL_US + 3 + PAGE_LINK_US
-#: A call with no stall armed: one page program's link time and its
-#: 1,050-odd command-master accesses at 40 ns, 42 us.
+#: interval, 64 status reads and two timer reads at 40 ns; the rest of the
+#: call at the ready pace, when the master stops being slow just before the
+#: deadline; and the link time of the window the call closes. CPU work
+#: costs no model time.
+CALL_BOUND_US = LS_CALL_US + 3 + PAGE_ACCESS_US + PAGE_LINK_US
+#: A call with no stall armed: one page program's link time and accesses.
 NOMINAL_CALL_US = 250
 TABLE_DIR = ROOT / "tb/verilator/nvm_backend"
 LITESPI = "--litespi"

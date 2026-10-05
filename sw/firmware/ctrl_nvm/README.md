@@ -87,13 +87,14 @@ readiness. Two limits end a wait:
 - **Per wait.** `LS_POLL_MAX` = 4,096 status reads without the readiness it
   waits for. This counts reads without progress, the rule of D3 section 8.8.
 - **Per call.** A master that is slow but moving keeps every wait under
-  4,096 reads, and a page program makes 522 waits and two drains. So the
-  call also ends once it has run `LS_CALL_US` = 2,000 us of `timer0` time
-  since it began. That is twelve times the 167 us a page program's 261 bytes
-  take on the 1x link. The port reads `timer0` when the call begins, and
-  then once every `LS_LATE_EVERY` = 64 status reads that find the master not
-  ready, counted over the whole call, so a ready master costs one timer
-  read.
+  4,096 reads, and a page program makes 522 waits and two drains. So a call
+  that is still waiting on the master once it has run `LS_CALL_US` = 2,000
+  us of `timer0` time since it began fails too. That is twelve times the
+  167 us a page program's 261 bytes take on the 1x link. The port reads
+  `timer0` when the call begins, and then once every `LS_LATE_EVERY` = 64
+  status reads that find the master not ready, counted over the whole call.
+  So a ready master costs one timer read, and a master that stops being slow
+  just before the deadline lets the call finish at the ready pace.
 
 Either way the call releases chip select and fails, and the store fails that
 attempt under the step's verdict: `VD_PROGRAM` for a program, `VD_ERASE` for
@@ -115,8 +116,9 @@ per pass and `nvm_store_changed()` from the protocol adapters.
 1. A record walk that disagrees with the build turns persistence off: no
    slot is read, and the entity runs on its defaults (**DEFAULTS**, DR3b),
    or **CLOSED** if its model is unproven too.
-2. Each slot is read into the stage in ONE read and judged there by the
-   section 6.2 order, including the erased-record rule. Its CRC, its records
+2. Each judgement of a slot reads it into the stage in ONE read and judges
+   it there by the section 6.2 order, including the erased-record rule. Its
+   CRC, its records
    and the sequence the pick uses all come from the same bytes. The verdicts
    equal `scripts/nvm_klj2.py`'s `klj2_decode` for the same bytes. A
    container longer than the stage can never be this shape's; its CRC is
@@ -150,8 +152,8 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    whole, and `rollback(NVM_W_BIND)` drops every binding it preloaded. The D3
    walk runs either way. A walk whose preloads cannot be dropped leaves the
    listener unproven and ends **CLOSED**.
-6. **The model check** (step 6). The binding walk needs no entity model, so
-   it ran already. An unproven model ends the restore **CLOSED**: nothing of
+6. **The model check** (D3 section 8.1 step 6). The binding walk needs no
+   entity model, so it ran already. An unproven model ends the restore **CLOSED**: nothing of
    the D3 walk is applied, AECP is never released and no writer runs. The
    bindings stay, because CLOSED "does not take the listener's faces back"
    (section 8.1). Blank media with an unproven model is CLOSED too.
@@ -255,17 +257,22 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   and 210 us on LiteSPI.
 - **The cumulative bound for a slow or stalled master, asserted in model
   time.** Every run, stalled or not, holds every service call under
-  `CALL_BOUND_US` = 2,171 us. That is the port's deadline (2,000 us), plus
-  one check interval (64 status reads and two timer reads at 40 ns, 3 us),
-  plus the link time of the window the failing call closes, which the model
-  charges when chip select rises (at most 168 us). Measured at 1x1 and 8x8
-  (`port_stall`, `port_deadline`):
+  `CALL_BOUND_US` = 2,213 us. That is the sum of four terms:
+  - the port's deadline, 2,000 us;
+  - one check interval: 64 status reads and two timer reads at 40 ns, 3 us;
+  - the rest of the call at the ready pace, when the master stops being slow
+    just before the deadline: at most a page program's accesses, 42 us;
+  - the link time of the window the call closes, which the model charges
+    when chip select rises: at most 168 us.
+
+  Measured at 1x1 and 8x8 (`port_stall`, `port_deadline`):
 
   | Master | Longest call | Outcome |
   |---|---:|---|
   | two TX or two RX waits of one page program slowed by 4,000 reads | 539 us | the commit completes |
   | two drains slowed by 4,000 reads | 859 us | the commit completes |
   | ten TX waits slowed by 4,000 reads | 1,859 us | the commit completes |
+  | twelve TX waits slowed by 4,000 reads, the last ending just before the deadline | 2,189 us | the call finishes past the deadline at the ready pace; the commit completes |
   | every TX wait slowed by 4,000 reads, none reaching `LS_POLL_MAX` | 2,009 us | each page program fails at the deadline, three attempts, the set abandoned, the authority untouched |
   | TX stalled for good in one wait | 210 us | that call fails after 4,096 reads, 164 us; the retry commits |
   | a drain that never empties | 333 us | that call fails after 4,097 drain reads; the retry commits |
@@ -275,11 +282,13 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   model time (the planted defect `call_deadline_ignored`).
 - **CPU time, not measured.** This store is in no image, so nothing ran it on
   the CPU. What can be said:
-  - a port call on chip ends by its own deadline, which is `timer0` time and
-    so real time: 2,000 us after it began, plus at most 64 status reads, two
-    timer reads and the chip-select release. That holds whatever a CSR
-    access costs, provided `timer0` runs as "The flash port" requires. If it
-    does not run, only the per-wait limit is left, and each of a page
+  - a port call on chip is held to its own deadline, which is `timer0` time
+    and so real time. A call still waiting on the master 2,000 us after it
+    began fails within 64 more status reads, two timer reads and the
+    chip-select release. One that stops waiting before then finishes at the
+    ready pace, at most the rest of one page program. That holds whatever a
+    CSR access costs, provided `timer0` runs as "The flash port" requires.
+    If it does not run, only the per-wait limit is left, and each of a page
     program's 522 waits and two drains could take 4,096 reads;
   - the store's own work in one step is DERIVED, as a floor only. The
     longest is the capture of the largest record. At the capture receipt's
@@ -359,7 +368,8 @@ there).
   - the time base under PHC steps of 60 s either way in the window, the
     backoff, an erase and a program, and across the counter's wrap;
   - a command master slowed in two waits, stalled on TX, RX or the drain,
-    and dead; slowed in ten waits and in every wait (the per-call deadline);
+    and dead; slowed in ten waits, in twelve and in every wait (the per-call
+    deadline);
   - the service bound through a 3 s erase, and the port guard.
 - **Power loss.** `--powercut` cuts the power inside every media effect of a
   commit, at 0, 1/256, 1/2 and 255/256 of it, and during the read-back. It

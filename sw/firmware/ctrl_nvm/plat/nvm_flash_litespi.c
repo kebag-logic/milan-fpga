@@ -20,10 +20,10 @@
  *     docs/design/SAVED_STATE_MATERIALIZATION.md section 8.8: the bound
  *     counts reads without progress;
  *   - every call is bounded too: a master that is slow but moving keeps each
- *     wait inside LS_POLL_MAX, so a call also fails, chip select released,
- *     once it has run LS_CALL_US of timer0 time. The check runs every
- *     LS_LATE_EVERY status reads that find the master not ready, counted
- *     over the whole call;
+ *     wait inside LS_POLL_MAX, so a call still waiting on it once it has run
+ *     LS_CALL_US of timer0 time fails as well, chip select released. The
+ *     check runs every LS_LATE_EVERY status reads that find the master not
+ *     ready, counted over the whole call;
  *   - program and erase are refused outside the reserved journal;
  *   - time is timer0, not the PHC.
  *
