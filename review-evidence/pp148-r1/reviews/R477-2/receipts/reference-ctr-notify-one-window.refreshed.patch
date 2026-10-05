@@ -1,0 +1,16 @@
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -1297,10 +1297,11 @@
+                   ctr_pend_r[pick_ctr_ix_w] <= 1'b0;
+                   // Provisional stamp: it keeps the window shut until the
+                   // round's first job reaches N_EMIT_WAIT, whose stamp then
+                   // follows each job to its send, so the limit runs from the
+                   // round's last send (issue #148).
+-                  ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+-                  ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
++                  ctr_sent_r <= '1;
++                  for (int unsigned c = 0; c < N_CTR_DESC_C; c++)
++                    ctr_last_r[c] <= now_ms_i;
+                 end else begin
+                   em_excl_v_r <= 1'b0;
+                   if (pick_kind_w == PP_UNS_AVB_C)      pe_avb_r <= 1'b0;

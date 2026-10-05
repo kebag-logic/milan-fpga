@@ -1,0 +1,27 @@
+== bed5f47785839800bb640d7c747f5435f84ab5a3: ctr_mutants.plant(tree, 'ctr-notify-one-window') via the driver's own code
+PLANTED
+plant rc=0
+== 356c1bbad2e9838659b433736040acf0cc4abf3e: ctr_mutants.plant(tree, 'ctr-notify-one-window') via the driver's own code
+error: patch failed: hdl/aecp/KL_aecp_notify.sv:1233
+error: hdl/aecp/KL_aecp_notify.sv: patch does not apply
+plant() raised CalledProcessError: Command '['git', 'apply', '--check', '$REVIEWS/pp148-r477-2-packet/scratch/ctrarm/src-356c1bbad2e9838659b433736040acf0cc4abf3e/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch']' returned non-zero exit status 1.
+plant rc=3
+== refreshed patch: the committed patch with its two context comment lines replaced by NEW's four
+3c3
+< @@ -1233,8 +1233,9 @@
+---
+> @@ -1297,10 +1297,11 @@
+5,6c5,8
+<                    // Measure the one-second limit from emission selection,
+<                    // not from the possibly much earlier pending instant.
+---
+>                    // Provisional stamp: it keeps the window shut until the
+>                    // round's first job reaches N_EMIT_WAIT, whose stamp then
+>                    // follows each job to its send, so the limit runs from the
+>                    // round's last send (issue #148).
+refreshed patch PLANTED at 356c1bbad2e9838659b433736040acf0cc4abf3e
+ecb0824fa13f00bd7c8c7106bb000c36015e94a81c47359ffbb62c864cbdad9d  plant-bed5f47785839800bb640d7c747f5435f84ab5a3/planted.v
+ecb0824fa13f00bd7c8c7106bb000c36015e94a81c47359ffbb62c864cbdad9d  plant-refreshed/planted.v
+a92a31fc6d687d9cd9e006559b85be02f85b2edf2f224d7075e30eb7bb9a0d56  src-bed5f47785839800bb640d7c747f5435f84ab5a3/unplanted.v
+planted design at NEW (refreshed patch) == planted design at OLD (committed patch): IDENTICAL
+planted design differs from the unplanted design (the arm is a real edit)
