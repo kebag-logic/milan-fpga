@@ -1,0 +1,55 @@
+test_a_capture_with_no_MRP_says_it_needs_the_tap (__main__.self_test.<locals>.T.test_a_capture_with_no_MRP_says_it_needs_the_tap)
+Every SRP check SKIPs and says INLINE TAP when no MRP was captured, ... ok
+test_aaf_channels_per_frame_spans_two_octets (__main__.self_test.<locals>.T.test_aaf_channels_per_frame_spans_two_octets)
+A 10-bit count split 2+8 across two octets survives the decode. ... ok
+test_aaf_decode_matches_the_figure (__main__.self_test.<locals>.T.test_aaf_decode_matches_the_figure)
+Every Figure 26 field survives the decode of a frame built, by hand, ... ok
+test_aaf_stream_format_qword_round_trip (__main__.self_test.<locals>.T.test_aaf_stream_format_qword_round_trip)
+The Annex I.2.4 field extraction, ut bit included - and a CRF qword ... ok
+test_adp_82_byte_rule_and_available_index (__main__.self_test.<locals>.T.test_adp_82_byte_rule_and_available_index)
+The ADPDU is 82 octets and available_index must ADVANCE: a repeat ... ok
+test_an_empty_capture_produces_NO_PASS_AND_NO_SILENCE (__main__.self_test.<locals>.T.test_an_empty_capture_produces_NO_PASS_AND_NO_SILENCE)
+The empty-collection rule, both halves. ... ok
+test_available_index_resets_after_departing (__main__.self_test.<locals>.T.test_available_index_resets_after_departing)
+6.2.2.15: the index resets to 0 after an ENTITY_DEPARTING, so the ... ok
+test_class_a_transit_skips_without_a_gptp_reference (__main__.self_test.<locals>.T.test_class_a_transit_skips_without_a_gptp_reference)
+Transit time is unmeasurable without a gPTP reference, so it SKIPs ... ok
+test_control_length_lie (__main__.self_test.<locals>.T.test_control_length_lie)
+A frame claiming 200 octets while carrying 56 is malformed however ... ok
+test_crf_decode_matches_the_figure (__main__.self_test.<locals>.T.test_crf_decode_matches_the_figure)
+Every Figure 72 field survives the decode of a hand-built frame. ... ok
+test_crf_rate_and_format (__main__.self_test.<locals>.T.test_crf_rate_and_format)
+Milan 7.3.2 fixes 48000 Hz and interval 96, so the expected media ... ok
+test_crf_sequence_is_one_octet (__main__.self_test.<locals>.T.test_crf_sequence_is_one_octet)
+The CRF sequence is ONE octet: reading it as 16 bits would turn the ... ok
+test_crf_stream_format_is_the_milan_constant (__main__.self_test.<locals>.T.test_crf_stream_format_is_the_milan_constant)
+Milan v1.2 Table 7.1's pinned qword decodes to the Annex I.2.6 ... ok
+test_declared_vs_wire_catches_the_2026_07_27_escape (__main__.self_test.<locals>.T.test_declared_vs_wire_catches_the_2026_07_27_escape)
+The escape itself: 8 channels declared, 2 on the wire, one FAIL ... ok
+test_empty_capture_is_not_a_pass (__main__.self_test.<locals>.T.test_empty_capture_is_not_a_pass)
+No stream frames reads FAIL, never PASS - a mirror port that never ... ok
+test_header_legality_negatives (__main__.self_test.<locals>.T.test_header_legality_negatives)
+The three headers 7.3.3/7.3.4 forbid outright - zero channels, zero ... ok
+test_msrp_decode_from_the_clause_byte_layout (__main__.self_test.<locals>.T.test_msrp_decode_from_the_clause_byte_layout)
+802.1Q-2018 35.2.2.8: StreamID(8) + DataFrameParameters(8) + ... ok
+test_pcap_round_trip_with_tap_header_and_fcs (__main__.self_test.<locals>.T.test_pcap_round_trip_with_tap_header_and_fcs)
+A tap-shaped pcap survives read_capture frame-for-frame, timestamps ... ok
+test_pts_step_is_one_avtpdu_of_media (__main__.self_test.<locals>.T.test_pts_step_is_one_avtpdu_of_media)
+The PTS must advance by exactly one AVTPDU of media (6 samples at ... ok
+test_sequence_gap_and_wrap (__main__.self_test.<locals>.T.test_sequence_gap_and_wrap)
+4.4.4.6: 255 -> 0 is a WRAP, a skipped number is a gap - and the CRF ... ok
+test_the_28_octet_tap_record_header_is_handled_and_tested (__main__.self_test.<locals>.T.test_the_28_octet_tap_record_header_is_handled_and_tested)
+The ProfiShark inline tap prepends a 28-octet record header, so ... ok
+test_the_srp_licence_is_visible_only_from_the_tap (__main__.self_test.<locals>.T.test_the_srp_licence_is_visible_only_from_the_tap)
+Milan v1.2 5.3.7.3 + 5.3.7.2, from the wire. ... ok
+test_vlan_checks_and_the_vid_zero_defect (__main__.self_test.<locals>.T.test_vlan_checks_and_the_vid_zero_defect)
+VID 0 on a stream frame and an untagged CRF are each a FAIL; the ... ok
+test_walking_tone_identity (__main__.self_test.<locals>.T.test_walking_tone_identity)
+A swap, a duplicate and a dropped channel are three DIFFERENT ... ok
+test_zero_fill_both_directions (__main__.self_test.<locals>.T.test_zero_fill_both_directions)
+Milan 5.3.7.3 in both directions: a stream declared silent must be ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.007s
+
+OK

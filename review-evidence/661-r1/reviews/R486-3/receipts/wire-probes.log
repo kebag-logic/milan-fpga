@@ -1,0 +1,11 @@
+{"case": "consecutive-advertisements", "sequence": [[0, 0], [0, 1]], "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 2, "repeats": 0, "departing_resets": 0, "first": 0, "last": 1}}
+{"case": "depart-before-first-advertisement", "sequence": [[1, 0], [0, 0], [0, 1]], "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 3, "repeats": 0, "departing_resets": 1, "first": 0, "last": 1}}
+{"case": "complete-cycle", "sequence": [[0, 3], [0, 4], [1, 5], [0, 0], [0, 1]], "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 5, "repeats": 0, "departing_resets": 1, "first": 3, "last": 1}}
+{"case": "repeated-advertisement", "sequence": [[0, 4], [0, 4]], "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 2, "repeats": 1, "departing_resets": 0, "first": 4, "last": 4}}
+{"case": "repeat-after-reset", "sequence": [[1, 5], [0, 0], [0, 0]], "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 3, "repeats": 1, "departing_resets": 1, "first": 5, "last": 0}}
+{"case": "retained-departing-index", "sequence": [[0, 4], [1, 5], [0, 5]], "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 3, "repeats": 1, "departing_resets": 0, "first": 4, "last": 5}}
+{"case": "counter-wrap", "sequence": [[0, 4294967295], [0, 0]], "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 2, "repeats": 0, "departing_resets": 0, "first": 4294967295, "last": 0}}
+{"mutation": "reset-exemption-removed", "rc": 1, "detected_by": "test_available_index_resets_after_departing"}
+{"mutation": "nonzero-reset-exempt", "rc": 1, "detected_by": "test_available_index_resets_after_departing"}
+{"mutation": "any-zero-exempt", "rc": 1, "detected_by": "test_available_index_resets_after_departing"}
+PASS: seven directed inputs; three planted defects detected

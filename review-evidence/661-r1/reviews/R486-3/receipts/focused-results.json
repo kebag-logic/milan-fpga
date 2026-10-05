@@ -1,0 +1,101 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.882
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "doc-style-controls",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.066
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.116
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa450d301805881ad713b67521477bf042ddadfd"
+    ],
+    "rc": 2,
+    "seconds": 1.219
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.416
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 1.017
+  },
+  {
+    "name": "wire-truth",
+    "command": [
+      "python3",
+      "tb/tools/avtp_wire_truth.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "506d91dbeeba585d72d2e80d92fca799c719f8ee..HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.065
+  }
+]
