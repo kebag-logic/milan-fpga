@@ -434,6 +434,27 @@ static void loop_owed_and_tick_slices(struct ctrl_loop *l)
 	check_eq("L7 every one of 40 coalesced centiseconds reaches the consumer", probe.ticks_a, 40);
 	check("L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass", most == CTRL_LOOP_TICKS_PER_PASS);
 	check("L7 and the loop keeps passing until the last is dispatched", !slept_owing && l->ticks_owed == 0u);
+
+	// A TICK record taken while centiseconds are still carried: 40 coalesced
+	// behind a full ring again, then one more centisecond posted as a second
+	// record once the first is taken and part of its 40 still waits.
+	for (unsigned s = 0; s < MBX_EVT_WORDS / MBX_EV_WORDS; ++s) {
+		mbx_timer_arm(s % MBX_N_TIMERS, 0x400u, mbx_now_ms());
+	}
+	mbx_model_advance_ms(&model, 40u * MBX_TICK_MS);
+	probe.ticks_a = 0;
+	for (unsigned passes = 0; passes < 16u && l->ticks_owed == 0u; ++passes) {
+		(void)ctrl_loop_service(l);
+	}
+	uint32_t carried = l->ticks_owed;
+	mbx_model_advance_ms(&model, MBX_TICK_MS);
+	check("L8 (centiseconds are carried when the second TICK record is posted, alone in the ring)",
+	      carried > 0u && probe.ticks_a + carried == 40u && (uint16_t)(model.evt_head - model.evt_tail) == MBX_EV_WORDS);
+	for (unsigned passes = 0; passes < 16u && ctrl_loop_service(l) != 0u; ++passes) {
+	}
+	check_eq("L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer",
+		 probe.ticks_a, 41);
+	check_eq("L8 and none is left owed", l->ticks_owed, 0);
 }
 
 int main(void)

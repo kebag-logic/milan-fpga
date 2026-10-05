@@ -94,6 +94,8 @@ MUTANTS = (
            "\tunsigned work = 0;\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
            "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n"
            "\twork += service_events(l);\n", "adp", "F1 events first"),
+    Mutant("carried-ticks-overwritten", "loop/ctrl_loop.c", "l->ticks_owed += ev.tick_count;",
+           "l->ticks_owed = ev.tick_count;", "port", "L8 a TICK record taken while centiseconds are carried"),
     Mutant("tick-slice-unbounded", "loop/ctrl_loop.c",
            "ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked);",
            "ticked += dispatch_ticks(l, CTRL_LOOP_TICKS_PER_PASS - ticked + l->ticks_owed);", "port",
