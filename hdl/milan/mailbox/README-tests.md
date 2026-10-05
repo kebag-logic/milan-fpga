@@ -18,4 +18,3 @@ hand-edit. Part of the Milan integration family; rolled up in
 | ✅ `KL_mbx_rx` | `KL_mbx_rx.sv` | `mbx` | -- |
 | ✅ `KL_mbx_tx` | `KL_mbx_tx.sv` | `mbx` | -- |
 | ✅ `KL_mbx_wb` | `KL_mbx_wb.sv` | `mbx` | -- |
-

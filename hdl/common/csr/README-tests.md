@@ -11,4 +11,3 @@ hand-edit. Part of the Common / integration family; rolled up in
 | module | file | test | clauses |
 |---|---|---|---|
 | ✅ `milan_csr` | `milan_csr.sv` | `csr` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
-
