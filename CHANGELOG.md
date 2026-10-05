@@ -55,7 +55,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - No port, register field or parameter changes.
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/milan_dp` proves it in `[DYNMAP]`.
-- `make dynmap-mutants` plants four defects.
+- `make dynmap-mutants` plants six defects over three legs.
 
 ## Unreleased - CRF unbind counts its unlock
 

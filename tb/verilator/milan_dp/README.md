@@ -747,15 +747,18 @@ channel c at TDM8 serial slot c. The talker: `tb/verilator/capture_coherence`,
 the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
 
 **Failing arms.** `make dynmap-mutants` runs `dynmap_mutants.py`. It plants
-each defect in a copy of `milan_datapath.sv`. Each mutant must fail its named
-check.
+each defect in a copy of `milan_datapath.sv` and builds the named leg through
+its own suite's recipe. Each mutant must fail its named check, and each leg's
+clean build must still pass. Measured on 2026-10-05 UTC: 9 of 9.
 
-| Mutant | Named check that fails | Failures |
-|---|---|---|
-| an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 39 of 142 |
-| no clip after the restore | `[DYNMAP] restored SPI 0: number_of_mappings` | 5 of 142 |
-| no output clip | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 1 of 142 |
-| the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 12 of 142 |
+| Leg | Mutant | Named check that fails | Failures |
+|---|---|---|---|
+| dynmap | an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 39 of 142 |
+| dynmap | no clip after the restore | `[DYNMAP] restored SPI 0: number_of_mappings` | 5 of 142 |
+| dynmap | no output clip | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 1 of 142 |
+| dynmap | the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 12 of 142 |
+| listener (`milan_dp_render`) | an empty reset | `T18 POWER-ON: with no map command since the reset, the lane renders injected events` | 8 of 256 |
+| talker (`capture_coherence`, `--quick`) | an empty reset | `[V] every requested column was decoded` | 20 of 134 |
 
 ## GM step re-base leg (#387)
 
