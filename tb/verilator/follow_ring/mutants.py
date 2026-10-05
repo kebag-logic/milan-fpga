@@ -47,7 +47,7 @@ MUTANTS = (
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")],
      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
     ("RENDER-ONLY", "FR_MUT_RENDER_ONLY", [],
-     B8, "[B8] the loopback ring is centred after the settle recentre (margin in (1, 2] ticks)"),
+     B8, "[B8] the loopback ring is centred after the settle recentre (margin in (2, 3] ticks)"),
     ("EARLY", None,
      [("  wire settle_steady_w = follow_sel_r\n", "  wire settle_steady_w = 1'b0\n"),
       ("  wire [SETTLE_RUN_W_C-1:0] settle_need_w = follow_sel_r\n",

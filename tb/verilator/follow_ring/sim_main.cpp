@@ -33,7 +33,7 @@
 //                   ticks: below 0 a tick finds the queue empty (a dup, and
 //                   m gains a tick), above 3 a push finds it full (a skip,
 //                   and m loses a tick). Only the settle recentre moves it
-//                   otherwise, to its 7-event target: m in (1, 2] ticks;
+//                   otherwise, to its 8-event target: m in (2, 3] ticks;
 //   render fill     the render stage's fill at the PDU end (#643's grading
 //                   instant): the law is the setpoint plus the PDU, 14;
 //   render delay    the PDU's first event from its end to its pop, in ticks:
@@ -102,16 +102,16 @@ constexpr double kLawAfterS = 0.05;
 //! sweeps): up to 2 from the 1.4-tick walk, and one more where the rare
 //! lateness tail meets the ring near its empty edge during the walk
 constexpr int kPreSettleSlips = 3;
-//! the loopback ring centred: the target leaves one event of the previous
-//! PDU queued when a PDU's first event lands, so that event pops 1 to 2
+//! the loopback ring centred: the target leaves two events of the previous
+//! PDU queued when a PDU's first event lands, so that event pops 2 to 3
 //! ticks after it lands; a PDU less late than the one the recentre read
 //! pops later, by up to the run's uniform lateness. The recentre decides at
 //! the PDU's first beat and the margin is measured from its first event's
 //! landing, a few axis cycles later, so a PDU that lands on a pop is read
 //! up to those cycles short of a whole tick
 constexpr double kLandTicks = 3.0 * 48000.0 / kClkHz;
-constexpr double kCentredLo = 1.0 - kLandTicks;
-constexpr double kCentredHi = 2.0;
+constexpr double kCentredLo = 2.0 - kLandTicks;
+constexpr double kCentredHi = 3.0;
 constexpr double kTickUs = 1e6 / 48000.0;
 //! a stream-to-stream switch keeps the trim (W2), so it moves the ring's
 //! phase by about 0.02 tick; W1 (through IDLE) moves it by tenths
@@ -739,7 +739,7 @@ void check_settle(milan::tb::Checker& ck, const char* tag, const Settle& s, cons
     ck.dec(w, static_cast<uint64_t>(s.render_acts), 1);
     std::snprintf(w, sizeof w, "%s no loopback slip after the settle recentre", tag);
     ck.dec(w, static_cast<uint64_t>(s.post_slips), 0);
-    std::snprintf(w, sizeof w, "%s the loopback ring is centred after the settle recentre (margin in (1, 2] ticks)",
+    std::snprintf(w, sizeof w, "%s the loopback ring is centred after the settle recentre (margin in (2, 3] ticks)",
                   tag);
     ck.that(w, s.margin_after.hi > kCentredLo &&
                    s.margin_after.hi <= kCentredHi + o.jitter_us / kTickUs + 0.005);
