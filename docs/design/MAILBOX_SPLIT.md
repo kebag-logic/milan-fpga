@@ -372,9 +372,10 @@ and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
 `KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
 page so no existing bank moves, and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
-the netlist's name and parameters, and the new uncached `ctrl_mbx` region
-changes that list, so a switch-on build carries a different
-`VexiiRiscvLitex_<hash>` from the shipping one. The datapath side is held
+the netlist's name and hands each region to the CPU generator
+(`--memory-region`), and the new uncached `ctrl_mbx` region changes that
+list, so a switch-on build carries a different `VexiiRiscvLitex_<hash>` from
+the shipping one. The datapath side is held
 idle in F0.
 
 The proof is a gateware export (no Vivado) of every shipped config, with the

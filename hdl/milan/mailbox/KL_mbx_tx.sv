@@ -100,6 +100,10 @@ module KL_mbx_tx
     before_w  = !best_v_r || dseq_w[15];
   end : arbiter
 
+  // only the sign of the modular difference orders two SEQs
+  logic unused_dseq_w;
+  assign unused_dseq_w = ^dseq_w[14:0];
+
   // ---- the served ring --------------------------------------------------------------
   logic [15:0] ring_words_w;
   logic [15:0] occ_w;
