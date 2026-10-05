@@ -1,0 +1,10 @@
+Compile: gcc -std=c11 -O2 -Wall -Wextra -Werror -pedantic -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/mbx -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/wire -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/host -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/port -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/loop -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/adp -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/app -I$REVIEWS/r497-1-665f0/sw/firmware/ctrl/test $REVIEWS/r497-1-665f0/sw/firmware/ctrl/mbx/mbx.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/loop/ctrl_loop.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/port/ctrl_pool.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/port/ctrl_debug.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/port/shlan_port.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/adp/adp.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/adp/adp_mbx.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/app/ctrl_app.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/host/mbx_model.c $REVIEWS/r497-1-665f0/sw/firmware/ctrl/host/mbx_plat_host.c $REVIEWS/665f0-r497-1-packet/scripts/firmware_probes.c -o $REVIEWS/665f0-r497-1-packet/scratch/firmware_probes
+DEPARTING message_type=1 wire_available_index=1 internal_available_index=0
+TX-WAIT filled=5 work=0 pending=1 timer_armed=0 irq=0 tick_ctl=0
+TX-RECOVERED free_words=128 pending=1 irq=0 timer_armed=0 (wait has no wake source)
+EXPLICIT REPOLL pending=0 timer_armed=1
+QUEUED RX pass=1 delivered=2 mailbox_accesses=51
+QUEUED RX pass=2 delivered=4 mailbox_accesses=51
+QUEUED RX pass=3 delivered=6 mailbox_accesses=51
+QUEUED RX pass=4 delivered=8 mailbox_accesses=51
+CONFIRMED_DEFECT_PROBES=3

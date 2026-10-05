@@ -1,0 +1,16 @@
+{
+  "observed_utc": "2026-10-05T12:54:07.270746+00:00",
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "launcher_sha256": "905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f",
+  "history": [
+    "0bfef4987eede4b022b17c7b2f56d079ff84893b Plant one firmware defect per remaining walked Table 5.51 row: TMR_ADVERTISE, TMR_DELAY and LINK_UP (#665 F0)",
+    "f9a99f5133aad5653c90020d6a6a705b498489ad Plant three more mailbox RTL defects: a closed channel that stores, a second EtherType that never classifies, a past deadline that never expires (#665 F0)",
+    "f21876336b9116c7395f7f7b155eb30f8b5bdc4d Name the mailbox rings receive and transmit rings, the wording the bare-metal scope gate allows (#665 F0)",
+    "397e2d3bd5880c736a53c4cd8f8376e13d9a5175 Bring the mailbox suite, firmware and design pages to the 27 RTL and 25 firmware planted defects (#665 F0)",
+    "5ebc19982c22df0a394969d63510992f1e971780 Record the switch-on mailbox skeleton's routed area and plant eight more RTL and two more firmware defects (#665 F0)",
+    "763e88ca932f05d7b2c0cd44318109c4e7276118 Record lwSRP's tick registration rule in the packet-mailbox design page (#665 F0)",
+    "ae6d7138d595ac2574c0ed3121268b313aae9a5d Add the default-off --ctrl-mailbox SoC switch and the packet-mailbox split design page of #665 F0",
+    "7ab3cd727225839ac17b26bdc9ae85b5d1b65b24 Add the bare-metal control-plane firmware of #665 F0 (mailbox driver, lwSRP port layer, event loop, ADP slice) and the mailbox suite through both adapters, its host model, co-simulation and planted defects",
+    "d4cbb27bae51a4466e381eadd4eab06e18a11545 Add the packet-mailbox contract of #665 F0: one YAML, its generator and self-test, the fabric skeleton and leaves behind Wishbone and AXI4-Lite, the C header and the reference page"
+  ]
+}

@@ -1,0 +1,122 @@
+COMMAND: $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --lint-only -Wall -Wno-fatal --top-module KL_mbx $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_ring.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_rx.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_tx.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_evt.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_wb.sv $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_axil.sv
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:24:27: Parameter is not used: 'MBX_WINDOW_BYTES_C'
+                                                                                            : ... note: In instance 'KL_mbx.u_srp_rx'
+   24 |   localparam int unsigned MBX_WINDOW_BYTES_C = 32'h00008000;
+      |                           ^~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.050
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:26:27: Parameter is not used: 'MBX_REGISTER_SPACE_BYTES_C'
+                                                                                            : ... note: In instance 'KL_mbx.u_srp_rx'
+   26 |   localparam int unsigned MBX_REGISTER_SPACE_BYTES_C = 32'h00000400;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:36:27: Parameter is not used: 'MBX_INDEX_BITS_C'
+                                                                                            : ... note: In instance 'KL_mbx.u_srp_rx'
+   36 |   localparam int unsigned MBX_INDEX_BITS_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:48:27: Parameter is not used: 'MBX_TEST_NONE_C'
+                                                                                            : ... note: In instance 'KL_mbx.u_srp_rx'
+   48 |   localparam int unsigned MBX_TEST_NONE_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:290:27: Parameter is not used: 'MBX_RX_HDR_WORDS_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  290 |   localparam int unsigned MBX_RX_HDR_WORDS_C = 32'd2;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:304:27: Parameter is not used: 'MBX_RXREC_W0_LEN_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  304 |   localparam int unsigned MBX_RXREC_W0_LEN_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:308:27: Parameter is not used: 'MBX_RXREC_W0_IF_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  308 |   localparam int unsigned MBX_RXREC_W0_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:312:27: Parameter is not used: 'MBX_RXREC_W0_KIND_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  312 |   localparam int unsigned MBX_RXREC_W0_KIND_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:316:27: Parameter is not used: 'MBX_RXREC_W1_ARRIVAL_MS_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  316 |   localparam int unsigned MBX_RXREC_W1_ARRIVAL_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:320:27: Parameter is not used: 'MBX_TXREC_W0_LEN_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  320 |   localparam int unsigned MBX_TXREC_W0_LEN_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:330:27: Parameter is not used: 'MBX_TXREC_W1_RSVD_LSB_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  330 |   localparam int unsigned MBX_TXREC_W1_RSVD_LSB_C = 32'd0;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:332:27: Parameter is not used: 'MBX_TXREC_W1_RSVD_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  332 |   localparam int unsigned MBX_TXREC_W1_RSVD_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:336:27: Parameter is not used: 'MBX_EVREC_W0_TYPE_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  336 |   localparam int unsigned MBX_EVREC_W0_TYPE_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:340:27: Parameter is not used: 'MBX_EVREC_W0_IF_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  340 |   localparam int unsigned MBX_EVREC_W0_IF_WIDTH_C = 32'd4;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:344:27: Parameter is not used: 'MBX_EVREC_W0_SEQ_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  344 |   localparam int unsigned MBX_EVREC_W0_SEQ_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:350:27: Parameter is not used: 'MBX_EV_TIMER_W1_TAG_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  350 |   localparam int unsigned MBX_EV_TIMER_W1_TAG_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:354:27: Parameter is not used: 'MBX_EV_TIMER_W1_SLOT_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  354 |   localparam int unsigned MBX_EV_TIMER_W1_SLOT_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:358:27: Parameter is not used: 'MBX_EV_TIMER_W2_DEADLINE_MS_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  358 |   localparam int unsigned MBX_EV_TIMER_W2_DEADLINE_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:362:27: Parameter is not used: 'MBX_EV_TIMER_W3_NOW_MS_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  362 |   localparam int unsigned MBX_EV_TIMER_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:368:27: Parameter is not used: 'MBX_EV_LINK_W1_UP_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  368 |   localparam int unsigned MBX_EV_LINK_W1_UP_WIDTH_C = 32'd1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:372:27: Parameter is not used: 'MBX_EV_LINK_W3_NOW_MS_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  372 |   localparam int unsigned MBX_EV_LINK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:378:27: Parameter is not used: 'MBX_EV_GM_W1_ID_LO_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  378 |   localparam int unsigned MBX_EV_GM_W1_ID_LO_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:382:27: Parameter is not used: 'MBX_EV_GM_W2_ID_HI_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  382 |   localparam int unsigned MBX_EV_GM_W2_ID_HI_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:386:27: Parameter is not used: 'MBX_EV_GM_W3_DOMAIN_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  386 |   localparam int unsigned MBX_EV_GM_W3_DOMAIN_WIDTH_C = 32'd8;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:392:27: Parameter is not used: 'MBX_EV_TICK_W1_COUNT_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  392 |   localparam int unsigned MBX_EV_TICK_W1_COUNT_WIDTH_C = 32'd16;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:396:27: Parameter is not used: 'MBX_EV_TICK_W3_NOW_MS_WIDTH_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  396 |   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_WIDTH_C = 32'd32;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:586:27: Parameter is not used: 'MBX_FRAME_BYTES_MAX_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  586 |   localparam int unsigned MBX_FRAME_BYTES_MAX_C = 32'd1514;
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:589:27: Parameter is not used: 'MBX_CH_RX_BASE_TBL_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  589 |   localparam int unsigned MBX_CH_RX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_RX_BASE_C, MBX_CH_ACMP_RX_BASE_C, MBX_CH_AECP_RX_BASE_C, MBX_CH_MAAP_RX_BASE_C, MBX_CH_SRP_RX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: $REVIEWS/r497-1-665f0/hdl/milan/mailbox/KL_mbx_pkg.sv:593:27: Parameter is not used: 'MBX_CH_TX_BASE_TBL_C'
+                                                                                             : ... note: In instance 'KL_mbx.u_srp_rx'
+  593 |   localparam int unsigned MBX_CH_TX_BASE_TBL_C [MBX_N_CH_C] = '{MBX_CH_ADP_TX_BASE_C, MBX_CH_ACMP_TX_BASE_C, MBX_CH_AECP_TX_BASE_C, MBX_CH_MAAP_TX_BASE_C, MBX_CH_SRP_TX_BASE_C};
+      |                           ^~~~~~~~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.631 MB sources in 9 modules, into 0.419 MB in 4 C++ files needing 0.000 MB
+- Verilator: Walltime 0.067 s (elab=0.008, cvt=0.040, bld=0.000); cpu 0.067 s on 1 threads; allocated 24.188 MB

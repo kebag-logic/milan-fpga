@@ -1,0 +1,13 @@
+Relocatable link: nine RV32I freestanding objects + libgcc; no C library.
+         U memcpy
+         U memset
+         U vsnprintf
+PASS: no libc heap or OS dependency; shlan_* names are defined static-pool port functions.
+Attribute Section: riscv
+File Attributes
+  Tag_RISCV_stack_align: 16-bytes
+  Tag_RISCV_arch: "rv32i2p1_m2p0_a2p1_zicsr2p0_zifencei2p0_zmmul1p0_zaamo1p0_zalrsc1p0"
+PASS: linked instructions contain no M, A, floating-point or compressed instructions; library ELF attributes advertise a superset.
+Unique instruction mnemonics: add, addi, and, andi, auipc, beq, beqz, bgeu, bgez, bgtz, blez, bltu, bltz, bne, bnez, ebreak, j, jal, jalr, jr, lbu, lhu, li, lui, lw, mv, neg, or, ori, ret, sb, seqz, sh, sll, slli, slti, snez, srl, srli, sub, sw, xor, zext.b
+   text	   data	    bss	    dec	    hex	filename
+  11348	      0	    168	  11516	   2cfc	ctrl-linked.o
