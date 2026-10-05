@@ -1,0 +1,31 @@
+== public evidence tree kebag-logic/milan-fpga@4a3ae4a1a4bf5a2fcd85b6d0aeff441f3f853a9f review-evidence/ppC11-r1
+MATCH author/HANDOFF.md 53ec775a0c6c010bed90e92da2299e6c8ab657c7b199b03b10e5e075d9c58090
+MATCH author/PR-BODY.md abad537a177cba5d454d92d91cc989eae83230cd0dea63f839da391e83febb2c
+MATCH author/parent-adoption-232-241f9184.patch 88ee5e9643a453f8c31dc76e5f8d57e8deec89bcbbf9d4a4a8ca005757b72560
+MATCH author/parent-adoption-c10-1269cdaf.patch 55e62329f52e352bdd56b6d37bf2877aa952063f43221bb3f1d8583274ea34b9
+MATCH author/parent-adoption-c8-bbf704ec.patch 3340d2e8e389a52c49c32611c6eb36f55bef4534d30ecafbecad25b9a1b38a4c
+MATCH author/parent-adoption-p2-p1-1269cdaf.patch d3034e89dba34862a0c8534472043212fd1f56412a90397997dcce3441613d84
+HANDOFF.md status line: Status: REVIEW READY at `91cef52`. Every acceptance item in scope is met. Every 
+== exact-head hosted check runs (snapshot 2026-10-05T08:42:16Z)
+portability status=completed conclusion=success job=111671416914
+suites status=in_progress conclusion=null job=111671416739
+docs-gates status=completed conclusion=success job=111671416473
+docs-gates status=completed conclusion=success job=111671402771
+portability status=completed conclusion=success job=111671402350
+suites status=in_progress conclusion=null job=111671402189
+job 111671416473 docs-gates run=37281823263 head=5123548eb4de35f24d43eb088c12dab70b06d01d success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install the WaveDrom renderer and the Mermaid CLI: success
+  step 4 make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness): success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+job 111671402771 docs-gates run=37281818928 head=5123548eb4de35f24d43eb088c12dab70b06d01d success
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Install the WaveDrom renderer and the Mermaid CLI: success
+  step 4 make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness): success
+  step 8 Post Run actions/checkout@v4: success
+  step 9 Complete job: success
+run 37281823263 event=pull_request head=5123548eb4de35f24d43eb088c12dab70b06d01d status=in_progress conclusion=null
+run 37281818928 event=push head=5123548eb4de35f24d43eb088c12dab70b06d01d status=in_progress conclusion=null

@@ -1,0 +1,27 @@
+//
+//  Description : Pure wiring: KL_adp_engine + the REAL KL_pp_prng, so the
+//                suite proves the two DISTINCT delay-draw kinds (T-ADP-
+//                DELAY-START vs T-ADP-DELAY, review §8 item 5) against the
+== healthy make ids
+ids selftest: 30 cases, OK
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+rc=0
+original continuation line: '//                DELAY-START vs T-ADP-DELAY, review §8 item 5) against the'
+//
+//  Description : Pure wiring: KL_adp_engine + the REAL KL_pp_prng, so the
+//                suite proves the two DISTINCT delay-draw kinds (T-ADP-
+//                DELAY(-STRT) vs T-ADP-DELAY, review §8 item 5) against the
+== R472-2 F3 real-tree composition: T-ADP-<nl>DELAY(-STRT)
+ID FAIL: tb/adp_engine/tb_adp_top.sv:10: T-ADP-DELAY-STRT has no F08.1 row
+ids: 531 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+rc=2
+== valid counterpart T-ADP-<nl>DELAY(-START)
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+rc=0
+== R473-2 F3 real-tree: untracked P-R472-MISSING-1
+ID FAIL: tb/adp_engine/r472_probe.txt:1: P-R472-MISSING-1 has no F01.5 row
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+rc=2
+== restored
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+rc=0

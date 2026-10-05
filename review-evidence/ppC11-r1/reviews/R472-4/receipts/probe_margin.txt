@@ -1,0 +1,25 @@
+== control: unmodified copy
+wavedrom: 18 blocks checked, OK
+rc=0
+== TX margin removed
+WAVEDROM STALE: fig-02-txwave (run: python3 scripts/render-wavedrom.py)
+rc=1
+== both margins 40 -> 39
+WAVEDROM STALE: fig-02-txwave, fig-02-memwave (run: python3 scripts/render-wavedrom.py)
+rc=1
+== margin -1
+FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer
+rc=1
+== margin 1.5
+FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer
+rc=1
+== margin "40"
+FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer
+rc=1
+== margin true
+FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer
+rc=1
+== margin null
+FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer
+rc=1
+== margin 0 header equals round-2 header: True <svg baseProfile="full" class="WaveDrom" height="272" id="svgcontent_0" overflow="hidden" version="1.1" viewBox="0,0,600

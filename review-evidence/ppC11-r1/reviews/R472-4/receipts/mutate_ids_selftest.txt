@@ -1,0 +1,13 @@
+M0-identity                                      selftest rc=0           | ids selftest: 30 cases, OK
+M1-any-minus-one                                 selftest rc=1          case 7 | ids selftest: 30 cases, 1 FAILURES
+M2-continuation-after-suffix (round-2 parser)    selftest rc=1          case 9 case 10 | ids selftest: 30 cases, 2 FAILURES
+M3-single-continuation (while->if)               selftest rc=0           | ids selftest: 30 cases, OK
+M4-optional-no-linebreak                         selftest rc=1          case 5 case 6 case 8 case 10 | ids selftest: 30 cases, 4 FAILURES
+M5-no-continuation                               selftest rc=1          case 3 case 6 case 9 case 10 case 18 | ids selftest: 30 cases, 5 FAILURES
+M6-optional-not-yielded                          selftest rc=1          case 8 case 9 case 10 case 20 | ids selftest: 30 cases, 4 FAILURES
+M7-sibling-not-yielded                           selftest rc=1          case 19 | ids selftest: 30 cases, 1 FAILURES
+M8-rc-always-0                                   selftest rc=1          case 7 case 8 case 9 case 10 case 11 case 12 case 13 case 14 case 15 case 16 case 17 case 18 case 19 case 20 case 21 case 22 case 23 case 24 case 25 case 26 case 27 | ids selftest: 30 cases, 21 FAILURES
+M9-family-any                                    selftest rc=1          case 22 | ids selftest: 30 cases, 1 FAILURES
+M10-braces-skip-bad-list                         selftest rc=1          case 16 | ids selftest: 30 cases, 1 FAILURES
+M12-skip-optional-only-if-linebroken             selftest rc=1          case 8 case 10 | ids selftest: 30 cases, 2 FAILURES
+M11-minus-one-strip-any-digit                    selftest rc=1          case 24 | ids selftest: 30 cases, 1 FAILURES
