@@ -1443,9 +1443,11 @@ D3 remains unimplemented; contract adoption supplies no persistence evidence.
   The last verified snapshot survives.
   Every writer lane must measure normal-load acceptance-to-durable time.
   No unconditional durability promise follows from adding the windows.
-- **Processor recovery remains incomplete.** #15 still requires reusable-port recovery.
+- **Processor recovery is bounded, not reuse.** Processor pin `ead80360` carries lane P2 (processor PR #145), which closed #15 and #20.
+  The port answers a silent device at its own deadline, and the producer gives the change up with `nvm_alarm` after three attempts ([D3 section 15 item 4](SAVED_STATE_MATERIALIZATION.md#15-unresolved), amended).
+  Quarantine is never released by time alone, and no reuse is claimed before the device ends the operation.
+  DR1a and DR1b in the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register) still govern full #70 closure.
   #109 adds DEVICE/UNFRAMED classification, bounded binding restore and admission.
-  #20 still needs processor-reviewer reconciliation under the [D3 register](SAVED_STATE_MATERIALIZATION.md#151-manager-decision-register).
   The earlier PR #32 fixed unowned completion.
   The unchecked region remains load-bearing: section
   4's blocks are enforced by the manager and by

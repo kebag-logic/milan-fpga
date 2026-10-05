@@ -2262,8 +2262,8 @@ Existing numbered references retain these dispositions:
    Processor #110 supplies S2's descriptor memory guard.
    Both are contained in processor pin `16be6768`.
    D3 still needs the guard's debt and ownership connections.
-   Processor #20 remains open despite the landed cause distinction.
-   Its issue text and exact-head tests require reconciliation under DR1b.
+   Processor #20 closed with lane P2 (processor PR #145, in pin `ead80360`), on the proof
+   the processor's #15 ruling names. DR1b still governs what full #70 closure needs of it.
 6. **RULED: debounce, coalescing and loss policy.** DR2a requires measurements.
 7. **Implementation owed: value-rule parity.** Section 8.3 owns replay validation.
    Reuse the SET rules or prove independent parity tests.
