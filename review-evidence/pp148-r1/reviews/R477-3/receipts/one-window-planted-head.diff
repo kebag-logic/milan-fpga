@@ -1,0 +1,7 @@
+1303,1304c1303,1305
+<                   ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+<                   ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
+---
+>                   ctr_sent_r <= '1;
+>                   for (int unsigned c = 0; c < N_CTR_DESC_C; c++)
+>                     ctr_last_r[c] <= now_ms_i;

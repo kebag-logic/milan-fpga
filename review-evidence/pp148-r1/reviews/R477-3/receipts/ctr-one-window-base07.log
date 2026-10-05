@@ -1,0 +1,6 @@
+control pp_top counters: rc=0 PASS
+ctr-notify-one-window: rc=2 failures=3 named=1 KILLED
+    FAIL: K15: STREAM_INPUT 0 is pushed at once while AVB_INTERFACE 0 waits for its own second (0, 0)
+    FAIL: K16: CLOCK_DOMAIN 0 is pushed to both controllers byte-exact (0, 0)
+    FAIL: K17: a ctr_change_i for AVB_INTERFACE 1, which has no slot, pushes nothing in 1.5 s (got 1 and 1)
+2 checks: 2 PASS, 0 FAIL

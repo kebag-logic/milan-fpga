@@ -1,0 +1,582 @@
+OK      tb/adp_engine/mutations arc-bind-keeps-discovered
+OK      tb/adp_engine/mutations arc-departing-silent
+OK      tb/adp_engine/mutations arc-discover-no-noadp-arm
+OK      tb/adp_engine/mutations arc-fresh-no-rearm
+OK      tb/adp_engine/mutations arc-fresh-no-store
+OK      tb/adp_engine/mutations arc-fresh-store-max
+OK      tb/adp_engine/mutations arc-fresh-store-plus-one
+OK      tb/adp_engine/mutations arc-noadp-expiry-silent
+OK      tb/adp_engine/mutations arc-not-discovered-no-guard
+OK      tb/adp_engine/mutations arc-restart-detector-off-by-one
+OK      tb/adp_engine/mutations arc-restart-skips-guard
+OK      tb/adp_engine/mutations cfg-dependent-field Hunk #1 succeeded at 873 (offset -3 lines).
+OK      tb/adp_engine/mutations cfg-frozen-at-top Hunk #1 succeeded at 1943 (offset 276 lines).
+OK      tb/adp_engine/mutations cfg-nonzero-for-valid Hunk #1 succeeded at 1913 (offset 193 lines).
+OK      tb/adp_engine/mutations cfg-overlay-only Hunk #1 succeeded at 1913 (offset 193 lines).
+OK      tb/adp_engine/mutations cfg-read-live Hunk #1 succeeded at 872 (offset -3 lines).
+OK      tb/adp_engine/mutations cfg-valid-any-selector Hunk #1 succeeded at 1929 (offset 124 lines).
+OK      tb/adp_engine/mutations cfg-valid-hard-reset Hunk #1 succeeded at 1925 (offset 124 lines).
+OK      tb/adp_engine/mutations cfg-valid-no-reset Hunk #1 succeeded at 1925 (offset 124 lines).
+OK      tb/adp_engine/mutations cfg-valid-not-sticky Hunk #1 succeeded at 1932 (offset 124 lines).
+OK      tb/adp_engine/mutations cfg-valid-ucpu-bus Hunk #1 succeeded at 1927 (offset 124 lines).
+OK      tb/adp_engine/mutations disc-departing-ignores-interface Hunk #1 succeeded at 371 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-fresh-checks-gm Hunk #1 succeeded at 355 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-not-discovered-checks-index Hunk #1 succeeded at 347 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-not-discovered-checks-interface Hunk #1 succeeded at 347 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-restart-not-rediscovered Hunk #1 succeeded at 361 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-stray-noadp-departs Hunk #1 succeeded at 1066 (offset -3 lines).
+OK      tb/adp_engine/mutations disc-unbind-keeps-timer Hunk #1 succeeded at 1002 (offset -3 lines).
+OK      tb/adp_engine/mutations gate-enable-dropped Hunk #1 succeeded at 652 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-delay-answers-discover Hunk #1 succeeded at 609 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-delay-ignores-link-down Hunk #1 succeeded at 638 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-delay-shutdown-silent Hunk #1 succeeded at 682 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-departing-keeps-index Hunk #1 succeeded at 715 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-down-answers-discover Hunk #1 succeeded at 609 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-down-answers-gm-change Hunk #1 succeeded at 616 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-down-shutdown-departs Hunk #1 succeeded at 682 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-foreign-discover-answered Hunk #1 succeeded at 432 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-link-down-keeps-timer Hunk #1 succeeded at 640 (offset -3 lines).
+OK      tb/adp_engine/mutations walk-stale-draw-arms Hunk #1 succeeded at 623 (offset -3 lines).; Hunk #2 succeeded at 753 (offset -3 lines).
+OK      tb/maap/mutations compare-mac-forward Hunk #1 succeeded at 417 (offset 25 lines).
+OK      tb/maap/mutations defend-rdefend-ignored Hunk #1 succeeded at 447 (offset 25 lines).
+OK      tb/maap/mutations defend-rdefend-no-tiebreak Hunk #1 succeeded at 447 (offset 25 lines).
+OK      tb/maap/mutations drain-waits-for-the-link Hunk #1 succeeded at 500 (offset 11 lines).
+OK      tb/maap/mutations fit-compare-forced-true Hunk #1 succeeded at 641 (offset 50 lines).
+OK      tb/maap/mutations fit-compare-off-by-one Hunk #1 succeeded at 641 (offset 50 lines).
+OK      tb/maap/mutations idle-serves-a-latched-expiry-first Hunk #1 succeeded at 745 (offset 11 lines).
+OK      tb/maap/mutations ival-sends-after-release Hunk #1 succeeded at 658 (offset 16 lines).
+OK      tb/maap/mutations off-waits-for-an-edge Hunk #1 succeeded at 330 (offset 11 lines).; Hunk #2 succeeded at 540 (offset 11 lines).; Hunk #3 succeeded at 573 (offset 11 lines).; Hunk #4 succeeded at 605 (offset 11 lines).
+OK      tb/maap/mutations post-publishes-after-release Hunk #1 succeeded at 718 (offset 16 lines).
+OK      tb/maap/mutations probe-rannounce-tiebreak Hunk #1 succeeded at 445 (offset 25 lines).
+OK      tb/maap/mutations probe-rprobe-never-yields Hunk #1 succeeded at 437 (offset 25 lines).
+OK      tb/maap/mutations release-keeps-draw-mark Hunk #1 succeeded at 623 (offset 50 lines).
+OK      tb/maap/mutations release-waits-for-draw Hunk #1 succeeded at 611 (offset 11 lines).
+OK      tb/maap/mutations rx-release-returns-to-idle Hunk #1 succeeded at 796 (offset 16 lines).
+OK      tb/maap/mutations seed-clamp-off-by-one Hunk #1 succeeded at 628 (offset 16 lines).
+OK      tb/maap/mutations seed-clamp-removed Hunk #1 succeeded at 628 (offset 50 lines).
+OK      tb/maap/mutations seed-rearmed-on-idle-release-only Hunk #1 succeeded at 601 (offset 11 lines).; Hunk #2 succeeded at 747 (offset 16 lines).
+OK      tb/maap/mutations teardown-keeps-announce-timer Hunk #1 succeeded at 832 (offset 11 lines).
+OK      tb/maap/mutations tx-path-absorbs-release Hunk #1 succeeded at 586 (offset 11 lines).
+OK      tb/maap/mutations tx-set-omits-alloc
+OK      tb/maap/mutations tx-set-omits-commit
+OK      tb/maap/mutations tx-set-omits-gwait
+OK      tb/maap/mutations tx-set-omits-lane
+OK      tb/maap/mutations tx-set-omits-write
+OK      tb/maap/mutations validator-maap-version-1-only
+OK      tb/maap/mutations yield-reuses-range Hunk #1 succeeded at 825 (offset 72 lines).
+OK      tb/pp_top/aecp_dispatch_mutations a5b-reboot-success-arm Hunk #1 succeeded at 1314 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations line-buffer-fixed-592 Hunk #1 succeeded at 934 (offset 34 lines).
+OK      tb/pp_top/aecp_dispatch_mutations line-ceiling-dropped Hunk #1 succeeded at 968 (offset 34 lines).
+OK      tb/pp_top/aecp_dispatch_mutations line-floor-rounded Hunk #1 succeeded at 964 (offset 34 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-prefix-zero-body Hunk #1 succeeded at 153 (offset 9 lines).; Hunk #2 succeeded at 166 (offset 9 lines).; Hunk #3 succeeded at 1528 (offset 234 lines).; Hunk #4 succeeded at 1559 (offset 234 lines).; Hunk #5 succeeded at 1652 (offset 235 lines).; Hunk #6 succeeded at 1683 (offset 235 lines).; Hunk #7 succeeded at 1749 (offset 235 lines).; Hunk #8 succeeded at 1821 (offset 235 lines).; Hunk #9 succeeded at 1840 (offset 235 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-sclks-lock-nop Hunk #1 succeeded at 1681 (offset 235 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-sclks-miss-lock-nop Hunk #1 succeeded at 1701 (offset 235 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-sctrl-lock-nop Hunk #1 succeeded at 1850 (offset 235 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-sctrl-miss-lock-nop Hunk #1 succeeded at 1868 (offset 235 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-ssrate-lock-nop Hunk #1 succeeded at 1586 (offset 234 lines).
+OK      tb/pp_top/aecp_dispatch_mutations lk-ssrate-miss-lock-nop Hunk #1 succeeded at 1596 (offset 234 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-add-mappings Hunk #1 succeeded at 1238 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-dynamic-info Hunk #1 succeeded at 1233 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-get-name Hunk #1 succeeded at 1370 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-remove-mappings Hunk #1 succeeded at 1238 (offset 64 lines).; Hunk #2 succeeded at 1296 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-set-name Hunk #1 succeeded at 1371 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-set-stream-format Hunk #1 succeeded at 1377 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations m9-guard-set-stream-info Hunk #1 succeeded at 1379 (offset 64 lines).
+OK      tb/pp_top/aecp_dispatch_mutations ov-oversize-at-576 Hunk #1 succeeded at 2614 (offset 34 lines).
+OK      tb/pp_top/aecp_dispatch_mutations ov-oversize-never Hunk #1 succeeded at 2614 (offset 34 lines).
+OK      tb/pp_top/aecp_dispatch_mutations ov-top-oversize-dropped Hunk #1 succeeded at 4200 (offset 247 lines).
+OK      tb/pp_top/aecp_dispatch_mutations pg-append-524 Hunk #1 succeeded at 957 (offset 67 lines).
+OK      tb/pp_top/aecp_dispatch_mutations pg-cap-dropped Hunk #1 succeeded at 940 (offset 67 lines).; Hunk #2 succeeded at 948 (offset 67 lines).
+OK      tb/pp_top/aecp_dispatch_mutations pg-cap-off-by-one Hunk #1 succeeded at 937 (offset 67 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rb-rounded-buffer-no-page-cap Hunk #1 succeeded at 934 (offset 34 lines).; Hunk #1 succeeded at 940 (offset 20 lines).; Hunk #2 succeeded at 948 (offset 20 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-au-image-only Hunk #1 succeeded at 1171 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-au-unset-overlays Hunk #1 succeeded at 1171 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-base-no-overlay Hunk #1 succeeded at 3259 (offset 142 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-cd-image-only Hunk #1 succeeded at 1198 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-cfg-any Hunk #1 succeeded at 3262 (offset 142 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-so-reads-input-row Hunk #1 succeeded at 1232 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-str-short-guard-nop Hunk #1 succeeded at 1236 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-str-unset-overlays Hunk #1 succeeded at 1226 (offset 39 lines).
+OK      tb/pp_top/aecp_dispatch_mutations rd-tail-uncut Hunk #1 succeeded at 640 (offset 52 lines).
+OK      tb/pp_top/aecp_dispatch_mutations sclks-bound-inclusive Hunk #1 succeeded at 1685 (offset 25 lines).
+OK      tb/pp_top/aecp_dispatch_mutations sclks-bound-three Hunk #1 succeeded at 1684 (offset 25 lines).
+OK      tb/pp_top/aecp_dispatch_mutations sclks-miss-branch-dropped
+OK      tb/pp_top/aecp_dispatch_mutations sclks-miss-preload-dropped
+OK      tb/pp_top/aecp_dispatch_mutations sclks-miss-target-next-word
+OK      tb/pp_top/aecp_dispatch_mutations sctrl-badarg-zero-body Hunk #1 succeeded at 1856 (offset 40 lines).
+OK      tb/pp_top/ctr_mutations ctr-avb-not-supported Hunk #1 succeeded at 3359 (offset 18 lines).
+OK      tb/pp_top/ctr_mutations ctr-block-beats-swapped
+OK      tb/pp_top/ctr_mutations ctr-change-type-from-index Hunk #1 succeeded at 4026 (offset 46 lines).
+OK      tb/pp_top/ctr_mutations ctr-ckd-not-supported Hunk #1 succeeded at 3359 (offset 18 lines).
+OK      tb/pp_top/ctr_mutations ctr-index-from-type Hunk #1 succeeded at 2190 (offset 18 lines).
+OK      tb/pp_top/ctr_mutations ctr-locate-ignored
+OK      tb/pp_top/ctr_mutations ctr-notify-avb-any-index Hunk #1 succeeded at 509 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-avb-as-clock Hunk #1 succeeded at 512 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-avb-dropped Hunk #1 succeeded at 511 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-ckd-any-index Hunk #1 succeeded at 513 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-ckd-dropped Hunk #1 succeeded at 515 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-no-window Hunk #1 succeeded at 1098 (offset 64 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-one-window GNU patch -F0 refuses it (git apply, the drivers' tool, decides)
+OK      tb/pp_top/ctr_mutations ctr-notify-stri-past-shape Hunk #1 succeeded at 501 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations ctr-notify-stro-past-shape Hunk #1 succeeded at 505 (offset 13 lines).
+OK      tb/pp_top/ctr_mutations store-counts-domain-strobes Hunk #1 succeeded at 1046 (offset 114 lines).
+OK      tb/pp_top/ctr_mutations store-link-detector-resets-up Hunk #1 succeeded at 2036 (offset 119 lines).
+OK      tb/pp_top/mutations acmp-waits-for-aecp Hunk #1 succeeded at 1601 (offset 92 lines).
+OK      tb/pp_top/mutations dl-armed-at-admission Hunk #1 succeeded at 3693 (offset 83 lines).
+OK      tb/pp_top/mutations dl-boot-hold-not-exempt Hunk #1 succeeded at 3693 (offset 83 lines).
+OK      tb/pp_top/mutations dl-edit-preempted Hunk #1 succeeded at 1770 (offset 73 lines).
+OK      tb/pp_top/mutations dl-gdi-runs-on Hunk #1 succeeded at 3097 (offset 99 lines).; Hunk #2 succeeded at 3748 (offset 125 lines).
+OK      tb/pp_top/mutations dl-kill-ack-keeps-owner Hunk #1 succeeded at 3657 (offset 83 lines).
+OK      tb/pp_top/mutations dl-kill-tied-off Hunk #1 succeeded at 1070 (offset 73 lines).; Hunk #2 succeeded at 3780 (offset 84 lines).
+OK      tb/pp_top/mutations dl-lock-preempted Hunk #1 succeeded at 1770 (offset 57 lines).
+OK      tb/pp_top/mutations dl-mvu-forced-status-10 Hunk #1 succeeded at 3734 (offset 97 lines).
+OK      tb/pp_top/mutations dl-non-aem-forced-status-10 Hunk #1 succeeded at 3734 (offset 97 lines).
+OK      tb/pp_top/mutations dl-preempt-after-effect Hunk #1 succeeded at 503 (offset 22 lines).
+OK      tb/pp_top/mutations dl-registry-preempted Hunk #1 succeeded at 1770 (offset 57 lines).
+OK      tb/pp_top/mutations dl-released-before-queued Hunk #1 succeeded at 1072 (offset 73 lines).
+OK      tb/pp_top/mutations dlkill-always-misbehaving Hunk #1 succeeded at 394 (offset 20 lines).
+OK      tb/pp_top/mutations fanout-never-ends Hunk #1 succeeded at 1463 (offset 328 lines).
+OK      tb/pp_top/mutations hz-acmp-reads-as-steps Hunk #1 succeeded at 1592 (offset 92 lines).
+OK      tb/pp_top/mutations hz-barrier-no-priority Hunk #1 succeeded at 3573 (offset 83 lines).
+OK      tb/pp_top/mutations hz-clock-as-lock Hunk #1 succeeded at 1619 (offset 92 lines).
+OK      tb/pp_top/mutations hz-clock-as-ro Hunk #1 succeeded at 1619 (offset 92 lines).
+OK      tb/pp_top/mutations hz-clock-key-none Hunk #1 succeeded at 1620 (offset 92 lines).
+OK      tb/pp_top/mutations hz-foreign-target-classified Hunk #1 succeeded at 1576 (offset 92 lines).
+OK      tb/pp_top/mutations hz-gdi-as-barrier
+OK      tb/pp_top/mutations hz-gdi-key-none
+OK      tb/pp_top/mutations hz-identify-as-ro Hunk #1 succeeded at 1631 (offset 92 lines).
+OK      tb/pp_top/mutations hz-identify-key-none Hunk #1 succeeded at 1632 (offset 92 lines).
+OK      tb/pp_top/mutations hz-lock-not-lockop Hunk #1 succeeded at 1606 (offset 92 lines).
+OK      tb/pp_top/mutations hz-map-as-ro Hunk #1 succeeded at 1615 (offset 92 lines).
+OK      tb/pp_top/mutations hz-map-key-none Hunk #1 succeeded at 1616 (offset 92 lines).
+OK      tb/pp_top/mutations hz-name-as-ro Hunk #1 succeeded at 1623 (offset 92 lines).
+OK      tb/pp_top/mutations hz-name-as-stream Hunk #1 succeeded at 1623 (offset 92 lines).
+OK      tb/pp_top/mutations hz-name-key-none Hunk #1 succeeded at 1624 (offset 92 lines).
+OK      tb/pp_top/mutations hz-reads-keyed-none Hunk #1 succeeded at 1637 (offset 92 lines).
+OK      tb/pp_top/mutations hz-registry-as-ro Hunk #1 succeeded at 1627 (offset 92 lines).
+OK      tb/pp_top/mutations hz-response-classified Hunk #1 succeeded at 1575 (offset 92 lines).
+OK      tb/pp_top/mutations hz-setcfg-not-barrier Hunk #1 succeeded at 1602 (offset 92 lines).
+OK      tb/pp_top/mutations hz-stream-key-none Hunk #1 succeeded at 1612 (offset 92 lines).
+OK      tb/pp_top/mutations hz-stub-restored Hunk #1 succeeded at 1588 (offset 92 lines).; Hunk #2 succeeded at 1602 (offset 92 lines).
+OK      tb/pp_top/mutations hz-talker-keyed-as-listener Hunk #1 succeeded at 1591 (offset 92 lines).
+OK      tb/pp_top/mutations mvu-echo-slot-std Hunk #1 succeeded at 2614 (offset 69 lines).
+OK      tb/pp_top/mutations mvu-fault-status-10 Hunk #1 succeeded at 3782 (offset 97 lines).; Hunk #2 succeeded at 3804 (offset 97 lines).
+OK      tb/pp_top/mutations mvu-silent Hunk #1 succeeded at 781 (offset 53 lines).
+OK      tb/pp_top/mutations td-lock-default-59s
+OK      tb/pp_top/mutations td-tl-default-301s
+OK      tb/pp_top/mutations ucpu-preempt-cuts-a-wait Hunk #1 succeeded at 504 (offset 22 lines).
+OK      tb/pp_top/mutations ucpu-preempt-keeps-the-body Hunk #1 succeeded at 751 (offset 29 lines).
+OK      tb/pp_top/mutations ucpu-preempt-repeats Hunk #1 succeeded at 502 (offset 22 lines).
+OK      tb/srp_top/mutations action-omitted Hunk #1 succeeded at 345 (offset 3 lines).
+OK      tb/srp_top/mutations already-full-missed Hunk #1 succeeded at 1162 (offset 53 lines).
+OK      tb/srp_top/mutations bad-listener-length
+OK      tb/srp_top/mutations before-slot Hunk #1 succeeded at 345 (offset 3 lines).
+OK      tb/srp_top/mutations canceled-content-never-drains Hunk #1 succeeded at 599 (offset 3 lines).
+OK      tb/srp_top/mutations count-up-unsends
+OK      tb/srp_top/mutations draw-kind-0 Hunk #1 succeeded at 1043 (offset 11 lines).
+OK      tb/srp_top/mutations empty-canceled-pdu Hunk #1 succeeded at 599 (offset 3 lines).
+OK      tb/srp_top/mutations encoder-peer-ignored Hunk #1 succeeded at 345 (offset 3 lines).; Hunk #2 succeeded at 563 (offset 3 lines).; Hunk #3 succeeded at 585 (offset 3 lines).
+OK      tb/srp_top/mutations expiry-congestion Hunk #1 succeeded at 336 (offset 12 lines).; Hunk #2 succeeded at 751 (offset 21 lines).
+OK      tb/srp_top/mutations expiry-event Hunk #1 succeeded at 336 (offset 12 lines).; Hunk #2 succeeded at 751 (offset 21 lines).
+OK      tb/srp_top/mutations expiry-only-redraw Hunk #1 succeeded at 1242 (offset 35 lines).
+OK      tb/srp_top/mutations expiry-outranks-peer Hunk #1 succeeded at 1241 (offset 35 lines).
+OK      tb/srp_top/mutations full-drain-missing Hunk #1 succeeded at 1161 (offset 53 lines).
+OK      tb/srp_top/mutations join-ms-400 Hunk #1 succeeded at 99 (offset 5 lines).
+OK      tb/srp_top/mutations join-sent-at-handover
+OK      tb/srp_top/mutations leaveall-expiry-lost Hunk #1 succeeded at 1020 (offset 33 lines).
+OK      tb/srp_top/mutations licence-ignores-join Hunk #1 succeeded at 850 (offset 29 lines).
+OK      tb/srp_top/mutations listener-lane-cut
+OK      tb/srp_top/mutations listener-lost-txla Hunk #1 succeeded at 643 (offset 21 lines).
+OK      tb/srp_top/mutations listener-no-expiry Hunk #1 succeeded at 440 (offset 2 lines).
+OK      tb/srp_top/mutations listener-no-own Hunk #1 succeeded at 433 (offset 2 lines).
+OK      tb/srp_top/mutations listener-no-renewal Hunk #1 succeeded at 750 (offset 21 lines).
+OK      tb/srp_top/mutations listener-sid-ignored Hunk #1 succeeded at 422 (offset 21 lines).
+OK      tb/srp_top/mutations listener-strict-lv Hunk #1 succeeded at 765 (offset 21 lines).
+OK      tb/srp_top/mutations missing-registrar-edge Hunk #1 succeeded at 663 (offset 36 lines).
+OK      tb/srp_top/mutations mvrp-expiry-only-redraw Hunk #1 succeeded at 1247 (offset 35 lines).
+OK      tb/srp_top/mutations mvrp-flag-at-expiry Hunk #1 succeeded at 1232 (offset 35 lines).
+OK      tb/srp_top/mutations mvrp-passive-lost Hunk #1 succeeded at 1248 (offset 35 lines).
+OK      tb/srp_top/mutations mvrp-stale-expiry-honoured Hunk #1 succeeded at 1230 (offset 35 lines).
+OK      tb/srp_top/mutations mvrp-supersedes-msrp Hunk #1 succeeded at 1241 (offset 35 lines).
+OK      tb/srp_top/mutations my-cancel-eats-new-intent Hunk #1 succeeded at 1145 (offset 53 lines).
+OK      tb/srp_top/mutations my-drop-join-during-wait Hunk #1 succeeded at 1202 (offset 53 lines).
+OK      tb/srp_top/mutations my-edge-cancel-lost Hunk #1 succeeded at 345 (offset 3 lines).
+OK      tb/srp_top/mutations my-expiry-pulse Hunk #1 succeeded at 330 (offset 5 lines).; Hunk #2 succeeded at 547 (offset 12 lines).; Hunk #3 succeeded at 632 (offset 14 lines).; Hunk #4 succeeded at 1077 (offset 35 lines).; Hunk #5 succeeded at 1091 (offset 35 lines).; Hunk #6 succeeded at 1229 (offset 35 lines).
+OK      tb/srp_top/mutations my-join-edge-peer Hunk #1 succeeded at 1132 (offset 53 lines).
+OK      tb/srp_top/mutations my-la-outranks-leave Hunk #1 succeeded at 726 (offset 36 lines).
+OK      tb/srp_top/mutations my-no-walk-at-sLA Hunk #1 succeeded at 336 (offset 12 lines).
+OK      tb/srp_top/mutations my-reuse-flags-ignore-cancel Hunk #1 succeeded at 597 (offset 3 lines).
+OK      tb/srp_top/mutations own-flags-missing Hunk #1 succeeded at 429 (offset 3 lines).
+OK      tb/srp_top/mutations pending-peer-ignored Hunk #1 succeeded at 1241 (offset 35 lines).
+OK      tb/srp_top/mutations periodic-ms-3000 Hunk #1 succeeded at 101 (offset 5 lines).
+OK      tb/srp_top/mutations preparation-before-slot Hunk #1 succeeded at 343 (offset 3 lines).
+OK      tb/srp_top/mutations r-accept-edge-drain-lost Hunk #1 succeeded at 1161 (offset 53 lines).
+OK      tb/srp_top/mutations r-cancel-consumes-new-intent Hunk #1 succeeded at 1145 (offset 53 lines).
+OK      tb/srp_top/mutations r-cancel-latch-dropped Hunk #1 succeeded at 748 (offset 21 lines).
+OK      tb/srp_top/mutations r-collect-blocks-pushes Hunk #1 succeeded at 335 (offset 3 lines).
+OK      tb/srp_top/mutations r-expiry-pulse-restored Hunk #1 succeeded at 337 (offset 12 lines).; Hunk #2 succeeded at 547 (offset 19 lines).; Hunk #3 succeeded at 632 (offset 21 lines).; Hunk #4 succeeded at 1254 (offset 70 lines).
+OK      tb/srp_top/mutations r-flag-ignores-edge-peer Hunk #1 succeeded at 1211 (offset 11 lines).
+OK      tb/srp_top/mutations r-join-coalesce-dropped Hunk #1 succeeded at 1202 (offset 53 lines).
+OK      tb/srp_top/mutations r-join-start-guard-dropped Hunk #1 succeeded at 1132 (offset 53 lines).
+OK      tb/srp_top/mutations r-la-only-emission-lost Hunk #1 succeeded at 608 (offset 3 lines).
+OK      tb/srp_top/mutations r-mvrp-start-during-prepare Hunk #1 succeeded at 332 (offset 3 lines).
+OK      tb/srp_top/mutations r-rearm-no-deadline Hunk #1 succeeded at 1038 (offset 11 lines).
+OK      tb/srp_top/mutations r-rearm-no-inflight Hunk #1 succeeded at 1038 (offset 11 lines).
+OK      tb/srp_top/mutations r-reuse-without-action Hunk #1 succeeded at 345 (offset 3 lines).
+OK      tb/srp_top/mutations r-sink-receive-priority-lost Hunk #1 succeeded at 746 (offset 21 lines).
+OK      tb/srp_top/mutations rearm-at-issue Hunk #1 succeeded at 1039 (offset 11 lines).
+OK      tb/srp_top/mutations receive-priority-lost Hunk #1 succeeded at 719 (offset 36 lines).
+OK      tb/srp_top/mutations renewal-congestion Hunk #1 succeeded at 724 (offset 36 lines).
+OK      tb/srp_top/mutations repeated-action Hunk #1 succeeded at 345 (offset 3 lines).
+OK      tb/srp_top/mutations repeated-expiry-queued Hunk #1 succeeded at 1135 (offset 53 lines).; Hunk #2 succeeded at 1146 (offset 53 lines).
+OK      tb/srp_top/mutations reserved-slot-not-reused Hunk #1 succeeded at 344 (offset 3 lines).
+OK      tb/srp_top/mutations reset-retains-intent Hunk #1 succeeded at 1077 (offset 35 lines).
+OK      tb/srp_top/mutations round-completion-lost Hunk #1 succeeded at 1203 (offset 53 lines).
+OK      tb/srp_top/mutations slope-read-source-0
+OK      tb/srp_top/mutations slope-store-source-0-only
+OK      tb/srp_top/mutations slope-stored-at-source-0
+OK      tb/srp_top/mutations slope-stored-at-stage-2-index
+OK      tb/srp_top/mutations stale-expiry-honoured Hunk #1 succeeded at 1224 (offset 35 lines).
+OK      tb/srp_top/mutations table-one-short Hunk #1 succeeded at 338 (offset 3 lines).
+OK      tb/srp_top/mutations talker-lost-txla Hunk #1 succeeded at 603 (offset 36 lines).
+OK      tb/srp_top/mutations talker-no-expiry Hunk #1 succeeded at 666 (offset 36 lines).
+OK      tb/srp_top/mutations talker-no-own Hunk #1 succeeded at 663 (offset 36 lines).
+OK      tb/srp_top/mutations talker-no-renewal Hunk #1 succeeded at 724 (offset 36 lines).
+OK      tb/srp_top/mutations talker-strict-lv Hunk #1 succeeded at 727 (offset 36 lines).
+OK      tb/srp_top/mutations talker-vid-unreset
+OK      tb/srp_top/mutations tf-full-guard-31
+OK      tb/srp_top/mutations tf-head-at-write-pointer
+OK      tb/srp_top/mutations tf-heads-swapped
+OK      tb/srp_top/mutations tf-listener-push-dropped
+OK      tb/srp_top/mutations tf-ls-head-reads-tk-ram
+OK      tb/srp_top/mutations tf-ls-write-ignores-full
+OK      tb/srp_top/mutations tf-ls-written-at-tk-pointer
+OK      tb/srp_top/mutations tf-tk-head-read-ahead
+OK      tb/srp_top/mutations tf-tk-write-at-rptr
+OK      tb/srp_top/mutations tf-tk-write-ignores-full
+OK      tb/srp_top/mutations tx-strobe-any-app
+OK      tb/srp_top/mutations walk-record-written-on-close
+OK      tb/srp_top/mutations wid-flops-da-of-gate-source
+OK      tb/srp_top/mutations wid-flops-sid-of-source-0
+OK      tb/srp_top/mutations wid-flops-vid-of-source-0
+OK      tb/srp_top/mutations wid-ram-first-open-only
+OK      tb/srp_top/mutations wid-ram-read-at-gate-source
+OK      tb/srp_top/mutations wid-ram-read-neighbour
+OK      tb/srp_top/mutations wsid-flops-of-control-sink
+OK      tb/srp_top/mutations wsid-flops-read-sink-0
+OK      tb/srp_top/mutations wsid-ram-first-settle-only
+OK      tb/srp_top/mutations wsid-ram-written-on-teardown
+OK      tb/srp_top/mutations wsid-write-ignores-ready
+OK      tb/srp_top/mutations wtsp-first-open-only
+OK      tb/srp_top/mutations wtsp-latency-field-shifted
+OK      tb/srp_top/mutations wtsp-latency-shifted
+OK      tb/srp_top/mutations wtsp-prio-rank-swapped
+OK      tb/srp_top/mutations wtsp-rank-dropped
+OK      tb/srp_top/mutations wtsp-read-at-gate-source
+OK      tb/srp_top/mutations wtsp-read-at-source-0
+OK      tb/srp_top/mutations wtsp-write-ignores-ready
+OK      notify_mutants ident_two_frames
+OK      notify_mutants ident_seq_per_frame
+OK      notify_mutants ident_no_rearm
+OK      notify_mutants ident_rearm_from_third_frame
+OK      notify_mutants ident_burst_100ms
+OK      notify_mutants ident_t0_at_request
+OK      notify_mutants ident_burst_from_t0
+OK      notify_mutants ident_departure_is_retirement
+OK      notify_mutants ident_departure_unwired
+OK      notify_mutants ident_next_burst_at_once
+OK      notify_mutants ident_wait_ignores_gap
+OK      notify_mutants ident_press_not_latched
+OK      notify_mutants ident_burst_press_not_latched
+OK      notify_mutants ident_departure_ignores_ready
+OK      notify_mutants ident_burst_deadline_one_tick_short
+OK      notify_mutants ident_t0_same_ms
+OK      notify_mutants ident_cut_on_release
+OK      notify_mutants ident_release_ignored
+OK      notify_mutants ident_unicast_da
+OK      notify_mutants ident_face_taken_mid_job
+OK      notify_mutants ident_built_at_default
+OK      notify_mutants enq_dropped_configuration
+OK      notify_mutants enq_dropped_stream_info
+OK      notify_mutants class_4_mapped_to_rate
+OK      notify_mutants class_9_mapped_to_control
+OK      notify_mutants requester_not_excluded
+OK      notify_mutants entry_seq_not_advanced
+OK      notify_mutants stream_info_get_body
+OK      notify_mutants counter_limit_500ms
+OK      notify_mutants fan_out_skips_row_0
+OK      notify_mutants refresh_resets_seq
+OK      notify_mutants foreign_unlock_allowed
+OK      notify_mutants lock_taker_notified
+OK      notify_mutants deregister_keeps_row
+OK      notify_mutants registry_holds_15
+OK      notify_mutants set_control_ignores_lock
+OK      notify_mutants inflight_highest_free_id
+OK      notify_mutants inflight_match_ignores_seq
+OK      notify_mutants inflight_cancel_keeps_timer
+OK      notify_mutants inflight_shared_seq
+OK      notify_mutants ix_old_identity_kept
+OK      notify_mutants ix_new_identity_unset
+OK      notify_mutants ix_last_chunk_ignored
+OK      notify_mutants ix_rewrite_unmatched
+OK      notify_mutants override_set_only
+OK      notify_mutants own_compare_new_row
+OK      notify_mutants stamp_read_without_valid
+OK      notify_mutants counter_spacing_from_selection
+OK      notify_mutants counter_spacing_from_selection_tw
+OK      notify_mutants counter_stamp_at_send_only
+OK      notify_mutants counter_stamp_first_job_only
+OK      notify_mutants counter_limit_500ms_cs
+OK      notify_mutants registry_holds_15_cs
+OK      d3_mutants hold_released_at_go
+OK      d3_mutants dispatch_not_held
+OK      d3_mutants own_taken_at_the_walk
+OK      d3_mutants image_unproven_continues
+OK      d3_mutants latch_ignores_program
+OK      d3_mutants TRG_cfg
+OK      d3_mutants TRG_rate
+OK      d3_mutants TRG_clks
+OK      d3_mutants TRG_fmti
+OK      d3_mutants TRG_fmto
+OK      d3_mutants TRG_ptof
+OK      d3_mutants taint_ignored
+OK      d3_mutants clear_wins_same_edge
+OK      d3_mutants clear_by_group
+OK      d3_mutants clear_by_index
+OK      d3_mutants identify_is_a_change
+OK      d3_mutants unchanged_compare_ignores_validity
+OK      d3_mutants RPL_cfg
+OK      d3_mutants RPL_rate
+OK      d3_mutants RPL_clks
+OK      d3_mutants RPL_fmti
+OK      d3_mutants RPL_fmto
+OK      d3_mutants RPL_ptof
+OK      d3_mutants rule_ignored
+OK      d3_mutants passes_may_disagree
+OK      d3_mutants device_error_reads_as_blank
+OK      d3_mutants unframed_reads_as_device_error
+OK      d3_mutants desc_error_is_a_refusal
+OK      d3_mutants no_restore_watchdog
+OK      d3_mutants restore_writes_are_changes
+OK      d3_mutants enable_not_released_by_restore
+OK      d3_mutants done_without_d3
+OK      d3_mutants blank_ignores_d3
+OK      d3_mutants store_not_cleared
+OK      d3_mutants valid_not_cleared
+OK      d3_mutants quarantine_released_by_time
+OK      d3_mutants no_rollback
+OK      d3_mutants dyn_not_rolled_back
+OK      d3_mutants store_not_rolled_back
+OK      d3_mutants rollback_ignores_debt
+OK      d3_mutants closed_releases_the_entity
+OK      d3_mutants no_backoff_d3
+OK      d3_mutants fourth_attempt
+OK      d3_mutants alarm_forgiven_by_success
+OK      d3_mutants no_backoff_binding
+OK      d3_mutants fourth_attempt_binding
+OK      d3_mutants alarm_forgiven_binding
+OK      d3_mutants backoff_derivation
+OK      d3_mutants backoff_holds_dispatch
+OK      d3_mutants disagree_one_direction
+OK      d3_mutants rollback_one_cycle
+OK      d3_mutants pass1_read_not_drained
+OK      d3_mutants judge_wait_unwatched
+OK      d3_mutants rate_walk_stuck_on_first_lane
+OK      d3_mutants rate_walk_unbounded
+OK      d3_mutants no_aggregate_deadline
+OK      d3_mutants aggregate_mirrored
+OK      d3_mutants aggregate_from_the_walk
+OK      d3_mutants per_wait_floor
+OK      d3_mutants agg_closes_before_proof
+OK      d3_mutants binding_walk_ignores_aggregate
+OK      d3_mutants proof_reads_records_past_bound
+OK      d3_mutants agg_not_in_rollback
+OK      d3_mutants agg_not_stopped_at_terminal
+OK      d3_mutants agg_fires_with_event_in_hand
+OK      d3_mutants drain_misses_issue_cycle
+OK      d3_mutants drain_misses_issue_cycle_m1
+OK      d3_mutants issue_arm_cross_intent
+OK      d3_mutants issue_arm_ignores_we
+OK      d3_mutants issue_arm_write_too
+OK      d3_mutants issue_arm_stale_we
+OK      d3_mutants owned_arm_write_too
+OK      d3_mutants owned_arm_cross_intent
+OK      d3_mutants cross_own_m1_drains_m0
+OK      d3_mutants agg_closes_during_proof
+OK      d3_mutants proof_past_needs_fire
+OK      d3_mutants proof_default_only_from_img
+OK      d3_mutants proof_past_bound_needs_fired
+OK      d3_mutants agg_o_pulse
+OK      d3_mutants aecp_hold_unbounded
+OK      d3_mutants held_drop_uncounted
+OK      d3_mutants resident_never_returned
+OK      d3_mutants validator_admits_held_aecp
+OK      d3_mutants clks_row_two_bits
+OK      d3_mutants clks_restore_count_narrowed
+OK      d3_mutants clks_restore_index_narrowed
+OK      d3_mutants clks_restore_bound_inclusive
+OK      d3_mutants registry_survives_reset
+OK      d3_mutants lock_survives_reset
+OK      d3_mutants identify_survives_reset
+OK      d3_mutants cfg_crc_ignored
+OK      d3_mutants clks_crc_ignored
+OK      d3_mutants torn_read_not_an_abort
+OK      d3_mutants torn_read_not_an_abort_cfg
+OK      d3_mutants frame_crc_ignored
+OK      d3_mutants blank_applies_zero
+OK      d3_mutants blank_applies_zero_cfg
+OK      d3_mutants TRG_name
+OK      d3_mutants RPL_name
+OK      d3_mutants name_rule_ignored
+OK      d3_mutants name_empty_refused
+OK      d3_mutants name_record_id_shifted
+OK      d3_mutants name_entry_shifted
+OK      d3_mutants name_lanes_partial
+OK      d3_mutants name_taint_ignored
+OK      d3_mutants name_restore_pulses
+OK      d3_mutants name_restore_is_a_change
+OK      d3_mutants names_before_the_image
+OK      d3_mutants cut_binding_crc_ignored
+OK      d3_mutants cut_frame_crc_ignored
+OK      acmp_mutants msg_ok_forced
+OK      acmp_mutants msg_ok_forced
+OK      acmp_mutants guard_ctlr_dropped
+OK      acmp_mutants guard_talker_eid_dropped
+OK      acmp_mutants guard_talker_uid_dropped
+OK      acmp_mutants cdl_not_44_rejected
+OK      acmp_mutants cdl_not_44_rejected
+OK      acmp_mutants st_ls_settle_as_withdraw
+OK      acmp_mutants st_ls_teardown_as_declare
+OK      acmp_mutants st_ls_sid_da_swapped
+OK      acmp_mutants st_ls_state_none
+OK      acmp_mutants st_ls_vid_dropped
+OK      acmp_mutants st_ls_index_zero
+OK      acmp_mutants st_ls_teardown_lost
+OK      acmp_mutants bound_view_not_latched
+OK      acmp_mutants bound_dmac_from_sid
+OK      acmp_mutants bound_view_not_cleared
+OK      acmp_mutants matcher_da_ignored
+OK      acmp_mutants matcher_vid_ignored
+OK      acmp_mutants rec_read_sink_zero
+OK      acmp_mutants rec_read_in_idle
+OK      acmp_mutants rec_started_unstored
+OK      acmp_mutants rec_settled_vlan_unstored
+OK      acmp_mutants rec_sweep_misaddressed
+OK      acmp_mutants armq_read_tail
+OK      acmp_mutants armq_head_stuck
+OK      acmp_mutants armq_ring_of_three
+OK      acmp_mutants armq_write_at_head
+OK      acmp_mutants armq_write_at_mid
+OK      acmp_mutants armq_write_refused
+OK      acmp_mutants armq_write_wrap_hi
+OK      acmp_mutants armq_full_pop_refuses
+OK      acmp_mutants armq_drop_skip_sat
+OK      gsi_mutants latency-trigger-removed
+OK      gsi_mutants latency-cmp-low8
+OK      gsi_mutants latency-cmp-low16
+OK      gsi_mutants latency-cmp-high16
+OK      gsi_mutants latency-cmp-low31
+OK      gsi_mutants latency-cmp-high2
+OK      gsi_mutants latency-cmp-bit31-dropped
+OK      gsi_mutants failure-code-zero
+OK      gsi_mutants failure-bridge-zero
+OK      gsi_mutants pbsta-zero
+OK      gsi_mutants acmpsta-zero
+OK      gsi_mutants wrong-sink
+OK      gsi_mutants integrator-path
+OK      gsi_mutants missing-descriptor-leak
+OK      gsi_mutants status-notification-zero
+OK      gsi_mutants rebind-started-trigger-removed
+OK      gsi_mutants failure-change-strobe-removed
+OK      gsi_mutants failure-change-redeclares
+OK      gsi_mutants index-guard-removed
+OK      gsi_mutants bridge-gate-removed
+OK      name_wr_mutant decode
+OK      srp_admission stale-evaluation
+OK      srp_admission pending-absent
+OK      srp_admission discarded-round-strobes
+OK      retry_mutants no_round
+OK      retry_mutants early_round
+OK      retry_mutants late_round
+OK      retry_mutants retry_wrap
+OK      retry_mutants no_pacing
+OK      retry_mutants fixed_priority
+OK      retry_mutants command_monopoly
+OK      retry_mutants retry_monopoly
+OK      retry_mutants disabled_alloc
+OK      retry_mutants no_accept_bound
+OK      retry_mutants short_accept_bound
+OK      retry_mutants refusal_is_grant
+OK      retry_mutants obsolete_grant
+OK      retry_mutants obsolete_release_lost
+OK      retry_mutants no_response_bound
+OK      retry_mutants response_wrap
+OK      retry_mutants no_stale_swallow
+OK      retry_mutants no_stale_capacity
+OK      retry_mutants no_stale_drain
+OK      retry_mutants backoff_bypass
+OK      retry_mutants reallocate_owned
+OK      retry_mutants half_backoff
+OK      retry_mutants fresh_forever
+OK      retry_mutants declare_without_demand
+OK      retry_mutants source_alias
+OK      retry_mutants gate_without_ownership
+OK      retry_mutants no_requests
+OK      retry_mutants no_command_ready
+OK      retry_mutants busy_tracker_blocks_commands
+OK      retry_mutants no_conflict_wait_clear
+OK      retry_mutants wait_on_release
+OK      retry_mutants tick_no_rearm
+OK      retry_mutants no_rotate_advance
+OK      retry_mutants no_sticky_gp_window
+OK      retry_mutants grant_kill_reg_only
+OK      retry_mutants accept_kill_zero
+OK      retry_mutants kill_no_pending_conflict
+OK      retry_mutants kill_no_live_conflict
+OK      retry_mutants kill_no_disable
+OK      retry_mutants init_elig_no_avail
+OK      retry_mutants no_turn_restore
+OK      retry_mutants elig_drop_rel
+OK      retry_mutants elig_drop_off
+OK      retry_mutants ready_ignores_turn
+OK      retry_mutants init_ignores_off_conflict
+OK      retry_mutants retry_period_200
+OK      retry_mutants tick_ge_to_gt
+OK      retry_mutants kill_no_conflict_at_all
+OK      retry_mutants kill_no_disable_at_all
+OK      retry_mutants kill_sticky_off
+OK      retry_mutants no_probe_initset
+OK      retry_mutants no_lsn_initset
+OK      retry_mutants no_conflict_daok_initset
+OK      retry_mutants no_backoff_exit_initset
+OK      retry_mutants no_enable_wait_clear
+OK      retry_mutants eligible_only_init
+OK      retry_mutants accept_kill_no_disable
+OK      retry_mutants init_no_enable_check
+OK      retry_mutants eligible_ignores_init
+OK      retry_mutants tick_keeps_wait
+OK      retry_mutants no_get_tx_state_response
+OK      retry_mutants elig_drop_conflict
+OK      retry_mutants elig_drop_pcp
+OK      retry_mutants elig_drop_tmr
+OK      retry_mutants elig_drop_lsn
+OK      retry_mutants init_busy_else_removed
+OK      retry_mutants kill_w_no_off
+OK      retry_mutants init_ready_no_en
+OK      retry_mutants wait_only_on_accept
+OK      retry_mutants sticky_kill_ignores_accept
+family tb/adp_engine/mutations: 39 of 39
+family tb/maap/mutations: 27 of 27
+family tb/pp_top/aecp_dispatch_mutations: 40 of 40
+family tb/pp_top/ctr_mutations: 17 of 17
+family tb/pp_top/mutations: 46 of 46
+family tb/srp_top/mutations: 108 of 108
+family notify_mutants: 53 of 53
+family d3_mutants: 110 of 110
+family acmp_mutants: 33 of 33
+family gsi_mutants: 20 of 20
+family name_wr_mutant: 1 of 1
+family srp_admission: 3 of 3
+family retry_mutants: 70 of 70
+patch arms needing fuzz under GNU patch -F0: 1 of 277 ['tb/pp_top/ctr_mutations/ctr-notify-one-window.patch']
+plants OK: 567 of 567
