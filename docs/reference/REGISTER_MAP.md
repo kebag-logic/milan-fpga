@@ -1029,9 +1029,12 @@ The processor emits an 82-byte ADPDU (dst `91:E0:F0:01:00:00`, EtherType
 `ctl_tx_mux` merges the processor's packed TX with MAAP, and `adp_tx_mux` puts
 the result on the MAC boundary between data frames.
 
-`available_index` increments on EVERY transmitted ADPDU — periodic re-advertise,
-discover response and departing alike (controllers treat a repeated index as an
-incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12).
+`available_index` increments after EVERY transmitted ENTITY_AVAILABLE: periodic
+re-advertise and discover response alike (controllers treat a repeated index as an
+incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12). An
+ENTITY_DEPARTING carries the current value, and the index then resets to 0
+(IEEE 1722.1-2021 Section 6.2.2.15, as processor PR #152 notes), so the next
+ENTITY_AVAILABLE carries 0.
 
 A frozen `ADP_STATUS` therefore still means no ADPDUs are leaving at all — a
 retired incident signature preserved in Git history, and now the *only* liveness read

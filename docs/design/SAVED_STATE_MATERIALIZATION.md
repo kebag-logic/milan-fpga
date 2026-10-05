@@ -10,7 +10,14 @@
 > processor PR #133, with the parent glue of section 5.2.
 > The firmware's AEM-first boot order (section 5.3, change 1) is adopted
 > with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
-> User names and channel maps (stages 2 and 3) are not implemented.
+> From pin `ead80360` the processor's D3 writer and walk also carry the user
+> names (stage 2; [processor PR #150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150), lane P1).
+> The parent's lane 3 (section 18.3) has not adopted them: name pending is not
+> transferred, and no parent test grades a name across a power cycle.
+> Channel maps (stage 3) are not implemented.
+> Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
+> maps (stage 3) are the parent's to write, restore and roll back, and the
+> processor's roll-back resets its two stores only (section 15 item 2, amended; #637).
 > Adoption follows the [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328).
 > The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) requires independent review.
 > This page decides scope D3 of the
@@ -382,7 +389,8 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    port changes again (section 7.2, K16). This is FAILURE CONTAINMENT, not
    persistence: Milan 5.3.10.1 requires the accepted set to persist, and
    #501 now specifies the larger allocation in the saved-state page.
-   Stage 3 still needs its donor writer adoption (section 10).
+   Stage 3 still needs its writer, the parent's own (section 10;
+   section 15 item 2, amended).
 10. **Three firmware changes** (section 5.3): the AEM image loads before
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
@@ -552,7 +560,7 @@ renamed so they cannot pass for the pinned RTL.
 | Listener admission (S4) | `KL_pp_acmp_lsn_admit` in front of `KL_pp_acmp_listener`'s transaction, talker-event, START/STOP and expiry faces; `walk_done` (the binding manager's `restore_done_o`), `pre_valid`, `lsn_busy` (`dbg_busy_o`), `lsn_arm` (`act_disc_arm_o`); `own`, `released` | NEW (T8); the listener is unchanged. Owned from the HARD reset; released once, when the binding walk is at its terminal, no preload is presented, the listener is idle and its last A4 strobe has left. While owned, a transaction and a talker event are held at their producers (valid AND ready masked: their ready is an acceptance); a START/STOP request's valid is masked and the listener's completion (`strm_set_ready_o`, `strm_set_error_o`) passes unmasked, because it fires only for a request the listener captured and its holder stays empty from the hard reset to the release; the expiry bus is not admitted (each listener-owner expiry counted). The gate and the listener take the same hard reset, never `rb_rst`. `released` is the binding walk's end for the D3 walk and for `restore_done_o`, and the start of the listener's live work (sections 8.1 and 8.9) |
 | Descriptor memory (S2) | `KL_aecp_desc_mem_guard` between `KL_aecp_desc_store`'s memory master and the memory; `desc_debt` (guard to writer) | NEW (T9). An accepted burst owes its terminal beat (last or err). While it does, the store's next request is held and `desc_debt` is 1. The guard takes the hard reset only, never the roll-back strobe |
 | Image status | `desc_img_valid`, the store's validated-image level | AMENDED (T1): today the debug tap `dbg_img_valid_o`; the restore's image proof reads it |
-| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state. The guard (S2) takes the hard reset only |
+| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's). Each owner returns to its reset state. The parent's map plane (stage 3) is not on the strobe: it puts its port sets back on `restore_rb_o` (section 15 item 2, amended). The guard (S2) takes the hard reset only |
 | Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it. It gates ADP advertising only: the side port's image-window lock keeps the top's `entity_enable_i`, as it ships, and ACMP and AECP traffic have their own releases (section 8.1) |
 | Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` and `restore_blank_o` become both walks; new `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding walk's `restore_cause_o[1:0]` | section 8.7 |
 | Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port input cluster counts and output entry capacities from [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RETRY_BACKOFF_CYC_P` (processor-clock cycles, defined below), `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
@@ -593,8 +601,10 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
   clean first boot (H8).
 
 With stage 3 the map plane (`milan_datapath.sv` and `KL_chan_map_capture.sv`)
-takes the processor's roll-back strobe as a reset of the port sets to their
-reset value: the #658 power-on identity, clipped to the formats then in force.
+puts the port sets back to their reset value when the D3 walk rolls back
+(`restore_rb_o`): the #658 power-on identity, clipped to the formats then in
+force. The processor's roll-back strobe stays inside the processor (section 15
+item 2, amended).
 
 Until then the parent's boot window (`amap_boot_r`, from reset to the
 restore's terminal) recomputes that clipped identity from the live formats on
@@ -845,11 +855,12 @@ can move, swallows the bytes and the ending, and grants neither manager
 until then. A late response can therefore only ever end the operation it
 belongs to. The drain never ends on time. A device that ends the read late
 ends the drain, and the port serves the next operation. A device that never
-answers keeps the port QUARANTINED for ever: every later change reads
-pending, never durable, until a reset. Nothing in this contract makes that
-port reusable; that needs a real cancellation or device-reset
-acknowledgement (processor issue 15's open recovery contract, section 15
-item 4). EXECUTED in section 8.8; D01_abandoned_read_not_drained withholds
+answers keeps the port QUARANTINED for ever: since processor issue 15 the
+port's own deadline ends the drain and every later change is given up with
+`nvm_alarm` after its three attempts, never written (section 8.8 and
+section 15 item 4, amended). Nothing in this contract makes that port
+reusable before the device ends the operation; only its own terminal or a
+reset does. EXECUTED in section 8.8; D01_abandoned_read_not_drained withholds
 rready from the writer's drained read, the late response then wedges the
 port, and a later change never reaches a slot: "latest 0076adf1, newest
 verified slot 0016e360". B03_binding_abort_not_drained does the same to the
@@ -1031,8 +1042,10 @@ and discovery arm, "preload record writes [236, 240], their discovery arms
 ADP advertises nothing the restore is about to change. The ADPDU carries
 the current configuration index from the dynamic state (the processor's
 `04_adp_engine.md`), and no ADPDU leaves before the enable. `available_index`
-is volatile, 0 at reset, and increments on every transmitted ADPDU
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
+is volatile and 0 at reset. It increments after each transmitted
+ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING (IEEE
+1722.1-2021 Section 6.2.2.15, from processor pin `ead80360`;
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
 first ADPDU after a power cycle already carries the restored index and no
 index is spent on a value that changes. The writer holds the state bus from
 reset to the restore's terminal, so no AECP program can read or write a
@@ -1180,6 +1193,9 @@ channels. Restoring either alone can orphan the other, so the order is:
 4. After every map, each restored format is judged again ("no mapped
    channel orphaned") and reverted to the image default if it fails.
 
+The processor's D3 walk does step 1; steps 2 to 4 are the parent's map
+restore after the walk's terminal (section 15 item 2, amended).
+
 EXECUTED: V6b restores a consistent narrower pair ("OUT0 set matches the
 slot True"); M10_fmt_full_judge judges the format against the maps before
 they are back and refuses it ("fmto0 0 valid 0"). V8 reverts a saved format
@@ -1246,9 +1262,9 @@ whose correctness is structural:
   but the restore. Round one's rule that "a live change made during the
   restore wins" had nothing left to act on and is removed.
 - **So the roll-back is a reset.** An abort in pass 1 pulses `rb_rst`, which
-  resets the dynamic-state store, the descriptor store and the parent's map
-  plane (section 5.1); the two stores are stage 1's owners, the map plane
-  stage 3's. Each owner then holds exactly what it held before the
+  resets the dynamic-state store and the descriptor store (section 5.1),
+  stage 1's owners; the parent's map plane, stage 3's, resets its port sets
+  on `restore_rb_o` (section 15 item 2, amended). Each owner then holds exactly what it held before the
   restore: every row at its reset value with its valid flag clear, every
   name the image's (the descriptor store walks the image again), every
   port's reset set. Formats and maps return together, so they are
@@ -1483,7 +1499,14 @@ arbiter DRAINS that read (section 6.4). Its bytes and its ending reach no
 manager, and no new operation is granted until the device ends it. This is
 the containment protocol for an untagged port; nothing here assumes the
 port can be reused before the device answers, and a device that never
-answers keeps it QUARANTINED for ever (section 15 item 4).
+answers keeps it QUARANTINED for ever (section 15 item 4). Since processor
+issue 15 the quarantine is the PORT's own: a device that owes the port an
+event and gives none for `NVM_MEM_TMO_CYC_P` clocks (`T-NVM-PORT-DEADLINE`,
+`CLK_HZ_P` clocks, 1,000 ms, at the processor top) is answered with one err,
+cause DEADLINE, which ends the drain, and the port keeps the abandoned
+command OWED: it issues nothing over it, drains an owed read's bytes, and
+serves again only after the device's own done or err, or a reset. Nothing
+is released by time alone.
 
 **The terminals.**
 
@@ -1519,11 +1542,18 @@ requires when persistence wedges.
 Commands come back when both walks end. The persistence device comes back
 only when the device ends the read the drain holds: a late answer ends the
 drain and the next change persists (W13c, W15); a device that never
-answers keeps the port QUARANTINED until reset, and every later change reads
-pending, never durable (W13). Nothing releases the port on time, and nothing
-here claims the port reusable before the device ends that read; a real
-cancellation or device-reset acknowledgement is processor issue 15's open
-recovery contract, which this page neither delivers nor amends.
+answers keeps the port QUARANTINED until reset. Every later change is then
+attempted three times (DR2c), each ended by the port's DEADLINE with no
+device command, and the producer gives it up with `nvm_alarm`, which drops
+the change's pending bit and revokes `nvm_backed` (the saved-state page's
+section 9.2): a failure reported, where "pending for ever" was not (W13,
+amended). Nothing releases the port on time, and nothing here claims the
+port reusable before the device ends that read. Processor issue 15's
+reusable service, as its ruling reads it: busy falls at the err, and every
+later request is answered within the deadline, served once the device has
+ended the abandoned command and answered DEADLINE while it stays silent. A
+WRITE the port abandoned on a device that waits for its next byte for ever
+is contained the same way until a reset.
 
 EXECUTED at 1x1, and the D3 cases at 8x8 as well, each on V1a's slots unless
 named, each followed by a controller's GET and SET:
@@ -1540,7 +1570,7 @@ named, each followed by a controller's GET and SET:
 | W8, W9, W10 | pass 1: the GET_AUDIO_MAP face, the format judge, the edit face silent | each "abort cause 3", the terminal at most 20,666 cycles after the face fell silent at 1x1 and 21,158 at 8x8, rolled back |
 | W11 | R217's counterexample: V11's slot, the first D3 read 3,500,000 cycles late | "held from 782 to 3500782"; "D3 terminal at 20782", "entity enabled at 20798"; the late response drained; the later SET persists |
 | W12 | R218's counterexample: a pass-1 read after records applied, 3,100,000 cycles late | "D3 terminal at 24202", "entity enabled at 24218"; rolled back; the response drained at 3103545 |
-| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40722", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined |
+| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40722", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined. AMENDED by processor issue 15: that reading is the run's horizon, before the port's deadline. At `T-NVM-PORT-DEADLINE` the port answers the drained read DEADLINE and keeps it owed, the SET's three attempts each end DEADLINE with no device command, and `nvm_alarm` drops its pending bit (`protocol-processor/tb/acmp_nvm` N12a-b, `protocol-processor/tb/nvm_port` T24); not re-executed here |
 | W13b | the binding read, released when the binding deadline was 40 cycles away | "the binding deadline count reached 19960 of 20000, binding cause 0"; "preloads [(20130, 0)]"; both walks COMPLETE |
 | W13c | the binding read, released 5 cycles after the binding manager abandoned it | "abandoned at 20061, the response came at 20066"; "binding fail 1 cause 3"; "preloads []"; the D3 walk COMPLETE; the later SET persists |
 | W15 | the binding read, released at 2,900,000, after the entity was enabled | "the entity enabled at 40733, the response came at 2900064"; "preloads []": no binding reaches the listener after enable; the D3 walk ended on defaults; the later SET persists once the drain ends |
@@ -1551,7 +1581,9 @@ named, each followed by a controller's GET and SET:
 Every case above that reaches done also passes
 entity_enabled_after_terminal@boot and no_restore_write_after_terminal. The
 later SET persists wherever the port is free, and reads pending, never
-durable, where a drained read never ends (W1, W4, W7, W13); the GET after
+durable, where a drained read never ends (W1, W4, W7, W13), within those runs'
+horizon: since processor issue 15 the port's deadline gives such a SET up
+with `nvm_alarm` after its three attempts (W13, amended); the GET after
 recovery is graded wherever the restore ended on defaults.
 
 W01_no_restore_watchdog is killed by W4: "D3 terminal at 0".
@@ -1840,7 +1872,7 @@ Its decision-register gates govern activation of those lanes.
   Payload length is `72 * 8 = 576` bytes.
   The framed record adds its eight-byte header: 584 bytes.
   At 1x1, `max(17, 2 * 8)` preserves every byte.
-  Processor #61/#83 must adopt the capacity when implementing maps.
+  The parent's own map writer adopts the capacity (section 15 item 2, amended).
   The historical K16 evidence below exercised the old allocation.
   Permanent pending still does not satisfy persistence.
 - **Work permitted before release:** the contract supports stages 1 and 2.
@@ -1854,16 +1886,17 @@ Its decision-register gates govern activation of those lanes.
 - **Stated in every stage's release notes:** a persistence device that
   never ends an operation the restore abandoned keeps the port QUARANTINED
   until reset (section 8.8). Commands are served and the entity is enabled
-  on defaults with restore fail set; every later change reads pending, never
-  durable. No reuse of that port is claimed: processor issue 15's recovery
-  contract remains open. DR1a governs its prerequisite disposition.
+  on defaults with restore fail set; every later change is given up with
+  `nvm_alarm` after three attempts the port's deadline ends, never durable.
+  No reuse of that port is claimed before the device ends the operation
+  (section 15 item 4, amended). DR1a governs its prerequisite disposition.
   This page neither waives that criterion nor closes the issue.
 
 | Stage | Records | What lands | Silicon proof | Tickets |
 |---|---|---|---|---|
 | 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
 | 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; the sticky pending source stops taking live name writes | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
-| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | The parent's own writer and restore (section 15 item 2, amended): the edit-face trigger, the framing rule at #501's capacity, the coupled restore after the processor's D3 terminal, the map plane's reset on `restore_rb_o`; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T4, #501, #637 |
 
 Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
 on the stage-1 build, which rolls back the two stores and not the map
@@ -1923,7 +1956,7 @@ Section 15 records #15/#20 dispositions and the ruled area scope.
 | Restoring over an image that cannot be proven, refusing every record (round two) | a restore reported complete over an unwalked image whose names are not proven | EXECUTED: IMG01 is killed by V22b; V22 |
 | Re-walking the descriptor store at once after its reset | a burst it abandoned can hand its late beats to the re-walk, whose index and names are not checksummed | EXECUTED: DG02 is killed by V21b; the guard's own mutant DG01 by V23 |
 | Holding AECP dispatch through an unbounded binding walk (revision b) | a silent device held every command for ever, against the saved-state page's section 9.3 | the bounded binding walk (S3), W13; B01 is killed by W13 |
-| Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; processor issue 15's open recovery contract |
+| Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; section 15 item 4 (amended) |
 | Waiting on the listener's `pre_ready_o` as it ships (revision c) | a held transaction, talker event, START/STOP request or expiry holds the preload phase, and with it every AECP command, for as long as it lasts | R217 R3-F1; tracked L01; LG01 is killed by L01 |
 | A preload deadline that ends the binding walk, or releases the listener, on time | when it fires, earlier sinks are preloaded and their discovery armed, and nothing takes the listener's records back: the D3 walk and the enable would follow a partial binding image | section 8.9 |
 | Ranking the preload above the listener's other sources, in an amended listener | a transaction or a talker event served in the read phase still writes a record back and withdraws a restored binding; and it amends a pinned module the admission gate leaves unchanged | tracked L05; LG01 is killed by L05 |
@@ -2223,21 +2256,35 @@ Existing numbered references retain these dispositions:
 1. **RESOLVED: live-write triggers.** Section 3.1 replaces mark-based acceptance.
    FASTCONNECT section 16 cross-references that authority.
    Processor F07.9 still requires the edits in section 15.2.
-2. **Implementation owed: output-map capacity adoption.** #501 landed through #557.
-   Processor #61/#83 still owe the writer and replay.
+2. **AMENDED: the map writer is the parent's** (the processor ruling on its #83, lane P1,
+   2026-10-03; the pattern of the 2026-09-19 counters decision). #501 landed through #557.
+   The parent writes records `0x60`/`0x70` + port from its own phase-5 commit beat at
+   #501's capacity, restores them after the processor's D3 terminal (`restore_done_o`),
+   judged against the formats the processor restored and exports (section 8.4, steps 2
+   to 4), and puts its port sets back on `restore_rb_o`. The processor's `rb_rst` resets
+   its two stores only, and no processor writer, latch or replay implements maps; its
+   ATDECC side (GET_AUDIO_MAP, ADD/REMOVE_AUDIO_MAPPINGS) is unchanged. #637 owns the
+   parent's restore and roll-back.
    Historical K16 proves containment only, not accepted-set persistence.
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
    Names and actual map writes remain sticky until reset.
    Section 10 transfers that responsibility only with materialization.
-4. **OPEN: processor #15 reusable-port acceptance.** DR1a requires full-closure evidence.
-   Contract work and lanes 1-4 may proceed meanwhile.
-   Quarantine supplies containment, never evidence that reuse works.
+4. **AMENDED: processor #15 reusable-port acceptance** (the processor ruling on #15, lane P2).
+   The port answers a silent device at its own deadline, `NVM_MEM_TMO_CYC_P` = `CLK_HZ_P`
+   clocks (1,000 ms, derived as 20 times the backend's 50 ms grant hold): one err, cause DEADLINE.
+   Busy falls at the err; every later request is answered within the deadline, served once
+   the device has ended the abandoned command, DEADLINE while it stays silent.
+   The abandoned command stays owed until the device's own terminal or a reset:
+   quarantine is never released by time alone, and an abandoned WRITE is contained.
+   A silent device therefore gives three failed attempts and `nvm_alarm`, which revokes
+   `nvm_backed` and drops the change's pending bit (section 8.8, W13 amended).
+   Quarantine still supplies containment, never evidence that reuse works.
 5. **Landed prerequisites, incomplete integration.** Processor #109 supplies S1/S3/S4.
    Processor #110 supplies S2's descriptor memory guard.
    Both are contained in processor pin `16be6768`.
    D3 still needs the guard's debt and ownership connections.
-   Processor #20 remains open despite the landed cause distinction.
-   Its issue text and exact-head tests require reconciliation under DR1b.
+   Processor #20 closed with lane P2 (processor PR #145, in pin `ead80360`), on the proof
+   the processor's #15 ruling names. DR1b still governs what full #70 closure needs of it.
 6. **RULED: debounce, coalescing and loss policy.** DR2a requires measurements.
 7. **Implementation owed: value-rule parity.** Section 8.3 owns replay validation.
    Reuse the SET rules or prove independent parity tests.
@@ -2707,11 +2754,11 @@ This targeted proof does not close lane 5's combined campaign.
 ### 18.4 Lane 4: both map directions
 
 **Acceptance.** Implement capture/apply over the actual parent map interfaces.
-Consume #501's per-port capacity in processor buffers and framing.
+Consume #501's per-port capacity in the parent's buffers and framing (section 15 item 2, amended).
 Persist input and output ports independently, including empty sets.
 Preserve static-map defaults without inventing mutable static state.
 Apply section 8.4's coupled format/map validation transaction.
-Rollback maps, output ownership and crossbar effects with scalar formats.
+Reset maps, output ownership and crossbar effects on `restore_rb_o`, with scalar formats.
 Transfer remaining map pending only after real materialization accounts.
 
 **Validation.** Use actual phases 0-5 and retained-flash integration.

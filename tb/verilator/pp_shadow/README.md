@@ -86,7 +86,8 @@ Each test then observes live writes through command completion.
 Pending must rise on the first accepting edge.
 The later group mark must occur and identify its group.
 An accepted snapshot acknowledgement must preserve the sticky source.
-No name/map record writer exists yet.
+From processor pin `ead80360` the D3 writer also saves names (lane P1).
+No map record writer exists yet.
 These tests make no flash persistence or restoration claim.
 
 Controls exercise unchanged names and zero-record map commands.

@@ -267,6 +267,20 @@ audio_interface:
                                      # returns to the loopback pool by
                                      # itself - one fact, both consumers.
 
+# protocol-processor descriptor model lint (hdl/aecp/desc/model_lint.py).
+# Milan v1.2 5.3.3.8 requires an AUDIO_CLUSTER in every Stream Port Input;
+# the D8 role-pool inputs below carry none until #584 lands. The waiver names
+# that one check on those eight ports, travels into the packed document, is
+# listed in the layout report, and is refused once any of them passes.
+model_lint_waivers:
+  - rule: L1
+    check: port-cluster-minimum
+    configuration: 0
+    type: STREAM_PORT_INPUT
+    first: 0
+    last: 7
+    reason: "kebag-logic/milan-fpga#584: the D8 8x8 input role pools carry no AUDIO_CLUSTER"
+
 streams:
   listeners:
     # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:

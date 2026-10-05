@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `631eeb342ca1e3fa80e734077a56a943aee76ff1` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `ead8036035affd53ef4b29979190f2f4f67084c0` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -118,6 +118,42 @@ The parent can observe these processor changes.
 | C3 carries a SET_CONFIGURATION index in the ADPDU | The parent image declares one configuration; the wire is unchanged while `ADP_IDX0` is 0 |
 | C2 fixes the internal MAAP engine | The parent ties `cfg_maap_internal_i` to 0, so it stays inactive |
 | P141 grades SET/GET_CLOCK_SOURCE over ten sources | [Media-clock following](../design/MEDIA_CLOCK_FOLLOWING.md#protocol-processor-changes) records it as landed |
+
+Issue #661 adopts processor pin `ead80360`.
+
+| Processor lane | Merged PR | `main` after merge |
+|---|---|---|
+| C8, descriptor model lint | [144](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/144) | `88969246` |
+| #143, campaign jobs | [146](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/146) | `c74711d4` |
+| P2, NVM port deadline | [145](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/145) | `ddb3119d` |
+| C7, counters face | [147](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/147) | `f4167536` |
+| P1, persistence beyond BINDING | [150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150) | `c4cb84ff` |
+| C10, Yosys tops and declarations | [149](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/149) | `5c71928a` |
+| #85, ADP matrix walk | [152](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/152) | `83999eba` |
+| #232, notification registry RAM | [153](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/153) | `c050d971` |
+| #230, SRP area | [154](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/154) | `07b1469d` |
+| #81 and #84, scoreboard faces | [157](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/157) | `b0a74196` |
+| #639, arm queues and listener records | [155](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/155) | `ead80360` |
+
+- `ltn_rom.hex` and `ucode.hex` match the `631eeb34` rows.
+- The top gains one parameter and no port.
+
+The parent can observe these processor changes.
+
+| Processor change | Parent position |
+|---|---|
+| P2 adds parameter `NVM_MEM_TMO_CYC_P`, default `CLK_HZ_P` (1,000 ms) | `KL_pp_shadow` keeps the default |
+| P2 answers a silent NVM device at that deadline: err, cause DEADLINE | Three failed attempts raise `nvm_alarm`; the [D3 contract](../design/SAVED_STATE_MATERIALIZATION.md) is amended (W13, section 8.8, section 15 item 4) |
+| P1 adds the name stage; the channel maps are the parent's ([processor #83 ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83#issuecomment-5967611704)) | The D3 contract is amended; the map writer, restore and roll-back are #637's |
+| P1 keeps `pend_i`'s sticky live-name term | A parent lane transfers names to `d3_unflushed_o` |
+| C8 lints the descriptor model inside `build()` by default | Both image emitters run it; the 8x8 configuration carries its #584 waiver; the parent's duplicate L6/L10 checker is retired |
+| C10 names six modules as Yosys tops and declares before use | `processor_yosys_tops.budget` is empty and the xvlog ratchet banks the fix |
+| #232 drops the `pd_ix_w` use-before-declaration | The xvlog ratchet banks it |
+| #85 resets `available_index` to 0 after ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15) | The [register map](REGISTER_MAP.md) `0x644` note says so |
+| #157 serializes GET_DYNAMIC_INFO against an in-flight ACMP stream step | No top port or parameter |
+| #230, #232 and #639 move storage into distributed RAM | No top port or parameter; the [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined |
+| C7 documents the integrator-owned `ctr_*` counters face | `milan_datapath` already meets it |
+| #143 adds `--jobs` to the processor's mutation campaigns | No parent change |
 
 The ROM ledger records current and earlier pins.
 

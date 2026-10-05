@@ -603,7 +603,8 @@ def build_model(spec: dict[str, Any]) -> dict[str, Any]:
                 CLKSRC_TABLE=clock_source_table(spec["clock_sources"]),
                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
-                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
+                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap,
+                LINT_WAIVERS=spec.get("lint_waivers", []))
 
 
 #: Render-crossbar DEPTH: how many physical output channels
