@@ -113,7 +113,7 @@ python3 scripts/check_sh_idiom.py
 python3 scripts/check_nvm_capture.py
 scripts/run_all_suites.sh $VALIDATION_STORAGE/661-review-suites
 sudo -n unshare --mount --propagation private bash -c \
-  'set -e; mount --bind $VALIDATION_STORAGE/661-a537/abc-pinned/abc /usr/bin/abc; exec sudo -n -u alex bash $VALIDATION_STORAGE/661-a537/pinned_synthesis.sh'
+  'set -e; mount --bind $VALIDATION_STORAGE/661-a537/abc-pinned/abc /usr/bin/abc; exec sudo -n -u <account> bash $VALIDATION_STORAGE/661-a537/pinned_synthesis.sh'
 make -C gptp-processor -j16 contract tb lint
 PATH=$VALIDATION_STORAGE/661-a537/sv2v013/bin:$PATH bash protocol-processor/scripts/run_suites.sh
 python3 syn/ooc/pp_resource_gate.py check-baseline
