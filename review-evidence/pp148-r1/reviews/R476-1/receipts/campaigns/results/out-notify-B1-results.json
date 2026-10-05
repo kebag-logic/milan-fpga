@@ -1,0 +1,127 @@
+[
+ {
+  "mutant": "golden-aecp_notify-identify",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-identify-only",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "ident_built_at_default",
+  "suite": "./obj_dir/Vpp_top_sim --identify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "ID0: with the parameter at 0"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ID0: with the parameter at 0 the button puts no AECP frame on the wire (12)",
+   "ID0b: nothing is ever addressed to 91-E0-F0-01-00-01"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "deregister_keeps_row",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (70 of 2212 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_holds_15",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (15, 5, 10)",
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (28 of 2212 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_burst_deadline_one_tick_short",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT2: frame 1 left two clocks before a ms boundary, and frame 2 is presented T-IDENT-BURST after that boundary, never one tick sooner: 14900004 clocks, want 15000000 to 15000008"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "set_control_ignores_lock",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "RN: 720 seeded steps"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (395 of 2251 frame comparisons diverged)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ident_t0_same_ms",
+  "suite": "make identify",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "FT4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "FT4: held, the next burst starts at Figure 7-142's timeout, T-IDENT-REARM after the boundary two clocks after the first frame left, never one tick sooner: 99900004 clocks, want 100000000 to 100000008"
+  ],
+  "verdict": "KILLED"
+ }
+]

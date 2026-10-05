@@ -1,0 +1,146 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-spacing-only",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "r476_stamp_slot0_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "r476_window_999_st",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ST2b:"
+  ],
+  "missing": [
+   "ST2b:"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "r476_stamp_slot0_cs",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "CS2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CS2a: churn started 0 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99585 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+   "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99555 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)",
+   "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99590 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "r476_window_999_cs",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "CS2a:"
+  ],
+  "missing": [
+   "CS2a:"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "r476_stamp_any_kind_st",
+  "suite": "./obj_dir/Vpp_top_sim --notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "ST2:"
+  ],
+  "missing": [
+   "ST2:"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "r476_window_999_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [
+   "TW1:",
+   "TW2:"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ },
+ {
+  "mutant": "r476_stamp_any_kind_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "TW1:"
+  ],
+  "missing": [
+   "TW1:"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED"
+ }
+]

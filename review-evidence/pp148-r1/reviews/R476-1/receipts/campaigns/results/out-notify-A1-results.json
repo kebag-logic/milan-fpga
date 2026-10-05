@@ -1,0 +1,342 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-originator-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-spacing-only",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "inflight_shared_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "A owner-5 counter untouched",
+   "B owner-5 first seq",
+   "E owner-1 seq advanced between issues",
+   "E owner-6 counter independent (first use) got 6",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (4631 of 3780 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: ready",
+   "final: every hold released exactly once (248 vs 236)",
+   "final: no armed timer slot leaked",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_cancel_keeps_timer",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "H cancellation disarmed timeout",
+   "H absent-owner cancellation is inert",
+   "I no expiry before serializer acceptance",
+   "J2 both timer cancellations complete without a leak",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (95 of 3757 events)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_match_ignores_seq",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D wrong seq not routed",
+   "D wrong key not routed",
+   "D both misses counted",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (3941 of 3762 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: every hold released exactly once (879 vs 877)",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "inflight_highest_free_id",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "R: a seeded session"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "A lowest free id got 11",
+   "A busy bit set",
+   "B reuses freed id 0",
+   "E ids in order",
+   "E middle first",
+   "E third next",
+   "E first last",
+   "F ids allocated in order",
+   "F freed id 3 reused",
+   "R: a seeded session of 16 owners' overlapping exchanges, zero divergence from the independent inflight model (4624 of 3778 events)",
+   "R c: the drained session leaks no entry, timer or held slot",
+   "final: ready",
+   "final: every hold released exactly once (357 vs 345)",
+   "final: no armed timer slot leaked",
+   "final: table empty"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_old_identity_kept",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX1: the reused row no longer matches its previous controller"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_rewrite_unmatched",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+   "IX6: after that reset, E registered into the same row keeps it against a failed probe in its row write's own cycle (0 rows live)",
+   "IX6b: after the rewrite, E's command keeps the row through the index"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_new_identity_unset",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX3: the registered identity matches in the command's cycle",
+   "IX4: a command two cycles after its REGISTER keeps the row against a failed probe in the same cycle",
+   "IX6b: after the rewrite, E's command keeps the row through the index"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "ix_last_chunk_ignored",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX2: no identity one bit from a registered one matches (4 of 112 did)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "override_set_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX6:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX6: after that reset, E registered into the same row keeps it against a failed probe in its row write's own cycle (0 rows live)",
+   "IX6b: after the rewrite, E's command keeps the row through the index"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "own_compare_new_row",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "IX5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX5: in the row write's own cycle, the reused row's previous controller C, which rows_r still holds, keeps the row against a failed probe in the same cycle (1 rows live)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "stamp_read_without_valid",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TS3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TS3: after a warm reset, a change in that same second goes out at once"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_at_send_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_spacing_from_selection_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_holds_15_cs",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "CS1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CS1: sixteen controllers register before the churn started 0 clocks after ST's phase (premise; 15)",
+   "CS2a: churn started 0 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 114100 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 0)",
+   "CS1: sixteen controllers register before the churn started 30 clocks after ST's phase (premise; 15)",
+   "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 114100 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 0)",
+   "CS1: sixteen controllers register before the churn started 95 clocks after ST's phase (premise; 15)",
+   "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 114100 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_first_job_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3007, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 7503, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_spacing_from_selection",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "CS2b:",
+   "CS2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99854 clocks (row 0, descriptor 0006:0), want at least 99900, and at least 3 rounds at each row (fewest 4)",
+   "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 99590 clocks (row 0, descriptor 0005:1), want at least 99900, and at least 3 rounds at each row (fewest 4)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_limit_500ms_cs",
+  "suite": "./obj_dir/Vpp_top_sim --spacing-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "CS2a:",
+   "CS2b:",
+   "CS2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CS2a: churn started 0 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 75504 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 5)",
+   "CS2b: churn started 30 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 75504 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 5)",
+   "CS2c: churn started 95 clocks after ST's phase: every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads; closest 75504 clocks (row 0, descriptor 0005:0), want at least 99900, and at least 3 rounds at each row (fewest 5)"
+  ],
+  "verdict": "KILLED"
+ }
+]
