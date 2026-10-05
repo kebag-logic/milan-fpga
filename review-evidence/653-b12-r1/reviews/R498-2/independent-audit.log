@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "manifest_files": 89,
+  "publication_redactions": [
+    "identity.json",
+    "validation-r2.json",
+    "validation.json"
+  ],
+  "cycles": 182,
+  "wire_headers": 546,
+  "nonidentity_bytes_unchanged": true,
+  "peer_identity_scan_hits": [],
+  "privacy_limit": "Independent scan covers peer entity ID and derivable MAC; names and serials rely on published retained-source audit.",
+  "counter_polls": 1510,
+  "early_polls": 546,
+  "hold_polls": 600,
+  "startup": [
+    {
+      "cycle": "BAAF0300-2",
+      "initial_timestamps_hex": [
+        "d9353fed",
+        "d7ccf250"
+      ],
+      "first_step_ns": -23612829,
+      "remaining_step_range_ns": [
+        124999,
+        125020
+      ],
+      "first_tap_spacing_ns": 125025,
+      "bind_to_first_tap_ns": 20227033,
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0,
+      "first_nonzero_utc": "2026-10-05T11:19:03.730732+00:00",
+      "first_nonzero_frames": 68,
+      "bind_to_read_us": 29880,
+      "read_before_unbind_us": 278656,
+      "read_to_callback_us": 318532
+    },
+    {
+      "cycle": "BAAF0900-5",
+      "initial_timestamps_hex": [
+        "113d7f85",
+        "3050f58d"
+      ],
+      "first_step_ns": 521369096,
+      "remaining_step_range_ns": [
+        124999,
+        125019
+      ],
+      "first_tap_spacing_ns": 125016,
+      "bind_to_first_tap_ns": 20407250,
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0,
+      "first_nonzero_utc": "2026-10-05T11:20:09.640696+00:00",
+      "first_nonzero_frames": 67,
+      "bind_to_read_us": 29947,
+      "read_before_unbind_us": 878672,
+      "read_to_callback_us": 418654
+    },
+    {
+      "cycle": "BAAF0300-1",
+      "initial_timestamps_hex": [
+        "cdcb2d53",
+        "cdcd159a"
+      ],
+      "first_step_ns": 124999,
+      "remaining_step_range_ns": [
+        124999,
+        125019
+      ],
+      "first_tap_spacing_ns": 123944,
+      "bind_to_first_tap_ns": 222566994,
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0
+    },
+    {
+      "cycle": "BAAF0900-4",
+      "initial_timestamps_hex": [
+        "dba7c762",
+        "dba9afa9"
+      ],
+      "first_step_ns": 124999,
+      "remaining_step_range_ns": [
+        124999,
+        125019
+      ],
+      "first_tap_spacing_ns": 125000,
+      "bind_to_first_tap_ns": 20091409,
+      "tv": 1,
+      "tu": 0,
+      "mr": 0,
+      "sp": 0
+    }
+  ],
+  "restore_observations_per_endpoint": 43,
+  "unbound_observations_per_endpoint": 18,
+  "gptp_correlation": "NOT RUN: no retained gPTP reference or measured clock mapping",
+  "capture_limit": "Complete captures are indexed, not present in this packet."
+}

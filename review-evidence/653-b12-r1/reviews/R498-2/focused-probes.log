@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "wire": [
+    {
+      "case": "response_first",
+      "expected": "RESPONSE_FIRST",
+      "actual": "RESPONSE_FIRST",
+      "passed": true
+    },
+    {
+      "case": "reversed",
+      "expected": "COUNTERS_FIRST",
+      "actual": "COUNTERS_FIRST",
+      "passed": true
+    },
+    {
+      "case": "missing_push",
+      "expected": "NO_UNLOCK_PUSH",
+      "actual": "NO_UNLOCK_PUSH",
+      "passed": true
+    },
+    {
+      "case": "prior_unlock",
+      "expected": "NO_UNLOCK_PUSH",
+      "actual": "NO_UNLOCK_PUSH",
+      "passed": true
+    },
+    {
+      "case": "foreign_controller",
+      "expected": "NO_UNLOCK_PUSH",
+      "actual": "NO_UNLOCK_PUSH",
+      "passed": true
+    },
+    {
+      "case": "foreign_input",
+      "expected": "NO_UNLOCK_PUSH",
+      "actual": "NO_UNLOCK_PUSH",
+      "passed": true
+    },
+    {
+      "case": "foreign_sequence",
+      "expected": null,
+      "actual": null,
+      "passed": true
+    },
+    {
+      "case": "solicited_auxiliary_baseline",
+      "expected": "RESPONSE_FIRST",
+      "actual": "RESPONSE_FIRST",
+      "passed": true
+    },
+    {
+      "case": "non_success_status",
+      "actual": 1,
+      "expected": 1,
+      "passed": true
+    }
+  ],
+  "rule": [
+    {
+      "case": "clean",
+      "compile_rc": 0,
+      "run_rc": 0,
+      "stdout": "Eight rule controls PASS\n"
+    },
+    {
+      "case": "inverted",
+      "compile_rc": 0,
+      "run_rc": 1,
+      "stdout": ""
+    }
+  ],
+  "restore": [
+    {
+      "case": "changed_mapping",
+      "rc": 1,
+      "reason": "effective state changed"
+    },
+    {
+      "case": "matching_aem_failure",
+      "rc": 1,
+      "reason": "unsuccessful response: census-clock-dut"
+    },
+    {
+      "case": "matching_binding_failure",
+      "rc": 1,
+      "reason": "unsuccessful response: rx-state-dut-0"
+    },
+    {
+      "case": "boolean_status",
+      "rc": 1,
+      "reason": "unsuccessful response: rx-state-dut-0"
+    },
+    {
+      "case": "wrong_endpoint",
+      "rc": 1,
+      "reason": "wrong endpoint"
+    },
+    {
+      "case": "reordered_inventory",
+      "rc": 0,
+      "reason": "equal successful inventory"
+    }
+  ]
+}

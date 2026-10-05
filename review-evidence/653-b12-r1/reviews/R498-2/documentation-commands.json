@@ -1,0 +1,30 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "receipt": "docs-check.log"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "fa450d301805881ad713b67521477bf042ddadfd..2263c6288956a5edd841df62252326780edd4870"
+    ],
+    "rc": 0,
+    "receipt": "whitespace.log"
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1"
+    ],
+    "rc": 0,
+    "receipt": "checkout-status.log"
+  }
+]

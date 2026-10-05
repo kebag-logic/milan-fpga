@@ -1,0 +1,57 @@
+[
+  {
+    "name": "startup-replay",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "SCRATCH/evidence-r2/check_startup.py",
+      "SCRATCH/evidence-r2"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "restore-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "SCRATCH/evidence-r2/check_restore.py",
+      "SCRATCH/evidence-r2",
+      "SCRATCH/restore-controls"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "independent-audit",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "SCRIPTS/independent_audit.py",
+      "SCRATCH/evidence-r2",
+      "SCRATCH/evidence",
+      "REPO",
+      "SCRATCH/publication-manifest.json"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "focused-probes",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "SCRIPTS/focused_probes.py",
+      "SCRATCH/evidence-r2",
+      "SCRATCH/focused"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "integrity",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "SCRIPTS/check_integrity.py",
+      "REPO"
+    ],
+    "rc": 0
+  }
+]
