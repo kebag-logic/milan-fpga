@@ -1,0 +1,45 @@
+{
+  "Verilator": "Verilator 5.050 2026-07-01 rev v5.050",
+  "GNU Make": "GNU Make 4.3",
+  "Markdown Python": "Python 3.14.7",
+  "Parent sv2v": "sv2v v0.0.12",
+  "Processor sv2v": "sv2v v0.0.13",
+  "Yosys": "Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]",
+  "C++ compiler": "g++ (GCC) 16.2.1 20260810",
+  "Vivado from completed measurement logs": "2026.1 build 6511674",
+  "Non-docs default make": "GNU Make 4.4.1",
+  "Canonical ABC": {
+    "revision": "5d51a5e420f5de493d07bf61109a977248c86ffb",
+    "source_url": "https://codeload.github.com/berkeley-abc/abc/tar.gz/5d51a5e420f5de493d07bf61109a977248c86ffb",
+    "build": "make -j16 ABC_USE_NO_READLINE=1 ABC_USE_STDINT_H=1 CC=\"gcc -std=gnu17\" OPTFLAGS=-O2",
+    "artifacts": {
+      "source.tar.gz": {
+        "bytes": 7400526,
+        "sha256": "e649f9a650862f1e81346f2dcbaa59affbced00f342f11cbe8e0b8386626ff41"
+      },
+      "abc": {
+        "bytes": 25479312,
+        "sha256": "5b36d60500794c226f549a022ede6b95fbe9bb1c4ac9155e17820303e9e66f36"
+      }
+    },
+    "selector_proof": {
+      "built_and_mounted_sha256": "5b36d60500794c226f549a022ede6b95fbe9bb1c4ac9155e17820303e9e66f36",
+      "host_before_and_after_sha256": "3fa915efa25eb11ad3af6d3eb16395d801320df2890afe4fdc7d7a5a00e3b952",
+      "namespace_launcher_rc": 0
+    },
+    "selector_script": {
+      "path": "$VALIDATION_STORAGE/661-a537/pinned_synthesis.sh",
+      "bytes": 544,
+      "sha256": "1086ba816cfe72cf649746ce658c273fc629f0971f8c34e87a9e35abb0da0e4e"
+    }
+  },
+  "Superseded system ABC": {
+    "package": "0.0.0.20260511-1",
+    "revision": "c61f1a04e9db42db9cea876c1127bfd8f3eab040",
+    "source": "https://gitlab.archlinux.org/archlinux/packaging/packages/abc/-/raw/0.0.0.20260511-1/PKGBUILD"
+  },
+  "Yosys binary": {
+    "bytes": 33430184,
+    "sha256": "ec566d8fbb0d24e09ce7ab4e86c55c7169f24097d90611ee354b446925f36b5b"
+  }
+}

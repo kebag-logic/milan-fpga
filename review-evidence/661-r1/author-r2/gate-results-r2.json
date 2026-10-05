@@ -1,0 +1,182 @@
+[
+ {
+  "name": "behave",
+  "command": "bash -c cd\\ tests\\ \\&\\&\\ exec\\ behave\\ --no-capture\\ -f\\ plain",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 2,
+  "log": "$VALIDATION_STORAGE/r2/gates/behave.log",
+  "bytes": 196684,
+  "sha256": "53817228ac3f2857f2089b30167d2da2999b630a565defe11deb073d0f313ea1"
+ },
+ {
+  "name": "builder-compare",
+  "command": "python3 $VALIDATION_STORAGE/r2/compare_builder.py $VALIDATION_STORAGE/r2/builder-compare head=$WORKTREE premerge=$VALIDATION_STORAGE/r2/premerge-export round1=$VALIDATION_STORAGE/r2/round1-export",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 11,
+  "log": "$VALIDATION_STORAGE/r2/gates/builder-compare.log",
+  "bytes": 133,
+  "sha256": "cdd5a55fb58c146df9874375f1851146880256d62dea88a81d3bef19f6f76f67"
+ },
+ {
+  "name": "milan_dp",
+  "command": "make -C tb/verilator/milan_dp -j16 VERILATOR_JOBS=2",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 2330,
+  "log": "$VALIDATION_STORAGE/r2/gates/milan_dp.log",
+  "bytes": 1951324,
+  "sha256": "0abd36a39c1ca7d0ab0376f0fe1d7e1794d944e8b0de6b88fb81997bb82ddc95"
+ },
+ {
+  "name": "milan_dp_render",
+  "command": "make -C tb/verilator/milan_dp_render -j16 VERILATOR_JOBS=2",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 788,
+  "log": "$VALIDATION_STORAGE/r2/gates/milan_dp_render.log",
+  "bytes": 156088,
+  "sha256": "a6b15ebdc9d221b8f11f6b4e511054888a98e91a6c3206997a60f940b2c902c1"
+ },
+ {
+  "name": "physical-gptp",
+  "command": "make -C tb/verilator/milan_dp_gptp -j16 VERILATOR_JOBS=2",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 4397,
+  "log": "$VALIDATION_STORAGE/r2/gates/physical-gptp.log",
+  "bytes": 94649,
+  "sha256": "bd726caf2495270b929ee71297e88eb1a0a25bfad4aaac83e9f17c4c22de4f7c"
+ },
+ {
+  "name": "pp-descriptor-audit",
+  "command": "python3 scripts/audit_pp_descriptors.py --output $VALIDATION_STORAGE/r2/pp-descriptor-audit.json",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/pp-descriptor-audit.log",
+  "bytes": 89,
+  "sha256": "17710efcc91db67ed96d91f8df5b373cfb178ad3d956d5022a31fd145c9b3692"
+ },
+ {
+  "name": "pp-srcs",
+  "command": "python3 scripts/pp_srcs.py --check --selftest",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/pp-srcs.log",
+  "bytes": 955,
+  "sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a"
+ },
+ {
+  "name": "render-compare",
+  "command": "python3 $VALIDATION_STORAGE/r2/compare_render.py $VALIDATION_STORAGE/r2/gates/render-mutants.log $HOME/milan-fpga-management/2026-09-23/661-a537/exception-comparison.json $VALIDATION_STORAGE/r2/render-compare.json",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/render-compare.log",
+  "bytes": 69,
+  "sha256": "03535457d08117d3c3fc1accb95cc0bf74bc43caf37b04c37bb432b7bfa7e57e"
+ },
+ {
+  "name": "render-mutants",
+  "command": "make -C tb/verilator/milan_dp_render -j16 VERILATOR_JOBS=2 tdm8render-mutants",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 2,
+  "seconds": 4228,
+  "log": "$VALIDATION_STORAGE/r2/gates/render-mutants.log",
+  "bytes": 20532,
+  "sha256": "f5499fbfee9be5a07773dac83b3583527b0baaa598ad117625995b714a7c48a5"
+ },
+ {
+  "name": "resource-check-baseline",
+  "command": "python3 syn/ooc/pp_resource_gate.py check-baseline",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/resource-check-baseline.log",
+  "bytes": 27,
+  "sha256": "2114d909e60add091220b415987d4409a611d70c9e84f1bb9e0ae12d6a2f14a0"
+ },
+ {
+  "name": "resource-check-ooc-1x1",
+  "command": "python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/work/ax7101-ooc --endpoint ooc-1x1",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/resource-check-ooc-1x1.log",
+  "bytes": 371,
+  "sha256": "1188ba2299f8de77e6aee46be3dde8f2f430441bc97fec97fd87210934a9bff5"
+ },
+ {
+  "name": "resource-check-ooc-8x8",
+  "command": "python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/work/ax8x8-ooc --endpoint ooc-8x8",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/resource-check-ooc-8x8.log",
+  "bytes": 370,
+  "sha256": "7e1159b14107b3fcf9d1e8e35515aab640aa1a2e384ba864336b823626b1d2bd"
+ },
+ {
+  "name": "resource-check-route",
+  "command": "python3 syn/ooc/pp_resource_gate.py check $VALIDATION_STORAGE/work/ax7101/gateware --endpoint route-1x1",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/resource-check-route.log",
+  "bytes": 586,
+  "sha256": "fc94939f6ca850f3e23623a9fa13a809835fd6a5d9d80e18cbb15b07c8c2ea81"
+ },
+ {
+  "name": "resource-inputs",
+  "command": "python3 $VALIDATION_STORAGE/r2/resource_inputs.py $WORKTREE ca129e3805dbd45d1289325bc0c8bef06d05f6a2 $VALIDATION_STORAGE/r2/resource-inputs.json",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/resource-inputs.log",
+  "bytes": 416,
+  "sha256": "5797bacaa71d7c91f97e0118ce5ac95e4f55d7db6d64366bfbf3064fa64f4d31"
+ },
+ {
+  "name": "rtl-source-lists-selftest",
+  "command": "python3 scripts/check_rtl_source_lists.py --selftest",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 3,
+  "log": "$VALIDATION_STORAGE/r2/gates/rtl-source-lists-selftest.log",
+  "bytes": 3300,
+  "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d"
+ },
+ {
+  "name": "rtl-source-lists",
+  "command": "python3 scripts/check_rtl_source_lists.py",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 2,
+  "log": "$VALIDATION_STORAGE/r2/gates/rtl-source-lists.log",
+  "bytes": 153,
+  "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+ },
+ {
+  "name": "wt-mutants",
+  "command": "python3 $VALIDATION_STORAGE/r2/wt_mutants.py $WORKTREE",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/wt-mutants.log",
+  "bytes": 558,
+  "sha256": "2dedd406b1c546bdf6175666199cf2462ac743b42f279f7cbc6c1405d248411e"
+ },
+ {
+  "name": "wt-selftest",
+  "command": "bash -c cd\\ tb/tools\\ \\&\\&\\ exec\\ python3\\ avtp_wire_truth.py\\ --self-test",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "rc": 0,
+  "seconds": 0,
+  "log": "$VALIDATION_STORAGE/r2/gates/wt-selftest.log",
+  "bytes": 4673,
+  "sha256": "b8c815d672a0dd4f3aa9c7e07581cba8ea4f5c5d8aed735cf28993d4730993d9"
+ }
+]
