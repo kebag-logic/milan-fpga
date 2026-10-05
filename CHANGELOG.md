@@ -52,11 +52,12 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A restored narrower format comes back with its map clipped.
 - Milan 5.4.2.7 still refuses an orphaning format.
 - So narrowing a listener first needs REMOVEs.
-- The CSR map window refuses writes until one sweep after the restore's terminal.
+- The CSR map window refuses writes.
+- That lasts until one sweep after the restore's terminal.
 - No port, register field or parameter changes.
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/milan_dp` proves it in `[DYNMAP]`.
-- It also stages the boot window's guard arms on the clocks they guard.
+- It also stages the boot window's guard arms.
 - `make dynmap-mutants` plants 13 defects over three legs.
 
 ## Unreleased - processor pin ead80360
