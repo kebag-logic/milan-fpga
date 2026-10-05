@@ -2154,12 +2154,12 @@ commit or abort, so the validation baseline cannot change underneath it. The
 CSR writer is also refused whenever `LOCK_ENTITY` is held. This protects both
 map stores and the authoritative protocol ownership state from non-ATDECC edits.
 
-On a shape with dynamic maps the stores and both crossbars hold the #658
-power-on map from boot: stream channel c on the port's cluster c. The parent's
-boot writer fills the crossbars from reset until one sweep after the restore's
-terminal (`PP_STAT` done or CLOSED). The CSR writer is refused for that long,
-as it is during a transaction. `CHMAP_STAT` cannot see either refusal: it
-counts such a write in `[15:0]` as a commit.
+On a shape with dynamic maps, each dynamic direction's store and crossbar hold
+the #658 power-on map from boot: stream channel c on the port's cluster c. The
+parent's boot writer fills the crossbars from reset until one sweep after the
+restore's terminal (`PP_STAT` done or CLOSED). The CSR writer is refused for
+that long, as it is during a transaction. `CHMAP_STAT` cannot see either
+refusal: it counts such a write in `[15:0]` as a commit.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

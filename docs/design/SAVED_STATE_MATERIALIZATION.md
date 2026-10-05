@@ -1197,10 +1197,11 @@ map record is restored (stages 1 and 2), the parent clips that set to the
 restored formats before AECP is released. So a persisted narrower format is
 kept, and nothing is left orphaned. The formats are still judged on
 "supported" alone: judging the map bit would silently discard a persisted
-format (#658 ruling, comment 5988843004). The clip is not a live map write:
-it raises neither `amap_edit_live_wr_p` nor a record trigger, so the map
-records `0x60` to `0x7F` stay erased until a controller edits a map. The
-model uses a non-empty reset set so that every step runs (section 14).
+format (#658 ruling, comment 5988843004). The clip raises neither
+`amap_edit_live_wr_p` nor map-persistence work. Controller edits raise sticky
+live-map pending; records `0x60` to `0x7F` remain unmaterialized in stages 1
+and 2. Stage 3 supplies their writer. The model uses a non-empty reset set so
+that every step runs (section 14).
 
 **Which judge.** The product's verdict (`hdl/milan/milan_datapath.sv`,
 `sfv_supported_w`) admits an OUTPUT format only when it equals the
