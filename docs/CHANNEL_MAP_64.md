@@ -360,10 +360,19 @@ datapath. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` validate every row
 before atomically committing the command. A failed row leaves the live map
 unchanged.
 
+The stores power up with the #658 identity map on every dynamic port: stream
+channel c on the port's cluster c, within the channel and cluster counts. Until
+the restore's terminal they follow the restored formats, and the parent's boot
+writer copies them into both crossbar RAMs, one key per cycle. A
+`SET_STREAM_FORMAT` never edits a map: one that would orphan a mapping is
+refused (Milan v1.2 5.4.2.7), so narrowing a stream needs a REMOVE first
+([`ENDSTATION_BUILDER.md` D7](ENDSTATION_BUILDER.md#d7-direction-specific-dynamic-map-keys)).
+
 The CSR window is a diagnostic override of those stores. Its write path is
 blocked while the map is disarmed or `LOCK_ENTITY` is held, and protocol map
 transactions exclude CSR writes until commit or abort. This prevents a
-diagnostic write from changing the validation baseline mid-command.
+diagnostic write from changing the validation baseline mid-command. The boot
+writer excludes them too, until one sweep after the restore's terminal.
 
 `KL_pcm_route` has a separate two-bit Listener route field at LCTX
 `CTRL[2:1]`. Bit 1 is the retained `RENDER` flag and bit 0 is reserved zero.

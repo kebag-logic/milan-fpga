@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
 - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
 - **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
 - **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
@@ -37,6 +38,24 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - power-on audio maps
+
+- Every dynamic stream port powered up unmapped (#658).
+- A controller saw no mapping until it added one.
+- Now stream channel c maps to the port's cluster c.
+- That holds below the smaller of channels and clusters.
+- AX7101: TDM8 In slot c feeds talker channel c.
+- Listener channel c renders on TDM8 Out slot c.
+- Both crossbar RAMs hold that map from boot.
+- A restored narrower format comes back with its map clipped.
+- Milan 5.4.2.7 still refuses an orphaning format.
+- So narrowing a listener first needs REMOVEs.
+- The CSR map window waits until the boot writer finishes.
+- No port, register field or parameter changes.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/milan_dp` proves it in `[DYNMAP]`.
+- `make dynmap-mutants` plants four defects.
 
 ## Unreleased - CRF unbind counts its unlock
 
