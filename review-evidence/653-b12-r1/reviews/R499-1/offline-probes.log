@@ -1,0 +1,21 @@
+{"control": "response-first", "observed": "RESPONSE_FIRST", "expected": "RESPONSE_FIRST", "result": "PASS"}
+{"control": "reversed", "observed": "COUNTERS_FIRST", "expected": "COUNTERS_FIRST", "result": "PASS"}
+{"control": "missing-push", "observed": "NO_UNLOCK_PUSH", "expected": "NO_UNLOCK_PUSH", "result": "PASS"}
+{"control": "prior-unlock", "observed": "NO_UNLOCK_PUSH", "expected": "NO_UNLOCK_PUSH", "result": "PASS"}
+{"control": "foreign-controller", "observed": "NO_UNLOCK_PUSH", "expected": "NO_UNLOCK_PUSH", "result": "PASS"}
+{"control": "foreign-input", "observed": "NO_UNLOCK_PUSH", "expected": "NO_UNLOCK_PUSH", "result": "PASS"}
+{"control": "foreign-sequence", "observed": null, "expected": null, "result": "PASS"}
+{"control": "solicited-baseline", "observed": "RESPONSE_FIRST", "expected": "RESPONSE_FIRST", "result": "PASS"}
+{"control": "unrelated-capture-clocks", "selected": "clock-two-complete.pcap", "interval_us": 10.0, "result": "PASS"}
+{"control": "response-status-preservation", "observed_status": 2, "result": "PASS"}
+{"control": "arbitrary-initial-sequence", "observed_gaps": 0, "expected_gaps": 0, "result": "PASS"}
+{"control": "sequence-wrap", "observed_gaps": 0, "expected_gaps": 0, "result": "PASS"}
+{"control": "missing-sequence", "observed_gaps": 1, "expected_gaps": 1, "result": "PASS"}
+{"control": "repeated-sequence", "observed_gaps": 1, "expected_gaps": 1, "result": "PASS"}
+{"rule_controls_use_actual_probe_function": true}
+{"control": "rule-original", "exit": 0, "expected_exit": 0, "stdout": "Eight rule controls PASS", "result": "PASS"}
+{"control": "rule-inverted", "exit": 1, "expected_exit": 1, "stdout": "", "result": "PASS"}
+{"control": "equal-success", "exit": 0, "pass_restore": true, "observation_count": 43, "evaluation": "PASS"}
+{"control": "changed-format", "exit": 1, "pass_restore": false, "observation_count": 43, "evaluation": "PASS"}
+{"control": "equal-failed-readbacks", "exit": 0, "pass_restore": true, "observation_count": 43, "evaluation": "DEFECT: invalid evidence accepted"}
+{"control": "empty-readbacks", "exit": 0, "pass_restore": true, "observation_count": 0, "evaluation": "DEFECT: invalid evidence accepted"}

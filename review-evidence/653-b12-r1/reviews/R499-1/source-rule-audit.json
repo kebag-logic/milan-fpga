@@ -1,0 +1,33 @@
+{
+  "application_commit": "a13db9d97009dca49a00fb299805e379131dafb3",
+  "application_source": "libs/modelsLibrary/controllerManager.cpp",
+  "application_source_sha256": "2ba7a8357b9809e230eb2de1a8e0157b48cd516025a8ffd69a36457d519ee9d9",
+  "examined_ranges": [
+    "93-104 initialization",
+    "174-214 error state and reset handling",
+    "730-796 flag selection and callback state"
+  ],
+  "library_commit": "a71ffa997c21fea9f2c73ee40e99770a33475c7a",
+  "library_source": "src/controller/avdeccControllerImpl.cpp",
+  "library_source_sha256": "e17c990a05ea6b79ba2b39137fcbb1377a8c47ba0965d41df6c302f5ebf2954d",
+  "library_examined_ranges": [
+    "1619-1635 counter-pair compatibility condition"
+  ],
+  "comparison": {
+    "media_unlock_predicate": "Connected only; failed state lookup ignores unlock",
+    "unconditional_flags": [
+      "STREAM_INTERRUPTED",
+      "SEQ_NUM_MISMATCH",
+      "LATE_TIMESTAMP",
+      "EARLY_TIMESTAMP",
+      "UNSUPPORTED_FORMAT"
+    ],
+    "online_initialization": "current and cleared values both use enumerated counters",
+    "reset_or_wrap": "clear baseline reset to zero when observed count decreases",
+    "offline": "remove entity cache",
+    "measured_behavior_match": true,
+    "full_application_executed": false,
+    "concurrent_queue_behavior_equivalence_proved": false
+  },
+  "note": "Source comparison plus extracted-function controls; source API fetched read-only at the pinned commits."
+}
