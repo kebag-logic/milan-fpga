@@ -297,5 +297,6 @@ def spec_from_overlay(ovl: dict[str, Any]) -> dict[str, Any]:
                                   key=lambda c: c["index"])
                            if c["direction"] == "output"] or None,
         _stream_flags_in=stream_flags_in,
+        lint_waivers=list(ovl.get("model_lint_waivers", [])),
     )
 

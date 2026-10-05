@@ -72,6 +72,10 @@ MILAN_CRF_TS_PER_PDU = 1
 ADP_CDL = 56
 ADP_AVTPDU_LEN = 68
 ADP_FRAME_LEN = 82
+#: The ADP message_type values the available_index rule tells apart
+#: (1722.1-2021 6.2; the processor's pp_adp_pkg.sv ADP_MSG_*_C).
+ADP_ENTITY_AVAILABLE = 0
+ADP_ENTITY_DEPARTING = 1
 
 # ------------------------------------------------------------------- MRP/SRP --
 #: 802.1Q-2018 Table 35-1 / 11.2.3.1.2: MSRP and MVRP are their OWN EtherTypes,
