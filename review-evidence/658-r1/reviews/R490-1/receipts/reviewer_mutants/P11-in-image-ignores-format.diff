@@ -1,0 +1,10 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P11-in-image-ignores-format/milan_datapath.sv	2026-10-05 16:47:14.190000000 +0200
+@@ -4457,7 +4457,6 @@
+             && ADP_DMAP_IN_SAAF_C[p]
+             && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
+             && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
+-            && (c < 32'(amap_decl_ch(1'b0, p)))
+             && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
+           r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
+     return r;

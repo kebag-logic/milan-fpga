@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P6-window-ends-at-busy/milan_datapath.sv	2026-10-05 16:46:35.582000000 +0200
+@@ -4567,7 +4567,7 @@
+       amap_boot_k_r     <= '0;
+     end else begin
+       amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;
+-      if (amap_boot_r && (pp_restore_done_w || pp_restore_closed_w)) begin
++      if (amap_boot_r && (pp_restore_busy_w || pp_restore_done_w || pp_restore_closed_w)) begin
+         amap_boot_r      <= 1'b0;
+         amap_boot_last_r <= 1'b1;
+         amap_boot_k_r    <= '0;

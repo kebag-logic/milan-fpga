@@ -1,0 +1,168 @@
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [DYNMAP] #658: the power-on maps, a format change under Milan 5.4.2.7, and a restored format --
+  [i]    STREAM_INPUT 0 0205022002006000 (8 ch), STREAM_OUTPUT 0 0205022002006000 (8 ch); clusters SPI 0 8, SPO 0 17
+  [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+  [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+  [i]    power-on SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+  [i]    power-on SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+  [i]    8->4 while 4..7 are mapped: STREAM_INPUT 0 format 0205022002006000
+  [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+  [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+  [i]    after REMOVE 4..7 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    8->4: STREAM_INPUT 0 format 0205022001006000
+  [i]    8->4 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+  [i]    8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+  [i]    4->8 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+  [i]    restored STREAM_INPUT 0 format 0205022001006000 (4 ch)
+  [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+  [i]    restored SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+  [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+  [i]    restored SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    restored 4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    restored 4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+--------------------------------------------------------------
+checks: 142   failures: 0
+RESULT: PASS

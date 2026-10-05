@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-10-05 16:43:53.338000000 +0200
++++ P8-out-cluster-zero/milan_datapath.sv	2026-10-05 16:46:36.468801219 +0200
+@@ -4509,7 +4509,7 @@
+       input logic [AMAP_OUT_KEYS_C-1:0] v_i);
+     logic [AMAP_OUT_KEYS_C*16-1:0] r;
+     for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+-      r[k*16 +: 16] = v_i[k] ? 16'(k % 8) : 16'd0;
++      r[k*16 +: 16] = 16'd0;
+     return r;
+   endfunction
+ 
