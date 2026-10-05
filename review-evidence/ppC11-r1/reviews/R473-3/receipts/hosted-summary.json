@@ -1,0 +1,266 @@
+{
+  "observed_utc": "2026-10-05T08:23:47.476426+00:00",
+  "head": "5123548eb4de35f24d43eb088c12dab70b06d01d",
+  "runs": [
+    {
+      "run": 37281823263,
+      "jobs": [
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": null
+            }
+          ]
+        },
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 37281818928,
+      "jobs": [
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": null
+            }
+          ]
+        },
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

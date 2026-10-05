@@ -1,0 +1,195 @@
+[
+  {
+    "name": "continued-optional-good",
+    "input": "T-ADP-\nDELAY(-START)",
+    "rc": 0,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "continued-optional-bad",
+    "input": "T-ADP-\nDELAY(-STRT)",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-ADP-DELAY-STRT"
+    ],
+    "got": [
+      "T-ADP-DELAY-STRT"
+    ]
+  },
+  {
+    "name": "optional-break-good",
+    "input": "T-ADP-DELAY(-\n// START)",
+    "rc": 0,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "optional-break-bad",
+    "input": "T-ADP-DELAY(-\n// STRT)",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-ADP-DELAY-STRT"
+    ],
+    "got": [
+      "T-ADP-DELAY-STRT"
+    ]
+  },
+  {
+    "name": "both-breaks-good",
+    "input": "T-ADP-\n// DELAY(-\n// START)",
+    "rc": 0,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "both-breaks-bad",
+    "input": "T-ADP-\n// DELAY(-\n// STRT)",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-ADP-DELAY-STRT"
+    ],
+    "got": [
+      "T-ADP-DELAY-STRT"
+    ]
+  },
+  {
+    "name": "missing-minus-one-base",
+    "input": "P-MISSING-1",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: P-MISSING-1 has no F01.5 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "P-MISSING-1"
+    ],
+    "got": [
+      "P-MISSING-1"
+    ]
+  },
+  {
+    "name": "registered-minus-one",
+    "input": "P-RX-SLOTS-1",
+    "rc": 0,
+    "stdout": "ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "minus-two",
+    "input": "P-RX-SLOTS-2",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: P-RX-SLOTS-2 has no F01.5 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "P-RX-SLOTS-2"
+    ],
+    "got": [
+      "P-RX-SLOTS-2"
+    ]
+  },
+  {
+    "name": "continued-braces-bad",
+    "input": "T-NVM-\n// RS-{DEADLINE, TYPO}",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-NVM-RS-TYPO has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-NVM-RS-TYPO"
+    ],
+    "got": [
+      "T-NVM-RS-TYPO"
+    ]
+  },
+  {
+    "name": "continued-family-good",
+    "input": "T-MRP-\n// JOIN-*",
+    "rc": 0,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "successive-break-good",
+    "input": "T-ADP-\n// DELAY-\n// START",
+    "rc": 0,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "expected": [],
+    "got": []
+  },
+  {
+    "name": "successive-break-bad",
+    "input": "T-ADP-\n// DELAY-\n// STRT",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-ADP-DELAY-STRT"
+    ],
+    "got": [
+      "T-ADP-DELAY-STRT"
+    ]
+  },
+  {
+    "name": "continued-sibling-bad",
+    "input": "T-BUDGET-\n// AECP-TYP / -XX",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-BUDGET-AECP-XX has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-BUDGET-AECP-XX"
+    ],
+    "got": [
+      "T-BUDGET-AECP-XX"
+    ]
+  },
+  {
+    "name": "optional-malformed",
+    "input": "T-ADP-\n// DELAY(-start)",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-ADP-DELAY(-...) is not a list of ID segments\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-ADP-DELAY(-...)"
+    ],
+    "got": [
+      "T-ADP-DELAY(-...)"
+    ]
+  },
+  {
+    "name": "braced-hyphen-bad",
+    "input": "T-NVM-{RS-DEADLINE,RS-TYPO}",
+    "rc": 1,
+    "stdout": "ID FAIL: tb/case/README.md:1: T-NVM-RS-TYPO has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "expected": [
+      "T-NVM-RS-TYPO"
+    ],
+    "got": [
+      "T-NVM-RS-TYPO"
+    ]
+  },
+  {
+    "name": "any-minus-one",
+    "rc": 1,
+    "stdout": "SELFTEST FAIL: case 7: want ['P-MISSING-1'] rc 1, got [] rc 0\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 1 FAILURES\n"
+  },
+  {
+    "name": "skip-line-broken-optional",
+    "rc": 1,
+    "stdout": "SELFTEST FAIL: case 8: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nSELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 2 FAILURES\n"
+  },
+  {
+    "name": "round2-any-minus-one",
+    "rc": 0,
+    "stdout": "ids selftest: 25 cases, OK\n"
+  },
+  {
+    "name": "round2-skip-line-broken-optional",
+    "rc": 0,
+    "stdout": "ids selftest: 25 cases, OK\n"
+  },
+  {
+    "name": "previous-parser-new-tests",
+    "rc": 1,
+    "stdout": "SELFTEST FAIL: case 9: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nSELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 2 FAILURES\n"
+  }
+]

@@ -1,0 +1,547 @@
+diff --git a/hdl/acmp/KL_pp_acmp_listener.sv b/hdl/acmp/KL_pp_acmp_listener.sv
+index a4c2258..082b6da 100644
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -10,7 +10,7 @@
+ //
+ //  Description : The ROM-driven Milan listener-SM executor of 05 §4: ONE
+ //                event-at-a-time executor over per-sink records (the F07.6
+-//                384-bit record in a sync-read RAM, never a flop mirror)
++//                384-bit record in a distributed RAM, never a flop mirror)
+ //                with the full F05.3 transition matrix in a $readmemh'd
+ //                BRAM-shaped ROM (P-ACMP-TROM-W = 32-bit entries, addressed
+ //                {event[3:0], state[2:0]}, generated row-by-row from the
+@@ -379,11 +379,21 @@ module KL_pp_acmp_listener
+   logic [N_SINKS_P-1:0] pendexp_r;
+ 
+   // ------------------------------------------------------------ RAM: records
+-  // F07.6 records in a 1W1R sync-read RAM — RAM-shaped by construction,
+-  // never a flop mirror + wide mux. Deliberately NO reset on the array or
+-  // its read register (BRAM inference; the X_INIT sweep zeroes content).
++  // F07.6 records in a 1W1R RAM — RAM-shaped by construction, never a flop
++  // mirror + wide mux. Deliberately NO reset on the array (the X_INIT sweep
++  // zeroes content).
++  //
++  // DISTRIBUTED, NOT BLOCK (issue #639): the KL_pp_dispatch wide-and-shallow
++  // trap again. N_SINKS_P records of 384 bits made Vivado band five RAMB36
++  // and a RAMB18 side by side for 752 bits at the 1x1 shape. In distributed
++  // RAM the record needs no read register: the walk reads it only in
++  // X_LATCH and X_STRT_AP, each entered only from the read-issue state
++  // before it (X_RDREC, X_STRT_RD), which writes no record, and `sink_r`
++  // changes only in X_IDLE. So the asynchronous read in the consuming cycle
++  // returns what the old read register sampled one edge earlier, and the
++  // walk keeps its issue cycle.
++  (* ram_style = "distributed" *)
+   logic [ACMP_REC_W_C-1:0] rec_ram_r [0:N_SINKS_P-1];
+-  logic [ACMP_REC_W_C-1:0] rec_rdata_r;
+   //! typed views of the record RAM's read and write buses. A field select
+   //! cannot be taken off a cast expression directly, and naming them once
+   //! keeps the write mirror reading the SAME bus the RAM is written from.
+@@ -402,10 +412,6 @@ module KL_pp_acmp_listener
+     end
+   end
+ 
+-  always_ff @(posedge clk_i) begin : rec_ram_rd
+-    rec_rdata_r <= rec_ram_r[sink_r];
+-  end
+-
+   // ------------------------------------------------------ ROM: F05.3 matrix
+   // 128 x P-ACMP-TROM-W, $readmemh image from rom/gen_ltn_rom.py; sync
+   // read (BRAM-shaped). No reset: ROM.
+@@ -737,7 +743,7 @@ module KL_pp_acmp_listener
+ 
+   assign recwr_en_w   = ((xs_r == X_INIT) && (init_cnt_r < (SINK_W_C+1)'(N_SINKS_P)))
+                       || (xs_r == X_PRELOAD) || (xs_r == X_WB);
+-  assign rec_rd_w     = acmp_rec_t'(rec_rdata_r);
++  assign rec_rd_w     = acmp_rec_t'(rec_ram_r[sink_r]);
+   assign recwr_rec_w  = acmp_rec_t'(recwr_data_w);
+   assign recwr_addr_w = (xs_r == X_INIT) ? init_cnt_r[SINK_W_C-1:0] : sink_r;
+   assign recwr_data_w = (xs_r == X_INIT) ? '0
+@@ -1025,7 +1031,7 @@ module KL_pp_acmp_listener
+ 
+         // ------------------------------------------------------- X_STRT_RD
+         X_STRT_RD: begin
+-          xs_r <= X_STRT_AP;             // rec_rdata_r valid next cycle
++          xs_r <= X_STRT_AP;             // record read next cycle
+         end
+ 
+         // ------------------------------------------------------- X_STRT_AP
+@@ -1058,12 +1064,12 @@ module KL_pp_acmp_listener
+ 
+         // --------------------------------------------------------- X_RDREC
+         X_RDREC: begin
+-          xs_r <= X_LATCH;               // rec_rdata_r valid next cycle
++          xs_r <= X_LATCH;               // record read next cycle
+         end
+ 
+         // --------------------------------------------------------- X_LATCH
+         X_LATCH: begin
+-          rec_r      <= acmp_rec_t'(rec_rdata_r);
++          rec_r      <= rec_rd_w;
+           strt_was_r <= rec_rd_w.f_started;
+           bnd_was_r  <= rec_rd_w.f_bound;
+           if (src_txn_r && (msg_x_r != AMSG_GET_RX_STATE_CMD_C)
+diff --git a/hdl/packet_engine/KL_pp_side_port.sv b/hdl/packet_engine/KL_pp_side_port.sv
+index 140229c..4e8a4b4 100644
+--- a/hdl/packet_engine/KL_pp_side_port.sv
++++ b/hdl/packet_engine/KL_pp_side_port.sv
+@@ -9,10 +9,10 @@
+ //                access-rights rule)
+ //
+ //  Description : Management side-port — the class-E single-master port of
+-//                F02.7 (psel/pwrite/paddr/pwdata/prdata/pready mapped 1:1
+-//                onto req_valid/we/addr/wdata/rdata/rvalid; wait states
+-//                allowed) decoding the six 07 §5.5 windows of the 20-bit
+-//                word-address space:
++//                02 §7 and F02.7 (an APB bridge maps psel/pwrite/paddr/
++//                pwdata/prdata/pready onto req_valid/we/addr/wdata/rdata/
++//                rvalid; wait states allowed) decoding the six 07 §5.5
++//                windows of the 20-bit word-address space:
+ //
+ //                  0x00000  image + identity load   W pre-enable only, R
+ //                  0x10000  overlay/name debug view RO
+diff --git a/hdl/packet_engine/KL_pp_trace_ring.sv b/hdl/packet_engine/KL_pp_trace_ring.sv
+index 110b857..bdfdc49 100644
+--- a/hdl/packet_engine/KL_pp_trace_ring.sv
++++ b/hdl/packet_engine/KL_pp_trace_ring.sv
+@@ -11,8 +11,8 @@
+ //  Description : Debug trace ring — the backing store of the RO side-port
+ //                window 0x40000. Shape is P-TRACE-RING (F01.5): 256 records
+ //                × 128 b. One record arrives per event on wr_valid_i (the
+-//                record content is the class-A framed event its producer
+-//                emits, 02 §1 — opaque bits here); the ring overwrites
++//                record content is the 128-bit event record its producer
++//                emits, 02 §7 — opaque bits here); the ring overwrites
+ //                oldest-first and NEVER back-pressures a producer: tracing
+ //                may lose history, it must never stall the plane. The
+ //                monotonic 16-bit write counter (mod 2^16) is the only
+@@ -22,8 +22,8 @@
+ //
+ //                Read side is the side-port window path: record index
+ //                rd_addr_i plus 32-bit lane select rd_lane_i, lane 0 =
+-//                record bits [127:96] (MSB-first, the class-A word order
+-//                of 02 §3).
++//                record bits [127:96] (MSB-first, the lane order of the
++//                02 §7 window).
+ //
+ //                The one design decision that matters: ONE 256 × 128 b
+ //                1W1R sync-read RAM with the 4:1 lane mux placed AFTER the
+@@ -53,7 +53,7 @@ module KL_pp_trace_ring #(
+ 
+     //! ---- write side (event producers; never back-pressured) ----
+     input  wire                   wr_valid_i,  //! one trace record this cycle
+-    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (class-A framed event)
++    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (one 128-bit event)
+     output logic           [15:0] wr_count_o,  //! monotonic write count, mod 2^16
+ 
+     //! ---- read side (side-port window 0x40000, RO) ----
+diff --git a/hdl/packet_engine/KL_pp_tx_slots.sv b/hdl/packet_engine/KL_pp_tx_slots.sv
+index 4c59cf1..31331db 100644
+--- a/hdl/packet_engine/KL_pp_tx_slots.sv
++++ b/hdl/packet_engine/KL_pp_tx_slots.sv
+@@ -14,7 +14,7 @@
+ //                reserved for the Milan §5.4.1 Δ8 oversize command set
+ //                (READ_DESCRIPTOR, GET_AVB_INFO, GET_AS_PATH,
+ //                GET_AUDIO_MAP, ADD/REMOVE_AUDIO_MAPPINGS) — F01.5
+-//                "P-TX 4x576 + 1600". The oversize slot is granted only to
++//                rows. The oversize slot is granted only to
+ //                an allocation carrying oversize_i, and an oversize
+ //                allocation waits for slot 4 even while 0..3 sit free; a
+ //                plain allocation never receives index 4.
+diff --git a/hdl/srp/KL_srp_admission.sv b/hdl/srp/KL_srp_admission.sv
+index 785c380..0c284bf 100644
+--- a/hdl/srp/KL_srp_admission.sv
++++ b/hdl/srp/KL_srp_admission.sv
+@@ -108,7 +108,11 @@ module KL_srp_admission #(
+   logic [SRC_W_C-1:0]          cidx_q2_r;
+   logic [16:0]                 frame_bytes_r;   // W = clamped F + wire overhead
+   logic [32:0]                 iv_bytes_r;      // W x MaxIntervalFrames
+-  logic [N_SOURCES_P-1:0][31:0] slope_q_r;
++  // One write (stage 3) and one read (the admission walk) per cycle, so the
++  // slopes map to distributed RAM instead of a per-source read multiplexer
++  // (issue #230). No reset: a slope is read only with its slope_valid_r
++  // bit, which is written with it.
++  (* ram_style = "distributed" *) logic [31:0] slope_q_r [0:N_SOURCES_P-1];
+   logic                         valid_q1_r, valid_q2_r;
+   logic [N_SOURCES_P-1:0]       slope_valid_r;
+   logic [N_SOURCES_P-1:0]       invalid_w;
+@@ -130,7 +134,6 @@ module KL_srp_admission #(
+       cidx_q2_r     <= '0;
+       frame_bytes_r <= '0;
+       iv_bytes_r    <= '0;
+-      slope_q_r     <= '0;
+       valid_q1_r    <= 1'b0;
+       valid_q2_r    <= 1'b0;
+       slope_valid_r <= '0;
+@@ -153,8 +156,13 @@ module KL_srp_admission #(
+       // stage 2: interval bytes (16 b x 17 b -> < 2^33)
+       iv_bytes_r    <= {16'd0, interval_frames_i[cidx_q1_r]}
+                        * {16'd0, frame_bytes_r};
+-      // stage 3: saturating 32-bit slope (see banner) — iv <= IV_MAX_C is
+-      // the exact product (67108 x 64000 < 2^32)
++    end
++  end
++
++  // stage 3: saturating 32-bit slope (see banner) — iv <= IV_MAX_C is the
++  // exact product (67108 x 64000 < 2^32)
++  always_ff @(posedge clk_i) begin : slope_store
++    if (rst_n) begin
+       slope_q_r[cidx_q2_r] <= (iv_bytes_r > IV_MAX_C) ? SLOPE_SAT_C
+                                                       : slope_prod_w[31:0];
+     end
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index 669348e..78014b4 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -52,11 +52,13 @@
+ //                periodic! carries the re-join).
+ //
+ //  Decision    : the one decision that matters — same as the talker side:
+-//                per-sink records and FSM state live in FLOPS with
+-//                parallel {stream_id, DA, VLAN} comparators, never a
+-//                shared RAM-shaped record, because KL_srp_decoder emits
+-//                one unback-pressured event per cycle while draining a
+-//                packed vector and every sink must compare in that cycle.
++//                the matcher's per-sink records and FSM state live in
++//                FLOPS with parallel {stream_id, DA, VLAN} comparators,
++//                never a shared RAM-shaped record, because KL_srp_decoder
++//                emits one unback-pressured event per cycle while draining
++//                a packed vector and every sink must compare in that cycle;
++//                from three sinks up, the walk's copy of the stream_id,
++//                read one sink per cycle, is distributed RAM (issue #230).
+ //                The Table 10-3/10-4 functions are duplicated from
+ //                KL_srp_talker_fsm BY DESIGN (the suite walks both
+ //                against one independently transcribed table, so a
+@@ -529,12 +531,31 @@ module KL_srp_listener_fsm
+     end
+   end
+ 
++  // The walk's stream_id of the walk sink (issue #230). The matcher keeps
++  // sid_r in flops; from three sinks a second copy in distributed RAM,
++  // written only by the A15 settle and read only at the walk sink, is
++  // cheaper than the N-way multiplexer behind sid_r, at two the multiplexer
++  // is (Vivado, 2 and 9 sinks). No reset: the walk pushes a sink only while
++  // rec_valid_r is set, and only a settle, which writes the word, sets it.
++  logic [63:0] wsid_w;
++  if (N_SINKS_P > 2) begin : g_wsid_ram
++    (* ram_style = "distributed" *) logic [63:0] wsid_r [0:N_SINKS_P-1];
++    always_ff @(posedge clk_i) begin : walk_sid_write
++      if (rst_n && ctl_acc_w && ctl_settle_i) begin
++        wsid_r[ctl_sink_i] <= ctl_stream_id_i;
++      end
++    end
++    assign wsid_w = wsid_r[wsrc_r];
++  end else begin : g_wsid_flops
++    assign wsid_w = sid_r[wsrc_r];
++  end
++
+   // Listener FirstValue of the walk sink (F10.8: 8 B stream_id)
+   logic [271:0] wval_w;
+   logic [3:0]   wmsg_w;
+   always_comb begin : walk_msg
+     wval_w = 272'd0;
+-    wval_w[271:208] = sid_r[wsrc_r];
++    wval_w[271:208] = wsid_w;
+     wmsg_w = app_msg_f(app_r[wsrc_r], wtxla_r, 1'b0);
+   end
+ 
+diff --git a/hdl/srp/KL_srp_talker_fsm.sv b/hdl/srp/KL_srp_talker_fsm.sv
+index 3b21066..433d080 100644
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -53,14 +53,18 @@
+ //                Table 10-3 notes 4/5 via the p2p_i level
+ //                (operPointToPointMAC — a Milan link ties it 1).
+ //
+-//  Decision    : the one decision that matters — the per-source records and
+-//                FSM state live in FLOPS with parallel match comparators,
+-//                not a shared RAM-shaped record: KL_srp_decoder emits one
++//  Decision    : the one decision that matters — the matcher's copy of each
++//                source's {stream_id, DA, VLAN} and the FSM state live in
++//                FLOPS with parallel match comparators, not a shared
++//                RAM-shaped record: KL_srp_decoder emits one
+ //                unback-pressured event strobe per cycle while draining a
+ //                packed vector, so every source must compare {stream_id,
+ //                DA, VLAN} in the same cycle or lose back-to-back vector
+ //                values; a sync-read shared record cannot serve M matches
+-//                per cycle, and at M = 8 the flop cost is small. The
++//                per cycle. The walk reads one source per cycle, so its
++//                copy of the record is distributed RAM (issue #230: one
++//                RAM read port instead of an M-way multiplexer; the
++//                {stream_id, DA, VLAN} part from three sources up). The
+ //                Table 10-3/10-4 transition FUNCTIONS are pure
+ //                (module-scope arrays are never read inside them — sv2v),
+ //                and the applicant's sJ/s/note-8 registrar term is tied 0:
+@@ -346,16 +350,26 @@ module KL_srp_talker_fsm
+   endfunction
+ 
+   // ------------------------------------------------------------ registers
+-  // per-source declared record (frozen while declaring)
++  // per-source declared record (frozen while declaring). The matcher's
++  // copy of {stream_id, DA, VLAN} stays in flops: every source compares in
++  // the same cycle (banner).
+   logic [N_SOURCES_P-1:0]        rec_valid_r;
+   logic [N_SOURCES_P-1:0][63:0]  sid_r;
+   logic [N_SOURCES_P-1:0][47:0]  da_r;
+   logic [N_SOURCES_P-1:0][11:0]  vid_r;
+-  logic [N_SOURCES_P-1:0][15:0]  mfs_r;
+-  logic [N_SOURCES_P-1:0][15:0]  mif_r;
+-  logic [N_SOURCES_P-1:0][2:0]   prio_r;
+-  logic [N_SOURCES_P-1:0]        rank_r;
+-  logic [N_SOURCES_P-1:0][31:0]  lat_r;
++
++  // The walk's copy of the record (issue #230). Written only by the gate
++  // open and read only at the walk source, so it is distributed RAM instead
++  // of a per-source read multiplexer. {MaxFrameSize, MaxIntervalFrames,
++  // priority, rank, accumulated_latency} has no other reader: always RAM.
++  // {stream_id, DA, VLAN} also has the matcher's flops: from three sources a
++  // second, RAM copy is cheaper than the M-way multiplexer behind them, at
++  // two the multiplexer is (Vivado, 2 and 9 sources). No reset: the walk
++  // pushes a source only while rec_valid_r is set, and only a gate open,
++  // which writes every word, sets it.
++  localparam int unsigned WTSP_W_C = 16 + 16 + 3 + 1 + 32;
++  localparam int unsigned WID_W_C  = 64 + 48 + 12;
++  (* ram_style = "distributed" *) logic [WTSP_W_C-1:0] wtsp_r [0:N_SOURCES_P-1];
+ 
+   // per-source applicant plane
+   logic [N_SOURCES_P-1:0][3:0]   app_r;
+@@ -478,18 +492,43 @@ module KL_srp_talker_fsm
+     end
+   end
+ 
++  logic                gate_open_acc_w;
++  logic [WTSP_W_C-1:0] wtsp_w;   // walk source {mfs, mif, prio, rank, lat}
++  logic [WID_W_C-1:0]  wid_w;    // walk source {stream_id, DA, VLAN}
++  assign gate_open_acc_w = rst_n && gate_acc_w && gate_open_i;
++
++  always_ff @(posedge clk_i) begin : walk_tspec_write
++    if (gate_open_acc_w) begin
++      wtsp_r[gate_src_i] <= {gate_max_frame_i, gate_max_interval_i,
++                             gate_prio_i, gate_rank_i, gate_acc_lat_i};
++    end
++  end
++  assign wtsp_w = wtsp_r[wsrc_r];
++
++  if (N_SOURCES_P > 2) begin : g_wid_ram
++    (* ram_style = "distributed" *) logic [WID_W_C-1:0] wid_r [0:N_SOURCES_P-1];
++    always_ff @(posedge clk_i) begin : walk_id_write
++      if (gate_open_acc_w) begin
++        wid_r[gate_src_i] <= {gate_stream_id_i, gate_da_i, gate_vid_i};
++      end
++    end
++    assign wid_w = wid_r[wsrc_r];
++  end else begin : g_wid_flops
++    assign wid_w = {sid_r[wsrc_r], da_r[wsrc_r], vid_r[wsrc_r]};
++  end
++
+   // FirstValue of the walk source (F10.7 layout; byte 0 at [271:264])
+   logic [271:0] wval_w;
+   logic [3:0]   wmsg_w;
+   always_comb begin : walk_msg
+     wval_w = 272'd0;
+-    wval_w[271:208] = sid_r[wsrc_r];
+-    wval_w[207:160] = da_r[wsrc_r];
+-    wval_w[159:144] = {4'd0, vid_r[wsrc_r]};
+-    wval_w[143:128] = mfs_r[wsrc_r];
+-    wval_w[127:112] = mif_r[wsrc_r];
+-    wval_w[111:104] = {prio_r[wsrc_r], rank_r[wsrc_r], 4'd0};
+-    wval_w[103:72]  = lat_r[wsrc_r];
++    wval_w[271:208] = wid_w[123:60];             // stream_id
++    wval_w[207:160] = wid_w[59:12];              // DA
++    wval_w[159:144] = {4'd0, wid_w[11:0]};       // VLAN
++    wval_w[143:128] = wtsp_w[67:52];             // MaxFrameSize
++    wval_w[127:112] = wtsp_w[51:36];             // MaxIntervalFrames
++    wval_w[111:104] = {wtsp_w[35:32], 4'd0};     // priority, rank
++    wval_w[103:72]  = wtsp_w[31:0];              // accumulated_latency
+     if (fail_r[wsrc_r]) begin
+       wval_w[71:8] = {16'd0, own_mac_i};   // §35.2.2.8.7 end-station MAC
+       wval_w[7:0]  = 8'd1;                 // insufficient bandwidth
+@@ -504,11 +543,6 @@ module KL_srp_talker_fsm
+       sid_r       <= '0;
+       da_r        <= '0;
+       vid_r       <= '0;
+-      mfs_r       <= '0;
+-      mif_r       <= '0;
+-      prio_r      <= '0;
+-      rank_r      <= '0;
+-      lat_r       <= '0;
+       app_r       <= '0;      // Begin! = VO everywhere
+       fail_r      <= '0;
+       rla_pend_r  <= '0;
+@@ -556,11 +590,6 @@ module KL_srp_talker_fsm
+           sid_r[gate_src_i]  <= gate_stream_id_i;
+           da_r[gate_src_i]   <= gate_da_i;
+           vid_r[gate_src_i]  <= gate_vid_i;
+-          mfs_r[gate_src_i]  <= gate_max_frame_i;
+-          mif_r[gate_src_i]  <= gate_max_interval_i;
+-          prio_r[gate_src_i] <= gate_prio_i;
+-          rank_r[gate_src_i] <= gate_rank_i;
+-          lat_r[gate_src_i]  <= gate_acc_lat_i;
+         end else begin
+           fail_r[gate_src_i] <= 1'b0;   // FAILED is published only declared
+         end
+diff --git a/hdl/srp/KL_srp_top.sv b/hdl/srp/KL_srp_top.sv
+index 3a55cf4..7f0c641 100644
+--- a/hdl/srp/KL_srp_top.sv
++++ b/hdl/srp/KL_srp_top.sv
+@@ -944,7 +944,14 @@ module KL_srp_top
+   localparam int unsigned TFW_C = 1 + SLOT_AW_P + 8 + 32;
+   localparam int unsigned TFD_C = 32;
+ 
+-  logic [TFW_C-1:0] tf_ram_r [0:1][0:TFD_C-1];
++  // One memory per FIFO, each with one write port and one read port, so each
++  // maps to distributed RAM (a two-dimensional array written for both FIFOs
++  // in one process mapped to 2 x 32 x TFW_C flip-flops and a read
++  // multiplexer, issue #230). DISTRIBUTED, NOT BLOCK: without the attribute
++  // the registered read made the synthesiser spend a RAMB36 on each 32-word
++  // FIFO. No reset: a word is read only after its push.
++  (* ram_style = "distributed" *) logic [TFW_C-1:0] tf_tk_ram_r [0:TFD_C-1];
++  (* ram_style = "distributed" *) logic [TFW_C-1:0] tf_ls_ram_r [0:TFD_C-1];
+   logic [TFW_C-1:0] tf_q_r   [0:1];
+   logic [4:0]       tf_wptr_r [0:1];
+   logic [4:0]       tf_rptr_r [0:1];
+@@ -956,20 +963,24 @@ module KL_srp_top
+   assign tf_push_w[0] = tk_arm_v_w && (tf_cnt_r[0] != 6'(TFD_C));
+   assign tf_push_w[1] = ls_arm_v_w && (tf_cnt_r[1] != 6'(TFD_C));
+ 
+-  always_ff @(posedge clk_i) begin : tf_write
++  always_ff @(posedge clk_i) begin : tf_tk_write
+     if (tf_push_w[0]) begin
+-      tf_ram_r[0][tf_wptr_r[0]]
++      tf_tk_ram_r[tf_wptr_r[0]]
+         <= {tk_arm_cancel_w, tk_arm_slot_w, tk_arm_owner_w, tk_arm_dl_w};
+     end
++  end
++
++  always_ff @(posedge clk_i) begin : tf_ls_write
+     if (tf_push_w[1]) begin
+-      tf_ram_r[1][tf_wptr_r[1]]
++      tf_ls_ram_r[tf_wptr_r[1]]
+         <= {ls_arm_cancel_w, ls_arm_slot_w, ls_arm_owner_w, ls_arm_dl_w};
+     end
+   end
+ 
++  // registered read of each FIFO's head (the RAM's async read + this flop)
+   always_ff @(posedge clk_i) begin : tf_read
+-    tf_q_r[0] <= tf_ram_r[0][tf_rptr_r[0]];
+-    tf_q_r[1] <= tf_ram_r[1][tf_rptr_r[1]];
++    tf_q_r[0] <= tf_tk_ram_r[tf_rptr_r[0]];
++    tf_q_r[1] <= tf_ls_ram_r[tf_rptr_r[1]];
+   end
+ 
+   typedef enum logic {
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 1237d47..098c538 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -1539,11 +1539,19 @@ module protocol_processor_top
+   //! key. READ_DESCRIPTOR loses nothing by it: no ACMP step writes what it
+   //! reads, a descriptor-image field or the current sampling rate, clock
+   //! source or stream format it overlays on one (issue #82), rows only the
+-  //! AECP engine's state port writes. GET_DYNAMIC_INFO does, a known gap
+-  //! (03 §6): its GET_STREAM_INFO records of a STREAM_INPUT read the listener
+-  //! binding record (the probing and ACMP status, `lstn_gsi_status_r`
+-  //! below), which ACMP listener steps write, so the batch is NOT
+-  //! serialized against them, where a stand-alone GET_STREAM_INFO is.
++  //! AECP engine's state port writes. GET_DYNAMIC_INFO would lose a
++  //! conflict: its GET_STREAM_INFO records of a STREAM_INPUT read the
++  //! listener binding record (the probing and ACMP status,
++  //! `lstn_gsi_status_r` below), which ACMP listener steps write, and the
++  //! operands latched here (@24 to @31) end before a record's descriptor.
++  //! So the batch presents MAP_CFG, whose
++  //! class-wide cross-lock (the scoreboard's rule 5) holds it against every
++  //! in-flight stream step, as a stand-alone GET_STREAM_INFO is held
++  //! against its own sink's (issue #84, R419-2 F5). That over-serializes a
++  //! read: a batch naming no stream waits too, and an ACMP stream step waits
++  //! for the batch. Its NONE key shares nothing with an ACMP read, so it
++  //! still runs beside every one, and the single-issue AECP engine never
++  //! holds a second MAP_CFG beside it.
+   logic        hz_valid_nc_w;
+   logic [2:0]  hz_protocol_w;
+   logic [15:0] hz_opcode_w;
+@@ -1634,6 +1642,8 @@ module protocol_processor_top
+           hz_key_w = hz_key(HZ_DT_AVB_IF_C, hdr_operands_r[63:48]);
+         16'h0000, 16'h0002, 16'h0007:          // the ENTITY-addressed three
+           hz_key_w = hz_key(HZ_DT_ENTITY_C, 16'd0);
++        16'h004B:                              // GET_DYNAMIC_INFO (above)
++          hz_class_w = 4'(PP_HZ_MAP_CFG);
+         default: ;
+       endcase
+     end
+@@ -2949,7 +2959,8 @@ module protocol_processor_top
+ 
+   logic [ARM_N_C-1:0]              armq_in_vld_w;
+   logic [ARM_N_C-1:0][ARM_W_C-1:0] armq_in_w;
+-  logic [ARM_N_C-1:0][3:0][ARM_W_C-1:0] armq_r;
++  logic [ARM_N_C-1:0][ARM_W_C-1:0] armq_hd_w;    // each queue's oldest entry
++  logic [ARM_N_C-1:0][1:0]         armq_hd_r;    // ring index of that entry
+   logic [ARM_N_C-1:0][2:0]         armq_cnt_r;
+   logic [15:0]                     arm_drop_r;
+ 
+@@ -2990,9 +3001,37 @@ module protocol_processor_top
+     end
+   end
+ 
++  // Each queue is a 4-entry ring in distributed RAM (issue #639): entries
++  // never move, the head index advances on a pop, and a push writes at
++  // head + count, which is the entry after the survivors whether or not the
++  // same cycle pops (a full queue that pops overwrites the head as it
++  // leaves: the read is asynchronous, the write lands at the edge). One
++  // write port and one read port per face, so eight rings rather than one
++  // array: one memory cannot take eight pushes in a cycle. The entries are
++  // not reset; the count is, and an entry is read only after a push wrote
++  // it. The shift queue this replaces held 1,152 flops at the 1x1 shape at
++  // processor 5c71928a, this change's base (1,153 at 631eeb34, the figure of
++  // milan-fpga's #234 area baseline), and a LUT per flop to shift them.
++  // `mem_r` is unpacked, so its indexed write is a memory port, not the
++  // dynamic part-write into a packed vector that yosys lowers as a barrel
++  // shift over every entry.
++  for (genvar g = 0; g < ARM_N_C; g++) begin : g_armq
++    (* ram_style = "distributed" *)
++    logic [ARM_W_C-1:0] mem_r [0:3];
++    logic [1:0]         wr_ix_w;
++
++    assign wr_ix_w = armq_hd_r[g] + armq_cnt_r[g][1:0];
++
++    always_ff @(posedge clk_i) begin : armq_ram_wr
++      if (armq_push_ok_w[g]) mem_r[wr_ix_w] <= armq_in_w[g];
++    end
++
++    assign armq_hd_w[g] = mem_r[armq_hd_r[g]];
++  end
++
+   always_ff @(posedge clk_i) begin : arm_mux
+     if (!rst_n) begin
+-      armq_r     <= '0;
++      armq_hd_r  <= '0;
+       armq_cnt_r <= '0;
+       arm_drop_r <= 16'd0;
+       tmr_arm_valid_w    <= 1'b0;
+@@ -3005,25 +3044,9 @@ module protocol_processor_top
+       for (int unsigned i = 0; i < ARM_N_C; i++) begin
+         if (armq_pop_w[i]) begin
+           {tmr_arm_cancel_w, tmr_arm_slot_w, tmr_arm_owner_w,
+-           tmr_arm_deadline_w} <= armq_r[i][0];
++           tmr_arm_deadline_w} <= armq_hd_w[i];
+           tmr_arm_valid_w      <= 1'b1;
+-          armq_r[i][0] <= armq_r[i][1];
+-          armq_r[i][1] <= armq_r[i][2];
+-          armq_r[i][2] <= armq_r[i][3];
+-        end
+-        // the push write goes past the shifted survivors: later assignment
+-        // to the same index wins, which is exactly the append position.
+-        // DECODED, not indexed: `armq_r[i][armq_mid_w[i][1:0]] <= ...` is a
+-        // dynamic part-write into the flattened queue vector, which yosys
+-        // lowers as a read-modify-write barrel shift over ALL of armq_r —
+-        // measured at 13,045 techmap $_MUX_ (about 7,400 mapped LUTs) the
+-        // cycle the sixth client landed. The equality-decoded write is the
+-        // same behavior as a 4-way enable per entry and costs a comparator
+-        // per entry instead.
+-        for (int unsigned e = 0; e < 4; e++) begin
+-          if (armq_push_ok_w[i] && (armq_mid_w[i][1:0] == 2'(e))) begin
+-            armq_r[i][e] <= armq_in_w[i];
+-          end
++          armq_hd_r[i]         <= armq_hd_r[i] + 2'd1;
+         end
+         if (armq_in_vld_w[i] && !armq_push_ok_w[i]) begin
+           if (arm_drop_r != 16'hFFFF) arm_drop_r <= arm_drop_r + 16'd1;

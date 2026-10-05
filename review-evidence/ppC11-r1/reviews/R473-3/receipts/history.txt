@@ -1,0 +1,721 @@
+commit 5123548eb4de35f24d43eb088c12dab70b06d01d
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Mon Oct 5 06:55:46 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Mon Oct 5 06:55:46 2026 +0200
+
+    Handle continued ID suffixes and give interface waveforms text margins
+
+ docs/README.md                            |  6 +++++-
+ docs/architecture/02_interfaces.md        |  6 ++++--
+ docs/architecture/09_verification.md      |  2 +-
+ docs/diagrams/wavedrom/fig-02-memwave.svg |  2 +-
+ docs/diagrams/wavedrom/fig-02-txwave.svg  |  4 ++--
+ scripts/check-ids.py                      | 15 +++++++++++++--
+ scripts/render-wavedrom.py                | 19 +++++++++++++++++--
+ 7 files changed, 43 insertions(+), 11 deletions(-)
+
+commit 80588cdc43ca5605a1d3748d13dd8ed7f22f7000
+Merge: e219709 ead8036
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Mon Oct 5 02:43:12 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Mon Oct 5 02:43:12 2026 +0200
+
+    Merge main ead80360 (PR #155, milan-fpga #639, the timer-arm queue and listener-record lane) into the C11 lane
+
+commit ead8036035affd53ef4b29979190f2f4f67084c0
+Merge: b0a7419 c725be1
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Mon Oct 5 02:27:13 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Mon Oct 5 02:27:13 2026 +0200
+
+    Merge pull request #155 from Mister-M-alt/pp639-armq-lsnrec
+    
+    Keep the top's timer-arm queues and the listener records in distributed RAM (milan-fpga #639)
+
+commit e2197090ddaee1794f9504526da9334088d65a8b
+Merge: 5b2199b b0a7419
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 23:10:01 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 23:10:01 2026 +0200
+
+    Merge main b0a74196 (PR #157, processor #81 and #84, the scoreboard-faces lane) into the C11 lane
+
+commit c725be12d7ea6bf96f1b64e3a56416f0d4defd6c
+Merge: 1cba30c b0a7419
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 21:29:47 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 21:29:47 2026 +0200
+
+    Merge processor main b0a74196 (PR #157) into the issue #639 lane
+
+commit b0a741963212e7d49a902cbab3940033266084c4
+Merge: 07b1469 f9b8f0e
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sun Oct 4 21:27:07 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Oct 4 21:27:07 2026 +0200
+
+    Merge pull request #157 from Mister-M-alt/pp81-scoreboard-faces
+    
+    Close #81 and #84: pin the 300 s / 60 s timer defaults, state F08.1 and the reset contract, and serialize GET_DYNAMIC_INFO behind ACMP stream steps
+
+commit 5b2199ba197cc479488603580a82d2820ba8bc35
+Merge: 3d5a201 07b1469
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 21:18:27 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 21:18:27 2026 +0200
+
+    Merge main 07b1469d (PR #154, milan-fpga #230, the SRP distributed-RAM lane) into the C11 lane
+
+commit 1cba30c91bbc4c0e20343f883b94c3f701cc0dbc
+Merge: 2ff8183 07b1469
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 19:39:38 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 19:39:38 2026 +0200
+
+    Merge processor main 07b1469d (PR #154) into the issue #639 lane
+
+commit 3d5a201e0437562265cb8c1220c4c2843f6899b3
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 19:17:14 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 19:17:14 2026 +0200
+
+    Make check-ids read an optional segment, T-ADP-DELAY(-START) even when broken at a line end, as both IDs, and fail a parenthesis after an ID that holds anything but ID segments
+
+ docs/README.md                       |  7 ++++---
+ docs/architecture/09_verification.md |  2 +-
+ scripts/check-ids.py                 | 28 +++++++++++++++++++++-------
+ 3 files changed, 26 insertions(+), 11 deletions(-)
+
+commit f9b8f0ee6604a73b9fa82c62b91811e9f53b320a
+Merge: 1d6c78f 07b1469
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 19:15:56 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 19:15:56 2026 +0200
+
+    Merge processor main 07b1469d (PR #154) into the #81/#84 lane
+
+commit 07b1469ddf1e2a54e4a42cac06c41f084ecffd6c
+Merge: c050d97 d18270d
+Author:     hackerman-kl <161579364+Mister-M-alt@users.noreply.github.com>
+AuthorDate: Sun Oct 4 19:14:21 2026 +0200
+Commit:     GitHub <noreply@github.com>
+CommitDate: Sun Oct 4 19:14:21 2026 +0200
+
+    Merge pull request #154 from Mister-M-alt/pp230-srp-area
+    
+    Keep the SRP timer-arm FIFOs and walk-only per-stream records in distributed RAM (milan-fpga #230)
+
+commit 1d6c78f19322ae89485920866ae5abb2ce39f22e
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 19:05:11 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 19:05:11 2026 +0200
+
+    Name GET_DYNAMIC_INFO's MAP_CFG admission class in F06.14, F03.7 and the 03 section 6 classifier list (#84)
+
+ docs/architecture/03_packet_engine.md | 7 ++++---
+ docs/architecture/06_aecp_engine.md   | 2 +-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+commit 0917009a3e82371b3d4526a3f09fe93a2f4587db
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:51:17 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:51:17 2026 +0200
+
+    Put the management host on the core clock behind the integrator's bridge in F02.9 and F02.2, say an ungranted nvm_dev_req_o is withdrawn at the deadline, and list hand-authored SVG in the GAP-14 resolution (R473-1 SUGGESTION-4, -5 and -6, R472-1 S3)
+
+ docs/00_MILAN_COMPLIANCE_REVIEW.md | 2 +-
+ docs/architecture/02_interfaces.md | 7 ++++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+commit fa8d4798df349e69c0441c6c540f4ac8b2d8bfee
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:51:17 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:51:17 2026 +0200
+
+    Give the docs-gates job full history so make stale can fail, and pin wavedrom 2.0.3.post3 and the Mermaid CLI's mermaid 11.17.2 and puppeteer 25.12.0 (R472-1 S1, R473-1 SUGGESTION-2)
+
+ .github/workflows/hdl.yml | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+commit b827de600cdfaa3684399ae56cc816fce2919b32
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:48:17 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:48:17 2026 +0200
+
+    Record in F01.5 that P-EN-PLAIN-IEEE-PROFILE has no RTL consumer, as for P-DESCR-IMAGE-BYTES (#84 What remains item 3, R469-1 S2)
+
+ docs/architecture/01_overview.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 779d8860f7ac4ee5ae95f7276473523d83c79d5e
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:47:56 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:47:56 2026 +0200
+
+    Drop the derived 1,800 ms from the P-MAAP-RSP-MS cell, describe F02.7 by its request-and-strobe rule in the side-port README and comment, and say the top has no dual-clock FIFO in 02 rule 2 (R473-1 RESIDUE-1, -2 and -4, R472-1 R1)
+
+ docs/architecture/01_overview.md     | 2 +-
+ docs/architecture/02_interfaces.md   | 4 ++--
+ hdl/packet_engine/KL_pp_side_port.sv | 8 ++++----
+ tb/side_port/README.md               | 7 ++++---
+ 4 files changed, 11 insertions(+), 10 deletions(-)
+
+commit 033174e24ce248cb28e6fe4eefcc853356bbccaf
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:46:56 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:46:56 2026 +0200
+
+    Plant every fault 09 section 7 names in check-figures' self-test (foreignObject, a root that is not an SVG-namespace svg, a missing or empty inventory, a nested file) and refuse feImage too (R472-1/R473-1 F2)
+
+ docs/README.md                       |  3 ++-
+ docs/architecture/09_verification.md |  2 +-
+ docs/diagrams/README.md              |  5 +++--
+ scripts/check-figures.py             | 22 ++++++++++++++++++----
+ 4 files changed, 24 insertions(+), 8 deletions(-)
+
+commit df7b37e57943ca4de9e8d4b0aba297ec9d5377de
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 18:46:49 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 18:46:49 2026 +0200
+
+    Make check-ids read braced members of several segments, an ID broken at a line end and a sibling's last segment as IDs, treat any other text after a hyphen as prose, narrow the numeric tail to minus one, and plant a stray per scanned tree, per form and per master-table fault in its self-test (R472-1/R473-1 F1)
+
+ docs/README.md                       |   5 +-
+ docs/architecture/09_verification.md |   2 +-
+ scripts/check-ids.py                 | 123 ++++++++++++++++++++++++-----------
+ 3 files changed, 88 insertions(+), 42 deletions(-)
+
+commit 2ff8183ac3ae8b70462d4d6e702c31a00b76ea90
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:59:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:59:15 2026 +0200
+
+    Name the revisions behind the ring banner's shift-queue flop count
+
+ hdl/top/protocol_processor_top.sv | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+commit 6b82f9bdc21e628c785884b2b33aba1f102ef28f
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:59:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:59:15 2026 +0200
+
+    Record section AQ's drive and its nine controls, and stop pointing at the unpublished lockstep bench
+
+ docs/architecture/09_verification.md |  8 ++--
+ tb/pp_top/README.md                  | 92 ++++++++++++++++++++++++++----------
+ 2 files changed, 71 insertions(+), 29 deletions(-)
+
+commit b1b6a5a2e9832b4b551f46584590c9ff2025f72b
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:59:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:59:15 2026 +0200
+
+    Plant the review's four full-queue controls in acmp_mutants.py and name AQ3 for the five ring arms
+
+ tb/pp_top/acmp_mutants.py | 34 ++++++++++++++++++++++++++--------
+ 1 file changed, 26 insertions(+), 8 deletions(-)
+
+commit 89b000c76a6c9a0f7595de5c26ba017567b56aa8
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:59:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:59:15 2026 +0200
+
+    Drive the eight timer-arm faces from the bench through full queues, drops, saturation and resets in tb/pp_top section AQ (AQ3, AQ4)
+
+ tb/pp_top/pp_top_wrap.sv |  58 ++++++++++++++++++++++
+ tb/pp_top/sim_main.cpp   | 124 +++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 178 insertions(+), 4 deletions(-)
+
+commit d18270d69eea9cdf35f846c77821d5488dab97cc
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:18:23 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:18:23 2026 +0200
+
+    Narrow the hdl-engineer storage-rule lead-in to the per-context records the SRP walks read (R458-3-R1)
+
+ docs/guides/hdl-engineer.md | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+commit fb06a936b23bca1d7925bfdf521b35ab104ce0df
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:18:23 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:18:23 2026 +0200
+
+    Table WK9, WK10 and R458-3's two controls in the #230 READMEs, re-measured from the campaign at d562ac2
+
+ tb/srp_stream_fsms/README.md | 11 +++++++++-
+ tb/srp_top/README.md         | 51 +++++++++++++++++++++++---------------------
+ 2 files changed, 37 insertions(+), 25 deletions(-)
+
+commit d562ac29943b040090828a2f2afb88c1cb9b9de4
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:04:41 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:04:41 2026 +0200
+
+    Plant R458-3's two ready-handshake probes of the #230 walk-copy writes as killed controls of the srp_top campaign
+
+ tb/srp_top/mutants.py                               |  4 +++-
+ tb/srp_top/mutations/wsid-write-ignores-ready.patch | 11 +++++++++++
+ tb/srp_top/mutations/wtsp-write-ignores-ready.patch | 11 +++++++++++
+ 3 files changed, 25 insertions(+), 1 deletion(-)
+
+commit 7f7104f9437fd7db9eb6b3a0c5f61afa89a1564b
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 16:04:41 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 16:04:41 2026 +0200
+
+    Walk the #230 records with a gate open and a settle offered under a busy decoder bus (WK9, WK10)
+
+ tb/srp_stream_fsms/walk_main.cpp | 118 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 103 insertions(+), 15 deletions(-)
+
+commit 91cef52b3c56cc69f66966b004782a69d2940a46
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:46:01 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:46:01 2026 +0200
+
+    Say in the F01.2 note that the MAC FIFOs the export draws in the MAC clock domains are the integrator's, and rewrap a diagrams README line
+
+ docs/architecture/01_overview.md | 6 +++---
+ docs/diagrams/README.md          | 3 ++-
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+commit c46f708c22bbb324ec7f1f5fa9e71379e145399e
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:26:52 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:26:52 2026 +0200
+
+    Show the landed host_* side-port and nvm_dev_* device-face ports in 02 sections 7 and 8, and redraw F02.7 on the host_* face (#27)
+
+ docs/architecture/02_interfaces.md        | 66 ++++++++++++++++++++++---------
+ docs/diagrams/wavedrom/fig-02-memwave.svg |  4 +-
+ 2 files changed, 49 insertions(+), 21 deletions(-)
+
+commit 8bc4c980e72d2eb05e3bc0d0810445bf75ad4d47
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:22:26 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:22:26 2026 +0200
+
+    Annotate the return type of check-ids.py's uses(), as the parent's Python idiom gate requires of every public function
+
+ scripts/check-ids.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 1d7ffad5ac2ff08a9f28db6d61980092e19f030a
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:20:03 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:20:03 2026 +0200
+
+    Describe the landed byte-wide MAC faces in 02 section 3 with redrawn F02.3 and F02.4, move the class-A word stream to docs/history, and state that the integrator owns the dual-clock FIFOs and its RX FIFO delivers only complete, FCS-good frames (#27, #71)
+
+ README.md                                |   1 +
+ docs/00_MILAN_COMPLIANCE_REVIEW.md       |   2 +-
+ docs/README.md                           |   4 +-
+ docs/architecture/01_overview.md         |   7 +-
+ docs/architecture/02_interfaces.md       | 112 +++++++++++++++++--------------
+ docs/architecture/03_packet_engine.md    |  10 +--
+ docs/architecture/07_memory_maps.md      |   2 +-
+ docs/diagrams/wavedrom/fig-02-rxwave.svg |   4 +-
+ docs/diagrams/wavedrom/fig-02-txwave.svg |   4 +-
+ docs/guides/hdl-engineer.md              |   1 -
+ docs/guides/integrator.md                |  16 ++++-
+ docs/history/02-class-a-word-stream.md   |  84 +++++++++++++++++++++++
+ hdl/packet_engine/KL_pp_trace_ring.sv    |  10 +--
+ 13 files changed, 187 insertions(+), 70 deletions(-)
+
+commit b59e99cb928939f5c4089964dea8f4628d06ede7
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:19:57 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:19:57 2026 +0200
+
+    State the simulator-only 1/1 zero of wsid-flops-of-control-sink and the SRP walks that read distributed RAM (#230)
+
+ docs/guides/hdl-engineer.md | 6 +++---
+ tb/srp_top/README.md        | 5 ++++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+commit f160c65aebc834d89202fbb439a065e2346b448e
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 15:18:42 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 15:18:42 2026 +0200
+
+    Fail make check on any P- or T- ID without its F01.5 or F08.1 row and on any file under docs/diagrams outside a listed figure class, give the two MAAP bounds their F01.5 rows, drop the five orphan PNGs, and run make check in the docs-gates job (#70, #75)
+
+ .github/workflows/hdl.yml                  |  15 +-
+ Makefile                                   |  21 ++-
+ README.md                                  |   2 +-
+ docs/00_MILAN_COMPLIANCE_REVIEW.md         |   4 +-
+ docs/README.md                             |  30 +++-
+ docs/architecture/01_overview.md           |   2 +
+ docs/architecture/02_interfaces.md         |  17 +--
+ docs/architecture/09_verification.md       |  12 +-
+ docs/diagrams/20-rtl-dataflow.png          | Bin 523744 -> 0 bytes
+ docs/diagrams/21-integration-faces.png     | Bin 663333 -> 0 bytes
+ docs/diagrams/22-aecp-descriptor-fetch.png | Bin 565795 -> 0 bytes
+ docs/diagrams/23-bringup-decision.png      | Bin 790025 -> 0 bytes
+ docs/diagrams/24-adp-acmp-states.png       | Bin 444845 -> 0 bytes
+ docs/diagrams/README.md                    |  21 +--
+ docs/guides/hdl-engineer.md                |   2 +-
+ hdl/packet_engine/KL_pp_tx_slots.sv        |   2 +-
+ scripts/check-figures.py                   | 228 +++++++++++++++++++++++++++++
+ scripts/check-ids.py                       | 222 ++++++++++++++++++++++++++++
+ tb/tx_slots/README.md                      |   2 +-
+ tb/tx_slots/sim_main.cpp                   |   5 +-
+ 20 files changed, 545 insertions(+), 40 deletions(-)
+
+commit db2c4eb823c47b2607fb52234b58ac6b93ff548b
+Merge: 7b95590 c050d97
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 14:56:21 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 14:56:21 2026 +0200
+
+    Merge main c050d971 (PR #153, the notification registry in distributed RAM) into the #81/#84 closeout lane
+
+commit 9160f7d7f005050887cab942710940b91e34fc65
+Merge: 1199255 c050d97
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 14:31:45 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 14:31:45 2026 +0200
+
+    Merge processor main c050d971 (PR #153) into the #230 lane
+
+commit 9e8699105c126db7764820916a827ef0538bc4b2
+Merge: b845d01 c050d97
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 14:29:33 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 14:29:33 2026 +0200
+
+    Merge main c050d971 (PR #153, the #232 notification registry) into the issue #639 lane
+
+commit 1199255bee820eb46c24fe5d0cbf7f043c828a3c
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:40:11 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:40:11 2026 +0200
+
+    Re-measure the #230 control table from the head's campaign after the parked-index walk arms
+
+ tb/srp_top/README.md | 33 +++++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
+
+commit 7365022c1132e255030194adc38ae6aa9615647b
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:21:46 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:21:46 2026 +0200
+
+    Walk the #230 records again with the idle gate and control faces parked on their highest index (WK1, WK6)
+
+ tb/srp_stream_fsms/README.md     |  6 +++---
+ tb/srp_stream_fsms/walk_main.cpp | 35 +++++++++++++++++++++++++++++++----
+ 2 files changed, 34 insertions(+), 7 deletions(-)
+
+commit f727957e113993b2d42f61a84550a63ee121f1bc
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:16:10 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:16:10 2026 +0200
+
+    Give the #230 arms' shape -CFLAGS groups -Wall -Wextra and drop four one-line multi-element initialisers, for the parent's C++ idiom gate
+
+ tb/srp_stream_fsms/Makefile |  2 +-
+ tb/srp_top/Makefile         |  2 +-
+ tb/srp_top/store_main.cpp   | 40 +++++++++++++++++++---------------------
+ 3 files changed, 21 insertions(+), 23 deletions(-)
+
+commit df02e6419c30db4db0028ebec47300c506ce7291
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:11:56 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:11:56 2026 +0200
+
+    Name the #230 walk copies, slopes and timer-arm FIFOs in the storage rule and point 10 section 5.1 at their tests
+
+ docs/architecture/10_srp_engine.md | 5 ++++-
+ docs/guides/hdl-engineer.md        | 7 ++++++-
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+commit d21dd8e797acd2a25e11eb66eaac72751a872f08
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:11:55 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:11:55 2026 +0200
+
+    Plant both #230 reviews' probes and the lane's controls as 33 killed controls of the srp_top campaign
+
+ tb/srp_top/README.md                               | 136 ++++++++++++++++++++-
+ tb/srp_top/mutants.py                              |  52 +++++++-
+ tb/srp_top/mutations/slope-read-source-0.patch     |  11 ++
+ .../mutations/slope-store-source-0-only.patch      |  11 ++
+ .../mutations/slope-stored-at-source-0.patch       |  11 ++
+ .../mutations/slope-stored-at-stage-2-index.patch  |  11 ++
+ tb/srp_top/mutations/talker-vid-unreset.patch      |  10 ++
+ tb/srp_top/mutations/tf-full-guard-31.patch        |  11 ++
+ .../mutations/tf-head-at-write-pointer.patch       |  11 ++
+ tb/srp_top/mutations/tf-heads-swapped.patch        |  13 ++
+ .../mutations/tf-listener-push-dropped.patch       |  11 ++
+ tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch |  11 ++
+ .../mutations/tf-ls-write-ignores-full.patch       |  11 ++
+ .../mutations/tf-ls-written-at-tk-pointer.patch    |  11 ++
+ tb/srp_top/mutations/tf-tk-head-read-ahead.patch   |  11 ++
+ tb/srp_top/mutations/tf-tk-write-at-rptr.patch     |  11 ++
+ .../mutations/tf-tk-write-ignores-full.patch       |  11 ++
+ .../mutations/walk-record-written-on-close.patch   |  11 ++
+ .../mutations/wid-flops-da-of-gate-source.patch    |  11 ++
+ .../mutations/wid-flops-sid-of-source-0.patch      |  11 ++
+ .../mutations/wid-flops-vid-of-source-0.patch      |  11 ++
+ tb/srp_top/mutations/wid-ram-first-open-only.patch |  11 ++
+ .../mutations/wid-ram-read-at-gate-source.patch    |  11 ++
+ tb/srp_top/mutations/wid-ram-read-neighbour.patch  |  11 ++
+ .../mutations/wsid-flops-of-control-sink.patch     |  11 ++
+ tb/srp_top/mutations/wsid-flops-read-sink-0.patch  |  11 ++
+ .../mutations/wsid-ram-first-settle-only.patch     |  11 ++
+ .../mutations/wsid-ram-written-on-teardown.patch   |  11 ++
+ tb/srp_top/mutations/wtsp-first-open-only.patch    |  11 ++
+ .../mutations/wtsp-latency-field-shifted.patch     |  11 ++
+ tb/srp_top/mutations/wtsp-latency-shifted.patch    |  11 ++
+ tb/srp_top/mutations/wtsp-prio-rank-swapped.patch  |  11 ++
+ tb/srp_top/mutations/wtsp-rank-dropped.patch       |  11 ++
+ .../mutations/wtsp-read-at-gate-source.patch       |  11 ++
+ tb/srp_top/mutations/wtsp-read-at-source-0.patch   |  11 ++
+ 35 files changed, 544 insertions(+), 8 deletions(-)
+
+commit d47ce65791c1ccf5d1359e8b3b8d21d9ea3555ad
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:11:55 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:11:55 2026 +0200
+
+    Check the #230 timer-arm FIFOs at 1/1, 2/2, 3/5 and 9/9 in tb/srp_top, the full guard under a forced stall (TF1-TF5)
+
+ tb/srp_top/Makefile          |  56 ++++-
+ tb/srp_top/srp_store_wrap.sv | 322 ++++++++++++++++++++++++++
+ tb/srp_top/store_main.cpp    | 527 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 895 insertions(+), 10 deletions(-)
+
+commit eb352ff7ed16d6cac4a05e4b7eb2c62283d1c4e1
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 12:11:55 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 12:11:55 2026 +0200
+
+    Check the #230 walk-record copies at sources/sinks 1/1, 2/2, 3/5 and 9/9 in tb/srp_stream_fsms (WK1-WK8)
+
+ tb/srp_stream_fsms/Makefile         |  40 +++-
+ tb/srp_stream_fsms/README.md        |  42 +++-
+ tb/srp_stream_fsms/srp_walk_wrap.sv | 240 ++++++++++++++++++++++
+ tb/srp_stream_fsms/walk_main.cpp    | 397 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 716 insertions(+), 3 deletions(-)
+
+commit 4994ada5298ca1df3a23c50bc9264ee7b4a291ce
+Merge: 6532439 83999eb
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 11:20:00 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 11:20:00 2026 +0200
+
+    Merge processor main 83999eba (C10, #85) into pp230-srp-area
+
+commit 7b95590264c8f7b9ed5211131f67c191552c15bf
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 11:09:24 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 11:09:24 2026 +0200
+
+    Record the AECP campaign at this head in tb/pp_top/README.md: 6 controls and 61 arms, and the three counts the new checks moved
+
+ tb/pp_top/README.md | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+commit beb7c220965215e48f5d321521a515697f20f4ce
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 10:21:22 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 10:39:01 2026 +0200
+
+    Serialize GET_DYNAMIC_INFO against every ACMP stream step through MAP_CFG's cross-lock, grade it in HZ13 and amend HZ8 for its over-serialization
+
+ docs/architecture/03_packet_engine.md       | 23 ++++++++-----
+ docs/architecture/08_timing.md              |  6 ++--
+ docs/architecture/09_verification.md        |  5 +--
+ hdl/top/protocol_processor_top.sv           | 20 ++++++++---
+ tb/pp_top/README.md                         | 13 ++++++--
+ tb/pp_top/aecp_mutants.py                   | 14 ++++++++
+ tb/pp_top/mutations/hz-gdi-as-barrier.patch | 11 +++++++
+ tb/pp_top/mutations/hz-gdi-key-none.patch   | 11 +++++++
+ tb/pp_top/sim_main.cpp                      | 51 +++++++++++++++++++++++++++--
+ 9 files changed, 131 insertions(+), 23 deletions(-)
+
+commit bacad0e365aea3cb4aeb03e7f63ab4f9df486b1c
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 10:21:22 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 10:21:22 2026 +0200
+
+    Grade T-LOCK-UNLOCK and T-NOTIF-TIMELIMITED at the top's 60,000 and 300,000 ms defaults in a sixth pp_top build (section TD), each with a planted default-changing arm
+
+ docs/architecture/09_verification.md          |   5 +-
+ tb/pp_top/Makefile                            |  28 +++++--
+ tb/pp_top/README.md                           |  32 +++++--
+ tb/pp_top/aecp_mutants.py                     |   7 ++
+ tb/pp_top/mutations/td-lock-default-59s.patch |  11 +++
+ tb/pp_top/mutations/td-tl-default-301s.patch  |  11 +++
+ tb/pp_top/notify_phases.hpp                   | 115 +++++++++++++++++++++++++-
+ tb/pp_top/pp_top_wrap.sv                      |  10 ++-
+ tb/pp_top/sim_main.cpp                        |  14 +++-
+ 9 files changed, 214 insertions(+), 19 deletions(-)
+
+commit 371505db5ca3f95117e04bfd32a06b4912dd219b
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 10:20:18 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 10:20:18 2026 +0200
+
+    State in 02 §2 rule 5 the synchronous active-low reset the RTL implements
+
+ docs/architecture/02_interfaces.md | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+commit 4ffd8f06afe341032a25ba1f3be925c9dfe86156
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 10:20:18 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 10:20:18 2026 +0200
+
+    Mark F08.1's T-CTR-OBSERVE integrator-owned and the identify timers landed with their suites, and limit 09's TIM claim to rows with RTL here
+
+ docs/architecture/08_timing.md       | 6 +++---
+ docs/architecture/09_verification.md | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+commit b845d01d6a4af60f141ecdb02fc314c582ba10d7
+Merge: cfd62e8 83999eb
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 09:24:15 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 09:24:15 2026 +0200
+
+    Merge main 83999eba (PR #152, the ADP walk lane) into the issue #639 lane
+
+commit 65324390d1b83c4587f299d06597f7a571d7fa61
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 08:19:59 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 08:19:59 2026 +0200
+
+    Record the SRP storage map and per-stream cost for issue #230 in 10 section 5.1
+
+ docs/architecture/10_srp_engine.md | 56 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+
+commit cfd62e8c8e1da977e60f6483e09b3305e1bbaab2
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 07:33:19 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 07:33:19 2026 +0200
+
+    Record the issue #639 storage, its section AQ, check RS and their controls in the docs
+
+ docs/architecture/07_memory_maps.md  |  5 ++-
+ docs/architecture/08_timing.md       |  5 +++
+ docs/architecture/09_verification.md | 15 +++++++++
+ docs/guides/hdl-engineer.md          | 12 +++++++
+ tb/acmp_listener/README.md           | 25 +++++++++++++-
+ tb/pp_top/README.md                  | 63 +++++++++++++++++++++++++++++++++++-
+ 6 files changed, 122 insertions(+), 3 deletions(-)
+
+commit 5828bb8ec8542ca6affa756e23faaaea33f5c1e8
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 06:35:10 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 06:35:10 2026 +0200
+
+    Run one acmp_mutants.py golden per suite and run mode
+
+ tb/pp_top/acmp_mutants.py | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+commit 9eebc616ece366f6c8a1bb970f70a20d674445ac
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 06:25:47 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 06:25:47 2026 +0200
+
+    Plant the issue #639 storage controls in acmp_mutants.py
+
+ tb/pp_top/acmp_mutants.py | 65 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 60 insertions(+), 5 deletions(-)
+
+commit 1bb3ba405cb72cbbdeb08f6eb3d8f377d9bb13cb
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 06:25:47 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 06:25:47 2026 +0200
+
+    Hold the ACMP listener records in distributed RAM read without a read register, and grade the reset sweep
+
+ hdl/acmp/KL_pp_acmp_listener.sv | 32 +++++++++++++++++++-------------
+ tb/acmp_listener/sim_main.cpp   | 21 +++++++++++++++++++++
+ 2 files changed, 40 insertions(+), 13 deletions(-)
+
+commit b42066c9c76ab1efce0d833927e23375f0cac060
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 06:25:47 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 06:25:47 2026 +0200
+
+    Hold the eight timer-arm queues in distributed-RAM rings and grade the arm port against a model in tb/pp_top
+
+ hdl/top/protocol_processor_top.sv |  51 ++++++++++-------
+ tb/pp_top/pp_top_wrap.sv          |  37 ++++++++++++
+ tb/pp_top/sim_main.cpp            | 115 +++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 181 insertions(+), 22 deletions(-)
+
+commit 25847d077779f61f87bd016a3998ac1adf5e94ce
+Author:     hackerman-kl <hackerman-kl@kebag-logic.com>
+AuthorDate: Sun Oct 4 01:36:13 2026 +0200
+Commit:     hackerman-kl <hackerman-kl@kebag-logic.com>
+CommitDate: Sun Oct 4 01:36:13 2026 +0200
+
+    SRP storage for issue #230: timer-arm FIFOs, walk records and admission slopes in distributed RAM
+
+ hdl/srp/KL_srp_admission.sv    | 16 ++++++--
+ hdl/srp/KL_srp_listener_fsm.sv | 33 ++++++++++++++---
+ hdl/srp/KL_srp_talker_fsm.sv   | 83 ++++++++++++++++++++++++++++--------------
+ hdl/srp/KL_srp_top.sv          | 23 +++++++++---
+ 4 files changed, 112 insertions(+), 43 deletions(-)

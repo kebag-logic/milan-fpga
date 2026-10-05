@@ -1,0 +1,193 @@
+{
+  "c11_compiled_identity": [
+    {
+      "path": "hdl/packet_engine/KL_pp_side_port.sv",
+      "tokens": 978,
+      "equal": true
+    },
+    {
+      "path": "hdl/packet_engine/KL_pp_trace_ring.sv",
+      "tokens": 348,
+      "equal": true
+    },
+    {
+      "path": "hdl/packet_engine/KL_pp_tx_slots.sv",
+      "tokens": 1590,
+      "equal": true
+    },
+    {
+      "path": "tb/tx_slots/sim_main.cpp",
+      "tokens": 4297,
+      "equal": true
+    }
+  ],
+  "round3_changed": [
+    "docs/README.md",
+    "docs/architecture/02_interfaces.md",
+    "docs/architecture/09_verification.md",
+    "docs/diagrams/wavedrom/fig-02-memwave.svg",
+    "docs/diagrams/wavedrom/fig-02-txwave.svg",
+    "scripts/check-ids.py",
+    "scripts/render-wavedrom.py"
+  ],
+  "interface_ports": {
+    "named": 109,
+    "all_top_ports": true,
+    "names": [
+      "acmp_bound_dmac_o",
+      "acmp_bound_eid_o",
+      "acmp_bound_o",
+      "acmp_bound_sid_o",
+      "acmp_bound_vlan_o",
+      "acmp_declaring_o",
+      "aecp_clk_src_index_o",
+      "aecp_dyn_dirty_o",
+      "aecp_fmt_in_o",
+      "aecp_fmt_in_v_o",
+      "aecp_fmt_out_o",
+      "aecp_fmt_out_v_o",
+      "aecp_identify_o",
+      "aecp_name_wr_o",
+      "aecp_nvm_mark_o",
+      "aecp_nvm_stb_o",
+      "aecp_pt_offset_o",
+      "aecp_pt_offset_v_o",
+      "aecp_strm_started_o",
+      "amap_edit_phase_o",
+      "amap_edit_req_o",
+      "cfg_maap_internal_i",
+      "clk_i",
+      "ctr_change_desc_index_i",
+      "ctr_change_desc_type_i",
+      "ctr_change_i",
+      "ctr_data_i",
+      "ctr_desc_index_o",
+      "ctr_desc_type_o",
+      "ctr_req_o",
+      "ctr_wait_i",
+      "ctr_word_o",
+      "current_cfg_i",
+      "d3_unflushed_o",
+      "entity_enable_i",
+      "gm_change_i",
+      "gm_id_i",
+      "gptp_domain_i",
+      "gsi_asp_chg_i",
+      "gsi_avb_chg_i",
+      "gsi_data_i",
+      "gsi_desc_index_o",
+      "gsi_desc_type_o",
+      "gsi_kind_o",
+      "gsi_ord_o",
+      "gsi_prop_fmt_o",
+      "gsi_req_o",
+      "gsi_sel_o",
+      "gsi_wait_i",
+      "host_addr_i",
+      "host_err_o",
+      "host_rdata_o",
+      "host_req_valid_i",
+      "host_rvalid_o",
+      "host_wdata_i",
+      "host_we_i",
+      "identify_button_i",
+      "link_up_i",
+      "maap_addr_o",
+      "maap_addr_valid_o",
+      "maap_conflict_ack_o",
+      "maap_conflict_src_i",
+      "maap_conflict_valid_i",
+      "nvm_alarm_o",
+      "nvm_dev_busy_i",
+      "nvm_dev_done_i",
+      "nvm_dev_err_i",
+      "nvm_dev_gnt_i",
+      "nvm_dev_len_o",
+      "nvm_dev_offset_o",
+      "nvm_dev_op_o",
+      "nvm_dev_rdata_i",
+      "nvm_dev_region_o",
+      "nvm_dev_req_o",
+      "nvm_dev_rready_o",
+      "nvm_dev_rvalid_i",
+      "nvm_dev_wdata_o",
+      "nvm_dev_wready_i",
+      "nvm_dev_wvalid_o",
+      "nvm_unflushed_o",
+      "restore_blank_o",
+      "restore_busy_o",
+      "restore_cause_o",
+      "restore_closed_o",
+      "restore_done_o",
+      "restore_fail_o",
+      "restore_rb_o",
+      "rs_cause_o",
+      "rx_data_i",
+      "rx_last_i",
+      "rx_valid_i",
+      "srp_acc_latency_o",
+      "srp_active_o",
+      "srp_class_a_prio_o",
+      "srp_class_a_vid_o",
+      "srp_domain_change_o",
+      "srp_granted_slope_bps_o",
+      "srp_lstn_reg_state_o",
+      "srp_snk_fail_code_o",
+      "srp_sr_admitted_o",
+      "srp_src_fail_bridge_o",
+      "srp_src_fail_code_o",
+      "srp_tk_decl_state_o",
+      "srp_tk_reg_state_o",
+      "tx_data_o",
+      "tx_eof_o",
+      "tx_ready_i",
+      "tx_sof_o",
+      "tx_valid_o"
+    ]
+  },
+  "history": {
+    "paragraph_and_table_verbatim": true,
+    "wave_sources_verbatim": 2
+  },
+  "tracked_pngs": [],
+  "figure_mutants": [
+    {
+      "name": "figure-skip-foreignObject",
+      "rc": 1
+    },
+    {
+      "name": "figure-skip-namespace",
+      "rc": 1
+    },
+    {
+      "name": "figure-skip-root",
+      "rc": 1
+    },
+    {
+      "name": "figure-skip-empty-inventory",
+      "rc": 1
+    }
+  ],
+  "make_ids_plants": [
+    {
+      "name": "composition",
+      "rc": 2,
+      "token": "T-ADP-DELAY-STRT"
+    },
+    {
+      "name": "optional-break",
+      "rc": 2,
+      "token": "T-ADP-DELAY-STRT"
+    },
+    {
+      "name": "minus-one",
+      "rc": 2,
+      "token": "P-REVIEWER-MISSING-1"
+    },
+    {
+      "name": "valid-composition",
+      "rc": 0,
+      "token": null
+    }
+  ]
+}
