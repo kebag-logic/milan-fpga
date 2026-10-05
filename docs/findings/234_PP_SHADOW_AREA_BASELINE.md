@@ -9,7 +9,7 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 
 ## Contents
 
-- **[Re-baseline of 2026-10-05, processor ead80360](#re-baseline-of-2026-10-05-processor-ead80360)** -- TODO describe this section
+- **[Re-baseline of 2026-10-05, processor ead80360](#re-baseline-of-2026-10-05-processor-ead80360)** -- The adopted pin on dev `506d91db`, its three measured endpoints, storage mappings and changes from C.
 - **[Re-baseline of 2026-10-03, after PR #634](#re-baseline-of-2026-10-03-after-pr-634)** -- The three endpoints measured again at dev `54643724`, their delta from the first record per endpoint and sub-block, and its sources: the AAF clock meter, one more name entry and the firmware ROM.
 - **[Combinations](#combinations)** -- The first record's dev head and the next processor adoption, and the only functional HDL change between them.
 - **[Method](#method)** -- The recipe, tools and clocks, the standalone clock taken from the build, and the 8x8 parameters from an elaboration.
