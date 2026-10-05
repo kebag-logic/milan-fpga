@@ -1,0 +1,37 @@
+diff --git a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+index 4f74cd3be..47ece319c 100644
+--- a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
++++ b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+@@ -539,7 +539,7 @@ void Harness::receive_edge() {
+     }
+     rx_off += 8; rx_next = cyc + 4;
+     if (rx_off >= rx.frame.b.size()) {
+-        if (be(rx.frame.b, 12, 2) == 0x22F0 && rx.frame.b[14] == 2) ++rx_audio;
++        if (be(rx.frame.b, 12, 2) == 0x22F0 && rx.frame.b[14] == 2) { ++rx_audio; printf("PROBE done cyc=%llu edges=%llu\n", (unsigned long long)cyc, (unsigned long long)audio_edges); }
+         rx_busy = false;
+     }
+ }
+@@ -876,6 +876,7 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
+         }
+     }
+     require_tu = -1;
++    printf("PROBE window start=%llu end=%llu\n", (unsigned long long)start, (unsigned long long)cyc);
+     printf("AUDIO elapsed=%.6f s\n", double(cyc - start) / kHz);
+     printf("AUDIO result rx=%llu tx=%llu samples=%llu bad_payload=%llu bad_order=%llu\n",
+         static_cast<unsigned long long>(rx_audio - rx0), static_cast<unsigned long long>(tx_audio - tx0),
+@@ -976,13 +977,14 @@ int Harness::run() {
+         run_cycles(kHz / 100);
+         audio_window("initial payload", kHz / 50, 1);
+         completed[1] = true;
+-        if (test_control_ == TestControl::NoTx) return report();
++        if (test_control_ == TestControl::NoTx) { run_cycles(20000); return report(); }
+         if (test_control_ == TestControl::StopTx) {
+             // Preserve the initial comparisons, then drain admitted traffic.
+             // This proves a later empty window cannot borrow earlier evidence.
+             write(0x654, 0x00020001);
+             run_cycles(kHz / 100);
+             audio_window("admission withheld after traffic", kHz / 50, 1);
++            run_cycles(20000);
+             return report();
+         }
+         const auto initial_avb = query(0x27, 0x7010);
