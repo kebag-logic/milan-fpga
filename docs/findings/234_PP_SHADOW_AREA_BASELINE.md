@@ -1,14 +1,15 @@
 # Protocol processor area baseline for issue #234
 
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
-The [re-baseline](#re-baseline-of-2026-10-03-after-pr-634) measures the shipping image again after PR #634, at dev `54643724`.
+The [2026-10-05 re-baseline](#re-baseline-of-2026-10-05-processor-ead80360) records processor pin `ead80360` on dev `506d91db` for #661.
 It is the resource gate's current record.
-The sections after it keep the first record, at dev `1269cdaf`, as history.
-This change modifies no RTL and no processor source.
+The later sections preserve the previous combinations A, B and C as history.
+This adoption changes the processor gitlink; no parent RTL or processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
+- **[Re-baseline of 2026-10-05, processor ead80360](#re-baseline-of-2026-10-05-processor-ead80360)** -- The adopted pin on dev `506d91db`, its three measured endpoints, storage mappings and changes from C.
 - **[Re-baseline of 2026-10-03, after PR #634](#re-baseline-of-2026-10-03-after-pr-634)** -- The three endpoints measured again at dev `54643724`, their delta from the first record per endpoint and sub-block, and its sources: the AAF clock meter, one more name entry and the firmware ROM.
 - **[Combinations](#combinations)** -- The first record's dev head and the next processor adoption, and the only functional HDL change between them.
 - **[Method](#method)** -- The recipe, tools and clocks, the standalone clock taken from the build, and the 8x8 parameters from an elaboration.
@@ -19,6 +20,109 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-10-05, processor ead80360
+
+Combination D is parent `ca129e3805dbd45d1289325bc0c8bef06d05f6a2`, on dev `506d91dbeeba585d72d2e80d92fca799c719f8ee`.
+It adopts processor `ead8036035affd53ef4b29979190f2f4f67084c0` for [#661](https://github.com/kebag-logic/milan-fpga/issues/661).
+The comparison is C, the record shipped by parent `241f9184`, measured at dev `54643724` with processor `631eeb34`.
+Both use the [same recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md), Vivado 2026.1 build 6511674, `xc7a100tfgg484-2`, directives and 50 MHz clock.
+The 8x8 parameters come from RTL elaboration of its shipping export; neither standalone endpoint is an integrated 8x8 fit claim.
+The shape still has 39 name entries at 1x1 and 107 at 8x8.
+The firmware sources, census and both processor ROMs are unchanged by this adoption.
+
+**Three endpoints, D against C**
+
+| Endpoint | LUT C / D | FF C / D | Slice C / D | RAMB36 C / D | RAMB18 | DSP | CARRY4 C / D | WNS C / D ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 50,767 / 50,318 | 59,634 / 54,214 | 15,832 / 15,789 | 79 / 74 | 27 | 14 | 3,506 / 3,377 | +0.193 / +0.108 |
+| `ooc-1x1` | 24,332 / 23,178 | 25,345 / 19,776 | - | 21 / 16 | 3 | 8 | 1,623 / 1,494 | -1.616 / -2.580 |
+| `ooc-8x8` | 31,556 / 29,853 | 33,937 / 27,370 | - | 26 / 21 | 5 | 8 | 2,001 / 1,889 | -1.947 / -4.095 |
+
+The route saves 449 LUTs, 5,420 FFs, 43 slices and five RAMB36s.
+It uses 87.5 BRAM tiles and leaves 61 slices free.
+All 100,970 routable nets are fully routed; the routing-error count is zero.
+WNS is +0.108 ns and WHS +0.036 ns, meeting both #661's 50 MHz acceptance and the stricter +0.030 ns build floor.
+Its critical path starts at `u_pp/u_notify/wr_ix_r_reg[0]_replica/C` and ends at `u_pp/u_tx_arbiter/slot_r_reg[0]/D`.
+The path has 42 logic levels and 19.743 ns data delay, 71.418 percent routing.
+Notification still feeds the critical path after its registry moves to RAM.
+Standalone WNS is an internal synthesis estimate, without I/O constraints; it is not a route verdict.
+
+**Processor sub-block changes**
+
+Each cell is D minus C in LUT / FF.
+Rows include descendants and must not be added to their children.
+The generated baseline records every reported scope, including the smaller movements.
+
+| Scope relative to the wrapper | Route 1x1 | Standalone 1x1 | Standalone 8x8 |
+|---|---:|---:|---:|
+| `wrapper` | -1,018 / -5,510 | -1,154 / -5,569 | -1,703 / -6,567 |
+| `u_pp` | -1,028 / -5,509 | -1,161 / -5,567 | -1,706 / -6,567 |
+| `u_pp/u_notify` | -1,043 / -2,040 | -1,121 / -2,044 | -778 / -2,046 |
+| `u_pp/u_srp` | -633 / -2,425 | -695 / -2,460 | -1,531 / -3,444 |
+| `u_pp/u_listener` | +67 / -56 | +119 / -56 | +77 / -42 |
+| `u_pp/u_aecp` | +544 / +91 | +570 / +98 | +1,138 / +235 |
+| `u_pp/u_aecp/u_d3` | +564 / +96 | +628 / +98 | +1,016 / +235 |
+| `u_pp/u_aecp/u_store` | +1 / +0 | -5 / +0 | +79 / +0 |
+| `u_pp/u_aecp/u_dyn` | +18 / +0 | -16 / +0 | -23 / +0 |
+| `u_pp/u_nvm_port` | +83 / +33 | +86 / +33 | +64 / +33 |
+| `u_nvm` | +6 / +0 | +7 / +0 | +3 / +0 |
+
+[Processor PR #153](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/153) measured notification at -927 LUT / -2,012 FF in its route.
+D measures -1,043 / -2,040 there, and its notification registry maps to 64 RAM32M with no registry data flops.
+The PR's standalone totals fell by 894 / 2,042 at 1x1 and 925 / 2,175 at 8x8.
+The parallel counter-stamp bank intentionally remains in flops; it is not an unfinished registry conversion.
+
+[Processor PR #154](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/154) measured SRP at -629 LUT / -2,424 FF in its route.
+D measures -633 / -2,425, and -1,531 / -3,444 at 8x8, against that PR's standalone SRP -1,392 / -3,445.
+The two FIFO payloads infer separate RAM32M banks, eight primitives each.
+Their pointers and output registers remain flops; the payload arrays do not.
+Walk-only fields move to distributed RAM while fields read by parallel matchers remain registers.
+The shared SRP evaluator is later work under #640.
+
+[Processor PR #155](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/155) measured a whole-route change of -282 LUT / -1,093 FF and five fewer RAMB36s.
+Its listener cost +123 LUT / -55 FF; D's listener is +67 / -56 at 1x1 and loses the same five RAMB36s at all three endpoints.
+Synthesis infers the listener's 376-bit record as 63 RAM32M; optimization retains 52 in each measured endpoint.
+The eight timer-arm rings infer eight RAM32M each, with 54 RAM32M plus one RAM32X1D retained in the route, 61 plus one at standalone 1x1, and 64 at 8x8.
+Those mapped queue cells contain no data flops.
+The PR explains why their savings appear across consuming engines after optimization, rather than only in processor top own logic.
+
+The positive D3 movement is the new saved-name walker from [processor PR #150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150).
+That PR measured whole-wrapper 1x1 growth of 683 LUT / 94 FF; D's D3 block grows by 628 / 98 standalone.
+Its 8x8 D3 growth is 1,016 / 235; the PR's isolated writer measurement was 1,520 / 217.
+P2's port watchdog accounts for the route's +83 LUT / +33 FF, also measured in combination B below.
+These individual PR deltas use different intermediate pins and are evidence for the affected blocks, not additive predictions of the combined pin.
+
+Outside the wrapper, D's route grows by 569 LUT / 90 FF relative to C.
+The rebuilt `milan_datapath` total is 41,657 LUT / 43,006 FF, a change of -543 / -5,427.
+Its part outside the wrapper therefore moves by +475 / +83; the rest of the image accounts for +94 / +7.
+Dev between C and this lane also contains #653's CRF unbind fix in `KL_crf_rx.sv` and `milan_datapath.sv`.
+The comparison includes that predecessor; it does not attribute all outside-wrapper movement to the processor or claim an isolated measurement of #653.
+No parent RTL is changed in #661.
+
+**Recorded and checked**
+
+All three endpoints pass against C and recommend a re-baseline for the improved FF and RAMB36 counts.
+`pp_resource_gate.py record --write` records D at all three endpoints; every tolerance, floor and ceiling is unchanged.
+All three then pass `check`, and `check-baseline` passes.
+Each `measured` note names the measured parent head, its dev base and the adopted processor pin.
+The remaining changes in this lane record evidence and documentation only.
+The original ranking and Yosys comparison below remain labelled historical; the RAM mappings above describe D.
+The three area lanes have removed the large flop payloads identified by #234's criterion 2.
+The 60 percent LUT target remains unmet: 50,318 LUTs are 79.37 percent, 12,278 above the target.
+The owner's redesign decision under #640 still governs that separate target.
+
+| Run | rc | Minutes | Log SHA-256 | Bytes |
+|---|---:|---:|---|---:|
+| `route-1x1` | 0 | 45.9 | `921faf3099cf68dea08095b05545a1acb4a747baa828c5cd900e62bdcd8bf7a3` | 830,422 |
+| `ooc-1x1` | 0 | 24.4 | `696e3752054c3175c69847bb9c0fc6363fa4513196c9741051eecfdfae0a320d` | 309,573 |
+| `ooc-8x8` | 0 | 20.5 | `5877f98de1b50f2336ffc49a9ed73e38e4fd2815123a654c37bdd2eb7536cb07` | 313,217 |
+
+Each run held the Vivado lock, with no other heavy build in this lane beside it.
+The interrupted 8x8 attempt is excluded; its fresh repeat is the receipt above.
+Every endpoint's six image entries rehashed to the recorded byte count and SHA-256 after completion.
+No completed log contains a `Synth 8-4445` or `Synth 8-7186` diagnostic.
+The full reports and checkpoints stay outside the evidence packet; that packet records their sizes and SHA-256 digests.
 
 ## Re-baseline of 2026-10-03, after PR #634
 

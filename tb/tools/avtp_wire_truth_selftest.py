@@ -13,7 +13,8 @@ from __future__ import annotations
 import struct
 from pathlib import Path
 
-from avtp_wire_truth_wire import (ADP_CDL, ADP_FRAME_LEN,
+from avtp_wire_truth_wire import (ADP_CDL, ADP_ENTITY_AVAILABLE,
+                                  ADP_ENTITY_DEPARTING, ADP_FRAME_LEN,
                                   CRF_TYPE_AUDIO_SAMPLE, ETH_P_AVTP,
                                   Expectation, MILAN_CRF_BASE_HZ,
                                   MILAN_CRF_FORMAT, MILAN_CRF_TS_INTERVAL,
@@ -342,6 +343,38 @@ class _ControlPlaneArms:
         self.assertEqual([v for v in wt.check_adp_frame_rule()
                           if "available-index" in v.check][0].verdict,
                          "FAIL")
+
+    def test_available_index_resets_after_departing(self) -> None:
+        """6.2.2.15: the index resets to 0 after an ENTITY_DEPARTING, so the
+        0 that follows one is no repeat, even when the departing frame itself
+        carried 0; a repeat between ENTITY_AVAILABLEs still fails."""
+        av, dep = ADP_ENTITY_AVAILABLE, ADP_ENTITY_DEPARTING
+        # a whole cycle: advertise, depart, advertise again from 0
+        v = self._index_verdict((av, 3), (av, 4), (dep, 5), (av, 0), (av, 1))
+        self.assertEqual(v.verdict, "PASS")
+        self.assertEqual(v.detail["departing_resets"], 1)
+        # disabled before the first advertisement: DEPARTING carries 0, and
+        # the ENTITY_AVAILABLE after it carries 0 again (R487-1's probe)
+        v = self._index_verdict((dep, 0), (av, 0), (av, 1))
+        self.assertEqual(v.verdict, "PASS")
+        self.assertEqual(v.detail["repeats"], 0)
+        # the reset exempts only the frame after the ENTITY_DEPARTING
+        v = self._index_verdict((dep, 5), (av, 0), (av, 0))
+        self.assertEqual(v.verdict, "FAIL")
+        self.assertEqual(v.detail["repeats"], 1)
+        # and only a reset to 0: the departing value carried on is a repeat
+        v = self._index_verdict((av, 4), (dep, 5), (av, 5))
+        self.assertEqual(v.verdict, "FAIL")
+        self.assertEqual(v.detail["repeats"], 1)
+
+    def _index_verdict(self, *seq):
+        """The available-index verdict for ADPDUs of one entity, each a
+        (message_type, available_index) pair in wire order."""
+        wt = WireTruth()
+        for mt, i in seq:
+            wt.feed(0.0, build_adp_frame(available_index=i, message_type=mt))
+        return [v for v in wt.check_adp_frame_rule()
+                if "available-index" in v.check][0]
 
 
     def test_control_length_lie(self) -> None:

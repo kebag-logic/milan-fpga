@@ -609,11 +609,12 @@ is the one consumer that cannot be asked (its expansion path is Yosys), and
 splitting the raw text had credited a commented-out top as elaborated. Every
 declared module is a top, or it is named in
 [`scripts/processor_yosys_tops.budget`](../../scripts/processor_yosys_tops.budget)
-with the reason it is not. The six are recorded there as **drift at the pin**,
-not as helper exceptions, because that is what they are; the fix is upstream,
-and the pin bump that brings it in deletes the lines, since a recorded name
-that has become a top is refused as stale and an omission that is not recorded
-is refused outright. The record can therefore only shrink.
+with the reason it is not. The six recorded there from pin 3770ae02 were
+**drift at the pin**, not helper exceptions; the processor's lane C10 (its
+issue #25) named all six as tops, and the pin bump that brought it in deleted
+their lines, since a recorded name that has become a top is refused as stale
+and an omission that is not recorded is refused outright. The record can
+therefore only shrink.
 
 The gPTP processor keeps no native tops list. Its portability coverage is the
 closure walk itself — every one of its six sources is reached from

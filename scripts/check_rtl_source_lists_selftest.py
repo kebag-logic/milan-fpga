@@ -371,19 +371,34 @@ def _arms_processor_tops_live(tally, cl, need):
     ck("the live processor tops array was read", bool(live) and len(live[0][2]) >= 30,
        "no PROCESSOR_TOPS entry was reachable, or the array parsed as nearly empty")
     if live:
-        sub, script, l_tops, l_decl, l_rec, l_unrec, l_stale, _ = live[0]
+        sub, script, l_tops, l_decl, _, l_unrec, l_stale, _ = live[0]
         ck("every recorded omission is real drift at this pin, and every drift is recorded",
            not l_unrec and not l_stale,
            f"unrecorded {l_unrec}, stale {l_stale}")
-        ck("the record is non-empty at this pin, so the refusal arms grade a live population",
-           bool(l_rec), "an empty record would make the stale/unrecorded arms vacuous here")
-        mutated = compare_tops(l_tops, l_decl | {"KL_zz_probe"},
-                               read_tops_budget(TOPS_BUDGET.read_text()))
+        # The record is empty once every declared module is a top, so the two
+        # refusals are graded on a synthetic population drawn from this pin,
+        # whatever the record holds: one live top taken out of the array, then
+        # recorded, then put back with its record left behind.
+        recorded = read_tops_budget(TOPS_BUDGET.read_text())
+        probe = min(l_tops & l_decl)
+        out, owed = l_tops - {probe}, {**recorded, probe: "synthetic"}
+        complete = [Row("fixture complete list", "ok", [], [], None)]
+        rc, lines = verdict(cl, need, complete, [(sub, script, out, l_decl, [],
+                                                  *compare_tops(out, l_decl, recorded), None)])
+        ck("a live top taken out of the array, unrecorded, reaches the verdict as TOPS DRIFT and exit 1",
+           rc == 1 and any(l.startswith("TOPS DRIFT") and f"'{probe}'" in l for l in lines)
+           and compare_tops(out, l_decl, owed) == ([], []), f"rc {rc}: {lines}")
+        rc, lines = verdict(cl, need, complete, [(sub, script, l_tops, l_decl, [],
+                                                  *compare_tops(l_tops, l_decl, owed), None)])
+        ck("its record left behind once it is a top again reaches the verdict as STALE RECORD and exit 1",
+           rc == 1 and any(l.startswith("STALE RECORD") and f"'{probe}'" in l for l in lines),
+           f"rc {rc}: {lines}")
+        mutated = compare_tops(l_tops, l_decl | {"KL_zz_probe"}, recorded)
         ck("a new declared processor module is refused by the live comparison",
            mutated[0] == ["KL_zz_probe"], f"got {mutated}")
     else:
-        tally.failures += 3
-        tally.checks += 3
+        tally.failures += 4
+        tally.checks += 4
 
 
 def run_arms() -> int:
