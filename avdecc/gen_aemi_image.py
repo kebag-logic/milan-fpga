@@ -385,6 +385,8 @@ def model_to_document(M: dict[str, Any], ident: dict[str, bytes]) -> dict[str, A
         "version": image.LAYOUT_VERSION,
         "names": names,
         "descriptors": _descriptor_rows(rom, M, first_name),
+        # the model's own lint waivers (its config), which build() reports
+        **({"lint_waivers": M["LINT_WAIVERS"]} if M.get("LINT_WAIVERS") else {}),
     }
 
 

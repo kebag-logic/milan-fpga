@@ -4430,6 +4430,9 @@ def load_config(path: str) -> dict[str, Any]:
         clocking=clocking, interface=interface,
         listeners=listeners, talkers=talkers, soc=soc, srp=srp,
         platform=platform, features=features, gptp=gptp, names=names,
+        # protocol-processor model lint waivers, passed through to the packed
+        # document unread; the packer validates and reports them
+        model_lint_waivers=list(cfg.get("model_lint_waivers") or []),
     )
     validate_render_lane(out)
 
@@ -5231,6 +5234,10 @@ def _overlay_document(cfg, parts):
         # config that states none keeps a byte-identical overlay; what is
         # absent keeps the descriptor layer's literal (OBJECT_NAMES)
         **({"names": objects} if objects else {}),
+        # emitted ONLY when declared, so a config that states none keeps a
+        # byte-identical overlay
+        **({"model_lint_waivers": cfg["model_lint_waivers"]}
+           if cfg.get("model_lint_waivers") else {}),
         "sampling_rates_hz": clk["audio_unit_rates_hz"],
         "current_sampling_rate_hz": clk["sampling_rate_hz"],
         "entity_counts": {

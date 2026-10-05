@@ -1040,8 +1040,9 @@ Line numbers are those of the cited file at the time of writing.
 | 43a | `srp.tspec.interval_frames` | Only `1`, matching the fixed wire TSpec. Other values refuse. | Milan v1.2 4.3.3.2 Table 4.4 | fixed-profile validator |
 | 43b | `srp.tspec.max_frame_bytes` | Validated 16-bit legacy `LWSRP_TSPEC` scratch field. Under derived policy it changes neither wire TSpec nor the build budget. | [Register map](reference/REGISTER_MAP.md) | explicit legacy scratch |
 | 44 | `srp.rtl_table` | Boolean builder-publication ownership: the selected config writes `hdl/common/csr/gen/lwsrp_csr_defaults.svh`. Gate 20a checks tracked header equality and consumption. | Builder artifact ownership | live builder switch |
+| 45 | `model_lint_waivers` | Passed through unread: the overlay's `model_lint_waivers`, then the kl-aem-image document's `lint_waivers`. The protocol processor's `gen_desc_image.build()` validates each one (one lint check on one descriptor scope, with a reason naming its tracking issue), lists it in the layout report (`aem_desc.map`) and refuses it once stale. Only `endstation_ax7101_8x8.yaml` declares one (#584). | protocol-processor docs/architecture/07 section 3.1 (model lint) | packer lint; `aem_desc.map` |
 
-71 rows. Three rows carry *planned* marks, and a config validates and builds
+72 rows. Three rows carry *planned* marks, and a config validates and builds
 under each rather than erroring: row 14's JACK/EXTERNAL_PORT descriptors
 (the AEM half, D5), row 25's stream count above one AAF stream per
 direction and row 27's provisioning half. The build plan's marks live in
