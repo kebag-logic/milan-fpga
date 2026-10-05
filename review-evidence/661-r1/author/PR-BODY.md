@@ -101,7 +101,7 @@ python3 scripts/check_port_contracts.py
 python3 scripts/measure_naming.py --check
 python3 scripts/measure_test_evidence.py --check
 python3 scripts/docs_check.py
-flock /tmp/milan-vivado.lock python3 scripts/xvlog_gate.py --check
+flock $VIVADO_LOCK python3 scripts/xvlog_gate.py --check
 PATH="$DOCS_MAKE_BIN:$PATH" python3 sw/builder/test_builder.py --require-rv32
 python3 scripts/lint_rtl.py --check --self-test
 make -C tb/verilator/pp_shadow -j16 VERILATOR_JOBS=2
