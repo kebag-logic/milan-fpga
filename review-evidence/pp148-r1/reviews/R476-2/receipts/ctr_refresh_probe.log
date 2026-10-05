@@ -1,0 +1,23 @@
+== original patch at bed5f477
+applied
+== refreshed patch at 356c1bba
+applied
+== refreshed patch at bed5f477 must refuse (it names the new comment)
+error: patch failed: hdl/aecp/KL_aecp_notify.sv:1233
+error: hdl/aecp/KL_aecp_notify.sv: patch does not apply
+refused
+== planted sv2v
+72904c9229fc19f82199c13103676318d1f57f5c6c257587e441cb57bcc87cea  old/mut.v
+72904c9229fc19f82199c13103676318d1f57f5c6c257587e441cb57bcc87cea  new/mut.v
+PLANTED_SV2V_BYTE_IDENTICAL
+== planted sv2v differs from unplanted head sv2v (the arm is live)
+DIFFERS
+== diff of the two planted sources
+1299,1300c1299,1302
+<                   // Measure the one-second limit from emission selection,
+<                   // not from the possibly much earlier pending instant.
+---
+>                   // Provisional stamp: it keeps the window shut until the
+>                   // round's first job reaches N_EMIT_WAIT, whose stamp then
+>                   // follows each job to its send, so the limit runs from the
+>                   // round's last send (issue #148).
