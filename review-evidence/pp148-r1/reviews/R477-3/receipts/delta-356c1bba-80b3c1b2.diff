@@ -1,0 +1,19 @@
+diff --git a/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch b/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+index 0968b63..eca21b0 100644
+--- a/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
++++ b/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+@@ -1,9 +1,11 @@
+ --- a/hdl/aecp/KL_aecp_notify.sv
+ +++ b/hdl/aecp/KL_aecp_notify.sv
+-@@ -1233,8 +1233,9 @@
++@@ -1233,10 +1233,11 @@
+                    ctr_pend_r[pick_ctr_ix_w] <= 1'b0;
+-                   // Measure the one-second limit from emission selection,
+-                   // not from the possibly much earlier pending instant.
++                   // Provisional stamp: it keeps the window shut until the
++                   // round's first job reaches N_EMIT_WAIT, whose stamp then
++                   // follows each job to its send, so the limit runs from the
++                   // round's last send (issue #148).
+ -                  ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+ -                  ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
+ +                  ctr_sent_r <= '1;
