@@ -61,9 +61,8 @@ a media fault, never a verdict on the bytes.
   address), flip a bit a read returns (anywhere, or in one chosen byte),
   return one chosen byte wrong in a different way on each read (XOR 8, then
   16, then 32), answer a read from the neighbouring block, or flip a bit at
-  rest. It
-  refuses and counts a program that crosses a page or arrives while the
-  device is busy, a write outside the journal, and a write into the
+  rest. It refuses and counts a program that crosses a page or arrives while
+  the device is busy, a write outside the journal, and a write into the
   authoritative slot.
 
 **Time is a local counter, never the PHC.** The debounce window, the
@@ -204,7 +203,10 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    While HELD, a change is marked and reported in `dirty`, nothing is
    captured, erased or written, and `nvm_store_commit_now()` is refused. The
    read retry is bounded at boot. The next reset's boot reads the slot again,
-   and a clean read ends the hold.
+   and a clean read ends the hold. A slot that never reads cleanly, because
+   of a permanent read fault or because its reads differ on every boot,
+   therefore holds the writer on every boot. The device serves and reports
+   the hold, but nothing persists until a boot reads every slot cleanly.
 
 ## Write-back
 
