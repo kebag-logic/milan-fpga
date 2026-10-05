@@ -26163,9 +26163,10 @@ def _assert_image_spans_are_baked(name, ent, overlay, aem, aemi):
         if src in ident and any(ident[src]):
             assert len(ident[src]) == nbytes
     #! available_index is the one field here that genuinely cannot be
-    #! baked: it counts THIS entity's advertisements and increments per
-    #! ADPDU (6.2.1.14). Pinned so that baking a counter into a static
-    #! image is a visible diff.
+    #! baked: it counts THIS entity's advertisements, incrementing after
+    #! each ENTITY_AVAILABLE and resetting to 0 after an ENTITY_DEPARTING
+    #! (6.2.2.15). Pinned so that baking a counter into a static image is a
+    #! visible diff.
     assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
         "available_index is a live counter; a flat image cannot state it"
     assert _be_uint(ent, 36, 4) == 0, f"{name}: available_index baked non-zero"

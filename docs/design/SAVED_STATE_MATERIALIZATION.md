@@ -1034,8 +1034,10 @@ and discovery arm, "preload record writes [236, 240], their discovery arms
 ADP advertises nothing the restore is about to change. The ADPDU carries
 the current configuration index from the dynamic state (the processor's
 `04_adp_engine.md`), and no ADPDU leaves before the enable. `available_index`
-is volatile, 0 at reset, and increments on every transmitted ADPDU
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
+is volatile and 0 at reset. It increments after each transmitted
+ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING (IEEE
+1722.1-2021 Section 6.2.2.15, from processor pin `ead80360`;
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
 first ADPDU after a power cycle already carries the restored index and no
 index is spent on a value that changes. The writer holds the state bus from
 reset to the restore's terminal, so no AECP program can read or write a

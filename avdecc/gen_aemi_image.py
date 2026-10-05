@@ -102,11 +102,12 @@ _PP_ADP_PKG = _REPO / "protocol-processor" / "hdl" / "adp" / "pp_adp_pkg.sv"
 #! identity_from_overlay() makes apply_identity() refuse, so a span added to
 #! gen_aem_store cannot slip through as zeros the way this whole set did.
 UNBAKED_SPANS = {
-    #! available_index counts THIS entity's advertisements and increments on
-    #! every ADPDU (1722.1-2021 6.2.1.14; KL_adp_engine aidx_r). A flat image
-    #! cannot track a counter. 0 is what it holds before the first
-    #! advertisement, and Table 7-2 points a controller that cares at the
-    #! ADPDU, which is live.
+    #! available_index counts THIS entity's advertisements: it increments
+    #! after each ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING
+    #! (1722.1-2021 6.2.2.15; KL_adp_engine aidx_r). A flat image cannot
+    #! track a counter. 0 is what it holds before the first advertisement,
+    #! and Table 7-2 points a controller that cares at the ADPDU, which is
+    #! live.
     "AVAIL_IDX",
     #! Not a placeholder: the ROM already carries this config's entity_name,
     #! and the deleted mux replaced its first 8 characters ONLY when the
