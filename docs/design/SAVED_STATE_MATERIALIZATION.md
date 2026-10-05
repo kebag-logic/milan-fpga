@@ -11,6 +11,9 @@
 > The firmware's AEM-first boot order (section 5.3, change 1) is adopted
 > with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
 > User names and channel maps (stages 2 and 3) are not implemented.
+> Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
+> maps (stage 3) are the parent's to write, restore and roll back, and the
+> processor's roll-back resets its two stores only (section 15 item 2, amended; #637).
 > Adoption follows the [lane-0 decision](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862191328).
 > The [assignment](https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-5862193501) requires independent review.
 > This page decides scope D3 of the
@@ -382,7 +385,8 @@ accepted snapshot contract applies to them unchanged.** This is candidate
    port changes again (section 7.2, K16). This is FAILURE CONTAINMENT, not
    persistence: Milan 5.3.10.1 requires the accepted set to persist, and
    #501 now specifies the larger allocation in the saved-state page.
-   Stage 3 still needs its donor writer adoption (section 10).
+   Stage 3 still needs its writer, the parent's own (section 10;
+   section 15 item 2, amended).
 10. **Three firmware changes** (section 5.3): the AEM image loads before
     `nvm_boot` (without it the restore cannot prove its image and ends
     CLOSED); the restore walk starts on every boot path; the restore wait's
@@ -552,7 +556,7 @@ renamed so they cannot pass for the pinned RTL.
 | Listener admission (S4) | `KL_pp_acmp_lsn_admit` in front of `KL_pp_acmp_listener`'s transaction, talker-event, START/STOP and expiry faces; `walk_done` (the binding manager's `restore_done_o`), `pre_valid`, `lsn_busy` (`dbg_busy_o`), `lsn_arm` (`act_disc_arm_o`); `own`, `released` | NEW (T8); the listener is unchanged. Owned from the HARD reset; released once, when the binding walk is at its terminal, no preload is presented, the listener is idle and its last A4 strobe has left. While owned, a transaction and a talker event are held at their producers (valid AND ready masked: their ready is an acceptance); a START/STOP request's valid is masked and the listener's completion (`strm_set_ready_o`, `strm_set_error_o`) passes unmasked, because it fires only for a request the listener captured and its holder stays empty from the hard reset to the release; the expiry bus is not admitted (each listener-owner expiry counted). The gate and the listener take the same hard reset, never `rb_rst`. `released` is the binding walk's end for the D3 walk and for `restore_done_o`, and the start of the listener's live work (sections 8.1 and 8.9) |
 | Descriptor memory (S2) | `KL_aecp_desc_mem_guard` between `KL_aecp_desc_store`'s memory master and the memory; `desc_debt` (guard to writer) | NEW (T9). An accepted burst owes its terminal beat (last or err). While it does, the store's next request is held and `desc_debt` is 1. The guard takes the hard reset only, never the roll-back strobe |
 | Image status | `desc_img_valid`, the store's validated-image level | AMENDED (T1): today the debug tap `dbg_img_valid_o`; the restore's image proof reads it |
-| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's), and the parent's map plane (T4, stage 3). Each owner returns to its reset state. The guard (S2) takes the hard reset only |
+| Roll-back | `rb_rst`, one strobe to every restorable owner, held at least two cycles and while `desc_debt` is 1 | NEW soft-reset inputs: `KL_aecp_dyn_state` and `KL_aecp_desc_store`, BOTH stage 1's (T1; for the store, its reset or a re-walk request that also returns its fetch watchdog to zero: the store walks the image again, its watchdog re-armed and its names the image's). Each owner returns to its reset state. The parent's map plane (stage 3) is not on the strobe: it puts its port sets back on `restore_rb_o` (section 15 item 2, amended). The guard (S2) takes the hard reset only |
 | Entity enable | `entity_enable_i`, `restore_done_o` | the ADP engine's enable becomes `entity_enable_i AND restore_done_o`, `restore_done_o` being the binding walk's drained terminal (S4's release) AND the D3 walk's done: the restore releases `entity_enable`, as F07.9 draws it. It gates ADP advertising only: the side port's image-window lock keeps the top's `entity_enable_i`, as it ships, and ACMP and AECP traffic have their own releases (section 8.1) |
 | Exports | `nvm_unflushed_o` stays the binding manager's; new `d3_unflushed_o`, the OR of the writer's dirty bits; `nvm_alarm_o` becomes both managers' alarm; `restore_done_o`, `restore_fail_o` and `restore_blank_o` become both walks; new `restore_rb_o`, `restore_closed_o`, `rs_cause_o[2:0]` and the binding walk's `restore_cause_o[1:0]` | section 8.7 |
 | Parameters | the shape (`N_STREAM_IN_P` ... `N_NAME_P`, the per-port input cluster counts and output entry capacities from [section 4.2](SAVED_STATE_FASTCONNECT.md#42-the-allocation----decided-the-donors-f078-rule-unchanged)), `LAYOUT_VER_P` shared with the binding manager, `DEB_TICKS_P` (T-NVM-DEBOUNCE), `RETRY_MAX_P`, `RETRY_BACKOFF_CYC_P` (processor-clock cycles, defined below), `RS_TMO_CYC_P` (the restore deadline, section 8.8) | the record lengths follow section 4.2 of the saved-state page |
@@ -593,8 +597,9 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
   clean first boot (H8).
 
 With stage 3 the map plane (`milan_datapath.sv` and `KL_chan_map_capture.sv`)
-takes the processor's roll-back strobe as a reset of the port sets to their
-reset value, the EMPTY set.
+puts the port sets back to their reset value, the EMPTY set, when the D3 walk
+rolls back (`restore_rb_o`). The processor's roll-back strobe stays inside the
+processor (section 15 item 2, amended).
 
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owes the PP_STAT rows for
 the combined restore verdicts, and the PP_CTRL[0] and ADP_CTRL[0] rows (they
@@ -1174,6 +1179,9 @@ channels. Restoring either alone can orphan the other, so the order is:
 4. After every map, each restored format is judged again ("no mapped
    channel orphaned") and reverted to the image default if it fails.
 
+The processor's D3 walk does step 1; steps 2 to 4 are the parent's map
+restore after the walk's terminal (section 15 item 2, amended).
+
 EXECUTED: V6b restores a consistent narrower pair ("OUT0 set matches the
 slot True"); M10_fmt_full_judge judges the format against the maps before
 they are back and refuses it ("fmto0 0 valid 0"). V8 reverts a saved format
@@ -1233,9 +1241,9 @@ whose correctness is structural:
   but the restore. Round one's rule that "a live change made during the
   restore wins" had nothing left to act on and is removed.
 - **So the roll-back is a reset.** An abort in pass 1 pulses `rb_rst`, which
-  resets the dynamic-state store, the descriptor store and the parent's map
-  plane (section 5.1); the two stores are stage 1's owners, the map plane
-  stage 3's. Each owner then holds exactly what it held before the
+  resets the dynamic-state store and the descriptor store (section 5.1),
+  stage 1's owners; the parent's map plane, stage 3's, resets its port sets
+  on `restore_rb_o` (section 15 item 2, amended). Each owner then holds exactly what it held before the
   restore: every row at its reset value with its valid flag clear, every
   name the image's (the descriptor store walks the image again), every
   port's reset set. Formats and maps return together, so they are
@@ -1843,7 +1851,7 @@ Its decision-register gates govern activation of those lanes.
   Payload length is `72 * 8 = 576` bytes.
   The framed record adds its eight-byte header: 584 bytes.
   At 1x1, `max(17, 2 * 8)` preserves every byte.
-  Processor #61/#83 must adopt the capacity when implementing maps.
+  The parent's own map writer adopts the capacity (section 15 item 2, amended).
   The historical K16 evidence below exercised the old allocation.
   Permanent pending still does not satisfy persistence.
 - **Work permitted before release:** the contract supports stages 1 and 2.
@@ -1867,7 +1875,7 @@ Its decision-register gates govern activation of those lanes.
 |---|---|---|---|---|
 | 1. the dynamic-state selectors | configuration index, sampling rate, clock source, stream formats, presentation offset: 9 records at 1x1, 30 at 8x8 | on the seams S1 to S4: the writer with the state-bus trigger, `own` from reset, the flush, the restore transaction from the binding walk's drained terminal with its deadline, its cause classification, its descriptor-fault aborts and the roll-back of BOTH stores (the dynamic-state store, and the descriptor store, whose reset re-arms its fetch watchdog and re-walks the image), held while the descriptor memory owes a burst (S2); the format rule on "supported"; the arbiter and its drain of either manager; the enable released by the restore; the exports; `pend_i` loses the dynamic-state level; the three firmware changes | SET_CLOCK_SOURCE 1, SET_STREAM_INFO, SET_STREAM_FORMAT on an unbound input; power cycle; GET_CLOCK_SOURCE, GET_STREAM_INFO, GET_STREAM_FORMAT, and the ADPDU's configuration index | T8, T9 (processor, prerequisites), T1 (processor), T4 (this repository); released after #502 |
 | 2. names | 38 at 1x1, 99 at 8x8 | the name trigger, the eight-lane latch, the restore after the image walk; the names' roll-back rides stage 1's descriptor-store reset; the sticky pending source stops taking live name writes | SET_NAME on the entity name, the group name and a stream name, one of them to the EMPTY name; power cycle; GET_NAME | T2, T4; released after #502 |
-| 3. channel maps | 2 at 1x1, 16 at 8x8 | Requires donor adoption of the decided #501 allocation: the edit-face trigger, the GET_AUDIO_MAP latch, the framing rule, the coupled restore, the map plane's roll-back, #501's capacity decision; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T3, T4, #501 |
+| 3. channel maps | 2 at 1x1, 16 at 8x8 | The parent's own writer and restore (section 15 item 2, amended): the edit-face trigger, the framing rule at #501's capacity, the coupled restore after the processor's D3 terminal, the map plane's reset on `restore_rb_o`; the sticky live-name/map bit is deleted | ADD and REMOVE on both ports; power cycle; GET_AUDIO_MAP | T4, #501, #637 |
 
 Stage 1's descriptor recovery is shown alone: section 8.6's S1 cases run
 on the stage-1 build, which rolls back the two stores and not the map
@@ -2227,8 +2235,15 @@ Existing numbered references retain these dispositions:
 1. **RESOLVED: live-write triggers.** Section 3.1 replaces mark-based acceptance.
    FASTCONNECT section 16 cross-references that authority.
    Processor F07.9 still requires the edits in section 15.2.
-2. **Implementation owed: output-map capacity adoption.** #501 landed through #557.
-   Processor #61/#83 still owe the writer and replay.
+2. **AMENDED: the map writer is the parent's** (the processor ruling on its #83, lane P1,
+   2026-10-03; the pattern of the 2026-09-19 counters decision). #501 landed through #557.
+   The parent writes records `0x60`/`0x70` + port from its own phase-5 commit beat at
+   #501's capacity, restores them after the processor's D3 terminal (`restore_done_o`),
+   judged against the formats the processor restored and exports (section 8.4, steps 2
+   to 4), and puts its port sets back on `restore_rb_o`. The processor's `rb_rst` resets
+   its two stores only, and no processor writer, latch or replay implements maps; its
+   ATDECC side (GET_AUDIO_MAP, ADD/REMOVE_AUDIO_MAPPINGS) is unchanged. #637 owns the
+   parent's restore and roll-back.
    Historical K16 proves containment only, not accepted-set persistence.
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
    Names and actual map writes remain sticky until reset.
@@ -2718,11 +2733,11 @@ This targeted proof does not close lane 5's combined campaign.
 ### 18.4 Lane 4: both map directions
 
 **Acceptance.** Implement capture/apply over the actual parent map interfaces.
-Consume #501's per-port capacity in processor buffers and framing.
+Consume #501's per-port capacity in the parent's buffers and framing (section 15 item 2, amended).
 Persist input and output ports independently, including empty sets.
 Preserve static-map defaults without inventing mutable static state.
 Apply section 8.4's coupled format/map validation transaction.
-Rollback maps, output ownership and crossbar effects with scalar formats.
+Reset maps, output ownership and crossbar effects on `restore_rb_o`, with scalar formats.
 Transfer remaining map pending only after real materialization accounts.
 
 **Validation.** Use actual phases 0-5 and retained-flash integration.
