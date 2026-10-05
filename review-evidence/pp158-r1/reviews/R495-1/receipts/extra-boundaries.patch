@@ -1,0 +1,88 @@
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -75,9 +75,11 @@
+     uint16_t arg1 = 0;
+     uint16_t seq = 0;
+     uint64_t mac = 0;
++    uint64_t eid = 0;
+   };
+   UnsJob job_presented(uint32_t last);
+   std::vector<UnsJob> sent_at_once(uint32_t last);
++  void review_boundaries();
+   void dereg_counter_round();
+   void dereg_command_round();
+   void dereg_round_waits();
+@@ -258,6 +260,7 @@
+   dereg_counter_round();
+   dereg_command_round();
+   dereg_round_waits();
++  review_boundaries();
+   return fails ? 1 : 0;
+ }
+ 
+@@ -552,7 +555,7 @@
+     d->eval();
+     if (d->uns_valid_o) {
+       return {now, d->uns_kind_o, d->uns_desc_type_o, d->uns_desc_index_o,
+-              d->uns_arg0_o, d->uns_arg1_o, d->uns_seq_o, d->uns_mac_o};
++              d->uns_arg0_o, d->uns_arg1_o, d->uns_seq_o, d->uns_mac_o, d->uns_ctlr_eid_o};
+     }
+     tick();
+     ++now;
+@@ -580,7 +583,8 @@
+     if (j.mac != mac) continue;
+     ++n;
+     same = j.kind == want.kind && j.dt == want.dt && j.di == want.di && j.arg0 == want.arg0
+-           && j.arg1 == want.arg1 && j.seq == want.seq;
++           && j.arg1 == want.arg1 && j.seq == want.seq
++           && j.eid == (mac == Harness::MAC_C ? Harness::EID_C : 0x4444000000000004ull);
+   }
+   return n == 1 && same;
+ }
+@@ -701,6 +705,46 @@
+   d->uns_done_i = 1;
+ }
+ 
++
++void Harness::review_boundaries() {
++  constexpr uint64_t EID_D = 0x4444000000000004ull;
++  constexpr uint64_t MAC_D = 0x020000000004ull;
++  const UnsJob own0{0, KIND_DEREG, 0, 0, 0, 0, 0, 0};
++  const UnsJob own1{0, KIND_DEREG, 0, 0, 0, 0, 1, 0};
++  // The last row is removed before its round job; N_EMIT_RD ends by skip.
++  warm_reset(); d->uns_done_i=0; now=40000;
++  register_row(EID_C, MAC_C, false); register_row(EID_D, MAC_D, true);
++  counter_change(); (void)job_presented(now+WALK_MS);
++  expire(REGMON_BASE+1, OWN_TL+1); (void)retire();
++  auto rest=sent_at_once(now+8*WALK_MS); print_jobs("RB1",rest);
++  CHECK(rest.size()==1 && one_job(rest,MAC_D,own0),
++        "RB1: last row drained before service; skip ends round and sends its own seq0 DEREGISTER");
++  // Both rows expire while the first job waits. The second parked row remains
++  // valid until the first held deregistration can leave, and is then removed.
++  warm_reset(); d->uns_done_i=0; now=45000;
++  register_row(EID_C, MAC_C, true); register_row(EID_D, MAC_D, true);
++  counter_change(); (void)job_presented(now+WALK_MS);
++  expire(REGMON_BASE, OWN_TL); expire(REGMON_BASE+1, OWN_TL+1); (void)retire();
++  rest=sent_at_once(now+12*WALK_MS); print_jobs("RB2",rest);
++  std::vector<UnsJob> deregs, counters;
++  for(const auto& j:rest) (j.kind==KIND_DEREG?deregs:counters).push_back(j);
++  const UnsJob round{0,KIND_CTRS,DT_AVB_INTERFACE,0,0,0,0,0};
++  CHECK(rest.size()==3 && counters.size()==1 && one_job(counters,MAC_D,round)
++        && deregs.size()==2 && one_job(deregs,MAC_C,own1) && one_job(deregs,MAC_D,own1),
++        "RB2: two pending removals preserve surviving round job and both targeted identities/sequences");
++  // Command requester exclusion must survive the drain and end by skip.
++  warm_reset(); d->uns_done_i=0; now=50000;
++  register_row(EID_C, MAC_C, true); register_row(EID_D, MAC_D, false);
++  d->ev_cmd_class_i=7; d->ev_cmd_type_i=0x0005; d->ev_cmd_index_i=1;
++  d->ev_cmd_arg0_i=2; d->ev_cmd_arg1_i=3; d->ev_cmd_excl_eid_i=EID_D;
++  d->ev_cmd_i=1; tick(); d->ev_cmd_i=0; ++now;
++  (void)job_presented(now+WALK_MS); expire(REGMON_BASE, OWN_TL); (void)retire();
++  rest=sent_at_once(now+8*WALK_MS); print_jobs("RB3",rest);
++  CHECK(rest.size()==1 && one_job(rest,MAC_C,own1),
++        "RB3: requester exclusion survives drain; skipped last row releases targeted DEREGISTER");
++  d->uns_done_i=1;
++}
++
+ #else
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,

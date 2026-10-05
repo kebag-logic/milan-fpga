@@ -1,0 +1,9 @@
+COMMAND ["python3", "tb/pp_top/notify_mutants.py", "--jobs", "4", "--verilator", "$PACKET/scripts/simulator-bounded.py", "--output", "$PACKET/receipts/controls", "--only", "dereg_mid_round_no_hold", "dereg_pending_stops_follow", "dereg_lost_at_round_end", "counter_spacing_from_selection_tw", "counter_stamp_at_send_only", "counter_stamp_first_job_only"]
+{"mutant": "golden-aecp_notify-run", "verdict": "PASS"}
+{"mutant": "counter_spacing_from_selection_tw", "verdict": "KILLED", "missing": []}
+{"mutant": "dereg_pending_stops_follow", "verdict": "KILLED", "missing": []}
+{"mutant": "dereg_mid_round_no_hold", "verdict": "KILLED", "missing": []}
+{"mutant": "dereg_lost_at_round_end", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_stamp_at_send_only", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_stamp_first_job_only", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 6 of 6 KILLED by their named checks; goldens PASS

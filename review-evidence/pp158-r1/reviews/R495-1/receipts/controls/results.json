@@ -1,0 +1,115 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "counter_spacing_from_selection_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_pending_stops_follow",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_mid_round_no_hold",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR1:",
+   "DR2:",
+   "DR3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR1: in a GET_COUNTERS round on 0009:0, C's registration expires while its job waits, and the round's remaining controller D still receives the round's GET_COUNTERS 0009:0 (2 jobs after the drain)",
+   "DR2: in a SET_NAME round on 0005:1 (arguments 2 and 3), C's CONTROLLER_AVAILABLE retry fails while its job waits, and the round's remaining controller D still receives the round's notification (2 jobs after the drain)",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31513, the next at ms 0, want 32513 to 32521 (1 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_lost_at_round_end",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "DR1b:",
+   "DR2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DR1b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once",
+   "DR2b: C alone receives its own DEREGISTER (kind 0, 0000:0, sequence_id 1), once"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_at_send_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_first_job_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3007, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 7503, want 7504 to 7512",
+   "DR3: C's registration expires in a GET_COUNTERS round, the job after the drain waits for the TX slot until ms 31504 and a change arrives at ms 30104: D's GET_COUNTERS sent at ms 31504, the next at ms 31512, want 32504 to 32512 (2 of D's GET_COUNTERS seen)"
+  ],
+  "verdict": "KILLED"
+ }
+]

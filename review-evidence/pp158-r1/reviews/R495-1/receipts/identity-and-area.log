@@ -1,0 +1,21 @@
+$PACKET/scratch/identity/e3c9f0b5-sim_main.cpp:41:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   41 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+$PACKET/scratch/identity/79571006b803a4ab4af65358f0d87bc3af73180e-sim_main.cpp:42:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   42 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+HEAD 79571006b803a4ab4af65358f0d87bc3af73180e
+TREE be060640b23bb505b75debc192d7d36505fbe5dd
+PARENTS e3c9f0b5facc7ff7a0092c72e5d40319741736b3 21c6f7096ac80007f723de59c6f717f55bd34cfc
+issue delta ['7fee391810b693bd141c96e398e91543cab66bc6', '7fee391810b693bd141c96e398e91543cab66bc6']
+C11 delta ['dd11bb40d34e6842723837ab898e3c35941db391', 'dd11bb40d34e6842723837ab898e3c35941db391']
+C11 comment-stripped identical hdl/packet_engine/KL_pp_side_port.sv bb74b22c3d6069c217fc986860f07eb72851cde21c16cb549853ca8d1ed54ca1
+C11 comment-stripped identical hdl/packet_engine/KL_pp_trace_ring.sv fabfdf23083d3ed29ac69afad48eacf4d70106c855b312275f98b4b79589d838
+C11 comment-stripped identical hdl/packet_engine/KL_pp_tx_slots.sv 6ee60459e94e435b44315eea89662aa4c3d0eb18564b45ed1f8902d47daa69b8
+C11 comment-stripped identical tb/tx_slots/sim_main.cpp 90f51caa3171323176d4dba6c4019f6d63048da909d5df0cfaed91a6fbd68e62
+red-first commit notify RTL equals source base
+public u_pp rows total +50 LUT / -4 FF; wrapper own 0 LUT / -2 FF; whole +50 LUT / -6 FF
+changed row -1 LUT / -3 FF; all unchanged rows together +51 LUT / -3 FF including wrapper own
+standalone changed module: 2471-2474 = -3 LUT; 1282-1280 = +2 FF
+Area arithmetic only; raw synthesis hierarchy is not distributed in the public evidence snapshot.
+TRACKED_BLOBS_MODES_OK 556 INDEX_TREE_OK SUBMODULE_GITLINKS []
