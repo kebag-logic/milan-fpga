@@ -1,0 +1,17 @@
+PROBE-TICK shift=0 registered=1 rounds=2 gap_clocks=999999 below_1s=YES
+FAIL: PROBE-TICK: shift 0: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999999 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=50 registered=1 rounds=2 gap_clocks=999949 below_1s=YES
+FAIL: PROBE-TICK: shift 50: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999949 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=100 registered=1 rounds=2 gap_clocks=999899 below_1s=YES
+FAIL: PROBE-TICK: shift 100: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999899 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=250 registered=1 rounds=2 gap_clocks=999749 below_1s=YES
+FAIL: PROBE-TICK: shift 250: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999749 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=500 registered=1 rounds=2 gap_clocks=999499 below_1s=YES
+FAIL: PROBE-TICK: shift 500: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999499 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=750 registered=1 rounds=2 gap_clocks=999249 below_1s=YES
+FAIL: PROBE-TICK: shift 750: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999249 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=900 registered=1 rounds=2 gap_clocks=999099 below_1s=YES
+FAIL: PROBE-TICK: shift 900: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999099 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=990 registered=1 rounds=2 gap_clocks=999009 below_1s=YES
+FAIL: PROBE-TICK: shift 990: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999009 clocks (2 rounds), want at least 1000000
+[build timebase, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 16 checks, 8 failures

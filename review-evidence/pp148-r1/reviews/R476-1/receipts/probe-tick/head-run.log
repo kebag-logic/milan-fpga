@@ -1,0 +1,11 @@
+PROBE-TICK shift=0 registered=1 rounds=2 gap_clocks=999999 below_1s=YES
+FAIL: PROBE-TICK: shift 0: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999999 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=50 registered=1 rounds=2 gap_clocks=999949 below_1s=YES
+FAIL: PROBE-TICK: shift 50: two GET_COUNTERS rounds to one controller at least one second apart on the wire: 999949 clocks (2 rounds), want at least 1000000
+PROBE-TICK shift=100 registered=1 rounds=2 gap_clocks=1000899 below_1s=no
+PROBE-TICK shift=250 registered=1 rounds=2 gap_clocks=1000749 below_1s=no
+PROBE-TICK shift=500 registered=1 rounds=2 gap_clocks=1000499 below_1s=no
+PROBE-TICK shift=750 registered=1 rounds=2 gap_clocks=1000249 below_1s=no
+PROBE-TICK shift=900 registered=1 rounds=2 gap_clocks=1000099 below_1s=no
+PROBE-TICK shift=990 registered=1 rounds=2 gap_clocks=1000009 below_1s=no
+[build timebase, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 16 checks, 2 failures
