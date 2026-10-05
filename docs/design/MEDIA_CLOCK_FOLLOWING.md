@@ -1062,7 +1062,9 @@ Ruled on #645
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394)),
 from the diagnosis in
 [#645's first STOP](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982557846).
-It answers #645 and #647.
+The loopback ring's target is the
+[second ruling's](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5985974804)
+fixed 8 events. It answers #645 and #647.
 
 **Why.** The servo locks frequency only (`KL_mmcm_drp_servo.sv:22-34`). A
 switch from INTERNAL starts from the INTERNAL-to-source offset, the meter's
@@ -1088,7 +1090,7 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 | Fires at INTERNAL | once the aligner has rested inside its settle band, 1/64 sample, for 2,048 ticks running, or at once if it is not engaged (no pull to wait out). An excursion while the recentre is pending restarts that run |
 | Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
 | Reaches | the render stage, at its next PDU end (`render_recentre_p_w`), and the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`) |
-| Loopback target | 7 events at a class-A PDU end: one event of the previous PDU still queued when the next one's first event lands, so a tick of tolerance each side. Decided as the stream's next PDU starts, on what its first pair has left: none, and the next walk holds every pair's pop; two, and it drops every pair's oldest event. All pairs act in one walk, so they stay in lockstep |
+| Loopback target | 8 events at a class-A PDU end, the ring's depth: two events of the previous PDU still queued when the next one's first event lands, so that event pops 2 to 3 ticks after it lands. Decided as the stream's next PDU starts, on what its first pair has left: none, and the next two walks hold every pair's pop; one, and the next walk holds it; three, and it drops every pair's oldest event. All pairs act in the same walks, so they stay in lockstep |
 | Counted | the render stage counts it in `recentres_o`, as every recentre. On the loopback ring neither `SLIP_LB` counter moves: the recentre is the declared discontinuity, not a slip |
 
 Measured in `tb/verilator/follow_ring` at the bench's offsets, the settle
@@ -1100,15 +1102,17 @@ switch to INTERNAL arms it too: when the aligner never left its band it
 fires in the #386 dwell's own cycle, so the render stage executes one
 recentre (`milan_dp_render` T31).
 
-**The loopback lane's latency.** The 7-event target puts the loopback
-ring's first event 1 to 2 ticks after its PDU lands: one event, 20.8 us,
-later than the empty edge where priming and the INTERNAL beat leave it. The
-loopback lane is the capture crossbar's diagnostic loopback, a received
-stream's channels re-sent by the DUT's talker, not the declared AAF
-presentation path. The listener render law, and the rule that the render
-latency equals the presentation time offset, are unchanged. A bind still
-primes the ring where its first PDU lands; the next settle recentre centres
-it.
+**The loopback lane's latency.** The 8-event target puts the loopback
+ring's first event 2 to 3 ticks after its PDU lands: two events, 41.7 us,
+later than the empty edge where priming and the INTERNAL beat leave it, and
+one event, 20.8 us, more than the 7-event target the first ruling took. That
+cost buys a second tick of lateness tolerance, and it falls on the loopback
+lane only. The loopback lane is the capture crossbar's diagnostic loopback,
+a received stream's channels re-sent by the DUT's talker, not the declared
+AAF presentation path. The listener render law, and the rule that the
+render latency equals the presentation time offset, are unchanged. A bind
+still primes the ring where its first PDU lands; the next settle recentre
+centres it.
 
 #### The declared transient
 
@@ -1124,7 +1128,9 @@ recentre, at most 2 without the tail. The walk accounts for 2 (about 0.24
 tick per ppm of offset, so the bound grows with it); the third is the tail
 meeting the ring near its empty edge during the walk. A stream-to-stream
 switch moves the ring's phase by hundredths of a tick and slipped nothing
-with arrivals on time or within 5 us.
+before its settle recentre, with arrivals on time or within 5 us. A slip
+counts as before the settle recentre only up to the end of the PDU the
+loopback ring decides on; one after that is the recentre's own.
 
 An aligner pull-in at INTERNAL is the same kind of transient, from the hold
 to its settle recentre: a pull toward the loopback ring's empty edge slips
@@ -1140,16 +1146,20 @@ After the settle recentre nothing moves either ring: no loopback slip, the
 loopback ring centred, the render stage on its law. That is not declared;
 it must not happen, and the follow_ring campaigns grade it at every phase.
 
-**Open: arrivals more than a tick late.** The 7-event target leaves the
-loopback ring between 1 and 2 ticks from its empty edge, depending on where
-the stream's PDUs fall against the media tick, so a PDU more than a tick
-(20.8 us) later than the one the recentre read can still slip it once. The
-ring is 8 events deep: one PDU and two events of slack, against an arrival
-spread plus one tick of phase. With arrivals 2 us apart and a rare tail to
-24 us later (one PDU in 10,000), the campaign measured such a slip after
-the settle recentre at 2 of 16 set phases, the two that left the ring under
-a tick and a quarter from its edge. Arrivals within 5 us slipped nothing.
-That case awaits a ruling on #645.
+**Open: a recentre that reads a late PDU.** The ring is 8 events deep: one
+PDU and two events of slack. So the lateness and the earliness it tolerates
+add up to 3 ticks, plus the PDU's own beats up to the push that would find
+it full, wherever the target puts it. The 8-event target gives the late side
+2 to 3 ticks, depending on where the stream's PDUs fall against the media
+tick, and the early side what is left of the third. The recentre decides on
+one PDU, so how late that PDU was becomes how early the next on-time PDU
+is. With arrivals 2 us apart and a rare tail to 24 us later (one PDU in
+10,000), no set phase slipped after the settle recentre, where the 7-event
+target first ruled slipped at 2 of 16. With arrivals spread 5 us, at set
+phases 0.625 and 0.6875 the recentre decided on a PDU 4.4 to 4.8 us late
+and left it 2.9 ticks from the empty edge, and an earlier PDU then dropped
+an event within a millisecond: 4 of 48 settle recentres. That case awaits a
+ruling on #645.
 
 ### Lock loss, holdover and restart
 
@@ -1429,7 +1439,7 @@ pass.
 | `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
 | Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
 | Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The full leg runs one standing phase, +1,562; `tdm8render-pullin` runs all 18 `[LAW]` phases, one leg each | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
-| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8's offsets: the peer 11.02 ppm slow of gPTP, the DUT's INTERNAL clock 5.1 ppm slow. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us and 2 us plus a 1e-4 tail of 0 to 24 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it no loopback slip, the loopback ring centred (margin in (1, 2] ticks), the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick) |
+| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8's offsets: the peer 11.02 ppm slow of gPTP, the DUT's INTERNAL clock 5.1 ppm slow. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us and 2 us plus a 1e-4 tail of 0 to 24 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (margin in (2, 3] ticks), the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. Red at 2 of 16 phases at 5 us: the [open case](#settle-recentre) | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden) |
 | `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, one or two events of the previous PDU left; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds one pop, two drop the oldest, one moves nothing, on both pairs in lockstep; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves | (the module's own leg; the integration's planted controls are follow_ring's) |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
