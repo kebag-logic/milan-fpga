@@ -206,6 +206,22 @@ static void driver_tx(void)
 	mbx_model_tx_pause(&model, false);
 	check_eq("D3 once drained every record leaves", model.tx_sent, 1u + taken);
 	check_eq("D3 and none was refused", model.ch[MBX_CH_ADP].tx_err, 0);
+	uint8_t acmp[70];
+	uint8_t aecp[64];
+	build_frame(acmp, sizeof acmp, 0x22F0, 0xFC, 1);
+	build_frame(aecp, sizeof aecp, 0x22F0, 0xFB, 1);
+	uint32_t first = model.tx_sent;
+	mbx_model_tx_pause(&model, true);
+	(void)mbx_tx_send(MBX_CH_ACMP, 0, acmp, sizeof acmp);
+	(void)mbx_tx_send(MBX_CH_ACMP, 0, acmp, sizeof acmp);
+	(void)mbx_tx_send(MBX_CH_AECP, 0, aecp, sizeof aecp);
+	mbx_model_tx_pause(&model, false);
+	const struct mbx_model_tx *t0 = mbx_model_tx_frame(&model, first);
+	const struct mbx_model_tx *t1 = mbx_model_tx_frame(&model, first + 1u);
+	const struct mbx_model_tx *t2 = mbx_model_tx_frame(&model, first + 2u);
+	check("D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order",
+	      t0 != NULL && t1 != NULL && t2 != NULL && t0->channel == MBX_CH_ACMP && t1->channel == MBX_CH_ACMP &&
+		      t2->channel == MBX_CH_AECP);
 }
 
 static void driver_events(void)

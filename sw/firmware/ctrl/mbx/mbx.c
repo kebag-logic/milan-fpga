@@ -8,6 +8,13 @@
 // counter, its words, and one write. mbx_open() takes the cache from the
 // registers, so a restart of the firmware resumes where the fabric is.
 //
+// Every TX record carries the next value of one count over all channels
+// (SEQ), which is the order the merge sends them in: a frame committed
+// before another leaves before it, whatever channels they are on. The count
+// belongs to one run of the firmware; the transmit rings are not readable,
+// so a restart cannot resume it, and records a previous run left committed
+// are not ordered against the new run's.
+//
 // A record is never trusted further than the counters allow: a length that
 // would run past RX_HEAD, a KIND that is not an RX frame or a length outside
 // the channel's limits resynchronises the ring to RX_HEAD, because a record
@@ -26,6 +33,7 @@ static const uint32_t max_frame[MBX_N_CH] = MBX_CH_MAX_FRAME_BYTES_TBL;
 
 static uint16_t rx_tail[MBX_N_CH];
 static uint16_t tx_head[MBX_N_CH];
+static uint16_t tx_seq;
 static uint16_t evt_tail;
 
 static uint32_t ch_reg(unsigned ch, uint32_t reg)
@@ -152,12 +160,13 @@ enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *fram
 	tx_word(ch, head, mbx_place(len, MBX_TXREC_W0_LEN_LSB, MBX_TXREC_W0_LEN_WIDTH) |
 				  mbx_place(interface, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) |
 				  mbx_place(MBX_TX_KIND, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH));
-	tx_word(ch, (uint32_t)head + 1u, 0u);
+	tx_word(ch, (uint32_t)head + 1u, mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
 	for (uint32_t i = 0; i < payload; ++i) {
 		uint32_t n = (uint32_t)len - 4u * i;
 		tx_word(ch, (uint32_t)head + MBX_TX_HDR_WORDS + i, ring_lanes_pack(&frame[4u * i], n > 4u ? 4u : n));
 	}
 	tx_head[ch] = (uint16_t)(head + record);
+	tx_seq = (uint16_t)(tx_seq + 1u);
 	mbx_hal_write32(ch_reg(ch, MBX_CH_REG_TX_HEAD), tx_head[ch]);
 	return MBX_STATUS_OK;
 }

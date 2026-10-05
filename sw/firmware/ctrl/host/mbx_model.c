@@ -9,7 +9,9 @@
 //               the record committed whole or dropped (RX_DROP for size or
 //               space, RATE_DROP for an empty bucket), one token per refill
 //               period up to the burst;
-//   KL_mbx_tx   round-robin over the channels with records, a record checked
+//   KL_mbx_tx   the record whose SEQ comes first modulo 2^16 among each
+//               channel's oldest, scanned from the channel after the one
+//               served last (so equal SEQs go round-robin), a record checked
 //               before a byte leaves, a refused record counted and the ring
 //               flushed to TX_HEAD;
 //   KL_mbx_evt  timers expiring at their deadline, every source coalesced,
@@ -208,7 +210,8 @@ static bool tx_record_ok(struct mbx_model *m, unsigned c, uint32_t w0, uint32_t 
 	uint32_t record = MBX_TX_HDR_WORDS + (len + 3u) / 4u;
 	return mbx_field(w0, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH) == MBX_TX_KIND &&
 	       mbx_field(w0, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) < MBX_N_IF && len >= 14u &&
-	       len <= max_frame[c] && occ <= tx_words[c] && record <= occ && w1 == 0u;
+	       len <= max_frame[c] && occ <= tx_words[c] && record <= occ &&
+	       (w1 >> MBX_TXREC_W1_RSVD_LSB) == 0u;
 }
 
 static void tx_capture(struct mbx_model *m, unsigned c, uint32_t w0)
@@ -230,10 +233,19 @@ static void tx_drain(struct mbx_model *m)
 {
 	while (!m->tx_paused) {
 		unsigned c = MBX_N_CH;
-		for (unsigned k = 1; k <= MBX_N_CH && c == MBX_N_CH; ++k) {
+		uint16_t best = 0;
+		for (unsigned k = 1; k <= MBX_N_CH; ++k) {
 			unsigned cand = (m->tx_last_ch + k) % MBX_N_CH;
-			if (m->ch[cand].tx_head != m->ch[cand].tx_tail) {
+			struct mbx_model_channel *cc = &m->ch[cand];
+			if (cc->tx_head == cc->tx_tail) {
+				continue;
+			}
+			uint16_t seq = (uint16_t)mbx_field(*ring_word(m, tx_base[cand], tx_words[cand],
+								     (uint32_t)cc->tx_tail + 1u),
+							   MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH);
+			if (c == MBX_N_CH || ((uint16_t)(seq - best) & 0x8000u) != 0u) {
 				c = cand;
+				best = seq;
 			}
 		}
 		if (c == MBX_N_CH) {

@@ -73,6 +73,8 @@ class Suite {
         restart();
         check_tx_merge();
         restart();
+        check_tx_commit_order();
+        restart();
         check_tx_refusals();
         restart();
         check_link_and_gm_events();
@@ -92,6 +94,7 @@ class Suite {
         evt_tail_ = 0;
         b_.tx_frames.clear();
         b_.tx_ready_pattern(0xFF);
+        tx_seq_ = 0;
     }
 
     std::uint32_t rd(std::uint32_t off) { return b_.read(off); }
@@ -145,12 +148,14 @@ class Suite {
     void check_drop_never_touches_an_unread_record();
     void check_rate_limit();
     void check_tx_merge();
+    void check_tx_commit_order();
     void check_tx_refusals();
     void check_link_and_gm_events();
     void check_timers();
     void check_tick();
     void check_gm_snapshot();
     void send_tx(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t w0, std::uint32_t w1);
+    void send_tx_seq(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t seq);
     std::vector<std::uint32_t> take_event();
     void fill_event_ring_with_expiries();
 
@@ -159,6 +164,7 @@ class Suite {
     std::vector<std::uint32_t> rx_tail_ = std::vector<std::uint32_t>(MBX_N_CH, 0);
     std::vector<std::uint32_t> tx_head_ = std::vector<std::uint32_t>(MBX_N_CH, 0);
     std::uint32_t evt_tail_ = 0;
+    std::uint32_t tx_seq_ = 0;   //!< the commit count send_tx stamps into SEQ, as the driver does
 };
 
 template <class Bench>
@@ -419,13 +425,15 @@ void Suite<Bench>::check_rate_limit() {
     ck_.dec("T1 and the next is refused again", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 3);
 }
 
+//! Commit one TX record; word 1 is `w1` with the next commit count in SEQ.
 template <class Bench>
 void Suite<Bench>::send_tx(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t w0, std::uint32_t w1) {
     static const std::uint32_t base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
     static const std::uint32_t words[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
     auto put = [&](std::uint32_t i, std::uint32_t v) { wr(base[ch] + 4u * ((tx_head_[ch] + i) & (words[ch] - 1u)), v); };
     put(0, w0);
-    put(1, w1);
+    put(1, w1 | ((tx_seq_ & 0xFFFFu) << MBX_TXREC_W1_SEQ_LSB));
+    tx_seq_ = (tx_seq_ + 1u) & 0xFFFFu;
     for (std::size_t k = 0; k < frame.size(); k += 4) {
         std::uint32_t w = 0;
         for (std::size_t j = 0; j < 4 && k + j < frame.size(); ++j) {
@@ -456,7 +464,7 @@ void Suite<Bench>::check_tx_merge() {
     if (b_.tx_frames.size() >= 3) {
         ck_.that("X0 the first frame leaves byte for byte, wire order", same_bytes(b_.tx_frames[0].bytes, a));
         ck_.dec("X0 with its channel", b_.tx_frames[0].channel, kAdp);
-        ck_.dec("X0 round-robin: the other channel's record goes next", b_.tx_frames[1].channel, MBX_CH_MAAP);
+        ck_.dec("X0 commit order: the other channel's record goes next", b_.tx_frames[1].channel, MBX_CH_MAAP);
         ck_.that("X0 and its bytes are its own", same_bytes(b_.tx_frames[1].bytes, m));
         ck_.dec("X0 then the first channel's second record", b_.tx_frames[2].channel, kAdp);
     }
@@ -464,6 +472,101 @@ void Suite<Bench>::check_tx_merge() {
     ck_.dec("X0 TX_TAIL reaches TX_HEAD once the frames have left", rd(ch_reg(kAdp, MBX_CH_REG_TX_TAIL)),
             tx_head_[kAdp]);
     ck_.dec("X0 no record was refused", rd(ch_reg(kAdp, MBX_CH_REG_TX_ERR)), 0);
+}
+
+//! A well-formed TX record of channel `ch` whose SEQ is `seq`, not the commit count.
+template <class Bench>
+void Suite<Bench>::send_tx_seq(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t seq) {
+    const std::uint32_t keep = tx_seq_;
+    tx_seq_ = seq;
+    send_tx(ch, frame, tx_w0(frame.size(), 0, MBX_TX_KIND), 0);
+    tx_seq_ = keep;
+}
+
+//! The channels the frames left on, in order.
+inline std::vector<std::uint32_t> channels_of(const std::vector<TxFrame>& frames) {
+    std::vector<std::uint32_t> out;
+    for (const TxFrame& f : frames) {
+        out.push_back(f.channel);
+    }
+    return out;
+}
+
+// Records leave in commit order across channels (the #653 case: an ACMP
+// response before the AECP notification it causes), whichever channel the
+// merge served last and however long the sink stalled.
+template <class Bench>
+void Suite<Bench>::check_tx_commit_order() {
+    tx_head_.assign(MBX_N_CH, 0);
+    const std::uint32_t acmp = MBX_CH_ACMP;
+    const std::uint32_t aecp = MBX_CH_AECP;
+    const auto r1 = mbx_tb::acmpdu(1, kOwnEid, kForeignEid);
+    const auto r2 = mbx_tb::acmpdu(7, kOwnEid, kForeignEid);
+    const auto note = mbx_tb::aecpdu(kForeignEid);
+    b_.tx_ready_pattern(0x00);
+    send_tx(acmp, r1, tx_w0(r1.size(), 0, MBX_TX_KIND), 0);
+    b_.idle(40);
+    send_tx(acmp, r2, tx_w0(r2.size(), 0, MBX_TX_KIND), 0);
+    send_tx(aecp, note, tx_w0(note.size(), 0, MBX_TX_KIND), 0);
+    b_.idle(40);
+    b_.tx_ready_pattern(0xFF);
+    ck_.that("X2 three records committed behind a stalled sink all leave", b_.wait_tx(3));
+    ck_.that("X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2",
+             channels_of(b_.tx_frames) == std::vector<std::uint32_t>{acmp, acmp, aecp});
+    if (b_.tx_frames.size() == 3) {
+        ck_.that("X2 each with its own bytes", same_bytes(b_.tx_frames[0].bytes, r1) &&
+                 same_bytes(b_.tx_frames[1].bytes, r2) && same_bytes(b_.tx_frames[2].bytes, note));
+    }
+
+    // From another origin: the merge served SRP last, and AECP, ACMP and
+    // ADP are committed in that order, which is not the channel order.
+    b_.tx_frames.clear();
+    const auto s = mbx_tb::mrp(mbx_tb::kEtherMsrp, std::vector<std::uint8_t>(20, 0));
+    const auto a = mbx_tb::adpdu(0, kOwnEid);
+    b_.tx_ready_pattern(0x00);
+    send_tx(MBX_CH_SRP, s, tx_w0(s.size(), 0, MBX_TX_KIND), 0);
+    b_.idle(40);
+    send_tx(aecp, note, tx_w0(note.size(), 0, MBX_TX_KIND), 0);
+    send_tx(acmp, r1, tx_w0(r1.size(), 0, MBX_TX_KIND), 0);
+    send_tx(kAdp, a, tx_w0(a.size(), 0, MBX_TX_KIND), 0);
+    b_.idle(40);
+    b_.tx_ready_pattern(0xFF);
+    ck_.that("X2 after an SRP frame, AECP, ACMP and ADP leave in the order they were committed",
+             b_.wait_tx(4) && channels_of(b_.tx_frames) ==
+                                  std::vector<std::uint32_t>{MBX_CH_SRP, aecp, acmp, kAdp});
+
+    // Across the 16-bit wrap of SEQ, 0xFFFF comes before 0x0000. A first
+    // record (SEQ 0xFFFE) holds the stalled sink, so the merge chooses
+    // between the two with both committed.
+    b_.tx_frames.clear();
+    b_.tx_ready_pattern(0x00);
+    send_tx_seq(MBX_CH_SRP, s, 0xFFFEu);
+    b_.idle(40);
+    send_tx_seq(aecp, note, 0x0000u);
+    send_tx_seq(acmp, r1, 0xFFFFu);
+    b_.idle(40);
+    b_.tx_ready_pattern(0xFF);
+    ck_.that("X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)",
+             b_.wait_tx(3) && channels_of(b_.tx_frames) == std::vector<std::uint32_t>{MBX_CH_SRP, acmp, aecp});
+
+    // Equal SEQs leave round-robin from the channel served last: after an
+    // ACMP frame, MAAP (channel 3) goes before ADP (channel 0).
+    b_.tx_frames.clear();
+    b_.tx_ready_pattern(0x00);
+    send_tx_seq(acmp, r1, 0x00FFu);
+    b_.idle(40);
+    send_tx_seq(kAdp, a, 0x0100u);
+    send_tx_seq(MBX_CH_MAAP, mbx_tb::maap(1, 0x91E000000100ull, 8), 0x0100u);
+    b_.idle(40);
+    b_.tx_ready_pattern(0xFF);
+    ck_.that("X2 equal SEQs leave round-robin from the channel served last",
+             b_.wait_tx(3) && channels_of(b_.tx_frames) == std::vector<std::uint32_t>{acmp, MBX_CH_MAAP, kAdp});
+    b_.idle(8);
+    bool drained = true;
+    for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
+        drained = drained && rd(ch_reg(c, MBX_CH_REG_TX_TAIL)) == tx_head_[c];
+    }
+    ck_.that("X2 every TX_TAIL reaches its TX_HEAD", drained);
 }
 
 template <class Bench>
@@ -476,7 +579,7 @@ void Suite<Bench>::check_tx_refusals() {
     };
     const Bad bad[] = {
         {tx_w0(a.size(), 0, MBX_RX_KIND), 0},
-        {tx_w0(a.size(), 0, MBX_TX_KIND), 1},
+        {tx_w0(a.size(), 0, MBX_TX_KIND), 1u << MBX_TXREC_W1_RSVD_LSB},
         {tx_w0(a.size(), MBX_N_IF, MBX_TX_KIND), 0},
         {tx_w0(13, 0, MBX_TX_KIND), 0},
         {tx_w0(MBX_CH_ADP_MAX_FRAME_BYTES + 2u, 0, MBX_TX_KIND), 0},

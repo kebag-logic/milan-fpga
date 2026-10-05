@@ -7,13 +7,18 @@
 //  Project     : Milan FPGA Platform (packet mailbox, #665 lane F0)
 //
 //  Description : The TX merge: reads one record at a time out of the TX
-//                rings, round-robin over the channels whose TX_HEAD has
-//                moved past TX_TAIL, and streams its frame one byte per
-//                accepted cycle with the frame's interface and channel.
-//                A record is checked before a byte leaves: KIND is a TX
-//                frame, LEN is 14 to the channel's max_frame_bytes, IF names
-//                an elaborated interface, the reserved word is zero and the
-//                whole record lies below TX_HEAD. A refused record counts in
+//                rings and streams its frame one byte per accepted cycle
+//                with the frame's interface and channel. Records leave in
+//                commit order across the channels: before each record a
+//                scan reads word 1 of the oldest record of every channel
+//                whose TX_HEAD has moved past TX_TAIL and keeps the one
+//                whose SEQ comes first modulo 2^16. The scan starts after
+//                the channel served last and keeps the first of equal SEQs,
+//                so equal SEQs leave round-robin. A record is checked before
+//                a byte leaves: KIND is a TX frame, LEN is 14 to the
+//                channel's max_frame_bytes, IF names an elaborated
+//                interface, word 1's reserved bits are zero and the whole
+//                record lies below TX_HEAD. A refused record counts in
 //                TX_ERR and flushes the ring to TX_HEAD, because a record
 //                whose length cannot be trusted leaves no next record to
 //                find. TX_TAIL moves past a record only after its last byte
@@ -21,9 +26,11 @@
 //                has left.
 //
 //                The one decision that matters: one record at a time, one
-//                read port. A channel's frame is never interleaved with
-//                another's, which is what lets the fabric's TX path treat
-//                each record as one frame.
+//                read port, in commit order. A channel's frame is never
+//                interleaved with another's, and a record committed after
+//                another never leaves before it, so an ACMP response leaves
+//                before the AECP notification committed after it, whichever
+//                channel the merge served last.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -52,11 +59,19 @@ module KL_mbx_tx
   output logic [MBX_CH_W_C-1:0]       tx_ch_o           //! channel the frame came from, held for the frame
 );
 
-  typedef enum logic [2:0] {IDLE_S, W0_S, W1_S, LOAD_S, OUT_S, ERR_S, DONE_S} state_t;
+  typedef enum logic [3:0] {IDLE_S, SCAN_S, PICK_S, W0_S, W1_S, LOAD_S, OUT_S, ERR_S, DONE_S} state_t;
+
+  localparam int unsigned KW_C = $clog2(MBX_N_CH_C + 2);   //! scan step 1 .. N_CH + 1
 
   state_t                 st_r;
   logic [MBX_CH_W_C-1:0]  ch_r;        //! channel being served
-  logic [MBX_CH_W_C-1:0]  last_ch_r;   //! channel served last (round-robin origin)
+  logic [MBX_CH_W_C-1:0]  last_ch_r;   //! channel served last (the scan's origin)
+  logic [KW_C-1:0]        scan_k_r;    //! scan step: channel last_ch_r + k is read
+  logic                   scan_v_r;    //! the previous step read a word 1
+  logic [MBX_CH_W_C-1:0]  scan_c_r;    //! the channel it read
+  logic                   best_v_r;    //! a candidate is held
+  logic [MBX_CH_W_C-1:0]  best_ch_r;   //! the candidate's channel
+  logic [15:0]            best_seq_r;  //! the candidate's SEQ
   logic [31:0]            w0_r;        //! header word 0 of the record
   logic [15:0]            left_r;      //! bytes still to send
   logic [8:0]             widx_r;      //! payload word being sent
@@ -65,20 +80,24 @@ module KL_mbx_tx
   logic [15:0]            tail_r [MBX_N_CH_C];
   logic [15:0]            err_r  [MBX_N_CH_C];
 
-  // ---- the channel to serve next ------------------------------------------------
-  logic                  pick_w;
-  logic [MBX_CH_W_C-1:0] pick_ch_w;
+  // ---- the channel to serve next: the earliest SEQ ----------------------------------
+  logic [MBX_N_CH_C-1:0] pend_w;     //! the channel holds a committed record
+  logic                  scan_rd_w;  //! this scan step reads a word 1
+  logic [MBX_CH_W_C-1:0] scan_ch_w;  //! the channel this scan step reads
+  logic [15:0]           seq_w;      //! the SEQ the previous step read
+  logic [15:0]           dseq_w;     //! seq_w - best_seq_r, modulo 2^16
+  logic                  before_w;   //! seq_w comes before the held candidate's
   always_comb begin : arbiter
-    pick_w    = 1'b0;
-    pick_ch_w = '0;
-    for (int k = 1; k <= int'(MBX_N_CH_C); k++) begin
-      int unsigned c;
-      c = (int'(last_ch_r) + k) % int'(MBX_N_CH_C);
-      if (!pick_w && tx_head_words_i[16*c +: 16] != tail_r[c]) begin
-        pick_w    = 1'b1;
-        pick_ch_w = MBX_CH_W_C'(c);
-      end
+    int unsigned sum;
+    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
+      pend_w[c] = tx_head_words_i[16*c +: 16] != tail_r[c];
     end
+    sum       = int'(last_ch_r) + int'(scan_k_r);
+    scan_ch_w = MBX_CH_W_C'(sum >= int'(MBX_N_CH_C) ? sum - int'(MBX_N_CH_C) : sum);
+    scan_rd_w = (st_r == SCAN_S) && int'(scan_k_r) <= int'(MBX_N_CH_C) && pend_w[scan_ch_w];
+    seq_w     = 16'(rd_data_i >> MBX_TXREC_W1_SEQ_LSB_C);
+    dseq_w    = seq_w - best_seq_r;
+    before_w  = !best_v_r || dseq_w[15];
   end : arbiter
 
   // ---- the served ring --------------------------------------------------------------
@@ -106,10 +125,15 @@ module KL_mbx_tx
     rd_ch_o   = ch_r;
     rd_addr_o = '0;
     unique case (st_r)
-      IDLE_S: begin
-        rd_en_o   = pick_w;
-        rd_ch_o   = pick_ch_w;
-        rd_addr_o = MBX_RING_AW_C'(tail_r[pick_ch_w] & (16'(MBX_CH_TX_WORDS_TBL_C[pick_ch_w]) - 16'd1));
+      SCAN_S: begin
+        rd_en_o   = scan_rd_w;
+        rd_ch_o   = scan_ch_w;
+        rd_addr_o = MBX_RING_AW_C'((tail_r[scan_ch_w] + 16'd1) & (16'(MBX_CH_TX_WORDS_TBL_C[scan_ch_w]) - 16'd1));
+      end
+      PICK_S: begin
+        rd_en_o   = best_v_r && pend_w[best_ch_r];
+        rd_ch_o   = best_ch_r;
+        rd_addr_o = MBX_RING_AW_C'(tail_r[best_ch_r] & (16'(MBX_CH_TX_WORDS_TBL_C[best_ch_r]) - 16'd1));
       end
       W0_S: begin
         rd_en_o   = 1'b1;
@@ -137,9 +161,15 @@ module KL_mbx_tx
 
   always_ff @(posedge clk_i) begin : fsm
     if (!rst_n) begin
-      st_r      <= IDLE_S;
-      ch_r      <= '0;
-      last_ch_r <= MBX_CH_W_C'(MBX_N_CH_C - 1);
+      st_r       <= IDLE_S;
+      ch_r       <= '0;
+      last_ch_r  <= MBX_CH_W_C'(MBX_N_CH_C - 1);
+      scan_k_r   <= '0;
+      scan_v_r   <= 1'b0;
+      scan_c_r   <= '0;
+      best_v_r   <= 1'b0;
+      best_ch_r  <= '0;
+      best_seq_r <= '0;
       w0_r      <= '0;
       left_r    <= '0;
       widx_r    <= '0;
@@ -151,17 +181,37 @@ module KL_mbx_tx
       end
     end else begin
       unique case (st_r)
-        IDLE_S: if (pick_w) begin
-          ch_r <= pick_ch_w;
+        IDLE_S: if (|pend_w) begin
+          scan_k_r <= KW_C'(1);
+          scan_v_r <= 1'b0;
+          best_v_r <= 1'b0;
+          st_r     <= SCAN_S;
+        end
+        SCAN_S: begin
+          // step k reads channel last_ch_r + k; step k + 1 compares what it read
+          if (scan_v_r && before_w) begin
+            best_v_r   <= 1'b1;
+            best_ch_r  <= scan_c_r;
+            best_seq_r <= seq_w;
+          end
+          scan_v_r <= scan_rd_w;
+          scan_c_r <= scan_ch_w;
+          scan_k_r <= scan_k_r + KW_C'(1);
+          if (int'(scan_k_r) == int'(MBX_N_CH_C) + 1) st_r <= PICK_S;
+        end
+        PICK_S: if (best_v_r && pend_w[best_ch_r]) begin
+          ch_r <= best_ch_r;
           st_r <= W0_S;
+        end else begin
+          st_r <= IDLE_S;
         end
         W0_S: begin
           w0_r <= rd_data_i;
           st_r <= W1_S;
         end
         W1_S: begin
-          // the reserved word must be zero and word 0 must hold
-          if (w0_ok_w && rd_data_i == 32'd0) begin
+          // word 1's reserved bits must be zero and word 0 must hold
+          if (w0_ok_w && (rd_data_i >> MBX_TXREC_W1_RSVD_LSB_C) == 32'd0) begin
             left_r <= len_w;
             widx_r <= '0;
             st_r   <= LOAD_S;

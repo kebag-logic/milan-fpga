@@ -7,8 +7,10 @@
 // The model is transaction-level: a frame is filtered when it is offered and
 // a TX record leaves when its doorbell is written, so the bench's clock calls
 // (idle, drain_rx) have nothing to wait for and the TX ready pattern has no
-// clock to apply to. Everything the checks read goes through the model's
-// host port, exactly as the firmware's reads do.
+// clock to apply to, except that a pattern of 0 (a sink that takes nothing)
+// pauses the merge until a pattern that takes something. Everything the
+// checks read goes through the model's host port, exactly as the firmware's
+// reads do.
 
 #ifndef MBX_MODEL_BENCH_HPP
 #define MBX_MODEL_BENCH_HPP
@@ -58,7 +60,10 @@ class ModelBench {
         sync_tx();
         return tx_frames.size() >= n;
     }
-    void tx_ready_pattern(std::uint8_t pattern) { (void)pattern; }
+    void tx_ready_pattern(std::uint8_t pattern) {
+        mbx_model_tx_pause(m_, pattern == 0u);
+        sync_tx();
+    }
     std::uint32_t read(std::uint32_t off) { return mbx_model_read(m_, off); }
     void write(std::uint32_t off, std::uint32_t v, std::uint8_t strobes = 0xF) {
         mbx_model_write(m_, off, v, strobes);

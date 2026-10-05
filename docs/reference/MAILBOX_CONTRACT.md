@@ -257,7 +257,7 @@ Channel c's block starts at `0x100 + 0x20 * c`.
 
 One received frame, Ethernet header first, FCS stripped. The fabric writes the payload words, then the two header words, then advances RX_HEAD past the whole record, so the core never sees a partial record.
 
-One frame to transmit, Ethernet header first, without FCS or padding. The core writes the whole record, then advances TX_HEAD past it.
+One frame to transmit, Ethernet header first, without FCS or padding. The core writes the whole record, then advances TX_HEAD past it. Records leave in commit order across every channel: of the records committed and not yet sent, the merge sends the one whose SEQ comes first modulo 2^16, so a response committed before the notification it causes leaves before it. Records with equal SEQ leave round-robin by channel.
 
 One fabric event, four words. Sources are coalesced: a source that fires again before its record is posted posts once, with its state at posting time, so the ring never overflows and no current state is lost.
 
@@ -270,7 +270,8 @@ One fabric event, four words. Sources are coalesced: a source that fires again b
 | TX frame | word 0 | `[31:28]` | `KIND` | 2 |
 | TX frame | word 0 | `[19:16]` | `IF` | interface to send on |
 | TX frame | word 0 | `[15:0]` | `LEN` | frame bytes |
-| TX frame | word 1 | `[31:0]` | `RSVD` | must be 0; any other value refuses the record |
+| TX frame | word 1 | `[31:16]` | `RSVD` | must be 0; any other value refuses the record |
+| TX frame | word 1 | `[15:0]` | `SEQ` | commit sequence: the core's count of TX records committed on every channel, modulo 2^16 |
 | event | word 0 | `[31:16]` | `SEQ` | posting sequence |
 | event | word 0 | `[11:8]` | `IF` | interface |
 | event | word 0 | `[7:0]` | `TYPE` | event type |
@@ -513,8 +514,10 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_TXREC_W0_IF_WIDTH` | `0x4` |
 | `MBX_TXREC_W0_KIND_LSB` | `0x1c` |
 | `MBX_TXREC_W0_KIND_WIDTH` | `0x4` |
-| `MBX_TXREC_W1_RSVD_LSB` | `0x0` |
-| `MBX_TXREC_W1_RSVD_WIDTH` | `0x20` |
+| `MBX_TXREC_W1_SEQ_LSB` | `0x0` |
+| `MBX_TXREC_W1_SEQ_WIDTH` | `0x10` |
+| `MBX_TXREC_W1_RSVD_LSB` | `0x10` |
+| `MBX_TXREC_W1_RSVD_WIDTH` | `0x10` |
 | `MBX_EVREC_W0_TYPE_LSB` | `0x0` |
 | `MBX_EVREC_W0_TYPE_WIDTH` | `0x8` |
 | `MBX_EVREC_W0_IF_LSB` | `0x8` |

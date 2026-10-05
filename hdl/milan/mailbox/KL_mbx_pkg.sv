@@ -326,10 +326,14 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TXREC_W0_KIND_LSB_C = 32'd28;
   //! TX record word 0: 2
   localparam int unsigned MBX_TXREC_W0_KIND_WIDTH_C = 32'd4;
+  //! TX record word 1: commit sequence: the core's count of TX records committed on every channel, modulo 2^16
+  localparam int unsigned MBX_TXREC_W1_SEQ_LSB_C = 32'd0;
+  //! TX record word 1: commit sequence: the core's count of TX records committed on every channel, modulo 2^16
+  localparam int unsigned MBX_TXREC_W1_SEQ_WIDTH_C = 32'd16;
   //! TX record word 1: must be 0; any other value refuses the record
-  localparam int unsigned MBX_TXREC_W1_RSVD_LSB_C = 32'd0;
+  localparam int unsigned MBX_TXREC_W1_RSVD_LSB_C = 32'd16;
   //! TX record word 1: must be 0; any other value refuses the record
-  localparam int unsigned MBX_TXREC_W1_RSVD_WIDTH_C = 32'd32;
+  localparam int unsigned MBX_TXREC_W1_RSVD_WIDTH_C = 32'd16;
   //! event word 0: event type
   localparam int unsigned MBX_EVREC_W0_TYPE_LSB_C = 32'd0;
   //! event word 0: event type

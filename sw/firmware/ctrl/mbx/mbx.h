@@ -77,7 +77,8 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f);
 
 // Write one frame as a TX record of channel ch and commit it (TX_HEAD).
 // FULL when the ring lacks the room now; BAD for a length outside 14 to the
-// channel's max_frame_bytes or an unknown interface.
+// channel's max_frame_bytes or an unknown interface. Frames leave in the
+// order they were committed, across every channel.
 enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len);
 
 // Take the next fabric event and release it (EVT_TAIL); false when none.

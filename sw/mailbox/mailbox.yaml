@@ -281,7 +281,11 @@ records:
     kind: 2
     doc: >-
       One frame to transmit, Ethernet header first, without FCS or padding. The
-      core writes the whole record, then advances TX_HEAD past it.
+      core writes the whole record, then advances TX_HEAD past it. Records leave
+      in commit order across every channel: of the records committed and not yet
+      sent, the merge sends the one whose SEQ comes first modulo 2^16, so a
+      response committed before the notification it causes leaves before it.
+      Records with equal SEQ leave round-robin by channel.
     header:
       - index: 0
         fields:
@@ -290,7 +294,8 @@ records:
           - {name: KIND, lsb: 28, width: 4, doc: "2"}
       - index: 1
         fields:
-          - {name: RSVD, lsb: 0, width: 32, doc: must be 0; any other value refuses the record}
+          - {name: SEQ, lsb: 0, width: 16, doc: "commit sequence: the core's count of TX records committed on every channel, modulo 2^16"}
+          - {name: RSVD, lsb: 16, width: 16, doc: must be 0; any other value refuses the record}
   event:
     words: 4
     doc: >-

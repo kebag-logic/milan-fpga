@@ -325,10 +325,14 @@
 #define MBX_TXREC_W0_KIND_LSB 28u
 /* TX record word 0: 2 */
 #define MBX_TXREC_W0_KIND_WIDTH 4u
+/* TX record word 1: commit sequence: the core's count of TX records committed on every channel, modulo 2^16 */
+#define MBX_TXREC_W1_SEQ_LSB 0u
+/* TX record word 1: commit sequence: the core's count of TX records committed on every channel, modulo 2^16 */
+#define MBX_TXREC_W1_SEQ_WIDTH 16u
 /* TX record word 1: must be 0; any other value refuses the record */
-#define MBX_TXREC_W1_RSVD_LSB 0u
+#define MBX_TXREC_W1_RSVD_LSB 16u
 /* TX record word 1: must be 0; any other value refuses the record */
-#define MBX_TXREC_W1_RSVD_WIDTH 32u
+#define MBX_TXREC_W1_RSVD_WIDTH 16u
 /* event word 0: event type */
 #define MBX_EVREC_W0_TYPE_LSB 0u
 /* event word 0: event type */

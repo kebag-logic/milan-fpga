@@ -95,6 +95,11 @@ MUTANTS = (
     Mutant("model-rate-unlimited", "host/mbx_model.c", "\tif (ch->tokens == 0u) {",
            "\tif (ch->tokens == 0u && false) {",
            "model", "T0 the frames past it count in RATE_DROP"),
+    Mutant("seq-not-stamped", "mbx/mbx.c", "\ttx_seq = (uint16_t)(tx_seq + 1u);\n", "", "port",
+           "D3 ACMP, ACMP, AECP committed by the driver"),
+    Mutant("model-round-robin", "host/mbx_model.c",
+           "if (c == MBX_N_CH || ((uint16_t)(seq - best) & 0x8000u) != 0u) {", "if (c == MBX_N_CH) {", "model",
+           "X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame"),
     Mutant("model-gm-hi-live", "host/mbx_model.c", "\t\treturn m->gm_hi_snap[i];",
            "\t\treturn (uint32_t)(m->gm_id[i] >> 32);", "model", "G0 GM_HI reads the snapshot"),
 )

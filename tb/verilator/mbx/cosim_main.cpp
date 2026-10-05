@@ -73,8 +73,10 @@ class RtlFabric final : public Fabric {
     }
     std::vector<std::vector<std::uint8_t>> sent() override {
         // a record committed by the last access starts within a few clocks of
-        // its doorbell (IDLE, W0, W1, LOAD); give it those, then let it finish
-        b_.idle(8);
+        // its doorbell (IDLE, the commit-order scan's N_CH + 1 steps, PICK,
+        // W0, W1, LOAD: 11 with five channels); give it those, then let it
+        // finish
+        b_.idle(16);
         (void)b_.wait_tx(b_.tx_frames.size(), 400);
         std::vector<std::vector<std::uint8_t>> out;
         for (const auto& t : b_.tx_frames) {
