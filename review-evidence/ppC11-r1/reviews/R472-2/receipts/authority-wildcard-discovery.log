@@ -1,0 +1,9 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/authority_checks.py', '.']
+Traceback (most recent call last):
+  File "$REVIEWS/ppC11-r472-2-packet/scripts/authority_checks.py", line 51, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/ppC11-r472-2-packet/scripts/authority_checks.py", line 22, in main
+    assert not missing,missing
+           ^^^^^^^^^^^
+AssertionError: ['_data_i', '_wait_i']

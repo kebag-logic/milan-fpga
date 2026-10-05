@@ -1,0 +1,364 @@
+[
+  {
+    "probe": "ids-clean",
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "required": [
+      "531 files, 91 distinct IDs used"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "ids-selftest",
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "required": [
+      "25 cases, OK"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figures-clean",
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "required": [
+      "3 draw.io, 18 WaveDrom, 5 hand-authored, OK"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figures-selftest",
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "required": [
+      "17 cases, OK"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-braced-deadline",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "docs/README.md:89: T-NVM-RS-DEADLINE has no F08.1 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-braced-aggregate",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "docs/README.md:89: T-NVM-RS-AGGREGATE has no F08.1 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-linebreak-and-optional",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "tb/adp_engine/tb_adp_top.sv:10: T-ADP-DELAY-START has no F08.1 row",
+      "tb/pp_top/pp_top_wrap.sv:15: T-ADP-DELAY-START has no F08.1 row",
+      "hdl/adp/KL_adp_engine.sv:625: T-ADP-DELAY-START has no F08.1 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-optional-base",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "tb/pp_top/pp_top_wrap.sv:15: T-ADP-DELAY has no F08.1 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-minus-one-rx",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "hdl/common/pp_pkg.sv:72: P-RX-SLOTS-1 has no F01.5 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "row-minus-one-tx",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "hdl/common/pp_pkg.sv:73: P-TX-STD-SLOTS-1 has no F01.5 row"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-braced-hyphenated",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-NVM-RS-TYPO"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-braced-simple",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-MRP-NOPE"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-linebreak",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-ADP-DELAY-MISSING"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-optional-inline",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-ADP-DELAY-MISSING"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-optional-linebreak",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-ADP-DELAY-MISSING"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-minus-one-missing",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "P-R472-MISSING-1"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-minus-other",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "P-RX-SLOTS-2"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-prose-suffix",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "P-TX has no"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-family-missing",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-R472-MISSING-*"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-sibling-missing",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "T-BUDGET-AECP-MISSING"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "use-combined-linebreak-optional",
+    "expected_rc": 1,
+    "actual_rc": 0,
+    "required": [
+      "T-ADP-DELAY-MISSING"
+    ],
+    "expectation_met": false
+  },
+  {
+    "probe": "figure-image",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "carries <image>"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-feImage",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "carries <feImage>"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-foreignObject",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "carries <foreignObject>"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-root-namespace",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "not an SVG-namespace"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-no-viewbox",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "no viewBox"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-bad-xml",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "not well-formed"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-png",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "not a figure format"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-nested",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "not a figure format"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-missing-inventory",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "inventory unreadable"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-empty-inventory",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [
+      "lists no SVG"
+    ],
+    "expectation_met": true
+  },
+  {
+    "probe": "mutant-skip-brace-check",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "mutant-skip-linebreak",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "mutant-skip-sibling",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "mutant-any-minus-one",
+    "expected_rc": 1,
+    "actual_rc": 0,
+    "required": [],
+    "expectation_met": false
+  },
+  {
+    "probe": "mutant-any-minus-one-real-tree",
+    "expected_rc": 1,
+    "actual_rc": 0,
+    "required": [
+      "P-R472-MISSING-1"
+    ],
+    "expectation_met": false
+  },
+  {
+    "probe": "mutant-skip-optional-linebreak",
+    "expected_rc": 1,
+    "actual_rc": 0,
+    "required": [],
+    "expectation_met": false
+  },
+  {
+    "probe": "mutant-skip-optional-linebreak-real-tree",
+    "expected_rc": 1,
+    "actual_rc": 0,
+    "required": [
+      "T-ADP-DELAY-MISSING"
+    ],
+    "expectation_met": false
+  },
+  {
+    "probe": "figure-mutant-foreignObject",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-mutant-namespace",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-mutant-root",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  },
+  {
+    "probe": "figure-mutant-empty-inventory",
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "required": [],
+    "expectation_met": true
+  }
+]

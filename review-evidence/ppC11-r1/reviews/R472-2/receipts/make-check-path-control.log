@@ -1,0 +1,95 @@
+command: ['make', '-j16', 'check']
+matrix: 115 REQ rows, 17 GAP findings, OK
+matrix: OK (94 rows, 0 untested)
+parameters: top 28, guide 28, diagram 28, OK
+links: 1168 checked, OK
+MERMAID FAIL: mmd-docs_architecture_01_overview_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_02_interfaces_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_02_interfaces_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_03_packet_engine_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_03_packet_engine_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_03_packet_engine_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_04_adp_engine_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_04_adp_engine_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_04_adp_engine_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_04_adp_engine_md-4.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-10.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-11.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-4.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-5.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-6.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-7.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-8.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_05_acmp_engine_md-9.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-4.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-5.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-6.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-7.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_06_aecp_engine_md-8.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_07_memory_maps_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_07_memory_maps_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_07_memory_maps_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_08_timing_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_09_verification_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_09_verification_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-1.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-2.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-3.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-4.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-5.txt
+    env: ‘node’: No such file or directory
+MERMAID FAIL: mmd-docs_architecture_10_srp_engine_md-6.txt
+    env: ‘node’: No such file or directory
+wavedrom: 18 blocks checked, OK
+lint: 41 mermaid + 18 wavedrom blocks checked, FAILURES
+make: *** [Makefile:33: lint] Error 1
+make: *** Waiting for unfinished jobs....
+figures selftest: 17 cases, OK
+figures: 3 draw.io, 18 WaveDrom, 5 hand-authored, OK
+ids selftest: 25 cases, OK
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK

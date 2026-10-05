@@ -1,0 +1,13 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/prove_comment_scope.py', '.', '$REVIEWS/ppC11-r472-2-packet/scratch', '$VALIDATION_TOOLS/pinned-verilator-5.050/verilator']
+$REVIEWS/ppC11-r472-2-packet/scratch/preprocess/c050d971-sim_main.cpp:41:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   41 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+$REVIEWS/ppC11-r472-2-packet/scratch/preprocess/HEAD-sim_main.cpp:42:43: warning: ‘__VA_ARGS__’ can only appear in the expansion of a C++11 variadic macro
+   42 |   if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
+      |                                           ^
+COMMENT_ONLY hdl/packet_engine/KL_pp_side_port.sv preprocessed_sha256 bb74b22c3d6069c217fc986860f07eb72851cde21c16cb549853ca8d1ed54ca1
+COMMENT_ONLY hdl/packet_engine/KL_pp_trace_ring.sv preprocessed_sha256 fabfdf23083d3ed29ac69afad48eacf4d70106c855b312275f98b4b79589d838
+COMMENT_ONLY hdl/packet_engine/KL_pp_tx_slots.sv preprocessed_sha256 6ee60459e94e435b44315eea89662aa4c3d0eb18564b45ed1f8902d47daa69b8
+COMMENT_ONLY tb/tx_slots/sim_main.cpp preprocessed_sha256 55996db848236039e6315715b43815e1d960a0d99ad7a4cec40e678593827a0a
+C11_HDL_TB_CHANGED ['hdl/packet_engine/KL_pp_side_port.sv', 'hdl/packet_engine/KL_pp_trace_ring.sv', 'hdl/packet_engine/KL_pp_tx_slots.sv', 'tb/side_port/README.md', 'tb/tx_slots/README.md', 'tb/tx_slots/sim_main.cpp']
+ALL_OTHER_MERGED_HDL_TB_BLOBS_IDENTICAL_TO_MAIN_ead80360

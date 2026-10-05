@@ -1,0 +1,28 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/reproduce_findings.py', '$REVIEWS/ppC11-r472-2-packet/scratch/probe-tree']
+F3 actual existing line-break changed to optional missing suffix rc 0
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+F3 composed missing ID make ids rc 0
+ids selftest: 25 cases, OK
+ids: 531 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+F3 same optional ID without line-break rc 1
+ID FAIL: tb/adp_engine/tb_adp_top.sv:10: T-ADP-DELAY-STRT has no F08.1 row
+ids: 531 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+F3 one-line missing ID control make ids rc 2
+ids selftest: 25 cases, OK
+ID FAIL: tb/adp_engine/tb_adp_top.sv:10: T-ADP-DELAY-STRT has no F08.1 row
+ids: 531 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+make: *** [Makefile:48: ids] Error 1
+F4 missing minus-one operand healthy scanner rc 1
+ID FAIL: tb/r472-minimal.txt:1: P-R472-MISSING-1 has no F01.5 row
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+F4 missing minus-one operand weakened scanner selftest rc 0
+ids selftest: 25 cases, OK
+F4 missing minus-one operand weakened scanner real tree rc 0
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK
+F4 missing line-broken optional member healthy scanner rc 1
+ID FAIL: tb/r472-minimal.txt:1: T-ADP-DELAY-MISSING has no F08.1 row
+ids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+F4 missing line-broken optional member weakened scanner selftest rc 0
+ids selftest: 25 cases, OK
+F4 missing line-broken optional member weakened scanner real tree rc 0
+ids: 532 files, 91 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, OK

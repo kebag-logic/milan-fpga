@@ -1,0 +1,10 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/authority_checks.py', '.']
+ARCHITECTURE_PORT_NAMES 151 all declared CONTROL rx_r472_err_i missing: True
+HISTORY_WAVEFORM_VERBATIM F02.3 — RX stream: backpressure + end of frame efe6854f94258b27bb6aa9e7dcd97fb7aec0f6fb19e9191d6cdadd1d52efaece
+HISTORY_WAVEFORM_VERBATIM F02.4 — TX stream with arbiter grant (no mid-frame regrant) 688da0b2c4b5396f953fc835f8001d2997c98030191c7015b6f2321f0bbf8580
+HISTORY_PROSE_TABLE_VERBATIM 15d29310286a0bba880acd88d7ac9cb18b096b75a7b4463581394a1a5fddb4da
+RESET_RULE5_UNCHANGED_BY_C11_AND_IDENTICAL_TO_MERGED_MAIN
+NO_STRAY_DYN_MAPPING_ID; PROFILE_NONCONSUMER_RECORDED; FIVE_PNGS_ABSENT
+WAVEFORM_SOURCE fig-02-rxwave {"signal": [{"name": "clk", "wave": "p.........."}, {"name": "rx_valid_i", "wave": "01......0.."}, {"name": "rx_data_i", "wave": "x=======x..", "data": ["B0", "B1", "B2", "B3", "B4", "B5", "B6"]}, {"name": "rx_last_i", "wave": "0......10.."}], "head": {"text": "no ready: every byte with rx_valid_i is taken"}, "foot": {"text": "no err, no abort: complete, FCS-good frames only"}}
+WAVEFORM_SOURCE fig-02-txwave {"signal": [{"name": "clk", "wave": "p..........."}, {"name": "tx_valid_o", "wave": "01.....01..0"}, {"name": "tx_sof_o", "wave": "010.....10.."}, {"name": "tx_data_o", "wave": "x===.==x===x", "data": ["A0", "A1", "A2", "A3", "A4", "B0", "B1", "B2"]}, {"name": "tx_eof_o", "wave": "0.....10..10"}, {"name": "tx_ready_i", "wave": "1..01......."}], "head": {"text": "the grant is frame-atomic: frame B starts only after A's eof"}, "foot": {"text": "tx_ready_i low holds A2 in place for a cycle; nothing is skipped or truncated"}}
+WAVEFORM_SOURCE fig-02-memwave {"signal": [{"name": "clk", "wave": "p........"}, {"name": "host_req_valid_i", "wave": "01.01..0."}, {"name": "host_we_i", "wave": "x1.x0..x."}, {"name": "host_addr_i", "wave": "x=.x=..x.", "data": ["A0", "A1"]}, {"name": "host_wdata_i", "wave": "x=.x.....", "data": ["V0"]}, {"name": "host_rvalid_o", "wave": "0.10..10."}, {"name": "host_rdata_o", "wave": "0.....=0.", "data": ["Q1"]}, {"name": "host_err_o", "wave": "0........"}], "head": {"text": "each request held until its strobe"}}

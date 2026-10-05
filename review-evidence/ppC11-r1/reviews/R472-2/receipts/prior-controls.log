@@ -1,0 +1,65 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/prior_controls.py', '$REVIEWS/ppC11-r472-2-packet/scratch/probe-tree']
+PRIOR_CONTROL only-tb selftest_rc 1
+SELFTEST FAIL: case 6: want ['P-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 7: want ['T-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 22: want ['P-LATER'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 3 FAILURES
+PRIOR_CONTROL no-hdl selftest_rc 1
+SELFTEST FAIL: case 7: want ['T-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+PRIOR_CONTROL no-docs selftest_rc 1
+SELFTEST FAIL: case 6: want ['P-NOT-A-ROW'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 22: want ['P-LATER'] rc 1, got [] rc 0
+ids: 0 files, 0 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 2 FAILURES
+PRIOR_CONTROL whole-master-page selftest_rc 1
+SELFTEST FAIL: case 22: want ['P-LATER'] rc 1, got [] rc 0
+ids: 2 files, 13 distinct IDs used, F01.5 6 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+PRIOR_CONTROL duplicate-master-row selftest_rc 1
+SELFTEST FAIL: case 23: want ['F01.5: P-ONE has two rows'] rc 1, got [] rc 0
+ids: 2 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+PRIOR_CONTROL empty-master-table selftest_rc 1
+SELFTEST FAIL: case 24: want ['F08.1: no T- rows parsed'] rc 1, got [] rc 0
+ids: 2 files, 5 distinct IDs used, F01.5 5 P-IDs, F08.1 0 T-IDs, OK
+
+ids selftest: 25 cases, 1 FAILURES
+PRIOR_CONTROL any-tail selftest_rc 1
+SELFTEST FAIL: case 15: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 19: want ['P-RX-SLOTS-2'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+SELFTEST FAIL: case 20: want ['P-ONE-X'] rc 1, got [] rc 0
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK
+
+ids selftest: 25 cases, 3 FAILURES
+PRIOR_CONTROL unreadable-master selftest_rc 1
+SELFTEST FAIL: case 23: want ['F01.5: P-ONE has two rows'] rc 1, got ['F01.5: P-ONE has two rows'] rc 0
+ID FAIL: F01.5: P-ONE has two rows
+ids: master tables unreadable, FAILURES
+
+SELFTEST FAIL: case 24: want ['F08.1: no T- rows parsed'] rc 1, got ['F08.1: no T- rows parsed'] rc 0
+ID FAIL: F08.1: no T- rows parsed
+ids: master tables unreadable, FAILURES
+
+SELFTEST FAIL: case 25: want ["cannot find F01.5 ('## 7. Parameter master table (F01.5)')"] rc 1, got ["cannot find F01.5 ('## 7. Parameter master table (F01.5)')"] rc 0
+ID FAIL: cannot find F01.5 ('## 7. Parameter master table (F01.5)')
+ids: master tables unreadable, FAILURES
+
+ids selftest: 25 cases, 3 FAILURES

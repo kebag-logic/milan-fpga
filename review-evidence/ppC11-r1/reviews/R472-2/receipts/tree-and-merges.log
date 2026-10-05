@@ -1,0 +1,70 @@
+command: ['python3', '$REVIEWS/ppC11-r472-2-packet/scripts/verify_tree.py', '.']
+{
+  "head": "80588cdc43ca5605a1d3748d13dd8ed7f22f7000",
+  "tree": "e20b82dacbc2a3299f47c8e8444537f979d17029",
+  "tracked_blobs_bytes_and_modes_verified": 556,
+  "index_tree_matches": true,
+  "gitlinks": [],
+  "status": ""
+}
+CLEAN_REMERGE 07b1469ddf1e2a54e4a42cac06c41f084ecffd6c c050d97153dd0480ae741102c1647eeda9b7f273 d18270d69eea9cdf35f846c77821d5488dab97cc 5ff7ea39fc74c21be0d6a1df92f07496513c5fab
+CLEAN_REMERGE b0a741963212e7d49a902cbab3940033266084c4 07b1469ddf1e2a54e4a42cac06c41f084ecffd6c f9b8f0ee6604a73b9fa82c62b91811e9f53b320a 0e4e1c96a8bbd9fd7812dc0c1c84697a9adb6242
+CLEAN_REMERGE ead8036035affd53ef4b29979190f2f4f67084c0 b0a741963212e7d49a902cbab3940033266084c4 c725be12d7ea6bf96f1b64e3a56416f0d4defd6c 0bb7199a3caf38df44071cac4e2d56fef89f1b7c
+CLEAN_REMERGE 5b2199ba197cc479488603580a82d2820ba8bc35 3d5a201e0437562265cb8c1220c4c2843f6899b3 07b1469ddf1e2a54e4a42cac06c41f084ecffd6c 5cff66d7fb55e687df93151fa46020d3e9ad6f77
+CLEAN_REMERGE e2197090ddaee1794f9504526da9334088d65a8b 5b2199ba197cc479488603580a82d2820ba8bc35 b0a741963212e7d49a902cbab3940033266084c4 fdc846ec8e83e75a875fe354e816dca0c12c0a47
+CLEAN_REMERGE 80588cdc43ca5605a1d3748d13dd8ed7f22f7000 e2197090ddaee1794f9504526da9334088d65a8b ead8036035affd53ef4b29979190f2f4f67084c0 e20b82dacbc2a3299f47c8e8444537f979d17029
+SCAN_INVENTORY {
+  "round1": 488,
+  "premerge": 488,
+  "head": 531,
+  "added": [
+    "tb/pp_top/mutations/hz-gdi-as-barrier.patch",
+    "tb/pp_top/mutations/hz-gdi-key-none.patch",
+    "tb/pp_top/mutations/td-lock-default-59s.patch",
+    "tb/pp_top/mutations/td-tl-default-301s.patch",
+    "tb/srp_stream_fsms/srp_walk_wrap.sv",
+    "tb/srp_stream_fsms/walk_main.cpp",
+    "tb/srp_top/mutations/slope-read-source-0.patch",
+    "tb/srp_top/mutations/slope-store-source-0-only.patch",
+    "tb/srp_top/mutations/slope-stored-at-source-0.patch",
+    "tb/srp_top/mutations/slope-stored-at-stage-2-index.patch",
+    "tb/srp_top/mutations/talker-vid-unreset.patch",
+    "tb/srp_top/mutations/tf-full-guard-31.patch",
+    "tb/srp_top/mutations/tf-head-at-write-pointer.patch",
+    "tb/srp_top/mutations/tf-heads-swapped.patch",
+    "tb/srp_top/mutations/tf-listener-push-dropped.patch",
+    "tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch",
+    "tb/srp_top/mutations/tf-ls-write-ignores-full.patch",
+    "tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch",
+    "tb/srp_top/mutations/tf-tk-head-read-ahead.patch",
+    "tb/srp_top/mutations/tf-tk-write-at-rptr.patch",
+    "tb/srp_top/mutations/tf-tk-write-ignores-full.patch",
+    "tb/srp_top/mutations/walk-record-written-on-close.patch",
+    "tb/srp_top/mutations/wid-flops-da-of-gate-source.patch",
+    "tb/srp_top/mutations/wid-flops-sid-of-source-0.patch",
+    "tb/srp_top/mutations/wid-flops-vid-of-source-0.patch",
+    "tb/srp_top/mutations/wid-ram-first-open-only.patch",
+    "tb/srp_top/mutations/wid-ram-read-at-gate-source.patch",
+    "tb/srp_top/mutations/wid-ram-read-neighbour.patch",
+    "tb/srp_top/mutations/wsid-flops-of-control-sink.patch",
+    "tb/srp_top/mutations/wsid-flops-read-sink-0.patch",
+    "tb/srp_top/mutations/wsid-ram-first-settle-only.patch",
+    "tb/srp_top/mutations/wsid-ram-written-on-teardown.patch",
+    "tb/srp_top/mutations/wsid-write-ignores-ready.patch",
+    "tb/srp_top/mutations/wtsp-first-open-only.patch",
+    "tb/srp_top/mutations/wtsp-latency-field-shifted.patch",
+    "tb/srp_top/mutations/wtsp-latency-shifted.patch",
+    "tb/srp_top/mutations/wtsp-prio-rank-swapped.patch",
+    "tb/srp_top/mutations/wtsp-rank-dropped.patch",
+    "tb/srp_top/mutations/wtsp-read-at-gate-source.patch",
+    "tb/srp_top/mutations/wtsp-read-at-source-0.patch",
+    "tb/srp_top/mutations/wtsp-write-ignores-ready.patch",
+    "tb/srp_top/srp_store_wrap.sv",
+    "tb/srp_top/store_main.cpp"
+  ],
+  "removed": [],
+  "extra_files_exactly_main_lane_additions": true
+}
+LANE_ADDITIONS 07b1469d ['tb/srp_stream_fsms/srp_walk_wrap.sv', 'tb/srp_stream_fsms/walk_main.cpp', 'tb/srp_top/mutations/slope-read-source-0.patch', 'tb/srp_top/mutations/slope-store-source-0-only.patch', 'tb/srp_top/mutations/slope-stored-at-source-0.patch', 'tb/srp_top/mutations/slope-stored-at-stage-2-index.patch', 'tb/srp_top/mutations/talker-vid-unreset.patch', 'tb/srp_top/mutations/tf-full-guard-31.patch', 'tb/srp_top/mutations/tf-head-at-write-pointer.patch', 'tb/srp_top/mutations/tf-heads-swapped.patch', 'tb/srp_top/mutations/tf-listener-push-dropped.patch', 'tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch', 'tb/srp_top/mutations/tf-ls-write-ignores-full.patch', 'tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch', 'tb/srp_top/mutations/tf-tk-head-read-ahead.patch', 'tb/srp_top/mutations/tf-tk-write-at-rptr.patch', 'tb/srp_top/mutations/tf-tk-write-ignores-full.patch', 'tb/srp_top/mutations/walk-record-written-on-close.patch', 'tb/srp_top/mutations/wid-flops-da-of-gate-source.patch', 'tb/srp_top/mutations/wid-flops-sid-of-source-0.patch', 'tb/srp_top/mutations/wid-flops-vid-of-source-0.patch', 'tb/srp_top/mutations/wid-ram-first-open-only.patch', 'tb/srp_top/mutations/wid-ram-read-at-gate-source.patch', 'tb/srp_top/mutations/wid-ram-read-neighbour.patch', 'tb/srp_top/mutations/wsid-flops-of-control-sink.patch', 'tb/srp_top/mutations/wsid-flops-read-sink-0.patch', 'tb/srp_top/mutations/wsid-ram-first-settle-only.patch', 'tb/srp_top/mutations/wsid-ram-written-on-teardown.patch', 'tb/srp_top/mutations/wsid-write-ignores-ready.patch', 'tb/srp_top/mutations/wtsp-first-open-only.patch', 'tb/srp_top/mutations/wtsp-latency-field-shifted.patch', 'tb/srp_top/mutations/wtsp-latency-shifted.patch', 'tb/srp_top/mutations/wtsp-prio-rank-swapped.patch', 'tb/srp_top/mutations/wtsp-rank-dropped.patch', 'tb/srp_top/mutations/wtsp-read-at-gate-source.patch', 'tb/srp_top/mutations/wtsp-read-at-source-0.patch', 'tb/srp_top/mutations/wtsp-write-ignores-ready.patch', 'tb/srp_top/srp_store_wrap.sv', 'tb/srp_top/store_main.cpp']
+LANE_ADDITIONS b0a74196 ['tb/pp_top/mutations/hz-gdi-as-barrier.patch', 'tb/pp_top/mutations/hz-gdi-key-none.patch', 'tb/pp_top/mutations/td-lock-default-59s.patch', 'tb/pp_top/mutations/td-tl-default-301s.patch']
+LANE_ADDITIONS ead80360 []
