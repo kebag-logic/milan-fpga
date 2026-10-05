@@ -91,9 +91,13 @@ constexpr uint16_t kSrcAaf = 2;
 constexpr double kSettleAfterLockS = 8 * 0.512;
 //! ...give or take the tick the run is counted in and the pulse's register
 constexpr double kSettleSlackS = 2e-3;
-//! ...and both rings act on it at the stream's next PDU end and the walk
-//! after it: within a PDU interval and a tick of the pulse
+//! ...and the render stage executes it at the stream's next PDU end: within
+//! a PDU interval and a tick of the pulse
 constexpr double kActS = 1e-3;
+//! the loopback ring decides as the stream's first PDU after the pulse
+//! starts, and that PDU's own beats, through the skid, are the last a slip
+//! of the old phase can land in: from the arrival to its last commit
+constexpr double kPduEndS = static_cast<double>((kBeats + 3) * kBeatCyc) / kClkHz;
 //! the render law is graded from this long after the settle recentre
 constexpr double kLawAfterS = 0.05;
 //! THE DECLARED TRANSIENT: frames the loopback ring may slip from a switch
@@ -675,16 +679,21 @@ struct Settle {
     double t_settle = -1.0;                       //! the settle recentre's pulse
     double t_end = 0.0;
     int pulses = 0;                               //! settle pulses in [start, end)
+    //! the end of the stream's first PDU after the pulse: the loopback ring
+    //! has decided, so a slip from here on is the recentre's own
+    double t_act = -1.0;
     int render_acts = 0;                          //! render recentres within kActS of it
     int pre_slips = 0;                            //! frames slipped before the rings act
     int post_slips = 0;                           //! ...and after it
     Range margin_after;
     Law law_after;
-    //! the instant the rings have acted: the pulse, or (none fired) the one
-    //! the law expected under following, so a missing recentre is graded on
-    //! the window it should have cleaned up
+    //! the instant the rings have acted: the end of the PDU the loopback
+    //! ring decided on, or (none fired) the one the law expected under
+    //! following, so a missing recentre is graded on the window it should
+    //! have cleaned up
     double acted() const {
-        const double t = t_settle > 0.0 ? t_settle : (t_lock > 0.0 ? t_lock + kSettleAfterLockS : t_start);
+        if (t_act > 0.0) return t_act;
+        const double t = t_lock > 0.0 ? t_lock + kSettleAfterLockS : t_start;
         return t + kActS;
     }
 };
@@ -698,6 +707,15 @@ Settle grade_settle(const Bench& b, double t_start, double t_lock, double t_end)
     s.t_settle = first_at_or_after(b.settle_times, t_start);
     if (s.t_settle >= t_end) s.t_settle = -1.0;
     if (s.t_settle > 0.0) s.render_acts = count_in(b.recentre_times, s.t_settle, s.t_settle + kActS);
+    if (s.t_settle > 0.0) {
+        for (const auto& p : b.pdus) {
+            if (p.arrive_s > s.t_settle) {
+                s.t_act = p.arrive_s + kPduEndS;
+                break;
+            }
+        }
+        if (s.t_act < 0.0) s.t_act = s.t_settle + kActS;
+    }
     const double act = s.acted();
     s.pre_slips = count_in(b.dup_times, t_start, act) + count_in(b.skip_times, t_start, act);
     s.post_slips = count_in(b.dup_times, act, t_end) + count_in(b.skip_times, act, t_end);
