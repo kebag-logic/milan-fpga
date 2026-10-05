@@ -1,0 +1,35 @@
+MUTANT slot_read_fail_ignored / read_fail_boot: 1 finding(s)
+    model: read 3 failed: terminal=1 cause=0 bind_terminal=1 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+MUTANT d3_rollback_takes_bindings / apply_fault_rolls_back: 4 finding(s)
+    model: apply fault: terminal=3 cause=1 bind_terminal=1 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+    model: state of records ['0x20', '0x21'] (2 in all) differs from the slot
+    --litespi: apply fault: terminal=3 cause=1 bind_terminal=1 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+MUTANT d3_rollback_takes_bindings / settle_fault_rolls_back: 4 finding(s)
+    model: settle fault: terminal=3 cause=2 bind_terminal=1 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+    model: state of records ['0x20', '0x21'] (2 in all) differs from the slot
+    --litespi: settle fault: terminal=3 cause=2 bind_terminal=1 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+MUTANT binding_fault_aborts_d3 / binding_walk: 6 finding(s)
+    model: binding fault: terminal=3 cause=1 bind_terminal=3 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+    model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x30'] (52 in all) differs from the slot
+    model: binding undo fault: terminal=3 cause=1 bind_terminal=4 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=1 sm_rollbacks=1 commit_tries=0 commit_refused=0 protected=0
+MUTANT binding_fault_keeps_preloads / binding_walk: 6 finding(s)
+    model: binding fault: terminal=1 cause=0 bind_terminal=3 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    model: state of records ['0x20'] (1 in all) differs from the slot
+    model: binding undo fault: terminal=1 cause=0 bind_terminal=3 failed=0 ok=0 erases=0 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+MUTANT budget_rearmed_by_change / dr2c_unchanged_set: 2 finding(s)
+    model: unchanged set held: terminal=1 cause=0 bind_terminal=1 failed=39 ok=1 erases=40 exhausted=0 withheld=0 abandoned=13 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    --litespi: unchanged set held: terminal=1 cause=0 bind_terminal=1 failed=39 ok=1 erases=40 exhausted=0 withheld=0 abandoned=13 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+MUTANT budget_rearmed_by_capture / dr2c_unchanged_set: 4 finding(s)
+    model: unchanged set held: terminal=1 cause=0 bind_terminal=1 failed=62 ok=1 erases=63 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    model: a changed set after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=4 ok=1 erases=5 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    --litespi: unchanged set held: terminal=1 cause=0 bind_terminal=1 failed=62 ok=1 erases=63 exhausted=0 withheld=0 abandoned=0 abandoned_vd=0 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+MUTANT commit_now_overrides_exhaustion / dr2c_console: 5 finding(s)
+    model: invariant protected=3
+    model: console after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=11 ok=1 erases=9 exhausted=1 withheld=0 abandoned=7 abandoned_vd=11 sm_unbinds=0 sm_rollbacks=0 commit_tries=7 commit_refused=0 protected=3
+    --litespi: invariant protected=3
+MUTANT success_forgives_exhaustion / recovers_after_failure: 2 finding(s)
+    model: new work set after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=3 ok=1 erases=4 exhausted=0 withheld=0 abandoned=0 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    --litespi: new work set after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=3 ok=1 erases=4 exhausted=0 withheld=0 abandoned=0 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+MUTANT success_forgives_exhaustion / dr2c_unchanged_set: 2 finding(s)
+    model: a changed set after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=3 ok=1 erases=4 exhausted=0 withheld=0 abandoned=0 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0
+    --litespi: a changed set after exhaustion: terminal=1 cause=0 bind_terminal=1 failed=3 ok=1 erases=4 exhausted=0 withheld=0 abandoned=0 abandoned_vd=13 sm_unbinds=0 sm_rollbacks=0 commit_tries=0 commit_refused=0 protected=0

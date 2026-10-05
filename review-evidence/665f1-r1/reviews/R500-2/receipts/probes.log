@@ -1,0 +1,25 @@
+PROBE slow_master [two waits slowed (the suite's case)] stall=tx:2:0:4000: ok=1 failed=0 max_call_us=529 ls_stalled=2 ls_max_withheld=4000 ls_hung=0 (suite CALL_BOUND_US=1000)
+PROBE slow_master [every TX wait slowed by 4,000 reads] stall=tx:100000:0:4000: ok=1 failed=0 max_call_us=41970 ls_stalled=3518 ls_max_withheld=4000 ls_hung=0 (suite CALL_BOUND_US=1000)
+PROBE slow_master [every RX wait slowed by 4,000 reads] stall=rx:100000:0:4000: ok=1 failed=0 max_call_us=41970 ls_stalled=3518 ls_max_withheld=4000 ls_hung=0 (suite CALL_BOUND_US=1000)
+PROBE slow_master [every TX wait slowed by 4,095 reads] stall=tx:100000:0:4095: ok=1 failed=0 max_call_us=42961 ls_stalled=3518 ls_max_withheld=4095 ls_hung=0 (suite CALL_BOUND_US=1000)
+PROBE unproven_model_bindings: terminal=4 sm_applies=0 bind_terminal=0 binding records in shape=2
+PROBE plant fallback_restage_unchecked: SURVIVED by none of 18 graded
+PROBE plant cs_kept_on_stall: CAUGHT by ['port_stall'] of 3 graded
+    port_stall: --litespi: drain:1:0:0: no recovery: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 12, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0
+PROBE plant taken_off_by_one: SURVIVED by none of 1 graded
+PROBE plant four_attempts: CAUGHT by ['dr2c_console', 'dr2c_unchanged_set', 'media_failures'] of 3 graded
+    dr2c_console: model: console after exhaustion: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 1, 'fai
+    dr2c_unchanged_set: model: unchanged set held: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 13, 'first': 13, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed'
+    media_failures: model: erase-hang: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 4, 'sk
+PROBE plant half_backoff: CAUGHT by ['dr2c_console', 'media_failures', 'time_base'] of 3 graded
+    dr2c_console: model: console inside the backoff: retry 501503 us after the failure: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'bl
+    media_failures: model: erase-stuck: attempts at [1006034, 1527906, 2049777] us, want three at least 1,000 ms apart
+    time_base: --litespi: PHC -60000 ms in the backoff: retry 501605 us after the failure
+PROBE plant exhausted_sticks: CAUGHT by ['recovers_after_failure'] of 3 graded
+    recovers_after_failure: model: new work set after exhaustion: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 1,
+PROBE plant busy_stall_as_busy: CAUGHT by ['port_stall'] of 1 graded
+    port_stall: --litespi: stalled master rx:1:0:0: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 6, 'auth': 0, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 1, '
+PROBE plant poll_max_16x: CAUGHT by ['port_stall'] of 2 graded
+    port_stall: --litespi: invariant max_call_us=2630 > 1000
+PROBE plant bindings_before_model_check: CAUGHT by ['model_unproven_closes'] of 18 graded
+    model_unproven_closes: model: unproven model: {'terminal': 4, 'cause': 3, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 0, 'auth': -1, 'applied': 2, 'refused': 0, 'blank': 0, 'releases': 0, 'ok': 0, 'failed': 0, '
