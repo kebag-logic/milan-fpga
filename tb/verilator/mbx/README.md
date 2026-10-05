@@ -10,7 +10,8 @@
 3. `run-cosim`: the control-plane firmware run on the RTL and on the host
    model, one scenario, compared frame by frame.
 
-`make mutants` runs [`mutants.py`](mutants.py), the planted RTL defects.
+`make mutants` runs [`mutants.py`](mutants.py), all 27 planted RTL defects;
+the default `make` runs four of them (one per leaf, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -20,7 +21,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Nineteen RTL defects in a scratch copy, each caught by the check it names, after two positive controls.
+- **[Planted defects](#planted-defects)** -- Twenty-seven RTL defects in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
 - **[Run](#run)** -- The two make targets.
 
 ## The top and the bench
@@ -95,6 +96,14 @@ first as positive controls.
 | `top-gm-hi-live` | GM_HI read live | G0, the snapshot |
 | `top-partial-strobe-accepted` | partial strobes written | R2, the register is left |
 | `top-irq-ignores-enable` | IRQ_ENABLE ignored | R2, a disabled cause |
+| `rx-maap-empty-count-overlaps` | a requested count of 0 overlaps | C2, MAAP overlap |
+| `rx-drop-uncounted` | RX_DROP never moves | D0, counts in RX_DROP |
+| `rx-refill-slow` | a token per two refill periods | T1, one refill period |
+| `tx-lanes-reversed` | TX byte lanes reversed | X0, byte for byte |
+| `evt-link-never-posts` | the LINK source never posts | E0, a LINK event |
+| `evt-gm-domain-dropped` | the GM event loses its domain | E1, GM DOMAIN |
+| `evt-expires-late` | an expiry one millisecond late | M0, at its deadline |
+| `top-irq-enable-unmasked` | IRQ_ENABLE keeps undefined bits | R1, IRQ_ENABLE mask |
 | `wb-address-shifted` | the Wishbone adapter shifts the address | R0, CAPS |
 | `axil-read-uses-write-address` | the AXI4-Lite adapter reads at AWADDR | R0, CAPS |
 
