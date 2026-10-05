@@ -15,13 +15,13 @@ describe it. The numbers live in one place, the generated
 - **[What moves, and what the fabric keeps](#what-moves-and-what-the-fabric-keeps)** -- The protocols the bare-metal core runs, what stays in the fabric, and the picture of rings, events and the one interrupt between them.
 - **[One contract, four outputs](#one-contract-four-outputs)** -- The YAML that is the only place a number is written, the four files generated from it, and the drift, cross-output and planted-defect checks.
 - **[Byte order](#byte-order)** -- Fixed bit positions for every 32-bit word, little-endian lanes for frame bytes, network order inside a frame.
-- **[Rings, records and events](#rings-records-and-events)** -- The record shapes, the doorbells, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
+- **[Rings, records and events](#rings-records-and-events)** -- The record shapes, commit order across channels, the doorbells and their range rule, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
 - **[The ingress filter](#the-ingress-filter)** -- Classification, the accept terms per channel with their clauses, the token bucket, and the MRPDU form the SRP channel hands lwSRP.
-- **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core, neither adding anything to the contract.
-- **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool, the bounded event loop and its tick fan-out, and protocols as ports-and-adapters modules.
-- **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, fields from the entity model, the tag rule for raced expiries, and the service-latency bound of every response path.
+- **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
+- **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
+- **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walk and the planted defects.
-- **[Default build](#default-build)** -- What the switch adds when on, and the gateware-export comparison that shows every shipped config unchanged when off.
+- **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers and the recipe.
 - **[Open items](#open-items)** -- The datapath tap, the listener's ADP terms, lwSRP's transmit hook, the CPU-cycle measurement and MMRP.
 
@@ -104,13 +104,25 @@ in words, and storage the producer writes only past the consumer's tail.
   NOW_MS) then the frame, FCS stripped. The fabric writes the payload words,
   then the header, then moves RX_HEAD past the whole record, so the core never
   reads a partial one.
-- **TX record:** the same shape, written by the core, committed by TX_HEAD.
-  The TX merge checks a record before a byte leaves and flushes a ring to
-  TX_HEAD on a malformed one, because a length that cannot be trusted leaves
-  no next record to find. TX_TAIL moves only after the last byte has left.
+- **TX record:** the same shape, written by the core, committed by TX_HEAD;
+  its second word carries SEQ, the core's count of TX records committed on
+  every channel. The TX merge checks a record before a byte leaves and
+  flushes a ring to TX_HEAD on a malformed one, because a length that cannot
+  be trusted leaves no next record to find. TX_TAIL moves only after the last
+  byte has left.
 - **Event record:** four words. The sources are a link level change, a
   grandmaster change published by the gPTP plane, a fabric timer expiry with
   the tag of the arm it belongs to, and the centisecond tick.
+
+Records leave in **commit order across channels** (the ruling on PR #668,
+comment 5994730420). Before each record the merge reads SEQ from the oldest
+record of every channel that holds one and sends the one whose SEQ comes
+first modulo 2^16, so an ACMP response leaves before the AECP notification
+committed after it (#653), whichever channel the merge served last and
+however long the sink stalled. The scan starts after the channel served
+last, so equal SEQs leave round-robin. The driver stamps SEQ; the count
+belongs to one run of the firmware, since the transmit rings are not
+readable and a restart cannot resume it.
 
 Every event source is **coalesced**: a source holds at most one unposted
 record and posts its state at posting time, only into four free words. The
@@ -119,9 +131,14 @@ that flaps while the ring is full posts its level once; ticks counted while
 their record waits are posted as one record with the count.
 
 The doorbells are the counter writes themselves: RX_TAIL releases RX space,
-TX_HEAD commits TX records, EVT_TAIL releases events. The one interrupt is
-the OR of the enabled levels (an receive ring or the event ring not empty) and a
-sticky error, so a service pass that drains the rings leaves the line low.
+TX_HEAD commits TX records, EVT_TAIL releases events. A counter the host
+writes out of range (a partial reset, a driver fault) never lets the fabric
+write over a ring: an RX_TAIL or EVT_TAIL more than the ring behind its head,
+or ahead of it, leaves no free word until it is back in range, and a TX_HEAD
+more than the ring ahead of TX_TAIL is refused like a malformed record. The
+one interrupt is the OR of the enabled levels (a receive ring or the event
+ring not empty) and a sticky error, so a service pass that drains the rings
+leaves the line low.
 
 ## The ingress filter
 
@@ -155,6 +172,23 @@ contract: 32-bit accesses, the refusal of a partial byte strobe (counted in
 BUS_ERR) and every register's meaning are `KL_mbx`'s. The mailbox suite runs
 every check through both.
 
+Every AXI4-Lite output is a register or a function of registers only: no
+path runs from an input to an output (AMBA AXI, IHI0022H, A3.1.1 and
+A3.2.1). AW, W and AR are each taken into a one-entry slot by their own
+handshake, in either order and in any cycle; READY is the emptiness of the
+slot. A write goes to `KL_mbx` once both of its slots are full, a read once
+its slot is, one request at a time, and B and R hold, with their payload,
+until BREADY or RREADY. A write goes first when both wait; its B slot then
+blocks the next write for a cycle, so a waiting read goes next. The AXI4-Lite
+build adds its own checks to the suite: AW before W and W before AW, a read
+beside a write, B and R held under backpressure, a reset with a transfer half
+taken, and a probe that, on every clock of the run, moves each AXI input with
+the clock held and requires every AXI output to stay put.
+
+A hard core with a weakly ordered memory model must map the window as device
+(strongly ordered) memory, or put a barrier before each doorbell write, so a
+record's words reach the window before its counter.
+
 ## The firmware: bare metal first
 
 The firmware ([`sw/firmware/ctrl`](../../sw/firmware/ctrl/README.md)) has no
@@ -181,22 +215,36 @@ flowchart TB
   write, and a wait that may return early. The MMIO implementation takes the
   window base from the SoC's generated memory map (`CTRL_MBX_BASE`); the host
   implementation drives the mailbox model and counts every access.
-- **lwSRP's port layer** is provided here, with lwSRP's own prototypes:
+- **lwSRP's port layer** is provided here, with lwSRP's own prototypes, as
+  of lwSRP `19f5796b63652eb1151906de73cb827d4980a53f` (fetched from
+  `https://github.com/kebag-logic/lwSRP` and checked out at that revision;
+  the host test's lwSRP arm refuses another revision or an edited `src/`):
   `shlan_malloc`, `shlan_calloc` and `shlan_free` on a static block pool, and
   `shlan_printf` on a debug sink with one bounded line buffer. The pool is
   carved at boot from an arena the platform declares statically; an
   allocation takes the smallest class with a free block, a refusal is counted,
   and a double free or a foreign pointer is refused rather than corrupting a
   free list.
-- **The event loop** takes at most a fixed number of events and of RX records
-  per channel per pass, gives every module one poll, and sleeps when a pass
-  finds nothing. A TICK event's count is fanned out to every registered
-  centisecond consumer, lwSRP's `shlan_timer_tick()` among them, so its
-  leave, LeaveAll and periodic timers run on fabric time and lose no tick
-  when the core is late. Register `shlan_timer_tick` once, not lwSRP's
-  `mrp_tick()` per application: `mrp_tick()` calls the same global tick, so
-  one registration per MRP application would advance every timer that many
-  times per centisecond.
+- **The event loop** runs passes in a fixed order (the events-first ruling
+  on PR #668, comment 5994730420): first at most 8 event records, in ring
+  order, each to every sink; then each bound channel's receive ring, at most
+  2 records each; then one poll per module. A TICK record's count is fanned
+  out to every registered centisecond consumer, lwSRP's `shlan_timer_tick()`
+  among them, at most 16 centiseconds per pass with the rest carried, so
+  lwSRP's leave, LeaveAll and periodic timers run on fabric time, lose no
+  tick when the core is late, and catch up a bounded slice at a time.
+  Register `shlan_timer_tick` once, not lwSRP's `mrp_tick()` per
+  application: `mrp_tick()` calls the same global tick, so one registration
+  per MRP application would advance every timer that many times per
+  centisecond.
+- **The loop sleeps only when nothing is owed.** A poll returns whether its
+  module still owes output, such as a frame its transmit ring had no room
+  for. A pass that handled anything, or after which output or centiseconds
+  are still owed, is followed by the next at once; only a pass that handled
+  nothing and owes nothing sleeps in `mbx_hal_wait()`. Everything the core
+  can then be waiting for raises the interrupt, so a platform that sleeps
+  there (`CTRL_MBX_WFI`, which also needs the SoC's `ctrl_mbx` interrupt
+  source and the CPU's interrupt mask enabled) never strands an owed frame.
 - **A protocol is a ports-and-adapters module**, as lwSRP is. The ADP core
   ([`adp.h`](../../sw/firmware/ctrl/adp/adp.h)) knows no mailbox: it calls a
   send port, one timer per interface, the gPTP pair, the link level and a
@@ -216,12 +264,24 @@ One instance per AVB interface implements Milan v1.2 5.6.3 over the IEEE
 - ENTITY_AVAILABLE on its schedule: a random TMR_DELAY (0 to 2 s at startup
   with the link up, 5.6.3.5.2; 0 to 4 s otherwise), the frame, then
   TMR_ADVERTISE (5 s, 5.6.3.5.9), with available_index incremented after each
-  frame sent and reset to 0 by ENTITY_DEPARTING (6.2.2.15);
+  frame sent (IEEE 1722.1-2021 6.2.2.15; Figure 6-2, WAITING);
 - the ENTITY_DISCOVER answer for entity_id 0 or this entity, in WAITING
   (5.6.3.1, 5.6.3.5.4);
 - the re-advertise on a grandmaster change (5.6.3.5.7);
 - ENTITY_DEPARTING on SHUTDOWN (5.6.3.5.8, 5.6.3.5.11), never on a link
   change (5.6.3.5.6, 5.6.3.5.10).
+
+ENTITY_DEPARTING carries the **current** available_index (the ruling on PR
+#668, comment 5994972330). In the Advertise Interface state machine (IEEE
+1722.1-2021 Figure 6-3), `doTerminate` leads to DEPARTING and
+`txEntityDeparting()`, which sets every field but the per-interface ones from
+the entityInfo variable (6.2.5.2.2); in the Advertise Entity state machine
+(Figure 6-2) only INITIALIZE sets `entityInfo.available_index = 0`. The reset
+"when transmitting an ENTITY_DEPARTING" of 6.2.2.15 therefore shows on the
+next start: its first ENTITY_AVAILABLE carries 0. The processor's
+`KL_adp_engine` sends the same values. The host test reads the field off the
+wire for SHUTDOWN in WAITING and in DELAY, sent at once and deferred, the
+restart, and the 32-bit wrap.
 
 The ADPDU fields come from the entity model through the same derivations the
 fabric's engine is fed from:
@@ -239,13 +299,37 @@ The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3. Its
 ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
 the ADP channel does not carry yet; adding one is a minor contract change.
 
-### Service latency, per response path
+### Service latency
 
 The D3 ruling on #640 asks each lane to state and test a deterministic upper
-bound per response path. Every ADP input is handled inside the service pass
-that takes it, with a fixed number of mailbox accesses and no wait on the
-fabric. An input that arrives while a pass runs waits for that pass to end,
-so its response is committed within two passes.
+bound per response path. The bound is stated in mailbox accesses and holds
+under four assumptions ([`ctrl_loop.h`](../../sw/firmware/ctrl/loop/ctrl_loop.h)):
+
+- **A1, backlog.** At most a full event ring (16 records; the ring holds no
+  more) and at most a full receive ring per channel, counted in the smallest
+  record the filter passes (a frame that reaches the subtype byte: 6 words, so
+  42 in the ADP ring).
+- **A2, callbacks.** A sink, a handler, a centisecond consumer and a poll
+  each cost at most the accesses its module states, and none waits on the
+  fabric.
+- **A3, transmit room.** A response finds room in its transmit ring. When it
+  does not, its module owes it, the loop keeps passing, and it is committed in
+  the first pass after the merge frees the room.
+- **A4, bus.** The figures count accesses. Time is that count times the
+  platform's cost per access, which F0 has not measured.
+
+Every input is handled inside the pass that takes it. An event is taken by
+the second pass that starts after the fabric posts it (16 records, 8 per
+pass, events first); a record of a channel by pass ceil(backlog / 2), 21 for
+ADP. A pass of F0's composition costs at most 407 accesses (8 events at 6 +
+31, 2 ADP records at 36 + 4, one poll at 31). With the pass already running
+when the input arrived, an event's response is committed within 3 x 407 =
+1,221 accesses and an ADP record's within 22 x 407 = 8,954. At an assumed
+1 us per access, which is not a measurement, that is under 9 ms against
+Milan's 0 to 4 s TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50).
+
+Each response path's own cost, in the pass that takes the input, with
+nothing else pending:
 
 | Path | Mailbox accesses in the pass | Response |
 |---|---:|---|
@@ -256,20 +340,25 @@ so its response is committed within two passes.
 | LINK_UP / LINK_DOWN | 11 / 9 | TMR_DELAY armed / timer stopped |
 | SHUTDOWN | 29 | ENTITY_DEPARTING committed |
 
-The bounds are `ADP_MBX_LAT_*` in [`adp_mbx.h`](../../sw/firmware/ctrl/adp/adp_mbx.h),
+The figures are `ADP_MBX_LAT_*`, `ADP_MBX_PASS_MAX`, `ADP_MBX_EVT_ACCESSES`
+and `ADP_MBX_RX_ACCESSES` in [`adp_mbx.h`](../../sw/firmware/ctrl/adp/adp_mbx.h),
 with their derivation. The host test counts every access of each path on the
-model and fails one that exceeds its bound. The tightest ADP timing Milan
-sets is the 0 to 4 s TMR_DELAY against a 20 s valid_time; two passes of at
-most 40 accesses add microseconds on any bus. A measurement in CPU cycles on
-the shipping core needs the switch-on SoC in the CPU simulation and is left
-open (see [Open items](#open-items)).
+model and fails one that exceeds its bound. It then fills both rings with
+legal records (15 timer expiries and ADP's own TMR_DELAY expiry last, 28
+minimal ENTITY_DISCOVERs) with 30 centiseconds coalesced behind them, and
+requires events first in every pass, the expiry's ENTITY_AVAILABLE in pass 2
+(measured: 175 accesses), the receive ring cleared by pass 14 (457
+accesses), no pass above 407 (measured: 105), every centisecond delivered at
+most 16 per pass, and no sleep before the backlog is gone. A measurement in
+CPU cycles on the shipping core needs the switch-on SoC in the CPU
+simulation and is left open (see [Open items](#open-items)).
 
 ## Verification
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 120 checks through the Wishbone adapter and the same 120 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge and its refusals, timers, every event source and its coalescing, the GM snapshot, the interrupt levels |
-| the same suite on the host model | the 120 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 134 checks through the Wishbone adapter and the same 134 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then 40 AXI4-Lite handshake checks on that build |
+| the same suite on the host model | the 134 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
@@ -281,7 +370,11 @@ open (see [Open items](#open-items)).
 default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
 and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
 `KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
-page so no existing bank moves, and one interrupt. The datapath side is held
+page so no existing bank moves, and one interrupt. It also regenerates the
+CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
+the netlist's name and parameters, and the new uncached `ctrl_mbx` region
+changes that list, so a switch-on build carries a different
+`VexiiRiscvLitex_<hash>` from the shipping one. The datapath side is held
 idle in F0.
 
 The proof is a gateware export (no Vivado) of every shipped config, with the
