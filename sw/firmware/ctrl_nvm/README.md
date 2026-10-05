@@ -19,13 +19,13 @@ flash ports and every planted defect was caught.
 ## Contents
 
 - **[Layout](#layout)** -- The codec, the store, the two ports, the host models and the suite.
-- **[The flash port](#the-flash-port)** -- Five calls, two implementations, a local time base, bounded waits, and the seam with F0's mailbox HAL.
-- **[Boot](#boot)** -- Each slot judged on one read, the newer one staged, re-judged and applied in two walks.
+- **[The flash port](#the-flash-port)** -- Five calls, two implementations, a local time base, bounded waits and calls, and the seam with F0's mailbox HAL.
+- **[Boot](#boot)** -- Each slot judged on as few as one read, the newer one staged, re-judged and applied in two walks, and the writer held while a slot is unread.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, what is derived, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Thirty-seven checks per shape, 29 of them on both ports, the power-cut sweep and the planted defects.
-- **[What this does not prove](#what-this-does-not-prove)** -- The board, the generated headers and the switch.
+- **[The host suite](#the-host-suite)** -- Forty checks per shape, 29 of them on both ports, the power-cut sweep and the planted defects.
+- **[What this does not prove](#what-this-does-not-prove)** -- The board, the generated headers, the switch, and a read fault that repeats itself exactly.
 
 ## Layout
 
@@ -45,7 +45,8 @@ flash ports and every planted defect was caught.
 [`nvm_flash.h`](nvm_flash.h) is the whole media face: `read`, `program` (one
 page at most), `erase` (one 64 KiB block), `busy` and `now_us`. A program or
 an erase only starts; `busy` reports its end, so the store never spins on the
-media in service. Every call returns in bounded time.
+media in service. Every call returns in bounded time. A `read` that fails is
+a media fault, never a verdict on the bytes.
 
 - [`plat/nvm_flash_litespi.c`](plat/nvm_flash_litespi.c) is the on-chip
   implementation, ported from the shipping writer's access code: reads
@@ -55,10 +56,11 @@ media in service. Every call returns in bounded time.
 - [`host/nvm_fmodel.c`](host/nvm_fmodel.c) is the host flash model. It can
   cut the power inside any erase or page program, leaving the edge cells half
   way. It can also hang, refuse or fail an erase or a program, flip a
-  programmed bit, fail a read, flip a bit a read returns (anywhere, or in one
-  chosen byte), answer a read from the neighbouring block, or flip a bit at
-  rest. It refuses and counts a program that crosses a page or arrives while
-  the device is busy, a write outside the journal, and a write into the
+  programmed bit, fail a read (any read, or the reads covering one chosen
+  address), flip a bit a read returns (anywhere, or in one chosen byte),
+  answer a read from the neighbouring block, or flip a bit at rest. It
+  refuses and counts a program that crosses a page or arrives while the
+  device is busy, a write outside the journal, and a write into the
   authoritative slot.
 
 **Time is a local counter, never the PHC.** The debounce window, the
@@ -78,15 +80,26 @@ follow for the image that links it:
   keeps every elapsed time exact. A longer stall loses whole wraps and
   delays a deadline; it never brings one forward.
 
-**Every wait on the command master is bounded.** `ls_open` drains the
-receive side, and `ls_xfer` waits for TX and then RX readiness. Each wait
-gives up after `LS_POLL_MAX` = 4,096 status reads without the readiness it
-waits for. The call then releases chip select and fails, and the store fails
-that attempt under the step's verdict (`VD_PROGRAM` for a program, `VD_ERASE`
-for an erase or a status poll). The bound counts reads without progress, the
-rule of D3 section 8.8, so a master that is slow but moving never trips it.
-A command cut short reaches at most the slot being written, which is never
-the authoritative one, and the next attempt erases that slot first.
+**Every wait on the command master is bounded, and so is every call.**
+`ls_open` drains the receive side, and `ls_xfer` waits for TX and then RX
+readiness. Two limits end a wait:
+
+- **Per wait.** `LS_POLL_MAX` = 4,096 status reads without the readiness it
+  waits for. This counts reads without progress, the rule of D3 section 8.8.
+- **Per call.** A master that is slow but moving keeps every wait under
+  4,096 reads, and a page program makes 522 waits and two drains. So the
+  call also ends once it has run `LS_CALL_US` = 2,000 us of `timer0` time
+  since it began. That is twelve times the 167 us a page program's 261 bytes
+  take on the 1x link. The port reads `timer0` when the call begins, and
+  then once every `LS_LATE_EVERY` = 64 status reads that find the master not
+  ready, counted over the whole call, so a ready master costs one timer
+  read.
+
+Either way the call releases chip select and fails, and the store fails that
+attempt under the step's verdict: `VD_PROGRAM` for a program, `VD_ERASE` for
+an erase or a status poll. A command cut short reaches at most the slot being
+written, which is never the authoritative one, and the next attempt erases
+that slot first.
 
 **The seam with F0.** F0's HAL (`sw/firmware/ctrl/mbx/mbx_hal.h` on its own
 lane, not merged) carries the mailbox's bus port; this port carries the media.
@@ -99,8 +112,9 @@ per pass and `nvm_store_changed()` from the protocol adapters.
 
 `nvm_store_boot()` runs before the event loop, with the entity model loaded:
 
-1. An unproven model ends **CLOSED**: nothing is judged, AECP is never
-   released and no writer runs (D3 section 8.1 step 6).
+1. A record walk that disagrees with the build turns persistence off: no
+   slot is read, and the entity runs on its defaults (**DEFAULTS**, DR3b),
+   or **CLOSED** if its model is unproven too.
 2. Each slot is read into the stage in ONE read and judged there by the
    section 6.2 order, including the erased-record rule. Its CRC, its records
    and the sequence the pick uses all come from the same bytes. The verdicts
@@ -110,19 +124,38 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    the shipping writer: a framed record whose length runs past the record
    area is `VD_LEN` here, as in `klj2_decode`, where the shipping writer says
    `VD_REC`.
-3. The newer accepted slot is picked by the wrap-safe compare of section 7.
-   On equal sequences slot A is picked, as in the shipping writer. It is
-   then read into the stage again and judged again, CRC included. Its
-   sequence must be the one it was picked by, and only those bytes are
-   applied and published. A slot that does not read back as it was judged
-   gives way to the other.
-4. **The binding walk** runs first (D3 section 8.1 step 4). Every binding
-   record goes through the state port's `apply`, in ascending id. It is its
-   own unit: a binding whose rule cannot be judged fails the walk whole, and
-   `rollback(NVM_W_BIND)` drops every binding it preloaded. The D3 walk runs
-   either way. A walk whose preloads cannot be dropped leaves the listener
-   unproven and ends **CLOSED**.
-5. **The D3 walk** restores every other record as one transaction (section
+3. **A slot's verdict stands on at most `NVM_READ_TRIES` = 3 reads.** An OK
+   verdict stands on one read, because its CRC-32 covers every byte, the
+   sequence included. Any other verdict, BLANK included, stands only when
+   two reads agree on it. A read the port fails is a media fault and is not
+   a verdict at all. A slot that gives no standing verdict within three reads
+   is **UNREAD**: its verdict is `VD_LEN` (rule 4, it did not deliver its
+   bytes), its bit is set in the status field `unread`, and no sequence is
+   taken from it. Why a refusal needs a second read: a read that went wrong
+   without the port saying so looks like a refusal or like a blank slot.
+   Either one would let the next commit restart the sequence below a
+   container that survives it, which a later clean boot then prefers.
+4. The newer accepted slot is picked by the wrap-safe compare of section 7,
+   `(int32_t)(A.seq - B.seq) >= 0`. On equal sequences slot A is picked
+   ([#665 decision 1](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
+   as in the shipping writer). It is then read into the stage again and
+   judged again, CRC included. Its sequence must be the one it was picked
+   by, and only those bytes are applied and published. A re-stage that
+   fails, or reads other bytes, is a media fault and is tried again, three
+   re-stages in all. A slot that never reads back as it was judged is
+   UNREAD, and the other slot is offered and re-staged the same way.
+5. **The binding walk** runs first (D3 section 8.1 steps 4 and 5). Every
+   binding record goes through the state port's `apply`, in ascending id. It
+   is its own unit: a binding whose rule cannot be judged fails the walk
+   whole, and `rollback(NVM_W_BIND)` drops every binding it preloaded. The D3
+   walk runs either way. A walk whose preloads cannot be dropped leaves the
+   listener unproven and ends **CLOSED**.
+6. **The model check** (step 6). The binding walk needs no entity model, so
+   it ran already. An unproven model ends the restore **CLOSED**: nothing of
+   the D3 walk is applied, AECP is never released and no writer runs. The
+   bindings stay, because CLOSED "does not take the listener's faces back"
+   (section 8.1). Blank media with an unproven model is CLOSED too.
+7. **The D3 walk** restores every other record as one transaction (section
    8.6), in ascending id. A value its rule refuses keeps its image default
    and the walk goes on, and an erased record applies nothing. `settle` runs
    once, after the maps and before the names: it judges the restored formats
@@ -134,8 +167,18 @@ per pass and `nvm_store_changed()` from the protocol adapters.
    image default: **DEFAULTS**. The bindings stay applied, because a D3
    roll-back's owners are the two stores and the map plane, never the
    listener. A roll-back that fails is **CLOSED**.
-6. AECP is released once, at the D3 walk's **COMPLETE** or **DEFAULTS**, or
+8. AECP is released once, at the D3 walk's **COMPLETE** or **DEFAULTS**, or
    at **BLANK** (no slot accepted).
+9. **An UNREAD slot holds the writer**
+   ([#665 decision 2](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153)).
+   A slot refused by a media read fault, unlike a cleanly read invalid one,
+   leaves the authority unknown: it may hold a newer container than any slot
+   that was read. So the restore still applies what was accepted (section 7
+   offers the other slot), but the write path enters **HELD** until reset.
+   While HELD, a change is marked and reported in `dirty`, nothing is
+   captured, erased or written, and `nvm_store_commit_now()` is refused. The
+   read retry is bounded at boot. The next reset's boot reads the slot again,
+   and a clean read ends the hold.
 
 ## Write-back
 
@@ -152,6 +195,7 @@ An accepted command that changes a persisted value calls
 | erase wait, blank check | poll once; then read back 256 bytes per step, all `0xFF` |
 | program, program wait | one page, in ascending order: the header page first, the trailer last |
 | verify | read back 256 bytes per step and compare with the stage |
+| held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
 
 The atomicity rules, from section 7 and the D3 register:
 
@@ -175,8 +219,10 @@ The atomicity rules, from section 7 and the D3 register:
 - **The exhaustion record.** A work set's third failure abandons it. The
   status keeps `abandoned` (how many sets were abandoned) and `abandoned_vd`
   (the last one's first failure) until reset, and no later success clears
-  them. `stale` follows FASTCONNECT section 9.2 instead: it clears when a
-  later commit leaves nothing changed outside a verified slot. Section 9.2
+  them. `stale` follows FASTCONNECT section 9.2 instead: it clears once
+  nothing changed is left outside a verified slot. That is checked at a
+  verified commit, and also when DR2b finds that the verified container
+  already holds every value a capture took. Section 9.2
   and D3 section 6.3 rule that firmware exhaustion has no reset-sticky alarm
   of its own, and that `nvm_alarm` is the producers' alone. So the record is
   this store's status, not a `PP_STAT` bit.
@@ -188,7 +234,9 @@ The atomicity rules, from section 7 and the D3 register:
 
 ## The service bound
 
-Three statements, each with what it rests on:
+Four statements, each with what it rests on. MODEL time is what the host
+models charge: each byte on the 1x 12.5 MHz link costs 0.64 us, each CSR
+access to the command master costs 40 ns, and CPU work costs none of it.
 
 - **Bytes, asserted.** No step touches more than `max(256, 2 x P + 6)` bytes,
   where P is the shape's largest payload: one 256-byte stretch, or one
@@ -198,49 +246,66 @@ Three statements, each with what it rests on:
   the walk to the next dirty record (at most one pass over the shape's
   records), and the CPU cost of a byte, which differs between a copy, a
   compare and a nibble-table crc16.
-- **Model time, asserted.** Every run of the suite holds every service call
-  under 1,000 us of MODEL time. Model time is what the host models charge,
-  and CPU work costs none of it:
-  - each byte on the 1x 12.5 MHz link costs 0.64 us;
-  - each CSR access to the command master costs 40 ns;
-  - a stalled wait costs its 4,096 reads, 164 us, before the call gives up.
+- **Nominal calls, asserted and measured in model time.** Every run with no
+  command-master stall armed holds every service call under
+  `NOMINAL_CALL_US` = 250 us. That figure is a page program's link time,
+  (5 + 256) x 0.64 us = 167 us, plus its 1,050-odd command-master accesses,
+  42 us, with room for the few around them. Measured over every such run of
+  the suite, at every shape: the longest call is 168 us on the model port
+  and 210 us on LiteSPI.
+- **The cumulative bound for a slow or stalled master, asserted in model
+  time.** Every run, stalled or not, holds every service call under
+  `CALL_BOUND_US` = 2,171 us. That is the port's deadline (2,000 us), plus
+  one check interval (64 status reads and two timer reads at 40 ns, 3 us),
+  plus the link time of the window the failing call closes, which the model
+  charges when chip select rises (at most 168 us). Measured at 1x1 and 8x8
+  (`port_stall`, `port_deadline`):
 
-  The longest call in the bound run is at most 168 us on the model port and
-  210 us on LiteSPI, at 1x1 and at 8x8. A dead master's calls are 164 us.
-- **CPU time, DERIVED, not measured.** This store is in no image, so nothing
-  measured its steps on the CPU. Two figures follow from stated assumptions:
-  - the longest store step is the capture of the largest record. At the
-    capture receipt's measured 1.05 us per captured byte
+  | Master | Longest call | Outcome |
+  |---|---:|---|
+  | two TX or two RX waits of one page program slowed by 4,000 reads | 539 us | the commit completes |
+  | two drains slowed by 4,000 reads | 859 us | the commit completes |
+  | ten TX waits slowed by 4,000 reads | 1,859 us | the commit completes |
+  | every TX wait slowed by 4,000 reads, none reaching `LS_POLL_MAX` | 2,009 us | each page program fails at the deadline, three attempts, the set abandoned, the authority untouched |
+  | TX stalled for good in one wait | 210 us | that call fails after 4,096 reads, 164 us; the retry commits |
+  | a drain that never empties | 333 us | that call fails after 4,097 drain reads; the retry commits |
+  | a master that never answers | 170 us | every call fails; three attempts, the loop running |
+
+  Without the deadline, the every-wait case holds one call for 41,970 us of
+  model time (the planted defect `call_deadline_ignored`).
+- **CPU time, not measured.** This store is in no image, so nothing ran it on
+  the CPU. What can be said:
+  - a port call on chip ends by its own deadline, which is `timer0` time and
+    so real time: 2,000 us after it began, plus at most 64 status reads, two
+    timer reads and the chip-select release. That holds whatever a CSR
+    access costs, provided `timer0` runs as "The flash port" requires. If it
+    does not run, only the per-wait limit is left, and each of a page
+    program's 522 waits and two drains could take 4,096 reads;
+  - the store's own work in one step is DERIVED, as a floor only. The
+    longest is the capture of the largest record. At the capture receipt's
+    measured 1.05 us per captured byte
     (`tb/verilator/nvm_capture_cpu/measurements.json`: the shipping writer's
     copy of 13,210 bytes at 8x8 and 50 MHz in 13.86 ms), 1,158 bytes cost
-    about 1.2 ms. That assumes this store's copy, compare and crc16 run at
-    the shipping copy loop's rate. They do more work per byte, so the figure
-    is a floor, not a ceiling;
-  - the longest port call is a page program of 262 bytes. Each byte costs
-    the link's 0.64 us plus four or more CSR accesses. A stalled wait adds
-    its 4,096 reads; at an assumed 0.5 us per CSR read on the CPU's bus,
-    that is at most 2 ms.
-
-  Both sit well inside the 24.5 ms the parent pins for the shipping
-  writer's capture (`scripts/check_nvm_capture.py`), which holds producers
-  for the whole record set in one step. Turning either figure into a
-  measured bound needs the store linked into an image behind F0's switch.
+    about 1.2 ms. This store's copy, compare and crc16 do more work per
+    byte than that copy loop, so the figure is a floor and no ceiling is
+    claimed for it. Measuring it needs the store linked into an image behind
+    F0's switch.
 
 ## Static sizes
 
 The RV32I freestanding build (`-march=rv32i -Os`) of the codec, the store
 and the LiteSPI port, per shipped shape, in bytes. The stage is the
 container plus one record header; the payload buffer is the shape's largest
-payload; the chunk is one read-back step; the clock is the port's two
-counters. bss includes alignment.
+payload; the chunk is one read-back step; the clock is the port's counters,
+its time base and its per-call deadline. bss includes alignment.
 
 | Shape | Records | Container | Stage | Payload | Chunk | Store state | Clock | bss | text |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_arty_current` | 42 | 2,516 | 2,524 | 66 | 256 | 280 | 12 | 3,144 | 10,981 |
-| `endstation_ax7101_1x1_tdm8` | 54 | 3,336 | 3,344 | 136 | 256 | 280 | 12 | 4,032 | 10,997 |
-| `endstation_arty_4x4` | 88 | 4,808 | 4,816 | 66 | 256 | 280 | 12 | 5,436 | 10,989 |
-| `endstation_arty_8ch` | 120 | 7,368 | 7,376 | 66 | 256 | 280 | 12 | 7,996 | 10,989 |
-| `endstation_ax7101_8x8` | 164 | 13,256 | 13,264 | 576 | 256 | 280 | 12 | 14,392 | 11,001 |
+| `endstation_arty_current` | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 11,757 |
+| `endstation_ax7101_1x1_tdm8` | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 11,773 |
+| `endstation_arty_4x4` | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 11,765 |
+| `endstation_arty_8ch` | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 11,765 |
+| `endstation_ax7101_8x8` | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 11,777 |
 
 #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
 64 KiB slot. The shipping writer keeps a live window and a private stage in
@@ -253,37 +318,48 @@ are saved, so there is one buffer. The record table is walked, not stored.
 shape against the constants `sw/litex/milan_soc.py` publishes for the shipping
 writer. It runs [`test/nvm_test.c`](test/nvm_test.c) over the flash model
 directly and over the LiteSPI port on the command-master model. Every byte
-and every verdict is compared with `scripts/nvm_klj2.py`. Thirty-seven checks
-per shape: 29 on both ports, five on the model port alone (its read and
-refusal faults do not reach memory-mapped LiteSPI reads), and three on the
-LiteSPI port alone (the PHC, `timer0`, the command master and the guard
-exist only there).
+and every verdict is compared with `scripts/nvm_klj2.py`. Forty checks per
+shape: 29 on both ports, seven on the model port alone (its read and refusal
+faults do not reach memory-mapped LiteSPI reads), and four on the LiteSPI
+port alone (the PHC, `timer0`, the command master and the guard exist only
+there).
 
 - **Boot** ([`test/nvm_checks.py`](test/nvm_checks.py)):
   - blank, golden and erased-record slots;
-  - newer wins, across the sequence wrap and on a tie;
+  - newer wins, across the sequence wrap, and on a tie, at the wrap too;
   - a torn newer slot, two torn slots, a wrong major version;
   - verdict parity over the shipping suite's refusal table plus three more;
-  - read faults: a flipped bit on the re-stage; a flipped sequence bit on
-    every boot read of either slot, across the wrap; an aliased re-stage
-    read; failed reads;
+  - read faults: a flipped bit on one re-stage and on every one; a flipped
+    sequence bit on every boot read of either slot, across the wrap; an
+    aliased re-stage, once and every time; failed reads at the bound and
+    past it, of the header, the container and the re-stage; both re-stages
+    flipped, the fallback's included;
   - the two walks: a D3 apply or settle fault that rolls back and leaves the
     bindings applied, and a binding fault that fails only the binding walk;
-  - roll-back faults, an unproven model, and refused values.
+  - roll-back faults, an unproven model after the binding walk, and refused
+    values.
 - **Write-back** ([`test/nvm_checks_write.py`](test/nvm_checks_write.py)):
   - the first commit and a change commit, byte for byte;
-  - the debounce, with changes before, during and after a capture;
+  - the debounce, with changes before, during and after a capture, the one
+    to the record the capture examines next included;
   - DR2b both ways;
-  - five media failures and the recovery;
+  - five media failures and the recovery, `stale` healing after a DR2b
+    suppression too;
   - DR2c for an unchanged set held across 13 change calls and the medium
     healing, and for the console inside the backoff and after exhaustion;
   - a dropped last page and a last byte left programmed;
   - each failure named by its own step;
   - DR5;
+  - an unknown authority (decision 2): one valid slot and one blank, both
+    ways round, at sequence 1, 5, 0x80000000 and 0xFFFFFFFF; failed reads
+    past the bound hold the writer, and failed reads within it, a flipped
+    bit or an aliased read do not; each case runs on through a clean
+    reboot, a change, its commit and another clean reboot, and the restored
+    values are compared;
   - the time base under PHC steps of 60 s either way in the window, the
     backoff, an erase and a program, and across the counter's wrap;
-  - a command master slow by 4,000 reads a wait, stalled on TX, RX or the
-    drain, and dead;
+  - a command master slowed in two waits, stalled on TX, RX or the drain,
+    and dead; slowed in ten waits and in every wait (the per-call deadline);
   - the service bound through a 3 s erase, and the port guard.
 - **Power loss.** `--powercut` cuts the power inside every media effect of a
   commit, at 0, 1/256, 1/2 and 255/256 of it, and during the read-back. It
@@ -306,6 +382,13 @@ by at least one.
 
 - The board: the real LiteSPI timing, a real power cut, the real N25Q128.
 - The CPU time of a step: it is derived above, not measured.
+- A read fault that repeats itself exactly. Two reads of a slot that agree
+  are taken as its content. A fault that corrupts a valid slot the same way
+  on every boot read, without the port reporting it, therefore looks like a
+  refusal. The next commit can then restart the sequence below that slot,
+  and a later clean boot prefers it. No reading of the bytes can tell that
+  from a slot that really is corrupt, and decision 2 takes no sequence from
+  an unvalidated slot.
 - The LiteX-generated headers: the RV32 arm compiles against MMIO stand-ins
   (`test/rv32/`), and the host suite against models of the command master and
   `timer0`.
