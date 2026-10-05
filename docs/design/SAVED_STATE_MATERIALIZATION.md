@@ -838,11 +838,12 @@ can move, swallows the bytes and the ending, and grants neither manager
 until then. A late response can therefore only ever end the operation it
 belongs to. The drain never ends on time. A device that ends the read late
 ends the drain, and the port serves the next operation. A device that never
-answers keeps the port QUARANTINED for ever: every later change reads
-pending, never durable, until a reset. Nothing in this contract makes that
-port reusable; that needs a real cancellation or device-reset
-acknowledgement (processor issue 15's open recovery contract, section 15
-item 4). EXECUTED in section 8.8; D01_abandoned_read_not_drained withholds
+answers keeps the port QUARANTINED for ever: since processor issue 15 the
+port's own deadline ends the drain and every later change is given up with
+`nvm_alarm` after its three attempts, never written (section 8.8 and
+section 15 item 4, amended). Nothing in this contract makes that port
+reusable before the device ends the operation; only its own terminal or a
+reset does. EXECUTED in section 8.8; D01_abandoned_read_not_drained withholds
 rready from the writer's drained read, the late response then wedges the
 port, and a later change never reaches a slot: "latest 0076adf1, newest
 verified slot 0016e360". B03_binding_abort_not_drained does the same to the
@@ -1469,7 +1470,14 @@ arbiter DRAINS that read (section 6.4). Its bytes and its ending reach no
 manager, and no new operation is granted until the device ends it. This is
 the containment protocol for an untagged port; nothing here assumes the
 port can be reused before the device answers, and a device that never
-answers keeps it QUARANTINED for ever (section 15 item 4).
+answers keeps it QUARANTINED for ever (section 15 item 4). Since processor
+issue 15 the quarantine is the PORT's own: a device that owes the port an
+event and gives none for `NVM_MEM_TMO_CYC_P` clocks (`T-NVM-PORT-DEADLINE`,
+`CLK_HZ_P` clocks, 1,000 ms, at the processor top) is answered with one err,
+cause DEADLINE, which ends the drain, and the port keeps the abandoned
+command OWED: it issues nothing over it, drains an owed read's bytes, and
+serves again only after the device's own done or err, or a reset. Nothing
+is released by time alone.
 
 **The terminals.**
 
@@ -1505,11 +1513,18 @@ requires when persistence wedges.
 Commands come back when both walks end. The persistence device comes back
 only when the device ends the read the drain holds: a late answer ends the
 drain and the next change persists (W13c, W15); a device that never
-answers keeps the port QUARANTINED until reset, and every later change reads
-pending, never durable (W13). Nothing releases the port on time, and nothing
-here claims the port reusable before the device ends that read; a real
-cancellation or device-reset acknowledgement is processor issue 15's open
-recovery contract, which this page neither delivers nor amends.
+answers keeps the port QUARANTINED until reset. Every later change is then
+attempted three times (DR2c), each ended by the port's DEADLINE with no
+device command, and the producer gives it up with `nvm_alarm`, which drops
+the change's pending bit and revokes `nvm_backed` (the saved-state page's
+section 9.2): a failure reported, where "pending for ever" was not (W13,
+amended). Nothing releases the port on time, and nothing here claims the
+port reusable before the device ends that read. Processor issue 15's
+reusable service, as its ruling reads it: busy falls at the err, and every
+later request is answered within the deadline, served once the device has
+ended the abandoned command and answered DEADLINE while it stays silent. A
+WRITE the port abandoned on a device that waits for its next byte for ever
+is contained the same way until a reset.
 
 EXECUTED at 1x1, and the D3 cases at 8x8 as well, each on V1a's slots unless
 named, each followed by a controller's GET and SET:
@@ -1526,7 +1541,7 @@ named, each followed by a controller's GET and SET:
 | W8, W9, W10 | pass 1: the GET_AUDIO_MAP face, the format judge, the edit face silent | each "abort cause 3", the terminal at most 20,666 cycles after the face fell silent at 1x1 and 21,158 at 8x8, rolled back |
 | W11 | R217's counterexample: V11's slot, the first D3 read 3,500,000 cycles late | "held from 782 to 3500782"; "D3 terminal at 20782", "entity enabled at 20798"; the late response drained; the later SET persists |
 | W12 | R218's counterexample: a pass-1 read after records applied, 3,100,000 cycles late | "D3 terminal at 24202", "entity enabled at 24218"; rolled back; the response drained at 3103545 |
-| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40722", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined |
+| W13 | the BINDING walk's first read, for ever | "silence from 64, the binding walk's terminal at 20062"; "binding fail 1 cause 3, preloads []"; "D3 terminal at 40722", "entity enabled at 40733"; the GET "answered 0 valid 0"; the later SET "pend 1, port busy 1": quarantined. AMENDED by processor issue 15: that reading is the run's horizon, before the port's deadline. At `T-NVM-PORT-DEADLINE` the port answers the drained read DEADLINE and keeps it owed, the SET's three attempts each end DEADLINE with no device command, and `nvm_alarm` drops its pending bit (processor `tb/acmp_nvm` N12a-b, `tb/nvm_port` T24); not re-executed here |
 | W13b | the binding read, released when the binding deadline was 40 cycles away | "the binding deadline count reached 19960 of 20000, binding cause 0"; "preloads [(20130, 0)]"; both walks COMPLETE |
 | W13c | the binding read, released 5 cycles after the binding manager abandoned it | "abandoned at 20061, the response came at 20066"; "binding fail 1 cause 3"; "preloads []"; the D3 walk COMPLETE; the later SET persists |
 | W15 | the binding read, released at 2,900,000, after the entity was enabled | "the entity enabled at 40733, the response came at 2900064"; "preloads []": no binding reaches the listener after enable; the D3 walk ended on defaults; the later SET persists once the drain ends |
@@ -1537,7 +1552,9 @@ named, each followed by a controller's GET and SET:
 Every case above that reaches done also passes
 entity_enabled_after_terminal@boot and no_restore_write_after_terminal. The
 later SET persists wherever the port is free, and reads pending, never
-durable, where a drained read never ends (W1, W4, W7, W13); the GET after
+durable, where a drained read never ends (W1, W4, W7, W13), within those runs'
+horizon: since processor issue 15 the port's deadline gives such a SET up
+with `nvm_alarm` after its three attempts (W13, amended); the GET after
 recovery is graded wherever the restore ended on defaults.
 
 W01_no_restore_watchdog is killed by W4: "D3 terminal at 0".
@@ -1840,9 +1857,10 @@ Its decision-register gates govern activation of those lanes.
 - **Stated in every stage's release notes:** a persistence device that
   never ends an operation the restore abandoned keeps the port QUARANTINED
   until reset (section 8.8). Commands are served and the entity is enabled
-  on defaults with restore fail set; every later change reads pending, never
-  durable. No reuse of that port is claimed: processor issue 15's recovery
-  contract remains open. DR1a governs its prerequisite disposition.
+  on defaults with restore fail set; every later change is given up with
+  `nvm_alarm` after three attempts the port's deadline ends, never durable.
+  No reuse of that port is claimed before the device ends the operation
+  (section 15 item 4, amended). DR1a governs its prerequisite disposition.
   This page neither waives that criterion nor closes the issue.
 
 | Stage | Records | What lands | Silicon proof | Tickets |
@@ -1909,7 +1927,7 @@ Section 15 records #15/#20 dispositions and the ruled area scope.
 | Restoring over an image that cannot be proven, refusing every record (round two) | a restore reported complete over an unwalked image whose names are not proven | EXECUTED: IMG01 is killed by V22b; V22 |
 | Re-walking the descriptor store at once after its reset | a burst it abandoned can hand its late beats to the re-walk, whose index and names are not checksummed | EXECUTED: DG02 is killed by V21b; the guard's own mutant DG01 by V23 |
 | Holding AECP dispatch through an unbounded binding walk (revision b) | a silent device held every command for ever, against the saved-state page's section 9.3 | the bounded binding walk (S3), W13; B01 is killed by W13 |
-| Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; processor issue 15's open recovery contract |
+| Releasing the port after a deadline, or calling it reusable, while its device may still answer | the port answers untagged; only the device ending the operation, or a real cancellation acknowledgement, makes reuse safe | section 8.8; section 15 item 4 (amended) |
 | Waiting on the listener's `pre_ready_o` as it ships (revision c) | a held transaction, talker event, START/STOP request or expiry holds the preload phase, and with it every AECP command, for as long as it lasts | R217 R3-F1; tracked L01; LG01 is killed by L01 |
 | A preload deadline that ends the binding walk, or releases the listener, on time | when it fires, earlier sinks are preloaded and their discovery armed, and nothing takes the listener's records back: the D3 walk and the enable would follow a partial binding image | section 8.9 |
 | Ranking the preload above the listener's other sources, in an amended listener | a transaction or a talker event served in the read phase still writes a record back and withdraws a restored binding; and it amends a pinned module the admission gate leaves unchanged | tracked L05; LG01 is killed by L05 |
@@ -2215,9 +2233,16 @@ Existing numbered references retain these dispositions:
 3. **RESOLVED: reporting under #502.** #579 landed accepting-edge reporting.
    Names and actual map writes remain sticky until reset.
    Section 10 transfers that responsibility only with materialization.
-4. **OPEN: processor #15 reusable-port acceptance.** DR1a requires full-closure evidence.
-   Contract work and lanes 1-4 may proceed meanwhile.
-   Quarantine supplies containment, never evidence that reuse works.
+4. **AMENDED: processor #15 reusable-port acceptance** (the processor ruling on #15, lane P2).
+   The port answers a silent device at its own deadline, `NVM_MEM_TMO_CYC_P` = `CLK_HZ_P`
+   clocks (1,000 ms, derived as 20 times the backend's 50 ms grant hold): one err, cause DEADLINE.
+   Busy falls at the err; every later request is answered within the deadline, served once
+   the device has ended the abandoned command, DEADLINE while it stays silent.
+   The abandoned command stays owed until the device's own terminal or a reset:
+   quarantine is never released by time alone, and an abandoned WRITE is contained.
+   A silent device therefore gives three failed attempts and `nvm_alarm`, which revokes
+   `nvm_backed` and drops the change's pending bit (section 8.8, W13 amended).
+   Quarantine still supplies containment, never evidence that reuse works.
 5. **Landed prerequisites, incomplete integration.** Processor #109 supplies S1/S3/S4.
    Processor #110 supplies S2's descriptor memory guard.
    Both are contained in processor pin `16be6768`.
