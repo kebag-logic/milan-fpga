@@ -1,0 +1,10 @@
+Independent source-pass verdict: POSITIVE pending executable checks and prior-finding reconciliation.
+Head d763fce6f3e48fa9c468aaa835653befb8382d06.
+
+| Lens | Source pass | Artifacts | Round | Head |
+|---|---|---|---|---|
+| Conformance | CLEAN | 5999350068; nvm_store.c:137-261; nvm_flash_litespi.c:70-106,247-273 | R501-4 | d763fce6f3e48fa9c468aaa835653befb8382d06 |
+| RTL | CLEAN | nvm_flash.h; nvm_state.h; nvm_store.c:391-462,720-819; diff against live dev | R501-4 | d763fce6f3e48fa9c468aaa835653befb8382d06 |
+| Robustness | CLEAN | nvm_store.c:165-314; nvm_checks_write.py:498-596 | R501-4 | d763fce6f3e48fa9c468aaa835653befb8382d06 |
+| Tests | CLEAN | nvm_checks_write.py:351-417,574-596; nvm_mutants.py:166-184,350-357; nvm_bench.py:183-265 | R501-4 | d763fce6f3e48fa9c468aaa835653befb8382d06 |
+| Docs | CLEAN | ctrl_nvm/README.md; FASTCONNECT sections 6,7; MATERIALIZATION sections 8,15.1 | R501-4 | d763fce6f3e48fa9c468aaa835653befb8382d06 |

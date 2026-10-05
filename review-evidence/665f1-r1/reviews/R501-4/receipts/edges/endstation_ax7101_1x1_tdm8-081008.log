@@ -1,0 +1,123 @@
+PRODUCTION nvm_store.c cae9e205dd01e929d95ffd9c8ab1d9830b42fc74bdde37b9645d43d0f1853939
+PRODUCTION nvm_klj2.c 95e6db789e32502c46fd74cb1701cab40dfa8388cb1234fa0bdee023452bca4b
+PRODUCTION plat/nvm_flash_litespi.c ec75c0cc304304a6b46e018dd730e098782c1e842f8dc42740706bcc3764251a
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=1 vd_b=9 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=4 vd_b=9 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=1 vd_b=9 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=4 vd_b=9 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=1 vd_b=9 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=4 vd_b=9 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=1 vd_b=9 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xee0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=4 vd_b=9 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=1 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=4 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=1 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=4 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=1 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=4 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0000", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=1 last=1 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-b", "<scratch>/bench/gold.bin", "--boot-fault", "read-vary-at:3:0:0xef0100", "--boot", "--dump-state", "state.txt", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=9 vd_b=4 last=4 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=0 read_faults=1
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+COMMAND ["--slot-a", "<scratch>/bench/held.bin", "--boot-fault", "read-fail:999999:0", "--boot", "--set", "166:00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", "--commit-try", "--run-ms", "60000", "--fault", "none", "--run-ms", "60000", "--commit-try"]
+SUMMARY terminal=2 cause=0 vd_a=3 vd_b=3 last=3 first=0 seq_a=0 seq_b=0 seq=0 auth=-1 applied=0 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=1 pending=0 phase=10 step_max=0 step_bound=278 steps=1200000 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0 unread=3 read_faults=6
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=1200000 now_ms=120000 commit_tries=2 commit_refused=2 img_len=3336 n_rec=54 clock_hz=100000000 ls_call_ticks=200000 bad=0
+ERASES
+FAILS
+OKS
+
+HELD PASS {"abandoned": 0, "abandoned_vd": 0, "applied": 0, "attempts": 0, "auth": -1, "bad": 0, "bind_cause": 0, "bind_terminal": 2, "blank": 0, "calls": 1200000, "cause": 0, "clock_hz": 100000000, "commit_refused": 2, "commit_tries": 2, "descending": 0, "dirty": 1, "effects": 0, "erases": 0, "exhausted": 0, "failed": 0, "first": 0, "img_len": 3336, "last": 3, "ls_call_ticks": 200000, "ls_hung": 0, "ls_max_withheld": 0, "ls_no_wel": 0, "ls_pp": 0, "ls_refused": 0, "ls_se": 0, "ls_short": 0, "ls_stalled": 0, "ls_unknown": 0, "ls_wren": 0, "max_call_us": 0, "max_polls_call": 0, "n_rec": 54, "now_ms": 120000, "ok": 0, "outside": 0, "pagewrap": 0, "pending": 0, "phase": 10, "programs": 0, "protected": 0, "read_faults": 6, "refused": 0, "releases": 1, "seq": 0, "seq_a": 0, "seq_b": 0, "skipped": 0, "sm_applied": 0, "sm_applies": 0, "sm_order": 0, "sm_refused": 0, "sm_releases": 1, "sm_rollbacks": 0, "sm_settles": 0, "sm_unbinds": 0, "stale": 0, "step_bound": 278, "step_max": 0, "steps": 1200000, "terminal": 2, "unread": 3, "vd_a": 3, "vd_b": 3, "while_busy": 0, "withheld": 0}

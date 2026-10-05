@@ -1,0 +1,4 @@
+SHAPE endstation_arty_current CLOCK 83333000
+{"check": "port_clock", "findings": ["--litespi: built at 83333000 Hz with a deadline of 166000 clocks; the config's 83333000 Hz makes it 166666", "--litespi: over 120000023 us of model time the port counted 120481469 us"]}
+{"check": "time_base", "findings": ["--litespi: PHC -60000 ms in the window: erase 997402 us after the change", "--litespi: PHC -60000 ms in the backoff: retry 997302 us after the failure", "--litespi: PHC -60000 ms in an erase: timed out 3486040 us after it, want 3,500 ms", "--litespi: PHC 60000 ms in the window: erase 997402 us after the change", "--litespi: PHC 60000 ms in the backoff: retry 997302 us after the failure", "--litespi: PHC 60000 ms in an erase: timed out 3486040 us after it, want 3,500 ms", "--litespi: a window across the counter's wrap: erase 997402 us after the change"]}
+MUTANT ticks_per_us_truncated CAUGHT

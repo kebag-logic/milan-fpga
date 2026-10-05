@@ -1,0 +1,16 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637
+[A10] **Owner decisions of 2026-10-05 on the Mark II plan (D2, D4, D5, D9).**
+
+- **D2: no.** The diagnostics stay in the shipping image. The owner needs that information. L6, about 700 LUT, is dropped from the plan.
+- **D4: yes.** DDR3 is dropped for on-chip main memory (L11a). Long term, no DDR3 will be available. #70's saved-state staging buffers are resized to the shape's container size, and the SoC memory map changes. This supersedes the earlier "DDR3 for the control path" directive.
+- **D5: yes, conditionally.** The control core becomes a smaller cacheless RV32I (L11b). The condition is that the saved-state capture bound (8x8 at most 24.5 ms, `check_nvm_capture.py`) measures fine on the smaller core, with boot timing held. Otherwise the change is reverted.
+- **D9: no for Mark II.** Moving slow-path control to the RISC-V (L2) stays a later option and is not planned.
+
+**Effect on the ledger.**
+- Without L6, the central estimate for M0 to M8 becomes about 38,268 LUT. That is about 228 over the 38,040 limit.
+- With M10 (L10b, one engine for gPTP and AECP), it becomes about 37,068.
+
+So M10 moves from "if needed" to planned, and D6 is decided: one engine for gPTP and AECP is in the plan. The week-4 re-measure after M3's first sub-lane still checks the estimates.
+
+The plan document and `AREA_BUDGET.md` are updated before the plan PR goes to review.
+

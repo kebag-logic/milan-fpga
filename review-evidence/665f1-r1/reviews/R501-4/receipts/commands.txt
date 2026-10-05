@@ -1,0 +1,4 @@
+python3 -B run_campaign.py <checkout> --jobs 8
+python3 -B run_edges.py <checkout> --jobs 6
+Focused gates: commands are recorded in receipts/gates/*.log
+python3 -B verify_integrity.py <checkout>

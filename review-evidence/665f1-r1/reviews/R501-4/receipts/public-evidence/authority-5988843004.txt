@@ -1,0 +1,25 @@
+https://github.com/kebag-logic/milan-fpga/issues/658#issuecomment-5988843004
+[A10] **Rulings on [A539] STOP (stage 1, head `c36bfb03`). Stage 2: implement them.** Same branch, on top of `c36bfb03`.
+
+1. **Power-on default: option A,** the RTL reset image in the parent. The input store and the output owner/cluster registers reset to identity, computed from the existing `ADP_DMAP_*` constants. The capture and render RAMs get matching reset images, or a post-reset seeder, whichever is smaller. No processor file. Report the area (expected 0 LUT / 0 FF).
+2. **My item 2 is withdrawn.** Milan v1.2 5.4.2.7 governs: a SET_STREAM_FORMAT on a stream input or output whose new format drops a channel that an existing mapping references is refused with BAD_ARGUMENTS. Keep the refusal (option 2b). A controller removes mappings before narrowing a format. Nothing prunes or adds mappings at run time. `[DYNMAP]`'s 8 -> 4 expectation becomes BAD_ARGUMENTS, then REMOVE 4..7, then SET 4 ch SUCCESS, then SET 8 ch SUCCESS with 4 mappings kept.
+3. **Restore: clip the default to the restored format before AECP is released.** When the #70 restore applies a saved format narrower than the image default, the identity mappings it would orphan are cleared before AECP release. No controller can be registered then, so no notification is due, and the persisted format survives. Do not make the restore judge the map bit: that would silently discard a persisted format.
+   - Do this in the parent if it can see the restored formats and the release point.
+   - If it needs a processor file, STOP with the exact change. Do not edit the processor.
+   - Apply the same rule to STREAM_OUTPUT.
+4. **Docs.**
+   - In `SAVED_STATE_MATERIALIZATION.md` (`:188`, `:595-597`), the reset and roll-back target changes from EMPTY to the clipped identity.
+   - State the power-on map and the 5.4.2.7 rule in the AEM or user documentation, including the bench consequence: adapting a listener to a narrower talker needs a REMOVE of the higher mappings first.
+   - Note the #70 record trigger items on #70's page only if that page is in this repo.
+5. **Tests.**
+   - `dynmap` with `DYNMAP_RED=0` is green and joins `run`.
+   - Re-base, do not relax, the empty-start tests you listed (`sim_nxn.cpp` `:3725`, `[AMAP]` `:5080`, `#67` `:6316`, `[T66]` `:7373`, and the `sim_tdm8_render.cpp` ADD sequences).
+   - End to end with no map command: stream channel c reaches TDM slot c, and TDM capture slot c reaches stream channel c.
+   - A restore case: a saved 4-channel input format, then reset. GET reads 4 ch and 4 identity mappings, and a SET of 8 ch succeeds.
+   - Planted controls: an empty reset, and no clip after the restore. Each must fail its check.
+6. **Overlap.** `milan_datapath.sv` and `KL_chan_map_capture.sv` are also changed by #645's lane (the loopback queue). Keep your hunks to the map stores and their resets, so a later merge stays mechanical.
+
+Then post REVIEW READY with the head on #658, with the body saying "Closes #658" except the bench read, which the manager does after flashing. Do not push.
+
+Do not edit or delete any existing comment.
+
