@@ -1,0 +1,28 @@
+=== build: head (adp.c sha256 c57c8a5e58053969)
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: link-loss-drops-owed-departing (adp.c sha256 a9958d04fd25e449)
+L1 wire: AVAILABLE(0) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) LOST
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: gm-change-drops-owed-available (adp.c sha256 1190737e2d8c4326)
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire:
+L2 state=2 timer=0 available_owed=0 -> WEDGED: DELAY with no timer and nothing owed
+L3 wire:
+L3 sends_before_TMR_DELAY=0 timer=1 -> waits for its TMR_DELAY
+=== build: link-loss-keeps-owed-available (adp.c sha256 09b1a8064986fa6e)
+L1 wire: AVAILABLE(0) DEPARTING(1) AVAILABLE(0)
+L1 departing_owed=0 state=3 -> DEPARTING(1) delivered
+L2 wire: AVAILABLE(0)
+L2 state=3 timer=2 available_owed=0 -> advances
+L3 wire: AVAILABLE(0)
+L3 sends_before_TMR_DELAY=1 timer=2 -> AVAILABLE SENT WITHOUT ITS TMR_DELAY

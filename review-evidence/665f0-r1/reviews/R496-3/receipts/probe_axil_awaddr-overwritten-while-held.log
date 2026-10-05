@@ -1,0 +1,17 @@
+<pinned-verilator>/verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<packet>/scratch/m_awaddr-overwritten-while-held/sw/firmware/ctrl/mbx" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil
+make[1]: Entering directory '<packet>/scratch/m_awaddr-overwritten-while-held/tb/verilator/mbx/obj_axil'
+g++  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I<packet>/scratch/m_awaddr-overwritten-while-held/sw/firmware/ctrl/mbx   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<pinned-verilator-root>/usr/share/verilator/include -I<pinned-verilator-root>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I<packet>/scratch/m_awaddr-overwritten-while-held/sw/firmware/ctrl/mbx   -c -o Vtb_mbx_top__ALL.o Vtb_mbx_top__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vtb_mbx_top__ALL.a    -pthread -lpthread -latomic   -o Vmbx_axil
+rm Vtb_mbx_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/m_awaddr-overwritten-while-held/tb/verilator/mbx/obj_axil'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 2.860 s (elab=0.000, cvt=0.000, bld=2.859); cpu 0.001 s on 16 threads; allocated 16.492 MB
+======================================================================
+./obj_axil/Vmbx_axil 1
+  [FAIL] A7 each write's data lands at its own address, AW beside W
+  [FAIL] A7 each write's data lands at its own address, W ahead of AW
+== mbx (AXI4-Lite host): checks: 179   failures: 2 ==
+RESULT: FAIL
+make: *** [Makefile:54: run-axil] Error 1
