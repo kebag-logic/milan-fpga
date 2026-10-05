@@ -51,7 +51,8 @@
 //                          channel's max_frame_bytes, 128), RX_TAIL, then
 //                          the costliest handler (a DISCOVER in WAITING: the
 //                          stop 1, TMR_DELAY armed 3)
-//   polls   N_IF x 31      an owed ENTITY_AVAILABLE sent, TMR_ADVERTISE armed
+//   polls   N_IF x 31      one frame at most: an owed ENTITY_AVAILABLE sent,
+//                          TMR_ADVERTISE armed (an owed DEPARTING, 28)
 //
 // (a ring that runs dry ends its stage with one read, which the full count
 // above already exceeds). An event is taken by pass CTRL_LOOP_EVT_PASSES (2)

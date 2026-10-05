@@ -92,27 +92,39 @@ void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_ind
 }
 
 // Send an ENTITY_AVAILABLE or ENTITY_DEPARTING now; true when the port took
-// it. A refusal keeps the frame pending for adp_poll().
+// it. The caller keeps a refused frame owed for adp_poll().
 static bool send(struct adp *a, uint8_t message_type, uint32_t available_index)
 {
 	uint8_t frame[ADP_FRAME_BYTES];
 	adp_build(a, message_type, available_index, frame);
 	if (a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES)) {
-		a->pending = ADP_PENDING_NONE;
 		return true;
 	}
 	a->deferred_sends++;
-	a->pending = message_type == ADP_MSG_ENTITY_DEPARTING ? ADP_PENDING_DEPARTING : ADP_PENDING_AVAILABLE;
-	a->pending_index = available_index;
 	return false;
 }
 
-// 5.6.3.5.9: ENTITY_AVAILABLE, then TMR_ADVERTISE, then WAITING.
-static void advertise(struct adp *a)
+// Send the oldest owed ENTITY_DEPARTING; the ones behind it carry 0 (adp.h).
+static void depart(struct adp *a)
 {
-	if (!send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {
+	if (!send(a, ADP_MSG_ENTITY_DEPARTING, a->departing_index)) {
 		return;
 	}
+	a->departing_owed--;
+	a->departing_index = 0;
+}
+
+// 5.6.3.5.9: ENTITY_AVAILABLE, then TMR_ADVERTISE, then WAITING. Until the
+// frame leaves it is owed and the machine stays in DELAY with no timer
+// running: behind an owed ENTITY_DEPARTING, which it may not pass, or while
+// the port has no room.
+static void advertise(struct adp *a)
+{
+	a->available_owed = true;
+	if (a->departing_owed != 0u || !send(a, ADP_MSG_ENTITY_AVAILABLE, a->available_index)) {
+		return;
+	}
+	a->available_owed = false;
 	a->available_index++;                                           // 6.2.2.15: after transmitting
 	timer_start(a, ADP_TIMER_ADVERTISE, ADP_ADVERTISE_MS);
 	a->state = ADP_STATE_WAITING;
@@ -149,8 +161,15 @@ static void shutdown(struct adp *a)
 	// reset (6.2.2.15) shows on the next start's first ENTITY_AVAILABLE.
 	uint32_t index = a->available_index;
 	a->available_index = 0;
+	a->available_owed = false;                                      // its run is over
 	a->state = ADP_STATE_DOWN;
-	(void)send(a, ADP_MSG_ENTITY_DEPARTING, index);                 // pending if no room
+	if (a->departing_owed == 0u) {
+		a->departing_index = index;
+		a->departing_owed = 1u;
+		depart(a);                                              // owed if no room
+	} else if (a->departing_owed != UINT32_MAX) {
+		a->departing_owed++;                                    // queued behind the owed one(s)
+	}
 }
 
 void adp_set_enable(struct adp *a, bool enable)
@@ -191,9 +210,7 @@ void adp_link_change(struct adp *a, bool up)
 	}
 	if (a->state != ADP_STATE_DOWN) {
 		timer_stop(a);                                          // 5.6.3.5.6 / 5.6.3.5.10, no DEPARTING
-		if (a->pending == ADP_PENDING_AVAILABLE) {
-			a->pending = ADP_PENDING_NONE;
-		}
+		a->available_owed = false;                              // an owed DEPARTING stays owed
 		a->state = ADP_STATE_DOWN;
 	}
 }
@@ -245,16 +262,18 @@ void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
 	enter_delay(a, ADP_DRAW_DELAY);                                 // steps 2 and 3
 }
 
+// At most one frame per call: the oldest owed ENTITY_DEPARTING, and only
+// when none is owed, the owed ENTITY_AVAILABLE.
 bool adp_poll(struct adp *a)
 {
-	if (a->pending == ADP_PENDING_DEPARTING) {
-		(void)send(a, ADP_MSG_ENTITY_DEPARTING, a->pending_index);
-	} else if (a->pending == ADP_PENDING_AVAILABLE) {
+	if (a->departing_owed != 0u) {
+		depart(a);
+	} else if (a->available_owed) {
 		if (a->enabled && a->state == ADP_STATE_DELAY) {
 			advertise(a);
 		} else {
-			a->pending = ADP_PENDING_NONE;
+			a->available_owed = false;
 		}
 	}
-	return a->pending != ADP_PENDING_NONE;
+	return a->departing_owed != 0u || a->available_owed;
 }

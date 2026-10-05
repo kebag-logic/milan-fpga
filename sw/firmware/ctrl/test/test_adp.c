@@ -6,7 +6,8 @@
 //   A   the core over fake ports, the paths the mailbox cannot provoke on
 //       demand: a send the port refuses (deferred, retried, dropped by a
 //       link loss), a stray expiry, the firmware's own 5.6.3.1 discard
-//       (the fabric filter normally spares it the work), the two draw kinds;
+//       (the fabric filter normally spares it the work), the two draw kinds,
+//       and an owed ENTITY_DEPARTING across a restart (A15 to A17);
 //   B   the mailbox adapter on the model: an expiry that raced a re-arm is
 //       discarded by its tag;
 //   C   the service-latency bound of every response path (adp_mbx.h), counted
@@ -14,6 +15,8 @@
 //   E   a frame owed behind a full transmit ring, with a HAL that really
 //       sleeps until the mailbox interrupt: the loop must not sleep on it,
 //       and once the ring drains the frame leaves with its timer restarted;
+//       and the same through the mailbox for a DEPARTING owed across a
+//       restart whose TMR_DELAY expires first (E4);
 //   F   the bound with full legal backlogs (ctrl_loop.h A1 to A4): both
 //       rings full, ticks coalesced behind them, every pass and path held to
 //       the stated figures, events first in every pass.
@@ -46,6 +49,8 @@ struct fake {
 	bool link;
 	unsigned sends;
 	uint8_t last[ADP_FRAME_BYTES];
+	uint8_t msg[16];        // message_type of each frame taken, in order
+	uint32_t index[16];     // and its available_index
 	unsigned starts;
 	uint32_t last_delay;
 	unsigned stops;
@@ -63,6 +68,10 @@ static bool fake_send(void *ctx, unsigned interface, const uint8_t *frame, size_
 		return false;
 	}
 	memcpy(fk.last, frame, len);
+	if (fk.sends < 16u) {
+		fk.msg[fk.sends] = frame[15] & 0x0Fu;
+		fk.index[fk.sends] = wire_be32(frame + 50);
+	}
 	fk.sends++;
 	return true;
 }
@@ -196,14 +205,14 @@ static void core_deferred(void)
 	adp_set_enable(&a, true);
 	fk.room = false;
 	adp_timer_expired(&a);
-	check("A6 a refused send keeps ENTITY_AVAILABLE pending in DELAY",
-	      a.pending == ADP_PENDING_AVAILABLE && a.state == ADP_STATE_DELAY && a.deferred_sends == 1u);
+	check("A6 a refused send keeps ENTITY_AVAILABLE owed in DELAY",
+	      a.available_owed && a.state == ADP_STATE_DELAY && a.deferred_sends == 1u);
 	adp_poll(&a);
 	check_eq("A6 a poll without room retries and keeps it", a.deferred_sends, 2);
 	fk.room = true;
 	adp_poll(&a);
 	check("A6 a poll with room sends it and completes 5.6.3.5.9",
-	      fk.sends == 1u && a.state == ADP_STATE_WAITING && a.pending == ADP_PENDING_NONE &&
+	      fk.sends == 1u && a.state == ADP_STATE_WAITING && !a.available_owed &&
 		      fk.last_delay == ADP_ADVERTISE_MS);
 	adp_timer_expired(&a);
 	fk.room = false;
@@ -211,15 +220,15 @@ static void core_deferred(void)
 	adp_link_change(&a, false);
 	fk.room = true;
 	adp_poll(&a);
-	check("A7 a link loss drops a pending ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)",
-	      fk.sends == 1u && a.state == ADP_STATE_DOWN && a.pending == ADP_PENDING_NONE);
+	check("A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)",
+	      fk.sends == 1u && a.state == ADP_STATE_DOWN && !a.available_owed && a.departing_owed == 0u);
 	adp_link_change(&a, true);
 	adp_timer_expired(&a);
 	uint32_t index = a.available_index;
 	fk.room = false;
 	adp_set_enable(&a, false);
-	check("A8 SHUTDOWN with no room keeps ENTITY_DEPARTING pending, index reset",
-	      a.pending == ADP_PENDING_DEPARTING && a.available_index == 0u && a.state == ADP_STATE_DOWN);
+	check("A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset",
+	      a.departing_owed == 1u && a.available_index == 0u && a.state == ADP_STATE_DOWN);
 	adp_link_change(&a, false);
 	fk.room = true;
 	adp_poll(&a);
@@ -274,7 +283,7 @@ static void core_departing_index(void)
 	adp_timer_expired(&a);
 	fk.room = false;
 	adp_set_enable(&a, false);
-	check("A13 SHUTDOWN with no room leaves ENTITY_DEPARTING owed", a.pending == ADP_PENDING_DEPARTING);
+	check("A13 SHUTDOWN with no room leaves ENTITY_DEPARTING owed", a.departing_owed == 1u);
 	fk.room = true;
 	adp_poll(&a);
 	check("A13 sent from a later poll, it carries the index current at SHUTDOWN, 2",
@@ -292,6 +301,87 @@ static void core_departing_index(void)
 	adp_set_enable(&a, false);
 	check("A14 SHUTDOWN after the wrap: ENTITY_DEPARTING carries the current index, 1",
 	      wire_is(ADP_MSG_ENTITY_DEPARTING, 1));
+}
+
+// The frame the fake took k-th is `msg` carrying `index`.
+static bool took(unsigned k, uint8_t msg, uint32_t index)
+{
+	return k < fk.sends && k < 16u && fk.msg[k] == msg && fk.index[k] == index;
+}
+
+// One ENTITY_AVAILABLE sent (index 0, so 1 is current), then SHUTDOWN behind
+// a full transmit path: ENTITY_DEPARTING owed with index 1. Then a restart.
+static void advertise_then_depart_owed(struct adp *a)
+{
+	fresh(a, true);
+	adp_set_enable(a, true);
+	adp_timer_expired(a);
+	fk.room = false;
+	adp_set_enable(a, false);
+	adp_set_enable(a, true);
+}
+
+// R497-2-F1: an owed ENTITY_DEPARTING is never lost to a restart. It keeps
+// its SHUTDOWN index and leaves before the restart's ENTITY_AVAILABLE.
+static void core_owed_departing(void)
+{
+	struct adp a;
+	advertise_then_depart_owed(&a);
+	check("A15 advertised once, SHUTDOWN behind a full ring: ENTITY_DEPARTING owed with index 1",
+	      took(0, ADP_MSG_ENTITY_AVAILABLE, 0) && fk.sends == 1u && a.departing_owed == 1u && a.departing_index == 1u);
+	check("A15 the restart runs while it is owed: DELAY, the startup TMR_DELAY armed",
+	      a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && a.last_draw == ADP_DRAW_STARTUP);
+	unsigned starts = fk.starts;
+	adp_timer_expired(&a);
+	check("A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer",
+	      a.available_owed && a.departing_owed == 1u && a.departing_index == 1u && a.state == ADP_STATE_DELAY &&
+		      a.timer == ADP_TIMER_NONE && fk.starts == starts && fk.sends == 1u);
+	check("A15 a poll without room keeps both owed",
+	      adp_poll(&a) && a.available_owed && a.departing_owed == 1u && fk.sends == 1u);
+	fk.room = true;
+	check("A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1",
+	      adp_poll(&a) && fk.sends == 2u && took(1, ADP_MSG_ENTITY_DEPARTING, 1));
+	check("A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0",
+	      !adp_poll(&a) && fk.sends == 3u && took(2, ADP_MSG_ENTITY_AVAILABLE, 0));
+	check("A15 then WAITING with TMR_ADVERTISE armed 5 s, available_index 1",
+	      a.state == ADP_STATE_WAITING && a.timer == ADP_TIMER_ADVERTISE && fk.starts == starts + 1u &&
+		      fk.last_delay == ADP_ADVERTISE_MS && a.available_index == 1u);
+	check("A15 and nothing stranded: nothing owed, a further poll sends nothing",
+	      !a.available_owed && a.departing_owed == 0u && !adp_poll(&a) && fk.sends == 3u);
+	adp_timer_expired(&a);
+	adp_timer_expired(&a);
+	check("A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1", fk.sends == 4u &&
+	      took(3, ADP_MSG_ENTITY_AVAILABLE, 1));
+
+	// A second SHUTDOWN while the first DEPARTING is owed queues its own.
+	advertise_then_depart_owed(&a);
+	adp_timer_expired(&a);
+	adp_set_enable(&a, false);
+	check("A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE",
+	      a.departing_owed == 2u && a.departing_index == 1u && !a.available_owed && a.state == ADP_STATE_DOWN);
+	adp_set_enable(&a, true);
+	fk.room = true;
+	(void)adp_poll(&a);
+	bool owed = adp_poll(&a);
+	check("A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)",
+	      fk.sends == 3u && took(1, ADP_MSG_ENTITY_DEPARTING, 1) && took(2, ADP_MSG_ENTITY_DEPARTING, 0) && !owed);
+	check("A16 the restart running meanwhile is untouched: DELAY, its TMR_DELAY armed",
+	      a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_DELAY && !a.available_owed);
+	adp_timer_expired(&a);
+	check("A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING",
+	      fk.sends == 4u && took(3, ADP_MSG_ENTITY_AVAILABLE, 0) && a.state == ADP_STATE_WAITING);
+
+	// Room returns, and the restart's TMR_DELAY expires before any poll.
+	advertise_then_depart_owed(&a);
+	fk.room = true;
+	adp_timer_expired(&a);
+	check("A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING",
+	      fk.sends == 1u && a.available_owed && a.departing_owed == 1u && a.state == ADP_STATE_DELAY);
+	(void)adp_poll(&a);
+	owed = adp_poll(&a);
+	check("A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order",
+	      fk.sends == 3u && took(1, ADP_MSG_ENTITY_DEPARTING, 1) && took(2, ADP_MSG_ENTITY_AVAILABLE, 0) && !owed &&
+		      a.state == ADP_STATE_WAITING);
 }
 
 static void core_draws(void)
@@ -470,7 +560,7 @@ static void pending_wake(void)
 		ctrl_loop_step(&app.loop);
 	}
 	check("E0 TMR_DELAY expires behind a full transmit ring: ENTITY_AVAILABLE is owed",
-	      adp0()->pending == ADP_PENDING_AVAILABLE && adp0()->state == ADP_STATE_DELAY);
+	      adp0()->available_owed && adp0()->state == ADP_STATE_DELAY);
 	check("E0 and nothing else can wake the core: no RX, no event, TICK off",
 	      !mbx_model_irq(&model) && model.tick_ctl == 0u);
 	unsigned waits = waiter.waits;
@@ -486,7 +576,7 @@ static void pending_wake(void)
 	const struct mbx_model_tmr_op *arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
 	check("E2 once the ring drains, the next pass sends the owed ENTITY_AVAILABLE",
 	      drained > sent && model.tx_sent == drained + 1u && t != NULL && t->bytes[15] == ADP_MSG_ENTITY_AVAILABLE &&
-		      adp0()->pending == ADP_PENDING_NONE);
+		      !adp0()->available_owed);
 	check("E2 and restarts its timer: TMR_ADVERTISE armed 5 s after the frame left, the machine in WAITING",
 	      t != NULL && arm->op == MBX_TMR_OP_ARM && arm->deadline_ms == t->now_ms + ADP_ADVERTISE_MS &&
 		      app.adp.ifs[0].armed && adp0()->state == ADP_STATE_WAITING);
@@ -495,6 +585,66 @@ static void pending_wake(void)
 	}
 	check("E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it",
 	      waiter.waits > waits && waiter.dead == 0u && adp0()->state == ADP_STATE_DELAY);
+	mbx_model_bind(&model, NULL, NULL);
+}
+
+// The k-th frame the model sent is `msg` carrying `index`.
+static bool model_sent(uint32_t k, uint8_t msg, uint32_t index)
+{
+	const struct mbx_model_tx *t = mbx_model_tx_frame(&model, k);
+	return t != NULL && (t->bytes[15] & 0x0Fu) == msg && wire_be32(t->bytes + 50) == index;
+}
+
+// R497-2-F1 through the mailbox driver, the model's timer and the loop.
+static void owed_departing_wake(void)
+{
+	boot();
+	memset(&waiter, 0, sizeof waiter);
+	mbx_model_bind(&model, wait_for_irq, &waiter);
+	mbx_model_set_link(&model, 0, true);
+	settle();
+	to_waiting();
+	check("E4 advertised once: the first ENTITY_AVAILABLE left with index 0, the machine in WAITING",
+	      model.tx_sent >= 1u && model_sent(model.tx_sent - 1u, ADP_MSG_ENTITY_AVAILABLE, 0) &&
+		      adp0()->state == ADP_STATE_WAITING);
+	mbx_model_tx_pause(&model, true);
+	uint8_t filler[ADP_FRAME_BYTES];
+	adp_build(adp0(), ADP_MSG_ENTITY_AVAILABLE, 0x0F0F0F0Fu, filler);
+	while (mbx_tx_send(MBX_CH_ADP, 0, filler, sizeof filler) == MBX_STATUS_OK) {
+	}
+	adp_mbx_set_enable(&app.adp, false);
+	adp_mbx_set_enable(&app.adp, true);
+	check("E4 SHUTDOWN behind the full ring leaves ENTITY_DEPARTING owed with index 1; the restart arms TMR_DELAY",
+	      adp0()->departing_owed == 1u && adp0()->departing_index == 1u && adp0()->state == ADP_STATE_DELAY &&
+		      app.adp.ifs[0].armed);
+	const struct mbx_model_tmr_op *arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+	mbx_model_advance_ms(&model, arm->deadline_ms - model.now_ms);
+	unsigned waits = waiter.waits;
+	for (unsigned k = 0; k < 16u; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check("E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm",
+	      adp0()->available_owed && adp0()->departing_owed == 1u && adp0()->state == ADP_STATE_DELAY &&
+		      !app.adp.ifs[0].armed);
+	check_eq("E4 the loop does not sleep while both are owed", waiter.waits, waits);
+	mbx_model_tx_pause(&model, false);
+	uint32_t drained = model.tx_sent;
+	ctrl_loop_step(&app.loop);
+	ctrl_loop_step(&app.loop);
+	const struct mbx_model_tx *t = mbx_model_tx_frame(&model, drained + 1u);
+	arm = mbx_model_tmr_op(&model, model.tmr_ops - 1u);
+	check("E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0",
+	      model.tx_sent == drained + 2u && model_sent(drained, ADP_MSG_ENTITY_DEPARTING, 1) &&
+		      model_sent(drained + 1u, ADP_MSG_ENTITY_AVAILABLE, 0));
+	check("E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left",
+	      t != NULL && arm->op == MBX_TMR_OP_ARM && arm->deadline_ms == t->now_ms + ADP_ADVERTISE_MS &&
+		      app.adp.ifs[0].armed && adp0()->state == ADP_STATE_WAITING);
+	for (unsigned k = 0; k < 8u && adp0()->state != ADP_STATE_DELAY; ++k) {
+		ctrl_loop_step(&app.loop);
+	}
+	check("E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it",
+	      !adp0()->available_owed && adp0()->departing_owed == 0u && model.tx_sent == drained + 2u &&
+		      waiter.waits > waits && waiter.dead == 0u && adp0()->state == ADP_STATE_DELAY);
 	mbx_model_bind(&model, NULL, NULL);
 }
 
@@ -647,10 +797,12 @@ int main(void)
 	core_discard();
 	core_deferred();
 	core_departing_index();
+	core_owed_departing();
 	core_draws();
 	adapter_race();
 	latency();
 	pending_wake();
+	owed_departing_wake();
 	backlog_bound();
 	return check_report("ctrl ADP slice (fake ports and host model)");
 }

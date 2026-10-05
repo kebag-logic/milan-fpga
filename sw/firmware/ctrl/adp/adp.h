@@ -30,6 +30,18 @@
 //     first ENTITY_AVAILABLE, which carries 0 (the ruling on PR #668,
 //     comment 5994972330).
 //
+// A FRAME THE SEND PORT REFUSES IS OWED, NEVER DROPPED BY WHAT FOLLOWS. Every
+// SHUTDOWN's ENTITY_DEPARTING stays owed, with the index current at that
+// SHUTDOWN, until the port takes it, across any restart, timer expiry, link
+// change or later SHUTDOWN; adp_poll sends the oldest first. An
+// ENTITY_AVAILABLE never passes an owed DEPARTING: a restart whose TMR_DELAY
+// expires first keeps its AVAILABLE owed, the machine in DELAY with no timer
+// running, and sends it, then arms TMR_ADVERTISE and enters WAITING, only
+// after the last owed DEPARTING has left. So a DEPARTING queued behind another
+// always carries 0: its run could send no AVAILABLE, and its index never left
+// 0. An owed AVAILABLE is dropped only by a link loss or a SHUTDOWN, which end
+// the run it would have announced. Owed DEPARTINGs are counted to 2^32 - 1.
+//
 // The ADPDU's fields are the entity model's (struct adp_entity, generated
 // from the end-station config by adp_entity.py, the same derivation the
 // fabric's ADP engine is fed from) plus the gPTP pair sampled when the frame
@@ -86,13 +98,6 @@ enum adp_draw {
 	ADP_DRAW_DELAY,         // every other entry into DELAY: 0 to 4 s
 };
 
-// A frame the core still owes the wire because the send port had no room.
-enum adp_pending {
-	ADP_PENDING_NONE = 0,
-	ADP_PENDING_AVAILABLE,
-	ADP_PENDING_DEPARTING,
-};
-
 // The ADPDU fields the entity model fixes.
 struct adp_entity {
 	uint64_t entity_id;
@@ -135,8 +140,10 @@ struct adp {
 	uint16_t current_configuration_index;
 	enum adp_timer timer;               // what the port's timer holds
 	uint32_t rng;                       // xorshift32 state of the random delays
-	enum adp_pending pending;
-	uint32_t pending_index;             // available_index the pending frame carries
+	// frames owed because the send port had no room (see the top of this file)
+	bool available_owed;                // ENTITY_AVAILABLE due in DELAY, not yet sent
+	uint32_t departing_owed;            // ENTITY_DEPARTINGs not yet sent
+	uint32_t departing_index;           // available_index the oldest of them carries
 	// diagnostics
 	uint32_t gm_changed;                // GPTP_GM_CHANGED
 	uint32_t draws;                     // random delays drawn
@@ -162,7 +169,8 @@ void adp_timer_expired(struct adp *a);
 void adp_link_change(struct adp *a, bool up);
 void adp_gm_change(struct adp *a);
 
-// Retry a frame the send port had no room for; true while one is still owed.
+// Retry the frames the send port had no room for, at most one per call, the
+// oldest owed ENTITY_DEPARTING first; true while one is still owed.
 bool adp_poll(struct adp *a);
 
 // The ADPDU this instance would send now, built into frame[ADP_FRAME_BYTES].

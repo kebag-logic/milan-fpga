@@ -41,8 +41,8 @@ directory, and runs these arms:
 | Arm | Source | What it shows |
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
-| `port` | `test_port_loop.c` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices |
-| `adp` | `test_adp.c` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, and the bound with both rings full and ticks coalesced |
+| `port` | `test_port_loop.c` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
+| `adp` | `test_adp.c` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, and the bound with both rings full and ticks coalesced |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `entity` | `entity_probe.c` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
@@ -69,10 +69,11 @@ tag the firmware did not issue.
 
 `--self-test` writes each defect of `ctrl_mutants.py` into a copy of this
 tree and requires the arm it names to exit 1 with a `[FAIL]` naming the
-check. 37 arms: ADP clause defects caught by the walk (one per walked
+check. The arms: ADP clause defects caught by the walk (one per walked
 Table 5.51 row but the foreign DISCOVER, which the fabric filter drops and
-`adp`'s A4 catches), adapter, latency, owed-output, events-first and
-available_index defects by `adp`, pool, sink, loop, tick-slice and driver
+`adp`'s A4 catches), adapter, latency, owed-output (an owed DEPARTING
+replaced, passed or dropped included), events-first and available_index
+defects by `adp`, pool, sink, loop, tick-slice, tick-carry and driver
 defects (TX commit order included) by `port`, lane, model and model
 commit-order defects by `model`, a wrong ADPDU field source by `entity`, and
 a heap call by `rv32`. With `--lwsrp` it also requires the pin to refuse a
