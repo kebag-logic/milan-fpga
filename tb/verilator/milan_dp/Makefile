@@ -211,7 +211,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -484,8 +484,9 @@ gsi-mutants: notify
 unb-mutants: notify
 	python3 unb_mutants.py
 
-ax1x1gptp: VERILATOR_JOBS = 4
-ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+# Build once for the independent positive and failure-control runs.
+ax1x1gptp ax1x1gptp-build: VERILATOR_JOBS = 4
+ax1x1gptp-build: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
 	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
 	  -CFLAGS "-DMILAN_CLK_HZ_TB=$(AX_GPTP_HZ) -Wall -Wextra" \
@@ -493,8 +494,10 @@ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) 
 	  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=$(AX_CHANS) \
 	  -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) -GAUDIO_IF_MASTER_P=1 \
 	  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-	  $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
+	  ax1x1gptp_probes.vlt $(SRCS) sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
 	sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
+
+ax1x1gptp: ax1x1gptp-build
 	/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp $(AX_GPTP_ARGS)
 
 # Preserve the original long windows outside the default sweep.

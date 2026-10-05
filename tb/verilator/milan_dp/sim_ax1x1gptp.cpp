@@ -153,7 +153,7 @@ uint32_t sample(uint32_t index, unsigned channel) {
     return ((channel + 1) << 20) | (index & 0xFFFFF);
 }
 
-enum class TestControl { Normal, NoTx, StopTx, NoPdelay };
+enum class TestControl { Normal, NoTx, StopTx, NoPdelay, ExtraRepeat, LargeStep };
 
 class Harness {
  public:
@@ -198,6 +198,35 @@ class Harness {
     uint64_t order_comparisons = 0;
     uint64_t sequence_comparisons = 0;
     uint64_t good_samples = 0;
+    struct OrderSlot {
+        unsigned delta = 1;
+        unsigned recentre = 0;
+    };
+    struct Recentre {
+        uint64_t decision_pdu = 0;
+        uint64_t output_pdu = 0;
+        int step = 0;
+        unsigned slots = 0;
+        unsigned seen = 0;
+        unsigned duplicates = 0;
+        unsigned skips = 0;
+    };
+    std::array<OrderSlot, 6> order_capture{};
+    std::deque<std::array<OrderSlot, 6>> order_frames;
+    std::vector<Recentre> recentres;
+    bool recentre_armed = false;
+    unsigned recentre_pending = 0;
+    unsigned recentre_active = 0;
+    unsigned recentre_slots_left = 0;
+    OrderSlot order_walk;
+    uint64_t input_pdus = 0;
+    uint64_t order_plan_bad = 0;
+    uint64_t recentre_span_bad = 0;
+    uint64_t recentre_slip_bad = 0;
+    uint64_t recentre_complete = 0;
+    bool order_control_planted = false;
+    void recentre_edge();
+    void grade_recentre(const OrderSlot& slot);
     bool payload_started = false;
     uint32_t last_sample = 0;
     bool seq_started = false;
@@ -425,6 +454,7 @@ Harness::Fires Harness::tick() {
     fire.r = dut->s_axi_rready && dut->s_axi_rvalid;
     fire.data = dut->s_axi_rdata;
     if (dut->axis_resetn) {
+        recentre_edge();
         receive_edge(); transmit_edge(); memory_edge(); descriptor_edge();
     }
     observer_edge();
@@ -473,8 +503,15 @@ Frame Harness::audio_frame() {
     f.u32(peer_clock(cyc * kPeriodNs) + 2000000); // 2 ms presentation offset
     f.u8(2); f.u8(0x50); f.u8(8); f.u8(32); f.u16(192); f.u16(0);
     for (unsigned s = 0; s < 6; ++s) {
+        uint32_t index = audio_index;
+        if (test_control_ == TestControl::ExtraRepeat && recentre_complete && !order_control_planted) {
+            --index;
+            order_control_planted = true;
+            printf("CONTROL extra-repeat: first post-recentre input sample %u repeats %u\n",
+                   audio_index, index);
+        }
         for (unsigned ch = 0; ch < 8; ++ch)
-            f.u32(sample(audio_index, negative_ && ch == 3 ? 2 : ch) << 8);
+            f.u32(sample(index, negative_ && ch == 3 ? 2 : ch) << 8);
         ++audio_index;
     }
     return f;
@@ -631,9 +668,99 @@ void Harness::complete_tx() {
         replies.push_back(f);
 }
 
+// Read-only observation supplies an exact slot plan to the MAC-wire oracle.
+// The expected step comes from the declared target (11 minus six arriving
+// events), not from the DUT's hold/drop controls or observed audio values.
+// Capture slot accounting only transports that plan to the emitted PDU.
+void Harness::recentre_edge() {
+    auto* r = dut->rootp;
+    if (r->milan_datapath__DOT__chan_map_capture__DOT__walk_start_w) {
+        if (recentre_pending) {
+            recentre_active = recentre_pending;
+            recentre_slots_left = recentres[recentre_active - 1].slots;
+            recentre_pending = 0;
+        }
+        order_walk = {};
+        if (recentre_slots_left) {
+            const auto& event = recentres[recentre_active - 1];
+            order_walk = {event.step < 0 ? 0u : event.step > 0 ? 2u : 1u,
+                          recentre_active};
+            --recentre_slots_left;
+        }
+    }
+    if (r->milan_datapath__DOT__chan_map_capture__DOT__rc_pdu_start_w) {
+        ++input_pdus;
+        if (recentre_armed) {
+            recentre_armed = false;
+            const unsigned fill = r->milan_datapath__DOT__chan_map_capture__DOT__q_cnt_r[0];
+            int step = fill < 5 ? -static_cast<int>(5 - fill) : fill > 5 ? 1 : 0;
+            if (test_control_ == TestControl::LargeStep && !order_control_planted && step < -1) {
+                // The real recentre is unchanged. Understate its declaration
+                // so its measured wire step must exceed the exact allowance.
+                printf("CONTROL large-step: actual step=%d declared step=%d events\n", step, step + 1);
+                ++step;
+                order_control_planted = true;
+            }
+            const unsigned slots = step < 0 ? static_cast<unsigned>(-step) : 1;
+            recentres.push_back({input_pdus, 0, step, slots, 0,
+                                r->milan_datapath__DOT__lb_dup_cnt_w,
+                                r->milan_datapath__DOT__lb_skip_cnt_w});
+            recentre_pending = recentres.size();
+            printf("RECENTRE decision=%u input_pdu=%llu cycle=%llu fill=%u step_events=%d "
+                   "dup=%u skip=%u\n", recentre_pending,
+                   static_cast<unsigned long long>(input_pdus),
+                   static_cast<unsigned long long>(cyc), fill, step,
+                   r->milan_datapath__DOT__lb_dup_cnt_w,
+                   r->milan_datapath__DOT__lb_skip_cnt_w);
+        }
+    }
+    // A pulse on a PDU's first beat arms the next PDU, matching the public
+    // contract. A simultaneous walk uses the previously made decision.
+    if (r->milan_datapath__DOT__settle_recentre_p_r
+        && (r->milan_datapath__DOT__chan_map_capture__DOT__q_primed_r & 1))
+        recentre_armed = true;
+    if (r->milan_datapath__DOT__chan_map_capture__DOT__lb_flush_i) {
+        recentre_armed = false;
+        recentre_pending = 0;
+        recentre_slots_left = 0;
+        order_walk = {};
+    }
+    if (r->milan_datapath__DOT__aaf_packetizer__DOT__pair_ok_w) {
+        const unsigned sample_slot = r->milan_datapath__DOT__aaf_packetizer__DOT__nsamp_r[0];
+        const unsigned pair_slot = r->milan_datapath__DOT__aaf_packetizer__DOT__pown_o_w;
+        if (pair_slot == 0) order_capture.at(sample_slot) = order_walk;
+        if (pair_slot == 3 && sample_slot == 5) {
+            order_frames.push_back(order_capture);
+            order_capture = {};
+            if (order_frames.size() > 8) throw std::runtime_error("audio order plan exceeded eight PDUs");
+        }
+    }
+}
+
+void Harness::grade_recentre(const OrderSlot& slot) {
+    if (!slot.recentre) return;
+    auto& event = recentres.at(slot.recentre - 1);
+    if (!event.output_pdu) event.output_pdu = tx_audio;
+    if (event.output_pdu != tx_audio) ++recentre_span_bad;
+    if (++event.seen != event.slots) return;
+    ++recentre_complete;
+    const auto* r = dut->rootp;
+    const unsigned duplicates = r->milan_datapath__DOT__lb_dup_cnt_w;
+    const unsigned skips = r->milan_datapath__DOT__lb_skip_cnt_w;
+    if (duplicates != event.duplicates || skips != event.skips) ++recentre_slip_bad;
+    printf("RECENTRE output=%u input_pdu=%llu output_pdu=%llu step_events=%d "
+           "dup=%u->%u skip=%u->%u\n", slot.recentre,
+           static_cast<unsigned long long>(event.decision_pdu),
+           static_cast<unsigned long long>(event.output_pdu), event.step,
+           event.duplicates, duplicates, event.skips, skips);
+}
+
 void Harness::grade_audio(const std::vector<uint8_t>& f) {
     const size_t v = be(f, 12, 2) == 0x8100 ? 4 : 0;
     ++tx_audio;
+    std::array<OrderSlot, 6> plan{};
+    if (order_frames.empty()) ++order_plan_bad;
+    else { plan = order_frames.front(); order_frames.pop_front(); }
     const bool tu = f[17 + v] & 1;
     if (tu) ++uncertain_frames; else ++certain_frames;
     if (require_tu >= 0) {
@@ -649,6 +776,9 @@ void Harness::grade_audio(const std::vector<uint8_t>& f) {
         ++payload_comparisons; ++payload_bad; return;
     }
     if (cyc < audio_warm_until) return;
+    int observed_step = 0;
+    int expected_step = 0;
+    unsigned decision = 0;
     for (unsigned s = 0; s < 6; ++s) {
         const size_t off = 38 + v + 32 * s;
         const uint32_t index = (be(f, off, 4) >> 8) & 0xFFFFF;
@@ -661,11 +791,25 @@ void Harness::grade_audio(const std::vector<uint8_t>& f) {
         if (!channels_ok) ++payload_bad;
         if (payload_started) {
             ++order_comparisons;
-            if (index != last_sample + 1) ++order_bad;
+            observed_step += static_cast<int>(index) - static_cast<int>(last_sample) - 1;
+            expected_step += static_cast<int>(plan[s].delta) - 1;
+            if (plan[s].recentre) decision = plan[s].recentre;
+            if (index != last_sample + plan[s].delta) {
+                ++order_bad;
+                printf("ORDER ERROR output_pdu=%llu sample=%u last=%u index=%u expected_delta=%u recentre=%u\n",
+                       static_cast<unsigned long long>(tx_audio), s, last_sample, index,
+                       plan[s].delta, plan[s].recentre);
+            }
+            grade_recentre(plan[s]);
         }
         payload_started = true; last_sample = index;
         if (channels_ok) ++good_samples;
     }
+    if (decision) printf("RECENTRE WIRE decision=%u output_pdu=%llu declared_step=%d "
+                         "observed_step=%d events dup=%u skip=%u\n", decision,
+                         static_cast<unsigned long long>(tx_audio), expected_step, observed_step,
+                         dut->rootp->milan_datapath__DOT__lb_dup_cnt_w,
+                         dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
 }
 
 void Harness::reset() {
@@ -693,6 +837,8 @@ void Harness::reset() {
     pd_requests = 0; pd_answers = 0; oracle_delay = 0;
     seq_started = false; payload_started = false;
     audio_seq = 0; audio_index = 1;
+    order_frames.clear(); order_capture = {}; order_walk = {};
+    recentre_armed = false; recentre_pending = 0; recentre_slots_left = 0;
     run_cycles(512);
 }
 
@@ -943,6 +1089,14 @@ int Harness::report() {
     cumulative("all monitored audio payload errors, excluding declared warm-up", payload_comparisons, payload_bad);
     cumulative("all monitored audio sample ordering errors", order_comparisons, order_bad);
     cumulative("all monitored AAF packet sequence errors", sequence_comparisons, sequence_bad);
+    cumulative("every emitted audio PDU has its capture order plan", tx_audio, order_plan_bad);
+    if (!recentres.empty()) {
+        check.dec("declared recentre occupies only its decision output PDU", recentre_span_bad, 0);
+        check.dec("every declared recentre step reached the wire", recentre_complete, recentres.size());
+        check.dec("declared recentres leave both loopback slip counters unchanged", recentre_slip_bad, 0);
+    } else printf("NOT RUN: declared recentre checks (no decisions; uncounted)\n");
+    printf("RECENTRE totals decisions=%zu completed=%llu planted=%d\n", recentres.size(),
+           static_cast<unsigned long long>(recentre_complete), order_control_planted);
     printf("AUDIO comparisons payload=%llu sample_order=%llu packet_sequence=%llu\n",
            static_cast<unsigned long long>(payload_comparisons),
            static_cast<unsigned long long>(order_comparisons),
@@ -1003,7 +1157,8 @@ int Harness::run() {
             printf("NOT RUN: first peer delay matches independent event oracle within 28 ns "
                    "(first exchange absent; uncounted)\n");
         }
-        if (negative_) return report();
+        if (negative_ || test_control_ == TestControl::ExtraRepeat
+                      || test_control_ == TestControl::LargeStep) return report();
         audio_window("acquisition", kHz * 18 / 10, -1, Until::Healthy);
         check.that("boot Pdelay occurs at 1.2 s", pd_requests >= 2
             && pd_first - stamp_origin >= 1200000000 && pd_first - stamp_origin < 1200100000);
@@ -1066,9 +1221,11 @@ int main(int argc, char** argv) {
     else if (argc == 2 && std::string(argv[1]) == "--no-tx-control") test_control = TestControl::NoTx;
     else if (argc == 2 && std::string(argv[1]) == "--stop-tx-control") test_control = TestControl::StopTx;
     else if (argc == 2 && std::string(argv[1]) == "--no-pdelay-control") test_control = TestControl::NoPdelay;
+    else if (argc == 2 && std::string(argv[1]) == "--extra-repeat-control") test_control = TestControl::ExtraRepeat;
+    else if (argc == 2 && std::string(argv[1]) == "--large-step-control") test_control = TestControl::LargeStep;
     else if (argc != 1) {
         fprintf(stderr, "usage: %s [--negative-control|--extended|--no-tx-control|"
-                        "--stop-tx-control|--no-pdelay-control]\n", argv[0]);
+                        "--stop-tx-control|--no-pdelay-control|--extra-repeat-control|--large-step-control]\n", argv[0]);
         return 2;
     }
     Harness harness(negative, extended, test_control);
