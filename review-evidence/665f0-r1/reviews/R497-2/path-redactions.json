@@ -1,0 +1,51 @@
+{
+  "policy": "Only machine-local absolute path prefixes are replaced. Test output, commands, options, outcomes and return codes are otherwise unchanged. Original receipts are retained in unpublished scratch/raw-receipts/.",
+  "files": [
+    {
+      "file": "receipts/cosimulation.log",
+      "original_sha256": "df011eb2662524daa4ae12d51a770d9e29cb0956505e36ea8cfe812b1e810eda",
+      "published_sha256": "922bd7e763ac239f08273cbc587ae2284c8f341fff88bc2bbcc1ddc9e16d18b8",
+      "replacements": [
+        {
+          "replacement": "<SIMULATOR_ROOT>",
+          "kind": "simulator installation root",
+          "count": 11
+        },
+        {
+          "replacement": "<PACKET>",
+          "kind": "packet root",
+          "count": 61
+        },
+        {
+          "replacement": "<PINNED_SIMULATOR>",
+          "kind": "verified simulator launcher",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "file": "receipts/native-campaign.log",
+      "original_sha256": "05f298b63d5c8b723b9e8497d53caa06b12918dd673c664c6758385dda213e16",
+      "published_sha256": "dfe5f821450802351546d6530e1c550ec2ef5d7e323df220e10cee74bd440042",
+      "replacements": [
+        {
+          "replacement": "<PACKET>",
+          "kind": "packet root",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "file": "receipts/rtl-campaign.log",
+      "original_sha256": "352f27f93da215cf31f79c7e1197a36ac4c7b341d5a526840c5b2f3f52e7bd08",
+      "published_sha256": "de67195cb75859e167581b5806aba67bd5880e0779dd61bc0908922dfae98faa",
+      "replacements": [
+        {
+          "replacement": "<PACKET>",
+          "kind": "packet root",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

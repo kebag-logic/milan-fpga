@@ -1,0 +1,32 @@
+  [FAIL] F1 record LEN                            got=0 exp=82
+  [FAIL] F1 record KIND                           got=0 exp=1
+  [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+  [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+  [FAIL] F1 releasing the record (RX_TAIL) drops the level and the line got=1 exp=0
+  [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+  [FAIL] D0 every unread record survives the dropped frame byte for byte
+  [FAIL] D1 the record after it is still the next frame's
+  [FAIL] E0 a link rise posts a LINK event        got=0 exp=2
+  [FAIL] E0 carrying the level                    got=0 exp=1
+  [FAIL] E0 and NOW_MS                            got=0 exp=2
+  [FAIL] E1 a grandmaster change posts a GM event got=0 exp=3
+  [FAIL] E1 GM ID_LO                              got=0x0 exp=0xa5a6a7a8
+  [FAIL] E1 GM ID_HI                              got=0x0 exp=0xa1a2a3a4
+  [FAIL] E1 GM DOMAIN                             got=0 exp=7
+  [FAIL] E1 SEQ counts the postings               got=0 exp=1
+  [FAIL] E2 a link that flapped while the ring was full posts once got=0 exp=1
+  [FAIL] E2 with its level at posting time        got=9 exp=0
+  [FAIL] M0 slot 3 expires at its deadline        got=0 exp=1
+  [FAIL] M0 with the tag of its arm               got=0x0 exp=0x1234
+  [FAIL] M0 and its slot                          got=0 exp=3
+  [FAIL] M0 and its deadline                      got=0 exp=5
+  [FAIL] M1 a re-armed slot expires once, with the second arm's tag got=0x0 exp=0x2
+  [FAIL] M2 a deadline already past expires at once got=0x0 exp=0x66
+  [FAIL] K0 one period posts a TICK               got=0 exp=4
+  [FAIL] K0 counting one tick                     got=0 exp=1
+  [FAIL] K1 ticks counted while the ring was full are posted as one record got=0 exp=1
+  [FAIL] K1 carrying every tick                   got=0 exp=5
+  [FAIL] A5 RDATA and RRESP hold with it, while a second read waits
+  [FAIL] A5 each read is answered once, in order, with its own data once RREADY rises
+== mbx (AXI4-Lite host): checks: 174   failures: 30 ==
+RESULT: FAIL

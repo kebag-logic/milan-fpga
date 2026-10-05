@@ -1,0 +1,10 @@
+  [FAIL] F0 a closed channel stores nothing       got=23 exp=0
+  [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=46 exp=23
+  [FAIL] F1 RX_PASS counts it                     got=2 exp=1
+  [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+  [FAIL] F1 releasing the record (RX_TAIL) drops the level and the line got=1 exp=0
+  [FAIL] F2 ENTITY_DISCOVER for this entity passes got=3 exp=2
+  [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=3 exp=2
+  [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=3 exp=2
+== mbx (Wishbone host): checks: 134   failures: 8 ==
+RESULT: FAIL

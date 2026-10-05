@@ -1,0 +1,12 @@
+  [FAIL] F2 ENTITY_DISCOVER for this entity passes got=1 exp=2
+  [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=1 exp=2
+  [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=1 exp=2
+  [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+  [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+  [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=5 exp=8
+  [FAIL] T0 a burst of the bucket's depth passes  got=0 exp=8
+  [FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2
+  [FAIL] T1 one refill period buys exactly one more frame got=0 exp=9
+  [FAIL] T1 and the next is refused again         got=0 exp=3
+== mbx (Wishbone host): checks: 134   failures: 10 ==
+RESULT: FAIL

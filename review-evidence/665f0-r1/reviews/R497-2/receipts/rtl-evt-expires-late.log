@@ -1,0 +1,11 @@
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] E2 a link that flapped while the ring was full posts once got=3 exp=1
+  [FAIL] M0 slot 3 expires at its deadline        got=0 exp=1
+  [FAIL] M0 with the tag of its arm               got=0x0 exp=0x1234
+  [FAIL] M0 and its slot                          got=0 exp=3
+  [FAIL] M0 and its deadline                      got=0 exp=5
+  [FAIL] M1 a re-armed slot expires once, with the second arm's tag got=0x1234 exp=0x2
+  [FAIL] M1 a cancelled slot and the replaced arm post nothing
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+== mbx (Wishbone host): checks: 134   failures: 9 ==
+RESULT: FAIL

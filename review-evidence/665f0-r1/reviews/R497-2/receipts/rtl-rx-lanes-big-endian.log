@@ -1,0 +1,6 @@
+  [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+  [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+  [FAIL] D0 every unread record survives the dropped frame byte for byte
+  [FAIL] D1 the record after it is still the next frame's
+== mbx (Wishbone host): checks: 134   failures: 4 ==
+RESULT: FAIL

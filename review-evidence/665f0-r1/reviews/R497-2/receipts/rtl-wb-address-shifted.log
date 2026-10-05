@@ -1,0 +1,100 @@
+  [FAIL] R0 CAPS.N_CH                             got=0 exp=5
+  [FAIL] R0 CAPS.N_IF                             got=0 exp=1
+  [FAIL] R0 CAPS.N_TIMERS                         got=0 exp=16
+  [FAIL] R0 CAPS.EVT_WORDS                        got=1 exp=64
+  [FAIL] R0 NOW_MS counts the millisecond pulse   got=0 exp=3
+  [FAIL] R1 IRQ_ENABLE keeps RX[7:0], EVT and ERR only got=0x1 exp=0x800001ff
+  [FAIL] R1 TICK_CTL keeps EN only                got=0xffff exp=0x1
+  [FAIL] R1 OWN_EID_LO keeps every bit            got=0x0 exp=0xffffffff
+  [FAIL] R1 OWN_EID_HI keeps every bit            got=0x0 exp=0xffffffff
+  [FAIL] R1 MAAP_BASE_LO keeps every bit          got=0x0 exp=0xffffffff
+  [FAIL] R1 MAAP_BASE_HI keeps address bits 47:32 only got=0x0 exp=0xffff
+  [FAIL] R1 MAAP_COUNT keeps 16 bits              got=0x0 exp=0xffff
+  [FAIL] R1 TMR_DEADLINE keeps every bit          got=0x0 exp=0xffffffff
+  [FAIL] R1 FILTER_EN keeps OPEN[7:0] only        got=0x0 exp=0xff
+  [FAIL] R1 a write to a read-only register changes nothing
+  [FAIL] R2 the refusal counts in BUS_ERR         got=0 exp=1
+  [FAIL] R2 the refusal sets IRQ_STATUS.ERR       got=0 exp=1
+  [FAIL] R2 an enabled ERR raises the interrupt   got=0 exp=1
+  [FAIL] R2 a TMR_CMD with no op, or naming no slot, counts in BUS_ERR got=0 exp=3
+  [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=0 exp=23
+  [FAIL] F1 RX_PASS counts it                     got=0 exp=1
+  [FAIL] F1 IRQ_STATUS.RX shows the channel       got=7 exp=1
+  [FAIL] F1 record LEN                            got=0 exp=82
+  [FAIL] F1 record KIND                           got=0 exp=1
+  [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+  [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+  [FAIL] F1 an enabled RX level raises the interrupt got=0 exp=1
+  [FAIL] F2 ENTITY_DISCOVER for this entity passes got=0 exp=2
+  [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=0 exp=2
+  [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=0 exp=2
+  [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+  [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+  [FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=0 exp=3
+  [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=0 exp=2
+  [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+  [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=0 exp=8
+  [FAIL] D0 records fill the ring to the last whole one got=0 exp=11
+  [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+  [FAIL] D0 and is not committed                  got=0 exp=11
+  [FAIL] D0 every unread record survives the dropped frame byte for byte
+  [FAIL] D0 once released, the space takes the next frame got=0 exp=12
+  [FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=0 exp=2
+  [FAIL] D1 and sets IRQ_STATUS.ERR               got=0 exp=1
+  [FAIL] D1 the record after it is still the next frame's
+  [FAIL] T0 a burst of the bucket's depth passes  got=0 exp=8
+  [FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2
+  [FAIL] T1 one refill period buys exactly one more frame got=0 exp=9
+  [FAIL] T1 and the next is refused again         got=0 exp=3
+  [FAIL] X0 three committed records leave as three frames under backpressure
+  [FAIL] X0 TX_TAIL reaches TX_HEAD once the frames have left got=0 exp=36
+  [FAIL] X2 three records committed behind a stalled sink all leave
+  [FAIL] X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+  [FAIL] X2 after an SRP frame, AECP, ACMP and ADP leave in the order they were committed
+  [FAIL] X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)
+  [FAIL] X2 equal SEQs leave round-robin from the channel served last
+  [FAIL] X2 every TX_TAIL reaches its TX_HEAD
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=1
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=23
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=2
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=46
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=3
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=69
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=4
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=92
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=5
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=115
+  [FAIL] X1 a header whose payload lies past TX_HEAD is refused, not read got=0 exp=6
+  [FAIL] X1 the ring carries the next good record after the refusals
+  [FAIL] H0 and the frame counts in RX_DROP       got=0 exp=1
+  [FAIL] H0 back in range, the next frame is stored
+  [FAIL] H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused: TX_ERR counts it got=0 exp=1
+  [FAIL] H2 back in range, the waiting expiry posts got=0 exp=4
+  [FAIL] E0 an enabled event level raises the interrupt got=0 exp=1
+  [FAIL] E0 a link rise posts a LINK event        got=0 exp=2
+  [FAIL] E0 carrying the level                    got=9 exp=1
+  [FAIL] E0 and NOW_MS                            got=0 exp=2
+  [FAIL] E1 a grandmaster change posts a GM event got=0 exp=3
+  [FAIL] E1 GM ID_LO                              got=0x0 exp=0xa5a6a7a8
+  [FAIL] E1 GM ID_HI                              got=0x0 exp=0xa1a2a3a4
+  [FAIL] E1 GM DOMAIN                             got=0 exp=7
+  [FAIL] E1 SEQ counts the postings               got=0 exp=1
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] E2 a link that flapped while the ring was full posts once got=0 exp=1
+  [FAIL] E2 with its level at posting time        got=9 exp=0
+  [FAIL] M0 slot 3 expires at its deadline        got=0 exp=1
+  [FAIL] M0 with the tag of its arm               got=0x0 exp=0x1234
+  [FAIL] M0 and its slot                          got=0 exp=3
+  [FAIL] M0 and its deadline                      got=0 exp=5
+  [FAIL] M1 a re-armed slot expires once, with the second arm's tag got=0x0 exp=0x2
+  [FAIL] M2 a deadline already past expires at once got=0x0 exp=0x66
+  [FAIL] K0 one period posts a TICK               got=0 exp=4
+  [FAIL] K0 counting one tick                     got=0 exp=1
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] K1 ticks counted while the ring was full are posted as one record got=0 exp=1
+  [FAIL] K1 carrying every tick                   got=0 exp=5
+  [FAIL] G0 GM_LO reads the live identity         got=0x0 exp=0x22222222
+  [FAIL] G0 GM_HI reads the snapshot GM_LO took   got=0x0 exp=0x11111111
+  [FAIL] G0 DOMAIN reads the same snapshot        got=0 exp=3
+== mbx (Wishbone host): checks: 128   failures: 98 ==
+RESULT: FAIL

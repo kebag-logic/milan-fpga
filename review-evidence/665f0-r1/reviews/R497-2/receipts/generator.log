@@ -1,0 +1,18 @@
+ARGV: python3 -B sw/mailbox/gen_mailbox.py --check --crosscheck --selftest
+[ok] positive control: generated outputs cross-check clean
+[ok] planted C header field width: C header: MBX_RXREC_W0_LEN_WIDTH = 0xf, the contract says 0x10
+[ok] planted C header field moved: C header: MBX_TMR_CMD_TAG_LSB = 0x0, the contract says 0x8
+[ok] planted SV package ring base: SV package: MBX_CH_ADP_RX_BASE = 0x1400, the contract says 0x1000
+[ok] planted SV package field lsb: SV package: MBX_EV_TIMER_W1_SLOT_LSB = 0x18, the contract says 0x10
+[ok] planted reference page value: reference page: MBX_REG_TMR_CMD = 0x38, the contract says 0x3c
+[ok] planted C header constant dropped: C header: MBX_EV_TYPE_GM is missing
+[ok] planted C header table order: C header: table MBX_CH_RX_WORDS_TBL lists ['CH_ACMP_RX_WORDS', 'CH_ADP_RX_WORDS', 'CH_AECP_RX_WORDS', 'CH_MAAP_RX_WORDS', 'CH_SRP_RX_WORDS'], want ['CH_ADP_RX_WORDS', 'CH_ACMP_RX_WORDS', 'CH_AECP_RX_WORDS', 'CH_MAAP_RX_WORDS', 'CH_SRP_RX_WORDS']
+[ok] planted skeleton register dropped: skeleton: register OWN_EID_HI is never decoded
+[ok] contract arm overlapping field: refused (registers.ID.MAJOR: overlaps another field)
+[ok] contract arm ring not a power of two: refused (adp rx: 192 words is not a power of two below 2^(index_bits-1))
+[ok] contract arm rings overlap: refused (adp tx overlaps adp rx)
+[ok] contract arm two channels, one EtherType: refused (acmp repeats a classification of adp)
+[ok] contract arm register outside its block: refused (registers.BUS_ERR: offset 0x400 is unaligned or outside 0x400)
+[ok] contract arm register with no fabric source: refused (register BUS_ERRX: the skeleton has no fabric source for every field)
+[ok] contract arm term past the frame: refused (channels.acmp: a field at byte 124 ends past max_frame_bytes 128)
+selftest: 0 arm(s) failed

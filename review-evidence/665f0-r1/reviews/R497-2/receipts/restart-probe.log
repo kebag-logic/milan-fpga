@@ -1,0 +1,11 @@
+initial available: type=0 index=0 sends=1
+shutdown blocked: pending=2 saved_index=1 state=0
+restart expiry while blocked: pending=1 saved_index=0 state=2
+  [FAIL] restart expiry preserves the owed DEPARTING
+first successful send after recovery: type=0 index=0 sends=2
+  [FAIL] DEPARTING with the shutdown index precedes the restarted AVAILABLE
+model restart expiry: pending=1 saved_index=0
+model first new frame after recovery: type=0 index=0
+  [FAIL] integration: pending DEPARTING index 1 survives restart and timer expiry
+== restart while DEPARTING is owed: checks: 8   failures: 3 ==
+RESULT: FAIL

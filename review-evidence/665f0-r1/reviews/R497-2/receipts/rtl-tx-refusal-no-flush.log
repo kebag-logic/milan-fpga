@@ -1,0 +1,15 @@
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=23
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=12 exp=2
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=46
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=20 exp=3
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=69
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=28 exp=4
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=92
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=37 exp=5
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=115
+  [FAIL] X1 a header whose payload lies past TX_HEAD is refused, not read got=41 exp=6
+  [FAIL] X1 the ring carries the next good record after the refusals
+  [FAIL] H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused: TX_ERR counts it got=5 exp=1
+== mbx (Wishbone host): checks: 134   failures: 13 ==
+RESULT: FAIL
