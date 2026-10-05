@@ -11,6 +11,12 @@ after the restore. Each must fail its check. Two more cover the arms the
 ruling's two cannot reach: the output clip, which only the boot-window arm
 exercises, and the crossbar RAMs, which only the CSR readback grades.
 
+Seven more remove the boot window's guard arms, one each (review R490-1 F1):
+the CSR writer's hold at all four sites, then at each store alone; the
+CLOSED terminal; the sweep after the terminal; its drain clock; and the edit
+face's wait. Each is caught by the staged arm that places its stimulus on
+the clock the guard owns.
+
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
 whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
@@ -77,6 +83,33 @@ WRITER = "  wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;"
 EMPTY = [(IMG_IN, IMG_IN.replace("amap_in_image()", "'0")),
          (IMG_OUT, IMG_OUT.replace("amap_out_image()", "'0"))]
 
+#: the CSR writer's hold at its four sites: the two crossbar write muxes and
+#: the two stores (review R490-1 F1). The RAM sites are not planted alone:
+#: on this shape the boot writer drives both write legs on every busy clock
+#: and each mux gives that leg priority, so neither RAM site can change a
+#: write here (README, "The boot window's guard arms").
+HOLD = "&& !amap_boot_busy_w && !aecp_locked"
+HOLD_CAPTURE_RAM = ("(!aecp_odmap_wr_p_w && !amap_edit_txn_active_r\n"
+                    f"                     {HOLD}")
+HOLD_RENDER_RAM = ("(!aecp_dmap_wr_p_w && !amap_edit_txn_active_r\n"
+                   f"                     {HOLD}")
+HOLD_OUT_STORE = (f"          {HOLD}\n"
+                  "          && cfg_chmap_wr_en && cfg_chmap_wr_side")
+HOLD_IN_STORE = (f"          {HOLD}\n"
+                 "          && cfg_chmap_wr_en && !cfg_chmap_wr_side")
+
+
+def unheld(site: str) -> tuple[str, str]:
+    """The edit that removes the hold's term at one site."""
+    return (site, site.replace(HOLD, "&& !aecp_locked"))
+
+
+#: the window's end: its terminal, its sweep and the sweep's drain clock
+TERMINAL = "if (amap_boot_r && (pp_restore_done_w || pp_restore_closed_w)) begin"
+SWEEP = "        amap_boot_last_r <= 1'b1;\n"
+DRAIN = "      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;"
+WAIT = "  assign pp_amap_edit_wait_w = amap_boot_busy_w;"
+
 # (leg, name, [(the text it replaces, its replacement)], the check it must fail)
 MUTATIONS = [
     ("dynmap", "an empty reset: the power-on image holds no mapping", EMPTY,
@@ -91,6 +124,31 @@ MUTATIONS = [
     ("dynmap", "the boot writer never fills the crossbar RAMs",
      [(WRITER, "  wire amap_boot_wr_w   = 1'b0;")],
      "[DYNMAP] power-on: render RAM keys 2..9 hold the input map"),
+    ("dynmap", "the CSR writer is not held while the boot writer is busy",
+     [unheld(HOLD_CAPTURE_RAM), unheld(HOLD_RENDER_RAM), unheld(HOLD_OUT_STORE),
+      unheld(HOLD_IN_STORE)],
+     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
+    ("dynmap", "the input store alone takes a CSR write while the writer is busy",
+     [unheld(HOLD_IN_STORE)],
+     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
+    ("dynmap", "the output store alone takes a CSR write while the writer is busy",
+     [unheld(HOLD_OUT_STORE)],
+     "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM"),
+    ("dynmap", "the boot window ignores the CLOSED terminal",
+     [(TERMINAL, "if (amap_boot_r && pp_restore_done_w) begin")],
+     "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED "
+     "has ended"),
+    ("dynmap", "no sweep after the restore's terminal",
+     [(SWEEP, "        amap_boot_last_r <= 1'b0;\n")],
+     "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the "
+     "input map"),
+    ("dynmap", "no drain clock: busy ends while the last boot write is in flight",
+     [(DRAIN, "      amap_boot_drain_r <= 1'b0;")],
+     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
+    ("dynmap", "the edit face never waits for the boot writer",
+     [(WAIT, "  assign pp_amap_edit_wait_w = 1'b0;")],
+     "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep "
+     "ends"),
     ("listener", "an empty reset, under the listener's end-to-end check", EMPTY,
      "T18 POWER-ON: with no map command since the reset, the lane renders "
      "injected events"),

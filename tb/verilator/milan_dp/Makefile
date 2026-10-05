@@ -514,8 +514,8 @@ dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 dynmap: dynmap-build
 	$(abspath $(DYNMAP_MDIR))/Vmilan_dp_dynmap
 
-# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: six
-# mutated elaborations, four of the dynmap leg and one each of the two
+# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 13
+# mutated elaborations, 11 of the dynmap leg and one each of the two
 # end-to-end legs it names (milan_dp_render's and capture_coherence's
 # datapath leg), each with its clean control run.
 dynmap-mutants: dynmap
