@@ -1,0 +1,16 @@
+{
+  "name": "lv-mutants",
+  "command": [
+    "python3",
+    "tb/srp_top/mutants.py",
+    "--jobs",
+    "4",
+    "--only",
+    "lv-second-lv-ends,lv-never-ends,lv-expiry-masked,lv-expiry-last,lv-expiry-dropped,lv-sweep-misses-collision",
+    "--output",
+    "$REVIEWS/pp134-r489-2-packet/receipts/lv-mutants"
+  ],
+  "head": "9050c4bbd25556929a0f24fb98258bc98e3bcfbe",
+  "rc": 0,
+  "seconds": 73.46
+}
