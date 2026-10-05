@@ -4212,11 +4212,13 @@ class NxnDatapathHarness {
         grade_the_crossbar_rams("4->8", 4, out_n);
 
         dynmap_restored_format_section(fin, fout, in_n, out_n);
+        #ifdef DYNMAP_DEFAULT_TB
         //! the boot writer's sweep walks the larger key space: the input
         //! store keys one word per cluster of the dynamic input port, the
         //! output store one per stream channel, 8 per STREAM_OUTPUT
         dynmap_boot_window_guards_section(fin, fout, in_n, out_n,
                                           std::max(in_cl, 8L));
+        #endif
         //! every page above and below ran: a GET that never answered would
         //! otherwise leave its identity checks unrun rather than failed
         ck("[DYNMAP] every identity page ran (vacuity guard)",
@@ -4288,6 +4290,9 @@ class NxnDatapathHarness {
         grade_identity_page("restored 4->8 SPI 0", 0x000E, 0, 4);
     }
 
+    //! the guard arms reach state only dynmap_probes.vlt opens, and they
+    //! read the stores at the shipping shape's widths: the dynmap leg alone
+    #ifdef DYNMAP_DEFAULT_TB
     // ==================================================================
     //  THE BOOT WINDOW'S GUARD ARMS (#658 review R490-1 F1). Four arms keep
     //  the stores and the crossbar RAMs one map across the window's end:
@@ -4524,6 +4529,7 @@ class NxnDatapathHarness {
         dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
         dynmap_edit_meets_the_sweep(out_n);
     }
+    #endif
 
     // ==================================================================
     //  DELETED 2026-08-13: the 5.5.2.7 SRP-only licence at t>0 straight from reset.
