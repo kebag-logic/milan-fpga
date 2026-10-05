@@ -1,0 +1,50 @@
+{
+  "result": "PASS",
+  "head": "3880c1eb6e2f927a07f98150d5b05a228f8f4efd",
+  "tree": "6bba0f2cf6c330ca1bd5cb012b571e69044b0dd7",
+  "clean_remerge_equal": true,
+  "prior_reviewed_candidate_tree": "57cc8b8afa04c315e99e5aa2f4bb84469f24df06",
+  "gptp_model_input_paths_unchanged": [
+    "hdl",
+    "tb/verilator",
+    "sw/firmware",
+    "configs",
+    "syn",
+    "sw/litex",
+    "protocol-processor",
+    "gptp-processor",
+    "third_party",
+    "scripts"
+  ],
+  "python_ast_equal": [
+    "avdecc/gen_aemi_image.py",
+    "sw/builder/test_builder.py"
+  ],
+  "round2_build_inputs_unchanged": [
+    "scripts/pp_srcs.py",
+    "syn/ooc/dp_srcs.py",
+    "syn/ooc/pp_resource_gate.py",
+    "syn/ooc/pp_baseline.py",
+    "syn/ooc/pp_baseline.tcl",
+    "syn/ooc/pp_shadow_ooc.tcl",
+    "tb/verilator/milan_dp/Makefile",
+    "syn/yosys/run.sh",
+    "syn/yosys/ooc.sh",
+    "sw/litex/milan_soc.py",
+    "sw/firmware",
+    "configs",
+    "protocol-processor",
+    "gptp-processor",
+    "third_party/verilog-axis"
+  ],
+  "round2_only_parent_rtl_delta": [
+    "hdl/milan/KL_nvm_backend.sv"
+  ],
+  "ports": 212,
+  "parameter_counts": [
+    41,
+    42
+  ],
+  "added_parameter": "NVM_MEM_TMO_CYC_P",
+  "baseline_policy_and_identity_equal": true
+}

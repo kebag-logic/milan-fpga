@@ -1,0 +1,12 @@
+{"case": "complete-cycle", "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 5, "repeats": 0, "departing_resets": 1, "first": 3, "last": 1}}
+{"case": "depart-zero", "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 3, "repeats": 0, "departing_resets": 1, "first": 0, "last": 1}}
+{"case": "repeat-after-reset", "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 3, "repeats": 1, "departing_resets": 1, "first": 5, "last": 0}}
+{"case": "nonzero-after-depart", "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 3, "repeats": 1, "departing_resets": 0, "first": 4, "last": 5}}
+{"case": "ordinary-repeat", "expected": "FAIL", "observed": "FAIL", "detail": {"adpdus": 2, "repeats": 1, "departing_resets": 0, "first": 4, "last": 4}}
+{"case": "wrap", "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 3, "repeats": 0, "departing_resets": 0, "first": 4294967295, "last": 1}}
+{"case": "repeated-cycles", "expected": "PASS", "observed": "PASS", "detail": {"adpdus": 6, "repeats": 0, "departing_resets": 2, "first": 0, "last": 1}}
+{"case": "entity-isolation", "verdicts": {"wt.adp.available-index-advances.0000000000000001": "PASS", "wt.adp.available-index-advances.0000000000000002": "FAIL"}}
+control: rc=0; committed four-arm test passes
+any-value-after-depart: rc=1; killed by the committed four-arm test
+any-zero: rc=1; killed by the committed four-arm test
+all-later-zero: rc=1; killed by the committed four-arm test

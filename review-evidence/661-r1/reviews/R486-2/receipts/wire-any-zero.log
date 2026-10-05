@@ -1,0 +1,20 @@
+test_available_index_resets_after_departing (__main__.ExemptionControl.test_available_index_resets_after_departing)
+6.2.2.15: the index resets to 0 after an ENTITY_DEPARTING, so the ... FAIL
+
+======================================================================
+FAIL: test_available_index_resets_after_departing (__main__.ExemptionControl.test_available_index_resets_after_departing)
+6.2.2.15: the index resets to 0 after an ENTITY_DEPARTING, so the
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEW_SCRATCH/wire/any-zero/avtp_wire_truth_selftest.py", line 363, in test_available_index_resets_after_departing
+    self.assertEqual(v.verdict, "FAIL")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PASS' != 'FAIL'
+- PASS
++ FAIL
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
