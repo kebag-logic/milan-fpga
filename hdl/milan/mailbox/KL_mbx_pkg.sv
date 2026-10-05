@@ -92,9 +92,9 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CAPS_EVT_WORDS_LOG2_WIDTH_C = 32'd4;
   //! The interrupt causes. RX and EVT are levels: they stay set while the ring holds an unconsumed record and clear when the core advances its tail. ERR is sticky and cleared by writing 1.
   localparam int unsigned MBX_REG_IRQ_STATUS_C = 32'h00000008;
-  //! IRQ_STATUS: bit c: channel c's RX ring is not empty (level)
+  //! IRQ_STATUS: bit c: channel c's receive ring is not empty (level)
   localparam int unsigned MBX_IRQ_STATUS_RX_LSB_C = 32'd0;
-  //! IRQ_STATUS: bit c: channel c's RX ring is not empty (level)
+  //! IRQ_STATUS: bit c: channel c's receive ring is not empty (level)
   localparam int unsigned MBX_IRQ_STATUS_RX_WIDTH_C = 32'd8;
   //! IRQ_STATUS: the event ring is not empty (level)
   localparam int unsigned MBX_IRQ_STATUS_EVT_LSB_C = 32'd8;
@@ -236,7 +236,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
   //! bytes per channel block
   localparam int unsigned MBX_CH_STRIDE_C = 32'h00000020;
-  //! Words the fabric has committed into the RX ring, modulo 2^16.
+  //! Words the fabric has committed into the receive ring, modulo 2^16.
   localparam int unsigned MBX_CH_REG_RX_HEAD_C = 32'h00000000;
   //! RX_HEAD: producer count
   localparam int unsigned MBX_RX_HEAD_WORDS_LSB_C = 32'd0;
@@ -248,13 +248,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_RX_TAIL_WORDS_LSB_C = 32'd0;
   //! RX_TAIL: consumer count
   localparam int unsigned MBX_RX_TAIL_WORDS_WIDTH_C = 32'd16;
-  //! Words the core has committed into the TX ring. Writing it is the TX doorbell.
+  //! Words the core has committed into the transmit ring. Writing it is the TX doorbell.
   localparam int unsigned MBX_CH_REG_TX_HEAD_C = 32'h00000008;
   //! TX_HEAD: producer count
   localparam int unsigned MBX_TX_HEAD_WORDS_LSB_C = 32'd0;
   //! TX_HEAD: producer count
   localparam int unsigned MBX_TX_HEAD_WORDS_WIDTH_C = 32'd16;
-  //! Words the fabric has consumed from the TX ring.
+  //! Words the fabric has consumed from the transmit ring.
   localparam int unsigned MBX_CH_REG_TX_TAIL_C = 32'h0000000C;
   //! TX_TAIL: consumer count
   localparam int unsigned MBX_TX_TAIL_WORDS_LSB_C = 32'd0;
@@ -278,7 +278,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TX_ERR_COUNT_LSB_C = 32'd0;
   //! TX_ERR: records
   localparam int unsigned MBX_TX_ERR_COUNT_WIDTH_C = 32'd16;
-  //! Frames committed into the RX ring, modulo 2^16.
+  //! Frames committed into the receive ring, modulo 2^16.
   localparam int unsigned MBX_CH_REG_RX_PASS_C = 32'h0000001C;
   //! RX_PASS: frames
   localparam int unsigned MBX_RX_PASS_COUNT_LSB_C = 32'd0;
@@ -396,13 +396,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_WIDTH_C = 32'd32;
   //! channel adp
   localparam int unsigned MBX_CH_ADP_C = 32'd0;
-  //! adp RX ring byte offset
+  //! adp receive ring byte offset
   localparam int unsigned MBX_CH_ADP_RX_BASE_C = 32'h00001000;
-  //! adp RX ring words
+  //! adp receive ring words
   localparam int unsigned MBX_CH_ADP_RX_WORDS_C = 32'd256;
-  //! adp TX ring byte offset
+  //! adp transmit ring byte offset
   localparam int unsigned MBX_CH_ADP_TX_BASE_C = 32'h00001400;
-  //! adp TX ring words
+  //! adp transmit ring words
   localparam int unsigned MBX_CH_ADP_TX_WORDS_C = 32'd128;
   //! adp largest frame
   localparam int unsigned MBX_CH_ADP_MAX_FRAME_BYTES_C = 32'd128;
@@ -432,13 +432,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ADP_T1_MSG_MASK_C = 32'h00000004;
   //! channel acmp
   localparam int unsigned MBX_CH_ACMP_C = 32'd1;
-  //! acmp RX ring byte offset
+  //! acmp receive ring byte offset
   localparam int unsigned MBX_CH_ACMP_RX_BASE_C = 32'h00001800;
-  //! acmp RX ring words
+  //! acmp receive ring words
   localparam int unsigned MBX_CH_ACMP_RX_WORDS_C = 32'd256;
-  //! acmp TX ring byte offset
+  //! acmp transmit ring byte offset
   localparam int unsigned MBX_CH_ACMP_TX_BASE_C = 32'h00001C00;
-  //! acmp TX ring words
+  //! acmp transmit ring words
   localparam int unsigned MBX_CH_ACMP_TX_WORDS_C = 32'd256;
   //! acmp largest frame
   localparam int unsigned MBX_CH_ACMP_MAX_FRAME_BYTES_C = 32'd128;
@@ -468,13 +468,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ACMP_T1_MSG_MASK_C = 32'h0000FFFF;
   //! channel aecp
   localparam int unsigned MBX_CH_AECP_C = 32'd2;
-  //! aecp RX ring byte offset
+  //! aecp receive ring byte offset
   localparam int unsigned MBX_CH_AECP_RX_BASE_C = 32'h00002000;
-  //! aecp RX ring words
+  //! aecp receive ring words
   localparam int unsigned MBX_CH_AECP_RX_WORDS_C = 32'd512;
-  //! aecp TX ring byte offset
+  //! aecp transmit ring byte offset
   localparam int unsigned MBX_CH_AECP_TX_BASE_C = 32'h00002800;
-  //! aecp TX ring words
+  //! aecp transmit ring words
   localparam int unsigned MBX_CH_AECP_TX_WORDS_C = 32'd512;
   //! aecp largest frame
   localparam int unsigned MBX_CH_AECP_MAX_FRAME_BYTES_C = 32'd1514;
@@ -504,13 +504,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_AECP_T1_MSG_MASK_C = 32'h00000000;
   //! channel maap
   localparam int unsigned MBX_CH_MAAP_C = 32'd3;
-  //! maap RX ring byte offset
+  //! maap receive ring byte offset
   localparam int unsigned MBX_CH_MAAP_RX_BASE_C = 32'h00003000;
-  //! maap RX ring words
+  //! maap receive ring words
   localparam int unsigned MBX_CH_MAAP_RX_WORDS_C = 32'd128;
-  //! maap TX ring byte offset
+  //! maap transmit ring byte offset
   localparam int unsigned MBX_CH_MAAP_TX_BASE_C = 32'h00003200;
-  //! maap TX ring words
+  //! maap transmit ring words
   localparam int unsigned MBX_CH_MAAP_TX_WORDS_C = 32'd128;
   //! maap largest frame
   localparam int unsigned MBX_CH_MAAP_MAX_FRAME_BYTES_C = 32'd64;
@@ -540,13 +540,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_MAAP_T1_MSG_MASK_C = 32'h00000000;
   //! channel srp
   localparam int unsigned MBX_CH_SRP_C = 32'd4;
-  //! srp RX ring byte offset
+  //! srp receive ring byte offset
   localparam int unsigned MBX_CH_SRP_RX_BASE_C = 32'h00004000;
-  //! srp RX ring words
+  //! srp receive ring words
   localparam int unsigned MBX_CH_SRP_RX_WORDS_C = 32'd1024;
-  //! srp TX ring byte offset
+  //! srp transmit ring byte offset
   localparam int unsigned MBX_CH_SRP_TX_BASE_C = 32'h00005000;
-  //! srp TX ring words
+  //! srp transmit ring words
   localparam int unsigned MBX_CH_SRP_TX_WORDS_C = 32'd512;
   //! srp largest frame
   localparam int unsigned MBX_CH_SRP_MAX_FRAME_BYTES_C = 32'd1514;

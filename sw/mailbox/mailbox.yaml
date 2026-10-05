@@ -69,7 +69,7 @@ registers:
       holds an unconsumed record and clear when the core advances its tail. ERR
       is sticky and cleared by writing 1.
     fields:
-      - {name: RX, lsb: 0, width: 8, doc: "bit c: channel c's RX ring is not empty (level)"}
+      - {name: RX, lsb: 0, width: 8, doc: "bit c: channel c's receive ring is not empty (level)"}
       - {name: EVT, lsb: 8, width: 1, doc: the event ring is not empty (level)}
       - {name: ERR, lsb: 31, width: 1, doc: a drop or error counter moved (sticky, write 1 to clear)}
   - name: IRQ_ENABLE
@@ -211,7 +211,7 @@ channel_registers:
     - name: RX_HEAD
       offset: 0x00
       access: ro
-      doc: Words the fabric has committed into the RX ring, modulo 2^16.
+      doc: Words the fabric has committed into the receive ring, modulo 2^16.
       fields:
         - {name: WORDS, lsb: 0, width: 16, doc: producer count}
     - name: RX_TAIL
@@ -223,13 +223,13 @@ channel_registers:
     - name: TX_HEAD
       offset: 0x08
       access: rw
-      doc: Words the core has committed into the TX ring. Writing it is the TX doorbell.
+      doc: Words the core has committed into the transmit ring. Writing it is the TX doorbell.
       fields:
         - {name: WORDS, lsb: 0, width: 16, doc: producer count}
     - name: TX_TAIL
       offset: 0x0C
       access: ro
-      doc: Words the fabric has consumed from the TX ring.
+      doc: Words the fabric has consumed from the transmit ring.
       fields:
         - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
     - name: RX_DROP
@@ -253,7 +253,7 @@ channel_registers:
     - name: RX_PASS
       offset: 0x1C
       access: ro
-      doc: Frames committed into the RX ring, modulo 2^16.
+      doc: Frames committed into the receive ring, modulo 2^16.
       fields:
         - {name: COUNT, lsb: 0, width: 16, doc: frames}
 

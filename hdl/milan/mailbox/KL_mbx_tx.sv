@@ -39,7 +39,7 @@ module KL_mbx_tx
   output logic [MBX_N_CH_C*16-1:0]    tx_err_cnt_o,     //! TX_ERR per channel, saturating
   output logic                        err_p_o,          //! one-cycle pulse: TX_ERR moved
 
-  output logic                        rd_en_o,          //! read one TX ring word
+  output logic                        rd_en_o,          //! read one transmit ring word
   output logic [MBX_CH_W_C-1:0]       rd_ch_o,          //! the ring's channel
   output logic [MBX_RING_AW_C-1:0]    rd_addr_o,        //! word index inside that ring
   input  wire  [31:0]                 rd_data_i,        //! the word, one cycle after rd_en_o

@@ -36,9 +36,9 @@ interrupt, 32-bit accesses only and no DMA.
 ```mermaid
 flowchart LR
     MAC[MAC RX] --> F[Ingress filter<br/>classify, accept terms,<br/>token bucket]
-    F --> RX[RX ring per channel]
+    F --> RX[receive ring per channel]
     RX --> CORE[Bare-metal core<br/>event loop]
-    CORE --> TX[TX ring per channel]
+    CORE --> TX[transmit ring per channel]
     TX --> M[TX merge] --> MACTX[MAC TX]
     T[Fabric timers] --> E[Event ring]
     GM[gPTP plane:<br/>grandmaster change] --> E
@@ -120,7 +120,7 @@ their record waits are posted as one record with the count.
 
 The doorbells are the counter writes themselves: RX_TAIL releases RX space,
 TX_HEAD commits TX records, EVT_TAIL releases events. The one interrupt is
-the OR of the enabled levels (an RX ring or the event ring not empty) and a
+the OR of the enabled levels (an receive ring or the event ring not empty) and a
 sticky error, so a service pass that drains the rings leaves the line low.
 
 ## The ingress filter
@@ -313,7 +313,7 @@ placed and routed (2026-10-05, the lane's head):
 All nets routed, WNS +0.311 ns at 10 ns, no DSP. The rows sum to 2,737 LUT:
 the remainder is logic of the flattened rings and LUTs Vivado combined across
 the hierarchy. The eleven rings (ten channel rings and the event ring) are one
-block RAM each: the SRP RX ring the RAMB36, every other a RAMB18. There is no
+block RAM each: the SRP receive ring the RAMB36, every other a RAMB18. There is no
 bar yet (#665). It is above the
 #640 estimate of 1,500 to 2,000 LUT for the added fabric; the obvious levers
 are the timer bank (sixteen 48-bit slots in flip-flops, scanned one per clock,
@@ -342,7 +342,7 @@ report_timing_summary -delay_type max
 - **The listener's ADP terms** (above), for F3.
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
   has no PDU transmit hook yet; F4 adds one as a lwSRP pull request, and its
-  frames then enter the SRP channel's TX ring as header plus MRPDU.
+  frames then enter the SRP channel's transmit ring as header plus MRPDU.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
   simulation.

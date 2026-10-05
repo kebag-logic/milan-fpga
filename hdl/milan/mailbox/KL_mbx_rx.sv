@@ -6,13 +6,13 @@
 //  File        : KL_mbx_rx.sv
 //  Project     : Milan FPGA Platform (packet mailbox, #665 lane F0)
 //
-//  Description : The ingress filter and the RX ring writer. A frame arrives
+//  Description : The ingress filter and the receive ring writer. A frame arrives
 //                one byte per accepted cycle. Its EtherType (wire bytes 12
 //                and 13) and AVTP subtype (byte 14) pick at most one channel;
 //                every channel's accept terms are evaluated as the bytes pass
 //                (an 8-byte compare against OWN_EID or zero, or a MAAP range
 //                captured for the overlap test), and the frame's words are
-//                written into the picked channel's RX ring speculatively,
+//                written into the picked channel's receive ring speculatively,
 //                past the ring's head. At the last byte the verdict is
 //                taken: a frame for no open channel, or one no accept term
 //                passes, is dropped silently (it is not addressed to this
@@ -54,7 +54,7 @@ module KL_mbx_rx
   input  wire                               rx_last_i,        //! the byte is the frame's last (FCS already stripped)
   input  wire  [MBX_IF_W_C-1:0]             rx_if_i,          //! interface the frame arrived on, held for the frame
 
-  output logic                              wr_en_o,          //! write one RX ring word
+  output logic                              wr_en_o,          //! write one receive ring word
   output logic [MBX_CH_W_C-1:0]             wr_ch_o,          //! the ring's channel
   output logic [MBX_RING_AW_C-1:0]          wr_addr_o,        //! word index inside that ring
   output logic [31:0]                       wr_data_o,        //! the word

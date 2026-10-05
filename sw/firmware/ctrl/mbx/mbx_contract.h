@@ -91,9 +91,9 @@
 #define MBX_CAPS_EVT_WORDS_LOG2_WIDTH 4u
 /* The interrupt causes. RX and EVT are levels: they stay set while the ring holds an unconsumed record and clear when the core advances its tail. ERR is sticky and cleared by writing 1. */
 #define MBX_REG_IRQ_STATUS 0x8u
-/* IRQ_STATUS: bit c: channel c's RX ring is not empty (level) */
+/* IRQ_STATUS: bit c: channel c's receive ring is not empty (level) */
 #define MBX_IRQ_STATUS_RX_LSB 0u
-/* IRQ_STATUS: bit c: channel c's RX ring is not empty (level) */
+/* IRQ_STATUS: bit c: channel c's receive ring is not empty (level) */
 #define MBX_IRQ_STATUS_RX_WIDTH 8u
 /* IRQ_STATUS: the event ring is not empty (level) */
 #define MBX_IRQ_STATUS_EVT_LSB 8u
@@ -235,7 +235,7 @@
 #define MBX_CH_BASE 0x100u
 /* bytes per channel block */
 #define MBX_CH_STRIDE 0x20u
-/* Words the fabric has committed into the RX ring, modulo 2^16. */
+/* Words the fabric has committed into the receive ring, modulo 2^16. */
 #define MBX_CH_REG_RX_HEAD 0x0u
 /* RX_HEAD: producer count */
 #define MBX_RX_HEAD_WORDS_LSB 0u
@@ -247,13 +247,13 @@
 #define MBX_RX_TAIL_WORDS_LSB 0u
 /* RX_TAIL: consumer count */
 #define MBX_RX_TAIL_WORDS_WIDTH 16u
-/* Words the core has committed into the TX ring. Writing it is the TX doorbell. */
+/* Words the core has committed into the transmit ring. Writing it is the TX doorbell. */
 #define MBX_CH_REG_TX_HEAD 0x8u
 /* TX_HEAD: producer count */
 #define MBX_TX_HEAD_WORDS_LSB 0u
 /* TX_HEAD: producer count */
 #define MBX_TX_HEAD_WORDS_WIDTH 16u
-/* Words the fabric has consumed from the TX ring. */
+/* Words the fabric has consumed from the transmit ring. */
 #define MBX_CH_REG_TX_TAIL 0xCu
 /* TX_TAIL: consumer count */
 #define MBX_TX_TAIL_WORDS_LSB 0u
@@ -277,7 +277,7 @@
 #define MBX_TX_ERR_COUNT_LSB 0u
 /* TX_ERR: records */
 #define MBX_TX_ERR_COUNT_WIDTH 16u
-/* Frames committed into the RX ring, modulo 2^16. */
+/* Frames committed into the receive ring, modulo 2^16. */
 #define MBX_CH_REG_RX_PASS 0x1Cu
 /* RX_PASS: frames */
 #define MBX_RX_PASS_COUNT_LSB 0u
@@ -395,13 +395,13 @@
 #define MBX_EV_TICK_W3_NOW_MS_WIDTH 32u
 /* channel adp */
 #define MBX_CH_ADP 0u
-/* adp RX ring byte offset */
+/* adp receive ring byte offset */
 #define MBX_CH_ADP_RX_BASE 0x1000u
-/* adp RX ring words */
+/* adp receive ring words */
 #define MBX_CH_ADP_RX_WORDS 256u
-/* adp TX ring byte offset */
+/* adp transmit ring byte offset */
 #define MBX_CH_ADP_TX_BASE 0x1400u
-/* adp TX ring words */
+/* adp transmit ring words */
 #define MBX_CH_ADP_TX_WORDS 128u
 /* adp largest frame */
 #define MBX_CH_ADP_MAX_FRAME_BYTES 128u
@@ -431,13 +431,13 @@
 #define MBX_CH_ADP_T1_MSG_MASK 0x4u
 /* channel acmp */
 #define MBX_CH_ACMP 1u
-/* acmp RX ring byte offset */
+/* acmp receive ring byte offset */
 #define MBX_CH_ACMP_RX_BASE 0x1800u
-/* acmp RX ring words */
+/* acmp receive ring words */
 #define MBX_CH_ACMP_RX_WORDS 256u
-/* acmp TX ring byte offset */
+/* acmp transmit ring byte offset */
 #define MBX_CH_ACMP_TX_BASE 0x1C00u
-/* acmp TX ring words */
+/* acmp transmit ring words */
 #define MBX_CH_ACMP_TX_WORDS 256u
 /* acmp largest frame */
 #define MBX_CH_ACMP_MAX_FRAME_BYTES 128u
@@ -467,13 +467,13 @@
 #define MBX_CH_ACMP_T1_MSG_MASK 0xFFFFu
 /* channel aecp */
 #define MBX_CH_AECP 2u
-/* aecp RX ring byte offset */
+/* aecp receive ring byte offset */
 #define MBX_CH_AECP_RX_BASE 0x2000u
-/* aecp RX ring words */
+/* aecp receive ring words */
 #define MBX_CH_AECP_RX_WORDS 512u
-/* aecp TX ring byte offset */
+/* aecp transmit ring byte offset */
 #define MBX_CH_AECP_TX_BASE 0x2800u
-/* aecp TX ring words */
+/* aecp transmit ring words */
 #define MBX_CH_AECP_TX_WORDS 512u
 /* aecp largest frame */
 #define MBX_CH_AECP_MAX_FRAME_BYTES 1514u
@@ -503,13 +503,13 @@
 #define MBX_CH_AECP_T1_MSG_MASK 0x0u
 /* channel maap */
 #define MBX_CH_MAAP 3u
-/* maap RX ring byte offset */
+/* maap receive ring byte offset */
 #define MBX_CH_MAAP_RX_BASE 0x3000u
-/* maap RX ring words */
+/* maap receive ring words */
 #define MBX_CH_MAAP_RX_WORDS 128u
-/* maap TX ring byte offset */
+/* maap transmit ring byte offset */
 #define MBX_CH_MAAP_TX_BASE 0x3200u
-/* maap TX ring words */
+/* maap transmit ring words */
 #define MBX_CH_MAAP_TX_WORDS 128u
 /* maap largest frame */
 #define MBX_CH_MAAP_MAX_FRAME_BYTES 64u
@@ -539,13 +539,13 @@
 #define MBX_CH_MAAP_T1_MSG_MASK 0x0u
 /* channel srp */
 #define MBX_CH_SRP 4u
-/* srp RX ring byte offset */
+/* srp receive ring byte offset */
 #define MBX_CH_SRP_RX_BASE 0x4000u
-/* srp RX ring words */
+/* srp receive ring words */
 #define MBX_CH_SRP_RX_WORDS 1024u
-/* srp TX ring byte offset */
+/* srp transmit ring byte offset */
 #define MBX_CH_SRP_TX_BASE 0x5000u
-/* srp TX ring words */
+/* srp transmit ring words */
 #define MBX_CH_SRP_TX_WORDS 512u
 /* srp largest frame */
 #define MBX_CH_SRP_MAX_FRAME_BYTES 1514u

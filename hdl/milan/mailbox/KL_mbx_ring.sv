@@ -9,9 +9,9 @@
 //  Description : One mailbox ring's storage: WORDS_P x 32 bits of simple
 //                dual-port block RAM, one write port and one registered
 //                read port. A ring has exactly one producer and one
-//                consumer, so it never needs a second write port: an RX ring
+//                consumer, so it never needs a second write port: an receive ring
 //                and the event ring are written by the fabric and read by
-//                the host, a TX ring is written by the host and read by the
+//                the host, a transmit ring is written by the host and read by the
 //                fabric. The head and tail counters that give the words
 //                their meaning live with their owners in KL_mbx, never here.
 //

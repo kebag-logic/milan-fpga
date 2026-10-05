@@ -32,11 +32,11 @@ extern "C" {
 enum mbx_status {
 	MBX_STATUS_OK = 0,      // done
 	MBX_STATUS_EMPTY,       // nothing to take
-	MBX_STATUS_FULL,        // the TX ring has no room for the record now
+	MBX_STATUS_FULL,        // the transmit ring has no room for the record now
 	MBX_STATUS_BAD,         // refused: a malformed record or argument
 };
 
-// One received frame, copied out of its RX ring.
+// One received frame, copied out of its receive ring.
 struct mbx_frame {
 	uint16_t len;                           // frame bytes
 	uint8_t interface;                      // interface it arrived on

@@ -512,7 +512,7 @@ static uint32_t read_interface(struct mbx_model *m, unsigned i, uint32_t reg)
 	return reg == MBX_IF_REG_DOMAIN ? m->domain_snap[i] : 0u;
 }
 
-// The ring a byte offset falls in, as an RX ring of channel *c, or the event
+// The ring a byte offset falls in, as an receive ring of channel *c, or the event
 // ring (*c = MBX_N_CH); -1 when it falls in none the host may read.
 static int readable_ring(uint32_t off, unsigned *c)
 {

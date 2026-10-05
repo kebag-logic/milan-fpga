@@ -178,7 +178,7 @@ def _word_rows(words: tuple[Word, ...], label: str) -> list[str]:
 
 def _channel_rows(contract: Contract) -> list[str]:
     """The channel table and one rule table per channel."""
-    out = ["| Channel | id | RX ring | TX ring | Max frame | Match | Rate |",
+    out = ["| Channel | id | receive ring | transmit ring | Max frame | Match | Rate |",
            "|---|---:|---|---|---:|---|---|"]
     for ch in contract.channels:
         match = " or ".join(f"`0x{e:04X}`" for e in ch.ethertypes)

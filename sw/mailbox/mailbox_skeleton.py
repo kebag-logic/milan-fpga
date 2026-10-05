@@ -86,9 +86,9 @@ def _banner() -> list[str]:
         "//  Project     : Milan FPGA Platform (packet mailbox, #665 lane F0)",
         "//",
         "//  Description : The fabric skeleton of the packet mailbox: the host",
-        "//                window (registers, RX rings and the event ring to read,",
-        "//                TX rings to write), the ingress filter feeding the RX",
-        "//                rings, the TX merge draining the TX rings, the fabric",
+        "//                window (registers, receive rings and the event ring to read,",
+        "//                transmit rings to write), the ingress filter feeding the RX",
+        "//                rings, the TX merge draining the transmit rings, the fabric",
         "//                timers and the event poster, and the one interrupt.",
         "//                Reachable only behind the SoC's default-off mailbox",
         "//                switch; the default build never elaborates it.",
@@ -282,7 +282,7 @@ def _read_block(contract: Contract) -> list[str]:
 
 
 def _ring_block(contract: Contract) -> list[str]:
-    """The event ring and one RX and one TX ring per channel, with their host windows."""
+    """The event ring and one RX and one transmit ring per channel, with their host windows."""
     out = ["  // ---- the rings ------------------------------------------------------------------",
            "  logic [31:0] evt_rdata_w;",
            "  logic        evt_host_w;   //! the host reads the event ring this cycle",
@@ -301,7 +301,8 @@ def _ring_block(contract: Contract) -> list[str]:
             base = f"MBX_CH_{up}_{d}_BASE_C"
             aw = f"$clog2({words})"
             host = f"{lo}_{d.lower()}_host_w"
-            out += [f"  // channel {lo} ({ch.ident}): {d} ring at 0x{ch.rx_base if d == 'RX' else ch.tx_base:04X}",
+            word = "receive" if d == "RX" else "transmit"
+            out += [f"  // channel {lo} ({ch.ident}): {word} ring at 0x{ch.rx_base if d == 'RX' else ch.tx_base:04X}",
                     f"  logic [31:0] {lo}_{d.lower()}_rdata_w;",
                     f"  logic        {host};   //! the host {'reads' if d == 'RX' else 'writes'} this ring this cycle",
                     f"  assign {host} = {'rd_w' if d == 'RX' else 'wr_w'} && off_w >= {AW}'({base})",
@@ -327,8 +328,8 @@ def _mux_block(contract: Contract) -> list[str]:
     rx_sel = [f"{ch.name}_rx_host_w" for ch in contract.channels]
     out = ["  // ---- the answer, one cycle after the request ---------------------------------",
            "  logic        ack_r;", "  logic [31:0] reg_rdata_r;",
-           "  logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's RX ring",
-           "  logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the TX ring the merge read last cycle",
+           "  logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's receive ring",
+           "  logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the transmit ring the merge read last cycle",
            "  always_ff @(posedge clk_i) begin : answer",
            "    if (!rst_n) begin",
            "      ack_r       <= 1'b0;", "      reg_rdata_r <= '0;", "      rsel_r      <= '0;",
@@ -345,7 +346,7 @@ def _mux_block(contract: Contract) -> list[str]:
     for k, ch in enumerate(contract.channels):
         out.append(f"      4'd{2 + k}:    host_rdata_o = {ch.name}_rx_rdata_w;")
     out += ["      default: host_rdata_o = reg_rdata_r;", "    endcase", "  end : answer_mux", "",
-            "  logic [31:0] txr_data_w;   //! the TX ring word the merge asked for last cycle",
+            "  logic [31:0] txr_data_w;   //! the transmit ring word the merge asked for last cycle",
             "  always_comb begin : tx_return", "    unique case (txr_ch_r)"]
     for ch in contract.channels:
         out.append(f"      MBX_CH_W_C'(MBX_CH_{ch.name.upper()}_C): txr_data_w = {ch.name}_tx_rdata_w;")

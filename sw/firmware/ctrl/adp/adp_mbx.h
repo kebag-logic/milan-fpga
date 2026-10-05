@@ -17,7 +17,7 @@
 // expiry that raced a stop or a restart carries an older tag and is counted,
 // never acted on: the mailbox form of Milan v1.2 Table 5.51's "x" cells), the
 // LINK and GM events of an interface to adp_link_change and adp_gm_change,
-// and a poll that retries a frame the TX ring had no room for.
+// and a poll that retries a frame the transmit ring had no room for.
 //
 // SERVICE LATENCY (the D3 ruling on #640: a deterministic bound per response
 // path, stated and tested). Every input is handled inside the service pass

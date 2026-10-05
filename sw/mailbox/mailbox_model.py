@@ -79,7 +79,7 @@ class Term:
 
 @dataclass(frozen=True)
 class Channel:
-    """One mailbox pair: an RX ring, a TX ring and the filter rule feeding RX."""
+    """One mailbox pair: an receive ring, a transmit ring and the filter rule feeding RX."""
 
     name: str
     ident: int
@@ -273,7 +273,7 @@ def _check_rings(contract: Contract) -> None:
         spans.append((ch.rx_base, ch.rx_words, f"{ch.name} rx"))
         spans.append((ch.tx_base, ch.tx_words, f"{ch.name} tx"))
         if (2 + (ch.max_frame_bytes + 3) // 4) > ch.rx_words:
-            raise ContractError(f"{ch.name}: one max_frame_bytes record does not fit the RX ring")
+            raise ContractError(f"{ch.name}: one max_frame_bytes record does not fit the receive ring")
     for base, words, label in spans:
         size = words * 4
         if not _power_of_two(words) or words > (1 << (contract.index_bits - 1)):
@@ -442,10 +442,10 @@ def _channel_constants(contract: Contract) -> list[Constant]:
     for ch in contract.channels:
         up = ch.name.upper()
         out += [Constant(f"CH_{up}", ch.ident, f"channel {ch.name}", False),
-                Constant(f"CH_{up}_RX_BASE", ch.rx_base, f"{ch.name} RX ring byte offset", True),
-                Constant(f"CH_{up}_RX_WORDS", ch.rx_words, f"{ch.name} RX ring words", False),
-                Constant(f"CH_{up}_TX_BASE", ch.tx_base, f"{ch.name} TX ring byte offset", True),
-                Constant(f"CH_{up}_TX_WORDS", ch.tx_words, f"{ch.name} TX ring words", False),
+                Constant(f"CH_{up}_RX_BASE", ch.rx_base, f"{ch.name} receive ring byte offset", True),
+                Constant(f"CH_{up}_RX_WORDS", ch.rx_words, f"{ch.name} receive ring words", False),
+                Constant(f"CH_{up}_TX_BASE", ch.tx_base, f"{ch.name} transmit ring byte offset", True),
+                Constant(f"CH_{up}_TX_WORDS", ch.tx_words, f"{ch.name} transmit ring words", False),
                 Constant(f"CH_{up}_MAX_FRAME_BYTES", ch.max_frame_bytes, f"{ch.name} largest frame", False),
                 Constant(f"CH_{up}_ETHERTYPE0", ch.ethertypes[0], f"{ch.name} EtherType", True),
                 Constant(f"CH_{up}_ETHERTYPE1", ch.ethertypes[-1], f"{ch.name} second EtherType", True),

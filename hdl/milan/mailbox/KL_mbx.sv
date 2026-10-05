@@ -8,9 +8,9 @@
 //  Project     : Milan FPGA Platform (packet mailbox, #665 lane F0)
 //
 //  Description : The fabric skeleton of the packet mailbox: the host
-//                window (registers, RX rings and the event ring to read,
-//                TX rings to write), the ingress filter feeding the RX
-//                rings, the TX merge draining the TX rings, the fabric
+//                window (registers, receive rings and the event ring to read,
+//                transmit rings to write), the ingress filter feeding the RX
+//                rings, the TX merge draining the transmit rings, the fabric
 //                timers and the event poster, and the one interrupt.
 //                Reachable only behind the SoC's default-off mailbox
 //                switch; the default build never elaborates it.
@@ -230,7 +230,7 @@ module KL_mbx
     .rd_data_o (evt_rdata_w)
   );
 
-  // channel adp (0): RX ring at 0x1000
+  // channel adp (0): receive ring at 0x1000
   logic [31:0] adp_rx_rdata_w;
   logic        adp_rx_host_w;   //! the host reads this ring this cycle
   assign adp_rx_host_w = rd_w && off_w >= AW2_C'(MBX_CH_ADP_RX_BASE_C)
@@ -246,7 +246,7 @@ module KL_mbx
     .rd_data_o (adp_rx_rdata_w)
   );
 
-  // channel adp (0): TX ring at 0x1400
+  // channel adp (0): transmit ring at 0x1400
   logic [31:0] adp_tx_rdata_w;
   logic        adp_tx_host_w;   //! the host writes this ring this cycle
   assign adp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ADP_TX_BASE_C)
@@ -262,7 +262,7 @@ module KL_mbx
     .rd_data_o (adp_tx_rdata_w)
   );
 
-  // channel acmp (1): RX ring at 0x1800
+  // channel acmp (1): receive ring at 0x1800
   logic [31:0] acmp_rx_rdata_w;
   logic        acmp_rx_host_w;   //! the host reads this ring this cycle
   assign acmp_rx_host_w = rd_w && off_w >= AW2_C'(MBX_CH_ACMP_RX_BASE_C)
@@ -278,7 +278,7 @@ module KL_mbx
     .rd_data_o (acmp_rx_rdata_w)
   );
 
-  // channel acmp (1): TX ring at 0x1C00
+  // channel acmp (1): transmit ring at 0x1C00
   logic [31:0] acmp_tx_rdata_w;
   logic        acmp_tx_host_w;   //! the host writes this ring this cycle
   assign acmp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_ACMP_TX_BASE_C)
@@ -294,7 +294,7 @@ module KL_mbx
     .rd_data_o (acmp_tx_rdata_w)
   );
 
-  // channel aecp (2): RX ring at 0x2000
+  // channel aecp (2): receive ring at 0x2000
   logic [31:0] aecp_rx_rdata_w;
   logic        aecp_rx_host_w;   //! the host reads this ring this cycle
   assign aecp_rx_host_w = rd_w && off_w >= AW2_C'(MBX_CH_AECP_RX_BASE_C)
@@ -310,7 +310,7 @@ module KL_mbx
     .rd_data_o (aecp_rx_rdata_w)
   );
 
-  // channel aecp (2): TX ring at 0x2800
+  // channel aecp (2): transmit ring at 0x2800
   logic [31:0] aecp_tx_rdata_w;
   logic        aecp_tx_host_w;   //! the host writes this ring this cycle
   assign aecp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_AECP_TX_BASE_C)
@@ -326,7 +326,7 @@ module KL_mbx
     .rd_data_o (aecp_tx_rdata_w)
   );
 
-  // channel maap (3): RX ring at 0x3000
+  // channel maap (3): receive ring at 0x3000
   logic [31:0] maap_rx_rdata_w;
   logic        maap_rx_host_w;   //! the host reads this ring this cycle
   assign maap_rx_host_w = rd_w && off_w >= AW2_C'(MBX_CH_MAAP_RX_BASE_C)
@@ -342,7 +342,7 @@ module KL_mbx
     .rd_data_o (maap_rx_rdata_w)
   );
 
-  // channel maap (3): TX ring at 0x3200
+  // channel maap (3): transmit ring at 0x3200
   logic [31:0] maap_tx_rdata_w;
   logic        maap_tx_host_w;   //! the host writes this ring this cycle
   assign maap_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_MAAP_TX_BASE_C)
@@ -358,7 +358,7 @@ module KL_mbx
     .rd_data_o (maap_tx_rdata_w)
   );
 
-  // channel srp (4): RX ring at 0x4000
+  // channel srp (4): receive ring at 0x4000
   logic [31:0] srp_rx_rdata_w;
   logic        srp_rx_host_w;   //! the host reads this ring this cycle
   assign srp_rx_host_w = rd_w && off_w >= AW2_C'(MBX_CH_SRP_RX_BASE_C)
@@ -374,7 +374,7 @@ module KL_mbx
     .rd_data_o (srp_rx_rdata_w)
   );
 
-  // channel srp (4): TX ring at 0x5000
+  // channel srp (4): transmit ring at 0x5000
   logic [31:0] srp_tx_rdata_w;
   logic        srp_tx_host_w;   //! the host writes this ring this cycle
   assign srp_tx_host_w = wr_w && off_w >= AW2_C'(MBX_CH_SRP_TX_BASE_C)
@@ -393,8 +393,8 @@ module KL_mbx
   // ---- the answer, one cycle after the request ---------------------------------
   logic        ack_r;
   logic [31:0] reg_rdata_r;
-  logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's RX ring
-  logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the TX ring the merge read last cycle
+  logic [3:0]  rsel_r;     //! 0 a register, 1 the event ring, 2 + c channel c's receive ring
+  logic [MBX_CH_W_C-1:0] txr_ch_r;   //! the transmit ring the merge read last cycle
   always_ff @(posedge clk_i) begin : answer
     if (!rst_n) begin
       ack_r       <= 1'b0;
@@ -428,7 +428,7 @@ module KL_mbx
     endcase
   end : answer_mux
 
-  logic [31:0] txr_data_w;   //! the TX ring word the merge asked for last cycle
+  logic [31:0] txr_data_w;   //! the transmit ring word the merge asked for last cycle
   always_comb begin : tx_return
     unique case (txr_ch_r)
       MBX_CH_W_C'(MBX_CH_ADP_C): txr_data_w = adp_tx_rdata_w;

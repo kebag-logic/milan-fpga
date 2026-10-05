@@ -129,7 +129,7 @@ void mbx_model_set_gm(struct mbx_model *m, unsigned interface, uint64_t gm_id, u
 void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id, uint8_t domain);
 
 // One frame on the ingress path (FCS stripped); true when it was committed
-// into an RX ring.
+// into an receive ring.
 bool mbx_model_rx(struct mbx_model *m, const uint8_t *frame, size_t len, unsigned interface);
 
 // Hold the TX merge (records stay in their rings) or let it drain.

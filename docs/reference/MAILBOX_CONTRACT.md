@@ -66,7 +66,7 @@ Byte offsets from the window base.
 |---|---|---|
 | `[31]` | `ERR` | a drop or error counter moved (sticky |
 | `[8]` | `EVT` | the event ring is not empty (level) |
-| `[7:0]` | `RX` | bit c: channel c's RX ring is not empty (level) |
+| `[7:0]` | `RX` | bit c: channel c's receive ring is not empty (level) |
 
 `IRQ_ENABLE` fields:
 
@@ -196,14 +196,14 @@ Channel c's block starts at `0x100 + 0x20 * c`.
 
 | Offset | Register | Access | Meaning |
 |---|---|---|---|
-| `0x000` | `RX_HEAD` | ro | Words the fabric has committed into the RX ring, modulo 2^16. |
+| `0x000` | `RX_HEAD` | ro | Words the fabric has committed into the receive ring, modulo 2^16. |
 | `0x004` | `RX_TAIL` | rw | Words the core has consumed. Writing it releases the space (the RX doorbell). |
-| `0x008` | `TX_HEAD` | rw | Words the core has committed into the TX ring. Writing it is the TX doorbell. |
-| `0x00C` | `TX_TAIL` | ro | Words the fabric has consumed from the TX ring. |
+| `0x008` | `TX_HEAD` | rw | Words the core has committed into the transmit ring. Writing it is the TX doorbell. |
+| `0x00C` | `TX_TAIL` | ro | Words the fabric has consumed from the transmit ring. |
 | `0x010` | `RX_DROP` | ro | Frames the channel accepted but could not store (ring full or over max_frame_bytes), saturating. |
 | `0x014` | `RATE_DROP` | ro | Frames the channel's rate limiter refused, saturating. |
 | `0x018` | `TX_ERR` | ro | TX records the fabric refused, saturating. A refused record flushes the ring to TX_HEAD. |
-| `0x01C` | `RX_PASS` | ro | Frames committed into the RX ring, modulo 2^16. |
+| `0x01C` | `RX_PASS` | ro | Frames committed into the receive ring, modulo 2^16. |
 
 `RX_HEAD` fields:
 
@@ -302,7 +302,7 @@ It passes when its channel is open and one accept term holds.
 It must also fit max_frame_bytes and the free ring space.
 Then the channel's token bucket must hold a token.
 
-| Channel | id | RX ring | TX ring | Max frame | Match | Rate |
+| Channel | id | receive ring | transmit ring | Max frame | Match | Rate |
 |---|---:|---|---|---:|---|---|
 | `adp` | 0 | `0x1000`, 256 words | `0x1400`, 128 words | 128 | `0x22F0`, subtype `0xFA` | burst 8, one token per 10 ms |
 | `acmp` | 1 | `0x1800`, 256 words | `0x1C00`, 256 words | 128 | `0x22F0`, subtype `0xFC` | burst 16, one token per 5 ms |
