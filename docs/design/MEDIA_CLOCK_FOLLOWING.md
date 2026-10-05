@@ -292,11 +292,11 @@ packet grid.
 | One registered compare makes `crf_clk_selected_r` (index equals `AEM_CRF_CLKSRC_C`) | `hdl/milan/milan_datapath.sv:1554-1570` |
 | CRF receiver: bound by the ACMP sink-1 bind or the CSR lever | `hdl/milan/milan_datapath.sv:5508-5572` (`:5537-5538`) |
 | Its `tu_i` takes the parser's `tv` net, because the CRF header carries `tu` where the common header carries `tv` | `hdl/milan/milan_datapath.sv:5530-5534` |
-| Its rate is a 256-PDU, 512 ms window of CRF timestamps, in ns per window | `hdl/ieee1722/crf/KL_crf_rx.sv:21-33`, `:275-277` |
-| Its jump bound is 2,048 ns, derived for a CRF talker inside the local PHC envelope with no arrival jitter | `hdl/ieee1722/crf/KL_crf_rx.sv:279-294` |
-| Its lock: 8 clean PDUs in, 100 ms of silence out | `hdl/ieee1722/crf/KL_crf_rx.sv:34-36`, `:296-298` |
-| Its rate history restarts on a `tu` edge, a timestamp jump, a sequence gap, the bind edge or silence | `hdl/ieee1722/crf/KL_crf_rx.sv:390-403` |
-| Its received-`mr` reference is seeded silently by an era's first accepted PDU; the bind edge and the silence re-seed | `hdl/ieee1722/crf/KL_crf_rx.sv:380`, `:586-587`, `:548-555`, `:619-624` |
+| Its rate is a 256-PDU, 512 ms window of CRF timestamps, in ns per window | `hdl/ieee1722/crf/KL_crf_rx.sv:21-33`, `:280-282` |
+| Its jump bound is 2,048 ns, derived for a CRF talker inside the local PHC envelope with no arrival jitter | `hdl/ieee1722/crf/KL_crf_rx.sv:284-299` |
+| Its lock: 8 clean PDUs in; 100 ms of silence or an unbind out, each one unlock (#653) | `hdl/ieee1722/crf/KL_crf_rx.sv:34-38`, `:301-303`, `:627-631` |
+| Its rate history restarts on a `tu` edge, a timestamp jump, a sequence gap, the bind edge or silence | `hdl/ieee1722/crf/KL_crf_rx.sv:397-410` |
+| Its received-`mr` reference is seeded silently by an era's first accepted PDU; the bind edge and the silence re-seed | `hdl/ieee1722/crf/KL_crf_rx.sv:385`, `:593-594`, `:555-562`, `:641-646` |
 | Servo: frequency only; the error is local rate minus remote rate per 512 ms; CRF_DELTA is not a loop input | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:20-30` |
 | Servo select is `clk_src_i == crf_src_idx_i` | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:263-273`, `:411`; bound at `hdl/milan/milan_datapath.sv:5608-5612` |
 | The servo samples the reference rate once per 512 ms window, and runs PI only on a valid rate | `hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:609`, `:613-615` |
@@ -491,7 +491,7 @@ pick = ts_0 + (sum over i = 0..15 of (ts_i - ts_0 - i * 125,000 ns)) / 16
 ```
 
 125,000 ns is one PDU's 6 samples at 48 kHz, exactly. The arithmetic is exact
-modulo 2^32, like the ring's (`hdl/ieee1722/crf/KL_crf_rx.sv:320-329`). The
+modulo 2^32, like the ring's (`hdl/ieee1722/crf/KL_crf_rx.sv:325-334`). The
 division floors, so each pick is low by less than 1 ns, by an amount that
 varies with its group's remainder. A rate difference therefore carries at most
 1 ns of it, inside the 1-LSB tolerance of the meter suite's first row. Every
@@ -513,7 +513,7 @@ ideal grid at the talker's own rate. The basis:
   timestamps stay within +/-5.0 % of a sample period of the received CRF timing
   points, +/-1,041.7 ns at 48 kHz. Those timing points carry the CRF talker's
   own error. `KL_crf_rx` assumes under 384 ns for it
-  (`hdl/ieee1722/crf/KL_crf_rx.sv:283-284`). The sum is about 1,426 ns.
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:288-289`). The sum is about 1,426 ns.
 - **What a CRF listener must accept.** Equation (16): a listener slaving to CRF
   accepts streams within +/-25 % of a sample period (+/-5,208 ns), and "may
   interpret the stream as invalid" beyond. That bounds tolerance in the CRF
@@ -528,7 +528,7 @@ ideal grid at the talker's own rate. The basis:
 #### The jump bound
 
 The spacing of two adjacent picks may stray from 2 ms by at most 4,096 ns. The
-bound is derived the way `KL_crf_rx` derives its own (`hdl/ieee1722/crf/KL_crf_rx.sv:279-294`), with
+bound is derived the way `KL_crf_rx` derives its own (`hdl/ieee1722/crf/KL_crf_rx.sv:284-299`), with
 the 10.8 term in place of the local-PHC assumption:
 
 - two picks, each up to 1,426 ns off the grid: 2,852 ns;
@@ -629,7 +629,7 @@ rate = (P_now - P_8_snapshots_ago - 8 * 512,000,000) >>> 3
 Every 256 group intervals the meter writes the current pick into an 8-entry
 ring and reads, at the same address, the snapshot it overwrites, which is 8
 snapshots old: `KL_crf_rx`'s read-old, write-new ring
-(`hdl/ieee1722/crf/KL_crf_rx.sv:320-325`) at 8 entries instead of 256. The
+(`hdl/ieee1722/crf/KL_crf_rx.sv:325-330`) at 8 entries instead of 256. The
 difference is exact modulo 2^32 as the ring's is, because the deviation stays
 far inside +/-2^31 ns. The rate is valid once 2,048 group intervals have passed
 since the history last restarted, and it updates every 512 ms; between updates
@@ -756,7 +756,7 @@ media clock. The rule gives the meter the same property for isolated losses.
 1. **A loss void restarts nothing.** A sequence gap voids the group it falls
    in, whether the PDU was lost or not consumed (a clear `tv`, or another
    format). `KL_crf_rx` restarts its rate on any gap
-   (`hdl/ieee1722/crf/KL_crf_rx.sv:398-400`); the meter keeps its history.
+   (`hdl/ieee1722/crf/KL_crf_rx.sv:405-407`); the meter keeps its history.
    The deviation check still runs up to the gap. Each PDU is compared with
    the group's PDU 0 as it arrives, so a deviation before the gap restarts
    the history at once, as in a fully received group (rule 2). The PDUs after
@@ -961,7 +961,7 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
 
 #### History, lock, era and outputs
 
-- **History restarts:** `KL_crf_rx`'s rules (`:390-403`) except its
+- **History restarts:** `KL_crf_rx`'s rules (`:397-410`) except its
   restart on a sequence gap. They are a `tu` edge, a pick spacing outside
   2 ms +/- 4,096 ns, a group voided by its deviation (before a gap too), the
   bind edge, 100 ms of silence, a change of the followed listener, and entry
@@ -970,9 +970,9 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
   ([Lost PDUs](#lost-pdus)). Under E8 the rate is valid after 2,048 group
   intervals.
 - **Lock:** 8 clean consecutive accepted PDUs in, 100 ms without one out
-  (`hdl/ieee1722/crf/KL_crf_rx.sv:296-298`), the AAF media-lock contract
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:301-303`), the AAF media-lock contract
   `KL_crf_rx` mirrors. As there, a sequence gap breaks the settle run before
-  lock and does not drop a lock already held (`:569-570`). The servo-with-meter
+  lock and does not drop a lock already held (`:576-577`). The servo-with-meter
   and counter rows of the test plan grade the second half: with a held lock
   cleared on a gap, every lost PDU would put the servo in HOLDOVER
   (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:564`).
@@ -980,19 +980,20 @@ STREAM_INTERRUPTED (Milan v1.2 Table 5.6) already count it in the RX monitor
   the one selection gate on its outputs, `mr` pulses included. While it is low
   the meter holds its era reset: no lock, no rate, no pulse.
 - **Era and the `mr` seed.** The received-`mr` reference is seeded silently by
-  the first accepted PDU of an era, as `KL_crf_rx` seeds its own (`:380`,
-  `:586-587`). An era starts at the followed Stream Input's bind edge, after
+  the first accepted PDU of an era, as `KL_crf_rx` seeds its own (`:385`,
+  `:593-594`). An era starts at the followed Stream Input's bind edge, after
   100 ms of silence, at every change of the followed listener, and at entry
   into AAF following from INTERNAL or CRF. Each start clears the settle run,
   the history and the seed in one cycle.
 - **Lock falls, and which one is a disruption.** Only the meter's own 100 ms
   timeout is a disruption: it drops the lock and pulses `disrupt_p` once,
   as the CRF receiver's timeout drops its lock
-  (`hdl/ieee1722/crf/KL_crf_rx.sv:529-537`). A change of the followed listener,
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:536-544`). A change of the followed listener,
   entry into AAF following and exit from it also clear the lock in one cycle,
   because the measurement no longer describes the stream now followed, but
-  they pulse nothing. The bind edge clears no lock, as in `KL_crf_rx`
-  (`:619-624`): an unbind is declared by the timeout that follows it.
+  they pulse nothing. The bind edge clears no lock: an unbind is declared by
+  the timeout that follows it. Since #653 `KL_crf_rx` differs here: it drops
+  its lock at the unbind and counts that unlock (`:627-631`).
 - **Outputs:** `locked`; the rate in ns per 512 ms; `rate_valid`; the one-cycle
   pulses `disrupt_p` and `mr_toggle_p`; a status word with the lock, the rate
   validity, the followed listener and a history-restart count; and the
@@ -1174,6 +1175,9 @@ The same rules apply to either kind of followed source.
 
 1. **Loss.** The selected measurement's `locked` falls after 100 ms with no
    accepted PDU: the stream stopped, was unbound or STOPPED, or was rejected.
+   A followed CRF input's lock falls at the unbind itself, counting one
+   MEDIA_UNLOCKED (#653); a followed AAF input's meter lock still falls at its
+   own 100 ms timeout. HOLDOVER and the restart request follow either fall.
 2. **Holdover.** The servo enters HOLDOVER: the trim is frozen and the audio
    clock keeps the last followed rate (`KL_mmcm_drp_servo.sv:166-170`). While
    the TDM feed is live, the aligner keeps the packet grid on the physical
@@ -1614,10 +1618,10 @@ ruling can change either.
 - **The CRF path has the same property.** `KL_crf_rx`'s 512 ms two-point rate
   meets the lock test under every error shape only for error under about
   255 ns per timestamp in closed loop (1,024 / 4.01); it assumes 384 ns
-  (`hdl/ieee1722/crf/KL_crf_rx.sv:283-284`). B6 found the CRF path locked on
+  (`hdl/ieee1722/crf/KL_crf_rx.sv:288-289`). B6 found the CRF path locked on
   the bench. The ruling keeps `KL_crf_rx` unchanged, so this is outside #629
   and is filed as [#633](https://github.com/kebag-logic/milan-fpga/issues/633).
-  Its rate also restarts on any sequence gap (`:398-400`), which the loss rule
+  Its rate also restarts on any sequence gap (`:405-407`), which the loss rule
   here would address if #633 takes it.
 - **INTERNAL accuracy under A2-a is a known risk.** A2-a puts INTERNAL on the
   audio MMCM plan plus the error of the board oscillator the audio clock is

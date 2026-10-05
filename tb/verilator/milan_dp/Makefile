@@ -15,6 +15,8 @@
 #                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
 #   make gsi-mutants - the [GSI] section's explicit mutation campaign
 #                 (gsi_mutants.py), outside the sweep's deadline
+#   make unb-mutants - the #653 [UNB] section's explicit mutation campaign
+#                 (unb_mutants.py), outside the sweep's deadline
 #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
 #                 the acceptance's controls of it (gmstep_mutants.py)
 #   make gmstep-mutants - that leg's whole control inventory, with five
@@ -121,6 +123,9 @@ CLKV_SRC ?= $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv
 # #447: the TDM master render serializer, overridable the same way so
 # tdm8_render_mutants.py elaborates a MUTATED copy through this same recipe.
 TDMRM_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv
+# #653: the CRF Media Clock Input engine, overridable the same way so
+# unb_mutants.py elaborates a MUTATED copy through the notify recipe.
+CRFRX_SRC ?= $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
 P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
@@ -186,7 +191,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
        $(MCR_SRC) \
        $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
-	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
+	$(CRFRX_SRC) \
 	$(RTL_DIR)/ieee1722/crf/KL_aaf_clock_meter.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \
@@ -206,7 +211,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -473,6 +478,11 @@ notify: notify-build
 # nine runs of the timed leg, outside the sweep's deadline.
 gsi-mutants: notify
 	python3 gsi_mutants.py
+
+# ...and the #653 [UNB] section's: five more elaborations and six runs of
+# the timed leg, outside the sweep's deadline.
+unb-mutants: notify
+	python3 unb_mutants.py
 
 ax1x1gptp: VERILATOR_JOBS = 4
 ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)

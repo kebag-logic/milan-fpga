@@ -3180,8 +3180,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  is exactly this fabric when clk_src selects the CRF media clock
   //  (AEM_CRF_CLKSRC_C, index 1 on every shipping shape under #629's D1).
   //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
-  //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
-  //  is the debounced verdict, not a per-PDU twitch.
+  //  100 ms of CRF silence or at an unbind (#653), and needs 8 clean PDUs
+  //  to re-lock, so the edge is the debounced verdict, not a per-PDU twitch.
   //
   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
   //  an internal media clock there is no CRF stream to be disrupted, so

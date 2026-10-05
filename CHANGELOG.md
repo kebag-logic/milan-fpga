@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
 - **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
 - **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
 - **[Unreleased - processor pin b2db3a97](#unreleased---processor-pin-b2db3a97)** -- Scalar settings persist.
@@ -36,6 +37,25 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - CRF unbind counts its unlock
+
+- A locked CRF input's unbind left MEDIA_UNLOCKED unmoved (#653).
+- Only the 100 ms silence timeout counted the unlock.
+- Until then, Table 5.6 read the input as synchronized.
+- `KL_crf_rx` now counts it, dropping lock, at the bind fall.
+- The AAF inputs already did this (task #32).
+- The later timeout finds no lock and counts nothing.
+- STREAM_INTERRUPTED still never counts an unbind.
+- Simulation shows the UNBIND_RX response leaving before the counters push. The hardware order in #653 awaits a bench capture.
+- `CRF_CTRL[31]` now falls at the unbind.
+- So do the CRF lock's datapath consumers.
+- They saw it up to 100 ms later.
+- No port, register field or parameter changes.
+- `KL_crf_rx` out of context: Yosys LUTs 433 to 368.
+- Vivado LUTs 373 to 352; FFs stay 544 in both.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/milan_dp` proves it in `[UNB]`; `make unb-mutants` plants five defects.
 
 ## Unreleased - AAF or CRF media-clock following
 

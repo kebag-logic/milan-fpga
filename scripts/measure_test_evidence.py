@@ -671,6 +671,11 @@ DUT_READER_DISPOSITIONS = {
         "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
         "the datapath or of the processor tree and requires a named failure. It is the explicit "
         "gsi-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/unb_mutants.py":
+        "mutation campaign; it plants one of five #653 unbind defects (the response held behind "
+        "the push, a CRF unbind that misses, doubles or mislabels its unlock, or arms no push) "
+        "into a copy of the processor tree or of the CRF engine and requires named failures "
+        "beside named passes. It is the explicit unb-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/gmstep_mutants.py":
         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "

@@ -240,6 +240,11 @@ module KL_nvm_backend #(
   localparam int unsigned ID_MAPI_C  = 'h60;
   localparam int unsigned ID_MAPO_C  = 'h70;
   localparam int unsigned ID_NAME_C  = 'h80;
+  //! The NAME block's capacity: ids ID_NAME_C..0xFF, the rest of the 8-bit
+  //! record_id space. Stated once: g_refuse_names bounds N_NAME_P by it, and
+  //! sw/builder reads this declaration to refuse a configuration with more
+  //! writable names when it is generated rather than here (#652).
+  localparam int unsigned N_NAME_MAX_C = 128;
 
   // ---- per-group record size, header included ----------------------------
   //! The two channel-map groups are absent from this list ON PURPOSE: their
@@ -285,9 +290,9 @@ module KL_nvm_backend #(
   end else if (N_AUDIO_UNIT_P < 1 || N_AUDIO_UNIT_P > 8 || N_CLK_DOM_P < 1 || N_CLK_DOM_P > 8) begin : g_refuse_units
     $error("KL_nvm_backend: N_AUDIO_UNIT_P=%0d / N_CLK_DOM_P=%0d outside 1..8: the RATE block (0x02) and the CLOCK_SOURCE block (0x0A) hold eight ids each.",
            N_AUDIO_UNIT_P, N_CLK_DOM_P);
-  end else if (N_NAME_P < 1 || N_NAME_P > 128) begin : g_refuse_names
-    $error("KL_nvm_backend: N_NAME_P=%0d outside 1..128: the NAME block is 0x80..0xFF.",
-           N_NAME_P);
+  end else if (N_NAME_P < 1 || N_NAME_P > N_NAME_MAX_C) begin : g_refuse_names
+    $error("KL_nvm_backend: N_NAME_P=%0d outside 1..%0d: the NAME block is 0x80..0xFF.",
+           N_NAME_P, N_NAME_MAX_C);
   end else if (CLK_HZ_P < 1000) begin : g_refuse_clock
     $error("KL_nvm_backend: CLK_HZ_P=%0d is below 1 kHz, so no millisecond tick can be derived for the section 9.4 deadlines.",
            CLK_HZ_P);

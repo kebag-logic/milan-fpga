@@ -19,8 +19,10 @@
 // reserves complete packet windows around scheduled PTP ingress, and holds
 // stalled beats. TX is collected only on valid/ready, including stall arms.
 //
-// Audio: eight channel-distinct monotonic PCM32 ramps at 48 kHz, six samples
-// per AAF PDU, through RX depacketization and all four backed loopback pairs
+// Audio: eight channel-distinct monotonic PCM32 ramps, six samples per AAF
+// PDU, paced on the modeled audio clock (one sample per 512 edges, the TDM
+// FSYNC period): the peer talker follows the DUT's INTERNAL media clock. The
+// ramps pass through RX depacketization and all four backed loopback pairs
 // to eight-channel TX. The CSR stream override, capture-map debug window and
 // AAF_CTRL bypass are diagnostic provisioning, NOT licensed streaming.
 // TDM master clocks and capture counts are measured; serial TDM input is
@@ -77,7 +79,14 @@ constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
 constexpr uint64_t kSid = 0x0200000000020000ULL;
 constexpr uint64_t kPropagation = 320;
 constexpr uint64_t kResidence = 20000;
-constexpr uint64_t kAafPeriod = kHz * 6 / 48000; // six 48 kHz samples per PDU
+//! THE PEER TALKER FOLLOWS THE DUT'S MEDIA CLOCK (#656): six samples per PDU,
+//! each 512 rising edges of the modeled audio clock. Since #629 (A2-a) the
+//! grid aligner holds the packet grid on that clock's FSYNC at INTERNAL, and
+//! the loopback queue drains on the packet grid. A talker paced on the axis
+//! clock runs 10.64 ppm faster than that grid (the 782/1591 plan A ratio), so
+//! the queue drops one sample every 1.958 s: an honest, counted slip between
+//! two clocks, which the zero-gap order checks below are not about.
+constexpr uint64_t kAafAudioEdges = 6 * 512;
 constexpr unsigned kGuard = 2048;
 
 struct Frame {
@@ -175,7 +184,7 @@ class Harness {
     bool stall_on = false;
     uint64_t next_sync = 0;
     uint64_t next_announce = 0;
-    uint64_t next_audio = 0;
+    uint64_t next_audio_edge = 0;
     uint16_t sync_seq = 0;
     uint16_t announce_seq = 0;
     uint32_t audio_index = 1;
@@ -488,11 +497,11 @@ void Harness::schedule() {
         rx_busy = true; rx_off = 0; rx_next = cyc; rx_deadline = cyc + kGuard;
     }
     // Leave 200 cycles for a complete AAF PDU before each PTP reservation.
-    if (!rx_busy && audio_on && cyc >= next_audio
+    if (!rx_busy && audio_on && audio_edges >= next_audio_edge
             && (events.empty() || events.front().at > cyc + 200)) {
         rx = {cyc, audio_frame()}; rx_busy = true; rx_off = 0;
         rx_next = cyc; rx_deadline = cyc + kGuard;
-        next_audio += kAafPeriod;
+        next_audio_edge += kAafAudioEdges;
     }
 }
 
@@ -731,7 +740,7 @@ void Harness::configure() {
     write(0x654, test_control_ == TestControl::NoTx ? 0x00020001 : 0x00020003);
     check.hex("diagnostic talker bypass opens gate", read(0x66C) & 8, 8);
     printf("TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN\n");
-    audio_on = true; next_audio = cyc;
+    audio_on = true; next_audio_edge = audio_edges;
     audio_warm_until = cyc + kHz / 100; // 10 ms settling, excluded from payload score
     peer_on = true; next_sync = cyc; next_announce = cyc + kHz / 4;
 }
