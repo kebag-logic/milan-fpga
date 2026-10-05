@@ -1,0 +1,50 @@
+[R473] POSITIVE - exact head 7124bde172a523179a2788dca825587aa5a2a1e6
+
+Independent external review, round R473-4, issue #27 / PR #156. Tree: `6009d72c1ee277ec12e287926b371000be555fba`. No open BLOCKER, MAJOR or MINOR was found in the assigned scope. No new residue was found.
+
+This verdict covers #27, #70, #75, #71 acceptance 1 and 3, the published round-3 repair instructions, and their preservation by the final integration merge. It is not certification of the entire processor, hardware, or the manager's eventual current-dev candidate.
+
+**Independent reconstruction.** The session instructions were read first; no repository or ancestor AGENTS.md / CONTRIBUTING.md was present. Next came docs/README.md, the issue bodies and non-reviewer scope comments, the requirement rows and landed interface declarations, the requested base-to-head diff and history, and then public evidence. Seven reviewer-tagged PR conversation comments were excluded during intake. No prior reviewer comment or report has been opened at this checkpoint. No private author material, management checkout, or another reviewer's local packet was accessed.
+
+The governing scope is the [issue acceptance](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27), [lane assignment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27#issuecomment-5980174687), and [round-3 instructions](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27#issuecomment-5988273127), together with issues [70](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/70), [71](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/71) and [75](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/75). The exact-head [public review start](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156#issuecomment-5991573397) controls this packet. Reset rule 5 belongs to the merged #81/#84 lane.
+
+**Diff and authority assessment.** The requested `c050d971..7124bde1` comparison has 102 changed files, including integrated work from other lanes. History distinguishes that work from C11. Against integration parent `054d01c7`, all four changed HDL/C++ files have identical non-comment tokens. The six round-3 scanner, figure-gate, renderer, interface-page and repaired-SVG blobs are identical between `5123548e` and the reviewed head. The final merge introduces ten changed files from notification-spacing work; the shared verification page retains the complete C11 gate table and adds the spacing evidence. See [source-audit.log](receipts/source-audit.log), [diff-stat.txt](receipts/diff-stat.txt), and [history.txt](receipts/history.txt).
+
+Conformance was checked against REQ-REU-002/003 and REQ-DOC-001 at `docs/00_MILAN_COMPLIANCE_REVIEW.md:530`, F01.5 at `01_overview.md:157`, F08.1 at `08_timing.md:14`, and the public acceptance lists. The parameter gate enforces IDs, not copied values, as docs/README §2 and 09 §8 now explicitly state. The two MAAP IDs have master rows, and the dynamic-mapping stray has no use at the supplied base. No external standard's clause or hardware compliance is newly certified here.
+
+The RTL lens compared `02_interfaces.md:135`, `:546` and `:617` with the MAC, host and device ports at `protocol_processor_top.sv:285`, `:566` and `:583`; the side-port accept/response state machine at `KL_pp_side_port.sv:128`; and the merged notification timestamp changes at `KL_aecp_notify.sv:1294` and `:1438`. RX has only byte-valid/data/last and no ready or error/abort. TX holds its byte under a stall. The integrator's whole, FCS-good-frame obligation is explicit at `integrator.md:135`. The C11 HDL edits are comments only.
+
+**Reviewer-owned lens ledger.**
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Issue #27/#70/#71/#75 acceptance; manager scope; REQ-REU-002/003 and REQ-DOC-001; F01.5/F08.1; interface tables; source-audit.log and docs-check.log | R473-4 independent reconstruction | 7124bde172a523179a2788dca825587aa5a2a1e6 |
+| RTL | CLEAN | Top MAC/host/NVM ports; side-port/trace/TX-slot comment-only diffs; merged notification timestamp; side-port.log, notify-unit.log, notify-controls/results.json | R473-4 independent interface and merge checks | 7124bde172a523179a2788dca825587aa5a2a1e6 |
+| Robustness | CLEAN | check-ids.py:108-153; check-figures.py:96-163; render-wavedrom.py:96-110; 111 independent ID fixtures; three scanner mutations; invalid margins and stale-render control | R473-4 independent probes | 7124bde172a523179a2788dca825587aa5a2a1e6 |
+| Tests | CLEAN | Makefile:44-53; hdl.yml:15-34; 30 ID and 17 figure self-tests; all nine documentation gates; 368 side-port checks, 34 notification checks; three named notification controls | R473-4 independent execution | 7124bde172a523179a2788dca825587aa5a2a1e6 |
+| Docs | CLEAN | docs/README §2-3; 02 §2/3/7/8 and RX/TX/host figures; 09 §7/8; integrator §3; historical provenance; text-fit.json and visual-inspection.txt | R473-4 independent source and rendered review | 7124bde172a523179a2788dca825587aa5a2a1e6 |
+
+**Executed evidence.** Independent commands ran in concurrent foreground sessions, with separate output/status receipts. `make -j16` was used; compilation was bounded to four workers per invocation, with at most three such builds together. Disposable copies and temporary files stayed below this packet's scratch directory.
+
+| Check | Result and receipt |
+|---|---|
+| Full documentation gate | rc 0; 41 diagram blocks, 18 fresh waveforms, 1,168 links, 115 requirement rows, 94 module rows and 28 matched top parameters. [docs-check.log](receipts/docs-check.log) |
+| Repository gate self-tests | 30 ID cases and 17 figure cases, all pass; live scan 531 files / 91 IDs, 47 parameter rows / 36 timing rows; 3 source/export pairs, 18 waveforms and 5 hand-authored SVGs. Included in docs-check.log |
+| Independent ID fixtures | 111 cases across docs/hdl/tb; plain and hyphenated braced members, missing minus-one base, optional forms, LF/CRLF and seven continuation leaders. Zero deviations. [id-probes.log](receipts/id-probes.log) |
+| Scanner fault controls | Unconditional minus-one acceptance, skipped line-broken optional suffix, and old parser with current tests all fail self-test with the expected missing tokens. [id-probes.log](receipts/id-probes.log) |
+| Renderer probes | Margins 0/1/40/80 preserve waveform children and height; default output is byte-identical; negative/fractional/string/Boolean/null margins are refused; removing margins makes freshness fail on both repaired figures. [render-probes.log](receipts/render-probes.log) |
+| Text fit | Both current figures fit all five font selections; installed proportional and monospaced families both examined. Minimum horizontal room: TX 42.546875 units, host 29.796875. Prior exports reproduce clipping. [text-fit.json](receipts/text-fit.json), [visual-inspection.txt](receipts/visual-inspection.txt) |
+| Side-port unit | 368 checks, zero failures. [side-port.log](receipts/side-port.log) |
+| Notification unit | 34 checks, zero failures, including TW1/TW2 delayed-send cases and the separate identify build. [notify-unit.log](receipts/notify-unit.log) |
+| Notification controls | Golden passes; selection-only, send-only and first-job-only timestamp mutations each fail the named TW checks. [results.json](receipts/notify-controls/results.json) |
+| Source integrity | 556 tracked blobs and executable modes match; index tree equals HEAD; clean worktree; no gitlinks exist in this donor repository. [initial-integrity.log](receipts/initial-integrity.log) |
+
+The historical word-stream prose/table and both waveform sources match the supplied base verbatim; four original-commit references preserve provenance. Current RX waveform labels are exactly clock, byte-valid, byte-data and last. Both revised TX/host figures were visually inspected with two font families and a standalone rasterizer.
+
+**Public evidence and limits.** The [pinned public evidence bundle](https://github.com/kebag-logic/milan-fpga/tree/4a3ae4a1a4bf5a2fcd85b6d0aeff441f3f853a9f/review-evidence/ppC11-r1) contains the initial handoff at `91cef52b` and adoption patches; its handoff digest matches its manifest. It is historical evidence, not raw execution logs for `7124bde1`. The PR body records later round-3 source validation, and the [manager's merge comment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/156#issuecomment-5991569119) records the exact-head documentation pass and donor/consumer reruns. The assignment also confirms passing source static/builder and native banks. These remain manager-owned evidence; this review did not rerun full banks.
+
+At the hosted snapshot, both push and pull-request runs used this exact head. Documentation and portability jobs completed successfully; suite jobs were still running. A completed job does not imply every conditional step ran: see [hosted-jobs.json](receipts/hosted-jobs.json). Hosted/local-emulation acceptance remains the manager's duty.
+
+Physical calibration was NOT RUN. Field skips and guarded exclusions are not hardware proof. The recorded builder exclusions and parent-source setup are not an assertion that every builder arm ran. No full parent, processor, time-synchronization, synthesis or builder bank, hardware action, shared installation, source fix, commit, push or remote write was performed. The final current-dev candidate, from source base `c050d97153dd0480ae741102c1647eeda9b7f273` against live dev `fa450d301805881ad713b67521477bf042ddadfd`, is built and validated by the manager at merge time. Source-consumer evidence does not replace that candidate, its submodule-pin checks, or release acceptance.
+
+**Independent checkpoint.** Verdict and ledger are written before opening any prior reviewer comment. Prior-finding reconciliation and the final integrity/manifest pass remain to be appended.

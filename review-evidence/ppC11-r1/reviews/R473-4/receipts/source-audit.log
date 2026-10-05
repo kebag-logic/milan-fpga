@@ -1,0 +1,86 @@
+{"command": ["python3", "$REVIEWS/ppC11-r473-4-packet/scripts/source_audit.py", "--source", "$REVIEWS/r473-4-ppC11"], "cwd": "$REVIEWS/r473-4-ppC11"}
+{
+  "head": "7124bde172a523179a2788dca825587aa5a2a1e6",
+  "base": "c050d97153dd0480ae741102c1647eeda9b7f273",
+  "integration_parent": "054d01c79e59c3f80454ad9cdefd8e914b540bb4",
+  "aggregate_changed_files": 102,
+  "lane_comment_only_files": [
+    {
+      "file": "hdl/packet_engine/KL_pp_side_port.sv",
+      "same_noncomment_tokens": true
+    },
+    {
+      "file": "hdl/packet_engine/KL_pp_trace_ring.sv",
+      "same_noncomment_tokens": true
+    },
+    {
+      "file": "hdl/packet_engine/KL_pp_tx_slots.sv",
+      "same_noncomment_tokens": true
+    },
+    {
+      "file": "tb/tx_slots/sim_main.cpp",
+      "same_noncomment_tokens": true
+    }
+  ],
+  "preserved_round3_blobs": [
+    {
+      "file": "scripts/check-ids.py",
+      "old_blob": "5b3b025bfb1ec139e9abadcae9ba517a531829e6",
+      "new_blob": "5b3b025bfb1ec139e9abadcae9ba517a531829e6",
+      "equal": true
+    },
+    {
+      "file": "scripts/check-figures.py",
+      "old_blob": "7d029748817a3b0d9975a7ee5512acfb44979128",
+      "new_blob": "7d029748817a3b0d9975a7ee5512acfb44979128",
+      "equal": true
+    },
+    {
+      "file": "scripts/render-wavedrom.py",
+      "old_blob": "25ed918eff37752b00e15c7f42484230e3b727dc",
+      "new_blob": "25ed918eff37752b00e15c7f42484230e3b727dc",
+      "equal": true
+    },
+    {
+      "file": "docs/architecture/02_interfaces.md",
+      "old_blob": "5cc2de3da9ab6dc5c39bb2e99e9e34a273b87f81",
+      "new_blob": "5cc2de3da9ab6dc5c39bb2e99e9e34a273b87f81",
+      "equal": true
+    },
+    {
+      "file": "docs/diagrams/wavedrom/fig-02-txwave.svg",
+      "old_blob": "2e2815c0522a78f1c52d15e8060bfc5f9438d1ba",
+      "new_blob": "2e2815c0522a78f1c52d15e8060bfc5f9438d1ba",
+      "equal": true
+    },
+    {
+      "file": "docs/diagrams/wavedrom/fig-02-memwave.svg",
+      "old_blob": "356cc13241c74c9d43a9f068da44a781c7626fa7",
+      "new_blob": "356cc13241c74c9d43a9f068da44a781c7626fa7",
+      "equal": true
+    }
+  ],
+  "historical_provenance": {
+    "prose_table_verbatim": true,
+    "wave_sources_verbatim": true,
+    "original_commit_permalinks": true
+  },
+  "rx_wave_signals": [
+    "clk",
+    "rx_valid_i",
+    "rx_data_i",
+    "rx_last_i"
+  ],
+  "merge_delta_files": [
+    "docs/architecture/06_aecp_engine.md",
+    "docs/architecture/09_verification.md",
+    "hdl/aecp/KL_aecp_notify.sv",
+    "tb/aecp_notify/README.md",
+    "tb/aecp_notify/sim_main.cpp",
+    "tb/pp_top/README.md",
+    "tb/pp_top/ctr_mutations/ctr-notify-one-window.patch",
+    "tb/pp_top/notify_mutants.py",
+    "tb/pp_top/notify_phases.hpp",
+    "tb/pp_top/sim_main.cpp"
+  ]
+}
