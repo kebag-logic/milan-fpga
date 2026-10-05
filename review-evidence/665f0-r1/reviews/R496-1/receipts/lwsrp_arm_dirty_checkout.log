@@ -1,0 +1,43 @@
+# probe: scripts/lwsrp_pin_probe.sh; lwSRP copy at HEAD 19f5796b63652eb1151906de73cb827d4980a53f with status " M src/core/mrp_mad.c" (one added comment line). lwSRP origin HEAD at review time was also 19f5796b. The arm passes and prints the pin hash.
+[ok] arm model
+    == mbx (host model): checks: 120   failures: 0 ==
+    RESULT: PASS
+[ok] arm port
+    == ctrl port, driver and loop (host model): checks: 72   failures: 0 ==
+    RESULT: PASS
+[ok] arm adp
+    C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+    C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+    C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+    C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+    C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+    C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+    C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+    == ctrl ADP slice (fake ports and host model): checks: 47   failures: 0 ==
+    RESULT: PASS
+[ok] arm walk
+    walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+    == ctrl ADP walk (processor stimulus, host model): checks: 320   failures: 0 ==
+    RESULT: PASS
+[ok] arm entity
+    endstation_arty_4x4: entity_id 0x020000FFFE000002, 5 sources, 5 sinks
+    endstation_arty_8ch: entity_id 0x020000FFFE000002, 5 sources, 5 sinks
+    endstation_arty_current: entity_id 0x020000FFFE000002, 1 sources, 2 sinks
+    endstation_ax7101_1x1_tdm8: entity_id 0x020000FFFE000001, 2 sources, 2 sinks
+    endstation_ax7101_8x8: entity_id 0x020000FFFE000001, 9 sources, 9 sinks
+    == ctrl ADP entity fields (shipped configs): checks: 45   failures: 0 ==
+    RESULT: PASS
+[ok] arm rv32
+    riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+    size (text data bss dec): 11040 0 168 11208
+    undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+    == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm lwsrp
+    lwSRP at 19f5796b63652eb1151906de73cb827d4980a53f
+    pool class 0: 64-byte stride, high-water 1 of 32 blocks
+    pool class 1: 256-byte stride, high-water 3 of 16 blocks
+    pool class 2: 1024-byte stride, high-water 0 of 4 blocks
+    == ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 13   failures: 0 ==
+    RESULT: PASS
+test_ctrl_firmware: PASS

@@ -1,0 +1,19 @@
+[ok] S1 AW three cycles before W completes with a B response
+[ok] S1 and the write lands
+[ok] S2 W three cycles before AW completes with a B response
+[ok] S2 and the write lands
+[ok] S3 BVALID holds while BREADY is low
+[ok] S3 no read is accepted while a B response is outstanding
+[ok] S3 the B handshake completes once BREADY rises, and BVALID falls
+[ok] S3 the write lands
+[ok] S4 RVALID and RDATA hold while RREADY is low
+[ok] S4 RDATA is the register
+[ok] S4 RVALID falls after the R handshake
+[ok] S5 a write and a read offered together both complete
+[ok] S5 the write was ordered first: the read returns the new value
+[ok] S6 ten back-to-back reads with ARVALID held all return the register
+== adapter stress (AXI4-Lite): checks: 14   failures: 0 ==
+[ok] W1 two back-to-back classic cycles are both acknowledged
+[ok] W1 the first write lands
+[ok] W1 the second write lands at its own address
+== adapter stress (Wishbone): checks: 3   failures: 0 ==

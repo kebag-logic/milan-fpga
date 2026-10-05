@@ -1,0 +1,37 @@
+Hosted check runs at exact head 0bfef4987eede4b022b17c7b2f56d079ff84893b (read 2026-10-05T13:02:49Z, read-only API):
+bdd-conformance | success | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267687/job/111763679535
+changes | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267687/job/111763679877
+docs-check-no-git | success | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267746/job/111763679971
+docs-check | success | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267746/job/111763679523
+elaborate | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267506/job/111763679205
+full-ci-gate | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763680166
+Physical gPTP (nightly and manual) | skipped | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763882470
+rtl-fast | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267687/job/111763858749
+verilator-lint | skipped | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267687/job/111763860438
+Verilator shard ${{ matrix.shard }}/${{ matrix.total }} | skipped | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763883068
+verilator-suites | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763881930
+wire-accountability | success | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267746/job/111763679953
+yosys-elaboration | skipped | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267687/job/111763860444
+yosys-portability | failure | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763960597
+Yosys shard ${{ matrix.shard }}/${{ matrix.total }} | skipped | https://github.com/kebag-logic/milan-fpga/actions/runs/37310267685/job/111763882644
+
+changes job (111763679877), scripts/ci_scope.py --selftest:
+  ok   gate-read page docs/AAF_LATENCY_TAPS.md (named at sw/builder/test_clock_contract.py:321) is relevant
+  ok   gate-read page docs/design/AREA_BUDGET.md (named at syn/ooc/pp_resource_gate.py:68) is relevant
+  FAIL gate-read page docs/reference/MAILBOX_CONTRACT.md (named at sw/mailbox/gen_mailbox.py:66) is relevant
+  ok   gate-read page docs/reference/REGISTER_MAP.md (named at tb/tools/torture_campaign.py:3431) is relevant
+  ok   gate-read page docs/reference/TRACE_EVENTS.md (named at sw/trace/gen_trace_events.py:28) is relevant
+  ok   gate-read page docs/testing/MILAN_V12_AUDIT_2026-08-16.md (named at tests/steps/milan_streaming_licence_steps.py:27) is relevant
+selftest: 1 FAILURE(S)
+
+rtl-fast job (111763858749) aggregate:
+changes                  failure
+verilator-lint           skipped
+bdd-conformance          success
+yosys-elaboration        skipped
+
+verilator-suites (111763881930) / yosys-portability (111763960597):
+  FAIL expected 5 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+  FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip
+  FAIL expected 4 shard director(y/ies), the worker matrix size, found 0: a missing or surplus shard is a failure, not a skip
+  FAIL no shard evidence directory to verify: the download produced nothing, which is a failure, not a skip

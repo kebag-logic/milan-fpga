@@ -1,0 +1,7 @@
+[caught] doc layout row offset: [FAIL] docs/reference/MAILBOX_CONTRACT.md: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[caught] SV derived MBX_ADDR_W_C: [FAIL] SV package: MBX_ADDR_W = 0xc, the contract says 0xd
+[caught] C EV_TICK COUNT width: [FAIL] C header: MBX_EV_TICK_W1_COUNT_WIDTH = 0x8, the contract says 0x10
+[caught] skeleton decode hand edit: [FAIL] hdl/milan/mailbox/KL_mbx.sv: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[caught] C regenerated from a moved field, SV and doc not: [FAIL] C header: MBX_EV_TIMER_W1_SLOT_LSB = 0x14, the contract says 0x10
+restored: gates clean
+gen_mismatch_probe: 0 missed or broken

@@ -1,0 +1,7 @@
+rx-free-space-off-by-one: caught (4 of 120 failed) - a record one word longer than the free space is stored over the oldest unread word
+rx-bogus-tail-unguarded: SURVIVED (0 of 120 failed) - an RX_TAIL past RX_HEAD makes the free space huge
+tx-occupancy-unguarded: SURVIVED (0 of 120 failed) - a TX_HEAD more than a ring ahead of TX_TAIL is served
+evt-posts-into-last-record: caught (3 of 120 failed) - the poster writes when the ring is full
+evt-ring-holds-one-less: caught (2 of 120 failed) - the ring never fills its last record
+tx-tail-early: caught (3 of 115 failed) - TX_TAIL moves past the record before its bytes leave (and again at DONE)
+rx-head-before-header: caught (1 of 120 failed) - RX_HEAD advances in HDR0, a cycle before header word 1 is written

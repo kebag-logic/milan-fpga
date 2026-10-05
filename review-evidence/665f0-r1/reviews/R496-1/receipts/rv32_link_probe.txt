@@ -1,0 +1,25 @@
+link rc=0
+undefined symbols in the linked image: 0
+heap/OS symbols (malloc calloc realloc free sbrk _sbrk brk mmap printf puts write): 0
+sections:
+$PACKET/scratch/rv32link/probe.elf  :
+section              size    addr
+.text                6756       0
+.rodata               152    6760
+.eh_frame            2048    6912
+.data                  32   12288
+.bss                12544   12320
+Total               23751
+
+
+firmware objects only (text data bss):
+  11080	      0	    163	  11243	   2beb	(TOTALS)
+largest bss/data symbols:
+0000303c 00000004 b bound_ctx
+00003040 00000004 b bound_sink
+00003044 00000004 b port_pool
+00003030 0000000a b rx_tail
+00003024 0000000a b tx_head
+00003000 00000020 D __DATA_BEGIN__
+00003048 0000080c b app
+00003860 000028c0 b arena

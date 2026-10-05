@@ -1,0 +1,16 @@
+rc=0 scripts/docs_check.py :: docs_check: 0 finding(s) across 194 md files + 1053 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls
+rc=2 scripts/check_em_dash.py --base fa450d301805881ad713b67521477bf042ddadfd :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --req
+rc=2 scripts/gen_toc.py --check :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --r
+rc=0 scripts/check_doc_paths.py :: doc path gate: OK (924 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0 docs/traceability/gen_module_matrix.py --check :: traceability matrix up to date (77 modules, 0 untested <= ratchet 0, 0 archived)
+rc=0 scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1051 tracked first-party file(s))
+rc=0 scripts/check_soc_sources.py :: SoC source gate: OK (43 instantiated modules all registered, 77 sources all present)
+rc=0 scripts/check_rtl_source_lists.py :: RTL source-list gate: OK (108 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-p
+rc=0 scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 923 file(s))
+rc=0 scripts/check_todo_ownership.py :: TODO ownership gate: OK (0 owned marker(s), 0 unowned; 28 near-miss occurrence(s) on 22 line(s) correctly not treated as
+rc=0 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 scripts/check_sv_idiom.py :: SystemVerilog idiom gate: OK (137 first-party HDL file(s) across the superproject and both processor submodules, every o
+rc=0 scripts/check_em_dash.py --base fa450d301805881ad713b67521477bf042ddadfd :: check_em_dash: 0 finding(s) over 1236 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [fa450d30..HEAD]
+rc=0 scripts/gen_toc.py --check :: TOC gate: OK (134 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0 scripts/gen_toc.py --verify-anchors :: anchor check: 340 existing cross-page fragment links reproduced

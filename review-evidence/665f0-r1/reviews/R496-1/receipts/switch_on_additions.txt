@@ -1,0 +1,60 @@
+== endstation_ax7101_1x1_tdm8 (switch on vs off)
+csr.csv lines removed by the switch (must be none):
+constant,config_cpu_interrupts,3,,
+csr.csv lines added:
+constant,config_cpu_interrupts,4,,
+constant,ctrl_mbx_interrupt,3,,
+csr_base,ctrl_mbx,0xf000f000,,
+memory_region,ctrl_mbx,0x90100000,32768,io
+  + 3 ctrl_mbx csr_register rows
+tcl sources added:
+hdl/milan/mailbox/KL_mbx_pkg.sv}
+hdl/milan/mailbox/KL_mbx_ring.sv}
+hdl/milan/mailbox/KL_mbx_rx.sv}
+hdl/milan/mailbox/KL_mbx_tx.sv}
+hdl/milan/mailbox/KL_mbx_evt.sv}
+hdl/milan/mailbox/KL_mbx.sv}
+hdl/milan/mailbox/KL_mbx_wb.sv}
+< read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v}
+> read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae.v}
+== endstation_ax7101_8x8 (switch on vs off)
+csr.csv lines removed by the switch (must be none):
+constant,config_cpu_interrupts,3,,
+csr.csv lines added:
+constant,config_cpu_interrupts,4,,
+constant,ctrl_mbx_interrupt,3,,
+csr_base,ctrl_mbx,0xf000f000,,
+memory_region,ctrl_mbx,0x90100000,32768,io
+  + 3 ctrl_mbx csr_register rows
+tcl sources added:
+hdl/milan/mailbox/KL_mbx_pkg.sv}
+hdl/milan/mailbox/KL_mbx_ring.sv}
+hdl/milan/mailbox/KL_mbx_rx.sv}
+hdl/milan/mailbox/KL_mbx_tx.sv}
+hdl/milan/mailbox/KL_mbx_evt.sv}
+hdl/milan/mailbox/KL_mbx.sv}
+hdl/milan/mailbox/KL_mbx_wb.sv}
+< read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v}
+> read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_9aee3fb374c06e65ac55eb12fd741cae.v}
+== endstation_arty_4x4 (switch on vs off)
+csr.csv lines removed by the switch (must be none):
+constant,config_cpu_interrupts,3,,
+csr.csv lines added:
+constant,config_cpu_interrupts,4,,
+constant,ctrl_mbx_interrupt,3,,
+csr_base,ctrl_mbx,0xf000f000,,
+memory_region,ctrl_mbx,0x90100000,32768,io
+  + 3 ctrl_mbx csr_register rows
+tcl sources added:
+hdl/milan/mailbox/KL_mbx_pkg.sv}
+hdl/milan/mailbox/KL_mbx_ring.sv}
+hdl/milan/mailbox/KL_mbx_rx.sv}
+hdl/milan/mailbox/KL_mbx_tx.sv}
+hdl/milan/mailbox/KL_mbx_evt.sv}
+hdl/milan/mailbox/KL_mbx.sv}
+hdl/milan/mailbox/KL_mbx_wb.sv}
+< read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_7c73187a77da20f7d3d54867209ef638.v}
+> read_verilog {$HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_da596635d3d52d93c8bd0feacfbb0e4e.v}
+== endstation_arty_8ch (switch on vs off)
+csr.csv lines removed by the switch (must be none):
+constant,config_cpu_interrupts,3,,
