@@ -472,6 +472,7 @@ Eight ordering controls passed, including a reversed-order failure control.
 | Milan v1.2, Sections 5.4.5.1 and 5.4.5.2, Table 5.22 | Account for the one-second notification rate limit. |
 | Milan v1.2, Sections 5.5.2.5 and 5.5.3.5.45, Table 5.36 | Apply controller unbind behavior and the listener's SUCCESS response. |
 | IEEE 1722-2016, Sections 4.4.4.6 and 10.4.6 | Accept arbitrary initial sequence numbers; check modulo-256 progression. |
+| IEEE 1722-2016, Sections 4.4.4.3, 4.4.4.5, 4.4.4.7 and 4.4.4.9; Clause 7 | Decode AAF timestamps, validity, uncertainty and media-reset fields. |
 
 ### B12 outcome and classification
 
@@ -771,10 +772,92 @@ See Milan v1.2, Section 5.4.2.10.1.
 That compatibility warning is separate from Hive counter increments.
 No corresponding DUT compatibility change was observed.
 
+#### B12 startup characterization, 2026-10-05
+
+The [round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/653#issuecomment-5994490678) requested retained startup evidence.
+This analysis accessed no bench device or lock.
+
+Both increments were already observable before unbind submission.
+The table below uses only the controller's clock.
+
+| Cycle | First nonzero read, UTC | Counter / FRAMES_RX | Bind submission to read (ms) | Read before unbind submission (ms) | Read to callback (ms) |
+|---|---|---|---:|---:|---:|
+| BAAF0300-2 | 2026-10-05T11:19:03.730732Z | EARLY 1 / 68 | 29.880 | 278.656 | 318.532 |
+| BAAF0900-5 | 2026-10-05T11:20:09.640696Z | LATE 1 / 67 | 29.947 | 878.672 | 418.654 |
+
+The corresponding pre-bind timestamp counters were zero.
+Subsequent early reads retained one through the post-unbind read.
+
+These are observation bounds, not individual offending-packet times.
+The NotConnected callback does not date the EARLY event.
+
+Retained captures supply twelve initial AAF headers per selected cycle.
+Both flagged cycles and two clean controls were decoded.
+
+All 48 headers have `tv=1`, `tu=0` and `mr=0`.
+All use normal timestamp mode, `sp=0`.
+
+Bind-to-PDU intervals and packet spacing use the tap clock.
+Presentation steps use signed modulo-2^32 AVTP timestamp differences.
+
+| Cycle | Result | Initial sequence range | Bind command to first PDU (ms) | First two presentation timestamps (hex) | Presentation step, PDU 1 to 2 (ns) | Tap spacing, PDU 1 to 2 (ns) |
+|---|---|---|---:|---|---:|---:|
+| BAAF0300-2 | EARLY | 184-195 | 20.227033 | d9353fed / d7ccf250 | -23612829 | 125025 |
+| BAAF0900-5 | LATE | 30-41 | 20.407250 | 113d7f85 / 3050f58d | 521369096 | 125016 |
+| BAAF0300-1 | Clean control | 188-199 | 222.566994 | cdcb2d53 / cdcd159a | 124999 | 123944 |
+| BAAF0900-4 | Clean control | 5-16 | 20.091409 | dba7c762 / dba9afa9 | 124999 | 125000 |
+
+The flagged cycles show first-to-second presentation timestamp discontinuities.
+Their subsequent ten steps range from 124999 to 125020 ns.
+
+Every clean-control step ranges from 124999 to 125019 ns.
+Each twelve-PDU sequence remains consecutive modulo 256.
+
+The tap observes these headers leaving the DUT.
+Valid sequence progression does not establish valid presentation timing.
+
+**gPTP correlation: NOT RUN.**
+The retained cycle filters select EtherType `0x22f0`.
+
+They retain no gPTP Sync/Follow_Up time reference.
+No measured tap-to-gPTP clock mapping is available.
+
+Absolute presentation lead or lag therefore remains unmeasured.
+The tap and controller intervals must not be subtracted.
+
+The headers alone cannot assign timestamp fault ownership.
+These startup observations feed [#667](https://github.com/kebag-logic/milan-fpga/issues/667).
+
+`startup-headers.json` retains independently decodable, identity-sanitized AVTP headers.
+`startup_decode.py` reproduces `startup-analysis.json` from those receipts.
+
+`check_startup.py` matches the earlier sequence receipts and poll rows.
+Its controls exercise flag bits, rollover, truncation and timestamp changes.
+
 ### B12 restoration and evidence
 
 Both entities match their as-found effective configuration.
-The comparison uses final protocol readbacks.
+The comparison uses successful start and final protocol readbacks.
+
+`restore-start.json` and `restore-end.json` publish all 43 observations.
+Each carries its role, descriptor identity, status and effective value.
+
+Source filenames, line numbers, sizes and hashes preserve provenance.
+Private entity and transport identities are omitted.
+
+`restore_compare.py` first requires successful responses and the complete inventory.
+It then requires effective equality and zero bindings.
+
+Missing, malformed, truncated and duplicate observations are rejected.
+The two independent DUT source reads must also agree.
+
+The equal-success control passes with exit zero.
+All fourteen adverse controls fail with exit one.
+
+These include changed source selection, binding, format and missing observations.
+Matching failures, empty populations and conflicting duplicates also fail.
+
+`restore-controls.json` records every planted control and exit status.
 
 | Role | Bindings | Formats | Maps | Clock sources |
 |---|---|---|---|---|
@@ -802,6 +885,14 @@ No power, flash, wiring or audio-playback action occurred.
 The packet is identified as `653-b12-a543`.
 `MANIFEST.sha256` covers its bounded-size receipts and source files.
 
+The round-2 packet audit includes decoded peer identity fields.
+Wire receipts replace those identifiers with consistent neutral tokens.
+
+Timing, status, descriptor indices and counter bytes are unchanged.
+`redaction-r2.json` records the affected receipts and hashes.
+
+The DUT identity remains permitted by the public ruling.
+
 Raw captures remain outside the packet.
 The artifact indexes record their locations, sizes and SHA-256 values.
 
@@ -811,7 +902,7 @@ The artifact indexes record their locations, sizes and SHA-256 values.
 | `probe.cpp` | `749836d785ddf462e484a7972c8410a3067c68080be2d914b727515fb3eaf74c` |
 | `probe_phase.cpp` | `8d00c3da36a98d4bd0f965594d5e5234e2229d433f187c8467a742bbd4e35365` |
 | `wire.py` | `9ab03659da2c77a70aa8f444c96dced18dd03165f94069a5bfe68ce7bbb938c4` |
-| `restore-comparison.json` | `3841b9637ce5c401631887ac89cb926aaab9b6dab2f9ad3f52e4c7ab07fb2294` |
+| `restore-comparison.json` | `c9e4bf1c02d4f3e0ee0d5f59e5a2499c8510471a577a6bc811ce2cfbf561d7ad` |
 
 The sampled cycles bound these conclusions.
 They do not establish behavior on other firmware images.
