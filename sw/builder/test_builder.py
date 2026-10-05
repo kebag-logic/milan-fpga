@@ -28193,7 +28193,9 @@ def _assert_image_contract_case(cfg, overlay, case, emit_image=None):
         rows = [d for d in changed["descriptors"] if d["type"] == dtype and d["index"] == 0]
         assert len(rows) == 1, f"{label}: target descriptor not found"
         rows[0]["bytes"] = body.hex()
-        blob, report = original_build(changed, *args, **kwargs)
+        # A deliberate negative packs with the processor's semantic lint off,
+        # so the post-pack checker is the one that must name it.
+        blob, report = original_build(changed, *args, lint=reason is None, **kwargs)
         assert image_descriptor(blob, dtype) == body, f"{label}: fault did not reach packed bytes"
         emitted.append(blob)
         return blob, report
@@ -28252,7 +28254,8 @@ def test_shipping_image_contract_index_walk() -> None:
                 struct.pack_into(">H", body, 2, index)
                 rows.append(dict(configuration=config, type=dtype, index=index, bytes=body.hex()))
     document = dict(format="kl-aem-image", version=1, descriptors=rows)
-    blob, _ = packer.build(document, 576)
+    # ENTITY-less index-walk documents: the post-pack checker's, lint off.
+    blob, _ = packer.build(document, 576, lint=False)
     eb.aem_image_checks.validate_shipping_image(blob)
     for row in rows:
         changed = copy.deepcopy(document)
@@ -28265,7 +28268,7 @@ def test_shipping_image_contract_index_walk() -> None:
             struct.pack_into(">HH", body, 76, 1, 0)
             reason = "L6_ORDER"
         victim["bytes"] = body.hex()
-        damaged, _ = packer.build(changed, 576)
+        damaged, _ = packer.build(changed, 576, lint=False)
         try:
             eb.aem_image_checks.validate_shipping_image(damaged)
         except eb.aem_image_checks.ImageCheckError as exc:
@@ -28327,7 +28330,9 @@ def test_shipping_image_contract_presence() -> None:
             for config in (0, 1) for dtype in (0x0001, 0x0002, 0x0024)]
 
     def _image(entries):
-        return packer.build(dict(format="kl-aem-image", version=1, descriptors=entries), 576)[0]
+        # ENTITY-less presence documents: the post-pack checker's, lint off.
+        document = dict(format="kl-aem-image", version=1, descriptors=entries)
+        return packer.build(document, 576, lint=False)[0]
 
     eb.aem_image_checks.validate_shipping_image(_image(rows))
     for config in (0, 1):
