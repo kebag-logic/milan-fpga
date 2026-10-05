@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
 - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
 - **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
 - **[Unreleased - processor pin 631eeb34](#unreleased---processor-pin-631eeb34)** -- AECP answers by its deadline.
@@ -37,6 +38,31 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin ead80360
+
+- Issue #661 adopts processor `ead80360`.
+- That pin carries processor PRs #144 to #147 and #149.
+- It also carries #150 and #152 to #155 and #157.
+- A silent NVM device is answered after 1,000 ms.
+- The port's error carries the new cause DEADLINE.
+- The change then fails three attempts and raises `nvm_alarm`.
+- `nvm_backed` is revoked instead of pending for ever.
+- Quarantine is still never released by time alone.
+- `NVM_MEM_TMO_CYC_P` sets that deadline; `KL_pp_shadow` keeps its default.
+- The D3 writer and walk now also carry user names.
+- Name pending still uses the sticky live-write term.
+- Channel maps are the parent's to persist (#637).
+- GET_DYNAMIC_INFO and ACMP stream steps no longer overlap.
+- `available_index` resets to 0 after ENTITY_DEPARTING.
+- The packer lints every descriptor model by default.
+- The 8x8 configuration declares its #584 cluster waiver.
+- The duplicate parent L6/L10 image checker is retired.
+- Three area lanes move processor storage into distributed RAM.
+- The resource gate records this image as its baseline.
+- The ROM ledger adds `ead80360` rows; both ROMs are unchanged.
+- The capture census and product firmware are unchanged.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - CRF unbind counts its unlock
 

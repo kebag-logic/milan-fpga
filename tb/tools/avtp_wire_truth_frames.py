@@ -15,7 +15,8 @@ import struct
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 
-from avtp_wire_truth_wire import (AAF_FORMAT_BITS, ADP_CDL, ETH_P_AVTP,
+from avtp_wire_truth_wire import (AAF_FORMAT_BITS, ADP_CDL,
+                                  ADP_ENTITY_AVAILABLE, ETH_P_AVTP,
                                   ETH_P_MSRP, ETH_P_MVRP, MRP_GROUP_DMAC,
                                   MSRP_ATTR_LEN, MSRP_LISTENER, MVRP_VID,
                                   SUBTYPE_AAF, SUBTYPE_ADP, SUBTYPE_CRF,
@@ -251,13 +252,15 @@ def build_mvrp_frame(*, smac: str = "020000000002",
 
 def build_adp_frame(*, smac: str = "020000000002",
                     eid: int = 0x020000FFFE000002, available_index: int = 1,
-                    cdl: int = ADP_CDL, body_len: int = 64) -> bytes:
-    """An ENTITY_AVAILABLE ADPDU (1722.1-2021 6.2)."""
+                    cdl: int = ADP_CDL, body_len: int = 64,
+                    message_type: int = ADP_ENTITY_AVAILABLE) -> bytes:
+    """An ADPDU (1722.1-2021 6.2), ENTITY_AVAILABLE unless message_type
+    names another."""
     hdr = bytes.fromhex("91e0f0010000") + bytes.fromhex(smac) + \
         struct.pack(">H", ETH_P_AVTP)
     pdu = bytearray(4)
     pdu[0] = SUBTYPE_ADP
-    pdu[1] = 1 << 7                       # sv=1, version 0, message_type 0
+    pdu[1] = (1 << 7) | (message_type & 0x0F)   # sv=1, version 0
     pdu[2:4] = struct.pack(">H", (31 << 11) | (cdl & 0x7FF))
     body = bytearray(body_len)
     body[0:8] = eid.to_bytes(8, "big")

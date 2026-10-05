@@ -151,7 +151,7 @@ input, are silently refused.
 | 5.5.2 / 5.5.3 | sink binding/unbinding, Table 5.26 timeouts, settlement, the Section 5.5.3.5 event ladder | implemented — PP acmp_listener + pp_top; RTL pp_shadow; SILICON binds against a Milan-validated peer |
 | 5.5.1.4 / 5.5.2.6 | Auto Connect (saved-state fast connect) | missing: the flag path exists and the saved binding survives a cold power cycle on silicon (Section 1.7), but fast connect after the restore is unproven (#70) |
 | 5.5.4 | talker treatment of PROBE_TX / DISCONNECT_TX / GET_TX_* | implemented — PP acmp_talker; SILICON streaming licences open/close |
-| 5.6.3 / 5.6.4 | advertise + discovery state machines, valid_time | implemented — PP adp_engine; SILICON discovery by controllers; the available_index increment-policy divergence stays recorded in the processor's docs |
+| 5.6.3 / 5.6.4 | advertise + discovery state machines, valid_time | implemented -- PP adp_engine; SILICON discovery by controllers; available_index increments after each ENTITY_AVAILABLE and resets to 0 after an ENTITY_DEPARTING (IEEE 1722.1-2021 Section 6.2.2.15, from processor pin `ead80360`) |
 
 ### 1.7 Dynamic state and persistence (Section 5.3) — the largest open block
 
