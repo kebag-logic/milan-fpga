@@ -371,4 +371,3 @@ BOOT_CHECKS: dict[str, Callable[[Bench, str], list[str]]] = {
 BOTH = ("", LITESPI)
 DIRECT = ("",)
 BOOT_PORTS = {name: (DIRECT if name == "read_flip_at_stage" else BOTH) for name in BOOT_CHECKS}
-
