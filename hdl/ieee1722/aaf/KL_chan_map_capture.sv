@@ -240,12 +240,12 @@
                     pair has left decide for all its pairs alike: short
                     of five, and the walks that start next hold each pair's
                     pop, one walk per missing event; more than five, and
-                    the next walk drops
-                    each pair's oldest event before the pop. Deciding at the
-                    start keeps a walk inside the PDU's own beats out of the
-                    count, so the held or dropped pops reach the target, or
-                    (a walk between the PDU's first beat and its first
-                    event's landing) fall those few cycles short of it. All
+                    the next walk drops each pair's oldest event before the
+                    pop, one event toward the target. Deciding at the start
+                    keeps a walk inside the PDU's own beats out of the count.
+                    Held pops reach the target, or (a walk between the PDU's
+                    first beat and its first event's landing) fall those few
+                    cycles short of it. All
                     pairs act in the same walks, so they stay in lockstep
                     and no frame is emitted half re-centred. It is a
                     declared discontinuity, not a slip: neither counter
