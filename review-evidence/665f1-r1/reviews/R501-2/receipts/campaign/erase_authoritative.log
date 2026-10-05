@@ -1,0 +1,311 @@
+RUN ["--slot-b", "<packet>/scratch/erase_authoritative/store/g.bin", "--boot", "--protect-auth", "--set", "0:5c61", "--set", "1:797e83888d92979c", "--set", "2:969ba0a5", "--set", "10:7e83", "--set", "18:666b70757a7f84898e93989da2a7acb1b6bbc0c5cacfd4d9dee3e8edf2f7fc01060b10151a1f24292e33383d42474c51565b60656a6f74797e83888d92979ca1a6ab", "--set", "32:fc01060b10151a1f24292e33383d42474c51565b", "--set", "48:ccd1d6dbe0e5eaef", "--set", "64:9ca1a6abb0b5babf", "--set", "80:6c71767b", "--set", "96:3c41464b50555a5f64696e73787d82878c91969ba0a5aaafb4b9bec3c8cdd2d7dce1e6ebf0f5faff04090e13181d22272c31363b40454a4f54595e63686d7277", "--set", "112:0c11161b20252a2f34393e43484d52575c61666b70757a7f84898e93989da2a7acb1b6bbc0c5cacfd4d9dee3e8edf2f7fc01060b10151a1f24292e33383d42474c51565b60656a6f74797e83888d92979ca1a6abb0b5babfc4c9ced3d8dde2e7ecf1f6fb00050a0f14191e23282d32373c41464b50555a5f64696e73787d82878c91969ba0a5aaaf", "--set", "128:dce1e6ebf0f5faff04090e13181d22272c31363b40454a4f54595e63686d72777c81868b90959a9fa4a9aeb3b8bdc2c7ccd1d6dbe0e5eaeff4f9fe03080d1217", "--until-idle", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=11 first=11 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30061 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=30061 now_ms=3010 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1007131 2008731 3010331
+OKS
+RUN ["--slot-a", "<packet>/scratch/erase_authoritative/store/a.bin", "--slot-b", "<packet>/scratch/erase_authoritative/store/b.bin", "--boot", "--dump-state", "st.txt"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=4 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/erase_authoritative/store/g.bin", "--boot", "--protect-auth", "--set", "0:5c61", "--set", "1:797e83888d92979c", "--set", "2:969ba0a5", "--set", "10:7e83", "--set", "18:666b70757a7f84898e93989da2a7acb1b6bbc0c5cacfd4d9dee3e8edf2f7fc01060b10151a1f24292e33383d42474c51565b60656a6f74797e83888d92979ca1a6ab", "--set", "32:fc01060b10151a1f24292e33383d42474c51565b", "--set", "48:ccd1d6dbe0e5eaef", "--set", "64:9ca1a6abb0b5babf", "--set", "80:6c71767b", "--set", "96:3c41464b50555a5f64696e73787d82878c91969ba0a5aaafb4b9bec3c8cdd2d7dce1e6ebf0f5faff04090e13181d22272c31363b40454a4f54595e63686d7277", "--set", "112:0c11161b20252a2f34393e43484d52575c61666b70757a7f84898e93989da2a7acb1b6bbc0c5cacfd4d9dee3e8edf2f7fc01060b10151a1f24292e33383d42474c51565b60656a6f74797e83888d92979ca1a6abb0b5babfc4c9ced3d8dde2e7ecf1f6fb00050a0f14191e23282d32373c41464b50555a5f64696e73787d82878c91969ba0a5aaaf", "--set", "128:dce1e6ebf0f5faff04090e13181d22272c31363b40454a4f54595e63686d72777c81868b90959a9fa4a9aeb3b8bdc2c7ccd1d6dbe0e5eaeff4f9fe03080d1217", "--until-idle", "--dump-slot-a", "a.bin", "--dump-slot-b", "b.bin"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=11 first=11 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30046 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=3 ls_pp=0 ls_se=3 ls_no_wel=0 ls_short=0 ls_refused=3 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=9 max_polls_call=3 calls=30046 now_ms=3007 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1003111 2005022 3006932
+OKS
+RUN ["--litespi", "--slot-a", "<packet>/scratch/erase_authoritative/store/a.bin", "--slot-b", "<packet>/scratch/erase_authoritative/store/b.bin", "--boot", "--dump-state", "st.txt"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS
+OKS
+RUN ["--blank", "--powercut"]
+POWERCUT effects=15 cases=61 old=60 new=1 bad=0
+SUMMARY terminal=1 cause=0 vd_a=4 vd_b=0 last=0 first=0 seq_a=0 seq_b=1 seq=1 auth=1 applied=12 refused=0 blank=42 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=12 sm_applied=12 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=168 max_polls_call=1 calls=1273187 now_ms=6 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS
+OKS 1048041 1052316 1048041 1048041 1048041 1048041 1048041 1048041 1050179 1050179 1050179 1050179 1050179 1050179 1050179 1050179
+RUN ["--slot-a", "<packet>/scratch/erase_authoritative/store/o.bin", "--powercut"]
+POWERCUT-BAD effect=0 frac=0
+POWERCUT-BAD effect=1 frac=0
+POWERCUT-BAD effect=1 frac=1
+POWERCUT-BAD effect=1 frac=128
+POWERCUT-BAD effect=1 frac=255
+POWERCUT-BAD effect=2 frac=0
+POWERCUT-BAD effect=2 frac=1
+POWERCUT-BAD effect=2 frac=128
+POWERCUT-BAD effect=2 frac=255
+POWERCUT-BAD effect=3 frac=0
+POWERCUT-BAD effect=3 frac=1
+POWERCUT-BAD effect=3 frac=128
+POWERCUT-BAD effect=3 frac=255
+POWERCUT-BAD effect=4 frac=0
+POWERCUT-BAD effect=4 frac=1
+POWERCUT-BAD effect=4 frac=128
+POWERCUT-BAD effect=4 frac=255
+POWERCUT-BAD effect=5 frac=0
+POWERCUT-BAD effect=5 frac=1
+POWERCUT-BAD effect=5 frac=128
+POWERCUT-BAD effect=5 frac=255
+POWERCUT-BAD effect=6 frac=0
+POWERCUT-BAD effect=6 frac=1
+POWERCUT-BAD effect=6 frac=128
+POWERCUT-BAD effect=6 frac=255
+POWERCUT-BAD effect=7 frac=0
+POWERCUT-BAD effect=7 frac=1
+POWERCUT-BAD effect=7 frac=128
+POWERCUT-BAD effect=7 frac=255
+POWERCUT-BAD effect=8 frac=0
+POWERCUT-BAD effect=8 frac=1
+POWERCUT-BAD effect=8 frac=128
+POWERCUT-BAD effect=8 frac=255
+POWERCUT-BAD effect=9 frac=0
+POWERCUT-BAD effect=9 frac=1
+POWERCUT-BAD effect=9 frac=128
+POWERCUT-BAD effect=9 frac=255
+POWERCUT-BAD effect=10 frac=0
+POWERCUT-BAD effect=10 frac=1
+POWERCUT-BAD effect=10 frac=128
+POWERCUT-BAD effect=10 frac=255
+POWERCUT-BAD effect=11 frac=0
+POWERCUT-BAD effect=11 frac=1
+POWERCUT-BAD effect=11 frac=128
+POWERCUT-BAD effect=11 frac=255
+POWERCUT-BAD effect=12 frac=0
+POWERCUT-BAD effect=12 frac=1
+POWERCUT-BAD effect=12 frac=128
+POWERCUT-BAD effect=12 frac=255
+POWERCUT-BAD effect=13 frac=0
+POWERCUT-BAD effect=13 frac=1
+POWERCUT-BAD effect=13 frac=128
+POWERCUT-BAD effect=13 frac=255
+POWERCUT-BAD effect=14 frac=0
+POWERCUT-BAD effect=14 frac=1
+POWERCUT-BAD effect=14 frac=128
+POWERCUT-BAD effect=14 frac=255
+POWERCUT-BAD effect=15 frac=0
+POWERCUT-BAD effect=15 frac=1
+POWERCUT-BAD effect=15 frac=128
+POWERCUT-BAD effect=15 frac=255
+POWERCUT effects=15 cases=61 old=0 new=0 bad=61
+SUMMARY terminal=1 cause=0 vd_a=0 vd_b=9 last=11 first=11 seq_a=5 seq_b=0 seq=5 auth=0 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30061 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=167 max_polls_call=1 calls=1844128 now_ms=3010 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1007131 2008731 3010331 1007131 2008731 3010331 1007131 2008731 3010331 1007131 2008731 3010331 1007131 2008731 3010331 1007131
+OKS 1052316
+RUN ["--slot-a", "<packet>/scratch/erase_authoritative/store/o.bin", "--slot-b", "<packet>/scratch/erase_authoritative/store/n.bin", "--powercut"]
+POWERCUT-BAD effect=0 frac=0
+POWERCUT-BAD effect=1 frac=0
+POWERCUT-BAD effect=1 frac=1
+POWERCUT-BAD effect=1 frac=128
+POWERCUT-BAD effect=1 frac=255
+POWERCUT-BAD effect=2 frac=0
+POWERCUT-BAD effect=2 frac=1
+POWERCUT-BAD effect=2 frac=128
+POWERCUT-BAD effect=2 frac=255
+POWERCUT-BAD effect=3 frac=0
+POWERCUT-BAD effect=3 frac=1
+POWERCUT-BAD effect=3 frac=128
+POWERCUT-BAD effect=3 frac=255
+POWERCUT-BAD effect=4 frac=0
+POWERCUT-BAD effect=4 frac=1
+POWERCUT-BAD effect=4 frac=128
+POWERCUT-BAD effect=4 frac=255
+POWERCUT-BAD effect=5 frac=0
+POWERCUT-BAD effect=5 frac=1
+POWERCUT-BAD effect=5 frac=128
+POWERCUT-BAD effect=5 frac=255
+POWERCUT-BAD effect=6 frac=0
+POWERCUT-BAD effect=6 frac=1
+POWERCUT-BAD effect=6 frac=128
+POWERCUT-BAD effect=6 frac=255
+POWERCUT-BAD effect=7 frac=0
+POWERCUT-BAD effect=7 frac=1
+POWERCUT-BAD effect=7 frac=128
+POWERCUT-BAD effect=7 frac=255
+POWERCUT-BAD effect=8 frac=0
+POWERCUT-BAD effect=8 frac=1
+POWERCUT-BAD effect=8 frac=128
+POWERCUT-BAD effect=8 frac=255
+POWERCUT-BAD effect=9 frac=0
+POWERCUT-BAD effect=9 frac=1
+POWERCUT-BAD effect=9 frac=128
+POWERCUT-BAD effect=9 frac=255
+POWERCUT-BAD effect=10 frac=0
+POWERCUT-BAD effect=10 frac=1
+POWERCUT-BAD effect=10 frac=128
+POWERCUT-BAD effect=10 frac=255
+POWERCUT-BAD effect=11 frac=0
+POWERCUT-BAD effect=11 frac=1
+POWERCUT-BAD effect=11 frac=128
+POWERCUT-BAD effect=11 frac=255
+POWERCUT-BAD effect=12 frac=0
+POWERCUT-BAD effect=12 frac=1
+POWERCUT-BAD effect=12 frac=128
+POWERCUT-BAD effect=12 frac=255
+POWERCUT-BAD effect=13 frac=0
+POWERCUT-BAD effect=13 frac=1
+POWERCUT-BAD effect=13 frac=128
+POWERCUT-BAD effect=13 frac=255
+POWERCUT-BAD effect=14 frac=0
+POWERCUT-BAD effect=14 frac=1
+POWERCUT-BAD effect=14 frac=128
+POWERCUT-BAD effect=14 frac=255
+POWERCUT-BAD effect=15 frac=0
+POWERCUT-BAD effect=15 frac=1
+POWERCUT-BAD effect=15 frac=128
+POWERCUT-BAD effect=15 frac=255
+POWERCUT effects=15 cases=61 old=0 new=0 bad=61
+SUMMARY terminal=1 cause=0 vd_a=0 vd_b=0 last=11 first=11 seq_a=5 seq_b=6 seq=6 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30061 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=168 max_polls_call=1 calls=1844128 now_ms=3012 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1009269 2010869 3012469 1009269 2010869 3012469 1009269 2010869 3012469 1009269 2010869 3012469 1009269 2010869 3012469 1009269
+OKS 1054454
+RUN ["--litespi", "--blank", "--powercut"]
+POWERCUT effects=15 cases=61 old=60 new=1 bad=0
+SUMMARY terminal=1 cause=0 vd_a=4 vd_b=0 last=0 first=0 seq_a=0 seq_b=1 seq=1 auth=1 applied=12 refused=0 blank=42 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=278 steps=0 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=12 sm_applied=12 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=1271017 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS
+OKS 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120 1045120
+RUN ["--litespi", "--slot-a", "<packet>/scratch/erase_authoritative/store/o.bin", "--powercut"]
+POWERCUT-BAD effect=0 frac=0
+POWERCUT-BAD effect=1 frac=0
+POWERCUT-BAD effect=1 frac=1
+POWERCUT-BAD effect=1 frac=128
+POWERCUT-BAD effect=1 frac=255
+POWERCUT-BAD effect=2 frac=0
+POWERCUT-BAD effect=2 frac=1
+POWERCUT-BAD effect=2 frac=128
+POWERCUT-BAD effect=2 frac=255
+POWERCUT-BAD effect=3 frac=0
+POWERCUT-BAD effect=3 frac=1
+POWERCUT-BAD effect=3 frac=128
+POWERCUT-BAD effect=3 frac=255
+POWERCUT-BAD effect=4 frac=0
+POWERCUT-BAD effect=4 frac=1
+POWERCUT-BAD effect=4 frac=128
+POWERCUT-BAD effect=4 frac=255
+POWERCUT-BAD effect=5 frac=0
+POWERCUT-BAD effect=5 frac=1
+POWERCUT-BAD effect=5 frac=128
+POWERCUT-BAD effect=5 frac=255
+POWERCUT-BAD effect=6 frac=0
+POWERCUT-BAD effect=6 frac=1
+POWERCUT-BAD effect=6 frac=128
+POWERCUT-BAD effect=6 frac=255
+POWERCUT-BAD effect=7 frac=0
+POWERCUT-BAD effect=7 frac=1
+POWERCUT-BAD effect=7 frac=128
+POWERCUT-BAD effect=7 frac=255
+POWERCUT-BAD effect=8 frac=0
+POWERCUT-BAD effect=8 frac=1
+POWERCUT-BAD effect=8 frac=128
+POWERCUT-BAD effect=8 frac=255
+POWERCUT-BAD effect=9 frac=0
+POWERCUT-BAD effect=9 frac=1
+POWERCUT-BAD effect=9 frac=128
+POWERCUT-BAD effect=9 frac=255
+POWERCUT-BAD effect=10 frac=0
+POWERCUT-BAD effect=10 frac=1
+POWERCUT-BAD effect=10 frac=128
+POWERCUT-BAD effect=10 frac=255
+POWERCUT-BAD effect=11 frac=0
+POWERCUT-BAD effect=11 frac=1
+POWERCUT-BAD effect=11 frac=128
+POWERCUT-BAD effect=11 frac=255
+POWERCUT-BAD effect=12 frac=0
+POWERCUT-BAD effect=12 frac=1
+POWERCUT-BAD effect=12 frac=128
+POWERCUT-BAD effect=12 frac=255
+POWERCUT-BAD effect=13 frac=0
+POWERCUT-BAD effect=13 frac=1
+POWERCUT-BAD effect=13 frac=128
+POWERCUT-BAD effect=13 frac=255
+POWERCUT-BAD effect=14 frac=0
+POWERCUT-BAD effect=14 frac=1
+POWERCUT-BAD effect=14 frac=128
+POWERCUT-BAD effect=14 frac=255
+POWERCUT-BAD effect=15 frac=0
+POWERCUT-BAD effect=15 frac=1
+POWERCUT-BAD effect=15 frac=128
+POWERCUT-BAD effect=15 frac=255
+POWERCUT effects=15 cases=61 old=0 new=0 bad=61
+SUMMARY terminal=1 cause=0 vd_a=0 vd_b=9 last=11 first=11 seq_a=5 seq_b=0 seq=5 auth=0 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30046 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=3 ls_pp=0 ls_se=3 ls_no_wel=0 ls_short=0 ls_refused=3 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=1843195 now_ms=3007 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111
+OKS 1045120
+RUN ["--litespi", "--slot-a", "<packet>/scratch/erase_authoritative/store/o.bin", "--slot-b", "<packet>/scratch/erase_authoritative/store/n.bin", "--powercut"]
+POWERCUT-BAD effect=0 frac=0
+POWERCUT-BAD effect=1 frac=0
+POWERCUT-BAD effect=1 frac=1
+POWERCUT-BAD effect=1 frac=128
+POWERCUT-BAD effect=1 frac=255
+POWERCUT-BAD effect=2 frac=0
+POWERCUT-BAD effect=2 frac=1
+POWERCUT-BAD effect=2 frac=128
+POWERCUT-BAD effect=2 frac=255
+POWERCUT-BAD effect=3 frac=0
+POWERCUT-BAD effect=3 frac=1
+POWERCUT-BAD effect=3 frac=128
+POWERCUT-BAD effect=3 frac=255
+POWERCUT-BAD effect=4 frac=0
+POWERCUT-BAD effect=4 frac=1
+POWERCUT-BAD effect=4 frac=128
+POWERCUT-BAD effect=4 frac=255
+POWERCUT-BAD effect=5 frac=0
+POWERCUT-BAD effect=5 frac=1
+POWERCUT-BAD effect=5 frac=128
+POWERCUT-BAD effect=5 frac=255
+POWERCUT-BAD effect=6 frac=0
+POWERCUT-BAD effect=6 frac=1
+POWERCUT-BAD effect=6 frac=128
+POWERCUT-BAD effect=6 frac=255
+POWERCUT-BAD effect=7 frac=0
+POWERCUT-BAD effect=7 frac=1
+POWERCUT-BAD effect=7 frac=128
+POWERCUT-BAD effect=7 frac=255
+POWERCUT-BAD effect=8 frac=0
+POWERCUT-BAD effect=8 frac=1
+POWERCUT-BAD effect=8 frac=128
+POWERCUT-BAD effect=8 frac=255
+POWERCUT-BAD effect=9 frac=0
+POWERCUT-BAD effect=9 frac=1
+POWERCUT-BAD effect=9 frac=128
+POWERCUT-BAD effect=9 frac=255
+POWERCUT-BAD effect=10 frac=0
+POWERCUT-BAD effect=10 frac=1
+POWERCUT-BAD effect=10 frac=128
+POWERCUT-BAD effect=10 frac=255
+POWERCUT-BAD effect=11 frac=0
+POWERCUT-BAD effect=11 frac=1
+POWERCUT-BAD effect=11 frac=128
+POWERCUT-BAD effect=11 frac=255
+POWERCUT-BAD effect=12 frac=0
+POWERCUT-BAD effect=12 frac=1
+POWERCUT-BAD effect=12 frac=128
+POWERCUT-BAD effect=12 frac=255
+POWERCUT-BAD effect=13 frac=0
+POWERCUT-BAD effect=13 frac=1
+POWERCUT-BAD effect=13 frac=128
+POWERCUT-BAD effect=13 frac=255
+POWERCUT-BAD effect=14 frac=0
+POWERCUT-BAD effect=14 frac=1
+POWERCUT-BAD effect=14 frac=128
+POWERCUT-BAD effect=14 frac=255
+POWERCUT-BAD effect=15 frac=0
+POWERCUT-BAD effect=15 frac=1
+POWERCUT-BAD effect=15 frac=128
+POWERCUT-BAD effect=15 frac=255
+POWERCUT effects=15 cases=61 old=0 new=0 bad=61
+SUMMARY terminal=1 cause=0 vd_a=0 vd_b=0 last=11 first=11 seq_a=5 seq_b=6 seq=6 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=3 skipped=0 attempts=3 exhausted=1 stale=1 dirty=0 pending=1 phase=1 step_max=278 step_bound=278 steps=30046 bind_terminal=1 bind_cause=0 withheld=0 abandoned=1 abandoned_vd=11
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=3 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=3 ls_pp=0 ls_se=3 ls_no_wel=0 ls_short=0 ls_refused=3 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=1843195 now_ms=3007 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111 2005022 3006932 1003111
+OKS 1045120
+MUTANT erase_authoritative GRADES {"change_commit_bytes": ["model: invariant protected=3", "model: change commit: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 3, 'skipped': 0, 'attempts': 3, 'exhausted': 1, 'stale': 1, 'dirty': 0, 'pending': 1, 'phase': 1, 'step_max': 278, 'step_bound': 278, 'steps': 30061, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 1, 'abandoned_vd': 11, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 3, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 0, 'max_polls_call': 0, 'calls': 30061, 'now_ms': 3010, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}", "model: the committed container differs from nvm_klj2.py's for the same records", "model: boot after the commit: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 0, 'skipped': 0, 'attempts': 0, 'exhausted': 0, 'stale': 0, 'dirty': 0, 'pending': 0, 'phase': 1, 'step_max': 0, 'step_bound': 278, 'steps': 0, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 0, 'abandoned_vd': 0, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 0, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 0, 'max_polls_call': 0, 'calls': 0, 'now_ms': 4, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}", "model: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot", "--litespi: invariant protected=3", "--litespi: invariant ls_refused=3", "--litespi: change commit: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 3, 'skipped': 0, 'attempts': 3, 'exhausted': 1, 'stale': 1, 'dirty': 0, 'pending': 1, 'phase': 1, 'step_max': 278, 'step_bound': 278, 'steps': 30046, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 1, 'abandoned_vd': 11, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 3, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 3, 'ls_pp': 0, 'ls_se': 3, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 3, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 9, 'max_polls_call': 3, 'calls': 30046, 'now_ms': 3007, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}", "--litespi: the committed container differs from nvm_klj2.py's for the same records", "--litespi: LiteSPI command sequence: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 11, 'first': 11, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 3, 'skipped': 0, 'attempts': 3, 'exhausted': 1, 'stale': 1, 'dirty': 0, 'pending': 1, 'phase': 1, 'step_max': 278, 'step_bound': 278, 'steps': 30046, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 1, 'abandoned_vd': 11, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 3, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 3, 'ls_pp': 0, 'ls_se': 3, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 3, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 9, 'max_polls_call': 3, 'calls': 30046, 'now_ms': 3007, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}", "--litespi: boot after the commit: {'terminal': 1, 'cause': 0, 'vd_a': 9, 'vd_b': 0, 'last': 0, 'first': 0, 'seq_a': 0, 'seq_b': 5, 'seq': 5, 'auth': 1, 'applied': 54, 'refused': 0, 'blank': 0, 'releases': 1, 'ok': 0, 'failed': 0, 'skipped': 0, 'attempts': 0, 'exhausted': 0, 'stale': 0, 'dirty': 0, 'pending': 0, 'phase': 1, 'step_max': 0, 'step_bound': 278, 'steps': 0, 'bind_terminal': 1, 'bind_cause': 0, 'withheld': 0, 'abandoned': 0, 'abandoned_vd': 0, 'erases': 0, 'programs': 0, 'effects': 0, 'outside': 0, 'protected': 0, 'pagewrap': 0, 'while_busy': 0, 'descending': 0, 'sm_applies': 54, 'sm_applied': 54, 'sm_refused': 0, 'sm_settles': 1, 'sm_rollbacks': 0, 'sm_unbinds': 0, 'sm_releases': 1, 'sm_order': 0, 'ls_wren': 0, 'ls_pp': 0, 'ls_se': 0, 'ls_no_wel': 0, 'ls_short': 0, 'ls_refused': 0, 'ls_unknown': 0, 'ls_stalled': 0, 'ls_max_withheld': 0, 'ls_hung': 0, 'max_call_us': 0, 'max_polls_call': 0, 'calls': 0, 'now_ms': 0, 'commit_tries': 0, 'commit_refused': 0, 'img_len': 3336, 'n_rec': 54, 'bad': 0}", "--litespi: state of records ['0x0', '0x1', '0x2', '0xa', '0x12', '0x20'] (12 in all) differs from the slot"], "powercut": ["model: invariant protected=3", "model: power cut from one slot: {'effects': 15, 'cases': 61, 'old': 0, 'new': 0, 'bad': 61}", "model: invariant protected=3", "model: power cut from two slots: {'effects': 15, 'cases': 61, 'old': 0, 'new': 0, 'bad': 61}", "--litespi: invariant protected=3", "--litespi: invariant ls_refused=3", "--litespi: power cut from one slot: {'effects': 15, 'cases': 61, 'old': 0, 'new': 0, 'bad': 61}", "--litespi: invariant protected=3", "--litespi: invariant ls_refused=3", "--litespi: power cut from two slots: {'effects': 15, 'cases': 61, 'old': 0, 'new': 0, 'bad': 61}"]} SURVIVORS []

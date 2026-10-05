@@ -1,0 +1,45 @@
+transient_refusal_then_verified_commit
+ARGS ["--slot-a", "<packet>/scratch/edge-endstation_ax7101_8x8/store/old.bin", "--boot-fault", "read-fail:1", "--boot", "--set", "234:a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6", "--until-idle", "--dump-slot-a", "after-a.bin", "--dump-slot-b", "after-b.bin"]
+SUMMARY terminal=2 cause=0 vd_a=3 vd_b=9 last=0 first=0 seq_a=0 seq_b=0 seq=1 auth=1 applied=0 refused=0 blank=0 releases=1 ok=1 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=1158 steps=10928 bind_terminal=2 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=52 effects=53 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=168 max_polls_call=1 calls=10928 now_ms=1120 commit_tries=0 commit_refused=0 img_len=13256 n_rec=164 bad=0
+ERASES 1005559
+FAILS
+OKS 1120476
+
+clean_reboot_after_verified_commit
+ARGS ["--slot-a", "<packet>/scratch/edge-endstation_ax7101_8x8/store/after-a.bin", "--slot-b", "<packet>/scratch/edge-endstation_ax7101_8x8/store/after-b.bin", "--boot", "--dump-state", "state.txt"]
+SUMMARY terminal=1 cause=0 vd_a=0 vd_b=0 last=0 first=0 seq_a=5 seq_b=1 seq=5 auth=0 applied=164 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=0 step_bound=1158 steps=0 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=164 sm_applied=164 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=25 commit_tries=0 commit_refused=0 img_len=13256 n_rec=164 bad=0
+ERASES
+FAILS
+OKS
+
+REPRODUCED verified_generation_1_loses_to_previously_refused_generation_5
+progressing_controller_2_delayed_TX_waits
+ARGS ["--litespi", "--slot-b", "<packet>/scratch/edge-endstation_ax7101_8x8/store/old.bin", "--boot", "--set", "234:a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6", "--until-phase", "7", "--ls-stall", "tx:2:0:4000", "--until-idle"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=164 refused=0 blank=0 releases=1 ok=1 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=1158 steps=10910 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=52 effects=53 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=164 sm_applied=164 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=53 ls_pp=52 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=2 ls_max_withheld=4000 ls_hung=0 max_call_us=529 max_polls_call=3 calls=10910 now_ms=1109 commit_tries=0 commit_refused=0 img_len=13256 n_rec=164 bad=0
+ERASES 1005608
+FAILS
+OKS 1108905
+
+OBSERVED {"slow_waits": 2, "max_call_us": 529, "ok": 1, "failed": 0, "stalled": 2, "hung": 0}
+progressing_controller_261_delayed_TX_waits
+ARGS ["--litespi", "--slot-b", "<packet>/scratch/edge-endstation_ax7101_8x8/store/old.bin", "--boot", "--set", "234:a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6", "--until-phase", "7", "--ls-stall", "tx:261:0:4000", "--until-idle"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=164 refused=0 blank=0 releases=1 ok=1 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=1158 steps=10910 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=52 effects=53 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=164 sm_applied=164 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=53 ls_pp=52 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=261 ls_max_withheld=4000 ls_hung=0 max_call_us=41969 max_polls_call=3 calls=10910 now_ms=1150 commit_tries=0 commit_refused=0 img_len=13256 n_rec=164 bad=0
+ERASES 1005608
+FAILS
+OKS 1150345
+
+OBSERVED {"slow_waits": 261, "max_call_us": 41969, "ok": 1, "failed": 0, "stalled": 261, "hung": 0}
+fresh_change_during_retry_backoff
+ARGS ["--slot-b", "<packet>/scratch/edge-endstation_ax7101_8x8/store/old.bin", "--boot", "--fault", "program-drop:1", "--set", "234:a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6a6", "--run-ms", "2000", "--mark", "--set", "0:1234", "--until-idle"]
+MARK 2017099
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=164 refused=0 blank=0 releases=1 ok=1 failed=1 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=1158 steps=21803 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=2 programs=104 effects=106 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=164 sm_applied=164 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=168 max_polls_call=1 calls=21803 now_ms=2244 commit_tries=0 commit_refused=0 img_len=13256 n_rec=164 bad=0
+ERASES 1022532 2129302
+FAILS 1123899
+OKS 2244219
+
+OBSERVED new_change_to_retry_erase_us=112203

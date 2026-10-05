@@ -1,0 +1,8 @@
+RUN ["--litespi", "--port-guard"]
+GUARD took=4
+SUMMARY terminal=0 cause=0 vd_a=0 vd_b=0 last=0 first=0 seq_a=0 seq_b=0 seq=0 auth=0 applied=0 refused=0 blank=0 releases=0 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=0 step_max=0 step_bound=278 steps=0 bind_terminal=0 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=0 effects=1 outside=0 protected=0 pagewrap=0 while_busy=3 descending=0 sm_applies=0 sm_applied=0 sm_refused=0 sm_settles=0 sm_rollbacks=0 sm_unbinds=0 sm_releases=0 sm_order=0 ls_wren=4 ls_pp=2 ls_se=2 ls_no_wel=0 ls_short=0 ls_refused=3 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=0 now_ms=0 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 4
+FAILS
+OKS
+MUTANT litespi_no_guard GRADES {"port_guard": ["--litespi: invariant while_busy=3", "--litespi: invariant ls_refused=3", "--litespi: the port took 4 of 4 writes outside the journal"]} SURVIVORS []

@@ -1,0 +1,60 @@
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--mark", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--run-ms", "500", "--phc-step", "-60000", "--run-ms", "1000"]
+MARK 0
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=1 pending=0 phase=1 step_max=0 step_bound=278 steps=15000 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=0 programs=0 effects=0 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=0 ls_pp=0 ls_se=0 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=0 max_polls_call=0 calls=15000 now_ms=1500 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES
+FAILS
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "program-drop:1", "--run-ms", "1200", "--phc-step", "-60000", "--run-ms", "2000"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=13 first=13 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=1 skipped=0 attempts=1 exhausted=0 stale=1 dirty=0 pending=1 phase=1 step_max=256 step_bound=278 steps=31946 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=14 effects=15 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=15 ls_pp=14 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=31946 now_ms=3200 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704
+FAILS 1042589
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "erase-hang:1", "--run-ms", "1500", "--phc-step", "-60000", "--run-ms", "5000"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=1 phase=5 step_max=256 step_bound=278 steps=60703 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=0 effects=1 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=1 ls_pp=0 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=9 max_polls_call=3 calls=60703 now_ms=6500 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704
+FAILS
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "program-hang:1", "--until-phase", "8", "--mark", "--run-ms", "20", "--phc-step", "-60000", "--run-ms", "200"]
+MARK 1023582
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=1 phase=8 step_max=256 step_bound=278 steps=12247 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=1 effects=2 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=2 ls_pp=1 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=209 max_polls_call=3 calls=12247 now_ms=1243 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704
+FAILS
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--mark", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--run-ms", "500", "--phc-step", "60000", "--run-ms", "1000"]
+MARK 0
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=54 refused=0 blank=0 releases=1 ok=1 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=278 steps=14946 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=14 effects=15 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=15 ls_pp=14 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=14946 now_ms=1500 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 501704
+FAILS
+OKS 543889
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "program-drop:1", "--run-ms", "1200", "--phc-step", "60000", "--run-ms", "2000"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=54 refused=0 blank=0 releases=1 ok=1 failed=1 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=278 steps=31892 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=2 programs=28 effects=30 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=30 ls_pp=28 ls_se=2 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=31892 now_ms=3200 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704 1201694
+FAILS 1042589
+OKS 1243879
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "erase-hang:1", "--run-ms", "1500", "--phc-step", "60000", "--run-ms", "5000"]
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=11 first=11 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=2 skipped=0 attempts=2 exhausted=0 stale=1 dirty=0 pending=1 phase=1 step_max=256 step_bound=278 steps=61875 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=0 effects=1 outside=0 protected=0 pagewrap=0 while_busy=1 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=2 ls_pp=0 ls_se=2 ls_no_wel=0 ls_short=0 ls_refused=1 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=9 max_polls_call=3 calls=61875 now_ms=6500 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704
+FAILS 1500061 6001769
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--fault", "program-hang:1", "--until-phase", "8", "--mark", "--run-ms", "20", "--phc-step", "60000", "--run-ms", "200"]
+MARK 1023582
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=12 first=12 seq_a=0 seq_b=5 seq=5 auth=1 applied=54 refused=0 blank=0 releases=1 ok=0 failed=1 skipped=0 attempts=1 exhausted=0 stale=1 dirty=0 pending=1 phase=1 step_max=256 step_bound=278 steps=12403 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=1 effects=2 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=2 ls_pp=1 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=209 max_polls_call=3 calls=12403 now_ms=1243 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 1001704
+FAILS 1043659
+OKS
+RUN ["--litespi", "--slot-b", "<packet>/scratch/phc_time/store/g.bin", "--boot", "--run-ms", "42500", "--mark", "--set", "166:8a95a0abb6c1ccd7e2edf8030e19242f3a45505b66717c87929da8b3bec9d4dfeaf5000b16212c37424d58636e79848f9aa5b0bbc6d1dce7f2fd08131e29343f", "--run-ms", "1500"]
+MARK 42500000
+SUMMARY terminal=1 cause=0 vd_a=9 vd_b=0 last=0 first=0 seq_a=0 seq_b=5 seq=6 auth=0 applied=54 refused=0 blank=0 releases=1 ok=1 failed=0 skipped=0 attempts=0 exhausted=0 stale=0 dirty=0 pending=0 phase=1 step_max=256 step_bound=278 steps=439946 bind_terminal=1 bind_cause=0 withheld=0 abandoned=0 abandoned_vd=0
+SUMMARY erases=1 programs=14 effects=15 outside=0 protected=0 pagewrap=0 while_busy=0 descending=0 sm_applies=54 sm_applied=54 sm_refused=0 sm_settles=1 sm_rollbacks=0 sm_unbinds=0 sm_releases=1 sm_order=0 ls_wren=15 ls_pp=14 ls_se=1 ls_no_wel=0 ls_short=0 ls_refused=0 ls_unknown=0 ls_stalled=0 ls_max_withheld=0 ls_hung=0 max_call_us=210 max_polls_call=3 calls=439946 now_ms=44000 commit_tries=0 commit_refused=0 img_len=3336 n_rec=54 bad=0
+ERASES 43501704
+FAILS
+OKS 43543889
+MUTANT phc_time GRADES {"time_base": ["--litespi: PHC -60000 ms in the window: erase None us after the change", "--litespi: PHC -60000 ms in the backoff: retry None us after the failure", "--litespi: PHC -60000 ms in an erase: timed out None us after it, want 3,500 ms", "--litespi: PHC -60000 ms in a program: timed out None us after it, want 50 ms", "--litespi: PHC 60000 ms in the window: erase 501704 us after the change", "--litespi: PHC 60000 ms in the backoff: retry 159105 us after the failure", "--litespi: PHC 60000 ms in an erase: timed out 498357 us after it, want 3,500 ms", "--litespi: PHC 60000 ms in a program: timed out 20077 us after it, want 50 ms"]} SURVIVORS []

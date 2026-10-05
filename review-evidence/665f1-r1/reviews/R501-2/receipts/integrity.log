@@ -1,0 +1,44 @@
+HEAD 7f8dc1b10c80c9e9631b8d6c6f5f37a039bc2e11 TREE 86236b61ec36ed252d6f91d698f2784302ef3743
+superproject blobs=1041 index_entries=1045 bytes_modes_index=PASS
+protocol-processor blobs=558 index_entries=558 bytes_modes_index=PASS
+PIN protocol-processor ead8036035affd53ef4b29979190f2f4f67084c0
+gptp-processor blobs=104 index_entries=104 bytes_modes_index=PASS
+PIN gptp-processor 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d
+third_party/verilog-axis blobs=214 index_entries=214 bytes_modes_index=PASS
+PIN third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce
+ALL_GITLINKS {"external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5", "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d", "protocol-processor": "ead8036035affd53ef4b29979190f2f4f67084c0", "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"}
+MERGE lane_entries_unchanged=31 imported_paths_equal_dev=38 shipping_writer_unchanged=PASS
+LANE_DELTA  docs/README.md                                  |   1 +
+ sw/firmware/ctrl_nvm/README.md                  | 315 +++++++++++
+ sw/firmware/ctrl_nvm/host/litespi_model.c       | 273 +++++++++
+ sw/firmware/ctrl_nvm/host/litespi_model.h       |  71 +++
+ sw/firmware/ctrl_nvm/host/nvm_fmodel.c          | 297 ++++++++++
+ sw/firmware/ctrl_nvm/host/nvm_fmodel.h          | 106 ++++
+ sw/firmware/ctrl_nvm/host/nvm_smodel.c          | 219 ++++++++
+ sw/firmware/ctrl_nvm/host/nvm_smodel.h          |  54 ++
+ sw/firmware/ctrl_nvm/host/stubs/generated/csr.h |  22 +
+ sw/firmware/ctrl_nvm/host/stubs/generated/mem.h |  11 +
+ sw/firmware/ctrl_nvm/host/stubs/generated/soc.h |   8 +
+ sw/firmware/ctrl_nvm/nvm_flash.h                |  55 ++
+ sw/firmware/ctrl_nvm/nvm_klj2.c                 | 380 +++++++++++++
+ sw/firmware/ctrl_nvm/nvm_klj2.h                 | 113 ++++
+ sw/firmware/ctrl_nvm/nvm_shape.h                | 139 +++++
+ sw/firmware/ctrl_nvm/nvm_state.h                |  81 +++
+ sw/firmware/ctrl_nvm/nvm_store.c                | 695 +++++++++++++++++++++++
+ sw/firmware/ctrl_nvm/nvm_store.h                | 120 ++++
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c   | 227 ++++++++
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h   |  21 +
+ sw/firmware/ctrl_nvm/plat/nvm_shape_gen.h       |  16 +
+ sw/firmware/ctrl_nvm/test/nvm_bench.py          | 227 ++++++++
+ sw/firmware/ctrl_nvm/test/nvm_checks.py         | 515 +++++++++++++++++
+ sw/firmware/ctrl_nvm/test/nvm_checks_write.py   | 570 +++++++++++++++++++
+ sw/firmware/ctrl_nvm/test/nvm_mutants.py        | 336 +++++++++++
+ sw/firmware/ctrl_nvm/test/nvm_rv32.py           |  73 +++
+ sw/firmware/ctrl_nvm/test/nvm_test.c            | 715 ++++++++++++++++++++++++
+ sw/firmware/ctrl_nvm/test/rv32/generated/csr.h  |  28 +
+ sw/firmware/ctrl_nvm/test/rv32/generated/mem.h  |   9 +
+ sw/firmware/ctrl_nvm/test/rv32/generated/soc.h  |   7 +
+ sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py      | 169 ++++++
+ 31 files changed, 5873 insertions(+)
+
+STATUS clean; no ignored artifacts; no source restoration needed

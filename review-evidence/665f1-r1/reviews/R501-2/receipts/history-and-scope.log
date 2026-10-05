@@ -1,0 +1,45 @@
+$ git log --first-parent --format=%H %s fa450d301805881ad713b67521477bf042ddadfd..HEAD
+7f8dc1b10c80c9e9631b8d6c6f5f37a039bc2e11 Merge dev 510fae60 (PR #663) into the #665 F1 lane
+7725bcfa0dff380966f7846ebfff10c3e21349ee State the saved-state store's time base, bounded waits, two restore walks, exhaustion record and derived service bound in its module page (#665 F1)
+c1fb42a5a0b8014bca7db9c5b5efdfa73e8d0c8d Run the saved-state store on timer0 with bounded LiteSPI waits, one-read slot judgment, a binding walk of its own and DR2a and DR2c per captured work set, graded by 69 planted defects (#665 F1)
+215c3c0be5d8db6d9a1ba5aca3827dfe969c042e State the saved-state store's attempt limit and step bound as the code enforces them (#665 F1)
+448df7846d094e0087e2298034558b428972b20d Count the saved-state store's checks that run on both flash ports correctly in its module page (#665 F1)
+0e4a4244a8447ad0de835e60a70a3539972346ae Publish the saved-state store's step bound as a store constant and state its tie rule (#665 F1)
+5f629d3ed81f79edfa0c153f49ed733ab870717d Drop the blank line at the end of the saved-state store's boot checks (#665 F1)
+d3a2f133a5afca140d09bfe4002bc040a7f7fd69 Document the saved-state store of #665 F1 and map it from the documentation index
+ccb239b6a577f964e515b89dd4cef9b8107c962b Add the saved-state store's host suite: 26 checks per shipped shape on both flash ports, the power-cut sweep, the recorded-vector round trip, 46 planted defects and the RV32 arm (#665 F1)
+724c30f4020459687762fe5899a33d2f3f956d18 Add the saved-state store's two flash ports, the LiteSPI command master and a host flash model with power-cut, media and read faults (#665 F1)
+96c78891b9bdaa31d2d159ea618e06930fe1430a Add the bare-metal saved-state store of #665 F1: the KLJ2 codec, the boot restore and the write-back behind a flash port and a state port
+
+$ git diff --name-status 510fae60b26bef1db138de5cf2ac72b17b5011a5 HEAD
+M	docs/README.md
+A	sw/firmware/ctrl_nvm/README.md
+A	sw/firmware/ctrl_nvm/host/litespi_model.c
+A	sw/firmware/ctrl_nvm/host/litespi_model.h
+A	sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+A	sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+A	sw/firmware/ctrl_nvm/host/nvm_smodel.c
+A	sw/firmware/ctrl_nvm/host/nvm_smodel.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/csr.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/mem.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/soc.h
+A	sw/firmware/ctrl_nvm/nvm_flash.h
+A	sw/firmware/ctrl_nvm/nvm_klj2.c
+A	sw/firmware/ctrl_nvm/nvm_klj2.h
+A	sw/firmware/ctrl_nvm/nvm_shape.h
+A	sw/firmware/ctrl_nvm/nvm_state.h
+A	sw/firmware/ctrl_nvm/nvm_store.c
+A	sw/firmware/ctrl_nvm/nvm_store.h
+A	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+A	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+A	sw/firmware/ctrl_nvm/plat/nvm_shape_gen.h
+A	sw/firmware/ctrl_nvm/test/nvm_bench.py
+A	sw/firmware/ctrl_nvm/test/nvm_checks.py
+A	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+A	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+A	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+A	sw/firmware/ctrl_nvm/test/nvm_test.c
+A	sw/firmware/ctrl_nvm/test/rv32/generated/csr.h
+A	sw/firmware/ctrl_nvm/test/rv32/generated/mem.h
+A	sw/firmware/ctrl_nvm/test/rv32/generated/soc.h
+A	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
