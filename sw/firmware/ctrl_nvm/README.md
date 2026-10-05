@@ -23,7 +23,7 @@ flash ports and every planted defect was caught.
 - **[Boot](#boot)** -- Both slots judged by section 6.2, the newer one staged, re-judged and applied as one transaction.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Twenty-six checks per shape on both ports, the power-cut sweep and the planted defects.
+- **[The host suite](#the-host-suite)** -- Twenty-six checks per shape, 24 of them on both ports, the power-cut sweep and the planted defects.
 - **[What this does not prove](#what-this-does-not-prove)** -- The board, the generated headers and the switch.
 
 ## Layout
