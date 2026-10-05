@@ -116,7 +116,8 @@ static void post(struct mbx_model *m)
 {
 	uint32_t w[4];
 	for (;;) {
-		uint16_t free_words = (uint16_t)(MBX_EVT_WORDS - (uint16_t)(m->evt_head - m->evt_tail));
+		uint16_t used = (uint16_t)(m->evt_head - m->evt_tail);
+		uint16_t free_words = used > MBX_EVT_WORDS ? 0u : (uint16_t)(MBX_EVT_WORDS - used);
 		if (free_words < MBX_EV_WORDS || !next_source(m, w)) {
 			return;
 		}

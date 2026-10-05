@@ -169,7 +169,10 @@ registers:
   - name: EVT_TAIL
     offset: 0x064
     access: rw
-    doc: Words the core has consumed from the event ring. Writing it releases the space.
+    doc: >-
+      Words the core has consumed from the event ring. Writing it releases the space.
+      A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word:
+      nothing posts until it is back in range.
     fields:
       - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
   - name: BUS_ERR
@@ -217,13 +220,18 @@ channel_registers:
     - name: RX_TAIL
       offset: 0x04
       access: rw
-      doc: Words the core has consumed. Writing it releases the space (the RX doorbell).
+      doc: >-
+        Words the core has consumed. Writing it releases the space (the RX doorbell).
+        A value more than the ring behind RX_HEAD, or ahead of it, leaves no free word:
+        every frame counts in RX_DROP until it is back in range.
       fields:
         - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
     - name: TX_HEAD
       offset: 0x08
       access: rw
-      doc: Words the core has committed into the transmit ring. Writing it is the TX doorbell.
+      doc: >-
+        Words the core has committed into the transmit ring. Writing it is the TX doorbell.
+        A value more than the ring ahead of TX_TAIL is refused like a malformed record.
       fields:
         - {name: WORDS, lsb: 0, width: 16, doc: producer count}
     - name: TX_TAIL

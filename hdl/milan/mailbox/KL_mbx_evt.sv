@@ -22,7 +22,10 @@
 //                A source holds at most one unposted record and posts its
 //                state at posting time, and the poster writes only when four
 //                words are free. So the ring can never overflow and drop the
-//                last state of anything: a link that flaps twice before its
+//                last state of anything (an EVT_TAIL more than the ring
+//                behind EVT_HEAD, or ahead of it, which only a wrong host
+//                counter writes, leaves no free word: nothing posts until
+//                the tail is back in range, as on the receive rings): a link that flaps twice before its
 //                record is posted posts its current level once, and a timer
 //                re-armed before its expiry was posted posts nothing for the
 //                old arm, and ticks counted while their record waits are
@@ -98,6 +101,7 @@ module KL_mbx_evt
   src_t        src_w;
   logic [MBX_IF_W_C-1:0] src_if_w;
   logic [SW_C-1:0] src_slot_w;
+  logic [15:0] used_w;   //! words posted and not released (a bad EVT_TAIL makes it exceed the ring)
   logic [15:0] free_w;
   always_comb begin : choose
     any_w      = 1'b0;
@@ -129,7 +133,8 @@ module KL_mbx_evt
       any_w = 1'b1;
       src_w = SRC_TICK_S;
     end
-    free_w = 16'(MBX_EVT_WORDS_C) - (head_r - evt_tail_words_i);
+    used_w = head_r - evt_tail_words_i;
+    free_w = (used_w > 16'(MBX_EVT_WORDS_C)) ? 16'd0 : 16'(MBX_EVT_WORDS_C) - used_w;
   end : choose
 
   logic start_w;

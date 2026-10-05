@@ -197,7 +197,7 @@
 #define MBX_EVT_HEAD_WORDS_LSB 0u
 /* EVT_HEAD: producer count */
 #define MBX_EVT_HEAD_WORDS_WIDTH 16u
-/* Words the core has consumed from the event ring. Writing it releases the space. */
+/* Words the core has consumed from the event ring. Writing it releases the space. A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word: nothing posts until it is back in range. */
 #define MBX_REG_EVT_TAIL 0x64u
 /* EVT_TAIL: consumer count */
 #define MBX_EVT_TAIL_WORDS_LSB 0u
@@ -241,13 +241,13 @@
 #define MBX_RX_HEAD_WORDS_LSB 0u
 /* RX_HEAD: producer count */
 #define MBX_RX_HEAD_WORDS_WIDTH 16u
-/* Words the core has consumed. Writing it releases the space (the RX doorbell). */
+/* Words the core has consumed. Writing it releases the space (the RX doorbell). A value more than the ring behind RX_HEAD, or ahead of it, leaves no free word: every frame counts in RX_DROP until it is back in range. */
 #define MBX_CH_REG_RX_TAIL 0x4u
 /* RX_TAIL: consumer count */
 #define MBX_RX_TAIL_WORDS_LSB 0u
 /* RX_TAIL: consumer count */
 #define MBX_RX_TAIL_WORDS_WIDTH 16u
-/* Words the core has committed into the transmit ring. Writing it is the TX doorbell. */
+/* Words the core has committed into the transmit ring. Writing it is the TX doorbell. A value more than the ring ahead of TX_TAIL is refused like a malformed record. */
 #define MBX_CH_REG_TX_HEAD 0x8u
 /* TX_HEAD: producer count */
 #define MBX_TX_HEAD_WORDS_LSB 0u

@@ -198,7 +198,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EVT_HEAD_WORDS_LSB_C = 32'd0;
   //! EVT_HEAD: producer count
   localparam int unsigned MBX_EVT_HEAD_WORDS_WIDTH_C = 32'd16;
-  //! Words the core has consumed from the event ring. Writing it releases the space.
+  //! Words the core has consumed from the event ring. Writing it releases the space. A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word: nothing posts until it is back in range.
   localparam int unsigned MBX_REG_EVT_TAIL_C = 32'h00000064;
   //! EVT_TAIL: consumer count
   localparam int unsigned MBX_EVT_TAIL_WORDS_LSB_C = 32'd0;
@@ -242,13 +242,13 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_RX_HEAD_WORDS_LSB_C = 32'd0;
   //! RX_HEAD: producer count
   localparam int unsigned MBX_RX_HEAD_WORDS_WIDTH_C = 32'd16;
-  //! Words the core has consumed. Writing it releases the space (the RX doorbell).
+  //! Words the core has consumed. Writing it releases the space (the RX doorbell). A value more than the ring behind RX_HEAD, or ahead of it, leaves no free word: every frame counts in RX_DROP until it is back in range.
   localparam int unsigned MBX_CH_REG_RX_TAIL_C = 32'h00000004;
   //! RX_TAIL: consumer count
   localparam int unsigned MBX_RX_TAIL_WORDS_LSB_C = 32'd0;
   //! RX_TAIL: consumer count
   localparam int unsigned MBX_RX_TAIL_WORDS_WIDTH_C = 32'd16;
-  //! Words the core has committed into the transmit ring. Writing it is the TX doorbell.
+  //! Words the core has committed into the transmit ring. Writing it is the TX doorbell. A value more than the ring ahead of TX_TAIL is refused like a malformed record.
   localparam int unsigned MBX_CH_REG_TX_HEAD_C = 32'h00000008;
   //! TX_HEAD: producer count
   localparam int unsigned MBX_TX_HEAD_WORDS_LSB_C = 32'd0;

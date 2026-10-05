@@ -77,6 +77,8 @@ class Suite {
         restart();
         check_tx_refusals();
         restart();
+        check_bad_host_counters();
+        restart();
         check_link_and_gm_events();
         restart();
         check_timers();
@@ -150,6 +152,7 @@ class Suite {
     void check_tx_merge();
     void check_tx_commit_order();
     void check_tx_refusals();
+    void check_bad_host_counters();
     void check_link_and_gm_events();
     void check_timers();
     void check_tick();
@@ -604,6 +607,53 @@ void Suite<Bench>::check_tx_refusals() {
     send_tx(kAdp, a, tx_w0(a.size(), 0, MBX_TX_KIND), 0);
     ck_.that("X1 the ring carries the next good record after the refusals", b_.wait_tx(1) &&
              same_bytes(b_.tx_frames[0].bytes, a));
+}
+
+// A wrong host counter (a partial reset, a driver bug) never lets the fabric
+// write over a ring: an RX_TAIL or EVT_TAIL out of range leaves no free word,
+// and a TX_HEAD more than the ring ahead of TX_TAIL is refused.
+template <class Bench>
+void Suite<Bench>::check_bad_host_counters() {
+    open(1u << kAdp);
+    const auto d = mbx_tb::adpdu(2, 0);
+    wr(ch_reg(kAdp, MBX_CH_REG_RX_TAIL), 40u);
+    b_.send_frame(d, 0);
+    (void)b_.drain_rx();
+    ck_.dec("H0 an RX_TAIL ahead of RX_HEAD stores nothing: RX_HEAD stays", rx_head(kAdp), 0);
+    ck_.dec("H0 and the frame counts in RX_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)), 1);
+    wr(ch_reg(kAdp, MBX_CH_REG_RX_TAIL), 0u);
+    b_.send_frame(d, 0);
+    (void)b_.drain_rx();
+    ck_.that("H0 back in range, the next frame is stored", rx_head(kAdp) != 0u);
+
+    // A whole, valid record at TX_TAIL, and a TX_HEAD a ring further on.
+    static const std::uint32_t base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
+    const auto a = mbx_tb::adpdu(0, kOwnEid);
+    const std::uint32_t rec = MBX_TX_HDR_WORDS + static_cast<std::uint32_t>((a.size() + 3u) / 4u);
+    wr(base[kAdp], tx_w0(a.size(), 0, MBX_TX_KIND));
+    wr(base[kAdp] + 4u, 0u);
+    for (std::size_t k = 0; k < a.size(); k += 4) {
+        std::uint32_t w = 0;
+        for (std::size_t j = 0; j < 4 && k + j < a.size(); ++j) {
+            w |= static_cast<std::uint32_t>(a[k + j]) << (8u * j);
+        }
+        wr(base[kAdp] + 4u * (MBX_TX_HDR_WORDS + static_cast<std::uint32_t>(k / 4)), w);
+    }
+    wr(ch_reg(kAdp, MBX_CH_REG_TX_HEAD), rec + MBX_CH_ADP_TX_WORDS);
+    b_.idle(60);
+    ck_.dec("H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused: TX_ERR counts it",
+            rd(ch_reg(kAdp, MBX_CH_REG_TX_ERR)), 1);
+    ck_.dec("H1 and nothing reaches the wire", b_.tx_frames.size(), 0);
+
+    const std::uint32_t head = rd(MBX_REG_EVT_HEAD) & 0xFFFFu;
+    wr(MBX_REG_EVT_TAIL, (head + 8u) & 0xFFFFu);
+    wr(MBX_REG_TMR_DEADLINE, rd(MBX_REG_NOW_MS));
+    wr(MBX_REG_TMR_CMD, (1u << MBX_TMR_CMD_OP_LSB) | (0x55u << MBX_TMR_CMD_TAG_LSB) | 2u);
+    b_.ms(2);
+    ck_.dec("H2 an EVT_TAIL ahead of EVT_HEAD posts nothing: EVT_HEAD stays", rd(MBX_REG_EVT_HEAD) & 0xFFFFu, head);
+    wr(MBX_REG_EVT_TAIL, head);
+    b_.ms(2);
+    ck_.dec("H2 back in range, the waiting expiry posts", rd(MBX_REG_EVT_HEAD) & 0xFFFFu, (head + MBX_EV_WORDS) & 0xFFFFu);
 }
 
 template <class Bench>

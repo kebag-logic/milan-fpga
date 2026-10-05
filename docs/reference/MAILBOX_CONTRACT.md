@@ -40,7 +40,7 @@ Byte offsets from the window base.
 | `0x038` | `TMR_DEADLINE` | rw | The deadline the next TMR_CMD arm uses, in NOW_MS units. |
 | `0x03C` | `TMR_CMD` | wo | A write arms or cancels one timer slot. An arm replaces whatever the slot held and drops its unposted expiry; a cancel disarms it and drops its unposted expiry. An expiry already in the event ring stays there and carries the tag of the arm it belongs to. Any other OP is refused and counted in BUS_ERR. |
 | `0x060` | `EVT_HEAD` | ro | Words the fabric has written into the event ring, modulo 2^16. |
-| `0x064` | `EVT_TAIL` | rw | Words the core has consumed from the event ring. Writing it releases the space. |
+| `0x064` | `EVT_TAIL` | rw | Words the core has consumed from the event ring. Writing it releases the space. A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word: nothing posts until it is back in range. |
 | `0x070` | `BUS_ERR` | ro | Host accesses refused, saturating. A write with a partial byte strobe and a bad TMR_CMD are refused. |
 
 `ID` fields:
@@ -197,8 +197,8 @@ Channel c's block starts at `0x100 + 0x20 * c`.
 | Offset | Register | Access | Meaning |
 |---|---|---|---|
 | `0x000` | `RX_HEAD` | ro | Words the fabric has committed into the receive ring, modulo 2^16. |
-| `0x004` | `RX_TAIL` | rw | Words the core has consumed. Writing it releases the space (the RX doorbell). |
-| `0x008` | `TX_HEAD` | rw | Words the core has committed into the transmit ring. Writing it is the TX doorbell. |
+| `0x004` | `RX_TAIL` | rw | Words the core has consumed. Writing it releases the space (the RX doorbell). A value more than the ring behind RX_HEAD, or ahead of it, leaves no free word: every frame counts in RX_DROP until it is back in range. |
+| `0x008` | `TX_HEAD` | rw | Words the core has committed into the transmit ring. Writing it is the TX doorbell. A value more than the ring ahead of TX_TAIL is refused like a malformed record. |
 | `0x00C` | `TX_TAIL` | ro | Words the fabric has consumed from the transmit ring. |
 | `0x010` | `RX_DROP` | ro | Frames the channel accepted but could not store (ring full or over max_frame_bytes), saturating. |
 | `0x014` | `RATE_DROP` | ro | Frames the channel's rate limiter refused, saturating. |
