@@ -1,0 +1,104 @@
+== H start=2026-10-05T01:00:10Z end=2026-10-05T02:07:32Z make_rc=0
+Verilator 5.050 2026-07-01 rev v5.050
+e9052849e383d8f5af4a6fc80f50106eb2f549ee3117eb088e641bf64d7ca508  obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
+78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b  gptp_ax1x1_ucode.hex
+4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d  obj_ax1x1gptp/aemi.bin
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=acquisition deadline=1.800000 s
+AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+AUDIO arm=healthy stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=TX backpressure deadline=1.000000 s
+AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+AUDIO arm=Sync loss transition deadline=0.450000 s
+AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+AUDIO arm=peer loss, real fourth missed Pdelay deadline=4.749977 s
+AUDIO result rx=37594 tx=37595 samples=225570 bad_payload=0 bad_order=0
+AUDIO arm=recovery transition deadline=3.000000 s
+AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=0
+AUDIO arm=recovered stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=reset reacquisition deadline=3.000000 s
+AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+AUDIO arm=reset stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO comparisons payload=6517344 sample_order=814666 packet_sequence=135936
+simulated_duration_seconds=16.992510280 cycles=849625514
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 139   failures: 0 ==
+wall_clock_seconds=3377.19 process_exit_status=0
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+driver_wall=4042.38
+== C1 start=2026-10-05T01:00:30Z end=2026-10-05T01:59:20Z make_rc=2
+Verilator 5.050 2026-07-01 rev v5.050
+3b035d43dbd69daba6a2ad58541b0b55bb46719d65364f1007a5324654ad2fff  obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
+78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b  gptp_ax1x1_ucode.hex
+4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d  obj_ax1x1gptp/aemi.bin
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=acquisition deadline=1.800000 s
+AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=1
+  [FAIL] audio sample order, no duplicates or gaps got=1 exp=0
+AUDIO arm=healthy stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=TX backpressure deadline=1.000000 s
+AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+AUDIO arm=Sync loss transition deadline=0.450000 s
+AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+AUDIO arm=peer loss, real fourth missed Pdelay deadline=4.749977 s
+AUDIO result rx=37594 tx=37595 samples=225570 bad_payload=0 bad_order=3
+  [FAIL] audio sample order, no duplicates or gaps got=3 exp=0
+AUDIO arm=recovery transition deadline=3.000000 s
+AUDIO result rx=20402 tx=20402 samples=122412 bad_payload=0 bad_order=1
+  [FAIL] audio sample order, no duplicates or gaps got=1 exp=0
+AUDIO arm=recovered stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=reset reacquisition deadline=3.000000 s
+AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=1
+  [FAIL] audio sample order, no duplicates or gaps got=1 exp=0
+AUDIO arm=reset stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [FAIL] all monitored audio sample ordering errors got=8 exp=0
+AUDIO comparisons payload=6517392 sample_order=814672 packet_sequence=135937
+simulated_duration_seconds=16.992510280 cycles=849625514
+exit_status=1 negative_control=0
+== ax1x1gptp physical: checks: 139   failures: 5 ==
+wall_clock_seconds=3503.13 process_exit_status=1
+driver_wall=3530.55
+== C2 start=2026-10-05T01:00:50Z end=2026-10-05T01:57:50Z make_rc=2
+Verilator 5.050 2026-07-01 rev v5.050
+4cd8a8c9afc4ffd15d98a3fd3f49a9a21d590fda8018dc13450950220985af8e  obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
+78c8418a00b35cdae75c459c5269ca3892355507c4dc8af9eb2c29d81b87673b  gptp_ax1x1_ucode.hex
+4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d  obj_ax1x1gptp/aemi.bin
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=acquisition deadline=1.800000 s
+AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+AUDIO arm=healthy stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=TX backpressure deadline=1.000000 s
+AUDIO result rx=3440 tx=3440 samples=20640 bad_payload=0 bad_order=0
+AUDIO arm=Sync loss transition deadline=0.450000 s
+AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+AUDIO arm=peer loss, real fourth missed Pdelay deadline=4.749977 s
+AUDIO result rx=37595 tx=37595 samples=225570 bad_payload=0 bad_order=2
+  [FAIL] audio sample order, no duplicates or gaps got=2 exp=0
+AUDIO arm=recovery transition deadline=3.000000 s
+AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=2
+  [FAIL] audio sample order, no duplicates or gaps got=2 exp=0
+AUDIO arm=recovered stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+AUDIO arm=reset reacquisition deadline=3.000000 s
+AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+AUDIO arm=reset stable deadline=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [FAIL] all monitored audio sample ordering errors got=5 exp=0
+AUDIO comparisons payload=6517344 sample_order=814666 packet_sequence=135936
+simulated_duration_seconds=16.992510280 cycles=849625514
+exit_status=1 negative_control=0
+== ax1x1gptp physical: checks: 139   failures: 3 ==
+wall_clock_seconds=3369.51 process_exit_status=1
+driver_wall=3420.49

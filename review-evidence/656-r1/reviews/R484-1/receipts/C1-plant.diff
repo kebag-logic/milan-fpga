@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index b8afe5ed2..72beeb9da 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5902,7 +5902,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire        mga_engaged_w /* verilator public_flat_rd */;
+   wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
+   //! A2-a: engaged at INTERNAL and under every followed source
+-  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;
++  wire        mga_sel_w = follow_sel_r;
+   //! 256 cycles, capped at a quarter sample: a compressed-clock test
+   //! elaboration (2 MHz, 41 cycles a sample) has no room for 256, and there
+   //! no keep-off could clear a 149-cycle transient anyway
