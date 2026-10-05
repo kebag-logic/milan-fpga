@@ -1,0 +1,62 @@
+COMMAND ["$REVIEWS/658-r491-1-packet/scratch/mutant-6/obj/Vcoherence_dp", "--quick"]
+=== milan_datapath 1x1 TDM8: AAF column coherence at the MAC (#617), --quick: the placed sweep left out ===
+
+[DP-INT-slow] milan_datapath, INTERNAL, -1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [FAIL] [DP-INT-slow] [V] every requested column was decoded
+  [FAIL] [DP-INT-slow] [C] the drift crossed at least one beat
+  [i]  0 columns in 457 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-INT-fast] milan_datapath, INTERNAL, +1000 ppm plan, TDM clock held 0 steps, 2200 columns
+  [FAIL] [DP-INT-fast] [V] every requested column was decoded
+  [FAIL] [DP-INT-fast] [C] the drift crossed at least one beat
+  [i]  0 columns in 457 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-0] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 0 steps, 1500 columns
+  [FAIL] [DP-CRF-0] [V] every requested column was decoded
+  [i]  DP-CRF-0: engaged +13 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-0] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-1] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 520 steps, 1500 columns
+  [FAIL] [DP-CRF-1] [V] every requested column was decoded
+  [i]  DP-CRF-1: engaged +144 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-1] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-2] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1041 steps, 1500 columns
+  [FAIL] [DP-CRF-2] [V] every requested column was decoded
+  [i]  DP-CRF-2: engaged +273 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-2] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-3] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 1562 steps, 1500 columns
+  [FAIL] [DP-CRF-3] [V] every requested column was decoded
+  [i]  DP-CRF-3: engaged +404 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-3] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-4] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2083 steps, 1500 columns
+  [FAIL] [DP-CRF-4] [V] every requested column was decoded
+  [i]  DP-CRF-4: engaged -509 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-4] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-5] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 2604 steps, 1500 columns
+  [FAIL] [DP-CRF-5] [V] every requested column was decoded
+  [i]  DP-CRF-5: engaged -377 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-5] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-6] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3125 steps, 1500 columns
+  [FAIL] [DP-CRF-6] [V] every requested column was decoded
+  [i]  DP-CRF-6: engaged -248 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-6] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+
+[DP-CRF-7] milan_datapath, CRF selected, true 391/1591 plan, TDM clock held 3646 steps, 1500 columns
+  [FAIL] [DP-CRF-7] [V] every requested column was decoded
+  [i]  DP-CRF-7: engaged -117 cycles from the crossing; tail: tick 0 cycles after the fsync edge, +0..+0 (spread 0); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [FAIL] [DP-CRF-7] [V] the CRF lock held its phase (spread under a quarter frame)
+  [i]  0 columns in 334 PDUs, 0 torn (0.0%), 0 repeats, 0 skips, 0 slip clusters
+== capture_coherence_dp: checks: 134   failures: 20 ==
+RESULT: FAIL

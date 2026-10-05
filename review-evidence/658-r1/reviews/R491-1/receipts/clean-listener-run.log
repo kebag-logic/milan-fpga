@@ -1,0 +1,102 @@
+COMMAND ["$REVIEWS/658-r491-1-packet/scratch/clean-listener/obj/Vmilan_dp_tdm8r"]
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 PREFILL: silence for 13 frame(s), then ordinal 4 with 0 counted skip(s); derived first eligible ordinal 4 (18 events pushed at the snap, 14 kept)
+  [i]    first decoded ordinal 352; 360 events had been injected when collection opened
+  [i]    839 frames graded, 0 repeat(s), 0 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1301 underruns 3 skips 1 overruns 0 epochs 1 (skips before the window 1, underruns before 3)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 64..145 axis cycles (0.640..1.450 us) over 839 frames, 0 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 0.559..1.369 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 0.549..1.359 us of serial-domain wait, so 0.569..1.379 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 1 -> 3, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 1157 axis cycles (11.570 us)
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 232, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 506..909 axis cycles (5.060..9.090 us) over 1799 frames, spread 403 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at -107.5851 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 0.1936 s
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8752, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 212..217 axis cycles (2.120..2.170 us) over 1799 frames, spread 5 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at -1.0678 ppm over 3745873 axis cycles, which is one whole frame of phi - one counted skip - every 19.5100 s
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured -107.5851 ppm at INTERNAL and -1.0678 ppm under CRF
+  [i]    T30 CRF LAW: over 292 steady PDU ends the first pop after the end is taken +1493..+1498 cycles from it and the pop nearest the boundary -590..-585 (walk 5); the least clearance is 585 cycles, at PDU 1703 (offset -585), against the 9-cycle ambiguity window: margin 576
+  [i]    T30 CRF LAW: 292 PDUs, fill at the PDU end 14..14, first-event delay from it 18161..18166 cycles = 8.717..8.720 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13432, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 213..214 axis cycles (2.130..2.140 us) over 239 frames, spread 1 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at -2.0168 ppm over 495838 axis cycles, which is one whole frame of phi - one counted skip - every 10.3301 s
+  [i]    T31: 13686 of the record's 14400 events were injected
+
+[LAW] T30's INTERNAL law once the aligner reports settled, on fresh streams at 18 feed phases against the grid
+  [i]    LAW: waited 0 media ticks for the settled report (8598 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T30 INTERNAL LAW +0: over 137 steady PDU ends the first pop after the end is taken +2024..+2026 cycles from it and the pop nearest the boundary -59..-57 (walk 2); the least clearance is 57 cycles, at PDU 6 (offset -57), against the 9-cycle ambiguity window: margin 48
+  [i]    T30 INTERNAL LAW +0: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18692..18694 cycles = 8.972..8.973 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +0: 888 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +130: over 137 steady PDU ends the first pop after the end is taken +1895..+1897 cycles from it and the pop nearest the boundary -189..-187 (walk 2); the least clearance is 187 cycles, at PDU 3 (offset -187), against the 9-cycle ambiguity window: margin 178
+  [i]    T30 INTERNAL LAW +130: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18563..18564 cycles = 8.910..8.911 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +130: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +260: over 137 steady PDU ends the first pop after the end is taken +1764..+1766 cycles from it and the pop nearest the boundary -319..-317 (walk 2); the least clearance is 317 cycles, at PDU 3 (offset -317), against the 9-cycle ambiguity window: margin 308
+  [i]    T30 INTERNAL LAW +260: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18432..18434 cycles = 8.847..8.848 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +260: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +391: over 137 steady PDU ends the first pop after the end is taken +1633..+1635 cycles from it and the pop nearest the boundary -450..-448 (walk 2); the least clearance is 448 cycles, at PDU 5 (offset -448), against the 9-cycle ambiguity window: margin 439
+  [i]    T30 INTERNAL LAW +391: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18301..18303 cycles = 8.784..8.785 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +391: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +521: over 137 steady PDU ends the first pop after the end is taken +1503..+1505 cycles from it and the pop nearest the boundary -580..-578 (walk 2); the least clearance is 578 cycles, at PDU 6 (offset -578), against the 9-cycle ambiguity window: margin 569
+  [i]    T30 INTERNAL LAW +521: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18171..18173 cycles = 8.722..8.723 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +521: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +651: over 137 steady PDU ends the first pop after the end is taken +1373..+1375 cycles from it and the pop nearest the boundary -710..-709 (walk 1); the least clearance is 709 cycles, at PDU 3 (offset -709), against the 9-cycle ambiguity window: margin 700
+  [i]    T30 INTERNAL LAW +651: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18041..18043 cycles = 8.660..8.661 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +651: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +781: over 137 steady PDU ends the first pop after the end is taken +1244..+1246 cycles from it and the pop nearest the boundary -839..-838 (walk 1); the least clearance is 838 cycles, at PDU 3 (offset -838), against the 9-cycle ambiguity window: margin 829
+  [i]    T30 INTERNAL LAW +781: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17912..17913 cycles = 8.598..8.598 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +781: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +911: over 137 steady PDU ends the first pop after the end is taken +1114..+1116 cycles from it and the pop nearest the boundary -970..-968 (walk 2); the least clearance is 968 cycles, at PDU 3 (offset -968), against the 9-cycle ambiguity window: margin 959
+  [i]    T30 INTERNAL LAW +911: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17782..17783 cycles = 8.535..8.536 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +911: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +927: over 137 steady PDU ends the first pop after the end is taken +1098..+1100 cycles from it and the pop nearest the boundary -986..-984 (walk 2); the least clearance is 984 cycles, at PDU 3 (offset -984), against the 9-cycle ambiguity window: margin 975
+  [i]    T30 INTERNAL LAW +927: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17766..17767 cycles = 8.528..8.528 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +927: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1042: over 137 steady PDU ends the first pop after the end is taken +983..+985 cycles from it and the pop nearest the boundary +983..+985 (walk 2); the least clearance is 982 cycles, at PDU 53 (offset +983), against the 9-cycle ambiguity window: margin 973
+  [i]    T30 INTERNAL LAW +1042: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17651..17652 cycles = 8.472..8.473 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1042: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1156: over 137 steady PDU ends the first pop after the end is taken +869..+871 cycles from it and the pop nearest the boundary +869..+871 (walk 2); the least clearance is 868 cycles, at PDU 68 (offset +869), against the 9-cycle ambiguity window: margin 859
+  [i]    T30 INTERNAL LAW +1156: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17537..17538 cycles = 8.418..8.418 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1156: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1172: over 137 steady PDU ends the first pop after the end is taken +852..+854 cycles from it and the pop nearest the boundary +852..+854 (walk 2); the least clearance is 851 cycles, at PDU 83 (offset +852), against the 9-cycle ambiguity window: margin 842
+  [i]    T30 INTERNAL LAW +1172: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17520..17522 cycles = 8.410..8.411 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1172: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1302: over 137 steady PDU ends the first pop after the end is taken +722..+724 cycles from it and the pop nearest the boundary +722..+724 (walk 2); the least clearance is 721 cycles, at PDU 128 (offset +722), against the 9-cycle ambiguity window: margin 712
+  [i]    T30 INTERNAL LAW +1302: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17390..17392 cycles = 8.347..8.348 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1302: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1432: over 137 steady PDU ends the first pop after the end is taken +593..+594 cycles from it and the pop nearest the boundary +593..+594 (walk 1); the least clearance is 592 cycles, at PDU 8 (offset +593), against the 9-cycle ambiguity window: margin 583
+  [i]    T30 INTERNAL LAW +1432: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17261..17262 cycles = 8.285..8.286 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1432: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1562: over 137 steady PDU ends the first pop after the end is taken +463..+465 cycles from it and the pop nearest the boundary +463..+465 (walk 2); the least clearance is 462 cycles, at PDU 53 (offset +463), against the 9-cycle ambiguity window: margin 453
+  [i]    T30 INTERNAL LAW +1562: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17131..17132 cycles = 8.223..8.223 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1562: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1693: over 137 steady PDU ends the first pop after the end is taken +331..+333 cycles from it and the pop nearest the boundary +331..+333 (walk 2); the least clearance is 330 cycles, at PDU 113 (offset +331), against the 9-cycle ambiguity window: margin 321
+  [i]    T30 INTERNAL LAW +1693: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16999..17001 cycles = 8.160..8.160 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1693: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1823: over 137 steady PDU ends the first pop after the end is taken +202..+203 cycles from it and the pop nearest the boundary +202..+203 (walk 1); the least clearance is 201 cycles, at PDU 8 (offset +202), against the 9-cycle ambiguity window: margin 192
+  [i]    T30 INTERNAL LAW +1823: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16870..16871 cycles = 8.098..8.098 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1823: 889 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1953: over 137 steady PDU ends the first pop after the end is taken +72..+74 cycles from it and the pop nearest the boundary +72..+74 (walk 2); the least clearance is 71 cycles, at PDU 83 (offset +72), against the 9-cycle ambiguity window: margin 62
+  [i]    T30 INTERNAL LAW +1953: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 16740..16741 cycles = 8.035..8.036 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T30 INTERNAL LAW +1953: 889 media ticks in the phase, 0 of them outside the settle band
+
+[CSR] the diagnostic write window, by CLUSTER key
+  [i]    T11: a suppressed CSR write is a CSR behaviour; no AECP status is asserted for it. The in-range PROJECTED mirror is T11b below; the in-range NONPHYSICAL one is the multi-stream leg's M6.
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 12 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 190 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 12 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 494 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 258   failures: 0 ==
+RESULT: PASS

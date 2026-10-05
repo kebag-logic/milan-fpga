@@ -1,0 +1,50 @@
+{"task": "mutant-1-build", "rc": 0, "seconds": 23.84}
+{"task": "mutant-1-run", "rc": 1, "seconds": 1.82}
+{"task": "mutant-2-build", "rc": 0, "seconds": 25.83}
+{"task": "mutant-3-build", "rc": 0, "seconds": 25.95}
+{"task": "mutant-2-run", "rc": 1, "seconds": 1.57}
+{"task": "mutant-3-run", "rc": 1, "seconds": 1.57}
+{"task": "mutant-4-build", "rc": 0, "seconds": 24.88}
+{"task": "mutant-4-run", "rc": 1, "seconds": 1.57}
+{"task": "mutant-5-build", "rc": 0, "seconds": 25.25}
+{"task": "mutant-6-build", "rc": 0, "seconds": 25.44}
+{"task": "mutant-6-run", "rc": 1, "seconds": 73.88}
+{"task": "mutant-5-run", "rc": 1, "seconds": 234.58}
+[
+  {
+    "task": "mutant-1",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "[DYNMAP] power-on SPI 0: number_of_mappings"
+  },
+  {
+    "task": "mutant-2",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "[DYNMAP] restored SPI 0: number_of_mappings"
+  },
+  {
+    "task": "mutant-3",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map"
+  },
+  {
+    "task": "mutant-4",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "[DYNMAP] power-on: render RAM keys 2..9 hold the input map"
+  },
+  {
+    "task": "mutant-5",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "T18 POWER-ON: with no map command since the reset, the lane renders injected events"
+  },
+  {
+    "task": "mutant-6",
+    "result": "caught",
+    "expected": "caught",
+    "named_check": "[V] every requested column was decoded"
+  }
+]
