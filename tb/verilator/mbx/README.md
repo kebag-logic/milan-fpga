@@ -11,8 +11,8 @@
 3. `run-cosim`: the control-plane firmware run on the RTL and on the host
    model, one scenario, compared frame by frame.
 
-`make mutants` runs [`mutants.py`](mutants.py), all 44 planted RTL defects;
-the default `make` runs four of them (one per leaf, `--quick`).
+`make mutants` runs [`mutants.py`](mutants.py), every planted RTL defect in
+its table; the default `make` runs four of them (one per leaf, `--quick`).
 
 The contract is [`sw/mailbox/mailbox.yaml`](../../../sw/mailbox/mailbox.yaml);
 the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
@@ -22,7 +22,7 @@ the design is [MAILBOX_SPLIT.md](../../../docs/design/MAILBOX_SPLIT.md).
 - **[The top and the bench](#the-top-and-the-bench)** -- One KL_mbx behind the adapter HOST_P selects, driven a clock at a time through real bus handshakes.
 - **[What the checks expect](#what-the-checks-expect)** -- Each check group and the contract sentence it grades; the same checks also grade the host model; the AXI4-Lite build adds the handshake rules.
 - **[The co-simulation](#the-co-simulation)** -- The firmware on the RTL and on the model, one scenario, the same frames at the same millisecond.
-- **[Planted defects](#planted-defects)** -- Forty-four RTL defects in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
+- **[Planted defects](#planted-defects)** -- Every RTL defect of the table in a scratch copy, each caught by the check it names, after two positive controls; four run in the default make.
 - **[Run](#run)** -- The two make targets.
 
 ## The top and the bench
@@ -72,6 +72,7 @@ master (AW and W together, BREADY and RREADY high) never exercises:
 | A4 | BVALID and BRESP hold 10 clocks under BREADY low; a second write is taken meanwhile; each write gets exactly one B |
 | A5 | RVALID, RDATA and RRESP hold 10 clocks under RREADY low while a second read waits; each read answered once, in order |
 | A6 | a reset forgets an AW taken without its W, and a waiting B and R; the bus works after it |
+| A7 | four back-to-back writes to four registers, each channel offering its next beat the cycle after its last was taken, with W beside AW and with W 3 clocks ahead: four B each time, and every register reads back its own write's data |
 | A0 | no AXI output followed an AXI input inside a cycle, over every clock of the AXI4-Lite run |
 
 The host test runs the same `suite.hpp` on the firmware's mailbox model
@@ -139,6 +140,8 @@ first as positive controls.
 | `axil-rdata-follows-port` | RDATA is the mailbox's live port | A5, RDATA holds |
 | `axil-read-before-write` | a read and a write issued together | A3, the read's own data |
 | `axil-reset-keeps-aw` | a reset keeps a half-taken AW | A6, the AW is forgotten |
+| `axil-wready-while-issuing` | WREADY also on the cycle the W slot drains, which then drops the beat | A7, each write's data at its own address |
+| `axil-awready-while-issuing` | AWREADY also on the cycle the AW slot drains, which then drops the address | A7, each write's data at its own address |
 | `rx-tail-unguarded` | no guard on an RX_TAIL out of range | H0, nothing stored |
 | `tx-head-unguarded` | no guard on a TX_HEAD a ring ahead | H1, refused |
 | `evt-tail-unguarded` | no guard on an EVT_TAIL out of range | H2, nothing posted |

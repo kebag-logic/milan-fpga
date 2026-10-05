@@ -9,6 +9,8 @@
 //   A1  AW before W, W arriving later        A4  BREADY low, BVALID held
 //   A2  W before AW, AW arriving later       A5  RREADY low, RVALID and RDATA held
 //   A3  a read offered beside a write        A6  reset with a transfer half taken
+//   A7  back-to-back writes to distinct registers, each read back: every W
+//       pairs with its own AW, with W beside AW and with W running ahead
 //   A0  no AXI output follows an AXI input inside a cycle (A3.1.1, A3.2.1),
 //       measured by the bench's probe on every clock of the whole run
 //
@@ -45,6 +47,8 @@ class AxilChecks {
         r_backpressure();
         b_.reset();
         reset_mid_transaction();
+        b_.reset();
+        write_stream();
         ck_.dec("A0 no AXI4-Lite output followed an AXI4-Lite input inside a cycle (A3.1.1, A3.2.1)",
                 b_.comb_paths, 0);
         ck_.that("A0 the structural probe ran on every clock of the AXI4-Lite run",
@@ -126,6 +130,41 @@ class AxilChecks {
     void b_backpressure();
     void r_backpressure();
     void reset_mid_transaction();
+    void write_stream();
+
+    //! kN writes, regs[k] = vals[k], each channel offering its next beat the
+    //! cycle after its last one was taken, AW starting `aw_lag` clocks after
+    //! W; B held ready. The B handshakes in a fixed window.
+    template <unsigned kN>
+    unsigned stream(const std::uint32_t (&regs)[kN], const std::uint32_t (&vals)[kN], unsigned aw_lag) {
+        unsigned aw_k = 0;
+        unsigned w_k = 0;
+        unsigned bs = 0;
+        d_->s_bready_i = 1;
+        for (unsigned i = 0; i < 48; ++i) {
+            if (!d_->s_awvalid_i && aw_k < kN && i >= aw_lag) {
+                offer_aw(regs[aw_k++]);
+            }
+            if (!d_->s_wvalid_i && w_k < kN) {
+                offer_w(vals[w_k++]);
+            }
+            bs += clock().b ? 1u : 0u;
+        }
+        d_->s_awvalid_i = 0;
+        d_->s_wvalid_i = 0;
+        d_->s_bready_i = 0;
+        return bs;
+    }
+
+    //! Every regs[k] reads back vals[k].
+    template <unsigned kN>
+    bool landed(const std::uint32_t (&regs)[kN], const std::uint32_t (&vals)[kN]) {
+        bool all = true;
+        for (unsigned k = 0; k < kN; ++k) {
+            all = b_.read(regs[k]) == vals[k] && all;
+        }
+        return all;
+    }
 
     Bench& b_;
     Vtb_mbx_top* d_;
@@ -342,6 +381,23 @@ inline void AxilChecks::reset_mid_transaction() {
     b_.write(MBX_REG_OWN_EID_LO, 0x99999999u);
     ck_.hex("A6 the bus works normally after the reset", b_.read(MBX_REG_OWN_EID_LO), 0x99999999u);
     ck_.dec("A6 no access went unanswered", b_.bus_timeouts, 0);
+}
+
+inline void AxilChecks::write_stream() {
+    // Four writable registers, four values each fitting its register and
+    // distinct from every other, so a beat paired with a neighbour's address
+    // reads back wrong.
+    const std::uint32_t regs[4] = {MBX_REG_OWN_EID_LO, MBX_REG_OWN_EID_HI, MBX_REG_MAAP_BASE_LO,
+                                   MBX_REG_MAAP_COUNT};
+    const std::uint32_t vals[4] = {0xA7000011u, 0xA7000022u, 0xA7000033u, 0x00000044u};
+    ck_.dec("A7 four back-to-back writes, AW beside W, are answered by exactly four B", stream(regs, vals, 0), 4);
+    ck_.that("A7 each write's data lands at its own address, AW beside W", landed(regs, vals));
+    b_.reset();
+    const std::uint32_t late[4] = {0xA7000055u, 0xA7000066u, 0xA7000077u, 0x00000088u};
+    ck_.dec("A7 four back-to-back writes, W running 3 clocks ahead of AW, are answered by exactly four B",
+            stream(regs, late, 3), 4);
+    ck_.that("A7 each write's data lands at its own address, W ahead of AW", landed(regs, late));
+    ck_.dec("A7 no access went unanswered", b_.bus_timeouts, 0);
 }
 
 }  // namespace mbx_tb

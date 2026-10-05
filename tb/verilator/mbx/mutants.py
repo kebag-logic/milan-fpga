@@ -158,6 +158,12 @@ ARMS = (
         "assign s_rdata_o    = host_rdata_i;", 1, "A5 RDATA and RRESP hold with it"),
     Arm("axil-read-before-write", "KL_mbx_axil.sv", "assign go_rd_w = rd_ok_w && !wr_ok_w;",
         "assign go_rd_w = rd_ok_w;", 1, "A3 the read answers its own address"),
+    # A beat taken on the cycle its slot drains: the slot loads only when
+    # empty, so the beat is lost and every later W pairs with the next AW.
+    Arm("axil-wready-while-issuing", "KL_mbx_axil.sv", "assign s_wready_o   = !w_full_r;",
+        "assign s_wready_o   = !w_full_r || go_wr_w;", 1, "A7 each write's data lands at its own address"),
+    Arm("axil-awready-while-issuing", "KL_mbx_axil.sv", "assign s_awready_o  = !aw_full_r;",
+        "assign s_awready_o  = !aw_full_r || go_wr_w;", 1, "A7 each write's data lands at its own address"),
     Arm("axil-reset-keeps-aw", "KL_mbx_axil.sv", "      aw_full_r <= 1'b0;\n      aw_addr_r <= '0;\n",
         "      aw_addr_r <= '0;\n", 1, "A6 an AW taken before a reset is forgotten"),
 )
