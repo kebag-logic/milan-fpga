@@ -1,0 +1,35 @@
+-- [DIAG] #658 item 3: sequences against the bench readback --
+  [diag] A0 after the section (8 ch)        SPI 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 0 mapping(s)
+  [diag] A0 after the section (8 ch)        SPO 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B1 binding rule: SET_STREAM_FORMAT 4 ch -> status 0
+  [diag] B1 format change alone             SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B1 format change alone             SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B2 ADD 4 identity mappings -> status 0
+  [diag] B2 four identity mappings          SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [diag] B2 four identity mappings          SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B3 REMOVE channels 1..3 -> status 0
+  [diag] B3 the bench lanes' restore        SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 1 mapping(s) s0.c0->o0.c0
+  [diag] B3 the bench lanes' restore        SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B4 SET_STREAM_FORMAT 8 ch -> status 0
+  [diag] B4 the mapping survives 4->8       SPI 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 1 mapping(s) s0.c0->o0.c0
+  [diag] B4 the mapping survives 4->8       SPO 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 0 mapping(s)
+  [diag] B5 SET_STREAM_FORMAT 4 ch -> status 0
+  [diag] B5 ...and 8->4                     SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 1 mapping(s) s0.c0->o0.c0
+  [diag] B5 ...and 8->4                     SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] C1 REMOVE the one mapping -> status 0
+  [diag] C1 empty again                     SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] C1 empty again                     SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] C2 ADD s0.c0->o0.c0 alone -> status 0
+  [diag] C2 one ADD from empty              SPI 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 1 mapping(s) s0.c0->o0.c0
+  [diag] C2 one ADD from empty              SPO 0 (in fmt 0205022001006000, 4 ch): status 0, maps 1, 0 mapping(s)
+  [diag] D1 ADD 8 identity mappings under 4 ch -> status 7
+  [diag] D2 SET 8 ch -> status 0
+  [diag] D3 ADD 8 identity mappings under 8 ch -> status 0
+  [diag] D3 identity under 8 ch             SPI 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [diag] D3 identity under 8 ch             SPO 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 0 mapping(s)
+  [diag] D4 SET 4 ch with channels 4..7 mapped -> status 7 (Milan 5.4.2.7)
+  [diag] D4 after the refused narrowing     SPI 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [diag] D4 after the refused narrowing     SPO 0 (in fmt 0205022002006000, 8 ch): status 0, maps 1, 0 mapping(s)
+--------------------------------------------------------------
+checks: 89   failures: 0
+RESULT: PASS
