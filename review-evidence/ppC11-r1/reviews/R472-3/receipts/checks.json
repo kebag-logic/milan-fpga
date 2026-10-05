@@ -1,0 +1,74 @@
+[
+  {
+    "name": "make-check",
+    "command": [
+      "make",
+      "-j16",
+      "check"
+    ],
+    "rc": 0,
+    "seconds": 34.89
+  },
+  {
+    "name": "make-ids",
+    "command": [
+      "make",
+      "-j16",
+      "ids"
+    ],
+    "rc": 0,
+    "seconds": 3.45
+  },
+  {
+    "name": "side_port",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/ppC11-r472-3-packet/scratch/suite-tree/tb/side_port",
+      "run",
+      "VERILATOR=$REVIEWS/ppC11-r472-3-packet/scripts/scoped_verilator.py"
+    ],
+    "rc": 0,
+    "seconds": 6.25
+  },
+  {
+    "name": "tx_arbiter",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/ppC11-r472-3-packet/scratch/suite-tree/tb/tx_arbiter",
+      "run",
+      "VERILATOR=$REVIEWS/ppC11-r472-3-packet/scripts/scoped_verilator.py"
+    ],
+    "rc": 0,
+    "seconds": 6.29
+  },
+  {
+    "name": "tx_slots",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/ppC11-r472-3-packet/scratch/suite-tree/tb/tx_slots",
+      "run",
+      "VERILATOR=$REVIEWS/ppC11-r472-3-packet/scripts/scoped_verilator.py"
+    ],
+    "rc": 0,
+    "seconds": 6.4
+  },
+  {
+    "name": "rx_validator",
+    "command": [
+      "make",
+      "-j16",
+      "-C",
+      "$REVIEWS/ppC11-r472-3-packet/scratch/suite-tree/tb/rx_validator",
+      "run",
+      "VERILATOR=$REVIEWS/ppC11-r472-3-packet/scripts/scoped_verilator.py"
+    ],
+    "rc": 0,
+    "seconds": 6.4
+  }
+]

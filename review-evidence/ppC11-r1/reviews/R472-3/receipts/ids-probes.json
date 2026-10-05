@@ -1,0 +1,215 @@
+[
+  {
+    "name": "minus-one-missing",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "P-MISSING-1",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: P-MISSING-1 has no F01.5 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "minus-one-valid",
+    "rc": 0,
+    "expected_rc": 0,
+    "token": null,
+    "ok": true,
+    "stdout": "ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "stderr": ""
+  },
+  {
+    "name": "minus-two-invalid",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "P-RX-SLOTS-2",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: P-RX-SLOTS-2 has no F01.5 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "optional-newline-missing",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "composition-missing",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "composition-double-missing",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "composition-valid",
+    "rc": 0,
+    "expected_rc": 0,
+    "token": null,
+    "ok": true,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "stderr": ""
+  },
+  {
+    "name": "composition-double-valid",
+    "rc": 0,
+    "expected_rc": 0,
+    "token": null,
+    "ok": true,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "stderr": ""
+  },
+  {
+    "name": "successive-valid",
+    "rc": 0,
+    "expected_rc": 0,
+    "token": null,
+    "ok": true,
+    "stdout": "ids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n",
+    "stderr": ""
+  },
+  {
+    "name": "braced-hyphen-missing",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-NVM-RS-AGREGATE",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-NVM-RS-AGREGATE has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "continued-brace",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-NVM-RS-TYPO",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-NVM-RS-TYPO has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "continued-sibling",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-BUDGET-AECP-XX",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-BUDGET-AECP-XX has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "continued-family",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-NO-FAMILY-*",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-NO-FAMILY-* has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "malformed-optional",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY(-...)",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY(-...) is not a list of ID segments\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-14",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-15",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-16",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-17",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-18",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-19",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "leader-20",
+    "rc": 1,
+    "expected_rc": 1,
+    "token": "T-ADP-DELAY-STRT",
+    "ok": true,
+    "stdout": "ID FAIL: tb/probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "any-minus-one",
+    "rc": 1,
+    "expected_rc": 1,
+    "ok": true,
+    "stdout": "SELFTEST FAIL: case 7: want ['P-MISSING-1'] rc 1, got [] rc 0\nids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 1 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "skip-linebroken-optional",
+    "rc": 1,
+    "expected_rc": 1,
+    "ok": true,
+    "stdout": "SELFTEST FAIL: case 8: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nSELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 2 FAILURES\n",
+    "stderr": ""
+  },
+  {
+    "name": "previous-parser-new-plants",
+    "rc": 1,
+    "expected_rc": 1,
+    "ok": true,
+    "stdout": "SELFTEST FAIL: case 9: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nSELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got [] rc 0\nids: 3 files, 12 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, OK\n\nids selftest: 30 cases, 2 FAILURES\n",
+    "stderr": ""
+  }
+]

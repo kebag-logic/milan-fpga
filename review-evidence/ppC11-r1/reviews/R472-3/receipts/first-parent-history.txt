@@ -1,0 +1,16 @@
+5123548 Handle continued ID suffixes and give interface waveforms text margins
+80588cd Merge main ead80360 (PR #155, milan-fpga #639, the timer-arm queue and listener-record lane) into the C11 lane
+e219709 Merge main b0a74196 (PR #157, processor #81 and #84, the scoreboard-faces lane) into the C11 lane
+5b2199b Merge main 07b1469d (PR #154, milan-fpga #230, the SRP distributed-RAM lane) into the C11 lane
+3d5a201 Make check-ids read an optional segment, T-ADP-DELAY(-START) even when broken at a line end, as both IDs, and fail a parenthesis after an ID that holds anything but ID segments
+0917009 Put the management host on the core clock behind the integrator's bridge in F02.9 and F02.2, say an ungranted nvm_dev_req_o is withdrawn at the deadline, and list hand-authored SVG in the GAP-14 resolution (R473-1 SUGGESTION-4, -5 and -6, R472-1 S3)
+fa8d479 Give the docs-gates job full history so make stale can fail, and pin wavedrom 2.0.3.post3 and the Mermaid CLI's mermaid 11.17.2 and puppeteer 25.12.0 (R472-1 S1, R473-1 SUGGESTION-2)
+b827de6 Record in F01.5 that P-EN-PLAIN-IEEE-PROFILE has no RTL consumer, as for P-DESCR-IMAGE-BYTES (#84 What remains item 3, R469-1 S2)
+779d886 Drop the derived 1,800 ms from the P-MAAP-RSP-MS cell, describe F02.7 by its request-and-strobe rule in the side-port README and comment, and say the top has no dual-clock FIFO in 02 rule 2 (R473-1 RESIDUE-1, -2 and -4, R472-1 R1)
+033174e Plant every fault 09 section 7 names in check-figures' self-test (foreignObject, a root that is not an SVG-namespace svg, a missing or empty inventory, a nested file) and refuse feImage too (R472-1/R473-1 F2)
+df7b37e Make check-ids read braced members of several segments, an ID broken at a line end and a sibling's last segment as IDs, treat any other text after a hyphen as prose, narrow the numeric tail to minus one, and plant a stray per scanned tree, per form and per master-table fault in its self-test (R472-1/R473-1 F1)
+91cef52 Say in the F01.2 note that the MAC FIFOs the export draws in the MAC clock domains are the integrator's, and rewrap a diagrams README line
+c46f708 Show the landed host_* side-port and nvm_dev_* device-face ports in 02 sections 7 and 8, and redraw F02.7 on the host_* face (#27)
+8bc4c98 Annotate the return type of check-ids.py's uses(), as the parent's Python idiom gate requires of every public function
+1d7ffad Describe the landed byte-wide MAC faces in 02 section 3 with redrawn F02.3 and F02.4, move the class-A word stream to docs/history, and state that the integrator owns the dual-clock FIFOs and its RX FIFO delivers only complete, FCS-good frames (#27, #71)
+f160c65 Fail make check on any P- or T- ID without its F01.5 or F08.1 row and on any file under docs/diagrams outside a listed figure class, give the two MAAP bounds their F01.5 rows, drop the five orphan PNGs, and run make check in the docs-gates job (#70, #75)

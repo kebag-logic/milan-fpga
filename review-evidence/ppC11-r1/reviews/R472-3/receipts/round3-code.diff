@@ -1,0 +1,141 @@
+diff --git a/docs/README.md b/docs/README.md
+index ef12971..5a2307e 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -116,7 +116,11 @@ findings. The value scan is still to add
+   says so); field names carry the byte offset (`@n`) or mask where ambiguity is
+   dangerous; keep fields ≤ 64 bits (wider fields leave unlabeled middle lanes); `head`/
+   `foot` text is signal-format-only — for `reg`, put it in the caption. Editing a block
+-  without re-rendering fails `make check` (`wavedrom-check`).
++  without re-rendering fails `make check` (`wavedrom-check`). For labels that need
++  more room under font substitution, the repository renderer accepts
++  `"config": {"svg_margin": 40}`: a non-negative integer adds that many SVG units
++  on each horizontal side. Keep captions short and inspect the render with more
++  than one font; freshness alone does not check text fit.
+ - **draw.io** (the three richest pictures only): source `docs/diagrams/src/<name>.drawio`,
+   committed export `docs/diagrams/<name>.svg`, embedded via `![…](../diagrams/<name>.svg)`.
+   Regenerate with `make diagrams` (see `docs/diagrams/README.md`).
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 4176dfd..5cc2de3 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -204,8 +204,9 @@ are kept in [the class-A word-stream history](../history/02-class-a-word-stream.
+   {"name": "tx_eof_o",   "wave": "0.....10..10"},
+   {"name": "tx_ready_i", "wave": "1..01......."}
+ ],
+- "head": {"text": "the grant is frame-atomic: frame B starts only after A's eof"},
+- "foot": {"text": "tx_ready_i low holds A2 in place for a cycle; nothing is skipped or truncated"}}
++ "config": {"svg_margin": 40},
++ "head": {"text": "frame B waits for A's eof"},
++ "foot": {"text": "tx_ready_i low: A2 held, no byte lost"}}
+ ```
+ 
+ </details>
+@@ -581,6 +582,7 @@ while no request is in flight.
+   {"name": "host_rdata_o",     "wave": "0.....=0.", "data": ["Q1"]},
+   {"name": "host_err_o",       "wave": "0........"}
+ ],
++ "config": {"svg_margin": 40},
+  "head": {"text": "each request held until its strobe"}}
+ ```
+ 
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 79e61b1..b7419fc 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -121,7 +121,7 @@ against at least two independent controller implementations.
+ | `matrix` | `scripts/check-matrix.py` | REQ-IDs unique and fully populated; `Ver` values ∈ the §3 vocabulary; every GAP defined ↔ dispositioned |
+ | `modmatrix` | `scripts/gen_matrix.py --check` | `docs/traceability/MODULE_MATRIX.md` is not stale, and no module is without a suite (budget zero) |
+ | `params` | `scripts/check-integrator-params.py` | the guide section 2 table and diagram 21's `integration-parameters` group each equal the overridable parameter set of `protocol_processor_top`, with no missing, extra or duplicate names; empty or unparseable inputs fail |
+-| `ids` | `scripts/check-ids.py` (`--selftest` first) | every `P-` or `T-` ID used in a file under `docs/`, `hdl/` or `tb/` has its row in [F01.5](01_overview.md#fig-01-params) or [F08.1](08_timing.md#fig-08-constants); a family (`T-MRP-*`) needs one row in it, each member of a braced list (`T-NVM-{RS-DEADLINE, RS-AGGREGATE}`) its own row, and an ID with an optional segment (`T-ADP-DELAY(-START)`) a row for both; braces or `(-` holding anything but ID segments fail; an ID broken at a line end and a sibling written as its last segment (`T-BUDGET-AECP-TYP / -WC`) are read whole, and `-1` reads as minus one; any other text after a hyphen is prose (`T-MRP-JOIN-driven` uses `T-MRP-JOIN`); an unreadable, empty or duplicated master table fails. The self-test plants a stray in each scanned tree, a stray in each of those forms and each master-table fault, and must see each caught |
++| `ids` | `scripts/check-ids.py` (`--selftest` first) | every `P-` or `T-` ID used in a file under `docs/`, `hdl/` or `tb/` has its row in [F01.5](01_overview.md#fig-01-params) or [F08.1](08_timing.md#fig-08-constants); a family (`T-MRP-*`) needs one row in it, each member of a braced list (`T-NVM-{RS-DEADLINE, RS-AGGREGATE}`) its own row, and an ID with an optional segment (`T-ADP-DELAY(-START)`) a row for both; braces or `(-` holding anything but ID segments fail; an ID broken at a line end and a sibling written as its last segment (`T-BUDGET-AECP-TYP / -WC`) are read whole, and `-1` reads as minus one only if the base has a row; any other text after a hyphen is prose (`T-MRP-JOIN-driven` uses `T-MRP-JOIN`); an unreadable, empty or duplicated master table fails. The self-test plants a stray in each scanned tree, a stray in each of those forms (including a missing minus-one base, a line-broken optional member and an optional member after a line-broken ID) and each master-table fault, and must see each caught with rc 1 and its diagnostic token |
+ | `figures` | `scripts/check-figures.py` (`--selftest` first) | every file under `docs/diagrams/` is a draw.io source with its export, a WaveDrom render whose block exists, or a hand-authored SVG listed in `docs/diagrams/README.md` that is well-formed, has an SVG-namespace `<svg>` root and a `viewBox`, carries no `<image>`, `<feImage>` or `<foreignObject>`, and is linked from a page ([docs/README §3](../README.md#3-figures-one-source-one-home)); any other file fails, and so does a missing or empty hand-authored inventory. The self-test plants each fault and must see it caught |
+ | `stale` | `Makefile` | each committed `.svg` is newer than its `.drawio` source |
+ 
+diff --git a/scripts/check-ids.py b/scripts/check-ids.py
+index 0f4b8a4..5b3b025 100755
+--- a/scripts/check-ids.py
++++ b/scripts/check-ids.py
+@@ -112,6 +112,12 @@ def uses(text: str) -> Iterator[tuple[int, str, str]]:
+         line = text.count("\n", 0, match.start()) + 1
+         if token in REGISTRY_WORDS:
+             continue
++        # Resolve the continuation before interpreting any suffix on its last word.
++        # Otherwise a wrapped optional member is lost behind the original match.
++        broken = LINE_BREAK.match(text, end)
++        while broken:
++            token, end = f"{token}-{broken.group(1)}", broken.end()
++            broken = LINE_BREAK.match(text, end)
+         if text.startswith("-*", end):
+             yield line, token, "family"
+         elif text.startswith("-{", end):
+@@ -123,8 +129,7 @@ def uses(text: str) -> Iterator[tuple[int, str, str]]:
+             else:
+                 yield line, f"{token}-{{...}}", "list"
+         else:
+-            broken = LINE_BREAK.match(text, end)
+-            yield line, f"{token}-{broken.group(1)}" if broken else token, "id"
++            yield line, token, "id"
+             sibling = SIBLING.match(text, end)
+             if sibling:
+                 yield line, f"{token.rsplit('-', 1)[0]}-{sibling.group(1)}", "id"
+@@ -208,6 +213,12 @@ SELFTEST_CASES = (
+     ({CASE: "(T-MRP-\n//  JOIN) and 0..P-RX-SLOTS-1, MAAP-ANNOUNCE, gPTP-T-X"}, []),
+     ({CASE: "T-NVM-{RS-DEADLINE}, a P-ONE-based bound, T-BUDGET-AECP-TYP / -WC"}, []),
+     ({CASE: "T-ADP-DELAY(-START), (T-ADP-DELAY(-\n//  START)); the label T-MRP-JOIN(B)"}, []),
++    ({CASE: "T-ADP-\n// DELAY(-START), T-ADP-\n// DELAY(-\n// START), "
++            "T-ADP-\n// DELAY-\n// START"}, []),
++    ({CASE: "P-MISSING-1 has no base row"}, ["P-MISSING-1"]),
++    ({CASE: "T-ADP-DELAY(-\n// STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
++    ({CASE: "T-ADP-\n// DELAY(-STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
++    ({CASE: "T-ADP-\n// DELAY(-\n// STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
+     ({"docs/case.md": "a stray P-NOT-A-ROW in a document"}, ["P-NOT-A-ROW"]),
+     ({"hdl/case.sv": "// a stray T-NOT-A-ROW in a module comment"}, ["T-NOT-A-ROW"]),
+     ({CASE: "a stray T-NOT-A-ROW in a suite"}, ["T-NOT-A-ROW"]),
+diff --git a/scripts/render-wavedrom.py b/scripts/render-wavedrom.py
+index b4b3597..25ed918 100755
+--- a/scripts/render-wavedrom.py
++++ b/scripts/render-wavedrom.py
+@@ -18,6 +18,7 @@ Uses the `wavedrom` Python package (wavedrompy). If it is not importable, a loca
+ virtualenv is bootstrapped at .venv-wavedrom/ (gitignored) and the script re-executes
+ itself inside it.
+ """
++import json
+ import os
+ import re
+ import subprocess
+@@ -92,18 +93,32 @@ def collect_blocks() -> list[tuple[Path, str, str]]:
+     return blocks
+ 
+ 
++def render_svg(src: str) -> str:
++    """Render with an optional source-owned margin for font substitution."""
++    import wavedrom
++
++    margin = json.loads(src).get("config", {}).get("svg_margin", 0)
++    if type(margin) is not int or margin < 0:
++        raise ValueError("config.svg_margin must be a non-negative integer")
++    svg = wavedrom.render(src)
++    if margin:
++        x, y, width, height = map(float, svg.attribs["viewBox"].replace(",", " ").split())
++        svg.viewbox(x - margin, y, width + 2 * margin, height)
++        svg["width"] = width + 2 * margin
++    return svg.tostring()
++
++
+ def main() -> int:
+     """Render every embedded block, or under --check name the anchors whose
+     committed SVG no longer matches a fresh render (exit 1)."""
+     ensure_wavedrom()
+-    import wavedrom
+ 
+     check = "--check" in sys.argv
+     OUTDIR.mkdir(parents=True, exist_ok=True)
+     blocks, stale = collect_blocks(), []
+     for path, anchor, src in blocks:
+         try:
+-            svg = wavedrom.render(src).tostring()
++            svg = render_svg(src)
+         except Exception as exc:
+             sys.exit(f"FAIL: {anchor} in {path.relative_to(ROOT)}: {exc}")
+         out = OUTDIR / f"{anchor}.svg"

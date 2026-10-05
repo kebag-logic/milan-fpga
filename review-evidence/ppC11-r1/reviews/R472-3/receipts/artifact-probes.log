@@ -1,0 +1,34 @@
+history-prose-table PASS {}
+history-waveform-bytes PASS {}
+executable-unchanged:hdl/packet_engine/KL_pp_side_port.sv PASS {}
+executable-unchanged:hdl/packet_engine/KL_pp_trace_ring.sv PASS {}
+executable-unchanged:hdl/packet_engine/KL_pp_tx_slots.sv PASS {}
+executable-unchanged:tb/tx_slots/sim_main.cpp PASS {}
+02-port-names PASS {'count': 109, 'missing': []}
+top-no-rx-ready-error PASS {}
+fig-02-txwave-margin-0 PASS {'viewBox': [0.0, 0.0, 600.0, 272.0], 'children_identical': True}
+fig-02-txwave-margin-1 PASS {'viewBox': [-1.0, 0.0, 602.0, 272.0], 'children_identical': True}
+fig-02-txwave-margin-40 PASS {'viewBox': [-40.0, 0.0, 680.0, 272.0], 'children_identical': True}
+fig-02-txwave-margin-80 PASS {'viewBox': [-80.0, 0.0, 760.0, 272.0], 'children_identical': True}
+fig-02-txwave-invalid--1 PASS {}
+fig-02-txwave-invalid-1.5 PASS {}
+fig-02-txwave-invalid-'40' PASS {}
+fig-02-txwave-invalid-True PASS {}
+fig-02-txwave-invalid-None PASS {}
+fig-02-memwave-margin-0 PASS {'viewBox': [0.0, 0.0, 520.0, 286.0], 'children_identical': True}
+fig-02-memwave-margin-1 PASS {'viewBox': [-1.0, 0.0, 522.0, 286.0], 'children_identical': True}
+fig-02-memwave-margin-40 PASS {'viewBox': [-40.0, 0.0, 600.0, 286.0], 'children_identical': True}
+fig-02-memwave-margin-80 PASS {'viewBox': [-80.0, 0.0, 680.0, 286.0], 'children_identical': True}
+fig-02-memwave-invalid--1 PASS {}
+fig-02-memwave-invalid-1.5 PASS {}
+fig-02-memwave-invalid-'40' PASS {}
+fig-02-memwave-invalid-True PASS {}
+fig-02-memwave-invalid-None PASS {}
+margin-removed PASS {'rc': 1, 'stdout': 'WAVEDROM STALE: fig-02-txwave, fig-02-memwave (run: python3 scripts/render-wavedrom.py)\n', 'stderr': ''}
+negative-margin PASS {'rc': 1, 'stdout': '', 'stderr': 'FAIL: fig-02-txwave in docs/architecture/02_interfaces.md: config.svg_margin must be a non-negative integer\n'}
+make-ids-composition PASS {'rc': 2, 'stdout': 'ids selftest: 30 cases, OK\nID FAIL: tb/reviewer_probe.md:1: T-ADP-DELAY-STRT has no F08.1 row\nids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES\n', 'stderr': 'make: *** [Makefile:48: ids] Error 1\n'}
+make-ids-minus-one PASS {'rc': 2, 'stdout': 'ids selftest: 30 cases, OK\nID FAIL: tb/reviewer_probe.md:1: P-REVIEWER-MISSING-1 has no F01.5 row\nids: 532 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES\n', 'stderr': 'make: *** [Makefile:48: ids] Error 1\n'}
+figure-mutant-foreignObject PASS {'rc': 1, 'stdout': "SELFTEST FAIL: case 8: want ['20-a.svg: carries <foreignObject>'] rc 1, got rc 0\nfigures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK\n\nfigures selftest: 17 cases, 1 FAILURES\n", 'stderr': ''}
+figure-mutant-root-namespace PASS {'rc': 1, 'stdout': "SELFTEST FAIL: case 9: want ['20-a.svg: root element is svg, not an SVG-namespace <svg>'] rc 1, got rc 0\nfigures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK\n\nSELFTEST FAIL: case 10: want ['20-a.svg: root element is {http://www.w3.org/2000/svg}g, not'] rc 1, got rc 0\nfigures: 1 draw.io, 1 WaveDrom, 1 hand-authored, OK\n\nfigures selftest: 17 cases, 2 FAILURES\n", 'stderr': ''}
+figure-mutant-empty-inventory PASS {'rc': 1, 'stdout': "SELFTEST FAIL: case 12: want ['the hand-authored inventory lists no SVG'] rc 1, got rc 1\nFIGURE FAIL: docs/diagrams/20-a.svg: SVG with no .drawio source, not in the hand-authored inventory of docs/diagrams/README.md\nfigures: 1 draw.io, 1 WaveDrom, 0 hand-authored, 1 FAILURES\n\nfigures selftest: 17 cases, 1 FAILURES\n", 'stderr': ''}
+probe-copy-restored PASS {}

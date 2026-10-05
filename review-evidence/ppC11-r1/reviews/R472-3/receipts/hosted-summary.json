@@ -1,0 +1,333 @@
+{
+  "observed_utc": "2026-10-05T08:19:25.327891+00:00",
+  "runs": [
+    {
+      "run": 37281823263,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37281823263",
+      "head_sha": "5123548eb4de35f24d43eb088c12dab70b06d01d",
+      "event": "pull_request",
+      "status": "in_progress",
+      "conclusion": null,
+      "jobs": [
+        {
+          "id": 111671416473,
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 111671416739,
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null
+            }
+          ]
+        },
+        {
+          "id": 111671416914,
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "run": 37281818928,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37281818928",
+      "head_sha": "5123548eb4de35f24d43eb088c12dab70b06d01d",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "jobs": [
+        {
+          "id": 111671402189,
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Cache the pinned Verilator build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build Verilator v5.050",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Lint (zero tolerance) + every suite",
+              "status": "in_progress",
+              "conclusion": null
+            },
+            {
+              "name": "SRP LeaveAll mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "MAAP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "ADP mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP deadline and hazard-class mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "AECP dispatch mutation campaign",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Traceability matrix no-drift + untested budget 0",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "nvm_port README figures agree with the tree",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Cache the pinned Verilator build",
+              "status": "pending",
+              "conclusion": null
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "pending",
+              "conclusion": null
+            }
+          ]
+        },
+        {
+          "id": 111671402350,
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install yosys + sv2v",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Elaborate every top off-vendor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 111671402771,
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install the WaveDrom renderer and the Mermaid CLI",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
