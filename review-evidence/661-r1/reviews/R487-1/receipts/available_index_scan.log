@@ -1,0 +1,40 @@
+## processor rule at ead8036035affd53ef4b29979190f2f4f67084c0
+703:  // DOC RULE (04 §5, IEEE §6.2.2.15): 0 at power-up; ++ AFTER each
+704-  // transmitted ENTITY_AVAILABLE; reset to 0 after ENTITY_DEPARTING (the
+705-  // departing frame carries the pre-reset value). See banner: the rule is
+706-  // the standard's (issue #85 item 4); open is only how a live controller
+714:      if (bld_done_avail_w) begin
+715-        aidx_r[bld_done_if_w] <= aidx_r[bld_done_if_w] + 32'd1;
+--
+717:      if (bld_done_dep_w) begin
+718-        aidx_r[bld_done_if_w] <= 32'd0;
+## parent statements (history excluded)
+-- docs/reference/REGISTER_MAP.md:1032-1037
+`available_index` increments after EVERY transmitted ENTITY_AVAILABLE: periodic
+re-advertise and discover response alike (controllers treat a repeated index as an
+incoherent entity; bump-on-change-only was silicon-diagnosed 2026-07-12). An
+ENTITY_DEPARTING carries the current value, and the index then resets to 0
+(IEEE 1722.1-2021 Section 6.2.2.15, as processor PR #152 notes), so the next
+ENTITY_AVAILABLE carries 0.
+-- docs/design/SAVED_STATE_MATERIALIZATION.md:1036-1038
+`04_adp_engine.md`), and no ADPDU leaves before the enable. `available_index`
+is volatile, 0 at reset, and increments on every transmitted ADPDU
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `ADP_STATUS`), so the
+-- avdecc/gen_aemi_image.py:105-106
+    #! available_index counts THIS entity's advertisements and increments on
+    #! every ADPDU (1722.1-2021 6.2.1.14; KL_adp_engine aidx_r). A flat image
+-- tb/tools/avtp_wire_truth_checks.py:553-559
+        """The 82-byte ADPDU rule and the available_index monotonicity.
+
+        1722.1-2021 6.2.1: the ADPDU is 68 octets, so 82 on the wire, and
+        control_data_length is 56.  6.2.2.10: available_index increments on
+        every transmitted ADPDU - a repeated value makes a controller treat the
+        entity as incoherent, which is exactly what bump-on-change-only did to
+        us in 2026-07-12.
+-- tb/tools/avtp_wire_truth_checks.py:586-589
+                          not repeats and len(idx) > 1,
+                          "IEEE 1722.1-2021 6.2.2.10: available_index "
+                          "increments on every transmitted ADPDU; a repeated "
+                          "index reads as an incoherent entity",
+-- docs/reference/MILAN_COMPLIANCE_MATRIX.md:154-154
+| 5.6.3 / 5.6.4 | advertise + discovery state machines, valid_time | implemented — PP adp_engine; SILICON discovery by controllers; the available_index increment-policy divergence stays recorded in the processor's docs |

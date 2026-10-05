@@ -1,0 +1,11 @@
+## parent files changed in RTL/firmware/SoC/constraint/tb-RTL paths
+  M	sw/litex/milan_soc.py
+## sw/litex/milan_soc.py change (function scope)
+  @@ -3317 +3316,0 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
+  @@ -3324,0 +3324,3 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
+  @@ -3327,5 +3328,0 @@ def build_desc_image(entity_gen_dir: str | None) -> tuple[bytes, str, str]:
+## processor gitlink 631eeb342ca1e3fa80e734077a56a943aee76ff1 -> ead8036035affd53ef4b29979190f2f4f67084c0
+## protocol_processor_top.sv added/removed port or parameter lines
+  +    parameter int unsigned NVM_MEM_TMO_CYC_P   = CLK_HZ_P,
+## KL_pp_shadow instantiation of protocol_processor_top unchanged:
+  KL_pp_shadow.sv identical

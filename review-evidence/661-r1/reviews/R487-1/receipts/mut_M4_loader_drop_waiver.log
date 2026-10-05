@@ -1,0 +1,18 @@
+  [gate 36b] arty_current: rates 144/3/156, sources 76/3/82 accepted
+  [gate 36b] arty_4x4: rates 144/1/148, sources 76/6/88 accepted
+  [gate 36b] arty_8ch: rates 144/1/148, sources 76/6/88 accepted
+RESULT FAIL test_shipping_image_contract: ImageError: L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 1: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-
+  [gate 36b] arty_current: SoC/builder images identical
+  [gate 36b] arty_4x4: SoC/builder images identical
+  [gate 36b] arty_8ch: SoC/builder images identical
+RESULT FAIL test_soc_shipping_image_contract: ImageError: L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 1: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-
+  [gate 36b] builder image without 0x0002: L1 audio-unit-for-aaf
+  [gate 36b] builder image without 0x0024: L1 required-type
+RESULT PASS test_shipping_image_contract_presence
+RESULT FAIL 8x8-image-with-waiver: ImageError: L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 0: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 1: number_of_clusters 0; a Stream Port contains at least one AUDIO_CLUSTER (Milan v1.2 §5.3.3.8)
+L1 port-cluster-minimum: cfg 0 STREAM_PORT_INPUT 2: number_of_clusters 0; a Stream Port contains at least on
