@@ -287,7 +287,7 @@ wire for SHUTDOWN in WAITING and in DELAY, sent at once and deferred, the
 restart, and the 32-bit wrap.
 
 A frame the transmit ring has no room for is owed, and nothing that follows
-drops an owed ENTITY_DEPARTING. Each SHUTDOWN's DEPARTING keeps the index
+drops an owed ENTITY_DEPARTING. A SHUTDOWN's DEPARTING keeps the index
 current at that SHUTDOWN until the ring takes it, across a restart, a timer
 expiry, a link change or another SHUTDOWN, and the oldest leaves first. A
 restart's ENTITY_AVAILABLE never passes an owed DEPARTING: if its TMR_DELAY
@@ -296,12 +296,31 @@ timer running, and the AVAILABLE leaves, TMR_ADVERTISE is armed and WAITING
 entered, only after the last owed DEPARTING. A DEPARTING queued behind another
 therefore carries 0, because its run could send no AVAILABLE. An owed AVAILABLE
 is dropped only by a link loss or a SHUTDOWN, which end the run it would have
-announced. A poll sends at most one frame, so the per-pass bound below is
-unchanged. The host test runs the case through the core's ports and through
-the driver, the model's timer and the loop: advertise, fill the ring, disable,
-enable, let the new TMR_DELAY expire, then drain. The wire carries DEPARTING
-with index 1, then AVAILABLE with index 0, then the machine is in WAITING with
-TMR_ADVERTISE armed and owes nothing.
+announced; a GM change, an ENTITY_DISCOVER or a stray expiry in DELAY leaves
+it owed (Table 5.51 ignores the first two there). A poll sends at most one
+frame, so the per-pass bound below is unchanged. The host test runs the case
+through the core's ports and through the driver, the model's timer and the
+loop: advertise, fill the ring, disable, enable, let the new TMR_DELAY expire,
+then drain. The wire carries DEPARTING with index 1, then AVAILABLE with index
+0, then the machine is in WAITING with TMR_ADVERTISE armed and owes nothing.
+It also checks a link loss and its return during the restart, before and after
+the expiry (the DEPARTING stays owed), the three inputs that leave an owed
+AVAILABLE owed, and a link loss that drops one with no poll in between.
+
+At most two DEPARTINGs are owed, by construction (the round-4 assignment on
+#665, comment 5999248955): the oldest, with its index, and one queued behind
+it, which carries 0. A SHUTDOWN that finds both owed adds no third. It is
+coalesced into the queued one and counted (`departing_coalesced`): its
+DEPARTING would also carry 0, and nothing the interface sends can leave
+between the two, so it could only repeat the queued frame back to back. The
+wire keeps every distinct frame in order and drops only that repeat, which no
+receiver acts on. A Milan listener that took the DEPARTING before it is in
+TK_NOT_DISCOVERED, where RCV_ADP_DEPARTING is ignored (Milan v1.2 Table
+5.54), and IEEE 1722.1-2021's `removeEntity` (6.2.6.3.5) finds no record left
+to remove. The host test fills both places and then shuts down 100,001 more
+times. Each of those SHUTDOWNs is counted, and the two owed DEPARTINGs and the
+oldest one's index are unchanged. Once room returns, the wire carries
+DEPARTING 1, DEPARTING 0, then the restart's AVAILABLE 0.
 
 The ADPDU fields come from the entity model through the same derivations the
 fabric's engine is fed from:
@@ -332,9 +351,13 @@ under four assumptions ([`ctrl_loop.h`](../../sw/firmware/ctrl/loop/ctrl_loop.h)
 - **A2, callbacks.** A sink, a handler, a centisecond consumer and a poll
   each cost at most the accesses its module states, and none waits on the
   fabric.
-- **A3, transmit room.** A response finds room in its transmit ring. When it
-  does not, its module owes it, the loop keeps passing, and it is committed in
-  the first pass after the merge frees the room.
+- **A3, transmit room.** A response finds room in its transmit ring, and its
+  module owes no frame ahead of it. When it does not, its module owes it and
+  the loop keeps passing. A poll sends one owed frame per pass and interface,
+  oldest first. So a response with k frames owed ahead of it is committed in
+  pass k + 1, counted from the first pass that starts after the merge frees
+  the room, and not before the pass that takes its input. A module bounds k;
+  for ADP, k is at most 2.
 - **A4, bus.** The figures count accesses. Time is that count times the
   platform's cost per access, which F0 has not measured.
 
@@ -343,10 +366,22 @@ the second pass that starts after the fabric posts it (16 records, 8 per
 pass, events first); a record of a channel by pass ceil(backlog / 2), 21 for
 ADP. A pass of F0's composition costs at most 407 accesses (8 events at 6 +
 31, 2 ADP records at 36 + 4, one poll at 31). With the pass already running
-when the input arrived, an event's response is committed within 3 x 407 =
-1,221 accesses and an ADP record's within 22 x 407 = 8,954. At an assumed
-1 us per access, which is not a measurement, that is under 9 ms against
-Milan's 0 to 4 s TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50).
+when the input arrived, and under A3, an event's response is committed
+within 3 x 407 = 1,221 accesses and an ADP record's within 22 x 407 = 8,954.
+At an assumed 1 us per access, which is not a measurement, that is under 9 ms
+against Milan's 0 to 4 s TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50).
+
+An owed response (A3) is not committed in the pass that takes its input. An
+ENTITY_AVAILABLE behind k owed DEPARTINGs (k at most 2) is committed in pass
+k + 1, counted from the first pass that starts after the room returns. If its
+TMR_DELAY expiry is taken later than that, by pass 2 as any event, it is
+committed in the pass that takes the expiry. Either way it is committed by pass
+3, counted from the first pass that starts after both the room's return and
+the expiry. With a pass already running then, that is within 4 x 407 = 1,628
+accesses (`ADP_MBX_OWED_PASSES`, `ADP_MBX_OWED_ACCESSES`). The host test
+leaves 1, 2 and 64 SHUTDOWNs behind a full ring, takes the expiry before and
+after the room returns, and requires the AVAILABLE in pass k + 1 (measured: 63
+to 99 accesses, the same for 64 SHUTDOWNs as for 2).
 
 Each response path's own cost, in the pass that takes the input, with
 nothing else pending:
