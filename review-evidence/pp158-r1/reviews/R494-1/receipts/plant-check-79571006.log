@@ -1,0 +1,574 @@
+A PLANTS  patch tb/adp_engine/mutations/arc-bind-keeps-discovered.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-departing-silent.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-discover-no-noadp-arm.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-fresh-no-rearm.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-fresh-no-store.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-fresh-store-max.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-fresh-store-plus-one.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-noadp-expiry-silent.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-not-discovered-no-guard.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-restart-detector-off-by-one.patch
+A PLANTS  patch tb/adp_engine/mutations/arc-restart-skips-guard.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-dependent-field.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-frozen-at-top.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-nonzero-for-valid.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-overlay-only.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-read-live.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-valid-any-selector.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-valid-hard-reset.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-valid-no-reset.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-valid-not-sticky.patch
+A PLANTS  patch tb/adp_engine/mutations/cfg-valid-ucpu-bus.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-departing-ignores-interface.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-fresh-checks-gm.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-not-discovered-checks-index.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-not-discovered-checks-interface.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-restart-not-rediscovered.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-stray-noadp-departs.patch
+A PLANTS  patch tb/adp_engine/mutations/disc-unbind-keeps-timer.patch
+A PLANTS  patch tb/adp_engine/mutations/gate-enable-dropped.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-delay-answers-discover.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-delay-ignores-link-down.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-delay-shutdown-silent.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-departing-keeps-index.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-down-answers-discover.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-down-answers-gm-change.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-down-shutdown-departs.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-foreign-discover-answered.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-link-down-keeps-timer.patch
+A PLANTS  patch tb/adp_engine/mutations/walk-stale-draw-arms.patch
+A PLANTS  patch tb/maap/mutations/compare-mac-forward.patch
+A PLANTS  patch tb/maap/mutations/defend-rdefend-ignored.patch
+A PLANTS  patch tb/maap/mutations/defend-rdefend-no-tiebreak.patch
+A PLANTS  patch tb/maap/mutations/drain-waits-for-the-link.patch
+A PLANTS  patch tb/maap/mutations/fit-compare-forced-true.patch
+A PLANTS  patch tb/maap/mutations/fit-compare-off-by-one.patch
+A PLANTS  patch tb/maap/mutations/idle-serves-a-latched-expiry-first.patch
+A PLANTS  patch tb/maap/mutations/ival-sends-after-release.patch
+A PLANTS  patch tb/maap/mutations/off-waits-for-an-edge.patch
+A PLANTS  patch tb/maap/mutations/post-publishes-after-release.patch
+A PLANTS  patch tb/maap/mutations/probe-rannounce-tiebreak.patch
+A PLANTS  patch tb/maap/mutations/probe-rprobe-never-yields.patch
+A PLANTS  patch tb/maap/mutations/release-keeps-draw-mark.patch
+A PLANTS  patch tb/maap/mutations/release-waits-for-draw.patch
+A PLANTS  patch tb/maap/mutations/rx-release-returns-to-idle.patch
+A PLANTS  patch tb/maap/mutations/seed-clamp-off-by-one.patch
+A PLANTS  patch tb/maap/mutations/seed-clamp-removed.patch
+A PLANTS  patch tb/maap/mutations/seed-rearmed-on-idle-release-only.patch
+A PLANTS  patch tb/maap/mutations/teardown-keeps-announce-timer.patch
+A PLANTS  patch tb/maap/mutations/tx-path-absorbs-release.patch
+A PLANTS  patch tb/maap/mutations/tx-set-omits-alloc.patch
+A PLANTS  patch tb/maap/mutations/tx-set-omits-commit.patch
+A PLANTS  patch tb/maap/mutations/tx-set-omits-gwait.patch
+A PLANTS  patch tb/maap/mutations/tx-set-omits-lane.patch
+A PLANTS  patch tb/maap/mutations/tx-set-omits-write.patch
+A PLANTS  patch tb/maap/mutations/validator-maap-version-1-only.patch
+A PLANTS  patch tb/maap/mutations/yield-reuses-range.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/a5b-reboot-success-arm.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/line-buffer-fixed-592.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-add-mappings.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-dynamic-info.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-get-name.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-remove-mappings.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-set-name.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-format.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-info.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/ov-top-oversize-dropped.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-base-no-overlay.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-cfg-any.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/rd-tail-uncut.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sclks-miss-branch-dropped.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sclks-miss-preload-dropped.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sclks-miss-target-next-word.patch
+A PLANTS  patch tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-avb-not-supported.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-block-beats-swapped.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-change-type-from-index.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-ckd-not-supported.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-index-from-type.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-locate-ignored.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-avb-any-index.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-avb-as-clock.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-avb-dropped.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-ckd-any-index.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-ckd-dropped.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-no-window.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-stri-past-shape.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/ctr-notify-stro-past-shape.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/store-counts-domain-strobes.patch
+A PLANTS  patch tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch
+A PLANTS  patch tb/pp_top/mutations/acmp-waits-for-aecp.patch
+A PLANTS  patch tb/pp_top/mutations/dl-armed-at-admission.patch
+A PLANTS  patch tb/pp_top/mutations/dl-boot-hold-not-exempt.patch
+A PLANTS  patch tb/pp_top/mutations/dl-edit-preempted.patch
+A PLANTS  patch tb/pp_top/mutations/dl-gdi-runs-on.patch
+A PLANTS  patch tb/pp_top/mutations/dl-kill-ack-keeps-owner.patch
+A PLANTS  patch tb/pp_top/mutations/dl-kill-tied-off.patch
+A PLANTS  patch tb/pp_top/mutations/dl-lock-preempted.patch
+A PLANTS  patch tb/pp_top/mutations/dl-mvu-forced-status-10.patch
+A PLANTS  patch tb/pp_top/mutations/dl-non-aem-forced-status-10.patch
+A PLANTS  patch tb/pp_top/mutations/dl-preempt-after-effect.patch
+A PLANTS  patch tb/pp_top/mutations/dl-registry-preempted.patch
+A PLANTS  patch tb/pp_top/mutations/dl-released-before-queued.patch
+A PLANTS  patch tb/pp_top/mutations/dlkill-always-misbehaving.patch
+A PLANTS  patch tb/pp_top/mutations/fanout-never-ends.patch
+A PLANTS  patch tb/pp_top/mutations/hz-acmp-reads-as-steps.patch
+A PLANTS  patch tb/pp_top/mutations/hz-barrier-no-priority.patch
+A PLANTS  patch tb/pp_top/mutations/hz-clock-as-lock.patch
+A PLANTS  patch tb/pp_top/mutations/hz-clock-as-ro.patch
+A PLANTS  patch tb/pp_top/mutations/hz-clock-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-foreign-target-classified.patch
+A PLANTS  patch tb/pp_top/mutations/hz-gdi-as-barrier.patch
+A PLANTS  patch tb/pp_top/mutations/hz-gdi-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-identify-as-ro.patch
+A PLANTS  patch tb/pp_top/mutations/hz-identify-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-lock-not-lockop.patch
+A PLANTS  patch tb/pp_top/mutations/hz-map-as-ro.patch
+A PLANTS  patch tb/pp_top/mutations/hz-map-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-name-as-ro.patch
+A PLANTS  patch tb/pp_top/mutations/hz-name-as-stream.patch
+A PLANTS  patch tb/pp_top/mutations/hz-name-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-reads-keyed-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-registry-as-ro.patch
+A PLANTS  patch tb/pp_top/mutations/hz-response-classified.patch
+A PLANTS  patch tb/pp_top/mutations/hz-setcfg-not-barrier.patch
+A PLANTS  patch tb/pp_top/mutations/hz-stream-key-none.patch
+A PLANTS  patch tb/pp_top/mutations/hz-stub-restored.patch
+A PLANTS  patch tb/pp_top/mutations/hz-talker-keyed-as-listener.patch
+A PLANTS  patch tb/pp_top/mutations/mvu-echo-slot-std.patch
+A PLANTS  patch tb/pp_top/mutations/mvu-fault-status-10.patch
+A PLANTS  patch tb/pp_top/mutations/mvu-silent.patch
+A PLANTS  patch tb/pp_top/mutations/td-lock-default-59s.patch
+A PLANTS  patch tb/pp_top/mutations/td-tl-default-301s.patch
+A PLANTS  patch tb/pp_top/mutations/ucpu-preempt-cuts-a-wait.patch
+A PLANTS  patch tb/pp_top/mutations/ucpu-preempt-keeps-the-body.patch
+A PLANTS  patch tb/pp_top/mutations/ucpu-preempt-repeats.patch
+A PLANTS  patch tb/srp_top/mutations/action-omitted.patch
+A PLANTS  patch tb/srp_top/mutations/already-full-missed.patch
+A PLANTS  patch tb/srp_top/mutations/bad-listener-length.patch
+A PLANTS  patch tb/srp_top/mutations/before-slot.patch
+A PLANTS  patch tb/srp_top/mutations/canceled-content-never-drains.patch
+A PLANTS  patch tb/srp_top/mutations/count-up-unsends.patch
+A PLANTS  patch tb/srp_top/mutations/draw-kind-0.patch
+A PLANTS  patch tb/srp_top/mutations/empty-canceled-pdu.patch
+A PLANTS  patch tb/srp_top/mutations/encoder-peer-ignored.patch
+A PLANTS  patch tb/srp_top/mutations/expiry-congestion.patch
+A PLANTS  patch tb/srp_top/mutations/expiry-event.patch
+A PLANTS  patch tb/srp_top/mutations/expiry-only-redraw.patch
+A PLANTS  patch tb/srp_top/mutations/expiry-outranks-peer.patch
+A PLANTS  patch tb/srp_top/mutations/full-drain-missing.patch
+A PLANTS  patch tb/srp_top/mutations/join-ms-400.patch
+A PLANTS  patch tb/srp_top/mutations/join-sent-at-handover.patch
+A PLANTS  patch tb/srp_top/mutations/leaveall-expiry-lost.patch
+A PLANTS  patch tb/srp_top/mutations/licence-ignores-join.patch
+A PLANTS  patch tb/srp_top/mutations/listener-lane-cut.patch
+A PLANTS  patch tb/srp_top/mutations/listener-lost-txla.patch
+A PLANTS  patch tb/srp_top/mutations/listener-no-expiry.patch
+A PLANTS  patch tb/srp_top/mutations/listener-no-own.patch
+A PLANTS  patch tb/srp_top/mutations/listener-no-renewal.patch
+A PLANTS  patch tb/srp_top/mutations/listener-sid-ignored.patch
+A PLANTS  patch tb/srp_top/mutations/listener-strict-lv.patch
+A PLANTS  patch tb/srp_top/mutations/missing-registrar-edge.patch
+A PLANTS  patch tb/srp_top/mutations/mvrp-expiry-only-redraw.patch
+A PLANTS  patch tb/srp_top/mutations/mvrp-flag-at-expiry.patch
+A PLANTS  patch tb/srp_top/mutations/mvrp-passive-lost.patch
+A PLANTS  patch tb/srp_top/mutations/mvrp-stale-expiry-honoured.patch
+A PLANTS  patch tb/srp_top/mutations/mvrp-supersedes-msrp.patch
+A PLANTS  patch tb/srp_top/mutations/my-cancel-eats-new-intent.patch
+A PLANTS  patch tb/srp_top/mutations/my-drop-join-during-wait.patch
+A PLANTS  patch tb/srp_top/mutations/my-edge-cancel-lost.patch
+A PLANTS  patch tb/srp_top/mutations/my-expiry-pulse.patch
+A PLANTS  patch tb/srp_top/mutations/my-join-edge-peer.patch
+A PLANTS  patch tb/srp_top/mutations/my-la-outranks-leave.patch
+A PLANTS  patch tb/srp_top/mutations/my-no-walk-at-sLA.patch
+A PLANTS  patch tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch
+A PLANTS  patch tb/srp_top/mutations/own-flags-missing.patch
+A PLANTS  patch tb/srp_top/mutations/pending-peer-ignored.patch
+A PLANTS  patch tb/srp_top/mutations/periodic-ms-3000.patch
+A PLANTS  patch tb/srp_top/mutations/preparation-before-slot.patch
+A PLANTS  patch tb/srp_top/mutations/r-accept-edge-drain-lost.patch
+A PLANTS  patch tb/srp_top/mutations/r-cancel-consumes-new-intent.patch
+A PLANTS  patch tb/srp_top/mutations/r-cancel-latch-dropped.patch
+A PLANTS  patch tb/srp_top/mutations/r-collect-blocks-pushes.patch
+A PLANTS  patch tb/srp_top/mutations/r-expiry-pulse-restored.patch
+A PLANTS  patch tb/srp_top/mutations/r-flag-ignores-edge-peer.patch
+A PLANTS  patch tb/srp_top/mutations/r-join-coalesce-dropped.patch
+A PLANTS  patch tb/srp_top/mutations/r-join-start-guard-dropped.patch
+A PLANTS  patch tb/srp_top/mutations/r-la-only-emission-lost.patch
+A PLANTS  patch tb/srp_top/mutations/r-mvrp-start-during-prepare.patch
+A PLANTS  patch tb/srp_top/mutations/r-rearm-no-deadline.patch
+A PLANTS  patch tb/srp_top/mutations/r-rearm-no-inflight.patch
+A PLANTS  patch tb/srp_top/mutations/r-reuse-without-action.patch
+A PLANTS  patch tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+A PLANTS  patch tb/srp_top/mutations/rearm-at-issue.patch
+A PLANTS  patch tb/srp_top/mutations/receive-priority-lost.patch
+A PLANTS  patch tb/srp_top/mutations/renewal-congestion.patch
+A PLANTS  patch tb/srp_top/mutations/repeated-action.patch
+A PLANTS  patch tb/srp_top/mutations/repeated-expiry-queued.patch
+A PLANTS  patch tb/srp_top/mutations/reserved-slot-not-reused.patch
+A PLANTS  patch tb/srp_top/mutations/reset-retains-intent.patch
+A PLANTS  patch tb/srp_top/mutations/round-completion-lost.patch
+A PLANTS  patch tb/srp_top/mutations/slope-read-source-0.patch
+A PLANTS  patch tb/srp_top/mutations/slope-store-source-0-only.patch
+A PLANTS  patch tb/srp_top/mutations/slope-stored-at-source-0.patch
+A PLANTS  patch tb/srp_top/mutations/slope-stored-at-stage-2-index.patch
+A PLANTS  patch tb/srp_top/mutations/stale-expiry-honoured.patch
+A PLANTS  patch tb/srp_top/mutations/table-one-short.patch
+A PLANTS  patch tb/srp_top/mutations/talker-lost-txla.patch
+A PLANTS  patch tb/srp_top/mutations/talker-no-expiry.patch
+A PLANTS  patch tb/srp_top/mutations/talker-no-own.patch
+A PLANTS  patch tb/srp_top/mutations/talker-no-renewal.patch
+A PLANTS  patch tb/srp_top/mutations/talker-strict-lv.patch
+A PLANTS  patch tb/srp_top/mutations/talker-vid-unreset.patch
+A PLANTS  patch tb/srp_top/mutations/tf-full-guard-31.patch
+A PLANTS  patch tb/srp_top/mutations/tf-head-at-write-pointer.patch
+A PLANTS  patch tb/srp_top/mutations/tf-heads-swapped.patch
+A PLANTS  patch tb/srp_top/mutations/tf-listener-push-dropped.patch
+A PLANTS  patch tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch
+A PLANTS  patch tb/srp_top/mutations/tf-ls-write-ignores-full.patch
+A PLANTS  patch tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch
+A PLANTS  patch tb/srp_top/mutations/tf-tk-head-read-ahead.patch
+A PLANTS  patch tb/srp_top/mutations/tf-tk-write-at-rptr.patch
+A PLANTS  patch tb/srp_top/mutations/tf-tk-write-ignores-full.patch
+A PLANTS  patch tb/srp_top/mutations/tx-strobe-any-app.patch
+A PLANTS  patch tb/srp_top/mutations/walk-record-written-on-close.patch
+A PLANTS  patch tb/srp_top/mutations/wid-flops-da-of-gate-source.patch
+A PLANTS  patch tb/srp_top/mutations/wid-flops-sid-of-source-0.patch
+A PLANTS  patch tb/srp_top/mutations/wid-flops-vid-of-source-0.patch
+A PLANTS  patch tb/srp_top/mutations/wid-ram-first-open-only.patch
+A PLANTS  patch tb/srp_top/mutations/wid-ram-read-at-gate-source.patch
+A PLANTS  patch tb/srp_top/mutations/wid-ram-read-neighbour.patch
+A PLANTS  patch tb/srp_top/mutations/wsid-flops-of-control-sink.patch
+A PLANTS  patch tb/srp_top/mutations/wsid-flops-read-sink-0.patch
+A PLANTS  patch tb/srp_top/mutations/wsid-ram-first-settle-only.patch
+A PLANTS  patch tb/srp_top/mutations/wsid-ram-written-on-teardown.patch
+A PLANTS  patch tb/srp_top/mutations/wsid-write-ignores-ready.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-first-open-only.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-latency-field-shifted.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-latency-shifted.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-prio-rank-swapped.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-rank-dropped.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-read-at-gate-source.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-read-at-source-0.patch
+A PLANTS  patch tb/srp_top/mutations/wtsp-write-ignores-ready.patch
+A PLANTS  tb/pp_top/notify_mutants.py:ident_two_frames
+A PLANTS  tb/pp_top/notify_mutants.py:ident_seq_per_frame
+A PLANTS  tb/pp_top/notify_mutants.py:ident_no_rearm
+A PLANTS  tb/pp_top/notify_mutants.py:ident_rearm_from_third_frame
+A PLANTS  tb/pp_top/notify_mutants.py:ident_burst_100ms
+A PLANTS  tb/pp_top/notify_mutants.py:ident_t0_at_request
+A PLANTS  tb/pp_top/notify_mutants.py:ident_burst_from_t0
+A PLANTS  tb/pp_top/notify_mutants.py:ident_departure_is_retirement
+A PLANTS  tb/pp_top/notify_mutants.py:ident_departure_unwired
+A PLANTS  tb/pp_top/notify_mutants.py:ident_next_burst_at_once
+A PLANTS  tb/pp_top/notify_mutants.py:ident_wait_ignores_gap
+A PLANTS  tb/pp_top/notify_mutants.py:ident_press_not_latched
+A PLANTS  tb/pp_top/notify_mutants.py:ident_burst_press_not_latched
+A PLANTS  tb/pp_top/notify_mutants.py:ident_departure_ignores_ready
+A PLANTS  tb/pp_top/notify_mutants.py:ident_burst_deadline_one_tick_short
+A PLANTS  tb/pp_top/notify_mutants.py:ident_t0_same_ms
+A PLANTS  tb/pp_top/notify_mutants.py:ident_cut_on_release
+A PLANTS  tb/pp_top/notify_mutants.py:ident_release_ignored
+A PLANTS  tb/pp_top/notify_mutants.py:ident_unicast_da
+A PLANTS  tb/pp_top/notify_mutants.py:ident_face_taken_mid_job
+A PLANTS  tb/pp_top/notify_mutants.py:ident_built_at_default
+A PLANTS  tb/pp_top/notify_mutants.py:enq_dropped_configuration
+A PLANTS  tb/pp_top/notify_mutants.py:enq_dropped_stream_info
+A PLANTS  tb/pp_top/notify_mutants.py:class_4_mapped_to_rate
+A PLANTS  tb/pp_top/notify_mutants.py:class_9_mapped_to_control
+A PLANTS  tb/pp_top/notify_mutants.py:requester_not_excluded
+A PLANTS  tb/pp_top/notify_mutants.py:entry_seq_not_advanced
+A PLANTS  tb/pp_top/notify_mutants.py:stream_info_get_body
+A PLANTS  tb/pp_top/notify_mutants.py:counter_limit_500ms
+A PLANTS  tb/pp_top/notify_mutants.py:fan_out_skips_row_0
+A PLANTS  tb/pp_top/notify_mutants.py:refresh_resets_seq
+A PLANTS  tb/pp_top/notify_mutants.py:foreign_unlock_allowed
+A PLANTS  tb/pp_top/notify_mutants.py:lock_taker_notified
+A PLANTS  tb/pp_top/notify_mutants.py:deregister_keeps_row
+A PLANTS  tb/pp_top/notify_mutants.py:registry_holds_15
+A PLANTS  tb/pp_top/notify_mutants.py:set_control_ignores_lock
+A PLANTS  tb/pp_top/notify_mutants.py:inflight_highest_free_id
+A PLANTS  tb/pp_top/notify_mutants.py:inflight_match_ignores_seq
+A PLANTS  tb/pp_top/notify_mutants.py:inflight_cancel_keeps_timer
+A PLANTS  tb/pp_top/notify_mutants.py:inflight_shared_seq
+A PLANTS  tb/pp_top/notify_mutants.py:ix_old_identity_kept
+A PLANTS  tb/pp_top/notify_mutants.py:ix_new_identity_unset
+A PLANTS  tb/pp_top/notify_mutants.py:ix_last_chunk_ignored
+A PLANTS  tb/pp_top/notify_mutants.py:ix_rewrite_unmatched
+A PLANTS  tb/pp_top/notify_mutants.py:override_set_only
+A PLANTS  tb/pp_top/notify_mutants.py:own_compare_new_row
+A PLANTS  tb/pp_top/notify_mutants.py:stamp_read_without_valid
+A PLANTS  tb/pp_top/notify_mutants.py:counter_spacing_from_selection
+A PLANTS  tb/pp_top/notify_mutants.py:counter_spacing_from_selection_tw
+A PLANTS  tb/pp_top/notify_mutants.py:counter_stamp_at_send_only
+A PLANTS  tb/pp_top/notify_mutants.py:counter_stamp_first_job_only
+A PLANTS  tb/pp_top/notify_mutants.py:counter_limit_500ms_cs
+A PLANTS  tb/pp_top/notify_mutants.py:registry_holds_15_cs
+A PLANTS  tb/pp_top/notify_mutants.py:dereg_mid_round_no_hold
+A PLANTS  tb/pp_top/notify_mutants.py:dereg_pending_stops_follow
+A PLANTS  tb/pp_top/notify_mutants.py:dereg_lost_at_round_end
+A PLANTS  tb/pp_top/d3_mutants.py:hold_released_at_go
+A PLANTS  tb/pp_top/d3_mutants.py:dispatch_not_held
+A PLANTS  tb/pp_top/d3_mutants.py:own_taken_at_the_walk
+A PLANTS  tb/pp_top/d3_mutants.py:image_unproven_continues
+A PLANTS  tb/pp_top/d3_mutants.py:latch_ignores_program
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_cfg
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_rate
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_clks
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_fmti
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_fmto
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_ptof
+A PLANTS  tb/pp_top/d3_mutants.py:taint_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:clear_wins_same_edge
+A PLANTS  tb/pp_top/d3_mutants.py:clear_by_group
+A PLANTS  tb/pp_top/d3_mutants.py:clear_by_index
+A PLANTS  tb/pp_top/d3_mutants.py:identify_is_a_change
+A PLANTS  tb/pp_top/d3_mutants.py:unchanged_compare_ignores_validity
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_cfg
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_rate
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_clks
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_fmti
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_fmto
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_ptof
+A PLANTS  tb/pp_top/d3_mutants.py:rule_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:passes_may_disagree
+A PLANTS  tb/pp_top/d3_mutants.py:device_error_reads_as_blank
+A PLANTS  tb/pp_top/d3_mutants.py:unframed_reads_as_device_error
+A PLANTS  tb/pp_top/d3_mutants.py:desc_error_is_a_refusal
+A PLANTS  tb/pp_top/d3_mutants.py:no_restore_watchdog
+A PLANTS  tb/pp_top/d3_mutants.py:restore_writes_are_changes
+A PLANTS  tb/pp_top/d3_mutants.py:enable_not_released_by_restore
+A PLANTS  tb/pp_top/d3_mutants.py:done_without_d3
+A PLANTS  tb/pp_top/d3_mutants.py:blank_ignores_d3
+A PLANTS  tb/pp_top/d3_mutants.py:store_not_cleared
+A PLANTS  tb/pp_top/d3_mutants.py:valid_not_cleared
+A PLANTS  tb/pp_top/d3_mutants.py:quarantine_released_by_time
+A PLANTS  tb/pp_top/d3_mutants.py:no_rollback
+A PLANTS  tb/pp_top/d3_mutants.py:dyn_not_rolled_back
+A PLANTS  tb/pp_top/d3_mutants.py:store_not_rolled_back
+A PLANTS  tb/pp_top/d3_mutants.py:rollback_ignores_debt
+A PLANTS  tb/pp_top/d3_mutants.py:closed_releases_the_entity
+A PLANTS  tb/pp_top/d3_mutants.py:no_backoff_d3
+A PLANTS  tb/pp_top/d3_mutants.py:fourth_attempt
+A PLANTS  tb/pp_top/d3_mutants.py:alarm_forgiven_by_success
+A PLANTS  tb/pp_top/d3_mutants.py:no_backoff_binding
+A PLANTS  tb/pp_top/d3_mutants.py:fourth_attempt_binding
+A PLANTS  tb/pp_top/d3_mutants.py:alarm_forgiven_binding
+A PLANTS  tb/pp_top/d3_mutants.py:backoff_derivation
+A PLANTS  tb/pp_top/d3_mutants.py:backoff_holds_dispatch
+A PLANTS  tb/pp_top/d3_mutants.py:disagree_one_direction
+A PLANTS  tb/pp_top/d3_mutants.py:rollback_one_cycle
+A PLANTS  tb/pp_top/d3_mutants.py:pass1_read_not_drained
+A PLANTS  tb/pp_top/d3_mutants.py:judge_wait_unwatched
+A PLANTS  tb/pp_top/d3_mutants.py:rate_walk_stuck_on_first_lane
+A PLANTS  tb/pp_top/d3_mutants.py:rate_walk_unbounded
+A PLANTS  tb/pp_top/d3_mutants.py:no_aggregate_deadline
+A PLANTS  tb/pp_top/d3_mutants.py:aggregate_mirrored
+A PLANTS  tb/pp_top/d3_mutants.py:aggregate_from_the_walk
+A PLANTS  tb/pp_top/d3_mutants.py:per_wait_floor
+A PLANTS  tb/pp_top/d3_mutants.py:agg_closes_before_proof
+A PLANTS  tb/pp_top/d3_mutants.py:binding_walk_ignores_aggregate
+A PLANTS  tb/pp_top/d3_mutants.py:proof_reads_records_past_bound
+A PLANTS  tb/pp_top/d3_mutants.py:agg_not_in_rollback
+A PLANTS  tb/pp_top/d3_mutants.py:agg_not_stopped_at_terminal
+A PLANTS  tb/pp_top/d3_mutants.py:agg_fires_with_event_in_hand
+A PLANTS  tb/pp_top/d3_mutants.py:drain_misses_issue_cycle
+A PLANTS  tb/pp_top/d3_mutants.py:drain_misses_issue_cycle_m1
+A PLANTS  tb/pp_top/d3_mutants.py:issue_arm_cross_intent
+A PLANTS  tb/pp_top/d3_mutants.py:issue_arm_ignores_we
+A PLANTS  tb/pp_top/d3_mutants.py:issue_arm_write_too
+A PLANTS  tb/pp_top/d3_mutants.py:issue_arm_stale_we
+A PLANTS  tb/pp_top/d3_mutants.py:owned_arm_write_too
+A PLANTS  tb/pp_top/d3_mutants.py:owned_arm_cross_intent
+A PLANTS  tb/pp_top/d3_mutants.py:cross_own_m1_drains_m0
+A PLANTS  tb/pp_top/d3_mutants.py:agg_closes_during_proof
+A PLANTS  tb/pp_top/d3_mutants.py:proof_past_needs_fire
+A PLANTS  tb/pp_top/d3_mutants.py:proof_default_only_from_img
+A PLANTS  tb/pp_top/d3_mutants.py:proof_past_bound_needs_fired
+A PLANTS  tb/pp_top/d3_mutants.py:agg_o_pulse
+A PLANTS  tb/pp_top/d3_mutants.py:aecp_hold_unbounded
+A PLANTS  tb/pp_top/d3_mutants.py:held_drop_uncounted
+A PLANTS  tb/pp_top/d3_mutants.py:resident_never_returned
+A PLANTS  tb/pp_top/d3_mutants.py:validator_admits_held_aecp
+A PLANTS  tb/pp_top/d3_mutants.py:clks_row_two_bits
+A PLANTS  tb/pp_top/d3_mutants.py:clks_restore_count_narrowed
+A PLANTS  tb/pp_top/d3_mutants.py:clks_restore_index_narrowed
+A PLANTS  tb/pp_top/d3_mutants.py:clks_restore_bound_inclusive
+A PLANTS  tb/pp_top/d3_mutants.py:registry_survives_reset
+A PLANTS  tb/pp_top/d3_mutants.py:lock_survives_reset
+A PLANTS  tb/pp_top/d3_mutants.py:identify_survives_reset
+A PLANTS  tb/pp_top/d3_mutants.py:cfg_crc_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:clks_crc_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:torn_read_not_an_abort
+A PLANTS  tb/pp_top/d3_mutants.py:torn_read_not_an_abort_cfg
+A PLANTS  tb/pp_top/d3_mutants.py:frame_crc_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:blank_applies_zero
+A PLANTS  tb/pp_top/d3_mutants.py:blank_applies_zero_cfg
+A PLANTS  tb/pp_top/d3_mutants.py:TRG_name
+A PLANTS  tb/pp_top/d3_mutants.py:RPL_name
+A PLANTS  tb/pp_top/d3_mutants.py:name_rule_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:name_empty_refused
+A PLANTS  tb/pp_top/d3_mutants.py:name_record_id_shifted
+A PLANTS  tb/pp_top/d3_mutants.py:name_entry_shifted
+A PLANTS  tb/pp_top/d3_mutants.py:name_lanes_partial
+A PLANTS  tb/pp_top/d3_mutants.py:name_taint_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:name_restore_pulses
+A PLANTS  tb/pp_top/d3_mutants.py:name_restore_is_a_change
+A PLANTS  tb/pp_top/d3_mutants.py:names_before_the_image
+A PLANTS  tb/pp_top/d3_mutants.py:cut_binding_crc_ignored
+A PLANTS  tb/pp_top/d3_mutants.py:cut_frame_crc_ignored
+A PLANTS  tb/pp_top/acmp_mutants.py:msg_ok_forced
+A PLANTS  tb/pp_top/acmp_mutants.py:msg_ok_forced
+A PLANTS  tb/pp_top/acmp_mutants.py:guard_ctlr_dropped
+A PLANTS  tb/pp_top/acmp_mutants.py:guard_talker_eid_dropped
+A PLANTS  tb/pp_top/acmp_mutants.py:guard_talker_uid_dropped
+A PLANTS  tb/pp_top/acmp_mutants.py:cdl_not_44_rejected
+A PLANTS  tb/pp_top/acmp_mutants.py:cdl_not_44_rejected
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_settle_as_withdraw
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_teardown_as_declare
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_sid_da_swapped
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_state_none
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_vid_dropped
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_index_zero
+A PLANTS  tb/pp_top/acmp_mutants.py:st_ls_teardown_lost
+A PLANTS  tb/pp_top/acmp_mutants.py:bound_view_not_latched
+A PLANTS  tb/pp_top/acmp_mutants.py:bound_dmac_from_sid
+A PLANTS  tb/pp_top/acmp_mutants.py:bound_view_not_cleared
+A PLANTS  tb/pp_top/acmp_mutants.py:matcher_da_ignored
+A PLANTS  tb/pp_top/acmp_mutants.py:matcher_vid_ignored
+A PLANTS  tb/pp_top/acmp_mutants.py:rec_read_sink_zero
+A PLANTS  tb/pp_top/acmp_mutants.py:rec_read_in_idle
+A PLANTS  tb/pp_top/acmp_mutants.py:rec_started_unstored
+A PLANTS  tb/pp_top/acmp_mutants.py:rec_settled_vlan_unstored
+A PLANTS  tb/pp_top/acmp_mutants.py:rec_sweep_misaddressed
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_read_tail
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_head_stuck
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_ring_of_three
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_write_at_head
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_write_at_mid
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_write_refused
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_write_wrap_hi
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_full_pop_refuses
+A PLANTS  tb/pp_top/acmp_mutants.py:armq_drop_skip_sat
+B PLANTS  retry:no_round
+B PLANTS  retry:early_round
+B PLANTS  retry:late_round
+B PLANTS  retry:retry_wrap
+B PLANTS  retry:no_pacing
+B PLANTS  retry:fixed_priority
+B PLANTS  retry:command_monopoly
+B PLANTS  retry:retry_monopoly
+B PLANTS  retry:disabled_alloc
+B PLANTS  retry:no_accept_bound
+B PLANTS  retry:short_accept_bound
+B PLANTS  retry:refusal_is_grant
+B PLANTS  retry:obsolete_grant
+B PLANTS  retry:obsolete_release_lost
+B PLANTS  retry:no_response_bound
+B PLANTS  retry:response_wrap
+B PLANTS  retry:no_stale_swallow
+B PLANTS  retry:no_stale_capacity
+B PLANTS  retry:no_stale_drain
+B PLANTS  retry:backoff_bypass
+B PLANTS  retry:reallocate_owned
+B PLANTS  retry:half_backoff
+B PLANTS  retry:fresh_forever
+B PLANTS  retry:declare_without_demand
+B PLANTS  retry:source_alias
+B PLANTS  retry:gate_without_ownership
+B PLANTS  retry:no_requests
+B PLANTS  retry:no_command_ready
+B PLANTS  retry:busy_tracker_blocks_commands
+B PLANTS  retry:no_conflict_wait_clear
+B PLANTS  retry:wait_on_release
+B PLANTS  retry:tick_no_rearm
+B PLANTS  retry:no_rotate_advance
+B PLANTS  retry:no_sticky_gp_window
+B PLANTS  retry:grant_kill_reg_only
+B PLANTS  retry:accept_kill_zero
+B PLANTS  retry:kill_no_pending_conflict
+B PLANTS  retry:kill_no_live_conflict
+B PLANTS  retry:kill_no_disable
+B PLANTS  retry:init_elig_no_avail
+B PLANTS  retry:no_turn_restore
+B PLANTS  retry:elig_drop_rel
+B PLANTS  retry:elig_drop_off
+B PLANTS  retry:ready_ignores_turn
+B PLANTS  retry:init_ignores_off_conflict
+B PLANTS  retry:retry_period_200
+B PLANTS  retry:tick_ge_to_gt
+B PLANTS  retry:kill_no_conflict_at_all
+B PLANTS  retry:kill_no_disable_at_all
+B PLANTS  retry:kill_sticky_off
+B PLANTS  retry:no_probe_initset
+B PLANTS  retry:no_lsn_initset
+B PLANTS  retry:no_conflict_daok_initset
+B PLANTS  retry:no_backoff_exit_initset
+B PLANTS  retry:no_enable_wait_clear
+B PLANTS  retry:eligible_only_init
+B PLANTS  retry:accept_kill_no_disable
+B PLANTS  retry:init_no_enable_check
+B PLANTS  retry:eligible_ignores_init
+B PLANTS  retry:tick_keeps_wait
+B PLANTS  retry:no_get_tx_state_response
+B PLANTS  retry:elig_drop_conflict
+B PLANTS  retry:elig_drop_pcp
+B PLANTS  retry:elig_drop_tmr
+B PLANTS  retry:elig_drop_lsn
+B PLANTS  retry:init_busy_else_removed
+B PLANTS  retry:kill_w_no_off
+B PLANTS  retry:init_ready_no_en
+B PLANTS  retry:wait_only_on_accept
+B PLANTS  retry:sticky_kill_ignores_accept
+B PLANTS  retry:bench-probe '  ++checks;' count 1
+B PLANTS  retry:bench-probe 'if (!(cond)) { ++fails;' count 1
+B PLANTS  gsi:latency-trigger-removed count 1 want 1
+B PLANTS  gsi:latency-cmp-low8 count 1 want 1
+B PLANTS  gsi:latency-cmp-low16 count 1 want 1
+B PLANTS  gsi:latency-cmp-high16 count 1 want 1
+B PLANTS  gsi:latency-cmp-low31 count 1 want 1
+B PLANTS  gsi:latency-cmp-high2 count 1 want 1
+B PLANTS  gsi:latency-cmp-bit31-dropped count 1 want 1
+B PLANTS  gsi:failure-code-zero count 1 want 1
+B PLANTS  gsi:failure-bridge-zero count 1 want 1
+B PLANTS  gsi:pbsta-zero count 1 want 1
+B PLANTS  gsi:acmpsta-zero count 1 want 1
+B PLANTS  gsi:wrong-sink count 1 want 1
+B PLANTS  gsi:integrator-path count 1 want 1
+B PLANTS  gsi:missing-descriptor-leak count 1 want 1
+B PLANTS  gsi:status-notification-zero count 1 want 1
+B PLANTS  gsi:rebind-started-trigger-removed count 1 want 1
+B PLANTS  gsi:failure-change-strobe-removed count 1 want 1
+B PLANTS  gsi:failure-change-redeclares count 1 want 1
+B PLANTS  gsi:index-guard-removed count 1 want 1
+B PLANTS  gsi:bridge-gate-removed count 1 want 1
+B PLANTS  name_wr:decode count 1 want 1
+B PLANTS  srp_admission:stale-evaluation
+B PLANTS  srp_admission:pending-absent
+B PLANTS  srp_admission:discarded-round-strobes
+group A: 476 of 476 plant
+group B: 96 of 96 plant

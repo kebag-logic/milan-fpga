@@ -1,0 +1,52 @@
+[
+ {
+  "mutant": "golden-pp_top-volatile-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "registry_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V5",
+   "D3V8",
+   "D3V9"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3V5: a third controller's change after the cycle notifies neither former controller (1 and 1 frames)",
+   "D3V6: for 66000 ms after the change no frame reaches either former controller: no CONTROLLER_AVAILABLE, no expiry DEREGISTER (3 and 0)",
+   "D3V8: sixteen new controllers all register after the cycle (15 of 16 SUCCESS)",
+   "D3V9: the first former controller registers again and its first notification carries sequence_id 0, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "lock_survives_reset",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3V4",
+   "D3V7"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3V4: aecp_lock_held_o is 0 in every cycle from restore_go_i on (5184 cycles held)",
+   "D3V5: a third controller's change after the cycle notifies neither former controller (0 and 0 frames)",
+   "D3V7: LOCK_ENTITY from the second controller answers SUCCESS (status 3) and takes the lock; its UNLOCK frees it",
+   "D3V9: the first former controller registers again and its first notification carries sequence_id 0, byte-exact"
+  ],
+  "verdict": "KILLED"
+ }
+]

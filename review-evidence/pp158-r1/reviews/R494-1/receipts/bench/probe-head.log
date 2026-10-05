@@ -1,0 +1,36 @@
+  [i] P1: ms 20004 kind 6 0009:0 args 0/0 seq 0 to 020000000003
+  [i] P1: ms 20010 kind 6 0009:0 args 0/0 seq 0 to 020000000004
+  [i] P1: ms 20014 kind 6 0009:0 args 0/0 seq 0 to 020000000005
+  [i] P1: ms 20017 kind 0 0000:0 args 0/0 seq 1 to 020000000003
+ok:   P1: 3 rows, C expires after its job: D and E each receive the round's GET_COUNTERS once
+ok:   P1: C receives its GET_COUNTERS and one DEREGISTER (0000:0, seq 1)
+  [i] P2: ms 40004 kind 6 0009:0 args 0/0 seq 0 to 020000000003
+  [i] P2: ms 40010 kind 6 0009:0 args 0/0 seq 0 to 020000000004
+  [i] P2: ms 40015 kind 0 0000:0 args 0/0 seq 0 to 020000000005
+ok:   P2: a not-yet-served row E drains: C and D each receive the round's GET_COUNTERS
+ok:   P2: E receives exactly one job, its own DEREGISTER (seq 0)
+  [i] P3: ms 50003 kind 8 0005:1 args 2/3 seq 0 to 020000000003
+  [i] P3: ms 50009 kind 8 0005:1 args 2/3 seq 0 to 020000000004
+  [i] P3: ms 50013 kind 8 0005:1 args 2/3 seq 0 to 020000000005
+  [i] P3: ms 50016 kind 0 0000:0 args 0/0 seq 1 to 020000000003
+  [i] P3: ms 50021 kind 0 0000:0 args 0/0 seq 1 to 020000000004
+ok:   P3: two drains in one SET_NAME round: D (expiring during its own job) and E keep the round
+ok:   P3: C and D each receive one DEREGISTER with their own sequence_id 1
+ok:   P3: every SET_NAME job keeps arguments 2/3
+  [i] P4: ms 60004 kind 6 0009:0 args 0/0 seq 0 to 020000000003
+  [i] P4: ms 60010 kind 6 0009:0 args 0/0 seq 0 to 020000000004
+  [i] P4: ms 60211 kind 6 0009:0 args 0/0 seq 0 to 020000000004
+  [i] P4: ms 60215 kind 6 0009:0 args 0/0 seq 0 to 020000000005
+  [i] P4: ms 60218 kind 0 0000:0 args 0/0 seq 1 to 020000000003
+  [i] P4: C re-registered at ms 60210; registered rows now 3
+ok:   P4: D and E keep the round's GET_COUNTERS across the re-registration
+  [i] P4: C's DEREGISTER sent at ms 60218 (AFTER its re-registration at ms 60210)
+  [i] P5: ms 70004 kind 6 0009:0 args 0/0 seq 0 to 020000000003
+  [i] P5: ms 70010 kind 6 0009:0 args 0/0 seq 0 to 020000000004
+  [i] P5: ms 71514 kind 6 0009:0 args 0/0 seq 0 to 020000000005
+  [i] P5: ms 71517 kind 0 0000:0 args 0/0 seq 1 to 020000000003
+  [i] P5: ms 72518 kind 6 0009:0 args 0/0 seq 1 to 020000000004
+  [i] P5: ms 72522 kind 6 0009:0 args 0/0 seq 1 to 020000000005
+  [i] P5: round's last send (E) 71514; next round: D at 72518, E at 72522
+ok:   P5: the next GET_COUNTERS round waits a second from the round's last send (stamp follows E's wait through the drain)
+[probe N_CTRL_P=3] 9 checks, 0 failures

@@ -1,0 +1,26 @@
+control pp_top budget: rc=0 PASS
+fanout-never-ends: rc=2 failures=23 named=1 KILLED
+    FAIL: TB3 GET_MILAN_INFO behind the fan-out is answered as it is idle
+    FAIL: TB3 GET_MILAN_INFO: premise: asked with the fan-out in flight (0 of 15 frames sent, 496 in all)
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 GET_MILAN_INFO behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB3 premise: the SET_CLOCK_SOURCE ahead of the oversize READ_DESCRIPTOR is accepted
+    FAIL: TB3 oversize READ_DESCRIPTOR behind the fan-out is answered as it is idle
+    FAIL: TB3 oversize READ_DESCRIPTOR: premise: asked with the fan-out in flight (496 of 15 frames sent, 993 in all)
+    FAIL: TB TB3 oversize READ_DESCRIPTOR behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 oversize READ_DESCRIPTOR behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB3 premise: the SET_CLOCK_SOURCE ahead of the GET_DYNAMIC_INFO with all thirteen getters is accepted
+    FAIL: TB3 GET_DYNAMIC_INFO with all thirteen getters behind the fan-out is answered as it is idle
+    FAIL: TB3 GET_DYNAMIC_INFO with all thirteen getters: premise: asked with the fan-out in flight (497 of 15 frames sent, 993 in all)
+    FAIL: TB TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB3 GET_DYNAMIC_INFO with all thirteen getters behind a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB4 GET_MILAN_INFO against a stalled response memory: the Figure 5.4 answer, byte-exact
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-AECP-RESP (24000000 at P-CLK-HZ)
+    FAIL: TB TB4 GET_MILAN_INFO, response memory at 4,000 clocks: -1 clocks inside T-BUDGET-AECP-WC (10000000 at P-CLK-HZ)
+    FAIL: TB5 GET_RX_STATE and GET_TX_STATE answered idle
+    FAIL: TB TB5 GET_RX_STATE, idle: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB TB5 GET_TX_STATE, idle: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB TB5 GET_RX_STATE beside an oversize READ_DESCRIPTOR, at 143: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+    FAIL: TB5 GET_TX_STATE during the fan-out: -1 clocks, at most idle -1 plus one frame
+    FAIL: TB TB5 GET_TX_STATE during a 15-frame fan-out, at 143: -1 clocks inside T-BUDGET-ACMP-RESP (5000000 at P-CLK-HZ)
+2 checks: 2 PASS, 0 FAIL

@@ -1,0 +1,28 @@
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 030192f..507d21c 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -126,7 +126,8 @@
+ //                DEREGISTER notification is a single-shot job to the
+ //                expired controller only (Milan Table 5.22: "sent only to
+ //                this controller"), latched at drain time because its row
+-//                is gone by emission time.
++//                is gone by emission time, and emitted at a round's boundary:
++//                it never replaces a running round's notification.
+ //
+ //                COMMAND TRIGGERS retain the opcode-specific response kind,
+ //                descriptor tuple, command arguments, and requester EID in a
+@@ -1249,8 +1250,11 @@ module KL_aecp_notify
+             //! lands a little late, never lost)
+             n_st_r <= N_DRAIN;
+           end else if (dh_v_r || em_active_r || pick_any_w) begin
+-            if (dh_v_r) begin
+-              //! the single-shot auto-DEREGISTER, from the holder
++            if (dh_v_r && !em_active_r) begin
++              //! the single-shot auto-DEREGISTER, from the holder, at a round's
++              //! boundary: a row drained between two jobs of a round waits for
++              //! the round to end, so the round's remaining jobs keep its
++              //! notification (issue #158)
+               em_kind_r <= PP_UNS_DEREG_C;
+               em_dt_r   <= 16'd0;
+               em_di_r   <= 16'd0;
