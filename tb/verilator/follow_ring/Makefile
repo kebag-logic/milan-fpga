@@ -80,11 +80,11 @@ pullin: build
 mutants:
 	python3 mutants.py --jobs $(SWEEP_JOBS)
 
-# sweep-b8: no lateness and 0 to 5 us of uniform lateness; the rare tail is
-# its own run of sweep.py (--jitter-us 2 --tail-us 24 --tail-p 1e-4)
+# sweep-b8: no lateness and uniform lateness through the ruled 60 us
+# envelope; the rare tail is a separate run (--jitter-us 2 --tail-us 24 --tail-p 1e-4)
 sweep-b8: build
 	python3 sweep.py b8 --exe $(MDIR)/Vfollow_ring --out $(MDIR)/sweep --jobs $(SWEEP_JOBS) \
-	  --jitter-us 0 5 --hold-s 40 --switch-hold-s 20 --extra --dwell-s 1.0
+	  --jitter-us 0 5 60 --hold-s 40 --switch-hold-s 20 --extra --dwell-s 1.0
 
 sweep-pullin: build
 	python3 sweep.py pullin --exe $(MDIR)/Vfollow_ring --out $(MDIR)/sweep --jobs $(SWEEP_JOBS) \

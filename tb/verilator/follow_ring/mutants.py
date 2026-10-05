@@ -26,12 +26,10 @@ W1: a switch between two followed sources passes servo IDLE (the design's
   restarts from the bare MMCM plan and the DUT reads 5.92 ppm fast while the
   servo re-acquires: the AAF-to-CRF switch must move the ring's phase by more
   than W2's tenth of a tick before its settle recentre.
-OVERSHOOT: the loopback ring's recentre aims one event past the depth (9 at
-  a PDU end). It holds three pops where the shipped one holds two, so the
-  next PDU finds the queue full and drops an event about a PDU after the
-  decision. The ring then sits back inside (2, 3] ticks, so centring passes:
-  only grading that drop as after the settle recentre, from the end of the
-  PDU the ring decided on, catches it.
+OVERSHOOT: the loopback ring's recentre aims one event past the depth (17
+  at a PDU end). It holds eleven pops where the shipped one holds five, so
+  a later PDU finds the queue full. Grading from the decision PDU's end
+  catches the resulting drop without granting a post-decision grace period.
 
 Exit 0 = every mutant built and was killed by its named check.
 """
@@ -58,7 +56,7 @@ MUTANTS: tuple[Mutant, ...] = (
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
     ("RENDER-ONLY", "FR_MUT_RENDER_ONLY", [], [],
-     B8, "[B8] the loopback ring is centred after the settle recentre (margin in (2, 3] ticks)"),
+     B8, "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"),
     ("EARLY", None,
      [("  wire settle_steady_w = follow_sel_r\n", "  wire settle_steady_w = 1'b0\n"),
       ("  wire [SETTLE_RUN_W_C-1:0] settle_need_w = follow_sel_r\n",
@@ -68,8 +66,8 @@ MUTANTS: tuple[Mutant, ...] = (
      ["--case", "b8", "--dwell-s", "1.0", "--set-phase", "0.0", "--hold-s", "12", "--switch-hold-s", "9"],
      "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"),
     ("OVERSHOOT", None, [],
-     [("  localparam int unsigned LB_LEFT_C    = LB_TARGET_C - 6;\n",
-       "  localparam int unsigned LB_LEFT_C    = LB_TARGET_C - 5;\n")],
+     [("  localparam int unsigned LB_TARGET_C  = (LB_QDEPTH_C + 6) / 2;\n",
+       "  localparam int unsigned LB_TARGET_C  = LB_QDEPTH_C + 1;\n")],
      B8, "[B8] no loopback slip after the settle recentre"),
 )
 

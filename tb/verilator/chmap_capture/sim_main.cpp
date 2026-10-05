@@ -1124,7 +1124,7 @@ void ChanMapCaptureHarness::pin_lane_b_loopback_into_widened_slot() {
   ck("LBB: one frame emitted (t7)", static_cast<long>(bfr.size()), 1);
   if (bfr.size() == 1) {
     // lane B took every push since [LB] but never ticked, so its s3 p2
-    // queue holds {e1, e2, e5, e6, e11, e12} - six of the eight it can -
+    // queue holds {e1, e2, e5, e6, e11, e12} - six of the sixteen it can -
     // and the first pop is the OLDEST (e1): elastic across lanes too
     ck("LBB: slot31 loop L = s3 ch4 e1 (oldest queued)",
        be(bfr[0], 66, 3), LBV(3, 4, 1));
@@ -1179,39 +1179,25 @@ void ChanMapCaptureHarness::pin_overflow_drops_the_oldest() {
   {
     long d0 = dut->a_dup_cnt_o;
     long k0 = dut->a_skip_cnt_o;
-    drv_lb_pdu(4, 2, 10, 1);         // ONE 10-event PDU vs the 8-deep queue
-    cyc(8);                          // let the skid drain
+    drv_lb_pdu(4, 2, 18, 1);         // 18 events vs the 16-deep queue
+    cyc(8);
     ck("LQ2: two oldest events dropped AT PUSH (skip = +2)",
        static_cast<long>(dut->a_skip_cnt_o) - k0, 2);
-    afr.clear();
-    for (int i = 0; i < 6; i++) a_tick();
-    cyc(400);
-    int f1 = find_len(afr, 234);
-    ck("LQ2: t1 frame emitted", f1 >= 0, 1);
-    if (f1 >= 0) {
-      ck("LQ2: e3 leads = the oldest SURVIVOR", be(afr[f1], 42, 3),
-         LBV(4, 0, 3));
-      long ord = 1;
-      for (int e = 0; e < 6; e++)
-        if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 3 + e)) ord = 0;
-      ck("LQ2: survivors replay in order (e3..e8)", ord, 1);
-    } else { for (int k = 0; k < 2; k++) ck("LQ2 (skipped)", 0, 1); }
-    // the remaining two drain into the next frame; its tail is the honest
-    // starved-repeat of e10
-    afr.clear();
-    for (int i = 0; i < 6; i++) a_tick();
-    cyc(400);
-    int f2 = find_len(afr, 234);
-    if (f2 >= 0) {
-      ck("LQ2: next frame leads e9, e10", (be(afr[f2], 42, 3) == LBV(4, 0, 9))
-         && (be(afr[f2], 42 + 32, 3) == LBV(4, 0, 10)), 1);
-      long rep = 1;
-      for (int e = 2; e < 6; e++)
-        if (be(afr[f2], 42 + 32 * e, 3) != LBV(4, 0, 10)) rep = 0;
-      ck("LQ2: then repeats e10 (bounded slip, no jump)", rep, 1);
-    } else { for (int k = 0; k < 2; k++) ck("LQ2 tail (skipped)", 0, 1); }
-    ck("LQ2: the 4 tail repeats are the ONLY dups",
-       static_cast<long>(dut->a_dup_cnt_o) - d0, 4);
+    for (int frame = 0; frame < 3; ++frame) {
+      afr.clear();
+      for (int i = 0; i < 6; ++i) a_tick();
+      cyc(400);
+      const int f = find_len(afr, 234);
+      ck("LQ2: t1 frame emitted", f >= 0, 1);
+      long ordered = f >= 0;
+      if (f >= 0) for (int e = 0; e < 6; ++e) {
+        const int wanted = std::min(18, 3 + frame * 6 + e);
+        if (be(afr[f], 42 + 32 * e, 3) != LBV(4, 0, wanted)) ordered = 0;
+      }
+      ck("LQ2: survivors e3..e18 drain in order, then repeat e18", ordered, 1);
+    }
+    ck("LQ2: the 2 tail repeats are the ONLY dups",
+       static_cast<long>(dut->a_dup_cnt_o) - d0, 2);
   }
 }
 
@@ -1712,16 +1698,12 @@ void ChanMapCaptureHarness::lrc_pulse() { dut->a_lb_recentre_i = kLrcMask; cyc()
 
 void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
   // ====================================================================== //
-  // [LRC] THE #645 SETTLE RECENTRE (the LOOP QUEUE banner's RECENTRE). A   //
-  // pulse arms a primed stream; as its next PDU starts, what the stream's //
-  // first pair has left of the previous PDU decides, for every pair: none //
-  // and the next two walks hold each pair's pop (the hold repeats the     //
-  // last event), one and the next walk holds, three and it drops each     //
-  // pair's oldest event before the pop, two (8 at the PDU end) and        //
-  // nothing moves. Neither counter moves: it is a declared discontinuity, //
-  // not a slip. One 4-channel stream (two pairs).                         //
-  // ====================================================================== //
-  printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 8 events\n");
+  // [LRC] The settle recentre targets eleven events at PDU end. Five
+  // left before its first beat need no action; four left hold one pop;
+  // none left hold five pops; six left drop the oldest before the pop.
+  // Both pairs act together, once, without counting the declared action
+  // as a slip. Unprimed, flush and coincident-first-beat cases remain pinned.
+  printf("\n[LRC] the settle recentre puts a stream's LOOP queues on 11 events\n");
   lb_set_chans(kLrcStream, 4);
   a_map_wr(1, ent_lb(1, kLrcStream, 0));      // t1 pair0 <- s5 ch0/ch1
   a_map_wr(2, ent_lb(1, kLrcStream, 1));      // t1 pair1 <- s5 ch2/ch3
@@ -1743,7 +1725,7 @@ void ChanMapCaptureHarness::pin_settle_recentre_centres_the_loop_queues() {
 }
 
 //! an unprimed stream ignores the pulse; then nothing left of the previous
-//! PDU (6 at the PDU end): the next two walks hold, and no third
+//! PDU (6 at the PDU end): the next five walks hold, and no sixth
 void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
   const int S = kLrcStream;
   std::array<int, 6> ev{};
@@ -1753,14 +1735,14 @@ void ChanMapCaptureHarness::lrc_unprimed_and_hold() {
     ck("LRC: an unprimed stream ignores the pulse (e1..e6, no hold)", lrc_same(ev, {1, 2, 3, 4, 5, 6}), 1);
   lrc_pulse();
   drv_lb_pdu(S, 4, 6, 7);            // e7..e12 onto an empty queue
-  if (lrc_frame("hold two", S, ev))
-    ck("LRC: none left holds two pops (e6 repeats twice, then e7..e10)", lrc_same(ev, {6, 6, 7, 8, 9, 10}), 1);
-  drv_lb_pdu(S, 4, 6, 13);           // two left: on target, fill 8
-  if (lrc_frame("after hold two", S, ev))
-    ck("LRC: ...and holds no third: e11..e16 follow in order", lrc_same(ev, {11, 12, 13, 14, 15, 0}), 1);
+  if (lrc_frame("hold five", S, ev))
+    ck("LRC: none left holds five pops (e6 repeats five times, then e7)", lrc_same(ev, {6, 6, 6, 6, 6, 7}), 1);
+  drv_lb_pdu(S, 4, 6, 13);           // five left: on target, fill 11
+  if (lrc_frame("after hold five", S, ev))
+    ck("LRC: ...and holds no sixth: e8..e13 follow in order", lrc_same(ev, {8, 9, 10, 11, 12, 13}), 1);
 }
 
-//! one left (7 at the PDU end): the next walk holds, once
+//! four left (10 at the PDU end): the next walk holds, once
 void ChanMapCaptureHarness::lrc_hold_one() {
   const int S = kLrcStream;
   std::array<int, 6> ev{};
@@ -1768,11 +1750,11 @@ void ChanMapCaptureHarness::lrc_hold_one() {
   lrc_align();
   drv_lb_pdu(S, 4, 6, 1);
   afr.clear();
-  for (int i = 0; i < 5; i++) a_tick();   // e1..e5 out, e6 queued
+  for (int i = 0; i < 2; i++) a_tick();   // e1..e2 out, e3..e6 queued
   lrc_pulse();
-  drv_lb_pdu(S, 4, 6, 7);            // fill 7
-  a_tick();                          // held: e5 repeats
-  lrc_expect_frame("hold one", "LRC: one left holds one pop on both pairs (e5 repeats)", {1, 2, 3, 4, 5, 5});
+  drv_lb_pdu(S, 4, 6, 7);            // fill 10
+  for (int i = 0; i < 4; i++) a_tick(); // e2 held, then e3..e5
+  lrc_expect_frame("hold one", "LRC: four left holds one pop on both pairs (e2 repeats)", {1, 2, 2, 3, 4, 5});
   if (lrc_frame("after hold one", S, ev))
     ck("LRC: ...and acts once: e6..e11 follow in order", lrc_same(ev, {6, 7, 8, 9, 10, 11}), 1);
 }
@@ -1795,30 +1777,26 @@ void ChanMapCaptureHarness::lrc_expect_frame(const char* tag, const char* what,
   ck(what, ok, 1);
 }
 
-//! three left: the next walk drops the oldest before its pop, once. The
-//! PDU after the pulse carries three events, so three left and its own
-//! never overrun the depth before the walk acts
+//! six left: the next walk drops the oldest before its pop, once.
 void ChanMapCaptureHarness::lrc_drop() {
   const int S = kLrcStream;
   lrc_wipe();
   lrc_align();
-  drv_lb_pdu(S, 4, 6, 1);            // e1..e6
-  afr.clear();
-  for (int i = 0; i < 3; i++) a_tick();   // e1..e3 out, e4..e6 queued
+  drv_lb_pdu(S, 4, 6, 1);
   lrc_pulse();
-  drv_lb_pdu(S, 4, 3, 7);            // e7..e9: fill 6
-  for (int i = 0; i < 3; i++) a_tick();   // e4 dropped, e5 popped; then e6, e7
-  lrc_expect_frame("drop", "LRC: three left drops the oldest on both pairs (e4 never plays)",
-                   {1, 2, 3, 5, 6, 7});
-  // the decision acted once: two left (e8, e9), the next PDU lands on target
+  drv_lb_pdu(S, 4, 6, 7);            // six left plus six new: fill 12
   afr.clear();
-  drv_lb_pdu(S, 4, 6, 10);           // e10..e15: fill 8
-  for (int i = 0; i < 6; i++) a_tick();   // e8..e13
+  for (int i = 0; i < 6; i++) a_tick();
+  lrc_expect_frame("drop", "LRC: six left drops the oldest on both pairs (e1 never plays)",
+                   {2, 3, 4, 5, 6, 7});
+  afr.clear();
+  drv_lb_pdu(S, 4, 6, 13);           // five left: fill 11
+  for (int i = 0; i < 6; i++) a_tick();
   lrc_expect_frame("after the drop", "LRC: ...and acts once: e8..e13 follow in order",
                    {8, 9, 10, 11, 12, 13});
 }
 
-//! two left (8 at the PDU end): on target, nothing moves
+//! five left (11 at the PDU end): on target, nothing moves
 void ChanMapCaptureHarness::lrc_on_target() {
   const int S = kLrcStream;
   std::array<int, 6> ev{};
@@ -1826,11 +1804,11 @@ void ChanMapCaptureHarness::lrc_on_target() {
   lrc_align();
   drv_lb_pdu(S, 4, 6, 1);
   afr.clear();
-  for (int i = 0; i < 4; i++) a_tick();   // e1..e4 out, e5 e6 queued
+  a_tick();                         // e1 out, e2..e6 queued
   lrc_pulse();
-  drv_lb_pdu(S, 4, 6, 7);            // fill 8
-  for (int i = 0; i < 2; i++) a_tick();
-  lrc_expect_frame("no-op", "LRC: two left moves nothing (e5, e6 pop on time)", {1, 2, 3, 4, 5, 6});
+  drv_lb_pdu(S, 4, 6, 7);            // fill 11
+  for (int i = 0; i < 5; i++) a_tick();
+  lrc_expect_frame("no-op", "LRC: five left moves nothing (e2..e6 pop on time)", {1, 2, 3, 4, 5, 6});
   if (lrc_frame("on target", S, ev))
     ck("LRC: ...then e7..e12 in order", lrc_same(ev, {7, 8, 9, 10, 11, 12}), 1);
 }
@@ -1854,7 +1832,7 @@ void ChanMapCaptureHarness::lrc_flush_and_first_beat() {
     ck("LRC: a pulse on a PDU's first beat does not act on that PDU", lrc_same(ev, {13, 14, 15, 0, 1, 2}), 1);
   drv_lb_pdu(S, 4, 6, 3);            // e3..e8 onto an empty queue: fill 6
   if (lrc_frame("next end", S, ev))
-    ck("LRC: ...it acts at the next one (two holds: e18 repeats twice)", lrc_same(ev, {2, 2, 3, 4, 5, 6}), 1);
+    ck("LRC: ...it acts at the next one (five holds: e18 repeats five times)", lrc_same(ev, {2, 2, 2, 2, 2, 3}), 1);
 }
 
 void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {

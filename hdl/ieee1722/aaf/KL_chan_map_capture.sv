@@ -183,11 +183,11 @@
                 queue:
 
                   * STORAGE: LB_PAIRS_C x LB_QDEPTH_C x 48 b, one flat
-                    single-write single-read array (256 x 48 at the 8x8 ship
-                    shape = one RAMB36 or ~200 LUT of LUTRAM; the array takes
+                    single-write single-read array (512 x 48 at the 8x8 ship
+                    shape = one RAMB36; 64 x 48 LUTRAM at 1x1; the array takes
                     no reset - the per-pair pointers make unwritten words
-                    unreachable). LB_QDEPTH_C = 8 = one class-A PDU (6 sample
-                    events, Milan 6.3.5) + 2 events of arrival-jitter margin.
+                    unreachable). LB_QDEPTH_C = 16 = one class-A PDU (6 sample
+                    events, Milan 6.3.5) + 10 events of arrival-jitter margin.
                   * PUSH: the de-interleave commits one complete {L, R}
                     sample event per pair as its samples arrive. A beat can
                     carry TWO commits (the 1-channel mono wire puts both of
@@ -230,17 +230,17 @@
                     change left it, up to a tick from an edge. lb_recentre_i
                     [s] (milan_datapath's settle recentre, once the media
                     plane has settled) arms stream s. The target is
-                    LB_TARGET_C (8, the depth) at a class-A PDU end: two
-                    events of the previous PDU still queued when the next
-                    one's first event lands, so that event pops 2 to 3
-                    ticks after it lands. That is at least two ticks of
-                    lateness tolerance; the earliness tolerance is what is
-                    left of the third tick, plus the PDU's own beats up to
-                    the push that would overflow. So as the stream's next
-                    PDU starts, the events its first pair has left decide
-                    for all its pairs alike: short of two, and the walks
-                    that start next hold each pair's pop, one walk per
-                    missing event; more than two, and the next walk drops
+                    LB_TARGET_C = (LB_QDEPTH_C + 6) / 2 = 11 at a class-A
+                    PDU end: five events of the previous PDU still queued
+                    when the next one's first event lands, so that event
+                    pops 5 to 6 ticks after it lands. The sixteen-event
+                    depth leaves about five ticks on either side, covering
+                    the ruled arrival envelope of 0 to 60 us lateness.
+                    As the stream's next PDU starts, the events its first
+                    pair has left decide for all its pairs alike: short
+                    of five, and the walks that start next hold each pair's
+                    pop, one walk per missing event; more than five, and
+                    the next walk drops
                     each pair's oldest event before the pop. Deciding at the
                     start keeps a walk inside the PDU's own beats out of the
                     count, so the held or dropped pops reach the target, or
@@ -501,16 +501,16 @@ module KL_chan_map_capture #(
   localparam int unsigned LB_PAIRS_C   = N_LB_STREAMS_P * LB_PPS_C;
   localparam int unsigned LBPW_C       = (LB_PAIRS_C <= 1) ? 1
                                                       : $clog2(LB_PAIRS_C);
-  //! LOOP queue: 8 events deep = one class-A PDU (6 sample events) + 2 of
+  //! LOOP queue: 16 events deep = one class-A PDU (6 sample events) + 10 of
   //! arrival-jitter margin; skid depth 4 absorbs the 2-commits-per-beat
   //! degenerate beats (mono wire) at the >= 8-cycle wire beat spacing
-  localparam int unsigned LB_QDEPTH_C  = 8;
+  localparam int unsigned LB_QDEPTH_C  = 16;
   localparam int unsigned LB_QPTRW_C   = $clog2(LB_QDEPTH_C);
   //! #645: the fill a settle recentre leaves at a class-A PDU end, the
-  //! depth: two events of the previous PDU stay queued when the next one's
-  //! first event lands, so that event pops 2 to 3 ticks after it lands
-  localparam int unsigned LB_TARGET_C  = LB_QDEPTH_C;
-  //! ...decided as those two left events: the target less the PDU's 6
+  //! midpoint target: five events of the previous PDU stay queued when the
+  //! next first event lands, so that event pops 5 to 6 ticks after it lands
+  localparam int unsigned LB_TARGET_C  = (LB_QDEPTH_C + 6) / 2;
+  //! ...decided as those five left events: the target less the PDU's 6
   localparam int unsigned LB_LEFT_C    = LB_TARGET_C - 6;
   //! ...and the pops held to reach it from an empty queue, one per walk
   localparam int unsigned LB_HOLDW_C   = $clog2(LB_LEFT_C + 1);

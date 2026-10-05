@@ -29,11 +29,14 @@
 // WHAT IS MEASURED, PER PDU OF THE FOLLOWED STREAM:
 //   ring margin m   the loopback ring's (pair 0) time from a PDU's first
 //                   event landing in the queue to the pop that takes it, in
-//                   media ticks. The ring's law gives it a range of (0, 3]
+//                   media ticks. The ring's law gives it a range of (0, 11]
 //                   ticks: below 0 a tick finds the queue empty (a dup, and
-//                   m gains a tick), above 3 a push finds it full (a skip,
+//                   m gains a tick), above 11 a push finds it full (a skip,
 //                   and m loses a tick). Only the settle recentre moves it
-//                   otherwise, to its 8-event target: m in (2, 3] ticks;
+//                   otherwise, to its 11-event target: m in (5, 6] ticks;
+//   full margin     time since a reused queue slot was freed, measured at
+//                   each push; the least across each PDU is its early-side
+//                   margin. Both margins must stay at least one tick;
 //   render fill     the render stage's fill at the PDU end (#643's grading
 //                   instant): the law is the setpoint plus the PDU, 14;
 //   render delay    the PDU's first event from its end to its pop, in ticks:
@@ -55,6 +58,7 @@
 #include "Vfollow_ring_wrap___024root.h"
 #include "verilated.h"
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -106,16 +110,17 @@ constexpr double kLawAfterS = 0.05;
 //! sweeps): up to 2 from the 1.4-tick walk, and one more where the rare
 //! lateness tail meets the ring near its empty edge during the walk
 constexpr int kPreSettleSlips = 3;
-//! the loopback ring centred: the target leaves two events of the previous
-//! PDU queued when a PDU's first event lands, so that event pops 2 to 3
+//! the loopback ring centred: the target leaves five events of the previous
+//! PDU queued when a PDU's first event lands, so that event pops 5 to 6
 //! ticks after it lands; a PDU less late than the one the recentre read
 //! pops later, by up to the run's uniform lateness. The recentre decides at
 //! the PDU's first beat and the margin is measured from its first event's
 //! landing, a few axis cycles later, so a PDU that lands on a pop is read
 //! up to those cycles short of a whole tick
 constexpr double kLandTicks = 3.0 * 48000.0 / kClkHz;
-constexpr double kCentredLo = 2.0 - kLandTicks;
-constexpr double kCentredHi = 3.0;
+constexpr double kCentredLo = 5.0 - kLandTicks;
+constexpr double kCentredHi = 6.0;
+constexpr int kLoopDepth = 16;                    //! depth ruled on #645 stage 2c
 constexpr double kTickUs = 1e6 / 48000.0;
 //! a stream-to-stream switch keeps the trim (W2), so it moves the ring's
 //! phase by about 0.02 tick; W1 (through IDLE) moves it by tenths
@@ -206,6 +211,7 @@ struct PduRec {
     uint64_t n = 0;
     double arrive_s = 0.0;
     double margin_ticks = NAN;                    //! the loopback ring's m
+    double full_margin_ticks = NAN;               //! earliest safe push clearance
     int render_fill = -1;
     double render_delay_ticks = NAN;
 };
@@ -213,6 +219,7 @@ struct PduRec {
 class Bench {
  public:
     Bench(Vfollow_ring_wrap* d, const Options& o) : dut(d), opt(o), rng_(o.seed) {
+        slot_freed_fs_.fill(NAN);
         half_audio0_ = 0.5e15 / kAudioHz / (1.0 + opt.dut_ppm * 1e-6);
         next_audio_ = half_audio0_;
         base_audio_ = half_audio0_;
@@ -318,6 +325,7 @@ class Bench {
         int event;
     };
     std::deque<Ev> q_;
+    std::array<double, kLoopDepth> slot_freed_fs_; //! last read of each slot
     uint8_t q_wr_q_ = 0;
     uint8_t q_rd_q_ = 0;
     uint64_t push_count_ = 0;
@@ -492,17 +500,26 @@ class Bench {
         const uint8_t rd = r->follow_ring_wrap__DOT__chan_map_capture__DOT__q_rd_r[0];
         const uint16_t sk = dut->lb_skip_o;
         const uint16_t dp = dut->lb_dup_o;
-        if (wr != q_wr_q_) {
-            const uint64_t k = push_count_++;
-            q_.push_back(Ev{t_fs_, k / 6, static_cast<int>(k % 6)});
-        }
-        //! the queue's pointers are 3 bits: the move is modulo its depth
-        for (int left = (rd - q_rd_q_) & 7; left > 0 && !q_.empty(); --left) {
+        //! Observe pop before push, as the queue composes a same-cycle pair.
+        //! Every freed slot carries its actual read time, including a drop.
+        const int reads = (rd - q_rd_q_) & (kLoopDepth - 1);
+        for (int left = reads; left > 0 && !q_.empty(); --left) {
+            slot_freed_fs_[(q_rd_q_ + reads - left) & (kLoopDepth - 1)] = t_fs_;
             const Ev e = q_.front();
             q_.pop_front();
             //! the last event read is the one popped; any before it dropped
             if (left == 1 && sk == skip_q_ && e.event == 0 && e.pdu < pdus.size()) {
                 pdus[e.pdu].margin_ticks = (t_fs_ - e.push_fs) / kTickFs;
+            }
+        }
+        if (wr != q_wr_q_) {
+            const uint64_t k = push_count_++;
+            q_.push_back(Ev{t_fs_, k / 6, static_cast<int>(k % 6)});
+            const double freed = slot_freed_fs_[q_wr_q_];
+            if (!std::isnan(freed) && k / 6 < pdus.size()) {
+                double& margin = pdus[k / 6].full_margin_ticks;
+                const double age = (t_fs_ - freed) / kTickFs;
+                margin = std::isnan(margin) ? age : std::min(margin, age);
             }
         }
         //! two dups or skips per slipped frame (the stream's two pairs, a
@@ -577,10 +594,10 @@ void write_trace(const Bench& b, const std::string& path) {
     if (path.empty()) return;
     FILE* f = std::fopen(path.c_str(), "w");
     if (!f) return;
-    std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,render_fill,render_delay_ticks\n");
+    std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,full_margin_ticks,render_fill,render_delay_ticks\n");
     for (const auto& p : b.pdus) {
-        std::fprintf(f, "%llu,%.7f,%.4f,%d,%.4f\n", static_cast<unsigned long long>(p.n),
-                     p.arrive_s, p.margin_ticks, p.render_fill, p.render_delay_ticks);
+        std::fprintf(f, "%llu,%.7f,%.4f,%.4f,%d,%.4f\n", static_cast<unsigned long long>(p.n),
+                     p.arrive_s, p.margin_ticks, p.full_margin_ticks, p.render_fill, p.render_delay_ticks);
     }
     std::fclose(f);
 }
@@ -686,6 +703,7 @@ struct Settle {
     int pre_slips = 0;                            //! frames slipped before the rings act
     int post_slips = 0;                           //! ...and after it
     Range margin_after;
+    Range full_margin_after;
     Law law_after;
     //! the instant the rings have acted: the end of the PDU the loopback
     //! ring decided on, or (none fired) the one the law expected under
@@ -720,6 +738,10 @@ Settle grade_settle(const Bench& b, double t_start, double t_lock, double t_end)
     s.pre_slips = count_in(b.dup_times, t_start, act) + count_in(b.skip_times, t_start, act);
     s.post_slips = count_in(b.dup_times, act, t_end) + count_in(b.skip_times, act, t_end);
     s.margin_after = margin_range(b, act, t_end);
+    for (const auto& p : b.pdus) {
+        if (p.arrive_s >= act && p.arrive_s < t_end && !std::isnan(p.full_margin_ticks))
+            s.full_margin_after.take(p.full_margin_ticks);
+    }
     //! with no pulse and no LOCKED to expect one from (a pull-in at
     //! INTERNAL), the law is graded on the run's last half second, long
     //! after the pull
@@ -735,6 +757,8 @@ void print_settle(const char* tag, const Settle& s) {
                 tag, s.t_settle > 0.0 ? "fired" : "DID NOT FIRE", s.pulses, s.render_acts, s.pre_slips,
                 s.post_slips, s.margin_after.lo, s.margin_after.hi, s.law_after.fill.lo, s.law_after.fill.hi,
                 s.law_after.delay.lo, s.law_after.delay.hi, s.law_after.verdict());
+    std::printf("MARGINS: %s empty %.6f full %.6f ticks\n", tag,
+                s.margin_after.lo, s.full_margin_after.lo);
     if (s.t_settle > 0.0) {
         std::printf("  info: %s: settle recentre %.4f s after the start", tag, s.t_settle - s.t_start);
         if (s.t_lock > 0.0) std::printf(", %.4f s after LOCKED", s.t_settle - s.t_lock);
@@ -757,10 +781,14 @@ void check_settle(milan::tb::Checker& ck, const char* tag, const Settle& s, cons
     ck.dec(w, static_cast<uint64_t>(s.render_acts), 1);
     std::snprintf(w, sizeof w, "%s no loopback slip after the settle recentre", tag);
     ck.dec(w, static_cast<uint64_t>(s.post_slips), 0);
-    std::snprintf(w, sizeof w, "%s the loopback ring is centred after the settle recentre (margin in (2, 3] ticks)",
+    std::snprintf(w, sizeof w, "%s the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)",
                   tag);
     ck.that(w, s.margin_after.hi > kCentredLo &&
                    s.margin_after.hi <= kCentredHi + o.jitter_us / kTickUs + 0.005);
+    std::snprintf(w, sizeof w, "%s empty-side margin at least one tick", tag);
+    ck.that(w, s.margin_after.lo >= 1.0 && s.margin_after.lo < 1e9);
+    std::snprintf(w, sizeof w, "%s full-side margin at least one tick", tag);
+    ck.that(w, s.full_margin_after.lo >= 1.0 && s.full_margin_after.lo < 1e9);
     //! the render law presumes on-time arrivals: its only jitter is the
     //! accept phase (TIME_SYNC.md's law table), and a late PDU's own fill
     //! and first-event delay leave it whatever the stage does. So the law is
