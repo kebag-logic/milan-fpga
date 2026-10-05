@@ -13,8 +13,9 @@ build, and the shipping writer in
 [`milan_baremetal`](../milan_baremetal/milan_baremetal.c) is unchanged.
 
 `python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test`
-is the gate. Exit 0 means every check passed on every shipped shape, both
-flash ports and every planted defect was caught.
+is the gate. Exit 0 means every check passed on every shipped shape, each
+built at its own system clock, on both flash ports, and every planted defect
+was caught.
 
 ## Contents
 
@@ -24,7 +25,7 @@ flash ports and every planted defect was caught.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
 - **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, what is derived, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
-- **[The host suite](#the-host-suite)** -- Forty checks per shape, 29 of them on both ports, the power-cut sweep and the planted defects.
+- **[The host suite](#the-host-suite)** -- Forty-two checks per shape at its own clock, 29 of them on both ports, the power-cut sweep and the planted defects.
 - **[What this does not prove](#what-this-does-not-prove)** -- The board, the generated headers, the switch, and a read fault that repeats itself exactly.
 
 ## Layout
@@ -58,7 +59,9 @@ a media fault, never a verdict on the bytes.
   way. It can also hang, refuse or fail an erase or a program, flip a
   programmed bit, fail a read (any read, or the reads covering one chosen
   address), flip a bit a read returns (anywhere, or in one chosen byte),
-  answer a read from the neighbouring block, or flip a bit at rest. It
+  return one chosen byte wrong in a different way on each read (XOR 8, then
+  16, then 32), answer a read from the neighbouring block, or flip a bit at
+  rest. It
   refuses and counts a program that crosses a page or arrives while the
   device is busy, a write outside the journal, and a write into the
   authoritative slot.
@@ -68,17 +71,22 @@ backoff and the media deadlines need elapsed time. A gPTP step moves the PHC
 either way, by any amount: a grandmaster restart moves it back by the old
 grandmaster's uptime. So `now_us` must come from a counter that only counts
 up. The LiteSPI port owns LiteX `timer0`: free-running down from
-`0xffffffff` at the system clock (`CONFIG_CLOCK_FREQUENCY`, 100 MHz), its
-32-bit difference accumulated into 64 bits at every read. Two obligations
-follow for the image that links it:
+`0xffffffff` at the system clock, its 32-bit difference accumulated into 64
+bits at every read. The system clock is `CONFIG_CLOCK_FREQUENCY`, which LiteX
+writes from the shape's `sys_clk_hz`: 83,333,000 Hz on the three Arty shapes
+and 100 MHz on the two AX7101 ones. Clocks become microseconds exactly at any
+clock, whole MHz or not. The port takes whole seconds first, then multiplies
+the remainder by 10^6 in 64 bits, so there is no whole number of clocks per
+microsecond. Two obligations follow for the image that links it:
 
 - `nvm_flash_litespi_power_on()` starts the counter, once, before
   `nvm_store_boot()`, and nothing else reprograms `timer0`;
-- the counter wraps every 2^32 clocks (42.9 s at 100 MHz), so it must be read
-  at least that often. The store reads it on every `nvm_store_service()`
-  call, so an event loop that calls the service at least once per 42.9 s
-  keeps every elapsed time exact. A longer stall loses whole wraps and
-  delays a deadline; it never brings one forward.
+- the counter wraps every 2^32 clocks, so it must be read at least that
+  often: every 42.9 s at 100 MHz and every 51.5 s at 83.333 MHz. The store
+  reads it on every `nvm_store_service()` call. An event loop that calls the
+  service at least once per wrap of its shape's clock therefore keeps every
+  elapsed time exact. A longer stall loses whole wraps and delays a
+  deadline; it never brings one forward.
 
 **Every wait on the command master is bounded, and so is every call.**
 `ls_open` drains the receive side, and `ls_xfer` waits for TX and then RX
@@ -90,11 +98,16 @@ readiness. Two limits end a wait:
   4,096 reads, and a page program makes 522 waits and two drains. So a call
   that is still waiting on the master once it has run `LS_CALL_US` = 2,000
   us of `timer0` time since it began fails too. That is twelve times the
-  167 us a page program's 261 bytes take on the 1x link. The port reads
-  `timer0` when the call begins, and then once every `LS_LATE_EVERY` = 64
-  status reads that find the master not ready, counted over the whole call.
-  So a ready master costs one timer read, and a master that stops being slow
-  just before the deadline lets the call finish at the ready pace.
+  167 us a page program's 261 bytes take on the 1x link. In clocks the
+  deadline is `nvm_flash_litespi_call_ticks`, computed in 64 bits:
+  166,666 at 83.333 MHz and 200,000 at 100 MHz. The port reads `timer0` when
+  the call begins, and then once every `LS_LATE_EVERY` = 64 status reads
+  that find the master not ready, counted over the whole call. So a master
+  that shows readiness at every first status read, as the host model does,
+  costs one timer read; on chip, each byte's link time makes some RX status
+  reads find it not ready, so a healthy call reads `timer0` about once per
+  64 of those. A master that stops being slow just before the deadline lets
+  the call finish at the ready pace.
 
 Either way the call releases chip select and fails, and the store fails that
 attempt under the step's verdict: `VD_PROGRAM` for a program, `VD_ERASE` for
@@ -129,14 +142,25 @@ per pass and `nvm_store_changed()` from the protocol adapters.
 3. **A slot's verdict stands on at most `NVM_READ_TRIES` = 3 reads.** An OK
    verdict stands on one read, because its CRC-32 covers every byte, the
    sequence included. Any other verdict, BLANK included, stands only when
-   two reads agree on it. A read the port fails is a media fault and is not
-   a verdict at all. A slot that gives no standing verdict within three reads
-   is **UNREAD**: its verdict is `VD_LEN` (rule 4, it did not deliver its
-   bytes), its bit is set in the status field `unread`, and no sequence is
-   taken from it. Why a refusal needs a second read: a read that went wrong
-   without the port saying so looks like a refusal or like a blank slot.
-   Either one would let the next commit restart the sequence below a
-   container that survives it, which a later clean boot then prefers.
+   two reads return the same bytes
+   ([#665 round 4](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5999350068)).
+   Each read keeps a CRC-32 digest over every byte the port delivered for
+   it, with their count. That is the 40 header bytes for a verdict the
+   header decides (blank, magic, version, length), and the header plus the
+   whole container otherwise. Two reads agree when their verdicts, counts
+   and digests are all equal. Two reads whose bytes differ are a media
+   fault, however alike their verdicts: the fault is counted in
+   `read_faults` and the slot is read again, so a clean read inside the
+   bound is judged and applied. A read the port fails is a media fault too,
+   and is not a verdict at all. A slot that gives no standing verdict within
+   three reads is **UNREAD**: its verdict is `VD_LEN` (rule 4, it did not
+   deliver its bytes), its bit is set in the status field `unread`, and no
+   sequence is taken from it. Why a refusal needs a second read of the same
+   bytes: a read that went wrong without the port saying so looks like a
+   refusal or like a blank slot, and two different wrong reads can look
+   like the same refusal. Either one would let the next commit restart the
+   sequence below a container that survives it, which a later clean boot
+   then prefers.
 4. The newer accepted slot is picked by the wrap-safe compare of section 7,
    `(int32_t)(A.seq - B.seq) >= 0`. On equal sequences slot A is picked
    ([#665 decision 1](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5997929153),
@@ -303,18 +327,20 @@ access to the command master costs 40 ns, and CPU work costs none of it.
 ## Static sizes
 
 The RV32I freestanding build (`-march=rv32i -Os`) of the codec, the store
-and the LiteSPI port, per shipped shape, in bytes. The stage is the
-container plus one record header; the payload buffer is the shape's largest
-payload; the chunk is one read-back step; the clock is the port's counters,
-its time base and its per-call deadline. bss includes alignment.
+and the LiteSPI port, per shipped shape at its own system clock, in bytes.
+The stage is the container plus one record header; the payload buffer is the
+shape's largest payload; the chunk is one read-back step; the clock counters
+are the port's time base and its per-call deadline state. bss includes
+alignment. A boot read's digest is three words on the stack per read, kept
+only while the slot is judged.
 
-| Shape | Records | Container | Stage | Payload | Chunk | Store state | Clock | bss | text |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_arty_current` | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 11,757 |
-| `endstation_ax7101_1x1_tdm8` | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 11,773 |
-| `endstation_arty_4x4` | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 11,765 |
-| `endstation_arty_8ch` | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 11,765 |
-| `endstation_ax7101_8x8` | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 11,777 |
+| Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,352 |
+| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,368 |
+| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,360 |
+| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,360 |
+| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,372 |
 
 #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
 64 KiB slot. The shipping writer keeps a live window and a private stage in
@@ -325,13 +351,19 @@ are saved, so there is one buffer. The record table is walked, not stored.
 
 [`test/test_ctrl_nvm.py`](test/test_ctrl_nvm.py) builds the store per shipped
 shape against the constants `sw/litex/milan_soc.py` publishes for the shipping
-writer. It runs [`test/nvm_test.c`](test/nvm_test.c) over the flash model
-directly and over the LiteSPI port on the command-master model. Every byte
-and every verdict is compared with `scripts/nvm_klj2.py`. Forty checks per
-shape: 29 on both ports, seven on the model port alone (its read and refusal
-faults do not reach memory-mapped LiteSPI reads), and four on the LiteSPI
-port alone (the PHC, `timer0`, the command master and the guard exist only
-there).
+writer. Each shape is built at its own system clock: the suite writes
+`generated/soc.h` with `CONFIG_CLOCK_FREQUENCY` set to the config's
+`sys_clk_hz`. It holds that figure to the `--sys-clk-freq` the builder hands
+`milan_soc.py`, or to that option's 100 MHz default when the builder passes
+none. The host build and the RV32 arm both read that header, and the model's
+`timer0` counts at that clock. So the three Arty shapes are built and graded
+at 83,333,000 Hz, and the two AX7101 shapes at 100 MHz. The suite runs
+[`test/nvm_test.c`](test/nvm_test.c) over the flash model directly and over
+the LiteSPI port on the command-master model. Every byte and every verdict
+is compared with `scripts/nvm_klj2.py`. Forty-two checks per shape: 29 on
+both ports, eight on the model port alone (its read and refusal faults do
+not reach memory-mapped LiteSPI reads), and five on the LiteSPI port alone
+(the PHC, `timer0`, the command master and the guard exist only there).
 
 - **Boot** ([`test/nvm_checks.py`](test/nvm_checks.py)):
   - blank, golden and erased-record slots;
@@ -365,8 +397,20 @@ there).
     bit or an aliased read do not; each case runs on through a clean
     reboot, a change, its commit and another clean reboot, and the restored
     values are compared;
+  - reads that disagree (`read_disagreement`, R501-3's probe kept as a
+    check). One valid slot and one blank, both ways round, at the same four
+    sequences. The valid slot's first header byte, or its byte at offset
+    0x100, reads XOR 8 and then XOR 16: two reads refuse it alike on
+    different bytes. The third, clean read is applied, with one media fault
+    counted, and a third wrong read (XOR 32) leaves the slot UNREAD and the
+    writer held. Every case runs on as above, and no saved value is lost;
   - the time base under PHC steps of 60 s either way in the window, the
-    backoff, an erase and a program, and across the counter's wrap;
+    backoff, an erase and a program, and across the counter's wrap at the
+    shape's own clock;
+  - the clock itself (`port_clock`). The runner is built at the config's
+    clock, the deadline in clocks is `LS_CALL_US` of it (166,666 at
+    83.333 MHz), and over 120 s the port's elapsed time matches the model's
+    to 2 us;
   - a command master slowed in two waits, stalled on TX, RX or the drain,
     and dead; slowed in ten waits, in twelve and in every wait (the per-call
     deadline);
@@ -386,22 +430,29 @@ there).
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one.
+by at least one. They are graded at the 1x1 shape, except a defect that only
+shows at a clock that is not a whole number of MHz. That one,
+`ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 
 ## What this does not prove
 
 - The board: the real LiteSPI timing, a real power cut, the real N25Q128.
 - The CPU time of a step: it is derived above, not measured.
-- A read fault that repeats itself exactly. Two reads of a slot that agree
-  are taken as its content. A fault that corrupts a valid slot the same way
-  on every boot read, without the port reporting it, therefore looks like a
-  refusal. The next commit can then restart the sequence below that slot,
-  and a later clean boot prefers it. No reading of the bytes can tell that
-  from a slot that really is corrupt, and decision 2 takes no sequence from
-  an unvalidated slot.
+- A read fault that repeats itself exactly. Two reads of a slot that return
+  the same bytes are taken as its content. A fault that corrupts a valid
+  slot the same way on every boot read, without the port reporting it,
+  therefore looks like a refusal. The next commit can then restart the
+  sequence below that slot, and a later clean boot prefers it. No reading of
+  the bytes can tell that from a slot that really is corrupt, and decision 2
+  takes no sequence from an unvalidated slot.
+- Two different reads that the digest calls the same. The digest is a
+  CRC-32. It always tells apart two reads that differ in one or two bits,
+  or only within 32 consecutive bits. Reads that differ in any other way
+  are told apart except with a probability of about 2^-32.
 - The LiteX-generated headers: the RV32 arm compiles against MMIO stand-ins
-  (`test/rv32/`), and the host suite against models of the command master and
-  `timer0`.
+  for the CSR and memory maps (`test/rv32/`), and the host suite against
+  models of the command master and `timer0`. Only the clock is each shape's
+  own.
 - The #665 switch and its link: F0's switch is not merged, so no image links
   this store.
 - The owners: the state model stands in for the AECP, ACMP and map stores of
