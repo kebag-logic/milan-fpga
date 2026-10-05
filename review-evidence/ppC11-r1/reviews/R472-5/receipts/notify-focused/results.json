@@ -1,0 +1,61 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "counter_stamp_at_send_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_stamp_first_job_only",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3007, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 7503, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "counter_spacing_from_selection_tw",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "TW1:",
+   "TW2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "TW1: a round first presented at ms 2004 whose last job waited for the TX slot until ms 2600 holds a change made 100 ms later until a second after that send: next round at ms 3005, want 3600 to 3608",
+   "TW2: a change made at ms 5100, while a round first presented at ms 5004 waited for the TX slot until ms 6500, goes out a second after the round's last send at ms 6504: next round at ms 6508, want 7504 to 7512"
+  ],
+  "verdict": "KILLED"
+ }
+]

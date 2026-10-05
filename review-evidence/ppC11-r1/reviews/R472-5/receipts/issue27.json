@@ -1,0 +1,10 @@
+{
+  "number": 27,
+  "title": "[DOCS] Remove obsolete word-stream interface contract",
+  "body": "## Objective\n\nMake the architecture interface guide describe one current boundary.\n\n## Evidence\n\n- `docs/architecture/02_interfaces.md:102-107` names the byte-wide face.\n- The same page retains a word-wide ready/backpressure contract.\n- Its WaveDrom still shows `rx_ready`.\n- `protocol_processor_top.sv:199-200` accepts byte data without RX ready.\n- Current integrator guidance already describes the landed interface.\n\n## Scope\n\n- Keep the byte-wide interface authoritative.\n- Move obsolete word-stream material into donor history.\n- Replace misleading timing diagrams.\n- Preserve historical provenance.\n- Avoid changing RTL behavior.\n\n## Acceptance\n\n- Current architecture pages show only landed ports.\n- RX documentation shows no backpressure signal.\n- Historical word-stream material remains discoverable.\n- Links and diagrams remain valid.\n\nDiscovered during kebag-logic/milan-fpga#296.",
+  "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27",
+  "state": "open",
+  "head": null,
+  "base": null,
+  "updated_at": "2026-10-05T08:08:04Z"
+}

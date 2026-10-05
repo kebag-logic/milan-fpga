@@ -1,0 +1,5 @@
+$ make -j16 ids
+ids selftest: 30 cases, OK
+ID FAIL: tb/aecp_notify/sim_main.cpp:728: T-R472-MERGE-PROBE-2 has no F08.1 row
+ids: 531 files, 92 distinct IDs used, F01.5 47 P-IDs, F08.1 36 T-IDs, 1 FAILURES
+make: *** [Makefile:48: ids] Error 1

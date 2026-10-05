@@ -1,0 +1,7 @@
+{
+  "number": 148,
+  "title": "Counter notifications: the one-second spacing starts at round selection, not at send",
+  "body": "[A10] Found by lane P1 ([A515], #83 STOP comment 5967588719, HANDOFF).\n\nThe module that sends unsolicited counter notifications starts its one-second spacing when a round is **selected**, not when the round is **sent**. A round that waits for the TX slot can therefore leave less than one second after the previous round. Milan v1.2 \u00a75.4.5 / IEEE 1722.1-2021 \u00a77.5.2 rate-limit the counter notifications.\n\nThe existing check passes only at its current timing. Shifting the test's timing makes it fail on `main` (`f4167536`) as well, so this predates P1.\n\n## Acceptance\n\n1. The spacing between two counter-notification rounds is measured from the send of the first round to the send of the next, never less than the clause's bound.\n2. A check fails on today's behaviour (a round delayed by the TX slot), with a mutant that restarts the spacing at selection.\n3. The existing notification suites and campaigns stay green.\n\nExecutor and reviewers: assigned when the lane opens.\n",
+  "html_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/148",
+  "state": "closed"
+}

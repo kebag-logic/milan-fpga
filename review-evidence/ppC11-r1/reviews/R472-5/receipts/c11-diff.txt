@@ -1,0 +1,1620 @@
+diff --git a/.github/workflows/hdl.yml b/.github/workflows/hdl.yml
+index 5039c9d..319bdd0 100644
+--- a/.github/workflows/hdl.yml
++++ b/.github/workflows/hdl.yml
+@@ -10,18 +10,27 @@ env:
+   VERILATOR_VERSION: v5.050
+ 
+ jobs:
++  # The job runs `make check` itself, so the gate docs/architecture/09
++  # section 7 lists and the gate CI runs are one list (issue #75).
+   docs-gates:
+     runs-on: ubuntu-latest
+     steps:
++      # Full history: `make stale` compares last-commit times, and at depth 1
++      # a source and its export share one commit, so it could never fail.
+       - uses: actions/checkout@v4
+-      - name: Link, matrix, parameter, wavedrom and staleness gates
++        with:
++          fetch-depth: 0
++      # Pinned: wavedrom-check compares renders byte for byte, and the CLI's
++      # own mermaid and puppeteer ranges would otherwise float.
++      - name: Install the WaveDrom renderer and the Mermaid CLI
++        run: |
++          python3 -m pip install wavedrom==2.0.3.post3
++          npm install --prefix "$HOME/mermaid-cli" @mermaid-js/mermaid-cli@11.16.0 mermaid@11.17.2 puppeteer@25.12.0
++          echo "$HOME/mermaid-cli/node_modules/.bin" >> "$GITHUB_PATH"
++      - name: make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)
+         run: |
+-          python3 -m pip install wavedrom
+-          python3 scripts/check-links.py
+-          python3 scripts/check-matrix.py
+-          python3 scripts/check-integrator-params.py
+-          python3 scripts/render-wavedrom.py --check
+-          make stale
++          mmdc --version
++          make check
+ 
+   suites:
+     runs-on: ubuntu-latest
+diff --git a/Makefile b/Makefile
+index 1c8561a..ebfd881 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,16 +1,18 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ # Diagram regeneration + documentation lint.
+-# Targets: diagrams (drawio -> svg), lint (mermaid+wavedrom blocks), stale (export freshness).
++# Targets: diagrams (drawio -> svg), lint (mermaid+wavedrom blocks), stale (export freshness),
++# ids (P-/T- IDs against F01.5/F08.1), figures (docs/diagrams/ file classes).
+ 
+ DRAWIO      ?= drawio
+ DRAWIO_SRC  := $(wildcard docs/diagrams/src/*.drawio)
+ DRAWIO_SVG  := $(patsubst docs/diagrams/src/%.drawio,docs/diagrams/%.svg,$(DRAWIO_SRC))
+ 
+-.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix modmatrix params stale
++.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix modmatrix params ids figures stale
+ all: diagrams check
+ 
+-# everything CI should enforce (see docs/architecture/09_verification.md section 7)
+-check: lint wavedrom-check links matrix modmatrix params stale
++# everything the CI docs-gates job enforces: it runs this target (see
++# docs/architecture/09_verification.md section 7)
++check: lint wavedrom-check links matrix modmatrix params ids figures stale
+ 
+ diagrams: $(DRAWIO_SVG) wavedrom
+ 
+@@ -39,6 +41,17 @@ matrix:
+ params:
+ 	@python3 scripts/check-integrator-params.py
+ 
++# every P- or T- ID used under docs/, hdl/ or tb/ has its F01.5 or F08.1 row;
++# the self-test plants strays first, so a gate that cannot fail does not pass
++ids:
++	@python3 scripts/check-ids.py --selftest
++	@python3 scripts/check-ids.py
++
++# every file under docs/diagrams/ is draw.io, WaveDrom or a listed hand-authored SVG
++figures:
++	@python3 scripts/check-figures.py --selftest
++	@python3 scripts/check-figures.py
++
+ # the module<->testbench matrix is GENERATED; drift and an untested module both fail
+ modmatrix:
+ 	@python3 scripts/gen_matrix.py --check
+diff --git a/README.md b/README.md
+index fe2d98f..555e9ef 100644
+--- a/README.md
++++ b/README.md
+@@ -49,6 +49,7 @@ Every diagram is drawn against the landed RTL, not against the specification.
+ | [`docs/10_RESOURCE_AND_EFFORT.md`](docs/10_RESOURCE_AND_EFFORT.md) | resource-saving and implementation-effort analysis against the reference platform |
+ | [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | generated module to testbench matrix. The untested budget is zero |
+ | [`docs/diagrams/`](docs/diagrams/README.md) | diagram sources, exports and the toolchain |
++| [`docs/history/`](docs/history/02-class-a-word-stream.md) | superseded design material no landed port carries, kept for provenance |
+ | [`syn/ooc/`](syn/ooc/README.md) | out-of-context synthesis measurements |
+ | [`IEEE_1722_1_Hardware_Protocol_Processor.md`](IEEE_1722_1_Hardware_Protocol_Processor.md) | the original concept document. **Historical input, superseded.** See its own header |
+ 
+@@ -57,7 +58,7 @@ Every diagram is drawn against the landed RTL, not against the specification.
+ ```sh
+ ./scripts/run_suites.sh                  # every Verilator suite under tb/
+ ./scripts/lint_hdl.sh                    # Verilator lint over every module, zero tolerance
+-make check                               # documentation gates: figures, links, matrix, freshness
++make check                               # documentation gates, as CI runs them: figures, links, matrices, IDs, freshness
+ python3 scripts/gen_matrix.py --check    # module to testbench matrix drift
+ ```
+ 
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 5cef714..67b7872 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -527,12 +527,12 @@ verification).
+ | REQ | Clause | Requirement | Mand | Cov | Finding | Arch | Doc | Ver |
+ |---|---|---|---|---|---|---|---|---|
+ | REQ-REU-001 | project charter | Bus-agnostic interface contracts: every external contract is a signal table with a handshake class (A–F) | design | A | [GAP-10](#gap-10) | interface classes | 02 §1–§8 | — |
+-| REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A | [GAP-10](#gap-10) | F01.5 + single-source rules | 01 §7, docs/README §2 | lint |
+-| REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A | [GAP-10](#gap-10) | clocking contract | 02 §2 | — |
++| REQ-REU-002 | project charter | One parameter master table with defaults and consumers; derived values referenced by ID, never copied | design | A | [GAP-10](#gap-10) | F01.5 + single-source rules; `make check` `ids` fails any P-/T- ID without its F01.5/F08.1 row | 01 §7, docs/README §2, 09 §7 | lint |
++| REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A | [GAP-11](#gap-11) | verification plan | 09 §3, 09 §7 | — |
+ | REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A | [GAP-11](#gap-11) | F09.1 | 09 §1 | lint |
+ | REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
+-| REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A | [GAP-14](#gap-14) | Makefile gates | docs/README §3 | lint |
++| REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+ 
+ ## 7. Disposition of findings (F00.2)
+ 
+@@ -553,7 +553,7 @@ verification).
+ | [GAP-11](#gap-11) | Minor | Verification strategy + traceability | [09](architecture/09_verification.md) | — | [#72](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/72) |
+ | [GAP-12](#gap-12) | Minor | Explicit non-redundant scope + parameterized seams | [01 §1/§7](architecture/01_overview.md) | DIR | [#69](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/69) |
+ | [GAP-13](#gap-13) | Minor | Firmware assist optional behind side-port flag | [02 §7](architecture/02_interfaces.md) | DIR | none found |
+-| [GAP-14](#gap-14) | Info | All figures Mermaid/WaveDrom/draw.io + lint | [docs/README.md](README.md), `Makefile` | lint | [#75](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/75) |
++| [GAP-14](#gap-14) | Info | All figures Mermaid/WaveDrom/draw.io or listed hand-authored SVG + lint | [docs/README.md](README.md), `Makefile` | lint | [#75](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/75) |
+ | [GAP-15](#gap-15) | Info | Conventions + parser rules + status policies | [docs/README.md](README.md) §4, [03 §3](architecture/03_packet_engine.md) | TOL | none found |
+ | [GAP-16](#gap-16) | Blocker | ADP advertise SM + talker-discovery SM (entity table dropped) | [04](architecture/04_adp_engine.md) | MTXW | [#85](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/85) |
+ | [GAP-17](#gap-17) | Blocker | Originator + inflight table (CONTROLLER_AVAILABLE); the landed origins: RX-only dispatch, expiry bus, engine-internal SELF jobs; MGMT not supported | [03 §5](architecture/03_packet_engine.md) | RND: `tb/originator` R (the inflight model) | [#86](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/86) (lane C6) |
+diff --git a/docs/README.md b/docs/README.md
+index 66d2a3f..5a2307e 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -38,7 +38,9 @@ it assumes you have already read, so a row can also be entered directly once its
+ 
+ Not on the path: [10 Resource and effort](10_RESOURCE_AND_EFFORT.md) sizes the
+ implementation on the reference platform; read it for planning, after step 2. It is a
+-different document from step 7's `architecture/10_srp_engine.md`.
++different document from step 7's `architecture/10_srp_engine.md`. `history/` keeps
++superseded design material that no landed port carries, such as
++[the class-A word stream](history/02-class-a-word-stream.md); read it for provenance only.
+ 
+ ### Paths by role
+ 
+@@ -76,7 +78,24 @@ Scope of those rules: they bind the **architecture** documents (01–10). Three
+ deliberate exceptions: the compliance review (00) quotes spec requirement text
+ *including its values* — that is its job; tick-generation rates belong to the clocking
+ contract (02 §2 with `F08.2`); and PDU field constants such as ADP `valid_time` belong
+-to their field-sourcing table. `make check` enforces the rest.
++to their field-sourcing table.
++
++What `make check` enforces of them, and nothing more
++([09 §7](architecture/09_verification.md#7-documentation-sync-regression)):
++
++- **IDs.** `ids` ([`check-ids.py`](../scripts/check-ids.py)) fails on any `P-` or `T-`
++  ID used anywhere under `docs/`, `hdl/` or `tb/` that has no `F01.5` or `F08.1` row.
++  A family (`T-MRP-*`) needs a row in it, a braced list (`T-ACMP-{CMD, DELAY}`,
++  `T-NVM-{RS-DEADLINE, RS-AGGREGATE}`) a row for each member, and an optional segment
++  (`T-ADP-DELAY(-START)`) a row for both. Any other text after a hyphen is prose:
++  `T-MRP-JOIN-driven` uses `T-MRP-JOIN`.
++- **The integrator's parameter inventory.** `params` holds the integrator guide's
++  table and diagram 21 to the top's parameters; the defaults stay at their owners.
++
++No gate reads **values**: a timing or parameter value copied outside its table, a status
++name outside `F02.10`, a delta outside `F01.4` and a layout outside 07 are review
++findings. The value scan is still to add
++([09 §8](architecture/09_verification.md#8-the-suites-that-exist-today)).
+ 
+ ## 3. Figures: one source, one home
+ 
+@@ -97,10 +116,25 @@ to their field-sourcing table. `make check` enforces the rest.
+   says so); field names carry the byte offset (`@n`) or mask where ambiguity is
+   dangerous; keep fields ≤ 64 bits (wider fields leave unlabeled middle lanes); `head`/
+   `foot` text is signal-format-only — for `reg`, put it in the caption. Editing a block
+-  without re-rendering fails `make check` (`wavedrom-check`).
++  without re-rendering fails `make check` (`wavedrom-check`). For labels that need
++  more room under font substitution, the repository renderer accepts
++  `"config": {"svg_margin": 40}`: a non-negative integer adds that many SVG units
++  on each horizontal side. Keep captions short and inspect the render with more
++  than one font; freshness alone does not check text fit.
+ - **draw.io** (the three richest pictures only): source `docs/diagrams/src/<name>.drawio`,
+   committed export `docs/diagrams/<name>.svg`, embedded via `![…](../diagrams/<name>.svg)`.
+   Regenerate with `make diagrams` (see `docs/diagrams/README.md`).
++- **Hand-authored SVG** (the five persona-guide figures, `docs/diagrams/2[0-4]-*.svg`):
++  the SVG is both the editable source and the published figure, drawn against the landed
++  RTL and listed with its host pages in the hand-authored inventory of
++  [`diagrams/README.md`](diagrams/README.md). Rule: edit the SVG text, render it to a
++  scratch PNG and look at it (overlap is invisible in the XML), and commit the SVG alone,
++  never a raster export. `make figures` holds the class: listed, well-formed XML with an
++  `<svg>` root and a `viewBox`, no `<image>`, `<feImage>` or `<foreignObject>`, linked
++  from a page.
++- **Nothing else.** Every file under `docs/diagrams/` is a draw.io source or export, a
++  WaveDrom render or a listed hand-authored SVG; `make figures` fails any other file
++  there, a PNG included.
+ - Interface waveforms are **class templates** (one per interface class); per-instance
+   differences live in signal tables, never in cloned waveforms.
+ 
+@@ -149,6 +183,7 @@ into one story:
+ | A block/FSM/sequence figure | edit the ` ```mermaid ` fence in place; `make lint` |
+ | A waveform or bit layout | expand the `<details>` under the image, edit the ` ```wavedrom ` JSON in place, run `make wavedrom` (re-renders the SVG); `make check` |
+ | A top-level picture | edit `docs/diagrams/src/*.drawio` in the draw.io app; `make diagrams`; commit source **and** SVG |
++| A persona-guide figure | edit `docs/diagrams/2[0-4]-*.svg`; render it to a scratch PNG and look at it; `make figures`; commit the SVG only |
+ | A timing value | edit `F08.1` only; consumers reference `T-…` IDs |
+ | A parameter default | edit `F01.5` only |
+-| Anything | `make check` (lint + links + matrix + stale) must pass before commit |
++| Anything | `make check` (every target of [09 §7](architecture/09_verification.md#7-documentation-sync-regression); the CI docs-gates job runs it) must pass before commit |
+diff --git a/docs/architecture/01_overview.md b/docs/architecture/01_overview.md
+index b7ae993..1fda4ec 100644
+--- a/docs/architecture/01_overview.md
++++ b/docs/architecture/01_overview.md
+@@ -73,9 +73,14 @@ that AECP commands report is cataloged once in
+ 
+ ![F01.2 Top level](../diagrams/01-top-level.svg)
+ 
++> The two MAC async FIFOs the export draws in the MAC clock domains are the integrator's,
++> outside `protocol_processor_top`, whose MAC faces are byte streams in the core clock
++> domain ([02 §2](02_interfaces.md#2-clocking-reset-cdc) rule 2,
++> [02 §3](02_interfaces.md#sec-02-class-a)).
++
+ | Block | Responsibility | Owning doc |
+ |---|---|---|
+-| RX interface + filter/parser/validator | CDC in, DA/EtherType/subtype demux, header + length validation | [03 §3](03_packet_engine.md) |
++| RX interface + filter/parser/validator | the RX byte face (no CDC inside: the frame-atomic MAC FIFO is the integrator's, [02 §2](02_interfaces.md#2-clocking-reset-cdc) rule 2), DA/EtherType/subtype demux, header + length validation | [03 §3](03_packet_engine.md) |
+ | RX slot manager + transaction normalizer | zero-copy payload slots; normalized transaction records | [03 §3–§4](03_packet_engine.md) |
+ | Scoreboard | hazard classes / serialization keys; cross-engine interlock | [03 §6](03_packet_engine.md) |
+ | ADP engine | advertise SM ×interface; talker-discovery SM ×bound sink; available_index | [04](04_adp_engine.md) |
+@@ -175,6 +180,8 @@ values; other documents reference `P-…` IDs.
+ | P-TRACE-RING | 256 × 128 | trace-ring records × record bits ([02 §7](02_interfaces.md) window) | trace ring |
+ | P-MRPDU-QUEUE-BYTES | 2048 | SRP MRPDU RX queue: one max-size frame + headroom ([10 §4](10_srp_engine.md)) | SRP engine |
+ | P-SRP-DOM-DEF-VID | 2 | 16-bit; =2 in every product build (Milan §4.2.7.2.1). Any other value is a verification fixture proving the top-level binding, not a product profile | SRP Domain FSM default VID ([F10.2](10_srp_engine.md#fig-10-domsm)): declared at startup and LINK_UP, restored at LINK_DOWN; a received Class A Domain is still adopted over it |
++| P-MAAP-ACCEPT-CYC | 1024 core clocks (10.24 µs at 100 MHz) | a module parameter of `KL_acmp_talker` (`MAAP_ACCEPT_CYC_P`), not a top parameter. Above the tens of clocks a ready handshake into an adjacent fabric block takes, so a live allocator is never cut short; far inside `T-BUDGET-ACMP-RESP`, because it is the longest a talker command waits behind an allocation request | the `maap` request handshake: a request never accepted is abandoned as a refused `ALLOC_DA` ([02 §4.2](02_interfaces.md#42-maap-address-allocation)) |
++| P-MAAP-RSP-MS | 10,000 ms (10 s) | a module parameter of `KL_acmp_talker` (`MAAP_RSP_MS_P`), not a top parameter, counted on the 1 ms timebase. At least a clean IEEE 1722-2016 Annex B claim walk plus four conflict restarts: each walk acquires after three `T-MAAP-PROBE` intervals (Table B.8, B.3.4.2, B.3.5.3); below `T-SRP-DAFRESH`, so a grant still meets a fresh demand | the `maap` allocation itself: an accepted request never answered is abandoned, which frees the single global allocation tracker ([02 §4.2](02_interfaces.md#42-maap-address-allocation)) |
+ | P-CLK-HZ | 100 MHz | any; prescaler retuned | timebase |
+ | P-NVM-RS-TMO-CYC | ceil(P-CLK-HZ / 50) (20 ms) | above the slowest single record read the NVM device face can take and the image walk (`NVM_RS_TMO_CYC_P`); DR3a **ratified** 20 ms after the processor lane measured it | every restore wait of both walks, `T-NVM-RS-DEADLINE` ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)) |
+ | P-NVM-RS-AGG-CYC | P-CLK-HZ (1,000 ms) | DR3a **ratified** as an enforced bound (`NVM_RS_AGG_CYC_P`): clocks from the accepted restore start (`restore_go_i`) to the D3 terminal, the binding walk, both passes and the roll-back included; 100,000,000 at 100 MHz, 50,000,000 at the product's 50 MHz | the whole restore, `T-NVM-RS-AGGREGATE`: at the bound the phase the restore is in takes its per-wait deadline's path, and a provable image is never closed ([08 §2](08_timing.md#sec-08-nvm)) |
+@@ -190,7 +197,7 @@ values; other documents reference `P-…` IDs.
+ | P-EN-IDENTIFY-NOTIFICATION | 0 | "should" (Milan §5.4.5.4) for a PAAD that gives its user a way to report itself; 1 only with a debounced `identify_button_i`. 0 builds no sequencer and never reads the pin (manager ruling, processor #80) | identify sequencer in `KL_aecp_notify` (`EN_IDENTIFY_NOTIF_P`), F06.16 |
+ | P-EN-ADDRESS-ACCESS / P-EN-FIRMWARE-ASSIST | 0 / 0 | IEEE-optional ([GAP-13](../00_MILAN_COMPLIANCE_REVIEW.md#gap-13)) | side-port features |
+ | P-EN-SRP-ENGINE | 1 | 1 = internal SRP engine ([10](10_srp_engine.md)) serves the `srp` contract; 0 = external stack | SRP engine, MRP timers, V9 filter |
+-| P-EN-PLAIN-IEEE-PROFILE | 0 | selects IEEE ROM columns (below) | profiles |
++| P-EN-PLAIN-IEEE-PROFILE | 0 | **no RTL consumer** — no RTL parameter reads it, and the one listener ROM column built is Milan's (`hdl/acmp/rom/gen_ltn_rom.py`: the plain-IEEE column is absent, a product decision); a plain-IEEE build would select the IEEE ROM columns (below) | profiles |
+ | P-EN-REDUNDANCY | 0 | reserved seam — must stay 0 (this spec) | GET_MILAN_INFO flag |
+ 
+ **Profile mechanism** — a profile is a *selection of ROM columns*, not scattered
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 3ded793..5cc2de3 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -11,7 +11,7 @@ documents reference the instance names and the dictionary
+ 
+ | Class | Kind | Instances | Template |
+ |---|---|---|---|
+-| **A** | Packet streaming (valid/ready, sof/eof) | `mac_rx`, `mac_tx`; reused by trace port, firmware sink | [F02.3](#fig-02-rxwave)/[F02.4](#fig-02-txwave) |
++| **A** | Packet streaming (byte-wide frames: valid and last; TX adds sof and a ready) | `mac_rx`, `mac_tx` | [F02.3](#fig-02-rxwave)/[F02.4](#fig-02-txwave) |
+ | **B** | Request/response engine API (single outstanding) | `srp` (the `svc_*` face), `maap` | [F02.5](#fig-02-apiwave) |
+ | **C** | Event pulse with ack (sticky until acked) | the event router's internal events and timer expiries; at the top only the `maap` conflict pair | [F02.6](#fig-02-evtwave) |
+ | **D** | Level status (synchronized, sampled) | status dictionary | [F02.10](#fig-02-statusdict) |
+@@ -54,8 +54,8 @@ flowchart LR
+ 
+ | Instance | Class | Dir | Clock domain | Consumers | Notes |
+ |---|---|---|---|---|---|
+-| `mac_rx` | A | in | MAC-RX → core (async FIFO) | packet engine | one per AVB interface (P-N-AVB-INTERFACES) |
+-| `mac_tx` | A | out | core → MAC-TX (async FIFO) | TX arbiter | one per AVB interface |
++| `mac_rx` | A | in | core; the integrator's dual-clock FIFO crosses from MAC RX (§2) | packet engine | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i`, no ready (§3); one trunk at the landed top (P-N-AVB-INTERFACES) |
++| `mac_tx` | A | out | core; the integrator's dual-clock FIFO crosses to MAC TX (§2) | TX arbiter | `tx_valid_o`, `tx_sof_o`, `tx_data_o[7:0]`, `tx_eof_o`, `tx_ready_i` (§3); one trunk |
+ | `srp` | B+C+D | both | core | ACMP, AECP gather, NOTIF | talker/listener attribute ops; served by the internal SRP engine ([10](10_srp_engine.md)) or an external stack (`P-EN-SRP-ENGINE`) |
+ | `maap` | B+C | both | core | talker DA management | allocation + conflict events; served internally by [11](11_maap_engine.md) when `cfg_maap_internal_i` = 1 |
+ | `gptp` | D + strobes | in | core | ADP, NOTIF | `gm_id_i`, `gptp_domain_i`, `gm_change_i`; asCapable, propagation delay and the path are `gsi` words (§4.3) |
+@@ -63,7 +63,7 @@ flowchart LR
+ | `mclk` | D (out) | out | core | the integrator's media-clock selection | `aecp_clk_src_index_o` (§4.5); MVU MCR deferred ([06 §6.9](06_aecp_engine.md#69-mvu-commands)) |
+ | `gsi` | read face + strobes | both | core | AECP gather (GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH, the SET_STREAM_FORMAT verdict), NOTIF | one word per beat, `gsi_wait_i` a hold (§4.3) |
+ | `ctr` | read face + strobe | both | core | AECP (GET_COUNTERS), NOTIF | the integrator's counters (§4.6) |
+-| `mgmt` | E | in | own (sync or 4-phase async) | model store, NVM, debug, ctrl/status | optional at runtime, needed for image load unless ROM |
++| `mgmt` | E | in | core: the `host_*` ports are in `clk_i`; a bridge from a management clock (sync or 4-phase req/ack) is the integrator's | model store, NVM, debug, ctrl/status | optional at runtime, needed for image load unless ROM |
+ | `nvm` | F | both | core | NVM manager | record-level, device-agnostic |
+ | `identify_active` | D | out | core | device indicator | level, 1 = identifying |
+ | `identify_button` | D | in | core (2FF sync) | identify sequencer (`KL_aecp_notify`) | optional (P-EN-IDENTIFY-NOTIFICATION, default 0): the top port `identify_button_i`, read only when the parameter is 1; debounced by the integrator |
+@@ -77,11 +77,14 @@ flowchart LR
+   subgraph macrxd ["MAC RX domain"]
+     rxmac["MAC RX"]
+   end
++  subgraph fifod ["the integrator's, outside the top"]
++    fifo_rx["dual-clock FIFO (gray ptr), complete FCS-good frames only"]
++    fifo_tx["dual-clock FIFO (gray ptr)"]
++    bridge["mgmt bridge if needed (sync or 4-phase req/ack)"]
++  end
+   subgraph cored ["core domain (P-CLK-HZ)"]
+-    fifo_rx["async FIFO (gray ptr)"]
+     corelogic["all processor logic"]
+     tick["prescaler: 1 µs / 1 ms ticks"]
+-    fifo_tx["async FIFO (gray ptr)"]
+   end
+   subgraph mactxd ["MAC TX domain"]
+     txmac["MAC TX"]
+@@ -89,9 +92,9 @@ flowchart LR
+   subgraph mgmtd ["mgmt domain (optional async)"]
+     host["management host"]
+   end
+-  rxmac --> fifo_rx --> corelogic
+-  corelogic --> fifo_tx --> txmac
+-  host -. "sync bridge or 4-phase req/ack" .-> corelogic
++  rxmac --> fifo_rx -- "rx byte face" --> corelogic
++  corelogic -- "tx byte face" --> fifo_tx --> txmac
++  host -.-> bridge -. "host_* face" .-> corelogic
+   tick --> corelogic
+ ```
+ 
+@@ -99,8 +102,13 @@ Rules (behavioral — no vendor primitives):
+ 
+ 1. **One core clock domain** for the entire processor. `P-CLK-HZ` is free; the
+    prescaler retunes the 1 µs/1 ms ticks ([08 §3](08_timing.md)).
+-2. MAC boundaries cross via **dual-clock FIFOs** (gray-coded pointers or equivalent);
+-   frame-atomic handoff (a frame is visible only when complete + good, or dropped).
++2. MAC boundaries cross via **dual-clock FIFOs** (gray-coded pointers or equivalent),
++   and the FIFOs are the **integrator's**: the top has one clock and no dual-clock
++   FIFO, and its MAC faces are byte streams in the core domain (§3,
++   [integrator guide §1](../guides/integrator.md#1-clocking-and-reset)). The handoff is
++   frame-atomic: a frame is visible only when complete + good, or dropped. The RX face
++   has no `err` and no abort, so the RX FIFO presents only complete, FCS-good frames
++   ([integrator guide §3](../guides/integrator.md#3-the-mac-faces)).
+ 3. `mgmt` is either synchronous to core or bridged by a 4-phase req/ack; single-bit
+    inputs pass 2-flop synchronizers. The landed top takes link status already
+    synchronized (`link_up_i`); `identify_button_i` is the one input whose 2-flop
+@@ -123,35 +131,44 @@ Rules (behavioral — no vendor primitives):
+    to ADP only once both restore walks are done (`restore_done_o`,
+    [07 §5.3](07_memory_maps.md#fig-07-nvmflow)).
+ 
++<a id="sec-02-class-a"></a>
+ ## 3. Class A — packet streaming
+ 
+-> ⚠ **The landed top does not implement this class as specified below, and the RTL is
+-> authoritative.** `protocol_processor_top` presents a **byte** stream in each direction:
+-> `rx_valid_i` / `rx_data_i[7:0]` / `rx_last_i` inbound with **no `ready` and no
+-> backpressure at all**, and `tx_valid_o` / `tx_sof_o` / `tx_data_o[7:0]` / `tx_eof_o` /
+-> `tx_ready_i` outbound. There is no `empty` and no `err` on either side. Wire against
+-> the [integrator guide](../guides/integrator.md#3-the-mac-faces), which documents the
+-> landed face; the 32-bit word contract below, and the `ready`/`err` signals in F02.3, are
+-> a specification the implementation did not take.
+-
+-Word-oriented stream, `DATA_W` = 32 (parameterizable), MSB-first byte lanes, `empty`
+-gives the unused byte count in the `eof` word. `err` with `eof` invalidates the frame
+-(RX: drop; TX: MAC aborts with bad FCS).
++The two MAC faces of `protocol_processor_top` are **byte** streams in the core clock
++domain: one frame stream in, one out. Byte 0 of each frame is the first
++destination-address octet. The dual-clock FIFOs that cross to the MAC clock domains are
++the integrator's (§2 rule 2); the [integrator guide §3](../guides/integrator.md#3-the-mac-faces)
++gives the wiring obligations.
+ 
+-| Signal | Dir (RX inst.) | Width | Meaning |
++| Signal | Dir | Width | Meaning |
+ |---|---|---|---|
+-| `valid` | in | 1 | word present |
+-| `ready` | out | 1 | sink accepts; transfer on `valid ∧ ready` |
+-| `data` | in | 32 | payload word |
+-| `sof` / `eof` | in | 1/1 | frame delimiters (both on `valid ∧ ready` words) |
+-| `empty` | in | 2 | unused bytes in `eof` word |
+-| `err` | in | 1 | with `eof`: frame invalid |
++| `rx_valid_i` | in | 1 | a frame byte is on `rx_data_i` this cycle, and the processor takes it |
++| `rx_data_i` | in | 8 | the byte |
++| `rx_last_i` | in | 1 | with `rx_valid_i`: the final byte of the frame |
++| `tx_valid_o` | out | 1 | a frame byte is on `tx_data_o` |
++| `tx_sof_o` | out | 1 | with `tx_valid_o`: the first byte of a frame |
++| `tx_data_o` | out | 8 | the byte |
++| `tx_eof_o` | out | 1 | with `tx_valid_o`: the final byte of the frame |
++| `tx_ready_i` | in | 1 | the MAC side takes the byte; a byte moves on `tx_valid_o ∧ tx_ready_i` |
++
++**RX has no backpressure.** There is no RX ready: the processor takes a byte in every
++cycle `rx_valid_i` is 1. There is no `err` and no abort either, so a frame cannot be
++poisoned once its first byte has gone in: the RX FIFO presents only complete frames whose
++FCS checked good, and drops every other frame whole (§2 rule 2).
++
++**TX stalls on `tx_ready_i`.** A granted frame streams from `tx_sof_o` to `tx_eof_o` with
++no preemption (F02.4); holding `tx_ready_i` low holds the current byte in place and never
++truncates the frame.
+ 
+ The RX stream carries frames already filtered on DA ∈ {unicast MAC, `91-E0-F0-01-00-00`}
+ and EtherType 0x22F0 when the external MAC can filter; the parser re-checks regardless
+ ([03 §3](03_packet_engine.md)).
+ 
+-<a id="fig-02-rxwave"></a>**F02.3 — RX stream: backpressure + end of frame**
++The original design specified this class as a 32-bit word stream with `ready`, `empty`
++and `err`. No port of the landed top carries it; the contract and its two waveforms
++are kept in [the class-A word-stream history](../history/02-class-a-word-stream.md).
++
++<a id="fig-02-rxwave"></a>**F02.3 — RX byte face: no ready, end of frame on `rx_last_i`**
+ 
+ ![fig-02-rxwave](../diagrams/wavedrom/fig-02-rxwave.svg)
+ 
+@@ -160,21 +177,18 @@ and EtherType 0x22F0 when the external MAC can filter; the parser re-checks rega
+ 
+ ```wavedrom
+ {"signal": [
+-  {"name": "clk",      "wave": "p.........."},
+-  {"name": "rx_valid", "wave": "01.......0."},
+-  {"name": "rx_ready", "wave": "1...0.1...."},
+-  {"name": "rx_sof",   "wave": "010........"},
+-  {"name": "rx_data",  "wave": "x====..==x.", "data": ["D0", "D1", "D2", "D3", "D4", "D5"]},
+-  {"name": "rx_eof",   "wave": "0.......10."},
+-  {"name": "rx_err",   "wave": "0.........."}
++  {"name": "clk",        "wave": "p.........."},
++  {"name": "rx_valid_i", "wave": "01......0.."},
++  {"name": "rx_data_i",  "wave": "x=======x..", "data": ["B0", "B1", "B2", "B3", "B4", "B5", "B6"]},
++  {"name": "rx_last_i",  "wave": "0......10.."}
+ ],
+- "head": {"text": "transfer on valid AND ready; data D3 held through the stall"},
+- "foot": {"text": "err would assert together with eof to poison the frame"}}
++ "head": {"text": "no ready: every byte with rx_valid_i is taken"},
++ "foot": {"text": "no err, no abort: complete, FCS-good frames only"}}
+ ```
+ 
+ </details>
+ 
+-<a id="fig-02-txwave"></a>**F02.4 — TX stream with arbiter grant (no mid-frame regrant)**
++<a id="fig-02-txwave"></a>**F02.4 — TX byte face: a granted frame runs sof to eof, stalled in place by `tx_ready_i`**
+ 
+ ![fig-02-txwave](../diagrams/wavedrom/fig-02-txwave.svg)
+ 
+@@ -183,18 +197,16 @@ and EtherType 0x22F0 when the external MAC can filter; the parser re-checks rega
+ 
+ ```wavedrom
+ {"signal": [
+-  {"name": "clk",      "wave": "p.........."},
+-  {"name": "tx_req_a", "wave": "01....0...."},
+-  {"name": "tx_req_b", "wave": "01........."},
+-  {"name": "gnt_a",    "wave": "0.1...0...."},
+-  {"name": "gnt_b",    "wave": "0......1..."},
+-  {"name": "tx_valid", "wave": "0.1...0.1.."},
+-  {"name": "tx_sof",   "wave": "0.10....10."},
+-  {"name": "tx_data",  "wave": "x.====x.==x", "data": ["W0", "W1", "W2", "W3", "X0", "X1"]},
+-  {"name": "tx_eof",   "wave": "0....10...."},
+-  {"name": "tx_ready", "wave": "1.........."}
++  {"name": "clk",        "wave": "p..........."},
++  {"name": "tx_valid_o", "wave": "01.....01..0"},
++  {"name": "tx_sof_o",   "wave": "010.....10.."},
++  {"name": "tx_data_o",  "wave": "x===.==x===x", "data": ["A0", "A1", "A2", "A3", "A4", "B0", "B1", "B2"]},
++  {"name": "tx_eof_o",   "wave": "0.....10..10"},
++  {"name": "tx_ready_i", "wave": "1..01......."}
+ ],
+- "head": {"text": "grant is frame-atomic: gnt_a holds until eof, then arbiter moves to b"}}
++ "config": {"svg_margin": 40},
++ "head": {"text": "frame B waits for A's eof"},
++ "foot": {"text": "tx_ready_i low: A2 held, no byte lost"}}
+ ```
+ 
+ </details>
+@@ -293,8 +305,8 @@ hang differently:
+ 
+ | half | bound | what an unbounded version costs |
+ |---|---|---|
+-| request never ACCEPTED | `P-MAAP-ACCEPT-CYC` (1024 cycles, ≈10 µs at `P-CLK-HZ`, well inside `T-BUDGET-ACMP-RESP`) | the one event-serialized walker parks in the request state — and it also answers `PROBE_TX` / `DISCONNECT_TX` / `GET_TX_STATE` for every source, so the talker half of ACMP *and* SRP goes silent |
+-| request accepted, never ANSWERED | `P-MAAP-RSP-MS` (10 s) | the single-outstanding tracker is GLOBAL, so allocation stops for **every** source: no `GS_DA_OK`, no DA gate, no `DECLARE_TALKER`. Nothing wedges: command service continues while no stream can start |
++| request never ACCEPTED | `P-MAAP-ACCEPT-CYC` core clocks ([F01.5](01_overview.md#fig-01-params)), well inside `T-BUDGET-ACMP-RESP` | the one event-serialized walker parks in the request state — and it also answers `PROBE_TX` / `DISCONNECT_TX` / `GET_TX_STATE` for every source, so the talker half of ACMP *and* SRP goes silent |
++| request accepted, never ANSWERED | `P-MAAP-RSP-MS` ([F01.5](01_overview.md#fig-01-params)) | the single-outstanding tracker is GLOBAL, so allocation stops for **every** source: no `GS_DA_OK`, no DA gate, no `DECLARE_TALKER`. Nothing wedges: command service continues while no stream can start |
+ 
+ Both abandons leave the source exactly where a refused `ALLOC_DA` leaves it — no
+ DA, no declaration, `PROBE_TX` answered `TALKER_DEST_MAC_FAILED` — and enabled
+@@ -308,16 +320,15 @@ index of its accepted request, rather than treating the last grant as source 0.
+ 
+ `P-MAAP-RSP-MS` is derived from **IEEE Std 1722-2016 Annex B**, because
+ `ALLOC_DA` maps onto a real MAAP claim walk. Table B.8 gives
+-`MAAP_PROBE_RETRANSMITS` = 3 and a `probe_timer` (B.3.4.2) drawn from
+-`MAAP_PROBE_INTERVAL_BASE` (500 ms) < T < BASE + `MAAP_PROBE_INTERVAL_VARIATION`
+-(600 ms); the Table B.7 walk acquires the address after exactly 3 probe
+-intervals, so ≤ **1800 ms** per attempt, and a conflicting probe/defend/announce
+-restarts it (B.3.5.3) for another ≤ 1800 ms. 10 s covers a clean acquisition plus
+-four conflict restarts. It must also stay **below `T-SRP-DAFRESH`** (15 s): a
++`MAAP_PROBE_RETRANSMITS` = 3, so the Table B.7 walk acquires the address after
++exactly 3 `probe_timer` intervals (`T-MAAP-PROBE`, B.3.4.2) per attempt, and a
++conflicting probe/defend/announce restarts it (B.3.5.3). The
++[F01.5](01_overview.md#fig-01-params) default covers a clean acquisition plus
++four conflict restarts. It must also stay **below `T-SRP-DAFRESH`**: a
+ grant arriving after a demand-triggering `PROBE_TX` has gone stale cannot open
+ the gate without a registered Listener. Enable and periodic retry rounds now
+ request allocation independently of probes; the existing watchdog is retained.
+-The 30 s `MAAP_ANNOUNCE_INTERVAL_BASE` is *not* in the bound —
++The announce interval (`T-MAAP-ANNOUNCE`) is *not* in the bound —
+ the address is acquired on entry to `DEFEND`, before the first announce.
+ 
+ **`RELEASE_DA` is owed, not attempted.** The degrade rule above applies to
+@@ -535,16 +546,25 @@ internal are consumed inside the processor and add no top-level ports.
+ ## 7. Class E — management side-port
+ 
+ Bus-agnostic single-master register/memory port; any host bridge (APB/AXI-lite/Avalon/
+-JTAG/testbench) maps 1:1 onto it. Word addressed, 32-bit data.
++JTAG/testbench) maps 1:1 onto it. Word addressed, 32-bit data. The landed top presents it
++as the `host_*` ports:
+ 
+-| Signal | Dir | Width |
+-|---|---|---|
+-| `psel` / `pwrite` | in | 1 / 1 |
+-| `paddr` | in | 20 |
+-| `pwdata` / `prdata` | in / out | 32 |
+-| `pready` | out | 1 (wait states allowed) |
++| Signal | Dir | Width | Meaning |
++|---|---|---|---|
++| `host_req_valid_i` | in | 1 | a request is present; hold it unchanged through the cycle of its `host_rvalid_o` (still 1 in the next cycle is a new request) |
++| `host_we_i` | in | 1 | 1 = write |
++| `host_addr_i` | in | 20 | word address |
++| `host_wdata_i` | in | 32 | write data |
++| `host_rdata_o` | out | 32 | read data, valid with `host_rvalid_o`; 0 on a refused access |
++| `host_rvalid_o` | out | 1 | completion strobe, exactly one per request, at least one cycle after the request is taken (wait states allowed) |
++| `host_err_o` | out | 1 | with `host_rvalid_o`: the access was refused and nothing was forwarded |
+ 
+-<a id="fig-02-memwave"></a>**F02.7 — Side-port: write, then read with one wait state**
++An APB bridge maps `psel` to `host_req_valid_i`, `pwrite` to `host_we_i`, `paddr` to
++`host_addr_i`, `pwdata` to `host_wdata_i`, `prdata` to `host_rdata_o`, `pready` to
++`host_rvalid_o` and `pslverr` to `host_err_o`. Unlike `pready`, `host_rvalid_o` is 0
++while no request is in flight.
++
++<a id="fig-02-memwave"></a>**F02.7 — Side-port: a write, then a read with one wait state**
+ 
+ ![fig-02-memwave](../diagrams/wavedrom/fig-02-memwave.svg)
+ 
+@@ -553,14 +573,17 @@ JTAG/testbench) maps 1:1 onto it. Word addressed, 32-bit data.
+ 
+ ```wavedrom
+ {"signal": [
+-  {"name": "clk",    "wave": "p........"},
+-  {"name": "psel",   "wave": "010..1.0."},
+-  {"name": "pwrite", "wave": "010......"},
+-  {"name": "paddr",  "wave": "x=x..=.x.", "data": ["A0", "A1"]},
+-  {"name": "pwdata", "wave": "x=x......", "data": ["V0"]},
+-  {"name": "pready", "wave": "1....01.."},
+-  {"name": "prdata", "wave": "x.....=x.", "data": ["Q1"]}
+-]}
++  {"name": "clk",              "wave": "p........"},
++  {"name": "host_req_valid_i", "wave": "01.01..0."},
++  {"name": "host_we_i",        "wave": "x1.x0..x."},
++  {"name": "host_addr_i",      "wave": "x=.x=..x.", "data": ["A0", "A1"]},
++  {"name": "host_wdata_i",     "wave": "x=.x.....", "data": ["V0"]},
++  {"name": "host_rvalid_o",    "wave": "0.10..10."},
++  {"name": "host_rdata_o",     "wave": "0.....=0.", "data": ["Q1"]},
++  {"name": "host_err_o",       "wave": "0........"}
++],
++ "config": {"svg_margin": 40},
++ "head": {"text": "each request held until its strobe"}}
+ ```
+ 
+ </details>
+@@ -573,7 +596,7 @@ Address windows (word offsets; full map in [07 §5.5](07_memory_maps.md)):
+ | `0x10000` | RO | dynamic-overlay debug view |
+ | `0x20000` | RO | registry + counters snapshot |
+ | `0x30000` | RW | control/status: `entity_enable`, `shutdown_req`, boot status, profile select |
+-| `0x40000` | RO | trace ring (class-A framing reused; shape `P-TRACE-RING`, [F01.5](01_overview.md#7-parameter-master-table-f015)) |
++| `0x40000` | RO | trace ring: 128-bit event records, each read as four 32-bit lanes, lane 0 = record bits [127:96] (shape `P-TRACE-RING`, [F01.5](01_overview.md#7-parameter-master-table-f015)) |
+ | `0x50000` | RW | firmware mailbox (only if `P-EN-FIRMWARE-ASSIST`; [GAP-13](../00_MILAN_COMPLIANCE_REVIEW.md#gap-13)) |
+ 
+ Lock interaction: side-port writes that mirror ATDECC state changes (names, sampling
+@@ -591,7 +614,12 @@ the D3 writer's **latch**: to capture a coherent row it holds AECP dispatch brie
+ from ACQUIRE until one state-bus read completes (at most the running command's own
+ duration plus a few clocks), never across a media commit ([07 §5.3](07_memory_maps.md#fig-07-nvmflow)).
+ 
+-| Signal | Dir | Width |
++At the landed top both managers are inside the processor (§8.2), so this record-level
++**manager face** is an internal seam: `KL_pp_nvm_port`'s `nvm_*` ports, directions as a
++manager sees them, drawn by F02.8. The class-F ports of `protocol_processor_top` are the
++port's **device face** below, which the integrator's backend serves.
++
++| Manager face (inside the top) | Dir | Width |
+ |---|---|---|
+ | `req` / `we` | out | 1 / 1 |
+ | `record_id` | out | 8 |
+@@ -599,6 +627,18 @@ duration plus a few clocks), never across a media commit ([07 §5.3](07_memory_m
+ | `busy` / `done` / `err` | in | 1 each |
+ | `err_cause` | in | 2 — valid with `err`, 0 otherwise: **1** DEVICE, **2** UNFRAMED, **3** DEADLINE |
+ 
++| Device face (top ports) | Dir | Width | Meaning |
++|---|---|---|---|
++| `nvm_dev_req_o` | out | 1 | command request, held until `nvm_dev_gnt_i` or withdrawn at the deadline (below) |
++| `nvm_dev_gnt_i` | in | 1 | the backend accepted {op, region, offset, length} |
++| `nvm_dev_op_o` | out | 2 | 0 READ, 1 WRITE, 2 ERASE (3 reserved) |
++| `nvm_dev_region_o` | out | 8 | region id = record id |
++| `nvm_dev_offset_o` / `nvm_dev_len_o` | out | 16 / 16 | byte offset within the region / byte count (ERASE: 0 = the whole region) |
++| `nvm_dev_wvalid_o` / `nvm_dev_wready_i` / `nvm_dev_wdata_o` | out / in / out | 1 / 1 / 8 | the write byte stream |
++| `nvm_dev_rvalid_i` / `nvm_dev_rready_o` / `nvm_dev_rdata_i` | in / out / in | 1 / 1 / 8 | the read byte stream |
++| `nvm_dev_busy_i` | in | 1 | backend busy, informational: `done` and `err` delimit a command |
++| `nvm_dev_done_i` / `nvm_dev_err_i` | in | 1 / 1 | one-cycle pulse: the device command completed / failed |
++
+ `err_cause` says what an `err` was, so a manager restoring a record can tell a failing
+ device from a record that is not there (processor issue #93). **DEVICE** is every error
+ the device raised, in any state, and every command the device ended short: a completion
+@@ -631,12 +671,12 @@ the device has ended the abandoned command, one `err` DEADLINE while it stays si
+ presents bytes past the READ's length, which the port does not take. Nothing is released
+ on time; only the device's own terminal or a reset
+ ends the owed state, so a WRITE the port abandoned on a device that waits for its next byte
+-for ever is **contained**: every later request ends DEADLINE until reset. `dev_gnt_i`
++for ever is **contained**: every later request ends DEADLINE until reset. `nvm_dev_gnt_i`
+ means the device accepted the command, and it comes at most one cycle after the edge that
+ sampled the request: a backend that registers its grant can take a request on the very
+ edge the deadline withdraws it, and that command is then owed.
+ 
+-<a id="fig-02-nvmwave"></a>**F02.8 — NVM commit (broken axis over the busy period)**
++<a id="fig-02-nvmwave"></a>**F02.8 — NVM commit on the manager face (broken axis over the busy period)**
+ 
+ ![fig-02-nvmwave](../diagrams/wavedrom/fig-02-nvmwave.svg)
+ 
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index 86402aa..a732be0 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -17,13 +17,15 @@ and TX arbitration. The three engines ([04](04_adp_engine.md)/[05](05_acmp_engin
+ 
+ > This export **predates** the move of the descriptor image and the AECP response buffer
+ > into the integrator's main memory, so its "state-RAM complex" still shows the image on
+-> chip. The current shape is [`20-rtl-dataflow.svg`](../diagrams/20-rtl-dataflow.svg) and
++> chip, and it draws the MAC async FIFOs as part of the datapath: they are the
++> integrator's, outside the top ([02 §2](02_interfaces.md#2-clocking-reset-cdc) rule 2).
++> The current shape is [`20-rtl-dataflow.svg`](../diagrams/20-rtl-dataflow.svg) and
+ > [`22-aecp-descriptor-fetch.svg`](../diagrams/22-aecp-descriptor-fetch.svg); the
+ > component table below is correct.
+ 
+ | Component | Notes |
+ |---|---|
+-| RX async FIFO + filter/parser/validator | one per AVB interface; frame-atomic |
++| RX filter/parser/validator | one per AVB interface, fed by the RX byte face ([02 §3](02_interfaces.md#sec-02-class-a)); the frame-atomic dual-clock FIFO in front of it is the integrator's ([02 §2](02_interfaces.md#2-clocking-reset-cdc) rule 2) |
+ | RX slot RAM | `P-RX-SLOTS` × `P-RX-SLOT-BYTES`; zero-copy payload handles |
+ | Transaction normalizer | builds the record of [§4](#4-normalized-transaction) |
+ | Per-engine dispatch FIFOs | ADP / ACMP / AECP queues. The normalizer's TIMER/SELF/MGMT injection ports exist and are tied off at the top ([§5](#5-origins-originator-and-event-router) gives each origin's landed home) |
+@@ -31,7 +33,7 @@ and TX arbitration. The three engines ([04](04_adp_engine.md)/[05](05_acmp_engin
+ | State-RAM port arbiters | overlay, dynamic state, registry (no counters: they are the integrator's, [06 §6.6](06_aecp_engine.md#sec-06-counters)) — each RAM single-ported with a small priority mux (engines never stall the RX path). The **descriptor image is not among them**: it lives in the integrator's main memory ([07 §3.3](07_memory_maps.md)), and only a one-descriptor line buffer and the cached index map are on chip |
+ | Response builders + TX slot RAM | `P-TX-STD-SLOTS` standard + 1 oversize slot ([§7](#7-response-building-and-buffers)) |
+ | Originator + inflight table | CONTROLLER_AVAILABLE, the one originated command PDU at the top; response matching and the central retry ([§5](#5-origins-originator-and-event-router)) |
+-| TX arbiter → TX async FIFO | frame-atomic priority merge ([§8](#8-tx-arbitration)) |
++| TX arbiter → TX byte face | frame-atomic priority merge ([§8](#8-tx-arbitration)); the dual-clock FIFO to the MAC is the integrator's |
+ | Event router | sticky-event fan-out (catalog in [02 §5](02_interfaces.md)) |
+ 
+ ## 3. RX pipeline
+@@ -476,7 +478,7 @@ flowchart LR
+   arb2 --> mux
+   arb3 --> mux
+   arb4 --> mux
+-  mux --> fifo["mac_tx async FIFO"]
++  mux --> fifo["mac_tx byte face, to the integrator FIFO"]
+ ```
+ 
+ | Rule | Detail |
+diff --git a/docs/architecture/07_memory_maps.md b/docs/architecture/07_memory_maps.md
+index 426d33c..a16b87c 100644
+--- a/docs/architecture/07_memory_maps.md
++++ b/docs/architecture/07_memory_maps.md
+@@ -884,7 +884,7 @@ Decided by the parent manager rulings ([D3 contract](https://github.com/kebag-lo
+ | 0x10000–0x1FFFF | RO | overlay + name table debug view | reserved seam — reads 0 |
+ | 0x20000–0x2FFFF | RO | registry entries, sink records (snapshot); no GET_COUNTERS bank (F07.10) | **implemented** — the F02.10 class-D dictionary plus front-end counters |
+ | 0x30000–0x300FF | RW | control/status: entity_enable, boot state, NVM alarm, version/build id | word 0 scratch, word 1 boot state |
+-| 0x40000–0x4FFFF | RO | trace ring (class-A framing) | **implemented** |
++| 0x40000–0x4FFFF | RO | trace ring: 128-bit event records, read as four 32-bit lanes, lane 0 = record bits [127:96] ([02 §7](02_interfaces.md)) | **implemented** |
+ | 0x50000–0x5FFFF | RW | firmware mailbox (`P-EN-FIRMWARE-ASSIST` only) | disabled — every access refused |
+ 
+ The **snapshot window at `0x20000`** is the observability surface. Its words 32–37 publish
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index d97d862..6d7ba98 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -109,7 +109,9 @@ against at least two independent controller implementations.
+ 
+ ## 7. Documentation-sync regression
+ 
+-`make check` is the CI gate, and runs today:
++`make check` is the documentation gate, and the CI `docs-gates` job
++([`hdl.yml`](../../.github/workflows/hdl.yml)) runs exactly that target, with the
++`wavedrom` package and Mermaid CLI 11.16.0 installed first. It runs today:
+ 
+ | Target | Script | Asserts |
+ |---|---|---|
+@@ -119,6 +121,8 @@ against at least two independent controller implementations.
+ | `matrix` | `scripts/check-matrix.py` | REQ-IDs unique and fully populated; `Ver` values ∈ the §3 vocabulary; every GAP defined ↔ dispositioned |
+ | `modmatrix` | `scripts/gen_matrix.py --check` | `docs/traceability/MODULE_MATRIX.md` is not stale, and no module is without a suite (budget zero) |
+ | `params` | `scripts/check-integrator-params.py` | the guide section 2 table and diagram 21's `integration-parameters` group each equal the overridable parameter set of `protocol_processor_top`, with no missing, extra or duplicate names; empty or unparseable inputs fail |
++| `ids` | `scripts/check-ids.py` (`--selftest` first) | every `P-` or `T-` ID used in a file under `docs/`, `hdl/` or `tb/` has its row in [F01.5](01_overview.md#fig-01-params) or [F08.1](08_timing.md#fig-08-constants); a family (`T-MRP-*`) needs one row in it, each member of a braced list (`T-NVM-{RS-DEADLINE, RS-AGGREGATE}`) its own row, and an ID with an optional segment (`T-ADP-DELAY(-START)`) a row for both; braces or `(-` holding anything but ID segments fail; an ID broken at a line end and a sibling written as its last segment (`T-BUDGET-AECP-TYP / -WC`) are read whole, and `-1` reads as minus one only if the base has a row; any other text after a hyphen is prose (`T-MRP-JOIN-driven` uses `T-MRP-JOIN`); an unreadable, empty or duplicated master table fails. The self-test plants a stray in each scanned tree, a stray in each of those forms (including a missing minus-one base, a line-broken optional member and an optional member after a line-broken ID) and each master-table fault, and must see each caught with rc 1 and its diagnostic token |
++| `figures` | `scripts/check-figures.py` (`--selftest` first) | every file under `docs/diagrams/` is a draw.io source with its export, a WaveDrom render whose block exists, or a hand-authored SVG listed in `docs/diagrams/README.md` that is well-formed, has an SVG-namespace `<svg>` root and a `viewBox`, carries no `<image>`, `<feImage>` or `<foreignObject>`, and is linked from a page ([docs/README §3](../README.md#3-figures-one-source-one-home)); any other file fails, and so does a missing or empty hand-authored inventory. The self-test plants each fault and must see it caught |
+ | `stale` | `Makefile` | each committed `.svg` is newer than its `.drawio` source |
+ 
+ ## 8. The suites that exist today
+@@ -151,6 +155,12 @@ Neither `run_suites.sh` nor `lint_hdl.sh` is wired into `make check`, which is t
+ documentation gate only; they are run separately before a submodule pin moves. See the
+ [HDL engineer guide](../guides/hdl-engineer.md#6-running-the-testbenches).
+ 
++Of the single-source rules of [docs/README §2](../README.md#2-identifier-registries),
++`make check` enforces the ID half and nothing more: `ids` (§7) fails any `P-` or `T-` ID
++under `docs/`, `hdl/` or `tb/` without its F01.5 or F08.1 row, and `params` holds the
++integrator guide's parameter inventory to the top. No gate reads values; the value scan
++is the single-source scan still to add at the end of this section.
++
+ ### 8.1 Dynamic-state overlay: the per-field A/B evidence map (issue #72)
+ 
+ Every controller-settable field is graded on both arms -- A: unwritten reads the
+diff --git a/docs/diagrams/20-rtl-dataflow.png b/docs/diagrams/20-rtl-dataflow.png
+deleted file mode 100644
+index 3c19e9a..0000000
+Binary files a/docs/diagrams/20-rtl-dataflow.png and /dev/null differ
+diff --git a/docs/diagrams/21-integration-faces.png b/docs/diagrams/21-integration-faces.png
+deleted file mode 100644
+index 32d6dab..0000000
+Binary files a/docs/diagrams/21-integration-faces.png and /dev/null differ
+diff --git a/docs/diagrams/22-aecp-descriptor-fetch.png b/docs/diagrams/22-aecp-descriptor-fetch.png
+deleted file mode 100644
+index 57849c9..0000000
+Binary files a/docs/diagrams/22-aecp-descriptor-fetch.png and /dev/null differ
+diff --git a/docs/diagrams/23-bringup-decision.png b/docs/diagrams/23-bringup-decision.png
+deleted file mode 100644
+index 3b67d02..0000000
+Binary files a/docs/diagrams/23-bringup-decision.png and /dev/null differ
+diff --git a/docs/diagrams/24-adp-acmp-states.png b/docs/diagrams/24-adp-acmp-states.png
+deleted file mode 100644
+index df1533d..0000000
+Binary files a/docs/diagrams/24-adp-acmp-states.png and /dev/null differ
+diff --git a/docs/diagrams/README.md b/docs/diagrams/README.md
+index 530ccfa..4a2a286 100644
+--- a/docs/diagrams/README.md
++++ b/docs/diagrams/README.md
+@@ -2,8 +2,11 @@
+ # Diagram Sources & Toolchain
+ 
+ Three figures are rich enough to warrant free-form drawing; they are draw.io sources
+-with committed SVG exports. **Everything else** (Mermaid, WaveDrom) lives as editable
+-text inside the host Markdown documents — see `docs/README.md` §3.
++with committed SVG exports. Five more are hand-authored SVG, each its own source.
++**Everything else** (Mermaid, WaveDrom) lives as editable text inside the host Markdown
++documents — see `docs/README.md` §3. Every file in this directory belongs to one of
++those classes; [`check-figures.py`](../../scripts/check-figures.py) (`make figures`)
++fails any other, a PNG export included.
+ 
+ Rendering support differs per format, which drives the storage pattern:
+ 
+@@ -57,14 +60,14 @@ Overlap, clipped text and lines running through boxes are invisible in the XML.
+ rsvg-convert -w 1500 -o /tmp/check.png docs/diagrams/20-rtl-dataflow.svg
+ ```
+ 
+-For diagram 21, the SVG above is the editable master and its committed PNG is an
+-export. After editing the master, regenerate the PNG with the same renderer:
++That PNG is a scratch check, never committed: the SVG is the only artifact. `make
++figures` holds each of the five to its rule: listed in the table above, well-formed
++XML with an `<svg>` root and a `viewBox`, no `<image>`, `<feImage>` or `<foreignObject>`
++(a raster or an embedded document is not editable source), and linked from a Markdown
++page.
+ 
+-```sh
+-rsvg-convert -w 1905 -o docs/diagrams/21-integration-faces.png docs/diagrams/21-integration-faces.svg
+-```
+-
+-Its `integration-parameters` group lists every overridable top-level parameter;
++For diagram 21, the SVG is the editable master. Its `integration-parameters` group
++lists every overridable top-level parameter;
+ [`check-integrator-params.py`](../../scripts/check-integrator-params.py) compares
+ that visible inventory and the integrator guide's section 2 table with the RTL
+ declarations. Defaults remain at the owners linked from the guide.
+@@ -87,7 +90,7 @@ drawio -x -f svg --crop -o docs/diagrams/01-top-level.svg docs/diagrams/src/01-t
+ # headless fallback (no display):
+ xvfb-run -a drawio --no-sandbox -x -f svg --crop -o <out.svg> <in.drawio>
+ 
+-# full documentation gate: mermaid/wavedrom lint + links + compliance matrix + SVG freshness
++# full documentation gate (docs/architecture/09_verification.md section 7), as CI runs it
+ make check
+ ```
+ 
+diff --git a/docs/guides/hdl-engineer.md b/docs/guides/hdl-engineer.md
+index f8e93fc..00ab054 100644
+--- a/docs/guides/hdl-engineer.md
++++ b/docs/guides/hdl-engineer.md
+@@ -252,7 +252,7 @@ saying what is proven. This is enforced socially by review and mechanically by
+ 
+ | Command | Checks |
+ |---|---|
+-| `make check` | diagram lint, WaveDrom freshness, documentation links, compliance-matrix consistency, and diagram export staleness |
++| `make check` | diagram lint, WaveDrom freshness, documentation links, compliance-matrix consistency, the module matrix, the parameter inventories, every `P-`/`T-` ID against its F01.5 or F08.1 row, the figure classes, and diagram export staleness ([09 §7](../architecture/09_verification.md#7-documentation-sync-regression)); the CI docs-gates job runs it whole |
+ | `python3 scripts/gen_matrix.py --check` | module ↔ testbench matrix drift, and the zero-untested budget |
+ | `./scripts/lint_hdl.sh` | Verilator lint over every module, zero warnings tolerated; a waiver is a justified `lint_off` pragma in the RTL with a reason |
+ | `./scripts/run_suites.sh` | every simulation suite |
+@@ -271,7 +271,6 @@ case **the tree is right**.
+ |---|---|
+ | ADP advertise machine has four states, not three | [F04.2](../architecture/04_adp_engine.md#fig-04-advsm) draws DOWN / DELAY / WAITING. [`pp_adp_pkg`](../../hdl/adp/pp_adp_pkg.sv) splits the delay into its two real hardware phases: `ADP_ADV_DRAW` (the PRNG rejection sampler is running) then `ADP_ADV_DELAY` (the timer is armed). The banner records this as a deliberate refinement of the figure, and the state is externally visible — see the [operator guide](operator.md). |
+ | There is no shutdown port | [01 §5](../architecture/01_overview.md) describes a `SHUTDOWN` request. In the RTL, deasserting `entity_enable_i` **is** the shutdown: it emits ENTITY_DEPARTING and resets `available_index`. |
+-| The class-A packet interface is 8-bit | [02 §2](../architecture/02_interfaces.md) specifies a 32-bit word stream with `ready`, `empty` and `err`. The landed top is a byte stream — `rx_valid_i` / `rx_data_i[7:0]` / `rx_last_i` in, with **no RX backpressure at all**, and `tx_valid_o` / `tx_sof_o` / `tx_data_o[7:0]` / `tx_eof_o` / `tx_ready_i` out. The [integrator guide](integrator.md) documents the landed face. |
+ | No dispatch ROM exists | [06 §4](../architecture/06_aecp_engine.md) specifies a dispatch ROM per opcode and [06 §8](../architecture/06_aecp_engine.md) fixes its entry shape, but no ROM and no generator ship. [`KL_aecp_engine`](../../hdl/aecp/KL_aecp_engine.sv) uses a direct three-arm opcode decode and its banner records that as a documented choice. |
+ | The transaction record has four origins; dispatch carries one | [03 §4](../architecture/03_packet_engine.md) keeps the RX / TIMER / SELF / MGMT origin field, and the normalizer has a producer port for each, but the top stamps RX alone: expiries reach their owners on the timer's expiry bus, AECP unsolicited responses (IDENTIFY_NOTIFICATION among them) are the engine's own SELF jobs on TX lane 1, and there is no MGMT producer. [03 §5](../architecture/03_packet_engine.md#5-origins-originator-and-event-router) now states this landed shape; the three ports stay tied off. |
+ | The descriptor image is not on chip | Several places still show it inside the on-chip RAM complex, including the rendered F03.1 and F07.1 figures and the `P-DESCR-IMAGE-BYTES` parameter, which has no consumer in the RTL. The current truth is [07 §3.3](../architecture/07_memory_maps.md) and diagram 22. |
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index a21814b..a1a8ccc 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -32,7 +32,8 @@ There is exactly one clock and one reset.
+ **No clock-domain crossing lives inside this processor but one.** Every crossing is yours:
+ 
+ - the MAC boundaries — put your asynchronous FIFOs outside, and present the byte streams
+-  below in the `clk_i` domain;
++  below in the `clk_i` domain; the RX one hands over whole, FCS-good frames only
++  ([section 3](#rx-frame-atomic));
+ - `link_up_i` and `gm_change_i` — level and strobe inputs from other domains. Give them a
+   two-flop synchroniser before they arrive;
+ - the one exception is `identify_button_i` (section 6): with `EN_IDENTIFY_NOTIF_P` = 1 the
+@@ -131,6 +132,19 @@ domain. Byte 0 of each frame is the first destination-address octet.
+ | RX | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i` | **none.** There is no `rx_ready`. The RX side cannot be stalled — feed it from a FIFO that can absorb a frame. |
+ | TX | `tx_valid_o`, `tx_sof_o`, `tx_data_o[7:0]`, `tx_eof_o`, `tx_ready_i` | `tx_ready_i` is real. A granted frame streams from `tx_sof_o` to `tx_eof_o` with no preemption, so holding `tx_ready_i` low stalls that frame in place; it never truncates. |
+ 
++<a id="rx-frame-atomic"></a>**Your RX FIFO must deliver only complete, FCS-good frames.** The
++byte face has no `err` and no abort input, so nothing can poison a frame once its first
++byte is in: the processor parses every frame it is given as a good one. The dual-clock
++FIFO between your MAC and this face is yours, and the handoff must be frame-atomic
++([02 §2 rule 2](../architecture/02_interfaces.md#2-clocking-reset-cdc)):
++
++- hold each frame whole, and start it on `rx_valid_i` only once its last byte and your
++  MAC's FCS verdict are in the FIFO;
++- drop every frame that failed its FCS, was aborted by the MAC, or was cut short by a
++  full FIFO, with every byte of it;
++- never present part of a frame: a truncated frame that still carries a whole PDU is
++  parsed as one.
++
+ This is a control-plane trunk. It sees the frames a Milan control plane needs — the
+ ATDECC multicast and this station's own unicast, plus the two MRP group addresses — and
+ it emits control frames only. Streaming data never passes through here.
+diff --git a/docs/history/02-class-a-word-stream.md b/docs/history/02-class-a-word-stream.md
+new file mode 100644
+index 0000000..ff0f250
+--- /dev/null
++++ b/docs/history/02-class-a-word-stream.md
+@@ -0,0 +1,84 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# History: the class-A word-stream contract (never landed)
++
++> **Historical, superseded.** This is the 32-bit word stream the original design specified
++> for interface class A. No port of `protocol_processor_top` carries it: the landed top
++> presents a byte stream with no RX ready, no `empty` and no `err`. The current contract
++> is [02 §3](../architecture/02_interfaces.md#sec-02-class-a) and the
++> [integrator guide §3](../guides/integrator.md#3-the-mac-faces). Do not wire against
++> this page.
++
++**Provenance.** The text and the two waveform sources below are copied verbatim from
++`docs/architecture/02_interfaces.md` §3 at processor `main`
++`c050d97153dd0480ae741102c1647eeda9b7f273`, where they sat under a warning that the RTL
++did not implement them, and were moved here by processor issue #27. At that commit:
++[the page](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/c050d97153dd0480ae741102c1647eeda9b7f273/docs/architecture/02_interfaces.md#3-class-a--packet-streaming),
++and the two rendered waveforms,
++[F02.3](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/c050d97153dd0480ae741102c1647eeda9b7f273/docs/diagrams/wavedrom/fig-02-rxwave.svg)
++and
++[F02.4](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/c050d97153dd0480ae741102c1647eeda9b7f273/docs/diagrams/wavedrom/fig-02-txwave.svg).
++The anchors `fig-02-rxwave` and `fig-02-txwave` now carry the landed byte-face waveforms.
++
++## The word stream as specified
++
++Word-oriented stream, `DATA_W` = 32 (parameterizable), MSB-first byte lanes, `empty`
++gives the unused byte count in the `eof` word. `err` with `eof` invalidates the frame
++(RX: drop; TX: MAC aborts with bad FCS).
++
++| Signal | Dir (RX inst.) | Width | Meaning |
++|---|---|---|---|
++| `valid` | in | 1 | word present |
++| `ready` | out | 1 | sink accepts; transfer on `valid ∧ ready` |
++| `data` | in | 32 | payload word |
++| `sof` / `eof` | in | 1/1 | frame delimiters (both on `valid ∧ ready` words) |
++| `empty` | in | 2 | unused bytes in `eof` word |
++| `err` | in | 1 | with `eof`: frame invalid |
++
++## Its two waveforms
++
++Kept as sources only and not rendered: a rendered copy here would be a second figure
++under the live anchors' names. The rendered SVGs are the two links above.
++
++F02.3, "RX stream: backpressure + end of frame":
++
++```json
++{"signal": [
++  {"name": "clk",      "wave": "p.........."},
++  {"name": "rx_valid", "wave": "01.......0."},
++  {"name": "rx_ready", "wave": "1...0.1...."},
++  {"name": "rx_sof",   "wave": "010........"},
++  {"name": "rx_data",  "wave": "x====..==x.", "data": ["D0", "D1", "D2", "D3", "D4", "D5"]},
++  {"name": "rx_eof",   "wave": "0.......10."},
++  {"name": "rx_err",   "wave": "0.........."}
++],
++ "head": {"text": "transfer on valid AND ready; data D3 held through the stall"},
++ "foot": {"text": "err would assert together with eof to poison the frame"}}
++```
++
++F02.4, "TX stream with arbiter grant (no mid-frame regrant)":
++
++```json
++{"signal": [
++  {"name": "clk",      "wave": "p.........."},
++  {"name": "tx_req_a", "wave": "01....0...."},
++  {"name": "tx_req_b", "wave": "01........."},
++  {"name": "gnt_a",    "wave": "0.1...0...."},
++  {"name": "gnt_b",    "wave": "0......1..."},
++  {"name": "tx_valid", "wave": "0.1...0.1.."},
++  {"name": "tx_sof",   "wave": "0.10....10."},
++  {"name": "tx_data",  "wave": "x.====x.==x", "data": ["W0", "W1", "W2", "W3", "X0", "X1"]},
++  {"name": "tx_eof",   "wave": "0....10...."},
++  {"name": "tx_ready", "wave": "1.........."}
++],
++ "head": {"text": "grant is frame-atomic: gnt_a holds until eof, then arbiter moves to b"}}
++```
++
++## What replaced it
++
++| Word stream (above) | Landed byte face ([02 §3](../architecture/02_interfaces.md#sec-02-class-a)) |
++|---|---|
++| 32-bit `data`, `empty` on the `eof` word | 8-bit `rx_data_i` / `tx_data_o`, one byte per transfer |
++| RX `ready`, transfer on `valid ∧ ready` | no RX ready: a byte is taken in every cycle `rx_valid_i` is 1 |
++| RX `sof` / `eof` | `rx_last_i` only |
++| `err` with `eof` poisons the frame | no `err` and no abort: the integrator's RX FIFO presents only complete, FCS-good frames |
++| TX `ready` | `tx_ready_i`, a real stall that holds the byte in place |
+diff --git a/hdl/packet_engine/KL_pp_side_port.sv b/hdl/packet_engine/KL_pp_side_port.sv
+index 140229c..4e8a4b4 100644
+--- a/hdl/packet_engine/KL_pp_side_port.sv
++++ b/hdl/packet_engine/KL_pp_side_port.sv
+@@ -9,10 +9,10 @@
+ //                access-rights rule)
+ //
+ //  Description : Management side-port — the class-E single-master port of
+-//                F02.7 (psel/pwrite/paddr/pwdata/prdata/pready mapped 1:1
+-//                onto req_valid/we/addr/wdata/rdata/rvalid; wait states
+-//                allowed) decoding the six 07 §5.5 windows of the 20-bit
+-//                word-address space:
++//                02 §7 and F02.7 (an APB bridge maps psel/pwrite/paddr/
++//                pwdata/prdata/pready onto req_valid/we/addr/wdata/rdata/
++//                rvalid; wait states allowed) decoding the six 07 §5.5
++//                windows of the 20-bit word-address space:
+ //
+ //                  0x00000  image + identity load   W pre-enable only, R
+ //                  0x10000  overlay/name debug view RO
+diff --git a/hdl/packet_engine/KL_pp_trace_ring.sv b/hdl/packet_engine/KL_pp_trace_ring.sv
+index 110b857..bdfdc49 100644
+--- a/hdl/packet_engine/KL_pp_trace_ring.sv
++++ b/hdl/packet_engine/KL_pp_trace_ring.sv
+@@ -11,8 +11,8 @@
+ //  Description : Debug trace ring — the backing store of the RO side-port
+ //                window 0x40000. Shape is P-TRACE-RING (F01.5): 256 records
+ //                × 128 b. One record arrives per event on wr_valid_i (the
+-//                record content is the class-A framed event its producer
+-//                emits, 02 §1 — opaque bits here); the ring overwrites
++//                record content is the 128-bit event record its producer
++//                emits, 02 §7 — opaque bits here); the ring overwrites
+ //                oldest-first and NEVER back-pressures a producer: tracing
+ //                may lose history, it must never stall the plane. The
+ //                monotonic 16-bit write counter (mod 2^16) is the only
+@@ -22,8 +22,8 @@
+ //
+ //                Read side is the side-port window path: record index
+ //                rd_addr_i plus 32-bit lane select rd_lane_i, lane 0 =
+-//                record bits [127:96] (MSB-first, the class-A word order
+-//                of 02 §3).
++//                record bits [127:96] (MSB-first, the lane order of the
++//                02 §7 window).
+ //
+ //                The one design decision that matters: ONE 256 × 128 b
+ //                1W1R sync-read RAM with the 4:1 lane mux placed AFTER the
+@@ -53,7 +53,7 @@ module KL_pp_trace_ring #(
+ 
+     //! ---- write side (event producers; never back-pressured) ----
+     input  wire                   wr_valid_i,  //! one trace record this cycle
+-    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (class-A framed event)
++    input  wire  [RECORD_W_P-1:0] wr_data_i,   //! the record (one 128-bit event)
+     output logic           [15:0] wr_count_o,  //! monotonic write count, mod 2^16
+ 
+     //! ---- read side (side-port window 0x40000, RO) ----
+diff --git a/hdl/packet_engine/KL_pp_tx_slots.sv b/hdl/packet_engine/KL_pp_tx_slots.sv
+index 4c59cf1..31331db 100644
+--- a/hdl/packet_engine/KL_pp_tx_slots.sv
++++ b/hdl/packet_engine/KL_pp_tx_slots.sv
+@@ -14,7 +14,7 @@
+ //                reserved for the Milan §5.4.1 Δ8 oversize command set
+ //                (READ_DESCRIPTOR, GET_AVB_INFO, GET_AS_PATH,
+ //                GET_AUDIO_MAP, ADD/REMOVE_AUDIO_MAPPINGS) — F01.5
+-//                "P-TX 4x576 + 1600". The oversize slot is granted only to
++//                rows. The oversize slot is granted only to
+ //                an allocation carrying oversize_i, and an oversize
+ //                allocation waits for slot 4 even while 0..3 sit free; a
+ //                plain allocation never receives index 4.
+diff --git a/scripts/check-figures.py b/scripts/check-figures.py
+new file mode 100755
+index 0000000..7d02974
+--- /dev/null
++++ b/scripts/check-figures.py
+@@ -0,0 +1,242 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Hold every file under docs/diagrams/ to a figure class of docs/README.md section 3.
++
++The classes and what this gate asks of each:
++
++- draw.io: `src/<name>.drawio` with its export `<name>.svg` (freshness is
++  `make stale`);
++- WaveDrom: `wavedrom/<anchor>.svg`, rendered from the ```wavedrom block under
++  `<a id="<anchor>">` in a document (freshness is `make wavedrom-check`; this
++  gate fails a render whose block is gone);
++- hand-authored SVG: a top-level `<name>.svg` with no `.drawio` source, listed
++  in the hand-authored inventory of docs/diagrams/README.md. The SVG is its own
++  source, so it must parse as XML with an SVG-namespace `<svg>` root and a
++  `viewBox`, carry no raster or embedded document (`<image>`, `<feImage>`,
++  `<foreignObject>`), and be linked from a Markdown page.
++
++Any other file there (a PNG export, say) is a format section 3 does not list
++and fails. The files are those git tracks plus untracked ones it does not ignore.
++"""
++import argparse
++import re
++import subprocess
++import sys
++import tempfile
++import xml.etree.ElementTree as ET
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++DIAGRAMS = Path("docs/diagrams")
++INVENTORY = DIAGRAMS / "README.md"
++SVG_NS = "{http://www.w3.org/2000/svg}"
++HAND_SECTION = "## Inventory (hand-authored SVG)"
++FIRST_CELL = re.compile(r"^\|\s*`([^`]+\.svg)`\s*\|", re.M)
++ANCHOR = re.compile(r'<a id="(fig-[a-z0-9-]+)"></a>')
++MD_LINK = re.compile(r"\]\(([^)\s#]+)(?:#[^)\s]*)?\)")
++
++
++def listed_files(root: Path, *trees: str) -> list:
++    """Tracked and untracked-but-not-ignored files under `trees`."""
++    out = subprocess.run(
++        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
++         "--exclude-standard", "--", *trees],
++        check=True, capture_output=True).stdout.decode("utf-8")
++    return sorted({Path(n) for n in out.split("\0")
++                   if n and (root / n).is_file()}, key=str)
++
++
++def hand_inventory(root: Path) -> list:
++    """The file names in the hand-authored inventory table, in table order."""
++    body = (root / INVENTORY).read_text(encoding="utf-8")
++    at = body.find(HAND_SECTION)
++    if at < 0:
++        raise ValueError(f"{INVENTORY}: no '{HAND_SECTION}' section")
++    section = body[at + len(HAND_SECTION):]
++    end = section.find("\n## ")
++    names = FIRST_CELL.findall(section if end < 0 else section[:end])
++    if not names:
++        raise ValueError(f"{INVENTORY}: the hand-authored inventory lists no SVG")
++    return names
++
++
++def wavedrom_anchors(root: Path, docs: list) -> set:
++    """Anchors that head a ```wavedrom block, as render-wavedrom.py names them."""
++    found = set()
++    for rel in docs:
++        anchor = None
++        for line in (root / rel).read_text(encoding="utf-8").splitlines():
++            m = ANCHOR.search(line)
++            if m:
++                anchor = m.group(1)
++            if line.rstrip() == "```wavedrom" and anchor:
++                found.add(anchor)
++    return found
++
++
++def linked_targets(root: Path, docs: list) -> set:
++    """Every repository path a Markdown link or image in `docs` resolves to."""
++    targets = set()
++    for rel in docs:
++        for target in MD_LINK.findall((root / rel).read_text(encoding="utf-8")):
++            if "://" in target or target.startswith("mailto:"):
++                continue
++            path = (root / rel).parent / target
++            try:
++                targets.add(path.resolve().relative_to(root.resolve()))
++            except ValueError:
++                continue
++    return targets
++
++
++def svg_problems(path: Path) -> list:
++    """What keeps a hand-authored SVG from being its own editable source."""
++    try:
++        svg = ET.parse(path).getroot()
++    except ET.ParseError as exc:
++        return [f"not well-formed XML ({exc})"]
++    out = []
++    if svg.tag != f"{SVG_NS}svg":
++        out.append(f"root element is {svg.tag}, not an SVG-namespace <svg>")
++    if "viewBox" not in svg.attrib:
++        out.append("no viewBox on the <svg> root")
++    for tag in ("image", "feImage", "foreignObject"):
++        if svg.find(f".//{SVG_NS}{tag}") is not None or svg.find(f".//{tag}") is not None:
++            out.append(f"carries <{tag}>: a raster or embedded document is not editable source")
++    return out
++
++
++def check(root: Path) -> int:
++    """Print one line per file outside a listed class; 1 on any finding."""
++    problems, counts = [], {"draw.io": 0, "WaveDrom": 0, "hand-authored": 0}
++    try:
++        hand = hand_inventory(root)
++    except (OSError, ValueError) as exc:
++        print(f"FIGURE FAIL: {exc}")
++        print("figures: inventory unreadable, FAILURES")
++        return 1
++    files = listed_files(root, str(DIAGRAMS))
++    docs = [p for p in listed_files(root, ".") if p.suffix == ".md"]
++    anchors, linked = wavedrom_anchors(root, docs), linked_targets(root, docs)
++    names = {p.relative_to(DIAGRAMS).as_posix() for p in files}
++    for name in sorted(set(hand) - names):
++        problems.append(f"{INVENTORY}: lists {name}, which is not in {DIAGRAMS}")
++    for rel in files:
++        name = rel.relative_to(DIAGRAMS).as_posix()
++        if name == "README.md":
++            continue
++        if name.startswith("src/") and name.endswith(".drawio") and "/" not in name[4:]:
++            export = Path(name[4:]).with_suffix(".svg").as_posix()
++            if export not in names:
++                problems.append(f"{rel}: draw.io source without its export {DIAGRAMS / export}")
++            counts["draw.io"] += 1
++        elif name.startswith("wavedrom/") and name.endswith(".svg") and "/" not in name[9:]:
++            if name[9:-4] not in anchors:
++                problems.append(f"{rel}: WaveDrom render whose ```wavedrom block "
++                                f"<a id=\"{name[9:-4]}\"> is in no document")
++            counts["WaveDrom"] += 1
++        elif "/" not in name and name.endswith(".svg"):
++            if f"src/{name[:-4]}.drawio" in names:
++                continue
++            if name not in hand:
++                problems.append(f"{rel}: SVG with no .drawio source, not in the "
++                                f"hand-authored inventory of {INVENTORY}")
++                continue
++            problems += [f"{rel}: {p}" for p in svg_problems(root / rel)]
++            if rel not in linked:
++                problems.append(f"{rel}: hand-authored figure no Markdown page links")
++            counts["hand-authored"] += 1
++        else:
++            problems.append(f"{rel}: not a figure format docs/README.md section 3 lists")
++    for line in problems:
++        print(f"FIGURE FAIL: {line}")
++    summary = ", ".join(f"{n} {k}" for k, n in counts.items())
++    print(f"figures: {summary}, "
++          f"{'OK' if not problems else str(len(problems)) + ' FAILURES'}")
++    return 1 if problems else 0
++
++
++GOOD_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">'
++            '<rect width="10" height="10" fill="#fff"/></svg>\n')
++INVENTORY_BODY = ("# Diagrams\n\n" + HAND_SECTION + "\n\n| File | Figure |\n|---|---|\n"
++                  "| `20-a.svg` | a |\n\n## Commands\n")
++BASE_TREE = {
++    "docs/diagrams/README.md": INVENTORY_BODY,
++    "docs/diagrams/20-a.svg": GOOD_SVG,
++    "docs/diagrams/01-b.svg": GOOD_SVG,
++    "docs/diagrams/src/01-b.drawio": "<mxfile/>\n",
++    "docs/diagrams/wavedrom/fig-x.svg": GOOD_SVG,
++    "docs/page.md": ("![a](diagrams/20-a.svg)\n\n<a id=\"fig-x\"></a>\n\n"
++                     "```wavedrom\n{}\n```\n"),
++}
++# (files changed from BASE_TREE, None = deleted; expected finding substrings)
++SELFTEST_CASES = (
++    ({}, []),
++    ({"docs/diagrams/20-a.png": "PNG"}, ["20-a.png: not a figure format"]),
++    ({"docs/diagrams/25-c.svg": GOOD_SVG}, ["25-c.svg: SVG with no .drawio source"]),
++    ({"docs/diagrams/20-a.svg": "<svg"}, ["20-a.svg: not well-formed XML"]),
++    ({"docs/diagrams/sub/20-a.svg": GOOD_SVG}, ["sub/20-a.svg: not a figure format"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace("<rect", '<image href="x.png"/><rect')},
++     ["20-a.svg: carries <image>"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace(
++        "<rect", '<filter id="f"><feImage href="x.png"/></filter><rect')},
++     ["20-a.svg: carries <feImage>"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace("<rect", "<foreignObject/><rect")},
++     ["20-a.svg: carries <foreignObject>"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace(' xmlns="http://www.w3.org/2000/svg"', "")},
++     ["20-a.svg: root element is svg, not an SVG-namespace <svg>"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace("<svg ", "<g ").replace("</svg>", "</g>")},
++     ["20-a.svg: root element is {http://www.w3.org/2000/svg}g, not"]),
++    ({"docs/diagrams/20-a.svg": GOOD_SVG.replace(' viewBox="0 0 10 10"', "")},
++     ["20-a.svg: no viewBox"]),
++    ({"docs/diagrams/README.md": INVENTORY_BODY.replace("| `20-a.svg` | a |\n", "")},
++     ["the hand-authored inventory lists no SVG"]),
++    ({"docs/diagrams/README.md": INVENTORY_BODY.replace(HAND_SECTION, "## Inventory")},
++     [f"no '{HAND_SECTION}' section"]),
++    ({"docs/page.md": "<a id=\"fig-x\"></a>\n\n```wavedrom\n{}\n```\n"},
++     ["20-a.svg: hand-authored figure no Markdown page links"]),
++    ({"docs/diagrams/20-a.svg": None}, ["lists 20-a.svg, which is not in"]),
++    ({"docs/page.md": "![a](diagrams/20-a.svg)\n"},
++     ["wavedrom/fig-x.svg: WaveDrom render whose"]),
++    ({"docs/diagrams/01-b.svg": None},
++     ["src/01-b.drawio: draw.io source without its export"]),
++)
++
++
++def selftest() -> int:
++    """Run the gate over planted trees: each planted file caught, the base clean."""
++    failures = 0
++    for number, (changes, expect) in enumerate(SELFTEST_CASES, start=1):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            subprocess.run(["git", "init", "-q", str(root)], check=True)
++            for rel, body in {**BASE_TREE, **changes}.items():
++                if body is None:
++                    continue
++                (root / rel).parent.mkdir(parents=True, exist_ok=True)
++                (root / rel).write_text(body, encoding="utf-8")
++            proc = subprocess.run([sys.executable, __file__, "--root", str(root)],
++                                  capture_output=True, text=True)
++            found = [l for l in proc.stdout.splitlines() if l.startswith("FIGURE FAIL")]
++            caught = all(any(e in l for l in found) for e in expect)
++            want_rc = 1 if expect else 0
++            if not caught or len(found) != len(expect) or proc.returncode != want_rc:
++                failures += 1
++                print(f"SELFTEST FAIL: case {number}: want {expect} rc {want_rc}, "
++                      f"got rc {proc.returncode}\n{proc.stdout}")
++    print(f"figures selftest: {len(SELFTEST_CASES)} cases, "
++          f"{'OK' if not failures else str(failures) + ' FAILURES'}")
++    return 1 if failures else 0
++
++
++def main() -> int:
++    """`--selftest` proves the gate on planted trees; otherwise check `--root`."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--root", type=Path, default=ROOT)
++    parser.add_argument("--selftest", action="store_true")
++    args = parser.parse_args()
++    return selftest() if args.selftest else check(args.root)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/scripts/check-ids.py b/scripts/check-ids.py
+new file mode 100755
+index 0000000..5b3b025
+--- /dev/null
++++ b/scripts/check-ids.py
+@@ -0,0 +1,293 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Fail on any P- or T- ID used under docs/, hdl/ or tb/ that has no master row.
++
++docs/README.md section 2 gives every synthesis-time parameter one row in F01.5
++(docs/architecture/01_overview.md section 7) and every timing constant one row
++in F08.1 (docs/architecture/08_timing.md section 2). This gate holds the ID half
++of that rule: an ID a document, a module or a suite cites must be one of those
++rows. Whether a value is copied outside its table is not checked here.
++
++The first cell of each master-table row defines its IDs. A cell may list several
++(`P-EN-MVU-SUID / P-EN-MVU-MCR`) or abbreviate a sibling by its last segment
++(`T-BUDGET-AECP-TYP / -WC`). A use is read the same way, and these forms are
++the only ones that reach past the ID's last segment:
++
++- `T-MRP-*` names a family and needs a row in it;
++- `T-NVM-{RS-DEADLINE, RS-AGGREGATE}` needs a row for each member, and braces
++  holding anything but uppercase segments fail;
++- `T-ADP-` at the end of a line continues with the next line's first word,
++  after any comment leader (`T-ADP-DELAY-START`);
++- `/ -WC` after an ID names the sibling with that last segment;
++- `T-ADP-DELAY(-START)` names the ID and the ID with the optional segment,
++  and a parenthesis after an ID that opens with a hyphen but holds anything
++  but uppercase segments fails.
++
++Anything else after a hyphen is prose: `P-TX-shaped` uses `P-TX`.
++`P-RX-SLOTS-1` reads as `P-RX-SLOTS` minus one when no row carries the `-1`.
++`P-ID` and `T-ID` are the registry's column names, not IDs.
++
++The files scanned are those git tracks plus untracked ones it does not ignore,
++so a new file is held before it is added and build output never is.
++"""
++import argparse
++import re
++import subprocess
++import sys
++import tempfile
++from collections.abc import Iterator
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++SCAN_DIRS = ("docs", "hdl", "tb")
++PARAMS = Path("docs/architecture/01_overview.md")
++TIMING = Path("docs/architecture/08_timing.md")
++# a P- or T- ID that is not the tail of a longer hyphenated word (MAAP-..., gPTP-...)
++ID = re.compile(r"(?<![A-Za-z0-9_-])([PT]-[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*)")
++REGISTRY_WORDS = {"P-ID", "T-ID"}
++ROW = re.compile(r"^\|([^|\n]*)\|", re.M)
++SIBLING = re.compile(r"[ \t]*/[ \t]*-([A-Z][A-Z0-9]*)")
++BRACES = re.compile(r"-\{([^{}\n]*)\}")
++SEGMENTS = re.compile(r"[A-Z0-9]+(?:-[A-Z0-9]+)*")
++# a line break inside an ID: the next line's text resumes after any comment leader
++NEXT_LINE = r"[ \t]*\r?\n[ \t]*(?:(?://+|#+|--|\*|;+|>)[ \t]*)?"
++LINE_BREAK = re.compile(r"-" + NEXT_LINE + r"([A-Z0-9]+(?:-[A-Z0-9]+)*)(?![A-Za-z0-9_])")
++OPTIONAL = re.compile(r"\(-(?:" + NEXT_LINE + r")?([A-Z0-9]+(?:-[A-Z0-9]+)*)\)")
++
++
++def table_section(body: str, start: str, what: str) -> str:
++    """The text from `start` to the end of the first table after it."""
++    at = body.find(start)
++    if at < 0:
++        raise ValueError(f"cannot find {what} ({start!r})")
++    lines, in_table = [], False
++    for line in body[at:].splitlines()[1:]:
++        if line.startswith("|"):
++            in_table = True
++            lines.append(line)
++        elif in_table:
++            break
++    if not lines:
++        raise ValueError(f"{what} has no table")
++    return "\n".join(lines)
++
++
++def defined_ids(table: str, prefix: str, what: str) -> dict:
++    """ID -> 1-based table row for every ID the first column defines."""
++    rows, problems = {}, []
++    for number, cell in enumerate(ROW.findall(table), start=1):
++        if set(cell.strip()) <= set("-: "):
++            continue
++        names = [m for m in ID.findall(cell) if m.startswith(prefix)]
++        if names:
++            stem = names[0].rsplit("-", 1)[0]
++            names += [f"{stem}-{tail}" for tail in SIBLING.findall(cell)]
++        for name in names:
++            if name in REGISTRY_WORDS:
++                continue
++            if name in rows:
++                problems.append(f"{what}: {name} has two rows")
++            rows[name] = number
++    if not rows:
++        problems.append(f"{what}: no {prefix} rows parsed")
++    if problems:
++        raise ValueError("; ".join(problems))
++    return rows
++
++
++def scanned_files(root: Path) -> list:
++    """Tracked and untracked-but-not-ignored files under the scanned trees."""
++    out = subprocess.run(
++        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
++         "--exclude-standard", "--", *SCAN_DIRS],
++        check=True, capture_output=True).stdout.decode("utf-8")
++    names = sorted({n for n in out.split("\0") if n})
++    return [Path(n) for n in names if (root / n).is_file()]
++
++
++def uses(text: str) -> Iterator[tuple[int, str, str]]:
++    """(line, token, kind) per ID use; kind is 'id', 'family' or 'list' (a bad list)."""
++    for match in ID.finditer(text):
++        token, end = match.group(1), match.end()
++        line = text.count("\n", 0, match.start()) + 1
++        if token in REGISTRY_WORDS:
++            continue
++        # Resolve the continuation before interpreting any suffix on its last word.
++        # Otherwise a wrapped optional member is lost behind the original match.
++        broken = LINE_BREAK.match(text, end)
++        while broken:
++            token, end = f"{token}-{broken.group(1)}", broken.end()
++            broken = LINE_BREAK.match(text, end)
++        if text.startswith("-*", end):
++            yield line, token, "family"
++        elif text.startswith("-{", end):
++            braces = BRACES.match(text, end)
++            members = [m.strip() for m in braces.group(1).split(",")] if braces else [""]
++            if all(SEGMENTS.fullmatch(m) for m in members):
++                for member in members:
++                    yield line, f"{token}-{member}", "id"
++            else:
++                yield line, f"{token}-{{...}}", "list"
++        else:
++            yield line, token, "id"
++            sibling = SIBLING.match(text, end)
++            if sibling:
++                yield line, f"{token.rsplit('-', 1)[0]}-{sibling.group(1)}", "id"
++            optional = OPTIONAL.match(text, end)
++            if optional:
++                yield line, f"{token}-{optional.group(1)}", "id"
++            elif text.startswith("(-", end):
++                yield line, f"{token}(-...)", "list"
++
++
++def resolves(token: str, kind: str, rows: set) -> bool:
++    """True when the use names a row, a family with a row, or a row minus one."""
++    if kind == "family":
++        return token in rows or any(r.startswith(token + "-") for r in rows)
++    return token in rows or (token.endswith("-1") and token[:-2] in rows)
++
++
++def check(root: Path) -> int:
++    """Print one line per unresolved use and a summary; 1 on any finding."""
++    try:
++        params = defined_ids(table_section(
++            (root / PARAMS).read_text(encoding="utf-8"),
++            "## 7. Parameter master table (F01.5)", "F01.5"), "P-", "F01.5")
++        timing = defined_ids(table_section(
++            (root / TIMING).read_text(encoding="utf-8"),
++            '<a id="fig-08-constants"></a>', "F08.1"), "T-", "F08.1")
++    except (OSError, ValueError) as exc:
++        print(f"ID FAIL: {exc}")
++        print("ids: master tables unreadable, FAILURES")
++        return 1
++    problems, used, files = [], set(), scanned_files(root)
++    for rel in files:
++        data = (root / rel).read_bytes()
++        if b"\0" in data[:8192]:
++            continue
++        for line, token, kind in uses(data.decode("utf-8", errors="replace")):
++            rows = params if token.startswith("P-") else timing
++            table = "F01.5" if token.startswith("P-") else "F08.1"
++            used.add(token)
++            if kind == "list":
++                problems.append(f"{rel}:{line}: {token} is not a list of ID segments")
++            elif not resolves(token, kind, set(rows)):
++                shown = f"{token}-*" if kind == "family" else token
++                problems.append(f"{rel}:{line}: {shown} has no {table} row")
++    for line in problems:
++        print(f"ID FAIL: {line}")
++    print(f"ids: {len(files)} files, {len(used)} distinct IDs used, "
++          f"F01.5 {len(params)} P-IDs, F08.1 {len(timing)} T-IDs, "
++          f"{'OK' if not problems else str(len(problems)) + ' FAILURES'}")
++    return 1 if problems else 0
++
++
++SELFTEST_PARAMS = """## 7. Parameter master table (F01.5)
++
++| P-ID | Default |
++|---|---|
++| P-ONE | 1 |
++| P-RX-SLOTS × P-RX-SLOT-BYTES | 4 × 576 |
++| P-EN-A / P-EN-B | 0 / 0 |
++
++## 8. Next
++"""
++SELFTEST_TIMING = """<a id="fig-08-constants"></a>**F08.1**
++
++| T-ID | Value |
++|---|---|
++| T-MRP-JOIN | 200 ms |
++| T-MRP-LEAVEALL | 10 s |
++| T-NVM-RS-DEADLINE | 20 ms |
++| T-ADP-DELAY | 0-4 s |
++| T-ADP-DELAY-START | 0-2 s |
++| T-BUDGET-AECP-TYP / -WC | 20 / 100 ms |
++"""
++CASE = "tb/case/README.md"
++# (files planted beside the two master pages, expected findings: the token of
++# each unresolved use, else the message): the forms the tree uses, a stray in
++# each scanned tree, each abbreviated form, then the master-table faults
++SELFTEST_CASES = (
++    ({CASE: "P-ONE, P-RX-SLOT-BYTES, P-EN-B, T-BUDGET-AECP-WC; the P-ID and T-IDs"}, []),
++    ({CASE: "T-MRP-* and T-MRP-{JOIN, LEAVEALL} and T-MRP-{JOIN,LEAVEALL}"}, []),
++    ({CASE: "(T-MRP-\n//  JOIN) and 0..P-RX-SLOTS-1, MAAP-ANNOUNCE, gPTP-T-X"}, []),
++    ({CASE: "T-NVM-{RS-DEADLINE}, a P-ONE-based bound, T-BUDGET-AECP-TYP / -WC"}, []),
++    ({CASE: "T-ADP-DELAY(-START), (T-ADP-DELAY(-\n//  START)); the label T-MRP-JOIN(B)"}, []),
++    ({CASE: "T-ADP-\n// DELAY(-START), T-ADP-\n// DELAY(-\n// START), "
++            "T-ADP-\n// DELAY-\n// START"}, []),
++    ({CASE: "P-MISSING-1 has no base row"}, ["P-MISSING-1"]),
++    ({CASE: "T-ADP-DELAY(-\n// STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
++    ({CASE: "T-ADP-\n// DELAY(-STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
++    ({CASE: "T-ADP-\n// DELAY(-\n// STRT) has no optional member row"}, ["T-ADP-DELAY-STRT"]),
++    ({"docs/case.md": "a stray P-NOT-A-ROW in a document"}, ["P-NOT-A-ROW"]),
++    ({"hdl/case.sv": "// a stray T-NOT-A-ROW in a module comment"}, ["T-NOT-A-ROW"]),
++    ({CASE: "a stray T-NOT-A-ROW in a suite"}, ["T-NOT-A-ROW"]),
++    ({CASE: "T-MRP-{JOIN, NOPE} names one missing member"}, ["T-MRP-NOPE"]),
++    ({CASE: "T-NVM-{RS-DEADLINE, RS-TYPO} names one missing member"}, ["T-NVM-RS-TYPO"]),
++    ({CASE: "T-MRP-{join} is not a list of IDs"}, ["T-MRP-{...}"]),
++    ({CASE: "the P-RX-shaped pool is no family use"}, ["P-RX"]),
++    ({CASE: "(T-MRP-\n//  NOPE) continues on the next line"}, ["T-MRP-NOPE"]),
++    ({CASE: "T-BUDGET-AECP-TYP / -XX names a sibling with no row"}, ["T-BUDGET-AECP-XX"]),
++    ({CASE: "T-ADP-DELAY(-STRT) names an optional segment with no row"}, ["T-ADP-DELAY-STRT"]),
++    ({CASE: "T-ADP-DELAY(-start) is not an ID segment"}, ["T-ADP-DELAY(-...)"]),
++    ({CASE: "T-NOFAMILY-* names a family with no row"}, ["T-NOFAMILY-*"]),
++    ({CASE: "P-RX-SLOT-2 is not P-RX-SLOTS minus two"}, ["P-RX-SLOT-2"]),
++    ({CASE: "P-RX-SLOTS-2 is not P-RX-SLOTS minus one"}, ["P-RX-SLOTS-2"]),
++    ({CASE: "P-ONE-X is no row under P-ONE"}, ["P-ONE-X"]),
++    ({CASE: "P-EN-C is no sibling of P-EN-A / P-EN-B"}, ["P-EN-C"]),
++    ({str(PARAMS): SELFTEST_PARAMS + "\n| P-ID |\n|---|\n| P-LATER |\n"}, ["P-LATER"]),
++    ({str(PARAMS): SELFTEST_PARAMS.replace("| P-ONE | 1 |", "| P-ONE | 1 |\n| P-ONE | 2 |")},
++     ["F01.5: P-ONE has two rows"]),
++    ({str(TIMING): SELFTEST_TIMING.split("|---|---|")[0] + "|---|---|\n"},
++     ["F08.1: no T- rows parsed"]),
++    ({str(PARAMS): SELFTEST_PARAMS.replace(" (F01.5)", "")},
++     ["cannot find F01.5 ('## 7. Parameter master table (F01.5)')"]),
++)
++USE_FAIL = re.compile(r"ID FAIL: \S+:\d+: (\S+) ")
++
++
++def findings(stdout: str) -> list:
++    """Per `ID FAIL` line, the token of an unresolved use or else the message."""
++    out = []
++    for line in stdout.splitlines():
++        if line.startswith("ID FAIL: "):
++            m = USE_FAIL.match(line)
++            out.append(m.group(1) if m else line[len("ID FAIL: "):])
++    return out
++
++
++def selftest() -> int:
++    """Run the gate over planted trees: every stray caught, every form passed."""
++    failures = 0
++    for number, (files, expect) in enumerate(SELFTEST_CASES, start=1):
++        with tempfile.TemporaryDirectory() as tmp:
++            root = Path(tmp)
++            subprocess.run(["git", "init", "-q", str(root)], check=True)
++            for rel, body in {str(PARAMS): SELFTEST_PARAMS,
++                              str(TIMING): SELFTEST_TIMING, **files}.items():
++                (root / rel).parent.mkdir(parents=True, exist_ok=True)
++                (root / rel).write_text(body, encoding="utf-8")
++            proc = subprocess.run([sys.executable, __file__, "--root", str(root)],
++                                  capture_output=True, text=True)
++            got = findings(proc.stdout)
++            want_rc = 1 if expect else 0
++            if got != expect or proc.returncode != want_rc:
++                failures += 1
++                print(f"SELFTEST FAIL: case {number}: want {expect} rc {want_rc}, "
++                      f"got {got} rc {proc.returncode}\n{proc.stdout}")
++    print(f"ids selftest: {len(SELFTEST_CASES)} cases, "
++          f"{'OK' if not failures else str(failures) + ' FAILURES'}")
++    return 1 if failures else 0
++
++
++def main() -> int:
++    """`--selftest` proves the gate on planted trees; otherwise check `--root`."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--root", type=Path, default=ROOT)
++    parser.add_argument("--selftest", action="store_true")
++    args = parser.parse_args()
++    return selftest() if args.selftest else check(args.root)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/scripts/render-wavedrom.py b/scripts/render-wavedrom.py
+index b4b3597..25ed918 100755
+--- a/scripts/render-wavedrom.py
++++ b/scripts/render-wavedrom.py
+@@ -18,6 +18,7 @@ Uses the `wavedrom` Python package (wavedrompy). If it is not importable, a loca
+ virtualenv is bootstrapped at .venv-wavedrom/ (gitignored) and the script re-executes
+ itself inside it.
+ """
++import json
+ import os
+ import re
+ import subprocess
+@@ -92,18 +93,32 @@ def collect_blocks() -> list[tuple[Path, str, str]]:
+     return blocks
+ 
+ 
++def render_svg(src: str) -> str:
++    """Render with an optional source-owned margin for font substitution."""
++    import wavedrom
++
++    margin = json.loads(src).get("config", {}).get("svg_margin", 0)
++    if type(margin) is not int or margin < 0:
++        raise ValueError("config.svg_margin must be a non-negative integer")
++    svg = wavedrom.render(src)
++    if margin:
++        x, y, width, height = map(float, svg.attribs["viewBox"].replace(",", " ").split())
++        svg.viewbox(x - margin, y, width + 2 * margin, height)
++        svg["width"] = width + 2 * margin
++    return svg.tostring()
++
++
+ def main() -> int:
+     """Render every embedded block, or under --check name the anchors whose
+     committed SVG no longer matches a fresh render (exit 1)."""
+     ensure_wavedrom()
+-    import wavedrom
+ 
+     check = "--check" in sys.argv
+     OUTDIR.mkdir(parents=True, exist_ok=True)
+     blocks, stale = collect_blocks(), []
+     for path, anchor, src in blocks:
+         try:
+-            svg = wavedrom.render(src).tostring()
++            svg = render_svg(src)
+         except Exception as exc:
+             sys.exit(f"FAIL: {anchor} in {path.relative_to(ROOT)}: {exc}")
+         out = OUTDIR / f"{anchor}.svg"
+diff --git a/tb/side_port/README.md b/tb/side_port/README.md
+index dca7683..b9604fd 100644
+--- a/tb/side_port/README.md
++++ b/tb/side_port/README.md
+@@ -9,9 +9,10 @@ build + run, exit 0 = PASS, 368 checks.
+ The C++ harness is an independent model, never DUT logic: five window-backend
+ stubs with programmable wait states and deterministic per-address data, an
+ independent 256 × 4-lane ring model with its own mod-2^16 counter, and a host
+-that holds `req_valid` until `rvalid` (F02.7 pready semantics). The top is
+-`side_port_tb_wrap.sv`: side-port **A** (`EN_FW_ASSIST_P = 1`, all six windows
+-live) with the REAL trace ring wired behind window 0x40000, plus side-port
++that holds `req_valid` until `rvalid` (F02.7: each request held until its
++strobe). The top is `side_port_tb_wrap.sv`: side-port **A**
++(`EN_FW_ASSIST_P = 1`, all six windows live) with the REAL trace ring wired
++behind window 0x40000, plus side-port
+ **B** at the F01.5 default (`EN_FW_ASSIST_P = 0`, auto-acked backends) proving
+ window 0x50000 vanishes when the parameter is off.
+ 
+diff --git a/tb/tx_slots/README.md b/tb/tx_slots/README.md
+index a33440a..b6e14cc 100644
+--- a/tb/tx_slots/README.md
++++ b/tb/tx_slots/README.md
+@@ -4,7 +4,7 @@
+ Proves the TX slot pool (`hdl/packet_engine/KL_pp_tx_slots.sv`) implements the
+ [03 §7](../../docs/architecture/03_packet_engine.md) response-buffer and
+ [03 §8](../../docs/architecture/03_packet_engine.md) serialize contract at the
+-F01.5 shape "P-TX 4x576 + 1600": `make` = build + run, exit 0 = PASS, 95 checks.
++F01.5 shape `P-TX-STD-SLOTS` × 576 + `P-TX-OVERSIZE-BYTES` (4 × 576 + 1600): `make` = build + run, exit 0 = PASS, 95 checks.
+ 
+ The C++ harness is an independent contract model, never DUT logic: it keeps its
+ own slot lifecycle (FREE/ALLOC/READY/STREAM), its own per-slot byte images, and
+diff --git a/tb/tx_slots/sim_main.cpp b/tb/tx_slots/sim_main.cpp
+index 1960961..76e0272 100644
+--- a/tb/tx_slots/sim_main.cpp
++++ b/tb/tx_slots/sim_main.cpp
+@@ -1,7 +1,8 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ // KL_pp_tx_slots suite — independent expectations, never DUT logic.
+ //
+-// Proves the 03 §7/§8 TX slot pool contract, F01.5 "P-TX 4x576 + 1600":
++// Proves the 03 §7/§8 TX slot pool contract, F01.5 P-TX-STD-SLOTS x 576 +
++// P-TX-OVERSIZE-BYTES (4 x 576 + 1600):
+ // plain allocation walks slots 0..3 lowest-first and NEVER returns the
+ // oversize slot; an oversize allocation (the Δ8 READ_DESCRIPTOR class,
+ // Milan §5.4.1) is granted slot 4 only, and waits for slot 4 even while
+@@ -25,7 +26,7 @@
+ #include "verilated.h"
+ #include "../common/verilator_harness.hpp"
+ 
+-// ---- pool geometry, F01.5 "P-TX 4x576 + 1600" ------------------------------
++// ---- pool geometry, F01.5 P-TX-STD-SLOTS and P-TX-OVERSIZE-BYTES -----------
+ constexpr int kSlots         = 5;     // slots 0..3 plain, slot 4 oversize
+ constexpr int kPlainSlots    = 4;     // the slots a plain allocation may take
+ constexpr int kOversizeSlot  = 4;     // the only slot an oversize alloc gets

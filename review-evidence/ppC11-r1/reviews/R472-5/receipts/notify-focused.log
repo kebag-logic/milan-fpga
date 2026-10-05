@@ -1,0 +1,6 @@
+$ /usr/bin/python3 tb/pp_top/notify_mutants.py --output $REVIEWS/ppC11-r472-5-packet/receipts/notify-focused --verilator $REVIEWS/ppC11-r472-5-packet/scratch/sim-bounded --jobs 3 --only counter_spacing_from_selection_tw counter_stamp_at_send_only counter_stamp_first_job_only
+{"mutant": "golden-aecp_notify-run", "verdict": "PASS"}
+{"mutant": "counter_stamp_at_send_only", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_stamp_first_job_only", "verdict": "KILLED", "missing": []}
+{"mutant": "counter_spacing_from_selection_tw", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 3 of 3 KILLED by their named checks; goldens PASS

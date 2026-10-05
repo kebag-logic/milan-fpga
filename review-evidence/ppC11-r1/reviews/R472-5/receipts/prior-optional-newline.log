@@ -1,0 +1,18 @@
+$ /usr/bin/python3 $REVIEWS/ppC11-r472-5-packet/scratch/prior-optional-newline.py --selftest
+SELFTEST FAIL: case 5: want [] rc 0, got ['T-ADP-DELAY(-...)'] rc 1
+ID FAIL: tb/case/README.md:1: T-ADP-DELAY(-...) is not a list of ID segments
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+SELFTEST FAIL: case 6: want [] rc 0, got ['T-ADP-DELAY(-...)'] rc 1
+ID FAIL: tb/case/README.md:2: T-ADP-DELAY(-...) is not a list of ID segments
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+SELFTEST FAIL: case 8: want ['T-ADP-DELAY-STRT'] rc 1, got ['T-ADP-DELAY(-...)'] rc 1
+ID FAIL: tb/case/README.md:1: T-ADP-DELAY(-...) is not a list of ID segments
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+SELFTEST FAIL: case 10: want ['T-ADP-DELAY-STRT'] rc 1, got ['T-ADP-DELAY(-...)'] rc 1
+ID FAIL: tb/case/README.md:1: T-ADP-DELAY(-...) is not a list of ID segments
+ids: 3 files, 13 distinct IDs used, F01.5 5 P-IDs, F08.1 7 T-IDs, 1 FAILURES
+
+ids selftest: 30 cases, 4 FAILURES

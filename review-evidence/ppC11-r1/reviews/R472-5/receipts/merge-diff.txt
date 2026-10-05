@@ -1,0 +1,702 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 33b55be..ba0ac87 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -892,7 +892,10 @@ partially built TX slot and unlocks the shared writer. Emission jobs run
+ through the engine one at a time (same µprograms, buffer and builder as solicited
+ answers; `LANE_AECP_UNS`). Successful state-changing commands retain their response
+ kind and requester exclusion in a bounded queue. GET_COUNTERS changes are coalesced
+-per served descriptor and cannot begin emission more than once per second.
++per served descriptor, and a descriptor's next round begins no sooner than one second
++after its previous round's last send (issue #148): the stamp follows the clock while a
++job waits for the engine and the TX slot, so each controller's notifications of one
++descriptor are a second apart.
+ 
+ **Storage (issue #232, 2026-10-03).** Each array of `KL_aecp_notify` and the
+ primitive it is built for. The measured mapping, before and after, is recorded on
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index b7419fc..6d7ba98 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -297,8 +297,8 @@ the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ ### 8.4 Notifications and identify: the RND and STORM evidence (issues #54, #58, #80, #86)
+ 
+ Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+-`--identify-only`, and the suite's third build for section ID), plus one section of
+-the originator's unit suite and three of the notification block's:
++`--spacing-only`, `--identify-only`, and the suite's third build for section ID), plus
++one section of the originator's unit suite and four of the notification block's:
+ 
+ | Category | Section | What it proves |
+ |---|---|---|
+@@ -307,10 +307,12 @@ the originator's unit suite and three of the notification block's:
+ | DIR | ID0 (the default 0) | the button puts nothing on the wire |
+ | DIR | NP | every notifying command class pushes one byte-exact u = 1 response to a second registered controller, none to the requester, at the entry's own sequence_id |
+ | STORM | ST | one change fans out to all 16 rows byte-exact; GET_COUNTERS churned at 10 Hz on five descriptors emits at most once per descriptor per second; solicited AECP and ACMP answers stay inside `T-BUDGET-AECP-WC` / `T-BUDGET-ACMP-RESP` under the load |
++| STORM | CS | ST's churn started at ST's phase and 30 and 95 clocks later (#148's shifted timing): every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads, though a solicited answer delays a round's frames |
+ | RND | RN | a seeded REGISTER / DEREGISTER / LOCK / UNLOCK / SET / GET session from 20 controllers against an independent registry and lock model, zero divergence |
+ | RND | `tb/originator` R | a seeded session of 16 owners' overlapping CONTROLLER_AVAILABLE-shaped inflights, responses, expiries and cancellations in random order against an independent inflight model |
+ | DIR | `tb/aecp_notify` IX | the registry's identity index: a reused row refuses its previous controller, no identity one bit from a registered one matches, and in both cycles of a REGISTER's rewrite a command matching what `rows_r` holds still wins against a failed probe in the same cycle: in the row write's own cycle the reused row's previous controller, and, after a reset in that cycle, the row's identity, which the index then lacks |
+ | DIR | `tb/aecp_notify` TS | the counter throttle stamps' valid bit: a second change in the same second is held, and after a warm reset a change in that second goes out at once |
++| DIR | `tb/aecp_notify` TW | a counter round that waits for the TX slot: the next round waits a second from the round's last send, never from its selection, and a change made while a job waits more than a second still waits a second after that send |
+ 
+ The mutation records are in the two suites' READMEs; `tb/pp_top/notify_mutants.py`
+ plants the pp_top controls.
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 89c95b3..030192f 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -133,7 +133,7 @@
+ //                bounded FIFO. Successful no-op setters do not enqueue. The
+ //                requester is excluded from the table walk. GET_COUNTERS
+ //                changes use one dirty and pending bit per served descriptor;
+-//                their one-second limit is measured when emission begins.
++//                their one-second limit runs from a round's last send.
+ //
+ //                DEADLOCK IS BROKEN BY WITHDRAWAL: while a presented job
+ //                waits for the engine, a rising rgy_req_i proves the engine
+@@ -466,6 +466,7 @@ module KL_aecp_notify
+   logic        em_dh_r;                 // this job is the DEREG single-shot
+   logic        em_cmd_r;
+   logic [CIX_W_C-1:0] em_ix_r;
++  logic [CTX_W_C-1:0] em_ctr_ix_r;      // a GET_COUNTERS round's descriptor slot
+ 
+   logic [15:0] uns_cnt_r;
+   logic [7:0]  coalesce_r;
+@@ -1039,6 +1040,7 @@ module KL_aecp_notify
+       em_dh_r     <= 1'b0;
+       em_cmd_r    <= 1'b0;
+       em_ix_r     <= '0;
++      em_ctr_ix_r <= '0;
+       uns_cnt_r   <= 16'd0;
+       coalesce_r  <= 8'd0;
+       wr_en_r     <= 1'b0;
+@@ -1292,9 +1294,12 @@ module KL_aecp_notify
+                     cmdq_count_r <= cmdq_count_r - 5'd1;
+                 end else if (pick_kind_w == PP_UNS_CTRS_C) begin
+                   em_excl_v_r <= 1'b0;
++                  em_ctr_ix_r <= pick_ctr_ix_w;
+                   ctr_pend_r[pick_ctr_ix_w] <= 1'b0;
+-                  // Measure the one-second limit from emission selection,
+-                  // not from the possibly much earlier pending instant.
++                  // Provisional stamp: it keeps the window shut until the
++                  // round's first job reaches N_EMIT_WAIT, whose stamp then
++                  // follows each job to its send, so the limit runs from the
++                  // round's last send (issue #148).
+                   ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+                   ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
+                 end else begin
+@@ -1433,6 +1438,11 @@ module KL_aecp_notify
+ 
+         // ------------------------------------------------------------------
+         N_EMIT_WAIT: begin
++          //! Milan Table 5.22 spaces GET_COUNTERS a second apart at each
++          //! controller (issue #148): the stamp follows the clock while a
++          //! job waits for the engine and the TX slot, and holds its send,
++          //! so the next round waits a second from this round's last send
++          if (em_kind_r == PP_UNS_CTRS_C) ctr_last_r[em_ctr_ix_r] <= now_ms_i;
+           if (core_done_w) begin
+             n_st_r <= N_EMIT_WB;
+           end else if (rgy_new_w) begin
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index 2346b41..b55665f 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -9,7 +9,8 @@ expires the registry row while that probe is active, and requires a targeted
+ cancellation before the row is cleared. It then reuses the same row for a
+ different controller and verifies that the next probe carries only the new
+ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+-and section TS the counter throttle stamps' valid bit.
++section TS the counter throttle stamps' valid bit, and section TW a counter round
++that waits for the TX slot.
+ 
+ Run `make`. Exit status zero and the printed check tally are required.
+ 
+@@ -17,7 +18,7 @@ Run `make`. Exit status zero and the printed check tally are required.
+ 
+ | Build | Override | Runs |
+ |---|---|---|
+-| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks) and section TS (5 checks) |
++| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks) and section TW (4 checks) |
+ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone |
+ 
+ Each binary prints its own build's count, and the Makefile prints the one
+@@ -117,9 +118,33 @@ GET_COUNTERS job:
+ The two REGISTERs of the section are checked as well. TS passes on `main`'s RTL,
+ whose stamps had a reset, too.
+ 
++## Section TW: a counter round that waits for the TX slot (issue #148)
++
++The engine retires a job (`uns_done_i`) when the TX arbiter grants its frame, so a
++job held for the TX slot is sent late. Milan Table 5.22 (`T-CTR-NOTIF`) spaces a
++descriptor's GET_COUNTERS notifications a second apart at each controller, so the
++next round waits a second from the previous round's last send, never from its
++selection. The bench is the engine: it retires each job when the section says, and
++its clock advances one ms per cycle. Two controllers, C (row 0) and D (row 1), are
++registered after a warm reset (both REGISTERs checked), and the changes are on
++AVB_INTERFACE[0]:
++
++- **TW1** a round is presented at ms 2004; C's job is sent at once and D's waits for
++  the TX slot until ms 2600. A change at ms 2700 is held until a second after that
++  last send: the next round is presented at ms 3603, against 3600 to 3608. On
++  `main`'s RTL, which stamped the round at its selection, at ms 3005.
++- **TW2** a round is presented at ms 5004 and C's job waits for the TX slot until
++  ms 6500; a change arrives at ms 5100, inside that wait. D's job is sent at ms
++  6504, and the change goes out a second after it: the next round is presented at
++  ms 7507, against 7504 to 7512. On `main`'s RTL at ms 6508, right after the round:
++  the window opened a second after the selection, while C's job still waited.
++
++The upper bound (8 cycles: the pick and the walk to the job) shows that the held
++change is sent, not lost.
++
+ Mutation record (planted by `tb/pp_top/notify_mutants.py`, which runs `make run`
+-here; all seven KILLED). The last three are PR #153's review faults (R452-1 and
+-R453-1), each the reviewer's own edit:
++here; all ten KILLED). The fifth to the seventh are PR #153's review faults
++(R452-1 and R453-1), each the reviewer's own edit; the last three are issue #148's:
+ 
+ | Mutant | Planted | Failing checks |
+ |---|---|---|
+@@ -130,3 +155,6 @@ R453-1), each the reviewer's own edit:
+ | `override_set_only` | the compare covers only the rewrite's second cycle; the row write's own cycle reads the index | 2: IX6, IX6b |
+ | `own_compare_new_row` | the rewrite's compare reads the incoming row, not what `rows_r` holds | 1: IX5 |
+ | `stamp_read_without_valid` | a counter stamp is read without its valid bit, `ctr_sent_r` | 1: TS3 |
++| `counter_spacing_from_selection_tw` | the stamp no longer follows a waiting job: the limit restarts at the round's selection (`main`'s rule) | 2: TW1 (ms 3005), TW2 (ms 6508) |
++| `counter_stamp_at_send_only` | the stamp written at the job's send alone, not while it waits | 1: TW2 (ms 6508) |
++| `counter_stamp_first_job_only` | the stamp follows only the round's first job (row 0) | 2: TW1 (ms 3007), TW2 (ms 7503) |
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index f9aa514..c963957 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -53,6 +53,15 @@ struct Harness {
+   void rewrite_window();
+   bool counter_job();
+   void counter_stamps();
++  struct Job {
++    uint32_t ms;                            // first seen in this ms; 0 = none
++    uint64_t mac;
++  };
++  void counter_change();
++  Job counter_presented(uint32_t last);
++  uint32_t retire();
++  void hold_until(uint32_t ms);
++  void round_waits_for_tx();
+ 
+   void tick() {
+     d->now_ms_i = now;
+@@ -226,6 +235,7 @@ int Harness::run() {
+   identity_index(EID_A, MAC_A, EID_B, MAC_B);
+   rewrite_window();
+   counter_stamps();
++  round_waits_for_tx();
+   return fails ? 1 : 0;
+ }
+ 
+@@ -410,6 +420,101 @@ void Harness::counter_stamps() {
+         "TS3: after a warm reset, a change in that same second goes out at once");
+ }
+ 
++// TW: a counter round that waits for the TX slot (issue #148). The engine
++// retires a job (uns_done_i) when the TX arbiter grants its frame, so a job
++// held for the TX slot is sent late. Milan Table 5.22 (T-CTR-NOTIF) spaces a
++// descriptor's GET_COUNTERS notifications a second apart at each controller,
++// so the next round waits a second from the previous round's last send, never
++// from its selection. Here the bench is the engine and retires each job when
++// the section says, and the clock advances one ms per cycle.
++void Harness::counter_change() {
++  d->ev_ctr_type_i = DT_AVB_INTERFACE;
++  d->ev_ctr_index_i = 0;
++  d->ev_ctr_i = 1;
++  tick();
++  d->ev_ctr_i = 0;
++  ++now;
++}
++
++//! cycles at one ms each until a GET_COUNTERS job is presented, up to ms `last`
++Harness::Job Harness::counter_presented(uint32_t last) {
++  while (now <= last) {
++    d->clk_i = 0;
++    d->eval();
++    if (d->uns_valid_o && d->uns_kind_o == KIND_CTRS) return {now, d->uns_mac_o};
++    tick();
++    ++now;
++  }
++  return {0, 0};
++}
++
++//! the presented job's frame is granted now: returns the ms of that send
++uint32_t Harness::retire() {
++  const uint32_t sent = now;
++  d->uns_done_i = 1;
++  tick();
++  d->uns_done_i = 0;
++  ++now;
++  return sent;
++}
++
++void Harness::hold_until(uint32_t ms) {
++  while (now < ms) {
++    tick();
++    ++now;
++  }
++}
++
++void Harness::round_waits_for_tx() {
++  constexpr uint64_t EID_D = 0x4444000000000004ull;
++  constexpr uint64_t MAC_D = 0x020000000004ull;
++  constexpr uint32_t LATE = 8;              // the pick and the walk to the job, in cycles
++  warm_reset();
++  d->uns_done_i = 0;
++  now = 2000;
++  register_row(EID_C, MAC_C, false);        // row 0
++  register_row(EID_D, MAC_D, false);        // row 1
++  counter_change();
++  const Job c1 = counter_presented(now + LATE);
++  (void)retire();                           // C's frame leaves at once
++  const Job d1 = counter_presented(now + LATE);
++  hold_until(2600);                         // D's waits 600 ms for the TX slot
++  const uint32_t sent1 = retire();
++  hold_until(2700);
++  counter_change();                         // inside the second after that send
++  const Job c2 = counter_presented(sent1 + 1000 + LATE);
++  printf("  [i] TW1: the round's last job sent at ms %u; the next round presented at ms %u\n",
++         sent1, c2.ms);
++  CHECK(c1.mac == MAC_C && d1.mac == MAC_D && c2.ms >= sent1 + 1000
++            && c2.ms <= sent1 + 1000 + LATE,
++        "TW1: a round first presented at ms %u whose last job waited for the TX slot until ms "
++        "%u holds a change made 100 ms later until a second after that send: next round "
++        "at ms %u, want %u to %u", c1.ms, sent1, c2.ms, sent1 + 1000, sent1 + 1000 + LATE);
++  (void)retire();
++  const Job d2 = counter_presented(now + LATE);
++  (void)retire();
++  // a change made while a round's job waits more than a second for the TX
++  // slot waits a second from the round's last send, not from its selection
++  hold_until(5000);
++  counter_change();
++  const Job c3 = counter_presented(now + LATE);
++  hold_until(5100);
++  counter_change();
++  hold_until(6500);                         // C's job waits 1.5 s for the TX slot
++  (void)retire();
++  const Job d3 = counter_presented(now + LATE);
++  const uint32_t sent3 = retire();
++  const Job c4 = counter_presented(sent3 + 1000 + LATE);
++  printf("  [i] TW2: the round's last job sent at ms %u; the next round presented at ms %u\n",
++         sent3, c4.ms);
++  CHECK(d2.mac == MAC_D && c3.mac == MAC_C && d3.mac == MAC_D && c4.ms >= sent3 + 1000
++            && c4.ms <= sent3 + 1000 + LATE,
++        "TW2: a change made at ms 5100, while a round first presented at ms %u waited for the TX "
++        "slot until ms 6500, goes out a second after the round's last send at ms %u: next "
++        "round at ms %u, want %u to %u", c3.ms, sent3, c4.ms, sent3 + 1000, sent3 + 1000 + LATE);
++  d->uns_done_i = 1;
++}
++
+ #else
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 1c766e7..2d94192 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -1417,6 +1417,11 @@ check moved. Measured 2026-10-03 at `274b424` with Verilator 5.050, each run pin
+ to 4 of the host's 16 CPUs: `--jobs 1` took 940 s and `--jobs 8` 699 s, and the two
+ printed the same record byte for byte: every control and arm the same verdict and
+ the same failing checks, the counts below.
++Re-run 2026-10-04 at `main` `07b1469d` and at the #148 head (`--jobs 2`): control
++PASS, 17 of 17 KILLED at both. `ctr-notify-one-window` fails one check more at the
++head, the record #148 moves here (its row). In the arms that fail K14's late push,
++that push now leaves 1,018 ms after the first, not 1,000: the window runs from the
++first round's last send, its second controller's job, about 18 ms after the first.
+ 
+ | Arm | What is broken | Failing checks |
+ |---|---|---|
+@@ -1428,7 +1433,7 @@ the same failing checks, the counts below.
+ | `ctr-notify-avb-dropped` | the notification block ignores an AVB_INTERFACE strobe (`KL_aecp_notify`) | 6: K13 (named), K14 x2, K15 x2, K17 |
+ | `ctr-notify-avb-as-clock` | an AVB_INTERFACE strobe marks the CLOCK_DOMAIN slot | 8: K13 (named), K14 x2, K15 x2, K16, K17 x2 (a CLOCK_DOMAIN push left pending inside K17's first wait, and no AVB_INTERFACE 0 push) |
+ | `ctr-notify-ckd-dropped` | the notification block ignores a CLOCK_DOMAIN strobe | 1: K16 (named) |
+-| `ctr-notify-one-window` | one emission starts every descriptor's one-second window | 3: K15 (named), K16, K17 |
++| `ctr-notify-one-window` | one emission starts every descriptor's one-second window | 4: K15 x2 (named), K16, K17. 3 at `main` `07b1469d`, without K15's second: since #148 AVB_INTERFACE 0's own stamp follows its round's jobs, so STREAM_INPUT 0's window opens first, and its selection, which here restarts every window, holds the interface a further second, past K15's 1,300 ms and into K17 (2 pushes, not 1) |
+ | `ctr-notify-no-window` | the one-second limit removed | 5: K14 x3 (named), K15 x2 |
+ | `ctr-change-type-from-index` | the strobe's type taken from `ctr_change_desc_index_i` (`protocol_processor_top`) | 8: K13 (named), K14 x2, K15 x3, K16, K17 |
+ | `ctr-notify-avb-any-index` | the notification block takes an AVB_INTERFACE strobe of any index onto AVB_INTERFACE 0's slot | 1: K17 (named: AVB_INTERFACE 1) |
+@@ -1440,18 +1445,18 @@ the same failing checks, the counts below.
+ 
+ ## Recorded seams and honest limits
+ 
+-- ST2b reads GET_COUNTERS rounds on the wire, and `KL_aecp_notify` stamps a
+-  round's one-second limit when it selects the round (its comment: "from
+-  emission selection"). A solicited answer that leaves just before a round's
+-  first frame delays that frame, and the next round, on time, then leaves up
+-  to one job (about 4 ms here) under a second after it. At main `ddb3119d`,
+-  starting ST's churn 30 to 95 clocks later than it starts fails ST2b (99,590
+-  to 99,914 clocks): the check holds for the phase it was tuned at. Since the
+-  name stage, ST first lets the D3 writer save ST1's names, which moves the
+-  churn, so ST restores that phase, one clock before a millisecond tick. The
+-  limiter's stamp is recorded here as a finding: Milan Table 5.22's
+-  once-per-second spacing is not guaranteed on the wire under solicited
+-  load, and a D3 latch's dispatch hold delays a selected round the same way.
++- ST2b reads GET_COUNTERS rounds on the wire. Until issue #148,
++  `KL_aecp_notify` stamped a round's one-second limit when it selected the
++  round, so a solicited answer that left just before a round's first frame
++  delayed that frame, and the next round, on time, then left up to one job
++  (about 4 ms here) under a second after it. At main `ddb3119d`, starting ST's
++  churn 30 to 95 clocks later than it starts failed ST2b (99,590 to 99,914
++  clocks), and at `main` `07b1469d` 27 to 98 clocks later fell below the bound
++  at row 0. The stamp now follows the clock while a round's job waits for the
++  engine and the TX slot, so the next round starts a second after the previous
++  round's last send, and section CS grades every row at two of those starts.
++  ST keeps its phase, one clock before a millisecond tick, after the D3 writer
++  saves ST1's names, so its record stays comparable.
+ - The validator's V9 pass-through has NO msrp/mvrp select — `KL_mrp_strip`
+   derives it from the EtherType bytes it strips (V9 already enforced the
+   DA/EtherType pairing).
+@@ -2221,7 +2226,7 @@ not a multiple of 8`). Verilator reports an elaboration `$error` as a warning th
+ 
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+-`notify_phases.hpp` holds five sections, each on a fresh processor of its own
++`notify_phases.hpp` holds seven sections, each on a fresh processor of its own
+ (the section AD pattern: its own model, the suite's descriptor image, erased NVM,
+ both restore walks, link up and enable), so the main run's clock is untouched.
+ Every AECP and ACMP frame is logged with the clock its last byte left on, so
+@@ -2229,8 +2234,9 @@ spacing and latency are read off the wire. Every expectation is built from the
+ clause byte offsets; a per-entry `sequence_id` is modelled from the wire alone, as
+ the count of unsolicited frames that controller was sent before (Milan §5.4.5.1).
+ 
+-`--identify-only` runs ID0 (default build) and `--notify-only` runs NP, ST and RN;
+-`make identify` builds and runs the third build and ID0.
++`--identify-only` runs ID0 (default build), `--notify-only` runs NP, ST and RN, and
++`--spacing-only` runs CS; `make identify` builds and runs the third build and ID0, and
++`make timer-defaults` the sixth build, which runs TD alone.
+ 
+ ### The third build: `P-EN-IDENTIFY-NOTIFICATION`
+ 
+@@ -2393,17 +2399,20 @@ zeros elsewhere, the same bytes as the successful solicited answer
+   the requester receives only its answer.
+ - **ST2** every served descriptor of five (STREAM_INPUT 0 and 1, STREAM_OUTPUT 0,
+   AVB_INTERFACE 0, CLOCK_DOMAIN 0) changes every 100 ms for 3.5 s: each emits at
+-  least three and at most one round per second (5 or 4 in 5 s, the closest two
+-  99,994 clocks apart: the limiter reads one tick), and every GET_COUNTERS frame is
+-  byte-exact at its row's own sequence_id. The one-tick tolerance is a recorded
++  least three and at most one round per second (4 in 5 s, the closest two 115,077
++  clocks apart: since issue #148 a round's last send starts the next second, and a
++  sixteen-row round takes about 15,000 clocks here; at `main` `07b1469d`, before it,
++  5 or 4, the closest 99,994: the limiter reads one tick), and every GET_COUNTERS
++  frame is byte-exact at its row's own sequence_id. The one-tick tolerance is a recorded
+   decision (review R420-1 S4, retained): the limiter predates this lane and counts
+   Milan Table 5.22's "once per second" on the 1 ms timebase like every T- value (08
+   §3: 1 ms resolution), so two rounds are at least 1,000 ticks apart: in core
+   clocks, at most one tick short of a second.
+ - **ST3** a GET_CONFIGURATION and an ACMP GET_RX_STATE every 700 ms of the churn
+   are all answered, within T-BUDGET-AECP-WC and T-BUDGET-ACMP-RESP counted in
+-  clocks at the wrap's nominal clock (clk_ms(100), clk_ms(50)): worst 70,958 and
+-  249 clocks. The ms timebase is compressed a thousandfold while the engine's
++  clocks at the wrap's nominal clock (clk_ms(100), clk_ms(50)): worst 70,681 and
++  485 clocks (70,681 and 249 at `main` `07b1469d`: the rounds' phase moved with
++  issue #148). The ms timebase is compressed a thousandfold while the engine's
+   work is counted in real clocks, so the notifications a real second allows are
+   packed into 100,000 clocks here; the bound is a hundred times stricter than the
+   F01.5 default clock's.
+@@ -2426,6 +2435,32 @@ only (its body is issue #53's). Result: 2,203 frame comparisons, zero divergence
+ lock-refused SETs, 375 pushes, in 10.6 s of compressed time (under the controller
+ monitor's 30 s floor, so no CONTROLLER_AVAILABLE is due).
+ 
++### Section CS: counter spacing from the previous round's send (#148)
++
++Milan Table 5.22 (`T-CTR-NOTIF`, 08 F08.1) allows one GET_COUNTERS notification per
++descriptor per second. A round whose job waits for the TX slot, behind a solicited
++answer that leaves just before it, must still leave a second after the previous
++round's send. Each check runs ST's churn (the five descriptors at 10 Hz for 3.5 s,
++a GET_CONFIGURATION and a GET_RX_STATE every 700 ms, then 1.5 s quiet) on a fresh
++processor with all sixteen rows registered, and grades every row's rounds, not only
++row 0's as ST2b does: each controller's GET_COUNTERS frames of one descriptor are at
++least 1,000 ms less the one tick the limiter reads apart (ST2, 99,900 clocks), and
++each row receives at least three rounds of each descriptor.
++
++- **CS1** (premise, each run) the sixteen controllers register.
++- **CS2a** the churn starts at ST's phase, one clock before a ms tick.
++- **CS2b** it starts 30 clocks later.
++- **CS2c** it starts 95 clocks later.
++
++The two shifted starts are the "shifted timing" of #148: while `KL_aecp_notify`
++stamped a round when it selected it, a start 27 to 98 clocks after ST's phase (of
++every 100) narrowed a gap below the bound at `main` `07b1469d`, 30 to 95 at
++`ddb3119d` (the README's earlier limit). At `main` CS2a passes (99,994 clocks), CS2b
++fails (99,854, row 0, STREAM_OUTPUT 0) and CS2c fails (99,590, row 0, STREAM_INPUT
++1). At this head the closest gap is 115,077, 115,070 and 115,077 clocks: the next
++round starts a second after the previous round's last send, and a sixteen-row round
++takes about 15,000 clocks here.
++
+ ### Mutation record: `notify_mutants.py`
+ 
+ `python3 tb/pp_top/notify_mutants.py --output DIR [--jobs N] [--only NAME ...]`
+@@ -2439,7 +2474,11 @@ KILLED, every count as below. `ident_burst_from_t0`'s count moved with lane P1,
+ `main` alone still fails 20. Issue #232 adds the four `ix_*` controls of the
+ registry's identity index, graded by `tb/aecp_notify` section IX, for 44 of 44,
+ and PR #153's review adds three more, graded by `tb/aecp_notify` sections IX
+-and TS, for 47 of 47:
++and TS, for 47 of 47. Issue #148 adds six counter-spacing controls, graded by
++section CS and by `tb/aecp_notify` section TW, for 53 of 53. Re-run 2026-10-04 at
++`main` `07b1469d` (47 of 47) and at the #148 head (53 of 53): the goldens PASS, and
++46 of the 47 earlier controls fail the same checks at both. `counter_limit_500ms` is
++the one record #148 moves, and its named check is now ST2b alone (its row):
+ 
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+@@ -2471,7 +2510,7 @@ and TS, for 47 of 47:
+ | `requester_not_excluded` | command pushes exclude nobody | 12, NP1 first |
+ | `entry_seq_not_advanced` | the row's sequence_id never moves | 13, NP1b first |
+ | `stream_info_get_body` | the landed SET_STREAM_INFO mapping | 1: NP3 |
+-| `counter_limit_500ms` | the GET_COUNTERS limiter at 500 ms | 12: ST2, ST2b, ST3, ST3b |
++| `counter_limit_500ms` | the GET_COUNTERS limiter at 500 ms | 7: ST2b x5 (named), ST3, ST3b. 12 at `main` `07b1469d`, with ST2 x5 named too: since #148 a round's second runs from its last send, so half a second leaves rounds 75,504 clocks apart, six in ST2's five seconds, inside its count bound |
+ | `fan_out_skips_row_0` | the walk skips row 0 | 9, ST1b among them |
+ | `refresh_resets_seq` | a refresh re-zeroes the entry | 1: RN |
+ | `foreign_unlock_allowed` | a foreign UNLOCK succeeds | 1: RN |
+@@ -2490,6 +2529,12 @@ and TS, for 47 of 47:
+ | `override_set_only` | the compare covers only the rewrite's second cycle; the row write's own cycle reads the index | 2: `tb/aecp_notify` IX6, IX6b |
+ | `own_compare_new_row` | the rewrite's compare reads the incoming row, not what `rows_r` holds | 1: `tb/aecp_notify` IX5 |
+ | `stamp_read_without_valid` | a counter stamp is read without its valid bit, `ctr_sent_r` | 1: `tb/aecp_notify` TS3 |
++| `counter_spacing_from_selection` | the stamp no longer follows a waiting job: the one-second limit restarts at the round's selection (`main`'s rule) | 2: CS2b, CS2c |
++| `counter_spacing_from_selection_tw` | the same edit, graded in `tb/aecp_notify` | 2: `tb/aecp_notify` TW1, TW2 |
++| `counter_stamp_at_send_only` | the stamp written at the job's send alone, not while it waits | 1: `tb/aecp_notify` TW2 |
++| `counter_stamp_first_job_only` | the stamp follows only the round's first job (row 0) | 2: `tb/aecp_notify` TW1, TW2 |
++| `counter_limit_500ms_cs` | `counter_limit_500ms`'s edit, graded by section CS | 3: CS2a, CS2b, CS2c (75,504 clocks at each start) |
++| `registry_holds_15_cs` | `registry_holds_15`'s edit, graded by section CS | 6: CS1 x3 (15 of 16 register), CS2a, CS2b, CS2c (row 15 receives no round) |
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+diff --git a/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch b/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+index 0968b63..eca21b0 100644
+--- a/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
++++ b/tb/pp_top/ctr_mutations/ctr-notify-one-window.patch
+@@ -1,9 +1,11 @@
+ --- a/hdl/aecp/KL_aecp_notify.sv
+ +++ b/hdl/aecp/KL_aecp_notify.sv
+-@@ -1233,8 +1233,9 @@
++@@ -1233,10 +1233,11 @@
+                    ctr_pend_r[pick_ctr_ix_w] <= 1'b0;
+-                   // Measure the one-second limit from emission selection,
+-                   // not from the possibly much earlier pending instant.
++                   // Provisional stamp: it keeps the window shut until the
++                   // round's first job reaches N_EMIT_WAIT, whose stamp then
++                   // follows each job to its send, so the limit runs from the
++                   // round's last send (issue #148).
+ -                  ctr_sent_r[pick_ctr_ix_w] <= 1'b1;
+ -                  ctr_last_r[pick_ctr_ix_w] <= now_ms_i;
+ +                  ctr_sent_r <= '1;
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index bba0823..20dd37c 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -17,7 +17,9 @@ timebase), the parameter's default (section ID0), the command-class pushes (NP),
+ the STORM and RND sections (ST, RN), the originator's seeded inflight session
+ (tb/originator section R), and the registry's identity index and the counter
+ throttle stamps' valid bit in the first build of tb/aecp_notify (sections IX and TS,
+-issue #232). The suite READMEs carry the matching mutation records.
++issue #232), and the counter rounds' spacing from the previous round's send (issue
++#148: tb/pp_top section CS and tb/aecp_notify section TW). The suite READMEs carry the
++matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -52,6 +54,7 @@ class Mutant(NamedTuple):
+ IDENT = Suite("tb/pp_top", ("make", "identify-build"), ("./obj_idn/Vpp_top_idn",))
+ IDENT_OFF = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--identify-only"))
+ NOTIFY = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--notify-only"))
++SPACING = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--spacing-only"))
+ ORIGIN = Suite("tb/originator", (), ("make", "run"))
+ TIMEBASE = Suite("tb/aecp_notify", (), ("make", "identify"))
+ INDEX = Suite("tb/aecp_notify", (), ("make", "run"))
+@@ -213,7 +216,9 @@ STORM_RND = (
+     Mutant("counter_limit_500ms", NOTIFY, (
+         (NTFY, "                || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin\n",
+          "                || ((now_ms_i - ctr_last_r[c]) >= 32'd500))) begin\n"),),
+-        ("ST2: descriptor 0005:0", "ST2b: descriptor 0005:0")),
++        # since #148 a round's second runs from its last send, so half a second
++        # leaves six rounds in ST2's five seconds, inside its count; ST2b holds it
++        ("ST2b: descriptor 0005:0",)),
+     Mutant("fan_out_skips_row_0", NOTIFY, (
+         (NTFY, "  assign em_skip_w = !valid_r[wk_ix_r]\n",
+          "  assign em_skip_w = !valid_r[wk_ix_r] || (wk_ix_r == '0)\n"),),
+@@ -294,7 +299,34 @@ IDENTITY_INDEX = (
+         ("TS3:",)),
+ )
+ 
+-MUTANTS = IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX
++# a counter round's one-second limit from the previous round's last send (issue
++# #148), graded on the wire by tb/pp_top section CS and directly by tb/aecp_notify TW
++STAMP = "          if (em_kind_r == PP_UNS_CTRS_C) ctr_last_r[em_ctr_ix_r] <= now_ms_i;\n"
++STORM_EDITS = {m.name: m.edits for m in STORM_RND}
++
++COUNTER_SPACING = (
++    Mutant("counter_spacing_from_selection", SPACING, (
++        (NTFY, STAMP, ""),),
++        ("CS2b:", "CS2c:")),
++    Mutant("counter_spacing_from_selection_tw", INDEX, (
++        (NTFY, STAMP, ""),),
++        ("TW1:", "TW2:")),
++    Mutant("counter_stamp_at_send_only", INDEX, (
++        (NTFY, STAMP, STAMP.replace("(em_kind_r == PP_UNS_CTRS_C)",
++                                    "((em_kind_r == PP_UNS_CTRS_C) && core_done_w)")),),
++        ("TW2:",)),
++    Mutant("counter_stamp_first_job_only", INDEX, (
++        (NTFY, STAMP, STAMP.replace("(em_kind_r == PP_UNS_CTRS_C)",
++                                    "((em_kind_r == PP_UNS_CTRS_C) && (em_ix_r == '0))")),),
++        ("TW1:",)),
++    # CS's phase-0 run and its premise, graded with two of STORM_RND's own edits
++    Mutant("counter_limit_500ms_cs", SPACING, STORM_EDITS["counter_limit_500ms"],
++           ("CS2a:", "CS2b:", "CS2c:")),
++    Mutant("registry_holds_15_cs", SPACING, STORM_EDITS["registry_holds_15"],
++           ("CS1:",)),
++)
++
++MUTANTS = IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+index f1b79b4..1716176 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1267,17 +1267,16 @@ struct StormPhase : NotifyBench {
+     the_full_registry_fans_out();
+     //! ST1's SET_NAMEs are saved by the D3 writer a debounce later (issues
+     //! #61, #83), and its ACQUIRE holds dispatch for up to one job: a round
+-    //! selected before it would leave late and the next on time. The churn
+-    //! grades the limiter, so it starts once that save is in the device
++    //! selected before it would leave late. The churn grades the limiter, so
++    //! it starts once that save is in the device
+     long guard = 3 * 500L * MS_CYC;
+     while (io.d->d3_unflushed_o && guard-- > 0) tick();
+     CHECK(!io.d->d3_unflushed_o, "ST1: the fan-outs' name save has drained before the "
+           "churn (premise)");
+     //! and at the phase of the millisecond tick it always started at, one
+-    //! clock before a tick: ST2b reads the wire, and the limiter stamps a
+-    //! round when it selects it, so a probe's answer that lands before a
+-    //! round's first frame narrows that gap (a churn started 30 to 95 clocks
+-    //! later fails ST2b at main ddb3119d too; README limits)
++    //! clock before a tick, so its record stays comparable. Section CS starts
++    //! the same churn 30 and 95 clocks later, two of the starts that failed
++    //! ST2b while the limiter stamped a round at its selection (issue #148)
+     const uint32_t ms0 = io.d->dbg_now_ms_o;
+     while (io.d->dbg_now_ms_o == ms0) tick();
+     for (int c = 0; c < MS_CYC - 1; ++c) tick();
+@@ -1290,6 +1289,73 @@ struct StormPhase : NotifyBench {
+   }
+ };
+ 
++// ==== CS. Counter spacing from the previous round's send (issue #148) =====
++// Milan Table 5.22 (T-CTR-NOTIF, 08 F08.1): one GET_COUNTERS notification per
++// descriptor per second. A round whose job waits for the TX slot, behind a
++// solicited answer that leaves just before it, must still leave a second after
++// the previous round's send. ST's churn on a fresh processor with all sixteen
++// rows registered, started at the tick phase ST keeps (one clock before a ms
++// tick) and 30 and 95 clocks later: while the limiter stamped a round at its
++// selection, a start 27 to 98 clocks later narrowed a gap below the bound
++// (main 07b1469d; 30 to 95 at ddb3119d, README limits). Every row's rounds are
++// graded, not only row 0's: each controller's frames of one descriptor are a
++// second apart, less the one tick the limiter reads (ST2).
++struct CounterSpacingPhase : StormPhase {
++  using StormPhase::StormPhase;
++
++  //! the GET_COUNTERS frames of descriptor d at row k, each a round's send
++  std::vector<uint64_t> rounds_at(unsigned k, unsigned d, size_t from) const {
++    std::vector<uint64_t> v;
++    for (size_t i : at_mac(ROW_MAC + k, from)) {
++      const auto& f = seen[i].f;
++      if (unsolicited(f) && f.size() >= 42 && ct_of(f) == 0x0029
++          && ((f[38] << 8) | f[39]) == desc_type(d) && ((f[40] << 8) | f[41]) == desc_index(d))
++        v.push_back(seen[i].t);
++    }
++    return v;
++  }
++
++  void run(const char* id, long shift) {
++    boot_to_idle(true);
++    int ok = 0;
++    for (unsigned k = 0; k < N_ROWS; ++k) ok += register_controller(ROW_MAC + k, ROW_EID + k, seq++);
++    CHECK(ok == int(N_ROWS), "CS1: sixteen controllers register before the churn started "
++          "%ld clocks after ST's phase (premise; %d)", shift, ok);
++    const uint32_t ms0 = io.d->dbg_now_ms_o;
++    while (io.d->dbg_now_ms_o == ms0) tick();
++    for (long c = 0; c < MS_CYC - 1 + shift; ++c) tick();
++    const size_t from = seen.size();
++    churn(3500);
++    run_ms(1500);
++    long closest = 1L << 40;
++    unsigned row = 0;
++    unsigned desc = 0;
++    size_t fewest = seen.size();
++    for (unsigned d = 0; d < N_DESC; ++d) {
++      for (unsigned k = 0; k < N_ROWS; ++k) {
++        const auto r = rounds_at(k, d, from);
++        fewest = std::min(fewest, r.size());
++        for (size_t i = 1; i < r.size(); ++i) {
++          if (long(r[i] - r[i - 1]) < closest) {
++            closest = long(r[i] - r[i - 1]);
++            row = k;
++            desc = d;
++          }
++        }
++      }
++    }
++    printf("  [i] %s: churn %ld clocks after ST's phase, closest rounds %ld clocks apart "
++           "(row %u, descriptor %04x:%u), fewest rounds at a row %zu\n", id, shift, closest,
++           row, unsigned(desc_type(desc)), unsigned(desc_index(desc)), fewest);
++    CHECK(fewest >= 3 && closest >= 1000L * MS_CYC - MS_CYC,
++          "%s: churn started %ld clocks after ST's phase: every row's GET_COUNTERS rounds "
++          "of each descriptor leave a second after its previous round's send, less the one "
++          "tick the limiter reads; closest %ld clocks (row %u, descriptor %04x:%u), want at "
++          "least %ld, and at least 3 rounds at each row (fewest %zu)", id, shift, closest, row,
++          unsigned(desc_type(desc)), unsigned(desc_index(desc)), 1000L * MS_CYC - MS_CYC, fewest);
++  }
++};
++
+ // ==== RN. RND: seeded registry, lock and SET churn against a model (#80) ==
+ // 09 section 3 RND: randomized multi-controller sessions against an
+ // independent model, no divergence. Twenty controllers (more than Milan
+@@ -1594,6 +1660,15 @@ struct RndPhase : NotifyBench {
+   printf("ST: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
++[[maybe_unused]] static void run_spacing(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  CounterSpacingPhase{h}.run("CS2a", 0);
++  CounterSpacingPhase{h}.run("CS2b", 30);
++  CounterSpacingPhase{h}.run("CS2c", 95);
++  printf("CS: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++}
++
+ [[maybe_unused]] static void run_identify(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index e4a0ca7..6cc2600 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -14048,6 +14048,7 @@ int main(int argc, char** argv) {
+   const bool dl_only = argc == 2 && std::strcmp(argv[1], "--deadline-only") == 0;
+   const bool hz_only = argc == 2 && std::strcmp(argv[1], "--hazards-only") == 0;
+   const bool ctr_only = argc == 2 && std::strcmp(argv[1], "--counters-only") == 0;
++  const bool spacing_only = argc == 2 && std::strcmp(argv[1], "--spacing-only") == 0;
+   const bool aq_only = argc == 2 && std::strcmp(argv[1], "--arm-queue-only") == 0;
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+@@ -14055,7 +14056,7 @@ int main(int argc, char** argv) {
+   }
+   const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+                            || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+-                           || ident_only || notify_only || ctr_only || aq_only;
++                           || ident_only || notify_only || ctr_only || spacing_only || aq_only;
+   if (maap_only) run_maap_internal(h);
+   if (!one_section || aq_only) Suite(h).run();
+   if (aecp_only) run_aecp_dispatch_focus(h);
+@@ -14074,6 +14075,7 @@ int main(int argc, char** argv) {
+   if (!one_section || notify_only) run_pushes(h);
+   if (!one_section || notify_only) run_storm(h);
+   if (!one_section || notify_only) run_rnd(h);
++  if (!one_section || spacing_only) run_spacing(h);
+   if (!one_section || ctr_only) run_counters(h);
+   if (!one_section || aq_only) run_arm_queue(h);
+   const char* const build = "default";
