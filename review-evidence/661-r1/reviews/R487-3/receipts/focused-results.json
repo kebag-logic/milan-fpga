@@ -1,0 +1,112 @@
+[
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.736
+  },
+  {
+    "name": "docs-scrub-controls",
+    "command": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.217
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.116
+  },
+  {
+    "name": "doc-style-controls",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.065
+  },
+  {
+    "name": "contents",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.931
+  },
+  {
+    "name": "em-dash-source",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "506d91dbeeba585d72d2e80d92fca799c719f8ee"
+    ],
+    "rc": 0,
+    "seconds": 4.382
+  },
+  {
+    "name": "em-dash-dev",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "fa450d301805881ad713b67521477bf042ddadfd"
+    ],
+    "rc": 0,
+    "seconds": 4.332
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.369
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 1.117
+  },
+  {
+    "name": "diff-whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "506d91dbeeba585d72d2e80d92fca799c719f8ee..HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  }
+]
