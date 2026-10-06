@@ -1,0 +1,43 @@
+R505-2 replay instructions
+
+Use a pristine clone at d52bd7f277c6339b13fe7c8ebe849b25f3e14638 and a new
+packet directory containing scripts/, public/pp_srcs.py, receipts/, scratch/.
+Python 3.14, git, make, a C++ compiler, the verified 5.050 compiler and the
+2026.1 analysis frontend were used. Public evidence retrieval also needs gh.
+Each script accepts paths; no review-specific source changes are required.
+
+Commands, substituting REPO, PACKET and COMPILER with absolute paths:
+
+python3 PACKET/scripts/identity.py REPO PACKET/receipts/initial-integrity.json
+python3 PACKET/scripts/run_focused.py REPO PACKET --verilator COMPILER --jobs 4
+python3 PACKET/scripts/plant_all.py REPO PACKET
+python3 PACKET/scripts/run_new_mutations.py REPO PACKET --verilator COMPILER --jobs 3
+python3 PACKET/scripts/audit_public.py PACKET
+python3 PACKET/scripts/analyze.py REPO PACKET --xvlog /path/to/2026.1/bin/xvlog
+python3 PACKET/scripts/identity.py REPO PACKET/receipts/final-integrity.json
+
+Run the analysis command in the vendor's settings64.sh environment after
+compiler builds finish. All commands are foreground supervisors; no detached
+jobs are needed. The four focused suites run concurrently. New fault controls
+run with three campaign workers, each build limited to four compiler workers.
+The review ran the campaign after three focused suites finished and the final
+suite had entered simulation; total concurrent compiler workers never exceeded
+16. make receives -j16 directly or through MAKEFLAGS. Temporary files, source
+exports and generated binaries are confined to scratch/.
+
+Planting checks are separate from fault detection. plant_all.py never builds
+or simulates a mutation. run_new_mutations.py executes the seven registered
+rows for the six newly imported definitions and their three clean controls.
+Its uniquely named receipts preserve both suites for lv-expiry-masked; the
+upstream aggregate log filename alone overwrites the earlier suite receipt.
+
+The source-list generator is the public parent scripts/pp_srcs.py at
+28f9666feab2b2ba287643c63ed3a16b1e0bb863. analyze.py sets only its source-root
+input and checks every derived tracked design file, packages first.
+
+The public evidence archive is pinned at:
+https://github.com/kebag-logic/milan-fpga/tree/2e889399824b70f9ed9a20c53d925e61a617a976/review-evidence/pp22-r1
+
+No full processor/parent/builder/synthesis bank is invoked by these scripts.
+No source checkout is mutated. Historical public evidence is verified as
+historical; its full-bank results are not relabeled as this review's execution.

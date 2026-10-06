@@ -1,0 +1,69 @@
+{
+  "checked_utc": "2026-10-06T06:37:59.364119+00:00",
+  "head": "d52bd7f277c6339b13fe7c8ebe849b25f3e14638",
+  "independent_verdict_sha256": "d5a22fa103df1d5e682eaffc376f862803820a8bb0a0c97495f145cada589ed1",
+  "order": "independent diff and five-lens verdict/ledger first; earlier reports then read",
+  "entries": [
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6009540526,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6009540526",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R504-1"
+    },
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6009540943,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6009540943",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R505-1"
+    },
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6009669777,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6009669777",
+      "first_line": "[R505] POSITIVE - exact head 2139f3dc10161b456dfbd51d2f73a63f9164e041"
+    },
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6009861919,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6009861919",
+      "first_line": "[R504] POSITIVE - exact head 2139f3dc10161b456dfbd51d2f73a63f9164e041"
+    },
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6010668449,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6010668449",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R504-2"
+    },
+    {
+      "endpoint": "issues/162/comments",
+      "id": 6010668951,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/162#issuecomment-6010668951",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R505-2"
+    }
+  ],
+  "dispositions": [
+    {
+      "id": "R505-1",
+      "status": "no prior findings; unchanged declaration files preserve earlier coverage"
+    },
+    {
+      "id": "R504-1/S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "RTL"
+      ],
+      "status": "retained optional follow-up; same bytes at validator lines 232-233"
+    },
+    {
+      "id": "R504-1/S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "status": "retained optional follow-up; rule 2 and parent-only analysis gate unchanged"
+    }
+  ],
+  "open_blocker_major_minor": 0,
+  "residue": 0
+}

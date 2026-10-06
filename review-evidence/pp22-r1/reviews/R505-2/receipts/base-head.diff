@@ -1,0 +1,1077 @@
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index 5b31a22..9520a57 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -545,6 +545,36 @@ sequenceDiagram
+ > latency; `EVT_TK_UNREGISTERED` therefore fires on the *frame* that withdraws a
+ > talker attribute, not a timer later.
+ 
++<a id="sec-10-lv-withdrawal"></a>*A withdrawal that meets LV (issue
++[#134](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/134)).*
++Δ13 replaces one cell of 802.1Q-2014 Table 10-4, IN / rLv!. The LV column stays the
++standard's. Table 10-4 puts rLv!, rLA!, txLA! and Re-declare! in one row: in IN it starts
++the leavetimer and enters LV, and in LV it is `-x-`. So a LeaveAll (the own `sLA` action,
++or a received LeaveAll on the registrar's lane) moves an IN registrar to LV and starts its
++T-MRP-LEAVE slot. An `Lv` that then arrives, such as a peer's withdrawal just after the
++LeaveAll, changes nothing, however often it repeats. The registration stays published
++(`lstn_reg_state[src]`; `tk_reg_state[sink]` on the listener side) and the talker's ACTIVE
++stays high until leavetimer!, which is Lv and MT in LV. That is T-MRP-LEAVE after the
++LeaveAll ([F08.1](08_timing.md#fig-08-constants), Milan v1.2 Table 4.3 LeaveTime). The registration then ends, `LISTENER_REG_CHANGE`
++fires, and ACTIVE falls once: one STREAM_STOP. A registering event (New, JoinIn, JoinMt)
++before the expiry returns the registrar to IN and stops the timer instead. A talker whose
++listener withdraws just after a LeaveAll therefore streams on for up to T-MRP-LEAVE. The
++bench met this case (milan-fpga #608: a 2 s hold, shorter than T-MRP-LEAVE), and
++[`tb/srp_top`](../../tb/srp_top/README.md) group S grades it after an own and after a peer
++LeaveAll. Group SC also sweeps the decoded `Lv` across the expiry clock on both planes.
++
++**Same-clock expiry and reception.** A registrar consumes its one-clock leavetimer!
++before applying a received event. Table 10-4 first takes LV to MT with Lv; applying
++rLv!, rLA! or txLA! at MT leaves MT. Received In and Mt do not register and likewise
++leave MT. Applying rNew!, rJoinIn! or rJoinMt! instead ends IN with the received
++value, stops the obsolete timer, and keeps the published registration and ACTIVE
++continuous. The registrar publishes the final result of the composed transitions:
++a same-clock renewal does not emit an intermediate withdrawal. Existing type-change,
++latency and FailureInformation notifications still apply to the received value.
++No pending expiry or timer-service handshake is added: the one-clock strobe is
++consumed on its arrival. The pending-ARM guard still excludes an obsolete expiry
++while a replacement leave timer is being issued.
++
+ **The LeaveAll timer is per MRP application; the LeaveAll message is per
+ Attribute Type, on transmit and on receive.** 802.1Q-2014 §10.7.5.20 NOTE: "The
+ LeaveAll state machine operates on a per-application (not per-Attribute Type)
+diff --git a/hdl/packet_engine/KL_pp_originator.sv b/hdl/packet_engine/KL_pp_originator.sv
+index 058b10c..0aaeb6e 100644
+--- a/hdl/packet_engine/KL_pp_originator.sv
++++ b/hdl/packet_engine/KL_pp_originator.sv
+@@ -185,6 +185,9 @@ module KL_pp_originator #(
+     end
+   end
+ 
++  logic                cancel_hit_w;
++  logic [IFL_AW_C-1:0] cancel_ix_w;
++
+   logic [IFL_N_C-1:0]  cancel_work_w;
+   logic                cancel_pend_ok_w;
+   logic [IFL_AW_C-1:0] cancel_pend_ix_w;
+@@ -233,9 +236,6 @@ module KL_pp_originator #(
+     end
+   end
+ 
+-  logic                cancel_hit_w;
+-  logic [IFL_AW_C-1:0] cancel_ix_w;
+-
+   always_comb begin : cancel_pick
+     cancel_hit_w = 1'b0;
+     cancel_ix_w  = '0;
+diff --git a/hdl/packet_engine/KL_pp_rx_validator.sv b/hdl/packet_engine/KL_pp_rx_validator.sv
+index 4e1e93e..158f0b1 100644
+--- a/hdl/packet_engine/KL_pp_rx_validator.sv
++++ b/hdl/packet_engine/KL_pp_rx_validator.sv
+@@ -229,6 +229,8 @@ module KL_pp_rx_validator
+   logic [11:0] pcnt_end_w;
+   logic        v1_pass_w;
+   logic        ev_da_w, ev_et_w, ev_len_w;
++  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
++  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign acc_w  = rx_valid_i;
+   assign end_w  = rx_valid_i && rx_last_i;
+@@ -618,9 +620,7 @@ module KL_pp_rx_validator
+   logic [7:0] od_data_r;
+   logic       out_valid_r, out_emit_r;
+ 
+-  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
+   logic       vq_head_w;
+-  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign fifo_ne_w   = (wptr_r != rptr_r);
+   assign fifo_full_w = (wptr_r == (rptr_r ^ 7'h40));
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index 78014b4..20df3af 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -744,6 +744,9 @@ module KL_srp_listener_fsm
+         tpend_r[tsel_ix_w] <= T_NOP_C;
+       end
+ 
++      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++      // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-sink registrar events ------------------------------------
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+         if (reg_rx_hit_w[s] && rx_registering_w) begin
+@@ -763,6 +766,10 @@ module KL_srp_listener_fsm
+           end
+           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
+           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++        end else if (exp_hit_w && (exp_idx_w == s)
++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++          evt_tk_unregistered_o[s] <= 1'b1;
+         end else if (reg_rx_hit_w[s]
+                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+           if (reg_r[s] == R_IN_C) begin
+@@ -773,10 +780,6 @@ module KL_srp_listener_fsm
+         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
+-        end else if (exp_hit_w && (exp_idx_w == s)
+-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+-          evt_tk_unregistered_o[s] <= 1'b1;
+         end
+         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
+         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/hdl/srp/KL_srp_talker_fsm.sv b/hdl/srp/KL_srp_talker_fsm.sv
+index 433d080..f716e2a 100644
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -717,6 +717,9 @@ module KL_srp_talker_fsm
+         tpend_r[tsel_ix_w] <= T_NOP_C;
+       end
+ 
++      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++      // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-source registrar events ----------------------------------
+       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+@@ -726,6 +729,9 @@ module KL_srp_talker_fsm
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+           reg_r[s]      <= R_IN_C;
+           lstn_val_r[s] <= evt_fourpacked_i;
++        end else if (exp_hit_w && (exp_idx_w == s)
++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+           if (reg_r[s] == R_IN_C) begin
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+@@ -734,9 +740,6 @@ module KL_srp_talker_fsm
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
+-        end else if (exp_hit_w && (exp_idx_w == s)
+-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end
+         // gate re-open arms a fresh tracker for the (possibly new) stream
+         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+diff --git a/tb/pp_top/d3_phases.hpp b/tb/pp_top/d3_phases.hpp
+index c0ca2c5..3ad7c84 100644
+--- a/tb/pp_top/d3_phases.hpp
++++ b/tb/pp_top/d3_phases.hpp
+@@ -2961,7 +2961,7 @@ struct D3ClockSourcePhase : D3RestorePhase {
+               && d->dbg_d3_blank_o == D3_RECORDS - 1,
+           "D3C3 restore: COMPLETE from cleared rows with the saved record applied "
+           "(applied %u refused %u blank %u of %d)", unsigned(d->dbg_d3_applied_o),
+-          unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o));
++          unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o), D3_RECORDS);
+     const uint16_t g = seq++;
+     const auto get = get_clock_source(g);
+     CHECK(get.size() == 1 && get[0] == answer(AECP_SUCCESS, g, AEM_GET_CLOCK_SOURCE, LAST_AAF)
+@@ -2991,7 +2991,7 @@ struct D3ClockSourcePhase : D3RestorePhase {
+                 && d->dbg_d3_refused_o == 1 && d->dbg_d3_blank_o == D3_RECORDS - 1,
+             "D3C4 %s: the saved 9 over %u sources is refused, COMPLETE (applied %u "
+             "refused %u blank %u of %d)", a.what, a.count, unsigned(d->dbg_d3_applied_o),
+-            unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o));
++            unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o), D3_RECORDS);
+       const uint16_t g = seq++;
+       const auto get = get_clock_source(g);
+       CHECK(get.size() == 1 && get[0] == answer(AECP_SUCCESS, g, AEM_GET_CLOCK_SOURCE, 0)
+diff --git a/tb/srp_stream_fsms/README.md b/tb/srp_stream_fsms/README.md
+index 9a9e4b4..b958a91 100644
+--- a/tb/srp_stream_fsms/README.md
++++ b/tb/srp_stream_fsms/README.md
+@@ -5,7 +5,7 @@ Proves the per-stream SRP FSMs (`hdl/srp/KL_srp_talker_fsm.sv`, M = 8
+ sources, and `hdl/srp/KL_srp_listener_fsm.sv`, N = 8 sinks) against
+ [10 §4/§5/§6.3/§6.4/§6.5](../../docs/architecture/10_srp_engine.md) with the
+ 802.1Q-2018 §10.7 tables as the normative core: `make` = build + run,
+-exit 0 = PASS, 1219 checks. `make` first runs the walk-record arms at four
++exit 0 = PASS, 1347 checks. `make` first runs the walk-record arms at four
+ shapes ([below](#walk-records-at-both-elaboration-arms-issue-230)), then this
+ suite, whose tally is the last line.
+ 
+@@ -214,3 +214,19 @@ at 1/1, 2/2, 3/5 and 9/9, all PASS. The probes of both #230 reviews and the
+ lane's own controls of these copies are killed controls of
+ [the campaign](../srp_top/mutants.py); the table, with each control's shapes,
+ is in [the srp_top README](../srp_top/README.md#issue-230-storage-controls).
++
++## Same-clock leave expiry (issue #134)
++
++SC1 composes Table 10-4's LV / leavetimer! row with each received event at MT,
++through the real input strobes on both planes: own/peer LeaveAll, both attribute
++variants, indices 0/7, and New, JoinIn, In, JoinMt, Mt, Lv, received LeaveAll and
++own LeaveAll. These 128 cases check state, published registration, ACTIVE where
++present, timer cancellation and registration indications. New/Join end IN;
++the other events end MT. New/Join preserve the final published registration,
++without an intermediate UNREGISTERED/REGISTERED pair. Existing type-change,
++latency and failure-change notifications continue to describe the received value.
++
++The [SRP campaign](../srp_top/mutants.py) plants `lv-expiry-masked` (16 SC1 failures),
++`lv-expiry-last` (48) and `lv-expiry-dropped` (80 SC1, plus six older failures).
++The [integrated sweep](../srp_top/README.md#same-clock-leave-expiry-round-2) drives
++actual MRPDUs and the timer service across all 401 offsets on both planes.
+diff --git a/tb/srp_stream_fsms/sim_main.cpp b/tb/srp_stream_fsms/sim_main.cpp
+index 7895b83..0e36cb2 100644
+--- a/tb/srp_stream_fsms/sim_main.cpp
++++ b/tb/srp_stream_fsms/sim_main.cpp
+@@ -412,6 +412,7 @@ class SrpStreamFsmsSuite {
+   int run();
+ 
+  private:
++  void expiry_and_received_event_follow_table_10_4();
+   void rx_events_match_table_10_3();
+   void talker_tx_rows_send_the_table_10_3_message();
+   void listener_tx_rows_send_the_table_10_3_message();
+@@ -1064,7 +1065,48 @@ void SrpStreamFsmsSuite::listener_failure_change_notifies_registered_sinks_on_a_
+         "once (fchg %d/%d/%d)", h.l_fchg[0], h.l_fchg[1], h.l_fchg[2]);
+ }
+ 
++
++// SC1: independently compose Table 10-4's LV/leavetimer row with each
++// received event at MT. New/JoinIn/JoinMt end IN; Lv/LA/In/Mt end MT.
++// Exercise the real input strobes together, after the leave ARM has issued.
++void SrpStreamFsmsSuite::expiry_and_received_event_follow_table_10_4() {
++  for (bool listener : {false, true}) for (bool own : {false, true})
++    for (int variant : {0, 1}) for (int slot : {0, 7}) for (int ev = 0; ev < 8; ++ev) {
++      h.reset();
++      const int type = listener ? 1 + variant : 3;
++      const int fp = 2 + variant;
++      if (listener) h.ctl(true, slot, SID0, DA0, VID0);
++      else h.gate(true, slot, SID0, DA0, VID0);
++      h.inject(true, type, SID0, DA0, VID0, 0, fp, 500, 0x1234, 1);
++      if (own) h.la_own(); else h.la_rx();
++      const bool aged = (listener ? h.l_regst(slot) : h.t_reg(slot)) == 2;
++      h.clear_logs();
++      d->exp_valid_i = 1;
++      d->exp_slot_i = (listener ? 24 : 16) + slot;
++      if (ev < 6) h.inject(true, type, SID0, DA0, VID0, ev, fp, 501, 0x5678, 2);
++      else if (ev == 6) h.la_rx(); else h.la_own();
++      const bool registering = ev == 0 || ev == 1 || ev == 3;
++      const int want = registering ? 1 : 0;
++      const int reg = listener ? h.l_regst(slot) : h.t_reg(slot);
++      const auto& arms = listener ? h.l_arm : h.t_arm;
++      const bool timer = registering ? arms.size() == 1 && arms[0].cancel : arms.empty();
++      const bool indications = listener
++        ? h.l_unreg[slot] == int(!registering) && h.l_reg[slot] == 0
++          && h.l_fchg[slot] == int(registering && variant == 1)
++        : h.t_chg[slot] == int(!registering);
++      const bool published = listener ? h.l_tkreg(slot) == (registering ? type : 0)
++        : h.t_lstn(slot) == (registering ? fp : 0)
++          && bool((d->t_active_o >> slot) & 1) == registering;
++      CHECK(aged && reg == want && timer && indications && published,
++            "SC1: plane=%s cause=%s variant=%d slot=%d event=%d expiry then event: "
++            "reg=%d want=%d timer=%d indications=%d published=%d",
++            listener ? "listener" : "talker", own ? "own" : "peer", variant, slot,
++            ev, reg, want, timer, indications, published);
++    }
++}
++
+ int SrpStreamFsmsSuite::run() {
++  expiry_and_received_event_follow_table_10_4();
+   rx_events_match_table_10_3();
+   talker_tx_rows_send_the_table_10_3_message();
+   listener_tx_rows_send_the_table_10_3_message();
+diff --git a/tb/srp_top/Makefile b/tb/srp_top/Makefile
+index 554d8ee..efbb3d5 100644
+--- a/tb/srp_top/Makefile
++++ b/tb/srp_top/Makefile
+@@ -5,7 +5,7 @@ MUTANT_OUTPUT ?= /tmp/srp-leaveall-mutants
+ HDL        = ../../hdl
+ TOP        = srp_top_wrap
+ 
+-VFLAGS = --cc --exe --build -j 0 \
++VFLAGS = --cc --exe --build -j 0 --savable \
+          --top-module $(TOP) \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index 8dbfc20..e056a5a 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,7 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-`make` = build + run, exit 0 = PASS, **2200 checks**. `make` first runs the
++`make` = build + run, exit 0 = PASS, **8656 checks**. `make` first runs the
+ timer-arm FIFO arms at four shapes
+ ([below](#timer-arm-fifos-at-four-shapes-issue-230)), then this suite, whose
+ tally is the last line.
+@@ -244,7 +244,7 @@ when the P8 arm-delay sweep brought the complete run to 185,012,669); the
+ encoder and stream-FSM
+ walks use finite cycle bounds. Budget exits and missing tallies are unproven,
+ not kills. `RUN_ARGS=phases`, `edge`, `peer`, `congestion`, `guards`,
+-`armdelay`, `restart`, `timers` or `join` selects one group for a focused run,
++`armdelay`, `restart`, `timers`, `join` or `lvleave` selects one group for a focused run,
+ `RUN_ARGS=storage` the timer-arm FIFO arms; plain `make` runs every existing and
+ new check. The stream-FSM suite independently walks every
+ applicant state with same-edge sLA/join acceptance.
+@@ -494,6 +494,109 @@ Mutation-proven 2026-09-29 through `mutants.py` (checked-in patches):
+ | `tx-strobe-any-app` (the transmission strobe also fires for MSRP) | srp_encoder | 1 | W1 |
+ | `listener-lane-cut` (`vu_sel_ls_w` forced 0, the #65 acceptance arm) | srp_top join | 3 | R4 |
+ 
++## A withdrawal that meets an LV registrar (issue #134)
++
++The bench case of milan-fpga #608 (cycle 22): the DUT's own LeaveAll crossed the wire
++1.390 ms before the bridge's `Lv` for a stream whose listener had withdrawn. The Listener
++registrar for that stream was already LV, so the talker streamed on through the 2 s hold.
++802.1Q-2014 Table 10-4 puts rLv!, rLA! and txLA! in one row: in IN it starts the leavetimer
++and enters LV, and in LV it is `-x-`. leavetimer! in LV is Lv and MT. Milan v1.2 4.2.7.2.2
++(Δ13) replaces only the IN cell. So the `Lv` changes nothing, and the registration and
++ACTIVE end when the leave timer expires, including a decoded `Lv` on that same clock.
++The expiry is applied first; a same-clock New or Join instead finishes IN with the
++new registration, as Table 10-4 at MT requires
++([10 section 6.5](../../docs/architecture/10_srp_engine.md#sec-10-lv-withdrawal)).
++`RUN_ARGS=lvleave` runs the group.
++
++Each case starts from `leaveall_setup`: sources 0, 3 and 7 declared, each registering a
++Listener Ready (or ReadyFailed) and ACTIVE, and sinks 0 and 7 registered. Eight cases: an
++own and a peer LeaveAll, Ready and ReadyFailed, target source 0 and 7.
++
++- **Own LeaveAll.** The real leavealltimer expires and the accepted `sLA` ages every
++  registrar. 1.390 ms (56 clocks) after the LeaveAll MRPDU's last byte, the bridge answers
++  with one MRPDU: JoinIn for every other registration, and `Lv` for the target.
++- **Peer LeaveAll.** The bridge's LeaveAll on every MSRP type, Listener first, re-joining
++  every registration but the target's. 1.390 ms later, its `Lv` for the target.
++
++In both, the bridge repeats the target's `Lv` 2.5 s after the LeaveAll. The harness counts
++every edge of ACTIVE, as the integrator's STREAM_START and STREAM_STOP counters do
++([02 section 4.6](../../docs/architecture/02_interfaces.md)), and every `LISTENER_REG_CHANGE`
++strobe, on every clock. No DUT state is forced; `dbg_t_reg_o` is read only.
++
++| Check | Stimulus and required behavior |
++|---|---|
++| S1 | The LeaveAll (one `sLA`, or the peer's Listener lane with no own action) has put the target's registrar in LV, and both `Lv`s find it LV and leave it LV. Up to the last ms before the leave timer can expire, the registration is published (Ready or ReadyFailed), ACTIVE is high, and the case has seen no ACTIVE edge and no `LISTENER_REG_CHANGE` |
++| S2 | The leave timer's expiry closes them: ACTIVE falls and `LISTENER_REG_CHANGE` strobes 5000 or 5001 ms after the LeaveAll, and the registrar is MT with `lstn_reg_state` 0. The 1 ms of slack is the arm's deadline, T-MRP-LEAVE from the clock the arm issues, which can fall in the next ms |
++| S3 | 2 s after that: exactly one STREAM_STOP and no STREAM_START over the case, and one `LISTENER_REG_CHANGE` |
++
++The leave timer is `KL_srp_top`'s `LEAVE_MS_P`, 5000 ms (F08.1 T-MRP-LEAVE, unchanged by the
++processor top). Milan v1.2 Table 4.3 LeaveTime: default 5000 ms, tolerance +50 %/-10 %, so
++4500 to 7500 ms. Each case prints one `LV_LEAVE` line. Measured at the head: the own
++LeaveAll at 14200 ms, the first `Lv` decoded by 14216 ms, the second by 16700 ms, the close at
++19200 ms; the peer LeaveAll at 705 ms, the `Lv`s by 711 and 3205 ms, the close at 5705 ms. The
++leave time is 5000 ms in all eight cases, one STREAM_STOP and no STREAM_START in each.
++
++Mutation-proven 2026-10-05 with the checked-in patches, each planted separately and
++run through the complete default `make -C tb/srp_top` (8656 checks). `lv-second-lv-ends`
++fails only the 16 S1/S2 checks. `lv-never-ends` fails the 16 S2/S3 checks plus 3016 SC2
++checks in `lvcoll`, for 3032 failures:
++
++| Deliberate breakage | Group | Failing checks | Named failing assertions |
++|---|---|---:|---|
++| `lv-second-lv-ends` (the registrar lets one `Lv` in LV pass and ends the registration on the second) | lvleave | 16 | S1,S2 |
++| `lv-never-ends` (an `Lv` in LV stops the leave timer, so the registration never ends) | lvleave | 16 | S2,S3 |
++| `lv-never-ends` (the same planted patch, in the same default run) | lvcoll | 3016 | SC2 |
++
++The older one-line forms of the same two defects, `talker-strict-lv` (an `Lv` in LV ends the
++registration at once) and `talker-no-expiry` (no leave-timer expiry reaches the talker
++registrar), are campaign rows of the phases group. Run through this group they fail 16 checks
++each, S1,S2 and S2,S3, closing after 14 or 5 ms and never.
++
++### Same-clock leave expiry (round 2)
++
++`RUN_ARGS=lvcoll` is also part of the default run. It contains 6,416 byte-stream
++cases: k = 0..400, both planes, own/peer LeaveAll, Ready/ReadyFailed, index 0/7.
++Sink 0 holds Advertise and sink 7 holds Failed. Both target registrars age;
++only the selected plane receives the `Lv` near expiry. The listener plane has no
++ACTIVE face: its matching TK_UNREGISTERED is graded alongside the source's
++STREAM_STOP in every case.
++
++A no-`Lv` calibration measures each plane's close clock. Each offset restores
++identical DUT and BFM state saved 401 clocks before that clock, then starts a real
++MRPDU k clocks before it. The shared prefix uses the real own/peer LeaveAll and
++5000 ms timer. All clocks around decoding, expiry and publication execute, followed
++by a 20 ms observation window. The run counter includes every executed replay
++clock; the snapshot lives outside the tree and is removed after the sweep.
++
++| Check | Required result | Planted fault that fails it |
++|---|---|---|
++| SC1 (`srp_stream_fsms`) | 128 simultaneous-event cases match Table 10-4, expiry first, including indications and timer operations | `lv-expiry-masked` 16 failures; `lv-expiry-last` 48; `lv-expiry-dropped` 80 SC1 failures |
++| SC2 | Every k ends with both registrars MT, both registrations absent, ACTIVE low, one STREAM_STOP and one TK_UNREGISTERED | `lv-expiry-masked` restores both original planes: 16 failures, one collision in each combination |
++| SC3 | Exactly one decoded `Lv` in each sweep shares the calibrated expiry clock | `lv-sweep-misses-collision` delays every frame 401 clocks: all 16 checks fail while SC2 stays green |
++
++The restoration mutant is a checked-in reverse patch of the complete RTL change.
++The two original mutants and S1-S3 remain. The two other matrix faults move expiry
++after reception (so a registering event wrongly ends MT) and discard expiry
++(so Lv/LA/In/Mt wrongly leave LV). Every new check fails under at least one fault.
++The full campaign requires SC1-SC3 as well as the original assertion coverage.
++
++Table 10-4 results after LV / leavetimer!: MT + Lv, then:
++
++| Same-clock event | Final state | Published result |
++|---|---|---|
++| rLv | MT | Registration closes once |
++| rLA / own txLA | MT | Registration closes once; no replacement leave ARM |
++| rIn / rMt | MT | Registration closes once |
++| rNew | IN | Received value registered; obsolete timer canceled |
++| rJoinIn / rJoinMt | IN | Received value registered; obsolete timer canceled |
++
++Both planes publish the final result of the composed transitions. A registering
++event preserves the published registration; it emits no intermediate withdrawal
++or ACTIVE edge. The listener retains its existing type-change, latency and
++FailureInformation notifications for the received value. Separate REGISTERED and
++UNREGISTERED pulses would enter independent event-router queues with no ordering
++guarantee, so renewal must not publish a transient withdrawal.
++
+ ## Timer-arm FIFOs at four shapes (issue #230)
+ 
+ Each stream FSM's timer ops reach the one merged arm port through a FIFO of its
+diff --git a/tb/srp_top/mutants.py b/tb/srp_top/mutants.py
+index 8bfc6a6..8b5f27c 100644
+--- a/tb/srp_top/mutants.py
++++ b/tb/srp_top/mutants.py
+@@ -150,6 +150,14 @@ MUTANTS = [
+      'round publishes the greedy walk over every current declaration'),
+     ('slope-read-source-0', 'srp_admission', '',
+      'round publishes the greedy walk over every current declaration'),
++    # issue #134: a withdrawal that meets an LV Listener registrar
++    ('lv-second-lv-ends', 'srp_top', 'lvleave', 'S1:'),
++    ('lv-never-ends', 'srp_top', 'lvleave', 'S2:'),
++    ('lv-expiry-masked', 'srp_top', 'lvcoll', 'SC2:'),
++    ('lv-expiry-masked', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-expiry-last', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-expiry-dropped', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-sweep-misses-collision', 'srp_top', 'lvcoll', 'SC3:'),
+ ]
+ 
+ 
+@@ -242,7 +250,7 @@ def main() -> int:
+     if not args.only:
+         expected = {f"{group}{i}" for group, count in
+                     [("K", 12), ("L", 4), ("M", 12), ("N", 13), ("O", 8), ("P", 8), ("Q", 4), ("R", 4),
+-                     ("TF", 5), ("WK", 10)]
++                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 10)]
+                     for i in range(1, count + 1)}
+         missing = expected - covered
+         total += 1
+diff --git a/tb/srp_top/mutations/listener-no-renewal.patch b/tb/srp_top/mutations/listener-no-renewal.patch
+index 8c74ab7..390b10c 100644
+--- a/tb/srp_top/mutations/listener-no-renewal.patch
++++ b/tb/srp_top/mutations/listener-no-renewal.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -729,7 +729,7 @@
++@@ -753,7 +753,7 @@
+            // registering event: -> IN; latch type + payloads; a type change
+            // while IN/LV is the in-place swap (strobe, no unregistration)
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+diff --git a/tb/srp_top/mutations/listener-strict-lv.patch b/tb/srp_top/mutations/listener-strict-lv.patch
+index 4037ab8..24b8210 100644
+--- a/tb/srp_top/mutations/listener-strict-lv.patch
++++ b/tb/srp_top/mutations/listener-strict-lv.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -744,7 +744,7 @@
+-           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++@@ -772,7 +772,7 @@
++           evt_tk_unregistered_o[s] <= 1'b1;
+          end else if (reg_rx_hit_w[s]
+                       && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ -          if (reg_r[s] == R_IN_C) begin
+diff --git a/tb/srp_top/mutations/lv-expiry-dropped.patch b/tb/srp_top/mutations/lv-expiry-dropped.patch
+new file mode 100644
+index 0000000..7b2783a
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-dropped.patch
+@@ -0,0 +1,22 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -729,7 +729,7 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
+++        end else if (1'b0 && exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -766,7 +766,7 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
+++        end else if (1'b0 && exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++           evt_tk_unregistered_o[s] <= 1'b1;
+diff --git a/tb/srp_top/mutations/lv-expiry-last.patch b/tb/srp_top/mutations/lv-expiry-last.patch
+new file mode 100644
+index 0000000..a9cf8a3
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-last.patch
+@@ -0,0 +1,48 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -729,9 +729,6 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++@@ -740,6 +737,10 @@
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end
+++        if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -766,10 +766,6 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++-          evt_tk_unregistered_o[s] <= 1'b1;
++         end else if (reg_rx_hit_w[s]
++                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++@@ -780,6 +776,11 @@
++         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end
+++        if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+++          evt_tk_unregistered_o[s] <= 1'b1;
++         end
++         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
++         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-expiry-masked.patch b/tb/srp_top/mutations/lv-expiry-masked.patch
+new file mode 100644
+index 0000000..711173a
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-masked.patch
+@@ -0,0 +1,66 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -717,9 +717,6 @@
++         tpend_r[tsel_ix_w] <= T_NOP_C;
++       end
++ 
++-      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++-      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++-      // Test expiry before rLv so its one-clock strobe cannot be masked.
++       // ---- per-source registrar events ----------------------------------
++       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
++         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
++@@ -729,9 +726,6 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++@@ -740,6 +734,9 @@
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end else if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -744,9 +744,6 @@
++         tpend_r[tsel_ix_w] <= T_NOP_C;
++       end
++ 
++-      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++-      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++-      // Test expiry before rLv so its one-clock strobe cannot be masked.
++       // ---- per-sink registrar events ------------------------------------
++       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++         if (reg_rx_hit_w[s] && rx_registering_w) begin
++@@ -766,10 +763,6 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++-          evt_tk_unregistered_o[s] <= 1'b1;
++         end else if (reg_rx_hit_w[s]
++                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++@@ -780,6 +773,10 @@
++         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end else if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+++          evt_tk_unregistered_o[s] <= 1'b1;
++         end
++         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
++         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-never-ends.patch b/tb/srp_top/mutations/lv-never-ends.patch
+new file mode 100644
+index 0000000..a8e623d
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-never-ends.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -731,6 +731,7 @@
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++           end
++           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+++          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+diff --git a/tb/srp_top/mutations/lv-second-lv-ends.patch b/tb/srp_top/mutations/lv-second-lv-ends.patch
+new file mode 100644
+index 0000000..35fcce8
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-second-lv-ends.patch
+@@ -0,0 +1,25 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -660,6 +660,7 @@
++   // a received LeaveAll ages it (§10.7.5.20 b)2)); an own LeaveAll ages
++   // every registrar of the participant (§10.7.9).
++   logic        leaveall_any_w;
+++  logic [N_SOURCES_P-1:0] lv2_r;
++   logic        exp_hit_w;
++   logic [31:0] exp_idx_w;
++ 
++@@ -737,9 +738,14 @@
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++           end
++           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+++          if (reg_r[s] == R_LV_C) begin
+++            if (lv2_r[s]) reg_r[s] <= R_MT_C;
+++            lv2_r[s] <= 1'b1;
+++          end
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++          lv2_r[s]   <= 1'b0;
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-sweep-misses-collision.patch b/tb/srp_top/mutations/lv-sweep-misses-collision.patch
+new file mode 100644
+index 0000000..32cb20b
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-sweep-misses-collision.patch
+@@ -0,0 +1,10 @@
++--- a/tb/srp_top/sim_main.cpp
+++++ b/tb/srp_top/sim_main.cpp
++@@ -953,6 +953,7 @@
++           const uint32_t end_ms = d->now_ms_o + 20;
++           while (h.t + k < close) h.cycle();
++           h.rx_cycles.clear();
+++          h.idle(401);
++           if (listener) talker_event(target, EV_LV);
++           else listener_event(target, EV_LV, fp);
++           for (uint64_t cycle : h.rx_cycles) collisions += cycle + 1 == close;
+diff --git a/tb/srp_top/mutations/my-la-outranks-leave.patch b/tb/srp_top/mutations/my-la-outranks-leave.patch
+index b9e69fb..0ef9c3b 100644
+--- a/tb/srp_top/mutations/my-la-outranks-leave.patch
++++ b/tb/srp_top/mutations/my-la-outranks-leave.patch
+@@ -1,9 +1,9 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -690,7 +690,7 @@
+-           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+-           reg_r[s]      <= R_IN_C;
+-           lstn_val_r[s] <= evt_fourpacked_i;
++@@ -732,7 +732,7 @@
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+ -        end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ +        end else if (reg_rx_hit_w[s] && !leaveall_any_w && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+            if (reg_r[s] == R_IN_C) begin
+diff --git a/tb/srp_top/mutations/r-sink-receive-priority-lost.patch b/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+index 60e3c35..dbbb746 100644
+--- a/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
++++ b/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -725,7 +725,9 @@
+- 
++@@ -749,7 +749,9 @@
++       // Test expiry before rLv so its one-clock strobe cannot be masked.
+        // ---- per-sink registrar events ------------------------------------
+        for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+ -        if (reg_rx_hit_w[s] && rx_registering_w) begin
+diff --git a/tb/srp_top/mutations/receive-priority-lost.patch b/tb/srp_top/mutations/receive-priority-lost.patch
+index db5e7f6..78abd4b 100644
+--- a/tb/srp_top/mutations/receive-priority-lost.patch
++++ b/tb/srp_top/mutations/receive-priority-lost.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -683,7 +683,9 @@
+- 
++@@ -722,7 +722,9 @@
++       // Test expiry before rLv so its one-clock strobe cannot be masked.
+        // ---- per-source registrar events ----------------------------------
+        for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+ -        if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+diff --git a/tb/srp_top/mutations/renewal-congestion.patch b/tb/srp_top/mutations/renewal-congestion.patch
+index 05a74e5..96070d4 100644
+--- a/tb/srp_top/mutations/renewal-congestion.patch
++++ b/tb/srp_top/mutations/renewal-congestion.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -688,7 +688,7 @@
++@@ -727,7 +727,7 @@
+                                  || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+            // registering event: -> IN, latch the declaration parameter
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+ -          reg_r[s]      <= R_IN_C;
+ +          reg_r[s]      <= (reg_r[s] == R_LV_C) ? R_MT_C : R_IN_C;
+            lstn_val_r[s] <= evt_fourpacked_i;
+-         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+-           if (reg_r[s] == R_IN_C) begin
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+diff --git a/tb/srp_top/mutations/talker-no-renewal.patch b/tb/srp_top/mutations/talker-no-renewal.patch
+index d5458b3..d5488d4 100644
+--- a/tb/srp_top/mutations/talker-no-renewal.patch
++++ b/tb/srp_top/mutations/talker-no-renewal.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -688,7 +688,7 @@
++@@ -727,7 +727,7 @@
+                                  || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+            // registering event: -> IN, latch the declaration parameter
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+ -          reg_r[s]      <= R_IN_C;
+ +          reg_r[s]      <= (reg_r[s] == R_LV_C) ? R_LV_C : R_IN_C;
+            lstn_val_r[s] <= evt_fourpacked_i;
+-         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+-           if (reg_r[s] == R_IN_C) begin
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+diff --git a/tb/srp_top/mutations/talker-strict-lv.patch b/tb/srp_top/mutations/talker-strict-lv.patch
+index 7302566..ff73ed6 100644
+--- a/tb/srp_top/mutations/talker-strict-lv.patch
++++ b/tb/srp_top/mutations/talker-strict-lv.patch
+@@ -1,8 +1,8 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -691,7 +691,7 @@
+-           reg_r[s]      <= R_IN_C;
+-           lstn_val_r[s] <= evt_fourpacked_i;
++@@ -733,7 +733,7 @@
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+          end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ -          if (reg_r[s] == R_IN_C) begin
+ +          if (reg_r[s] != R_MT_C) begin
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index d432aee..44b0af4 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -17,8 +17,11 @@
+ #include <cstring>
+ #include <deque>
+ #include <vector>
++#include <string>
++#include <unistd.h>
+ #include "Vsrp_top_wrap.h"
+ #include "verilated.h"
++#include "verilated_save.h"
+ #include "../common/verilator_harness.hpp"
+ 
+ #define CHECK(cond, ...) do { \
+@@ -351,9 +354,18 @@ struct H {
+   std::vector<uint64_t> mvrp_action_cycles;
+   std::vector<uint64_t> redraw_cycles;
+   std::vector<uint64_t> mvrp_join_cycles;      // MVRP T-MRP-JOIN expiries
++  // issue #134: the edges of each source's ACTIVE level, which the
++  // integrator's STREAM_START / STREAM_STOP counters count (02 §4.6), and
++  // the LISTENER_REG_CHANGE strobes, each with the ms of its latest one
++  unsigned prev_active = 0;
++  int start_cnt[8] = {};
++  int stop_cnt[8] = {};
++  uint32_t stop_ms[8] = {};
++  int lrc_cnt[8] = {};
++  uint32_t lrc_ms[8] = {};
+   bool step() {
+     // Bound every run, including decoder/timer deadlocks, by DUT clocks. The
+-    // complete default run takes 185,012,669 (the P8 arm-delay sweep 53.3 M).
++    // complete default run takes 210,547,557 (the P8 arm-delay sweep 53.3 M).
+     if (t >= 300000000ULL) {
+       std::fprintf(stderr, "CYCLE_BUDGET: SRP top exceeded 300000000 clocks\n");
+       std::exit(3);
+@@ -373,6 +385,15 @@ struct H {
+       if (d->dbg_la_mvrp_action_o) mvrp_action_cycles.push_back(t);
+       if (d->dbg_la_redraw_o) redraw_cycles.push_back(t);
+       if (d->dbg_mvrp_join_o) mvrp_join_cycles.push_back(t);
++      unsigned act = d->active_o;
++      for (int k = 0; k < 8; k++) {
++        bool was = (prev_active >> k) & 1;
++        bool now = (act >> k) & 1;
++        if (!was && now) start_cnt[k]++;
++        if (was && !now) { stop_cnt[k]++; stop_ms[k] = d->now_ms_o; }
++        if ((d->lstn_reg_change_o >> k) & 1) { lrc_cnt[k]++; lrc_ms[k] = d->now_ms_o; }
++      }
++      prev_active = act;
+     }
+     unsigned decl = d->dbg_decl_o;
+     unsigned withdraw = d->dbg_withdraw_o;
+@@ -438,6 +459,7 @@ struct H {
+     mvrp_expiry_cycles.clear(); mvrp_expiry_times.clear(); mvrp_action_cycles.clear();
+     redraw_cycles.clear(); mvrp_join_cycles.clear();
+     pause_tx = false; expiry_cycles.clear(); prep_cycles.clear(); peer_la_cycles.clear(); la_cycles.clear(); la_times.clear(); rx_cycles.clear();
++    prev_active = 0;                     // reset clears ACTIVE: no edge to count
+     d->block_alloc_i = 0;
+     d->rst_n = 0;
+     d->own_mac_i = OWN_MAC; d->entity_id_i = EID;
+@@ -595,7 +617,10 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"restart")) check_received_leaveall_restarts_the_timer();
+     if (!*group || !strcmp(group,"timers")) check_mrp_timers_against_table_4_3();
+     if (!*group || !strcmp(group,"join")) check_mvrp_join_before_the_stream();
++    if (!*group || !strcmp(group,"lvleave")) check_withdrawal_meets_an_lv_registrar();
++    if (!*group || !strcmp(group,"lvcoll")) check_leave_expiry_collisions();
+ 
++    printf("TOTAL_CLOCKS %llu\n", static_cast<unsigned long long>(h.t));
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+   }
+@@ -750,6 +775,207 @@ class SrpTopHarness {
+           "K10: reset discards the pending action and registrars");
+   }
+ 
++  // S (issue #134): a withdrawal meets an LV Listener registrar. The bench
++  // case of milan-fpga #608 (cycle 22): the DUT's own LeaveAll crossed the
++  // wire 1.390 ms before the bridge's Lv for a stream its listener had
++  // withdrawn. 802.1Q-2014 Table 10-4 puts rLv!, rLA! and txLA! in one row:
++  // in IN it starts the leavetimer and enters LV, in LV it does nothing
++  // (-x-); leavetimer! in LV is Lv and MT. Milan v1.2 4.2.7.2.2 (Δ13)
++  // replaces the IN cell alone. So the Lv changes nothing: the registration
++  // and ACTIVE stay until the leave timer expires, T-MRP-LEAVE after the
++  // LeaveAll (Milan v1.2 Table 4.3 LeaveTime, default 5000 ms, 4500-7500),
++  // then close, with one falling ACTIVE edge: one STREAM_STOP. Same-clock
++  // events apply after expiry: Lv/LA end MT; New/JoinIn/JoinMt end IN. The peer
++  // repeats the Lv 2.5 s in, which must change nothing either.
++  static constexpr uint32_t LEAVE_TIME_MS = 5000;
++  static constexpr int BENCH_GAP_CLOCKS = 56;   // 1.390 ms at 40 clocks per ms
++  // the bridge's Listener vectors: JoinIn for each declared source but
++  // `skip`, the first of them flagged LeaveAll when `la`
++  static Msg listener_rejoins(int fp, int skip, bool la) {
++    Msg m{3, 8, true, {}};
++    for (int s : {0, 3, 7}) {
++      if (s == skip) continue;
++      m.vecs.push_back(Vec{la && m.vecs.empty(), 1, fv_sid(own_sid(s)), {EV_JOININ}, {fp}});
++    }
++    return m;
++  }
++  void check_withdrawal_meets_an_lv_registrar() {
++    for (bool own : {true, false}) for (int fp : {DECL_READY, DECL_READYFAIL}) for (int target : {0, 7}) {
++      const char* cause = own ? "own" : "peer";
++      leaveall_setup(fp);
++      const int stops = h.stop_cnt[target];
++      const int starts = h.start_cnt[target];
++      const int lrcs = h.lrc_cnt[target];
++      // the bridge re-declares sink 0's Advertise and sink 7's Failed too
++      Msg ta{1, 25, false, {Vec{!own, 1, fv_talker(peer_sid(0), peer_da(0), 2, 29, 1, 3, 1, 500),
++                                {EV_JOININ}, {}}}};
++      Msg tf{2, 34, false, {Vec{!own, 1, fv_failed(peer_sid(7), peer_da(7), 2, 29, 1, 3, 1, 500,
++                                                   0x1234, 1), {EV_JOININ}, {}}}};
++      bool aged = false;
++      uint32_t la_ms = 0;
++      int lv1_reg = -1;
++      if (own) {
++        // the own LeaveAll: sLA ages every registrar, its MRPDU follows; the
++        // bridge then re-joins every other registration and withdraws the target
++        auto laf = h.wait_frame(true, 16000, [](const std::vector<uint8_t>& fr) {
++          for (const PVec& v : parse_frame(fr).vecs) {
++            if (v.la) return true;
++          }
++          return false;
++        });
++        aged = !laf.empty() && h.la_times.size() == 1;
++        la_ms = h.la_times.empty() ? 0 : h.la_times[0];
++        h.idle(BENCH_GAP_CLOCKS);
++        lv1_reg = source_reg(target);
++        Msg lr = listener_rejoins(fp, target, false);
++        lr.vecs.push_back(Vec{false, 1, fv_sid(own_sid(target)), {EV_LV}, {fp}});
++        h.feed(mrpdu_body(true, {lr, ta, tf}), true);
++      } else {
++        // the bridge's LeaveAll on every MSRP type, re-joining all but the
++        // target, then its Lv for the target
++        h.peer_la_times.clear();
++        h.feed(mrpdu_body(true, {listener_rejoins(fp, target, true), ta, tf,
++                                 la_only(4, 4, false)}), true);
++        aged = !h.peer_la_times.empty() && h.la_cycles.empty();
++        la_ms = h.peer_la_times.empty() ? 0 : h.peer_la_times[0];
++        h.idle(BENCH_GAP_CLOCKS);
++        lv1_reg = source_reg(target);
++        listener_event(target, EV_LV, fp);
++      }
++      const uint32_t lv1_ms = d->now_ms_o;
++      bool kept = source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
++      until_ms(la_ms + 2500);
++      const int lv2_reg = source_reg(target);
++      listener_event(target, EV_LV, fp);
++      const uint32_t lv2_ms = d->now_ms_o;
++      until_ms(la_ms + LEAVE_TIME_MS - 1);
++      kept &= source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
++      CHECK(aged && lv1_reg == 2 && lv2_reg == 2 && kept && h.stop_cnt[target] == stops
++            && h.start_cnt[target] == starts && h.lrc_cnt[target] == lrcs,
++            "S1: %s LeaveAll fp=%d src=%d: both Lvs meet LV, and the registration and "
++            "ACTIVE stay until the leave timer expires", cause, fp, target);
++      until_ms(la_ms + LEAVE_TIME_MS + 2);
++      const bool closed = h.stop_cnt[target] == stops + 1 && h.lrc_cnt[target] == lrcs + 1;
++      const uint32_t leave_ms = closed ? h.stop_ms[target] - la_ms : 0;
++      const uint32_t change_ms = closed ? h.lrc_ms[target] - la_ms : 0;
++      CHECK(closed && leave_ms >= LEAVE_TIME_MS && leave_ms <= LEAVE_TIME_MS + 1
++            && change_ms >= LEAVE_TIME_MS && change_ms <= LEAVE_TIME_MS + 1
++            && source_reg(target) == 0 && h.lstn_reg(target) == 0 && !h.active(target),
++            "S2: %s LeaveAll fp=%d src=%d: the registration and ACTIVE close at the "
++            "leave timer's expiry (%u ms; Table 4.3 LeaveTime 5000 ms)", cause, fp, target, leave_ms);
++      until_ms(la_ms + LEAVE_TIME_MS + 2000);
++      CHECK(h.stop_cnt[target] == stops + 1 && h.start_cnt[target] == starts
++            && h.lrc_cnt[target] == lrcs + 1 && !h.active(target),
++            "S3: %s LeaveAll fp=%d src=%d: STREAM_STOP counted exactly once (%d), "
++            "no STREAM_START (%d)", cause, fp, target, h.stop_cnt[target] - stops,
++            h.start_cnt[target] - starts);
++      printf("LV_LEAVE cause=%s fp=%d source=%d leaveall_ms=%u lv_ms=%u,%u close_ms=%u "
++             "leave_time_ms=%u stream_stop=%d stream_start=%d\n", cause, fp, target, la_ms,
++             lv1_ms, lv2_ms, closed ? h.stop_ms[target] : 0, leave_ms,
++             h.stop_cnt[target] - stops, h.start_cnt[target] - starts);
++    }
++  }
++
++
++  // Calibration and k=0..400 follow the review's byte-stream collision probe.
++  // Both target registrars age together; only the selected plane receives Lv
++  // near expiry. Thus every case grades the real source STREAM_STOP as well
++  // as the listener's one TK_UNREGISTERED indication (it has no ACTIVE port).
++  void collision_setup(bool own, int fp, int target) {
++    leaveall_setup(fp);
++    if (own) {
++      h.wait_frame(true, 16000, [](const std::vector<uint8_t>& fr) {
++        for (const PVec& v : parse_frame(fr).vecs) if (v.la) return true;
++        return false;
++      });
++    }
++    const int other = target == 0 ? 7 : 0;
++    std::vector<Msg> msgs{listener_rejoins(fp, target, !own)};
++    for (int type : {1, 2}) {
++      if (type == (other == 0 ? 1 : 2)) {
++        auto fv = other == 0 ? fv_talker(peer_sid(0), peer_da(0), 2, 29, 1, 3, 1, 500)
++          : fv_failed(peer_sid(7), peer_da(7), 2, 29, 1, 3, 1, 500, 0x1234, 1);
++        msgs.push_back(Msg{type, type == 1 ? 25 : 34, false,
++                          {Vec{!own, 1, fv, {EV_JOININ}, {}}}});
++      } else if (!own) msgs.push_back(la_only(type, type == 1 ? 25 : 34, false));
++    }
++    if (!own) msgs.push_back(la_only(4, 4, false));
++    h.feed(mrpdu_body(true, msgs), true);
++  }
++
++  // Each offset starts from identical DUT and BFM state 401 clocks before
++  // expiry. Only the shared prefix is skipped; all clocks around the decoded
++  // event, expiry, publication and stop counters still run. No RTL is forced.
++  std::string save_collision_state() {
++    const char* tmp = std::getenv("TMPDIR");
++    std::string pattern = std::string(tmp ? tmp : "/tmp") + "/srp-collision-XXXXXX";
++    std::vector<char> path(pattern.begin(), pattern.end());
++    path.push_back(0);
++    const int fd = mkstemp(path.data());
++    if (fd < 0) { std::perror("collision snapshot"); std::exit(2); }
++    close(fd);
++    VerilatedSave save;
++    save.open(path.data());
++    save << *d;
++    save.close();
++    return path.data();
++  }
++  void check_leave_expiry_collisions() {
++    for (bool listener : {false, true}) for (bool own : {false, true})
++      for (int fp : {DECL_READY, DECL_READYFAIL}) for (int target : {0, 7}) {
++        collision_setup(own, fp, target);
++        const uint64_t origin = h.t;
++        const uint32_t limit = d->now_ms_o + LEAVE_TIME_MS + 10;
++        while ((listener ? sink_reg(target) : source_reg(target)) != 0 && d->now_ms_o < limit)
++          h.cycle();
++        const uint64_t close_offset = h.t - origin;
++        collision_setup(own, fp, target);
++        const uint64_t calibrated_close = h.t + close_offset;
++        while (h.t + 401 < calibrated_close) h.cycle();
++        const H saved = h;
++        const std::string snapshot = save_collision_state();
++        int collisions = 0;
++        for (int k = 0; k <= 400; ++k) {
++          const uint64_t total = h.t;
++          VerilatedRestore restore;
++          restore.open(snapshot.c_str());
++          restore >> *d;
++          restore.close();
++          h = saved;
++          // t counts clocks actually executed, including every replay. Device
++          // time and BFM state rewind; the run-length counter never does.
++          h.t = total;
++          h.accept_cycle += total - saved.t;
++          const uint64_t close = h.t + 401;
++          const bool aged = source_reg(target) == 2 && sink_reg(target) == 2 && h.active(target);
++          const int stops = h.stop_cnt[target];
++          const int unregs = h.unreg_cnt[target];
++          const uint32_t end_ms = d->now_ms_o + 20;
++          while (h.t + k < close) h.cycle();
++          h.rx_cycles.clear();
++          if (listener) talker_event(target, EV_LV);
++          else listener_event(target, EV_LV, fp);
++          for (uint64_t cycle : h.rx_cycles) collisions += cycle + 1 == close;
++          until_ms(end_ms);
++          const bool closed = source_reg(target) == 0 && sink_reg(target) == 0
++            && h.lstn_reg(target) == 0 && h.tk_reg(target) == 0 && !h.active(target)
++            && h.stop_cnt[target] == stops + 1 && h.unreg_cnt[target] == unregs + 1;
++          CHECK(aged && closed, "SC2: plane=%s cause=%s fp=%d target=%d k=%d CLOSED "
++                "source=%d sink=%d STREAM_STOP=%d TK_UNREGISTERED=%d",
++                listener ? "listener" : "talker", own ? "own" : "peer", fp, target, k,
++                source_reg(target), sink_reg(target), h.stop_cnt[target] - stops,
++                h.unreg_cnt[target] - unregs);
++          printf("LV_COLLISION plane=%s cause=%s fp=%d target=%d k=%d %s stream_stop=%d unreg=%d\n",
++                 listener ? "listener" : "talker", own ? "own" : "peer", fp, target, k,
++                 closed ? "CLOSED" : "STUCK", h.stop_cnt[target] - stops, h.unreg_cnt[target] - unregs);
++        }
++        unlink(snapshot.c_str());
++        CHECK(collisions == 1, "SC3: plane=%s cause=%s fp=%d target=%d exactly one decoded "
++              "Lv shares the calibrated expiry clock (got %d)", listener ? "listener" : "talker",
++              own ? "own" : "peer", fp, target, collisions);
++      }
++  }
++
+   // L: move slot acceptance across one decoded Listener Lv. The frame
+   // bytes and slot-pool handshake are real; no internal event is forced.
+   void check_own_leaveall_acceptance_boundary() {
+@@ -2720,6 +2946,6 @@ int main(int argc, char** argv) {
+   if (*group && strcmp(group,"armdelay") && strcmp(group,"phases") && strcmp(group,"edge")
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+-      && strcmp(group,"timers") && strcmp(group,"join")) return 2;
++      && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")) return 2;
+   return harness.run(group);
+ }
