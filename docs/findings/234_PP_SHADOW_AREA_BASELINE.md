@@ -1,14 +1,15 @@
 # Protocol processor area baseline for issue #234
 
 Measured 2026-10-03 for issue #234, the first step of the #229 area epic.
-The [2026-10-05 re-baseline](#re-baseline-of-2026-10-05-processor-ead80360) records processor pin `ead80360` on dev `506d91db` for #661.
+The [2026-10-06 re-baseline](#re-baseline-of-2026-10-06-processor-2ad2f845) records processor pin `2ad2f845` on dev `bd884631` for #682.
 It is the resource gate's current record.
-The later sections preserve the previous combinations A, B and C as history.
+The later sections preserve combinations A, B, C and D as history.
 This adoption changes the processor gitlink; no parent RTL or processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
+- **[Re-baseline of 2026-10-06, processor 2ad2f845](#re-baseline-of-2026-10-06-processor-2ad2f845)** -- The adopted pin on dev `bd884631`, its recorded synthesis worker limit, three measured endpoints, corner timing and declaration-warning counts.
 - **[Re-baseline of 2026-10-05, processor ead80360](#re-baseline-of-2026-10-05-processor-ead80360)** -- The adopted pin on dev `506d91db`, its three measured endpoints, storage mappings and changes from C.
 - **[Re-baseline of 2026-10-03, after PR #634](#re-baseline-of-2026-10-03-after-pr-634)** -- The three endpoints measured again at dev `54643724`, their delta from the first record per endpoint and sub-block, and its sources: the AAF clock meter, one more name entry and the firmware ROM.
 - **[Combinations](#combinations)** -- The first record's dev head and the next processor adoption, and the only functional HDL change between them.
@@ -20,6 +21,104 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-10-06, processor 2ad2f845
+
+Combination E adopts processor `2ad2f845dd583f8310075fa2380cb60a04fd091a` for [#682](https://github.com/kebag-logic/milan-fpga/issues/682).
+Its RTL inputs are parent `2a97d4e8874a90a620d2b9234620eff9aec57bcb`, based on dev `bd884631684ccf5060339efa92263d5c3e5c262c`.
+D below is the previous record, processor `ead80360` on dev `506d91db`.
+Both use Vivado 2026.1 build 6511674, `xc7a100tfgg484-2`, the shipping 50 MHz wrapper clock and the same implementation directives.
+E explicitly sets `synth.maxThreads` to one to stay within the measurement process's memory limit; `general.maxThreads` remains 32.
+The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) emits that setting with `--single-thread-synthesis` and records it in each endpoint's flow identity.
+The route's synthesis and implementation finish in separate processes, joined by its synthesis checkpoint.
+Both processes exit zero; the fresh implementation uses the exported commands and directives.
+The shipping export, source lists, generated images and timing constraints are unchanged by this execution method.
+
+The changed flow makes D and E NOT COMPARABLE at the gate, with the expected diagnostic exit 2.
+The figures below are measured differences, not an isolated architectural comparison.
+Intervening dev includes the default audio-map writer (#658), the default-disabled mailbox (#665) and the NAME-capacity guard (#652).
+Those predecessors also contribute to E's inputs; no parent RTL or firmware source changes in #682.
+The processor top remains byte-identical, including all ports and parameters.
+The 8x8 wrapper parameters come from RTL elaboration of its shipping export.
+Neither standalone endpoint claims an integrated 8x8 fit.
+
+**Three endpoints, D / E**
+
+| Endpoint | LUT | FF | Slice | RAMB36 | RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 50,318 / 49,888 | 54,214 / 54,267 | 15,789 / 15,805 | 74 / 74 | 27 / 27 | 14 / 14 | 3,377 / 3,385 | 0.108 / 0.101 | 0.036 / 0.031 |
+| `ooc-1x1` | 23,178 / 23,179 | 19,776 / 19,779 | - | 16 / 16 | 3 / 3 | 8 / 8 | 1,494 / 1,494 | -2.58 / -3.562 | 0.159 / 0.159 |
+| `ooc-8x8` | 29,853 / 30,135 | 27,370 / 27,380 | - | 21 / 21 | 5 / 5 | 8 / 8 | 1,889 / 1,889 | -4.095 / -2.278 | 0.159 / 0.159 |
+
+E uses 87.5 BRAM tiles and leaves 45 slices free.
+The route-status report has no unrouted net or routing error.
+Its worst setup path has 21 logic levels and 9.871 ns data delay: 2.730 ns logic and 7.141 ns routing.
+It starts at `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C` and ends at `VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D`.
+Standalone timing is an internal synthesis estimate without I/O constraints; its negative setup slack is not a routed timing verdict.
+
+| Default-route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.101 | +0.085 |
+| `Slow_85C` | +0.101 | +0.085 |
+| `Fast_0C` | +1.492 | +0.031 |
+| `Fast_85C` | +1.492 | +0.031 |
+
+**Processor sub-block differences**
+
+Each cell is E minus D in LUT / FF. Parent rows include descendants; do not add them to their children.
+The generated record retains every reported scope.
+
+| Scope relative to the wrapper | Route 1x1 | Standalone 1x1 | Standalone 8x8 |
+|---|---:|---:|---:|
+| `wrapper` | +208 / +29 | +1 / +3 | +282 / +10 |
+| `u_pp` | +234 / +28 | +19 / +1 | +281 / +10 |
+| `u_pp/u_notify` | +87 / +24 | +71 / +1 | -29 / +6 |
+| `u_pp/u_originator` | -37 / +0 | -25 / +0 | +25 / +0 |
+| `u_pp/u_srp` | +39 / +1 | -10 / +0 | +141 / +0 |
+| `u_pp/u_aecp` | +163 / +4 | -18 / -1 | +21 / +0 |
+| `u_pp/u_aecp/u_d3` | -43 / +1 | +9 / +0 | -2 / -1 |
+| `u_pp/u_listener` | -19 / +0 | +1 / +0 | -12 / +3 |
+| `u_pp/u_nvm_port` | -10 / +0 | -12 / +0 | +5 / +0 |
+| `u_nvm` | -21 / +0 | -18 / +0 | +0 / +0 |
+
+The route's `milan_datapath` has 41,356 LUTs and 43,038 FFs, including the wrapper's 23,094 LUTs and 18,784 FFs.
+Outside the wrapper, the image has 26,794 LUTs and 35,483 FFs.
+The notification spacing (#148), registrar expiry collision (#134) and held deregistration (#158) change processor behavior.
+The declaration-order change (#22) preserves behavior; C11 and #42 update documentation and tests.
+The full parent-visible list is in [SUBMODULES](../reference/SUBMODULES.md).
+
+**Recorded and checked**
+
+`pp_resource_gate.py record --write` records all three E endpoints twice, with identical bytes.
+Every tolerance, floor and ceiling is unchanged.
+All three `check` commands and `check-baseline` then exit zero.
+The three generated effective recipes also repeat identically, with unchanged design-input digests.
+The generator's default output stays unchanged; controls check that the optional worker setting is the only added line.
+The resource-policy table remains the authority.
+
+| Synthesis log | Processor Synth 8-6901 | Parent Synth 8-6901 |
+|---|---:|---:|
+| `route-1x1` | 0 | 1 |
+| `ooc-1x1` | 0 | 1 |
+| `ooc-8x8` | 0 | 1 |
+
+The processor count is zero in both standalone logs, satisfying processor #22's adoption check.
+The per-file table covers all 46 processor sources and is retained with the handoff.
+The separate parent warning is `crft_emit_en_w` in `hdl/milan/milan_datapath.sv:3168`.
+No completed synthesis log contains a Synth 8-4445 or Synth 8-7186 diagnostic.
+Each endpoint's six generated images rehash to their recorded byte count and digest.
+
+| Successful process | rc | Log SHA-256 | Bytes |
+|---|---:|---|---:|
+| route synthesis | 0 | `6f7da8653eaf0844def3aaff4639e2f63a163332a354c8aaed40ba0cb54d2bb1` | 608,759 |
+| route implementation | 0 | `4b3710cb81aa7e5fb62c4e2ddf8970ace89439edd65673ffb6e39e4218e2bee4` | 214,950 |
+| standalone 1x1 | 0 | `c9ec21b3261684bf4678f873ca949e0fc824db40a2a6eee95399d190922bbed4` | 308,409 |
+| standalone 8x8 | 0 | `c0dc92e325ae5466c70a5aa4c63f746601014bea8405672cab4c45a69864bcb7` | 313,987 |
+
+Each run held the shared Vivado lock, with no other heavy build in this lane beside it.
+Interrupted runs and the provisional checkpoint route are excluded from these receipts.
+Large logs, reports and checkpoints remain outside the handoff directory, with their byte sizes and SHA-256 digests recorded there.
+The D storage analysis and earlier rankings below remain historical.
 
 ## Re-baseline of 2026-10-05, processor ead80360
 
