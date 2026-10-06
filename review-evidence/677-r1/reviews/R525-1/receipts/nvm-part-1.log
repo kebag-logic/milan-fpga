@@ -1,0 +1,16 @@
+  self-test OK: bindings_in_d3_walk        caught by binding_walk, golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=2
+  self-test OK: apply_erased               caught by erased_records; first: [FAIL] Ports/NvmBoth.erased_records/model: erased-record counts: {'abandoned': 0, 'abandoned_vd': 0, 'applied'
+  self-test OK: no_settle_without_names    caught by settle_after_the_last_record; first: [FAIL] NvmModel.settle_after_the_last_record: the settle step runs once, after the last record: {'abandoned': 
+  self-test OK: no_debounce                caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: an erase inside the debounce window: 1
+  self-test OK: budget_rearmed_by_change   caught by dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.dr2c_unchanged_set/model: unchanged set held: {'abandoned': 13, 'abandoned_vd': 13, 'appl
+  self-test OK: taken_after_last_latch     caught by capture_window_edges; first: [FAIL] Ports/NvmBoth.capture_window_edges/model: a change after the capture's last latch: erase -1 us after it
+  self-test OK: no_dr2b                    caught by unchanged_no_erase; first: [FAIL] Ports/NvmBoth.unchanged_no_erase/model: unchanged value: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: success_forgives_exhaustion caught by recovers_after_failure, dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: new work set after exhaustion: {'abandoned': 0, 'abandoned_
+  self-test OK: blankcheck_first_stretch_only caught by blankcheck_tail; first: [FAIL] Ports/NvmBoth.blankcheck_tail/model: erase-stuck:1:0:3335: want the first failure 11: {'abandoned': 0, 
+  self-test OK: refused_slot_overwritten   caught by refused_slot_kept; first: [FAIL] Ports/NvmBoth.refused_slot_kept/model: refused slot A: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0
+  self-test OK: verify_read_fail_ignored   caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:21: want the first failure 13: {'abandoned': 0, 'abandoned_vd': 0,
+  self-test OK: capture_in_one_step        caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=6040 > step_bound=278
+  self-test OK: litespi_no_guard           caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=3
+  self-test OK: read_runs_past_device      caught by port_read_range; first: [FAIL] NvmLitespiPort.port_read_range: a read running past it is refused
+  self-test OK: xfer_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+PART 1 caught 15 of 15

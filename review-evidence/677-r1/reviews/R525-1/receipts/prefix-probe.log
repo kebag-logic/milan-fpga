@@ -1,0 +1,200 @@
+CASE control
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+[       OK ] NvmCodec.codec_erased_loaded_prefix (0 ms)
+[----------] 1 test from NvmCodec (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+CASE erased_payload_end_bound
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+
+  [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 1 ==
+RESULT: FAIL
+=================================================================
+==1757058==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7c36d85e06c0 at pc 0x000000403bd5 bp 0x7fff75db7ab0 sp 0x7fff75db7aa0
+READ of size 1 at 0x7c36d85e06c0 thread T0
+    #0 0x000000403bd4 in nvm_all_erased <packet>/scratch/prefix-build/erased_payload_end_bound/tree/nvm_klj2.c:115
+    #1 0x000000404833 in nvm_klj2_record <packet>/scratch/prefix-build/erased_payload_end_bound/tree/nvm_klj2.c:301
+    #2 0x000000404833 in nvm_klj2_check_body <packet>/scratch/prefix-build/erased_payload_end_bound/tree/nvm_klj2.c:355
+    #3 0x00000040573a in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() <source>/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:25
+    #4 0x7ff6da3e3ec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7ff6da3cf347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7ff6da3cf556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7ff6da3cf773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7ff6da3dbef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x7ff6da3dc800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #10 0x000000409898 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #11 0x000000409898 in main <source>/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #12 0x7ff6d9427780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x7ff6d94278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #14 0x000000403564 in _start (<packet>/scratch/prefix-build/erased_payload_end_bound/build/nvm_prefix+0x403564) (BuildId: 69d4f0221b2ff803bef45a33bf61e12edc340936)
+
+0x7c36d85e06c0 is located 0 bytes after 48-byte region [0x7c36d85e0690,0x7c36d85e06c0)
+allocated by thread T0 here:
+    #0 0x7ff6d9d2d431 in operator new[](unsigned long) (/usr/lib/libasan.so.8+0x12d431) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x000000405b2d in std::__detail::_MakeUniq<unsigned char []>::__array std::make_unique<unsigned char []>(unsigned long) /usr/include/c++/16/bits/unique_ptr.h:1120
+    #2 0x000000405b2d in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() <source>/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:23
+    #3 0x7ff6da3e3ec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #4 0x7ff6da3cf347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7ff6da3cf556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7ff6da3cf773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7ff6da3dbef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7ff6da3dc800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x000000409898 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #10 0x000000409898 in main <source>/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #11 0x7ff6d9427780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #12 0x7ff6d94278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x000000403564 in _start (<packet>/scratch/prefix-build/erased_payload_end_bound/build/nvm_prefix+0x403564) (BuildId: 69d4f0221b2ff803bef45a33bf61e12edc340936)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow <packet>/scratch/prefix-build/erased_payload_end_bound/tree/nvm_klj2.c:115 in nvm_all_erased
+Shadow bytes around the buggy address:
+  0x7c36d85e0400: fa fa fd fd fd fd fd fd fa fa fd fd fd fd fd fd
+  0x7c36d85e0480: fa fa fd fd fd fd fd fd fa fa fd fd fd fd fd fd
+  0x7c36d85e0500: fa fa fd fd fd fd fd fd fa fa fd fd fd fd fd fd
+  0x7c36d85e0580: fa fa 00 00 00 00 00 fa fa fa fd fd fd fd fd fa
+  0x7c36d85e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fd
+=>0x7c36d85e0680: fa fa 00 00 00 00 00 00[fa]fa fa fa fa fa fa fa
+  0x7c36d85e0700: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7c36d85e0780: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7c36d85e0800: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7c36d85e0880: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7c36d85e0900: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1757058==ABORTING
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit -6)
+CASE erased_payload_guard_early
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+<source>/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:37: Failure
+Expected equality of these values:
+  nvm_klj2_check_body(prefix.get(), (40u + (((((8u + (2u)) + (8u + (8u)) + 0x1u * (8u + (4u)) + 0x1u * ((8u + (2u)) + (8u + (66u))) + 0x2u * ((8u + (20u)) + (8u + (8u))) + 0x2u * ((8u + (8u)) + (8u + (4u)))) + ((((0) < (0x1u)) ? (8u + (8u * (0x8u))) : 0u) + (((1) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((2) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((3) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((4) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((5) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((6) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((7) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((8) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((9) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((10) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((11) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((12) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((13) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((14) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((15) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u)) + ((((0) < (0x1u)) ? (8u + (8u * (0x11u))) : 0u) + (((1) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((2) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((3) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((4) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((5) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((6) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((7) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((8) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((9) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((10) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((11) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((12) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((13) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((14) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u) + (((15) < (0x1u)) ? (8u + (8u * (0x0u))) : 0u)) + 0x27u * (8u + (64u))) + 3u) & ~3u) + 4u), loaded)
+    Which is: 7
+  loaded == end ? NVM_VD_OK : NVM_VD_REC
+    Which is: 0
+erased last payload at its exact loaded boundary
+
+  [FAIL] NvmCodec.codec_erased_loaded_prefix: erased last payload at its exact loaded boundary
+[  FAILED  ] NvmCodec.codec_erased_loaded_prefix (1 ms)
+[----------] 1 test from NvmCodec (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NvmCodec.codec_erased_loaded_prefix
+
+ 1 FAILED TEST
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+CASE erased_payload_guard_late
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+
+  [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 1 ==
+RESULT: FAIL
+=================================================================
+==1757730==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7d2d8abe1b81 at pc 0x000000403bd5 bp 0x7ffd04e6f270 sp 0x7ffd04e6f260
+READ of size 1 at 0x7d2d8abe1b81 thread T0
+    #0 0x000000403bd4 in nvm_all_erased <packet>/scratch/prefix-build/erased_payload_guard_late/tree/nvm_klj2.c:115
+    #1 0x000000404854 in nvm_klj2_record <packet>/scratch/prefix-build/erased_payload_guard_late/tree/nvm_klj2.c:301
+    #2 0x000000404854 in nvm_klj2_check_body <packet>/scratch/prefix-build/erased_payload_guard_late/tree/nvm_klj2.c:355
+    #3 0x000000405f25 in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() <source>/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:37
+    #4 0x7f3d8c9daec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f3d8c9c6347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7f3d8c9c6556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7f3d8c9c6773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7f3d8c9d2ef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x7f3d8c9d3800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #10 0x0000004098d8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #11 0x0000004098d8 in main <source>/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #12 0x7f3d8ba27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x7f3d8ba278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #14 0x000000403564 in _start (<packet>/scratch/prefix-build/erased_payload_guard_late/build/nvm_prefix+0x403564) (BuildId: c78087224f5c058c2157ab18c374d05cf38616ed)
+
+0x7d2d8abe1b81 is located 0 bytes after 3329-byte region [0x7d2d8abe0e80,0x7d2d8abe1b81)
+allocated by thread T0 here:
+    #0 0x7f3d8c32d431 in operator new[](unsigned long) (/usr/lib/libasan.so.8+0x12d431) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x0000004062d8 in std::__detail::_MakeUniq<unsigned char []>::__array std::make_unique<unsigned char []>(unsigned long) /usr/include/c++/16/bits/unique_ptr.h:1120
+    #2 0x0000004062d8 in NvmCodec_codec_erased_loaded_prefix_Test::TestBody() <source>/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp:35
+    #3 0x7f3d8c9daec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #4 0x7f3d8c9c6347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7f3d8c9c6556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7f3d8c9c6773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7f3d8c9d2ef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7f3d8c9d3800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x0000004098d8 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #10 0x0000004098d8 in main <source>/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #11 0x7f3d8ba27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #12 0x7f3d8ba278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x000000403564 in _start (<packet>/scratch/prefix-build/erased_payload_guard_late/build/nvm_prefix+0x403564) (BuildId: c78087224f5c058c2157ab18c374d05cf38616ed)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow <packet>/scratch/prefix-build/erased_payload_guard_late/tree/nvm_klj2.c:115 in nvm_all_erased
+Shadow bytes around the buggy address:
+  0x7d2d8abe1900: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d2d8abe1980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d2d8abe1a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d2d8abe1a80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7d2d8abe1b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7d2d8abe1b80:[01]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d2d8abe1c00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d2d8abe1c80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d2d8abe1d00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d2d8abe1d80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7d2d8abe1e00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==1757730==ABORTING
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit -6)
+Exact-size control passes; old end bound and both one-byte boundary defects fail the named case.

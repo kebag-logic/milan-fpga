@@ -1,0 +1,16 @@
+  self-test OK: bindings_skipped_unproven  caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: shape_mismatch_released_unproven caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: and over an unproven model nothing is released: {'abandon
+  self-test OK: taken_off_by_one           caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0x0): erase 170
+  self-test OK: binding_fault_keeps_preloads caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 53, 'at
+  self-test OK: nothing_to_save_framed     caught by nothing_to_save; first: [FAIL] Ports/NvmBoth.nothing_to_save/model: the staged bytes did not stand
+  self-test OK: no_backoff                 caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-stuck: attempts at 3 erases, want three at least 1,000 ms apa
+  self-test OK: dr2b_keeps_stale           caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: a repeated value after recovery: {'abandoned': 0, 'abandone
+  self-test OK: commit_now_overrides_exhaustion caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: model: invariant protected=3
+  self-test OK: no_verify                  caught by media_failures, failed_commit_not_skipped; first: [FAIL] Ports/NvmBoth.failed_commit_not_skipped/model: retry after a failed attempt: {'abandoned': 0, 'abandone
+  self-test OK: no_timeout                 caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: model: invariant protected=3
+  self-test OK: litespi_no_wren            caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant ls_no_wel=14
+  self-test OK: clock_not_accumulated      caught by time_base; first: [FAIL] NvmLitespi.time_base: a window across the counter's wrap: erase 502406 us after the change
+  self-test OK: call_deadline_ignored      caught by port_deadline, port_drain_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant protected=3
+  self-test OK: deadline_per_wait          caught by port_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant max_call_us=2231 > 2213
+PART 3 caught 15 of 15

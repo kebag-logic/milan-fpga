@@ -1,0 +1,16 @@
+  self-test OK: model_ready_ignored        caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: shape_not_checked          caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: a walk that disagrees with the sizes disables persistence
+  self-test OK: binding_fault_aborts_d3    caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 1, 'att
+  self-test OK: capture_leaves_window_armed caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0xa6): erase 17
+  self-test OK: budget_rearmed_by_capture  caught by dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.dr2c_unchanged_set/model: unchanged set held: {'abandoned': 0, 'abandoned_vd': 0, 'applie
+  self-test OK: change_of_no_record        caught by change_unknown_record; first: [FAIL] NvmModel.change_unknown_record: changes to records the shape does not have: {'abandoned': 0, 'abandoned
+  self-test OK: console_force_ignored      caught by console_commit_unchanged; first: [FAIL] Ports/NvmBoth.console_commit_unchanged/model: console commit of an unchanged container: {'abandoned': 0
+  self-test OK: stale_kept                 caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: third attempt: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: blankcheck_read_fail_ignored caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:7: want the first failure 11: {'abandoned': 0, 'abandoned_vd': 0, 
+  self-test OK: no_blank_slot_takes_b      caught by first_commit_no_blank_slot; first: [FAIL] Ports/NvmBoth.first_commit_no_blank_slot/model: first commit with both slots refused: {'abandoned': 0, 
+  self-test OK: program_refusal_ignored    caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: program-refuse:1:2: want the first failure 12: {'abandoned': 0, 'abandoned_vd'
+  self-test OK: spin_wait                  caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant max_call_us=2999900 > 250
+  self-test OK: phc_time                   caught by time_base; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase -1 us after the change
+  self-test OK: open_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+  self-test OK: program_across_page        caught by port_write_refusals; first: [FAIL] NvmLitespiPort.port_write_refusals:     Function call: timer(3, 1)
+PART 2 caught 15 of 15

@@ -1,0 +1,60 @@
+{
+  "head": "6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+  "base": "6714181d0c8a16e2983f85b724f4d688f5111835",
+  "mutants": {
+    "ctrl": {
+      "base": 76,
+      "head": 79,
+      "all_existing_definitions_unchanged": true,
+      "added": [
+        "reentry-guard-removed",
+        "reentry-not-ignored",
+        "reentry-uncounted"
+      ]
+    },
+    "nvm": {
+      "base": 106,
+      "head": 109,
+      "all_existing_definitions_unchanged": true,
+      "added": [
+        "erased_payload_end_bound",
+        "erased_payload_guard_early",
+        "erased_payload_guard_late"
+      ]
+    }
+  },
+  "exclusions": {
+    "count": 14,
+    "file_function_statement_and_uncovered_items_unchanged": true
+  },
+  "changed_paths": [
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/adp/adp.c",
+    "sw/firmware/ctrl/adp/adp.h",
+    "sw/firmware/ctrl/adp/adp_mbx.h",
+    "sw/firmware/ctrl/mbx/mbx.h",
+    "sw/firmware/ctrl/mbx/mbx_hal.h",
+    "sw/firmware/ctrl/port/ctrl_debug.h",
+    "sw/firmware/ctrl/port/ctrl_pool.h",
+    "sw/firmware/ctrl/port/shlan_port.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/nvm_flash.h",
+    "sw/firmware/ctrl_nvm/nvm_klj2.c",
+    "sw/firmware/ctrl_nvm/nvm_state.h",
+    "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+    "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+    "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+    "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "sw/firmware/gtest/fw_coverage.py",
+    "sw/firmware/gtest/fw_gtest.py"
+  ],
+  "rtl_config_build_workflow_and_submodule_delta": false,
+  "shipping_Makefile": "sw/firmware/milan_baremetal/Makefile"
+}

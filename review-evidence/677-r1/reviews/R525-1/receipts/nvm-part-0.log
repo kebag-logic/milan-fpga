@@ -1,0 +1,17 @@
+  self-test OK: settle_after_names         caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=39
+  self-test OK: release_before_apply       caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=54
+  self-test OK: d3_rollback_takes_bindings caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: quiet_period               caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a second change extended the first-dirty window
+  self-test OK: taken_while_capturing      caught by capture_window_edges; first: [FAIL] Ports/NvmBoth.capture_window_edges/model: a change the capture has passed: erase -1 us after it: {'aban
+  self-test OK: dr2b_ignores_durability    caught by failed_commit_not_skipped; first: [FAIL] Ports/NvmBoth.failed_commit_not_skipped/model: retry after a failed attempt: {'abandoned': 0, 'abandone
+  self-test OK: commit_now_ignores_backoff caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: console inside the backoff: retry 183703 us after the failure: {'aban
+  self-test OK: unbounded_attempts         caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: no_blankcheck              caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-stuck: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+  self-test OK: descending_pages           caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/model: model: invariant descending=13
+  self-test OK: verify_skips_last_stretch  caught by verify_tail; first: [FAIL] Ports/NvmBoth.verify_tail/model: program-drop:1:13: want the first failure 13: {'abandoned': 0, 'abando
+  self-test OK: same_sequence              caught by change_commit_bytes; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: change commit: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 
+  self-test OK: ticks_per_us_truncated     caught by port_clock, time_base at 83333000 Hz; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase 997402 us after the change
+  self-test OK: litespi_status_ignored     caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant while_busy=14
+  self-test OK: stall_ignored              caught by port_stall; first: [FAIL] NvmLitespi.port_stall: stalled master tx:1:10:0: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+  self-test OK: drain_deadline_ignored     caught by port_drain_deadline; first: [FAIL] NvmLitespiPort.port_drain_deadline:            Actual: called 4096 times - over-saturated and active
+PART 0 caught 16 of 16

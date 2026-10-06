@@ -1,0 +1,18 @@
+{
+  "command": [
+    "timeout",
+    "580",
+    "python3",
+    "<packet>/scripts/nvm_remaining.py",
+    "<source>",
+    "<packet>/scratch/nvm-part-build-0",
+    "<packet>/receipts/nvm-resume-plan.json",
+    "--part",
+    "0",
+    "--jobs",
+    "4"
+  ],
+  "rc": 0,
+  "elapsed_seconds": 313.855,
+  "redactions": "source, packet and home roots only"
+}

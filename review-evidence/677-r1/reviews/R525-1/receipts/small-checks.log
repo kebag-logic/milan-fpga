@@ -1,0 +1,71 @@
+COMMAND sw/firmware/gtest/fw_coverage.py --selftest
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] the control: the only gap excluded, at its record: no finding
+[ok] a branch of f no longer taken: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a line of f no longer run: sw/firmware/ctrl/x.c: lines 6/7 fell below the recorded 7/7
+[ok] the record is a floor: a measurement over it passes: no finding
+[ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+[ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+[ok] an exclusion with no reason: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no reason given
+[ok] an exclusion whose statement is not in its function: exclusion sw/firmware/ctrl/x.c g(): `if (a == 8)`: the statement occurs 0 times in the function, not once
+[ok] an exclusion whose statement is not one statement: exclusion sw/firmware/ctrl/x.c g(): `return`: the statement occurs 2 times in the function, not once
+[ok] an exclusion naming no function measured: exclusion sw/firmware/ctrl/x.c h(): `if (a == 7)`: no such function in the measurement
+[ok] an exclusion gone stale: the arc it names is covered now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion gone stale: the line it names runs now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion that names less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): line 10 is unexecuted, and no row names it
+[ok] the uncovered arc moved to the statement's other arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [2] of the statement's 2 are uncovered, the row names [1]
+[ok] the uncovered arc and line moved to another statement, the function's totals unchanged: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] an exclusion whose statement has another number of arcs: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: the statement (lines 9-9) has 2 arcs, the row says 3
+[ok] an exclusion naming a line no line from the statement on holds: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no line from the statement's on holds `return 8;`
+[ok] two exclusions naming one arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: names an arc or a line another row of the function names
+[ok] an exclusion whose items cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+[ok] two builds of one source merge to the union: no finding
+[ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] an exception edge is not a branch: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+[ok] gcc: a compensating swap, the control measurement: no finding
+[ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+[ok] gcc: a condition over two lines, the control measurement: no finding
+[ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+coverage self-test: 28 of 28 planted cases read as planted
+COMMAND sw/firmware/gtest/tally_selftest.py --mutants
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] a passing test (the control): exit 0, tally 1/0, 1 tests, 0 failures
+[ok] a failing assertion: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGSEGV: exit -11, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] an abort: exit -6, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGBUS: exit -7, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGFPE: exit -8, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGILL: exit -4, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] exit(0) inside a test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a skipped test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] an uncaught exception: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a disabled test: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a disabled suite: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 2 failure(s) across 1 checks
+[ok] a failure in a suite's tear-down: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a failure in the global environment: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] _exit(0) inside a test: exit 0, no tally, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] no test selected: exit 0, tally 0/0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+tally self-test: 18 of 18 planted cases read as planted
+[caught] skip-not-counted: Skip.* (tally checks 1 failures 0, want checks 1 failures 1); also SetUpFails.*
+[caught] suite-failure-not-counted: SetUpFails.*, TearDownFails.* (tally checks 1 failures 1, want checks 1 failures 2)
+[caught] crash-tally-passes: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] crashed-test-not-counted: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 0 failures 1, want checks 1 failures 1)
+[caught] early-exit-tally-passes: Exit.Zero (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-not-counted: Disabled.*, DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+[caught] result-always-pass: Fail.*, Crash.Segv, Exit.Zero, Skip.*, Disabled.*, TearDownFails.*, ProgramFails.* (RESULT lines ['PASS'], want ['FAIL']); also Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill, DISABLED_Suite.*, SetUpFails.*, Throw.*
+[caught] tests-not-counted: Pass.*, Fail.* (tally checks 0 failures 0, want checks 1 failures 0); also ProgramFails.*, SetUpFails.*, Skip.*, TearDownFails.*, Throw.*
+[caught] fail-line-dropped: Fail.* (no [FAIL] line names Fail.Expect); also Throw.*
+[caught] no-atexit: Exit.Zero (not one listener tally line: [])
+[caught] no-signal-handler: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (not one listener tally line: [])
+[caught] sigsegv-unhandled: Crash.Segv (not one listener tally line: [])
+[caught] sigbus-unhandled: Crash.Bus (not one listener tally line: [])
+[caught] sigfpe-unhandled: Crash.Fpe (not one listener tally line: [])
+[caught] sigill-unhandled: Crash.Ill (not one listener tally line: [])
+[caught] sigabrt-unhandled: Crash.Abort (not one listener tally line: [])
+[caught] program-failure-not-counted: ProgramFails.* (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-suite-not-counted: DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+listener defects: 18 of 18 caught
