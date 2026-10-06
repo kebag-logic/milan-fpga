@@ -594,6 +594,10 @@ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/aaf/start_mutants.py":
+        "mutation campaign; plants startup-admission, timestamp, sequence, publication "
+        "or payload defects in isolated copies and requires named assertion failures; "
+        "sample times and expected values are independent of the RTL text",
     "protocol-processor/tb/pp_top/acmp_mutants.py":
         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
         "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
