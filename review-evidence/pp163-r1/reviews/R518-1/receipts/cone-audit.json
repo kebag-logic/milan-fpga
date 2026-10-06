@@ -1,0 +1,55 @@
+{
+  "base": {
+    "standalone_endpoint_cells": 188,
+    "standalone_endpoint_pins": 545,
+    "standalone_sof_cells": [
+      "sof_pend_r_reg"
+    ],
+    "summary_header": "paths 263154  max levels 51  above 20: 146535",
+    "covered_endpoint_families": [
+      "u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]",
+      "u_tx_arbiter/age_r_reg[*][*]",
+      "u_tx_arbiter/cnt_r_reg[*][*]",
+      "u_tx_arbiter/gnt_r_reg[*]",
+      "u_tx_arbiter/owner_r_reg[*]",
+      "u_tx_arbiter/pace_nonsol_r_reg",
+      "u_tx_arbiter/pend_r_reg[*]",
+      "u_tx_arbiter/slot_r_reg[*]",
+      "u_tx_arbiter/start_sent_r_reg"
+    ],
+    "grouped_paths": 146535
+  },
+  "head": {
+    "standalone_endpoint_cells": 188,
+    "standalone_endpoint_pins": 545,
+    "standalone_sof_cells": [
+      "sof_pend_r_reg"
+    ],
+    "summary_header": "paths 17990  max levels 16  above 0: 17989",
+    "covered_endpoint_families": [
+      "u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]",
+      "u_tx_arbiter/age_r_reg[*][*]",
+      "u_tx_arbiter/cnt_r_reg[*][*]",
+      "u_tx_arbiter/gnt_r_reg[*]",
+      "u_tx_arbiter/owner_r_reg[*]",
+      "u_tx_arbiter/pace_nonsol_r_reg",
+      "u_tx_arbiter/pend_r_reg[*]",
+      "u_tx_arbiter/slot_r_reg[*]",
+      "u_tx_arbiter/start_sent_r_reg"
+    ],
+    "grouped_paths": 17989
+  },
+  "integrated_expected_sequential_bits": {
+    "slot_r": 3,
+    "owner_r": 3,
+    "FSM_onehot_arb_st_r": 3,
+    "start_sent_r": 1,
+    "pace_nonsol_r": 1,
+    "gnt_r": 8,
+    "age_r": 32,
+    "cnt_r": 128,
+    "pend_r": 8
+  },
+  "integrated_expected_total": 187,
+  "explanation": "The measured wrapper leaves tx_sof_o open at hdl/milan/KL_pp_shadow.sv:1182. sof_pend_r is present in standalone reports and is unused after integration. The nine retained families sum to 187 cells, matching the reported survey. Script and raw integrated per-pin tables are not in the published bundle; this audits consistency and family coverage, not the unseen query implementation."
+}

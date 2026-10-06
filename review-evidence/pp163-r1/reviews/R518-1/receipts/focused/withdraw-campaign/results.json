@@ -1,0 +1,74 @@
+[
+ {
+  "mutant": "golden-aecp_notify-run",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-withdraw-only",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cancel_one_clock_late",
+  "suite": "make run",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CX1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IX3: the registered identity matches in the command's cycle",
+   "CX1: a command from the probing controller cancels its probe in the command's own clock (probe live 1, cancelled then 0) and in no later one (1 of 8)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_abort_ignored",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD2:",
+   "WD3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)",
+   "WD3: that probe never reaches the wire, both answers leave, and the slots, the originator and its lane return idle (0 probe(s), deregistration 0, answers 0, idle 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_unregistered",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD1:",
+   "WD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD1: a cancellation on the clock the arbiter accepts a queued probe no longer stops it: it leaves once, byte-exact, and nothing follows (accept clock 1, 0 probe(s), exact 1, deregistration 0, answers 1, slots and originator idle 1)",
+   "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)"
+  ],
+  "verdict": "KILLED"
+ }
+]

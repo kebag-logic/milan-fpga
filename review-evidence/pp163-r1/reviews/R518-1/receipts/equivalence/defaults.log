@@ -1,0 +1,2838 @@
+
+-- Executing script file `$REVIEWS/pp163-r518-1-packet/scratch/equivalence/defaults.ys' --
+
+1. Executing Verilog-2005 frontend: $REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v
+Parsing Verilog input from `$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v' to AST representation.
+Generating RTLIL representation for module `\KL_pp_tx_arbiter'.
+Warning: Replacing memory \age_r with list of registers. See $REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:198
+Successfully finished Verilog frontend.
+
+2. Executing PREP pass.
+
+2.1. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1.1. Analyzing design hierarchy..
+Top module:  \KL_pp_tx_arbiter
+
+2.1.2. Analyzing design hierarchy..
+Top module:  \KL_pp_tx_arbiter
+Removed 0 unused modules.
+
+2.2. Executing PROC pass (convert processes to netlists).
+
+2.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:232$216'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:73$49'.
+Cleaned up 3 empty switches.
+
+2.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185 in module KL_pp_tx_arbiter.
+Marked 13 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147 in module KL_pp_tx_arbiter.
+Marked 5 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121 in module KL_pp_tx_arbiter.
+Marked 6 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70 in module KL_pp_tx_arbiter.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56 in module KL_pp_tx_arbiter.
+Removed a total of 0 dead cases.
+
+2.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 39 assignments to connections.
+
+2.2.4. Executing PROC_INIT pass (extract init attributes).
+
+2.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+2.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~38 debug messages>
+
+2.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:241$223'.
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:232$216'.
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+     1/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$207
+     2/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_DATA[15:0]$206
+     3/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_ADDR[2:0]$205
+     4/13: $1\grant_counters.sv2v_autoblock_6.i[31:0]
+     5/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$201
+     6/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$200
+     7/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$199
+     8/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$198
+     9/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$197
+    10/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$196
+    11/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$204
+    12/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_DATA[15:0]$203
+    13/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_ADDR[2:0]$202
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+     1/8: $1\aging.sv2v_autoblock_4.i[31:0]
+     2/8: $1\aging.sv2v_autoblock_5.i[31:0]
+     3/8: $0\age_r[5][3:0]
+     4/8: $0\age_r[4][3:0]
+     5/8: $0\age_r[3][3:0]
+     6/8: $0\age_r[2][3:0]
+     7/8: $0\age_r[1][3:0]
+     8/8: $0\age_r[0][3:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+     1/14: $4$lookahead\gnt_r$120[5:0]$135
+     2/14: $4$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$24[2:0]$134
+     3/14: $3$lookahead\gnt_r$120[5:0]$133
+     4/14: $3$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$24[2:0]$132
+     5/14: $2$lookahead\gnt_r$120[5:0]$128
+     6/14: $2$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$24[2:0]$127
+     7/14: $1$lookahead\gnt_r$120[5:0]$126
+     8/14: $1$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$24[2:0]$125
+     9/14: $0\pace_nonsol_r[0:0]
+    10/14: $0\sof_pend_r[0:0]
+    11/14: $0\start_sent_r[0:0]
+    12/14: $0\owner_r[2:0]
+    13/14: $0\slot_r[2:0]
+    14/14: $0\arb_st_r[1:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+     1/18: $6\selection.best_w[2:0]
+     2/18: $6\pick_w[2:0]
+     3/18: $6\pick_ok_w[0:0]
+     4/18: $5\selection.best_w[2:0]
+     5/18: $5\pick_w[2:0]
+     6/18: $5\pick_ok_w[0:0]
+     7/18: $4\selection.best_w[2:0]
+     8/18: $4\pick_w[2:0]
+     9/18: $4\pick_ok_w[0:0]
+    10/18: $3\selection.best_w[2:0]
+    11/18: $3\pick_w[2:0]
+    12/18: $3\pick_ok_w[0:0]
+    13/18: $2\selection.best_w[2:0]
+    14/18: $2\pick_w[2:0]
+    15/18: $2\pick_ok_w[0:0]
+    16/18: $1\selection.best_w[2:0]
+    17/18: $1\pick_w[2:0]
+    18/18: $1\pick_ok_w[0:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56'.
+     1/7: $0\pend_r[5:0] [5]
+     2/7: $0\pend_r[5:0] [4]
+     3/7: $0\pend_r[5:0] [3]
+     4/7: $0\pend_r[5:0] [2]
+     5/7: $0\pend_r[5:0] [1]
+     6/7: $0\pend_r[5:0] [0]
+     7/7: $1\slot_qualify.sv2v_autoblock_2.i[31:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:73$49'.
+
+2.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_pp_tx_arbiter.\_sv2v_0' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:241$223'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\gnt_count_o' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:232$216'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\count_out.sv2v_autoblock_7.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:232$216'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pend_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\sol_pend_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\elig_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pick_ok_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pick_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.key_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.best_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_3.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\aged_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:73$49'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\aged_flags.sv2v_autoblock_1.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:73$49'.
+
+2.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_pp_tx_arbiter.\grant_counters.sv2v_autoblock_6.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$570' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$571' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$572' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$573' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$574' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$575' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$576' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_ADDR' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$577' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_DATA' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$578' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+  created $dff cell `$procdff$579' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\aging.sv2v_autoblock_4.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$580' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\aging.sv2v_autoblock_5.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$581' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[0]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$582' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[1]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$583' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[2]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$584' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[3]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$585' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[4]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$586' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[5]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+  created $dff cell `$procdff$587' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\arb_st_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$588' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\slot_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$589' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\owner_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$590' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\start_sent_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$591' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\sof_pend_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$592' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\pace_nonsol_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$593' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\gnt_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$594' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$24' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$595' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$lookahead\gnt_r$120' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+  created $dff cell `$procdff$596' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\pend_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56'.
+  created $dff cell `$procdff$597' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\slot_qualify.sv2v_autoblock_2.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56'.
+  created $dff cell `$procdff$598' with positive edge clock.
+
+2.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+2.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:241$223'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:232$216'.
+Found and cleaned up 2 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:215$185'.
+Found and cleaned up 19 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:194$147'.
+Found and cleaned up 10 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:140$121'.
+Found and cleaned up 6 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:106$70'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:93$56'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:73$49'.
+Cleaned up 38 empty switches.
+
+2.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~62 debug messages>
+
+2.3. Executing FUTURE pass.
+
+2.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+2.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 47 unused cells and 272 unused wires.
+<suppressed ~53 debug messages>
+
+2.6. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_tx_arbiter...
+Found and reported 0 problems.
+
+2.7. Executing OPT pass (performing simple optimizations).
+
+2.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+2.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 248 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 230 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 229 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~57 debug messages>
+Removed a total of 19 cells.
+
+2.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$395.
+    dead port 2/2 on $mux $procmux$378.
+    dead port 2/2 on $mux $procmux$375.
+    dead port 2/2 on $mux $procmux$355.
+    dead port 2/2 on $mux $procmux$352.
+    dead port 1/2 on $mux $procmux$350.
+    dead port 2/2 on $mux $procmux$240.
+    dead port 2/2 on $mux $procmux$234.
+    dead port 2/2 on $mux $procmux$228.
+Removed 9 multiplexer ports.
+<suppressed ~141 debug messages>
+
+2.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+    New input vector for $reduce_or cell $reduce_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:112$73: { \pend_w [5] \pend_w [2] \pend_w [0] }
+    Consolidated identical input bits for $mux cell $procmux$261:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$42_EN[15:0]$186 [0] }
+    Consolidated identical input bits for $mux cell $procmux$258:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$43_EN[15:0]$187 [0] }
+    Consolidated identical input bits for $mux cell $procmux$255:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$44_EN[15:0]$188 [0] }
+    Consolidated identical input bits for $mux cell $procmux$252:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$45_EN[15:0]$189 [0] }
+    Consolidated identical input bits for $mux cell $procmux$249:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$46_EN[15:0]$190 [0] }
+    Consolidated identical input bits for $mux cell $procmux$246:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:219$47_EN[15:0]$191 [0] }
+    Consolidated identical input bits for $mux cell $procmux$225:
+      Old ports: A=16'0000000000000000, B=16'1111111111111111, Y=$procmux$225_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$225_Y [0]
+      New connections: $procmux$225_Y [15:1] = { $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] $procmux$225_Y [0] }
+  Optimizing cells in module \KL_pp_tx_arbiter.
+    Consolidated identical input bits for $mux cell $procmux$264:
+      Old ports: A=16'0000000000000000, B=$2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$207, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194
+      New ports: A=1'0, B=$procmux$225_Y [0], Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$48_EN[15:0]$194 [0] }
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 9 changes.
+
+2.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 220 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 214 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~18 debug messages>
+Removed a total of 6 cells.
+
+2.7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 34 unused wires.
+<suppressed ~1 debug messages>
+
+2.7.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+2.7.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+2.7.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~124 debug messages>
+
+2.7.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+2.7.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 214 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+2.7.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+2.7.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+2.7.14. Finished fast OPT passes. (There is nothing left to do.)
+
+2.8. Executing WREDUCE pass (reducing word size of cells).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$222 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$221 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$220 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$219 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$218 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:238$217 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$599 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$600 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$601 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$602 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$603 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$604 (cnt_r).
+Removed top 1 bits (of 6) from mux cell KL_pp_tx_arbiter.$ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:113$76 ($mux).
+Removed top 30 bits (of 32) from port B of cell KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$129 ($mul).
+Removed top 27 bits (of 32) from port Y of cell KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$129 ($mul).
+Removed top 27 bits (of 32) from port A of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$130 ($add).
+Removed top 31 bits (of 32) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$130 ($add).
+Removed top 26 bits (of 32) from port Y of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$130 ($add).
+Removed top 25 bits (of 32) from port B of cell KL_pp_tx_arbiter.$shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$131 ($shiftx).
+Converting cell KL_pp_tx_arbiter.$neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$140 ($neg) from signed to unsigned.
+Removed top 1 bits (of 4) from port A of cell KL_pp_tx_arbiter.$neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$140 ($neg).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$154 ($add).
+Removed top 2 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$155 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$160 ($add).
+Removed top 1 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$161 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$166 ($add).
+Removed top 1 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$167 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$172 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$178 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$184 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:222$209 ($add).
+Removed top 1 bits (of 2) from port B of cell KL_pp_tx_arbiter.$procmux$489_CMP0 ($eq).
+Removed top 2 bits (of 3) from mux cell KL_pp_tx_arbiter.$procmux$536 ($mux).
+Removed top 26 bits (of 32) from wire KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$130_Y.
+Removed top 27 bits (of 32) from wire KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$129_Y.
+Removed top 2 bits (of 3) from wire KL_pp_tx_arbiter.$2\pick_w[2:0].
+
+2.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+2.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+2.11. Executing OPT pass (performing simple optimizations).
+
+2.11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+2.11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 201 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+2.11.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+2.11.4. Finished fast OPT passes.
+
+2.12. Executing SORT pass.
+
+2.13. Printing statistics.
+
+=== KL_pp_tx_arbiter ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      211 wires
+      799 wire bits
+       49 public wires
+      332 public wire bits
+       19 ports
+      157 port bits
+      201 cells
+        8   $add
+        1   $and
+       14   $dff
+       13   $eq
+       34   $logic_and
+       10   $logic_not
+        6   $logic_or
+        5   $lt
+        1   $mem_v2
+        1   $mul
+       82   $mux
+       12   $ne
+        1   $neg
+        6   $not
+        3   $pmux
+        1   $reduce_or
+        1   $shift
+        2   $shiftx
+
+2.14. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_tx_arbiter...
+Found and reported 0 problems.
+
+3. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+Mapping memory \cnt_r in module \KL_pp_tx_arbiter:
+  created 6 $dff cells and 0 static cells of width 16.
+  read interface: 0 $dff and 49 $mux cells.
+  write interface: 42 write mux blocks.
+
+4. Executing OPT pass (performing simple optimizations).
+
+4.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~170 debug messages>
+
+4.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 243 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+4.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$261.
+    dead port 2/2 on $mux $procmux$261.
+Removed 2 multiplexer ports.
+<suppressed ~160 debug messages>
+
+4.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+4.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 242 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+4.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$597 ($dff) from module KL_pp_tx_arbiter (D = { $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$69_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$67_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$65_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$63_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$61_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:99$59_Y }, Q = \pend_r, rval = 6'000000).
+Adding SRST signal on $procdff$594 ($dff) from module KL_pp_tx_arbiter (D = $or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$142_Y, Q = \gnt_r, rval = 6'000000).
+Adding SRST signal on $procdff$593 ($dff) from module KL_pp_tx_arbiter (D = $procmux$418_Y, Q = \pace_nonsol_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1074 ($sdff) from module KL_pp_tx_arbiter (D = $logic_not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:171$144_Y, Q = \pace_nonsol_r).
+Adding SRST signal on $procdff$592 ($dff) from module KL_pp_tx_arbiter (D = $procmux$426_Y, Q = \sof_pend_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1080 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$426_Y, Q = \sof_pend_r).
+Adding SRST signal on $procdff$591 ($dff) from module KL_pp_tx_arbiter (D = $procmux$448_Y, Q = \start_sent_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$1088 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$448_Y, Q = \start_sent_r).
+Adding SRST signal on $procdff$590 ($dff) from module KL_pp_tx_arbiter (D = $procmux$461_Y, Q = \owner_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$1098 ($sdff) from module KL_pp_tx_arbiter (D = \pick_w, Q = \owner_r).
+Adding SRST signal on $procdff$589 ($dff) from module KL_pp_tx_arbiter (D = $procmux$471_Y, Q = \slot_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$1102 ($sdff) from module KL_pp_tx_arbiter (D = $shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$131_Y, Q = \slot_r).
+Adding SRST signal on $procdff$588 ($dff) from module KL_pp_tx_arbiter (D = $procmux$479_Y, Q = \arb_st_r, rval = 2'00).
+Adding EN signal on $auto$ff.cc:337:slice$1106 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$479_Y, Q = \arb_st_r).
+Adding SRST signal on $procdff$587 ($dff) from module KL_pp_tx_arbiter (D = $procmux$278_Y, Q = \age_r[5], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1116 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$184_Y, Q = \age_r[5]).
+Adding SRST signal on $procdff$586 ($dff) from module KL_pp_tx_arbiter (D = $procmux$289_Y, Q = \age_r[4], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1124 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$178_Y, Q = \age_r[4]).
+Adding SRST signal on $procdff$585 ($dff) from module KL_pp_tx_arbiter (D = $procmux$300_Y, Q = \age_r[3], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1132 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$172_Y, Q = \age_r[3]).
+Adding SRST signal on $procdff$584 ($dff) from module KL_pp_tx_arbiter (D = $procmux$311_Y, Q = \age_r[2], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1140 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$166_Y, Q = \age_r[2]).
+Adding SRST signal on $procdff$583 ($dff) from module KL_pp_tx_arbiter (D = $procmux$322_Y, Q = \age_r[1], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1148 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$160_Y, Q = \age_r[1]).
+Adding SRST signal on $procdff$582 ($dff) from module KL_pp_tx_arbiter (D = $procmux$333_Y, Q = \age_r[0], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$1156 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$154_Y, Q = \age_r[0]).
+
+4.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 47 unused cells and 258 unused wires.
+<suppressed ~49 debug messages>
+
+4.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~2 debug messages>
+
+4.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~97 debug messages>
+
+4.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+4.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 231 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 222 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~27 debug messages>
+Removed a total of 9 cells.
+
+4.13. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $memory\cnt_r[0]$609 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[0][6][0]$y$827, Q = \cnt_r[0]).
+Adding EN signal on $memory\cnt_r[1]$611 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[1][6][0]$y$875, Q = \cnt_r[1]).
+Adding EN signal on $memory\cnt_r[2]$613 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[2][6][0]$y$927, Q = \cnt_r[2]).
+Adding EN signal on $memory\cnt_r[3]$615 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[3][6][0]$y$969, Q = \cnt_r[3]).
+Adding EN signal on $memory\cnt_r[4]$617 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[4][6][0]$y$1021, Q = \cnt_r[4]).
+Adding EN signal on $memory\cnt_r[5]$619 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[5][6][0]$y$1063, Q = \cnt_r[5]).
+
+4.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 9 unused wires.
+<suppressed ~1 debug messages>
+
+4.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+4.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~97 debug messages>
+
+4.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+4.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 228 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 223 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~15 debug messages>
+Removed a total of 5 cells.
+
+4.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+4.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 5 unused wires.
+<suppressed ~1 debug messages>
+
+4.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+4.23. Rerunning OPT passes. (Maybe there is more to do..)
+
+4.24. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~99 debug messages>
+
+4.25. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+4.26. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 223 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+4.27. Executing OPT_DFF pass (perform DFF optimizations).
+
+4.28. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+4.29. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+4.30. Finished fast OPT passes. (There is nothing left to do.)
+Renaming module \KL_pp_tx_arbiter to \gold.
+
+5. Executing Verilog-2005 frontend: $REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v
+Parsing Verilog input from `$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v' to AST representation.
+Generating RTLIL representation for module `\KL_pp_tx_arbiter'.
+Warning: Replacing memory \age_r with list of registers. See $REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:209
+Successfully finished Verilog frontend.
+
+6. Executing PREP pass.
+
+6.1. Executing HIERARCHY pass (managing design hierarchy).
+
+6.1.1. Analyzing design hierarchy..
+Top module:  \KL_pp_tx_arbiter
+
+6.1.2. Analyzing design hierarchy..
+Top module:  \KL_pp_tx_arbiter
+Removed 0 unused modules.
+
+6.2. Executing PROC pass (convert processes to netlists).
+
+6.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:243$1611'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:73$1239'.
+Cleaned up 3 empty switches.
+
+6.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 2 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580 in module KL_pp_tx_arbiter.
+Marked 13 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542 in module KL_pp_tx_arbiter.
+Marked 5 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516 in module KL_pp_tx_arbiter.
+Marked 78 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260 in module KL_pp_tx_arbiter.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246 in module KL_pp_tx_arbiter.
+Removed a total of 0 dead cases.
+
+6.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 1 redundant assignment.
+Promoted 56 assignments to connections.
+
+6.2.4. Executing PROC_INIT pass (extract init attributes).
+
+6.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+6.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~110 debug messages>
+
+6.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:252$1618'.
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:243$1611'.
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+     1/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1600
+     2/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_DATA[15:0]$1601
+     3/13: $2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_ADDR[2:0]$1602
+     4/13: $1\grant_counters.sv2v_autoblock_8.i[31:0]
+     5/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1594
+     6/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1595
+     7/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1596
+     8/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1597
+     9/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1598
+    10/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1599
+    11/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_ADDR[2:0]$1593
+    12/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_DATA[15:0]$1592
+    13/13: $1$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1591
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+     1/8: $1\aging.sv2v_autoblock_6.i[31:0]
+     2/8: $1\aging.sv2v_autoblock_7.i[31:0]
+     3/8: $0\age_r[5][3:0]
+     4/8: $0\age_r[4][3:0]
+     5/8: $0\age_r[3][3:0]
+     6/8: $0\age_r[2][3:0]
+     7/8: $0\age_r[1][3:0]
+     8/8: $0\age_r[0][3:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+     1/14: $4$lookahead\gnt_r$1515[5:0]$1530
+     2/14: $4$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1214[2:0]$1529
+     3/14: $3$lookahead\gnt_r$1515[5:0]$1528
+     4/14: $3$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1214[2:0]$1527
+     5/14: $2$lookahead\gnt_r$1515[5:0]$1523
+     6/14: $2$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1214[2:0]$1522
+     7/14: $1$lookahead\gnt_r$1515[5:0]$1521
+     8/14: $1$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1214[2:0]$1520
+     9/14: $0\pace_nonsol_r[0:0]
+    10/14: $0\sof_pend_r[0:0]
+    11/14: $0\start_sent_r[0:0]
+    12/14: $0\owner_r[2:0]
+    13/14: $0\slot_r[2:0]
+    14/14: $0\arb_st_r[1:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+     1/78: $6\pick_w[2:0]
+     2/78: $72\selection.win_w[5:5]
+     3/78: $71\selection.win_w[5:5]
+     4/78: $70\selection.win_w[5:5]
+     5/78: $69\selection.win_w[5:5]
+     6/78: $68\selection.win_w[5:5]
+     7/78: $67\selection.win_w[5:5]
+     8/78: $66\selection.win_w[5:5]
+     9/78: $65\selection.win_w[5:5]
+    10/78: $64\selection.win_w[5:5]
+    11/78: $63\selection.win_w[5:5]
+    12/78: $62\selection.win_w[5:5]
+    13/78: $61\selection.win_w[5:5]
+    14/78: $5\pick_w[2:0]
+    15/78: $60\selection.win_w[4:4]
+    16/78: $59\selection.win_w[4:4]
+    17/78: $58\selection.win_w[4:4]
+    18/78: $57\selection.win_w[4:4]
+    19/78: $56\selection.win_w[4:4]
+    20/78: $55\selection.win_w[4:4]
+    21/78: $54\selection.win_w[4:4]
+    22/78: $53\selection.win_w[4:4]
+    23/78: $52\selection.win_w[4:4]
+    24/78: $51\selection.win_w[4:4]
+    25/78: $50\selection.win_w[4:4]
+    26/78: $49\selection.win_w[4:4]
+    27/78: $4\pick_w[2:0]
+    28/78: $48\selection.win_w[3:3]
+    29/78: $47\selection.win_w[3:3]
+    30/78: $46\selection.win_w[3:3]
+    31/78: $45\selection.win_w[3:3]
+    32/78: $44\selection.win_w[3:3]
+    33/78: $43\selection.win_w[3:3]
+    34/78: $42\selection.win_w[3:3]
+    35/78: $41\selection.win_w[3:3]
+    36/78: $40\selection.win_w[3:3]
+    37/78: $39\selection.win_w[3:3]
+    38/78: $38\selection.win_w[3:3]
+    39/78: $37\selection.win_w[3:3]
+    40/78: $3\pick_w[2:0]
+    41/78: $36\selection.win_w[2:2]
+    42/78: $35\selection.win_w[2:2]
+    43/78: $34\selection.win_w[2:2]
+    44/78: $33\selection.win_w[2:2]
+    45/78: $32\selection.win_w[2:2]
+    46/78: $31\selection.win_w[2:2]
+    47/78: $30\selection.win_w[2:2]
+    48/78: $29\selection.win_w[2:2]
+    49/78: $28\selection.win_w[2:2]
+    50/78: $27\selection.win_w[2:2]
+    51/78: $26\selection.win_w[2:2]
+    52/78: $25\selection.win_w[2:2]
+    53/78: $2\pick_w[2:0]
+    54/78: $24\selection.win_w[1:1]
+    55/78: $23\selection.win_w[1:1]
+    56/78: $22\selection.win_w[1:1]
+    57/78: $21\selection.win_w[1:1]
+    58/78: $20\selection.win_w[1:1]
+    59/78: $19\selection.win_w[1:1]
+    60/78: $18\selection.win_w[1:1]
+    61/78: $17\selection.win_w[1:1]
+    62/78: $16\selection.win_w[1:1]
+    63/78: $15\selection.win_w[1:1]
+    64/78: $14\selection.win_w[1:1]
+    65/78: $13\selection.win_w[1:1]
+    66/78: $1\pick_w[2:0]
+    67/78: $12\selection.win_w[0:0]
+    68/78: $11\selection.win_w[0:0]
+    69/78: $10\selection.win_w[0:0]
+    70/78: $9\selection.win_w[0:0]
+    71/78: $8\selection.win_w[0:0]
+    72/78: $7\selection.win_w[0:0]
+    73/78: $6\selection.win_w[0:0]
+    74/78: $5\selection.win_w[0:0]
+    75/78: $4\selection.win_w[0:0]
+    76/78: $3\selection.win_w[0:0]
+    77/78: $2\selection.win_w[0:0]
+    78/78: $1\selection.win_w[0:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246'.
+     1/7: $0\pend_r[5:0] [5]
+     2/7: $0\pend_r[5:0] [4]
+     3/7: $0\pend_r[5:0] [3]
+     4/7: $0\pend_r[5:0] [2]
+     5/7: $0\pend_r[5:0] [1]
+     6/7: $0\pend_r[5:0] [0]
+     7/7: $1\slot_qualify.sv2v_autoblock_2.i[31:0]
+Creating decoders for process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:73$1239'.
+
+6.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_pp_tx_arbiter.\_sv2v_0' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:252$1618'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\gnt_count_o' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:243$1611'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\count_out.sv2v_autoblock_9.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:243$1611'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pend_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\sol_pend_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\elig_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pick_ok_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\pick_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.key_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_3.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[5].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[4].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[3].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[2].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[1].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.$for_loop$1185[0].sv2v_autoblock_5.j' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.sv2v_autoblock_4.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\selection.win_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\aged_w' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:73$1239'.
+No latch inferred for signal `\KL_pp_tx_arbiter.\aged_flags.sv2v_autoblock_1.i' from process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:73$1239'.
+
+6.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2146' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_DATA' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2147' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_ADDR' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2148' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2149' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2150' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2151' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2152' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2153' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2154' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\grant_counters.sv2v_autoblock_8.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+  created $dff cell `$procdff$2155' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[0]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2156' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[1]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2157' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[2]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2158' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[3]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2159' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[4]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2160' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\age_r[5]' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2161' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\aging.sv2v_autoblock_7.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2162' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\aging.sv2v_autoblock_6.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+  created $dff cell `$procdff$2163' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\arb_st_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2164' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\slot_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2165' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\owner_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2166' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\start_sent_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2167' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\sof_pend_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2168' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\pace_nonsol_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2169' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\gnt_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2170' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$bitselwrite$pos$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1214' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2171' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.$lookahead\gnt_r$1515' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+  created $dff cell `$procdff$2172' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\pend_r' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246'.
+  created $dff cell `$procdff$2173' with positive edge clock.
+Creating register for signal `\KL_pp_tx_arbiter.\slot_qualify.sv2v_autoblock_2.i' using process `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246'.
+  created $dff cell `$procdff$2174' with positive edge clock.
+
+6.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+6.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:252$1618'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:243$1611'.
+Found and cleaned up 2 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:226$1580'.
+Found and cleaned up 19 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:205$1542'.
+Found and cleaned up 10 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:151$1516'.
+Found and cleaned up 78 empty switches in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:106$1260'.
+Found and cleaned up 1 empty switch in `\KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:93$1246'.
+Removing empty process `KL_pp_tx_arbiter.$proc$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:73$1239'.
+Cleaned up 110 empty switches.
+
+6.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~222 debug messages>
+
+6.3. Executing FUTURE pass.
+
+6.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+6.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 102 unused cells and 630 unused wires.
+<suppressed ~107 debug messages>
+
+6.6. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_tx_arbiter...
+Found and reported 0 problems.
+
+6.7. Executing OPT pass (performing simple optimizations).
+
+6.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+6.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 293 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 275 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 274 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~57 debug messages>
+Removed a total of 19 cells.
+
+6.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 2/2 on $mux $procmux$1635.
+    dead port 2/2 on $mux $procmux$1790.
+    dead port 2/2 on $mux $procmux$1623.
+    dead port 2/2 on $mux $procmux$1629.
+    dead port 2/2 on $mux $procmux$1773.
+    dead port 2/2 on $mux $procmux$1770.
+    dead port 2/2 on $mux $procmux$1750.
+    dead port 2/2 on $mux $procmux$1747.
+    dead port 1/2 on $mux $procmux$1745.
+Removed 9 multiplexer ports.
+<suppressed ~175 debug messages>
+
+6.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+    New input vector for $reduce_or cell $reduce_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:112$1269: { \pend_w [5] \pend_w [2] \pend_w [0] }
+    Consolidated identical input bits for $mux cell $procmux$1644:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1236_EN[15:0]$1585 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1647:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1235_EN[15:0]$1586 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1650:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1234_EN[15:0]$1587 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1653:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1233_EN[15:0]$1588 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1656:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1232_EN[15:0]$1589 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1641:
+      Old ports: A=16'1111111111111111, B=16'0000000000000000, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584
+      New ports: A=1'1, B=1'0, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:230$1237_EN[15:0]$1584 [0] }
+    Consolidated identical input bits for $mux cell $procmux$1620:
+      Old ports: A=16'0000000000000000, B=16'1111111111111111, Y=$procmux$1620_Y
+      New ports: A=1'0, B=1'1, Y=$procmux$1620_Y [0]
+      New connections: $procmux$1620_Y [15:1] = { $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] $procmux$1620_Y [0] }
+  Optimizing cells in module \KL_pp_tx_arbiter.
+    Consolidated identical input bits for $mux cell $procmux$1665:
+      Old ports: A=16'0000000000000000, B=$2$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1600, Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581
+      New ports: A=1'0, B=$procmux$1620_Y [0], Y=$0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0]
+      New connections: $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [15:1] = { $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] $0$memwr$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1238_EN[15:0]$1581 [0] }
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 9 changes.
+
+6.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 265 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 259 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~18 debug messages>
+Removed a total of 6 cells.
+
+6.7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 34 unused wires.
+<suppressed ~1 debug messages>
+
+6.7.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+6.7.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.7.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~158 debug messages>
+
+6.7.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+6.7.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 259 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+6.7.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+6.7.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+6.7.14. Finished fast OPT passes. (There is nothing left to do.)
+
+6.8. Executing WREDUCE pass (reducing word size of cells).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1613 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1612 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1615 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2179 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2177 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2178 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2176 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2175 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1614 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1617 (cnt_r).
+Removed top 29 address bits (of 32) from memory read port KL_pp_tx_arbiter.$memrd$\cnt_r$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:249$1616 (cnt_r).
+Removed top 29 address bits (of 32) from memory init port KL_pp_tx_arbiter.$auto$proc_memwr.cc:45:proc_memwr$2180 (cnt_r).
+Removed top 1 bits (of 6) from mux cell KL_pp_tx_arbiter.$ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:113$1272 ($mux).
+Removed top 1 bits (of 2) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:148$1509 ($eq).
+Removed top 30 bits (of 32) from port B of cell KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1524 ($mul).
+Removed top 27 bits (of 32) from port Y of cell KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1524 ($mul).
+Removed top 27 bits (of 32) from port A of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1525 ($add).
+Removed top 31 bits (of 32) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1525 ($add).
+Removed top 26 bits (of 32) from port Y of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1525 ($add).
+Removed top 25 bits (of 32) from port B of cell KL_pp_tx_arbiter.$shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1526 ($shiftx).
+Converting cell KL_pp_tx_arbiter.$neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1535 ($neg) from signed to unsigned.
+Removed top 1 bits (of 4) from port A of cell KL_pp_tx_arbiter.$neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1535 ($neg).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1549 ($add).
+Removed top 2 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1550 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1555 ($add).
+Removed top 1 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1556 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1561 ($add).
+Removed top 1 bits (of 3) from port B of cell KL_pp_tx_arbiter.$eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1562 ($eq).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1567 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1573 ($add).
+Removed top 3 bits (of 4) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1579 ($add).
+Removed top 15 bits (of 16) from port B of cell KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:233$1604 ($add).
+Removed top 1 bits (of 3) from mux cell KL_pp_tx_arbiter.$procmux$1970 ($mux).
+Removed top 1 bits (of 3) from mux cell KL_pp_tx_arbiter.$procmux$2009 ($mux).
+Removed top 2 bits (of 3) from mux cell KL_pp_tx_arbiter.$procmux$2048 ($mux).
+Removed top 27 bits (of 32) from wire KL_pp_tx_arbiter.$mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1524_Y.
+Removed top 2 bits (of 3) from wire KL_pp_tx_arbiter.$2\pick_w[2:0].
+Removed top 26 bits (of 32) from wire KL_pp_tx_arbiter.$add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1525_Y.
+Removed top 1 bits (of 3) from wire KL_pp_tx_arbiter.$3\pick_w[2:0].
+Removed top 1 bits (of 3) from wire KL_pp_tx_arbiter.$4\pick_w[2:0].
+
+6.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 5 unused wires.
+<suppressed ~1 debug messages>
+
+6.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+6.11. Executing OPT pass (performing simple optimizations).
+
+6.11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+6.11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 246 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+6.11.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+6.11.4. Finished fast OPT passes.
+
+6.12. Executing SORT pass.
+
+6.13. Printing statistics.
+
+=== KL_pp_tx_arbiter ===
+
+        +----------Local Count, excluding submodules.
+        | 
+      248 wires
+      875 wire bits
+       51 public wires
+      385 public wire bits
+       19 ports
+      157 port bits
+      246 cells
+        8   $add
+        1   $and
+       14   $dff
+       13   $eq
+       15   $le
+       54   $logic_and
+        5   $logic_not
+        1   $logic_or
+       10   $lt
+        1   $mem_v2
+        1   $mul
+       96   $mux
+       12   $ne
+        1   $neg
+        6   $not
+        3   $pmux
+        2   $reduce_or
+        1   $shift
+        2   $shiftx
+
+6.14. Executing CHECK pass (checking for obvious problems).
+Checking module KL_pp_tx_arbiter...
+Found and reported 0 problems.
+
+7. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+Mapping memory \cnt_r in module \KL_pp_tx_arbiter:
+  created 6 $dff cells and 0 static cells of width 16.
+  read interface: 0 $dff and 49 $mux cells.
+  write interface: 42 write mux blocks.
+
+8. Executing OPT pass (performing simple optimizations).
+
+8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~170 debug messages>
+
+8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 288 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $procmux$1644.
+    dead port 2/2 on $mux $procmux$1644.
+Removed 2 multiplexer ports.
+<suppressed ~182 debug messages>
+
+8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 287 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+8.6. Executing OPT_DFF pass (perform DFF optimizations).
+Adding SRST signal on $procdff$2173 ($dff) from module KL_pp_tx_arbiter (D = { $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1259_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1257_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1255_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1253_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1251_Y $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:99$1249_Y }, Q = \pend_r, rval = 6'000000).
+Adding SRST signal on $procdff$2170 ($dff) from module KL_pp_tx_arbiter (D = $or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1537_Y, Q = \gnt_r, rval = 6'000000).
+Adding SRST signal on $procdff$2169 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1813_Y, Q = \pace_nonsol_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2652 ($sdff) from module KL_pp_tx_arbiter (D = $logic_not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:182$1539_Y, Q = \pace_nonsol_r).
+Adding SRST signal on $procdff$2168 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1821_Y, Q = \sof_pend_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2658 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$1821_Y, Q = \sof_pend_r).
+Adding SRST signal on $procdff$2167 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1843_Y, Q = \start_sent_r, rval = 1'0).
+Adding EN signal on $auto$ff.cc:337:slice$2666 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$1843_Y, Q = \start_sent_r).
+Adding SRST signal on $procdff$2166 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1856_Y, Q = \owner_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$2676 ($sdff) from module KL_pp_tx_arbiter (D = \pick_w, Q = \owner_r).
+Adding SRST signal on $procdff$2165 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1866_Y, Q = \slot_r, rval = 3'000).
+Adding EN signal on $auto$ff.cc:337:slice$2680 ($sdff) from module KL_pp_tx_arbiter (D = $shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1526_Y, Q = \slot_r).
+Adding SRST signal on $procdff$2164 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1874_Y, Q = \arb_st_r, rval = 2'00).
+Adding EN signal on $auto$ff.cc:337:slice$2684 ($sdff) from module KL_pp_tx_arbiter (D = $procmux$1874_Y, Q = \arb_st_r).
+Adding SRST signal on $procdff$2161 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1673_Y, Q = \age_r[5], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2694 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1579_Y, Q = \age_r[5]).
+Adding SRST signal on $procdff$2160 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1684_Y, Q = \age_r[4], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2702 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1573_Y, Q = \age_r[4]).
+Adding SRST signal on $procdff$2159 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1695_Y, Q = \age_r[3], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2710 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1567_Y, Q = \age_r[3]).
+Adding SRST signal on $procdff$2158 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1706_Y, Q = \age_r[2], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2718 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1561_Y, Q = \age_r[2]).
+Adding SRST signal on $procdff$2157 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1717_Y, Q = \age_r[1], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2726 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1555_Y, Q = \age_r[1]).
+Adding SRST signal on $procdff$2156 ($dff) from module KL_pp_tx_arbiter (D = $procmux$1728_Y, Q = \age_r[0], rval = 4'0000).
+Adding EN signal on $auto$ff.cc:337:slice$2734 ($sdff) from module KL_pp_tx_arbiter (D = $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1549_Y, Q = \age_r[0]).
+
+8.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 47 unused cells and 258 unused wires.
+<suppressed ~49 debug messages>
+
+8.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+<suppressed ~2 debug messages>
+
+8.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~119 debug messages>
+
+8.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+8.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 276 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 267 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~27 debug messages>
+Removed a total of 9 cells.
+
+8.13. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $memory\cnt_r[0]$2187 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[0][6][0]$y$2405, Q = \cnt_r[0]).
+Adding EN signal on $memory\cnt_r[1]$2189 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[1][6][0]$y$2453, Q = \cnt_r[1]).
+Adding EN signal on $memory\cnt_r[2]$2191 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[2][6][0]$y$2505, Q = \cnt_r[2]).
+Adding EN signal on $memory\cnt_r[3]$2193 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[3][6][0]$y$2547, Q = \cnt_r[3]).
+Adding EN signal on $memory\cnt_r[4]$2195 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[4][6][0]$y$2599, Q = \cnt_r[4]).
+Adding EN signal on $memory\cnt_r[5]$2197 ($dff) from module KL_pp_tx_arbiter (D = $memory\cnt_r$wrmux[5][6][0]$y$2641, Q = \cnt_r[5]).
+
+8.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 9 unused wires.
+<suppressed ~1 debug messages>
+
+8.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+8.16. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.17. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~119 debug messages>
+
+8.18. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+8.19. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 273 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Computing hashes of 268 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+<suppressed ~15 debug messages>
+Removed a total of 5 cells.
+
+8.20. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.21. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+Removed 0 unused cells and 5 unused wires.
+<suppressed ~1 debug messages>
+
+8.22. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+8.23. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.24. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \KL_pp_tx_arbiter..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~121 debug messages>
+
+8.25. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \KL_pp_tx_arbiter.
+Performed a total of 0 changes.
+
+8.26. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\KL_pp_tx_arbiter'.
+Computing hashes of 268 cells of `\KL_pp_tx_arbiter'.
+Finding duplicate cells in `\KL_pp_tx_arbiter'.
+Removed a total of 0 cells.
+
+8.27. Executing OPT_DFF pass (perform DFF optimizations).
+
+8.28. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \KL_pp_tx_arbiter..
+
+8.29. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_pp_tx_arbiter.
+
+8.30. Finished fast OPT passes. (There is nothing left to do.)
+Renaming module \KL_pp_tx_arbiter to \gate.
+
+9. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: cnt_r[5]_gold (\cnt_r[5]_gold), cnt_r[5]_gate (\cnt_r[5]_gate) -> cnt_r[5]
+Presumably equivalent wires: cnt_r[4]_gold (\cnt_r[4]_gold), cnt_r[4]_gate (\cnt_r[4]_gate) -> cnt_r[4]
+Presumably equivalent wires: cnt_r[3]_gold (\cnt_r[3]_gold), cnt_r[3]_gate (\cnt_r[3]_gate) -> cnt_r[3]
+Presumably equivalent wires: cnt_r[2]_gold (\cnt_r[2]_gold), cnt_r[2]_gate (\cnt_r[2]_gate) -> cnt_r[2]
+Presumably equivalent wires: cnt_r[1]_gold (\cnt_r[1]_gold), cnt_r[1]_gate (\cnt_r[1]_gate) -> cnt_r[1]
+Presumably equivalent wires: cnt_r[0]_gold (\cnt_r[0]_gold), cnt_r[0]_gate (\cnt_r[0]_gate) -> cnt_r[0]
+Presumably equivalent wires: _sv2v_0_gold (1'0), _sv2v_0_gate (1'0) -> _sv2v_0
+Presumably equivalent wires: abort_w_gold (\abort_w_gold), abort_w_gate (\abort_w_gate) -> abort_w
+Presumably equivalent wires: accept_w_gold (\accept_w_gold), accept_w_gate (\accept_w_gate) -> accept_w
+Presumably equivalent wires: age_r[0]_gold (\age_r[0]_gold), age_r[0]_gate (\age_r[0]_gate) -> age_r[0]
+Presumably equivalent wires: age_r[1]_gold (\age_r[1]_gold), age_r[1]_gate (\age_r[1]_gate) -> age_r[1]
+Presumably equivalent wires: age_r[2]_gold (\age_r[2]_gold), age_r[2]_gate (\age_r[2]_gate) -> age_r[2]
+Presumably equivalent wires: age_r[3]_gold (\age_r[3]_gold), age_r[3]_gate (\age_r[3]_gate) -> age_r[3]
+Presumably equivalent wires: age_r[4]_gold (\age_r[4]_gold), age_r[4]_gate (\age_r[4]_gate) -> age_r[4]
+Presumably equivalent wires: age_r[5]_gold (\age_r[5]_gold), age_r[5]_gate (\age_r[5]_gate) -> age_r[5]
+Presumably equivalent wires: aged_flags.sv2v_autoblock_1.i_gold (6), aged_flags.sv2v_autoblock_1.i_gate (6) -> aged_flags.sv2v_autoblock_1.i
+Presumably equivalent wires: aged_w_gold (\aged_w_gold), aged_w_gate (\aged_w_gate) -> aged_w
+Presumably equivalent wires: arb_st_r_gold (\arb_st_r_gold), arb_st_r_gate (\arb_st_r_gate) -> arb_st_r
+Presumably equivalent wires: clk_i_gold (\clk_i_gold), clk_i_gate (\clk_i_gate) -> clk_i
+Presumably equivalent wires: consume_w_gold (\consume_w_gold), consume_w_gate (\consume_w_gate) -> consume_w
+Presumably equivalent wires: elig_w_gold ({ \pend_w_gold [5] \elig_w_gold [4:0] }), elig_w_gate ({ \pend_w_gate [5] \elig_w_gate [4:0] }) -> elig_w
+Presumably equivalent wires: eof_w_gold (\eof_w_gold), eof_w_gate (\eof_w_gate) -> eof_w
+Presumably equivalent wires: gnt_count_o_gold ({ \cnt_r[5]_gold \cnt_r[4]_gold \cnt_r[3]_gold \cnt_r[2]_gold \cnt_r[1]_gold \cnt_r[0]_gold }), gnt_count_o_gate ({ \cnt_r[5]_gate \cnt_r[4]_gate \cnt_r[3]_gate \cnt_r[2]_gate \cnt_r[1]_gate \cnt_r[0]_gate }) -> gnt_count_o
+Presumably equivalent wires: gnt_o_gold (\gnt_r_gold), gnt_o_gate (\gnt_r_gate) -> gnt_o
+Presumably equivalent wires: gnt_r_gold (\gnt_r_gold), gnt_r_gate (\gnt_r_gate) -> gnt_r
+Presumably equivalent wires: owner_r_gold (\owner_r_gold), owner_r_gate (\owner_r_gate) -> owner_r
+Presumably equivalent wires: pace_nonsol_r_gold (\pace_nonsol_r_gold), pace_nonsol_r_gate (\pace_nonsol_r_gate) -> pace_nonsol_r
+Presumably equivalent wires: pend_r_gold (\pend_r_gold), pend_r_gate (\pend_r_gate) -> pend_r
+Presumably equivalent wires: pend_w_gold (\pend_w_gold), pend_w_gate (\pend_w_gate) -> pend_w
+Presumably equivalent wires: pick_ok_w_gold (\pick_ok_w_gold), pick_ok_w_gate (\pick_ok_w_gate) -> pick_ok_w
+Presumably equivalent wires: pick_w_gold (\pick_w_gold), pick_w_gate (\pick_w_gate) -> pick_w
+Presumably equivalent wires: req_valid_i_gold (\req_valid_i_gold), req_valid_i_gate (\req_valid_i_gate) -> req_valid_i
+Presumably equivalent wires: rst_n_gold (\rst_n_gold), rst_n_gate (\rst_n_gate) -> rst_n
+Presumably equivalent wires: select_w_gold (\select_w_gold), select_w_gate (\select_w_gate) -> select_w
+Presumably equivalent wires: selection.sv2v_autoblock_3.i_gold (6), selection.sv2v_autoblock_3.i_gate (6) -> selection.sv2v_autoblock_3.i
+Presumably equivalent wires: ser_data_i_gold (\ser_data_i_gold), ser_data_i_gate (\ser_data_i_gate) -> ser_data_i
+Presumably equivalent wires: ser_last_i_gold (\ser_last_i_gold), ser_last_i_gate (\ser_last_i_gate) -> ser_last_i
+Presumably equivalent wires: ser_ready_o_gold (\tx_ready_i_gold), ser_ready_o_gate (\tx_ready_i_gate) -> ser_ready_o
+Presumably equivalent wires: ser_req_o_gold (\ser_req_o_gold), ser_req_o_gate (\ser_req_o_gate) -> ser_req_o
+Presumably equivalent wires: ser_slot_o_gold (\slot_r_gold), ser_slot_o_gate (\slot_r_gate) -> ser_slot_o
+Presumably equivalent wires: ser_valid_i_gold (\ser_valid_i_gold), ser_valid_i_gate (\ser_valid_i_gate) -> ser_valid_i
+Presumably equivalent wires: slot_r_gold (\slot_r_gold), slot_r_gate (\slot_r_gate) -> slot_r
+Presumably equivalent wires: sof_pend_r_gold (\sof_pend_r_gold), sof_pend_r_gate (\sof_pend_r_gate) -> sof_pend_r
+Presumably equivalent wires: sol_pend_w_gold (\sol_pend_w_gold), sol_pend_w_gate (\sol_pend_w_gate) -> sol_pend_w
+Presumably equivalent wires: start_abort_i_gold (\start_abort_i_gold), start_abort_i_gate (\start_abort_i_gate) -> start_abort_i
+Presumably equivalent wires: start_sent_r_gold (\start_sent_r_gold), start_sent_r_gate (\start_sent_r_gate) -> start_sent_r
+Presumably equivalent wires: tick_ms_i_gold (\tick_ms_i_gold), tick_ms_i_gate (\tick_ms_i_gate) -> tick_ms_i
+Presumably equivalent wires: tx_data_o_gold (\ser_data_i_gold), tx_data_o_gate (\ser_data_i_gate) -> tx_data_o
+Presumably equivalent wires: tx_eof_o_gold (\tx_eof_o_gold), tx_eof_o_gate (\tx_eof_o_gate) -> tx_eof_o
+Presumably equivalent wires: tx_ready_i_gold (\tx_ready_i_gold), tx_ready_i_gate (\tx_ready_i_gate) -> tx_ready_i
+Presumably equivalent wires: tx_slot_i_gold (\tx_slot_i_gold), tx_slot_i_gate (\tx_slot_i_gate) -> tx_slot_i
+Presumably equivalent wires: tx_sof_o_gold (\tx_sof_o_gold), tx_sof_o_gate (\tx_sof_o_gate) -> tx_sof_o
+Presumably equivalent wires: tx_valid_o_gold (\ser_valid_i_gold), tx_valid_o_gate (\ser_valid_i_gate) -> tx_valid_o
+Changing input S of cell $memory\cnt_r$rdmux[2][0][0]$2241_gate ($mux): \owner_r_gate [2] -> \owner_r [2]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1549_gate ($add): \age_r[0]_gate -> \age_r[0]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1555_gate ($add): \age_r[1]_gate -> \age_r[1]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1561_gate ($add): \age_r[2]_gate -> \age_r[2]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1567_gate ($add): \age_r[3]_gate -> \age_r[3]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1573_gate ($add): \age_r[4]_gate -> \age_r[4]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:219$1579_gate ($add): \age_r[5]_gate -> \age_r[5]
+Changing input A of cell $and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:111$1267_gate ($and): \pend_r_gate -> \pend_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1502_gate ($logic_not): \arb_st_r_gate -> \arb_st_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:148$1509_gate ($eq): \arb_st_r_gate -> \arb_st_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1544_gate ($logic_not): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1550_gate ($eq): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1556_gate ($eq): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1562_gate ($eq): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1568_gate ($eq): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1574_gate ($eq): \owner_r_gate -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1240_gate ($eq): \age_r[0]_gate -> \age_r[0]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1241_gate ($eq): \age_r[1]_gate -> \age_r[1]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1242_gate ($eq): \age_r[2]_gate -> \age_r[2]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1243_gate ($eq): \age_r[3]_gate -> \age_r[3]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1244_gate ($eq): \age_r[4]_gate -> \age_r[4]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:79$1245_gate ($eq): \age_r[5]_gate -> \age_r[5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:113$1270_gate ($logic_and): \pace_nonsol_r_gate -> \pace_nonsol_r
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:113$1270_gate ($logic_and): \sol_pend_w_gate -> \sol_pend_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1319_gate ($logic_and): \elig_w_gate [0] -> \elig_w [0]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1356_gate ($logic_and): \elig_w_gate [0] -> \elig_w [0]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1362_gate ($logic_and): \elig_w_gate [1] -> \elig_w [1]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1393_gate ($logic_and): \elig_w_gate [0] -> \elig_w [0]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1399_gate ($logic_and): \elig_w_gate [1] -> \elig_w [1]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1405_gate ($logic_and): \elig_w_gate [2] -> \elig_w [2]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1430_gate ($logic_and): \elig_w_gate [0] -> \elig_w [0]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1436_gate ($logic_and): \elig_w_gate [1] -> \elig_w [1]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1442_gate ($logic_and): \elig_w_gate [2] -> \elig_w [2]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1448_gate ($logic_and): \elig_w_gate [3] -> \elig_w [3]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1467_gate ($logic_and): \elig_w_gate [0] -> \elig_w [0]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1473_gate ($logic_and): \elig_w_gate [1] -> \elig_w [1]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1479_gate ($logic_and): \elig_w_gate [2] -> \elig_w [2]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1485_gate ($logic_and): \elig_w_gate [3] -> \elig_w [3]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:130$1491_gate ($logic_and): \elig_w_gate [4] -> \elig_w [4]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1334_gate ($logic_and): \elig_w_gate [2] -> \elig_w [2]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1340_gate ($logic_and): \elig_w_gate [3] -> \elig_w [3]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1346_gate ($logic_and): \elig_w_gate [4] -> \elig_w [4]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1352_gate ($logic_and): \pend_w_gate [5] -> \pend_w [5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1377_gate ($logic_and): \elig_w_gate [3] -> \elig_w [3]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1383_gate ($logic_and): \elig_w_gate [4] -> \elig_w [4]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1389_gate ($logic_and): \pend_w_gate [5] -> \pend_w [5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1420_gate ($logic_and): \elig_w_gate [4] -> \elig_w [4]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1426_gate ($logic_and): \pend_w_gate [5] -> \pend_w [5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:132$1463_gate ($logic_and): \pend_w_gate [5] -> \pend_w [5]
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1503_gate ($logic_and): \pick_ok_w_gate -> \pick_ok_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:150$1514_gate ($logic_and): \consume_w_gate -> \consume_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:192$1541_gate ($logic_and): \sof_pend_r_gate -> \sof_pend_r
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:192$1541_gate ($logic_and): \consume_w_gate -> \consume_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1545_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1551_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1557_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1563_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1569_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:214$1575_gate ($logic_and): \accept_w_gate -> \accept_w
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:240$1609_gate ($logic_and): \sof_pend_r_gate -> \sof_pend_r
+Changing input A of cell $logic_not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:148$1510_gate ($logic_not): \start_sent_r_gate -> \start_sent_r
+Changing input A of cell $logic_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:235$1607_gate ($logic_or): \start_sent_r_gate -> \start_sent_r
+Changing input A of cell $mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:167$1524_gate ($mul): \pick_w_gate -> \pick_w
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1547_gate ($ne): \age_r[0]_gate -> \age_r[0]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1553_gate ($ne): \age_r[1]_gate -> \age_r[1]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1559_gate ($ne): \age_r[2]_gate -> \age_r[2]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1565_gate ($ne): \age_r[3]_gate -> \age_r[3]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1571_gate ($ne): \age_r[4]_gate -> \age_r[4]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:218$1577_gate ($ne): \age_r[5]_gate -> \age_r[5]
+Changing input A of cell $neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:181$1535_gate ($neg): \owner_r_gate -> \owner_r
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1273_gate ($not): \aged_w_gate [0] -> \aged_w [0]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1274_gate ($not): \aged_w_gate [1] -> \aged_w [1]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1275_gate ($not): \aged_w_gate [2] -> \aged_w [2]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1276_gate ($not): \aged_w_gate [3] -> \aged_w [3]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1277_gate ($not): \aged_w_gate [4] -> \aged_w [4]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:117$1278_gate ($not): \aged_w_gate [5] -> \aged_w [5]
+Changing input D of cell $auto$ff.cc:337:slice$2677_gate ($sdffe): \pick_w_gate -> \pick_w
+Changing input S of cell $procmux$1620_gate ($mux): \accept_w_gate -> \accept_w
+Changing input S of cell $procmux$1626_gate ($mux): \accept_w_gate -> \accept_w
+Changing input B of cell $procmux$1632_gate ($mux): \owner_r_gate -> \owner_r
+Changing input S of cell $procmux$1632_gate ($mux): \accept_w_gate -> \accept_w
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2737_gate ($not): \pend_w_gate [0] -> \pend_w [0]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2729_gate ($not): \pend_w_gate [1] -> \pend_w [1]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2721_gate ($not): \pend_w_gate [2] -> \pend_w [2]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2713_gate ($not): \pend_w_gate [3] -> \pend_w [3]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2705_gate ($not): \pend_w_gate [4] -> \pend_w [4]
+Changing input S of cell $memory\cnt_r$rdmux[2][2][3]$2259_gate ($mux): \owner_r_gate [0] -> \owner_r [0]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2697_gate ($not): \pend_w_gate [5] -> \pend_w [5]
+Changing input B of cell $memory\cnt_r$rdmux[2][2][2]$2256_gate ($mux): \cnt_r[5]_gate -> \gnt_count_o [95:80]
+Changing input A of cell $memory\cnt_r$rdmux[2][2][2]$2256_gate ($mux): \cnt_r[4]_gate -> \gnt_count_o [79:64]
+Changing input S of cell $memory\cnt_r$rdmux[2][2][2]$2256_gate ($mux): \owner_r_gate [0] -> \owner_r [0]
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$2691_gate ($ne): { $procmux$1822_CMP_gate \eof_w_gate } -> { $procmux$1822_CMP_gate \eof_w }
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$2689_gate ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1502_Y_gate \select_w_gate } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1502_Y_gate \select_w }
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$2687_gate ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \eof_w_gate \abort_w_gate \ser_valid_i_gate } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \eof_w \abort_w \ser_valid_i_gate }
+Changing input A of cell $auto$opt_dff.cc:252:make_patterns_logic$2683_gate ($reduce_and): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1502_Y_gate \select_w_gate } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:146$1502_Y_gate \select_w }
+Changing input B of cell $memory\cnt_r$rdmux[2][2][1]$2253_gate ($mux): \cnt_r[3]_gate -> \gnt_count_o [63:48]
+Changing input A of cell $memory\cnt_r$rdmux[2][2][1]$2253_gate ($mux): \cnt_r[2]_gate -> \gnt_count_o [47:32]
+Changing input S of cell $memory\cnt_r$rdmux[2][2][1]$2253_gate ($mux): \owner_r_gate [0] -> \owner_r [0]
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$2671_gate ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \abort_w_gate \accept_w_gate } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \abort_w \accept_w }
+Changing input B of cell $memory\cnt_r$rdmux[2][2][0]$2250_gate ($mux): \cnt_r[1]_gate -> \gnt_count_o [31:16]
+Changing input A of cell $memory\cnt_r$rdmux[2][2][0]$2250_gate ($mux): \cnt_r[0]_gate -> \gnt_count_o [15:0]
+Changing input S of cell $memory\cnt_r$rdmux[2][2][0]$2250_gate ($mux): \owner_r_gate [0] -> \owner_r [0]
+Changing input S of cell $memory\cnt_r$rdmux[2][1][1]$2247_gate ($mux): \owner_r_gate [1] -> \owner_r [1]
+Changing input A of cell $auto$opt_dff.cc:252:make_patterns_logic$2657_gate ($reduce_and): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \accept_w_gate $auto$rtlil.cc:3255:Not$2655_gate } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:147$1504_Y_gate \accept_w $auto$rtlil.cc:3255:Not$2655_gate }
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2654_gate ($not): \abort_w_gate -> \abort_w
+Changing input A of cell $procmux$1823_gate ($mux): \sof_pend_r_gate -> \sof_pend_r
+Changing input S of cell $procmux$1826_gate ($mux): \abort_w_gate -> \abort_w
+Changing input S of cell $procmux$1829_gate ($mux): \select_w_gate -> \select_w
+Changing input A of cell $auto$opt_dff.cc:277:combine_resets$2651_gate ($reduce_or): { \abort_w_gate $auto$rtlil.cc:3255:Not$2645_gate $auto$rtlil.cc:3255:Not$2647_gate $auto$rtlil.cc:3255:Not$2649_gate } -> { \abort_w $auto$rtlil.cc:3255:Not$2645_gate $auto$rtlil.cc:3255:Not$2647_gate $auto$rtlil.cc:3255:Not$2649_gate }
+Changing input S of cell $procmux$1838_gate ($mux): \accept_w_gate -> \accept_w
+Changing input S of cell $procmux$1841_gate ($mux): \abort_w_gate -> \abort_w
+Changing input S of cell $procmux$1845_gate ($mux): \select_w_gate -> \select_w
+Changing input A of cell $auto$opt_dff.cc:81:create_not$2646_gate ($not): \accept_w_gate -> \accept_w
+Changing input S of cell $memory\cnt_r$rdmux[2][1][0]$2244_gate ($mux): \owner_r_gate [1] -> \owner_r [1]
+Changing input S of cell $procmux$1872_gate ($mux): \eof_w_gate -> \eof_w
+Changing input A of cell $procmux$1875_CMP0_gate ($eq): \arb_st_r_gate -> \arb_st_r
+Changing input S of cell $procmux$1879_gate ($mux): \eof_w_gate -> \eof_w
+Changing input S of cell $procmux$1882_gate ($mux): \abort_w_gate -> \abort_w
+Changing input S of cell $procmux$1885_gate ($mux): \select_w_gate -> \select_w
+Changing input A of cell $procmux$1928_gate ($mux): \pend_w_gate [5] -> \pend_w [5]
+Changing input A of cell $procmux$1967_gate ($mux): \elig_w_gate [4] -> \elig_w [4]
+Changing input A of cell $procmux$2006_gate ($mux): \elig_w_gate [3] -> \elig_w [3]
+Changing input A of cell $procmux$2045_gate ($mux): \elig_w_gate [2] -> \elig_w [2]
+Changing input A of cell $procmux$2084_gate ($mux): \elig_w_gate [1] -> \elig_w [1]
+Changing input A of cell $reduce_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:112$1269_gate ($reduce_or): { \pend_w_gate [5] \pend_w_gate [2] \pend_w_gate [0] } -> { \pend_w [5] \pend_w [2] \pend_w [0] }
+Changing input A of cell $reduce_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:119$1279_gate ($reduce_or): { \elig_w_gate [4:0] \pend_w_gate [5] } -> { \elig_w [4:0] \pend_w [5] }
+Changing input B of cell $shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:182$1538_gate ($shiftx): \owner_r_gate -> \owner_r
+Changing input A of cell $ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:113$1272_gate ($mux): \pend_w_gate [4:0] -> \pend_w [4:0]
+Changing input B of cell $ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/head.v:113$1272_gate ($mux): { 2'00 \pend_w_gate [2] 1'0 \pend_w_gate [0] } -> { 2'00 \pend_w [2] 1'0 \pend_w [0] }
+Changing input S of cell $memory\cnt_r$rdmux[0][2][3]$639_gold ($mux): \owner_r_gold [0] -> \owner_r [0]
+Changing input B of cell $memory\cnt_r$rdmux[0][2][2]$636_gold ($mux): \cnt_r[5]_gold -> \gnt_count_o [95:80]
+Changing input A of cell $memory\cnt_r$rdmux[0][2][2]$636_gold ($mux): \cnt_r[4]_gold -> \gnt_count_o [79:64]
+Changing input S of cell $memory\cnt_r$rdmux[0][2][2]$636_gold ($mux): \owner_r_gold [0] -> \owner_r [0]
+Changing input B of cell $memory\cnt_r$rdmux[0][2][1]$633_gold ($mux): \cnt_r[3]_gold -> \gnt_count_o [63:48]
+Changing input A of cell $memory\cnt_r$rdmux[0][2][1]$633_gold ($mux): \cnt_r[2]_gold -> \gnt_count_o [47:32]
+Changing input S of cell $memory\cnt_r$rdmux[0][2][1]$633_gold ($mux): \owner_r_gold [0] -> \owner_r [0]
+Changing input B of cell $memory\cnt_r$rdmux[0][2][0]$630_gold ($mux): \cnt_r[1]_gold -> \gnt_count_o [31:16]
+Changing input A of cell $memory\cnt_r$rdmux[0][2][0]$630_gold ($mux): \cnt_r[0]_gold -> \gnt_count_o [15:0]
+Changing input S of cell $memory\cnt_r$rdmux[0][2][0]$630_gold ($mux): \owner_r_gold [0] -> \owner_r [0]
+Changing input S of cell $memory\cnt_r$rdmux[0][1][1]$627_gold ($mux): \owner_r_gold [1] -> \owner_r [1]
+Changing input S of cell $memory\cnt_r$rdmux[0][1][0]$624_gold ($mux): \owner_r_gold [1] -> \owner_r [1]
+Changing input S of cell $memory\cnt_r$rdmux[0][0][0]$621_gold ($mux): \owner_r_gold [2] -> \owner_r [2]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$154_gold ($add): \age_r[0]_gold -> \age_r[0]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$160_gold ($add): \age_r[1]_gold -> \age_r[1]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$166_gold ($add): \age_r[2]_gold -> \age_r[2]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$172_gold ($add): \age_r[3]_gold -> \age_r[3]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$178_gold ($add): \age_r[4]_gold -> \age_r[4]
+Changing input A of cell $add$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:208$184_gold ($add): \age_r[5]_gold -> \age_r[5]
+Changing input A of cell $and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:111$71_gold ($and): \pend_r_gold -> \pend_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$149_gold ($logic_not): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$155_gold ($eq): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$161_gold ($eq): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$167_gold ($eq): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$173_gold ($eq): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$179_gold ($eq): \owner_r_gold -> \owner_r
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$50_gold ($eq): \age_r[0]_gold -> \age_r[0]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$51_gold ($eq): \age_r[1]_gold -> \age_r[1]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$52_gold ($eq): \age_r[2]_gold -> \age_r[2]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$53_gold ($eq): \age_r[3]_gold -> \age_r[3]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$54_gold ($eq): \age_r[4]_gold -> \age_r[4]
+Changing input A of cell $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:79$55_gold ($eq): \age_r[5]_gold -> \age_r[5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:113$74_gold ($logic_and): \pace_nonsol_r_gold -> \pace_nonsol_r
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:113$74_gold ($logic_and): \sol_pend_w_gold -> \sol_pend_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:122$101_gold ($logic_and): \elig_w_gold [4] -> \elig_w [4]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:122$106_gold ($logic_and): \pend_w_gold [5] -> \pend_w [5]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:122$86_gold ($logic_and): \elig_w_gold [1] -> \elig_w [1]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:122$91_gold ($logic_and): \elig_w_gold [2] -> \elig_w [2]
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:122$96_gold ($logic_and): \elig_w_gold [3] -> \elig_w [3]
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:135$108_gold ($logic_and): \pick_ok_w_gold -> \pick_ok_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:139$119_gold ($logic_and): \consume_w_gold -> \consume_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:181$146_gold ($logic_and): \sof_pend_r_gold -> \sof_pend_r
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:181$146_gold ($logic_and): \consume_w_gold -> \consume_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$150_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$156_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$162_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$168_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$174_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input A of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:203$180_gold ($logic_and): \accept_w_gold -> \accept_w
+Changing input B of cell $logic_and$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:229$214_gold ($logic_and): \sof_pend_r_gold -> \sof_pend_r
+Changing input A of cell $logic_not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:137$115_gold ($logic_not): \start_sent_r_gold -> \start_sent_r
+Changing input A of cell $logic_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:224$212_gold ($logic_or): \start_sent_r_gold -> \start_sent_r
+Changing input A of cell $mul$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:156$129_gold ($mul): \pick_w_gold -> \pick_w
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$152_gold ($ne): \age_r[0]_gold -> \age_r[0]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$158_gold ($ne): \age_r[1]_gold -> \age_r[1]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$164_gold ($ne): \age_r[2]_gold -> \age_r[2]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$170_gold ($ne): \age_r[3]_gold -> \age_r[3]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$176_gold ($ne): \age_r[4]_gold -> \age_r[4]
+Changing input A of cell $ne$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:207$182_gold ($ne): \age_r[5]_gold -> \age_r[5]
+Changing input A of cell $neg$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:170$140_gold ($neg): \owner_r_gold -> \owner_r
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$102_gold ($not): \aged_w_gold [5] -> \aged_w [5]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$77_gold ($not): \aged_w_gold [0] -> \aged_w [0]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$82_gold ($not): \aged_w_gold [1] -> \aged_w [1]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$87_gold ($not): \aged_w_gold [2] -> \aged_w [2]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$92_gold ($not): \aged_w_gold [3] -> \aged_w [3]
+Changing input A of cell $not$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:121$97_gold ($not): \aged_w_gold [4] -> \aged_w [4]
+Changing input D of cell $auto$ff.cc:337:slice$1099_gold ($sdffe): \pick_w_gold -> \pick_w
+Changing input S of cell $procmux$225_gold ($mux): \accept_w_gold -> \accept_w
+Changing input S of cell $procmux$231_gold ($mux): \accept_w_gold -> \accept_w
+Changing input B of cell $procmux$237_gold ($mux): \owner_r_gold -> \owner_r
+Changing input S of cell $procmux$237_gold ($mux): \accept_w_gold -> \accept_w
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1159_gold ($not): \pend_w_gold [0] -> \pend_w [0]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1151_gold ($not): \pend_w_gold [1] -> \pend_w [1]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1143_gold ($not): \pend_w_gold [2] -> \pend_w [2]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1135_gold ($not): \pend_w_gold [3] -> \pend_w [3]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1127_gold ($not): \pend_w_gold [4] -> \pend_w [4]
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1119_gold ($not): \pend_w_gold [5] -> \pend_w [5]
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$1113_gold ($ne): { $procmux$427_CMP_gold \eof_w_gold } -> { $procmux$427_CMP_gold \eof_w }
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$1111_gold ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:135$107_Y_gold \select_w_gold } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:135$107_Y_gold \select_w }
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$1109_gold ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \eof_w_gold \abort_w_gold \ser_valid_i_gold } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \eof_w \abort_w \ser_valid_i_gold }
+Changing input A of cell $auto$opt_dff.cc:252:make_patterns_logic$1105_gold ($reduce_and): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:135$107_Y_gold \select_w_gold } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:135$107_Y_gold \select_w }
+Changing input A of cell $auto$opt_dff.cc:235:make_patterns_logic$1093_gold ($ne): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \abort_w_gold \accept_w_gold } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \abort_w \accept_w }
+Changing input A of cell $auto$opt_dff.cc:252:make_patterns_logic$1079_gold ($reduce_and): { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \accept_w_gold $auto$rtlil.cc:3255:Not$1077_gold } -> { $eq$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:136$109_Y_gold \accept_w $auto$rtlil.cc:3255:Not$1077_gold }
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1076_gold ($not): \abort_w_gold -> \abort_w
+Changing input A of cell $procmux$428_gold ($mux): \sof_pend_r_gold -> \sof_pend_r
+Changing input S of cell $procmux$431_gold ($mux): \abort_w_gold -> \abort_w
+Changing input S of cell $procmux$434_gold ($mux): \select_w_gold -> \select_w
+Changing input A of cell $auto$opt_dff.cc:277:combine_resets$1073_gold ($reduce_or): { \abort_w_gold $auto$rtlil.cc:3255:Not$1067_gold $auto$rtlil.cc:3255:Not$1069_gold $auto$rtlil.cc:3255:Not$1071_gold } -> { \abort_w $auto$rtlil.cc:3255:Not$1067_gold $auto$rtlil.cc:3255:Not$1069_gold $auto$rtlil.cc:3255:Not$1071_gold }
+Changing input S of cell $procmux$443_gold ($mux): \accept_w_gold -> \accept_w
+Changing input S of cell $procmux$446_gold ($mux): \abort_w_gold -> \abort_w
+Changing input S of cell $procmux$450_gold ($mux): \select_w_gold -> \select_w
+Changing input A of cell $auto$opt_dff.cc:81:create_not$1068_gold ($not): \accept_w_gold -> \accept_w
+Changing input S of cell $procmux$477_gold ($mux): \eof_w_gold -> \eof_w
+Changing input A of cell $procmux$480_CMP0_gold ($eq): \arb_st_r_gold -> \arb_st_r
+Changing input S of cell $procmux$484_gold ($mux): \eof_w_gold -> \eof_w
+Changing input S of cell $procmux$487_gold ($mux): \abort_w_gold -> \abort_w
+Changing input A of cell $procmux$489_CMP0_gold ($eq): \arb_st_r_gold -> \arb_st_r
+Changing input S of cell $procmux$490_gold ($mux): \select_w_gold -> \select_w
+Changing input A of cell $procmux$492_CMP0_gold ($logic_not): \arb_st_r_gold -> \arb_st_r
+Changing input S of cell $procmux$542_gold ($mux): \elig_w_gold [0] -> \elig_w [0]
+Changing input S of cell $procmux$547_gold ($mux): \elig_w_gold [0] -> \elig_w [0]
+Changing input A of cell $reduce_or$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:112$73_gold ($reduce_or): { \pend_w_gold [5] \pend_w_gold [2] \pend_w_gold [0] } -> { \pend_w [5] \pend_w [2] \pend_w [0] }
+Changing input B of cell $shiftx$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:171$143_gold ($shiftx): \owner_r_gold -> \owner_r
+Changing input A of cell $ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:113$76_gold ($mux): \pend_w_gold [4:0] -> \pend_w [4:0]
+Changing input B of cell $ternary$$REVIEWS/pp163-r518-1-packet/scratch/equivalence/base.v:113$76_gold ($mux): { 2'00 \pend_w_gold [2] 1'0 \pend_w_gold [0] } -> { 2'00 \pend_w [2] 1'0 \pend_w [0] }
+Setting undriven nets to undef: $memory\cnt_r$rdmux[2][2][3]$b$2261_gate
+Setting undriven nets to undef: $memory\cnt_r$rdmux[2][2][3]$a$2260_gate
+Setting undriven nets to undef: \selection.win_w_gate [0]
+Setting undriven nets to undef: $memory\cnt_r$rdmux[0][2][3]$b$641_gold
+Setting undriven nets to undef: $memory\cnt_r$rdmux[0][2][3]$a$640_gold
+
+10. Executing HIERARCHY pass (managing design hierarchy).
+
+10.1. Analyzing design hierarchy..
+Top module:  \equiv
+
+10.2. Analyzing design hierarchy..
+Top module:  \equiv
+Removing unused module `\gate'.
+Removing unused module `\gold'.
+Removed 2 unused modules.
+
+11. Executing EQUIV_SIMPLE pass.
+Found 354 unproven $equiv cells (43 groups) in equiv:
+  Trying to prove $equiv for \_sv2v_0:ezsat
+ success!
+ Grouping SAT models for \gnt_o:
+  Trying to prove $equiv for \gnt_o [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \gnt_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_o [5]:ezsat
+ success!
+ Grouping SAT models for \gnt_count_o:
+  Trying to prove $equiv for \gnt_count_o [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [15]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [16]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [17]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [18]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [19]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [20]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [21]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [22]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [23]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [24]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [25]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [26]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [27]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [28]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [29]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [30]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [31]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [32]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [33]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [34]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [35]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [36]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [37]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [38]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [39]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [40]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [41]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [42]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [43]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [44]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [45]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [46]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [47]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [48]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [49]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [50]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [51]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [52]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [53]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [54]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [55]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [56]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [57]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [58]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [59]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [60]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [61]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [62]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [63]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [64]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [65]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [66]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [67]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [68]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [69]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [70]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [71]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [72]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [73]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [74]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [75]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [76]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [77]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [78]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [79]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [80]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [81]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [82]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [83]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [84]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [85]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [86]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [87]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [88]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [89]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [90]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [91]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [92]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [93]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [94]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \gnt_count_o [95]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \ser_req_o:ezsat
+ success!
+ Grouping SAT models for \ser_slot_o:
+  Trying to prove $equiv for \ser_slot_o [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \ser_slot_o [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \ser_slot_o [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \ser_ready_o:ezsat
+ success!
+  Trying to prove $equiv for \tx_valid_o:ezsat
+ success!
+  Trying to prove $equiv for \tx_sof_o:ezsat
+ success!
+ Grouping SAT models for \tx_data_o:
+  Trying to prove $equiv for \tx_data_o [0]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [1]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [2]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [3]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [4]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [5]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [6]:ezsat
+ success!
+  Trying to prove $equiv for \tx_data_o [7]:ezsat
+ success!
+  Trying to prove $equiv for \tx_eof_o:ezsat
+ success!
+ Grouping SAT models for \arb_st_r:
+  Trying to prove $equiv for \arb_st_r [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \arb_st_r [1]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \slot_r:
+  Trying to prove $equiv for \slot_r [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \slot_r [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \slot_r [2]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \owner_r:
+  Trying to prove $equiv for \owner_r [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \owner_r [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \owner_r [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \start_sent_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \sof_pend_r:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \pace_nonsol_r:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \gnt_r:
+  Trying to prove $equiv for \gnt_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \gnt_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \gnt_r [5]:ezsat
+ success!
+ Grouping SAT models for \aged_w:
+  Trying to prove $equiv for \aged_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \aged_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \aged_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \aged_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \aged_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \aged_w [5]:ezsat
+ success!
+ Grouping SAT models for \pend_r:
+  Trying to prove $equiv for \pend_r [0]:ezsat
+ezsat
+ success!
+  Trying to prove $equiv for \pend_r [1]:ezsat
+ success!
+  Trying to prove $equiv for \pend_r [2]:ezsat
+ success!
+  Trying to prove $equiv for \pend_r [3]:ezsat
+ success!
+  Trying to prove $equiv for \pend_r [4]:ezsat
+ success!
+  Trying to prove $equiv for \pend_r [5]:ezsat
+ success!
+ Grouping SAT models for \pend_w:
+  Trying to prove $equiv for \pend_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \pend_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \pend_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \pend_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \pend_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \pend_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \sol_pend_w:ezsat
+ success!
+ Grouping SAT models for \elig_w:
+  Trying to prove $equiv for \elig_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \elig_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \elig_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \elig_w [3]:ezsat
+ success!
+  Trying to prove $equiv for \elig_w [4]:ezsat
+ success!
+  Trying to prove $equiv for \elig_w [5]:ezsat
+ success!
+  Trying to prove $equiv for \pick_ok_w:ezsat
+ success!
+ Grouping SAT models for \pick_w:
+  Trying to prove $equiv for \pick_w [0]:ezsat
+ success!
+  Trying to prove $equiv for \pick_w [1]:ezsat
+ success!
+  Trying to prove $equiv for \pick_w [2]:ezsat
+ success!
+  Trying to prove $equiv for \select_w:ezsat
+ success!
+  Trying to prove $equiv for \accept_w:ezsat
+ success!
+  Trying to prove $equiv for \abort_w:ezsat
+ success!
+  Trying to prove $equiv for \consume_w:ezsat
+ success!
+  Trying to prove $equiv for \eof_w:ezsat
+ success!
+ Grouping SAT models for \aged_flags.sv2v_autoblock_1.i:
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [0]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [1]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [2]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [3]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [4]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [5]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [6]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [7]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [8]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [9]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [10]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [11]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [12]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [13]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [14]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [15]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [16]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [17]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [18]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [19]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [20]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [21]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [22]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [23]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [24]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [25]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [26]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [27]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [28]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [29]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [30]:ezsat
+ success!
+  Trying to prove $equiv for \aged_flags.sv2v_autoblock_1.i [31]:ezsat
+ success!
+ Grouping SAT models for \selection.sv2v_autoblock_3.i:
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [0]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [1]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [2]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [3]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [4]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [5]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [6]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [7]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [8]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [9]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [10]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [11]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [12]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [13]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [14]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [15]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [16]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [17]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [18]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [19]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [20]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [21]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [22]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [23]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [24]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [25]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [26]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [27]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [28]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [29]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [30]:ezsat
+ success!
+  Trying to prove $equiv for \selection.sv2v_autoblock_3.i [31]:ezsat
+ success!
+ Grouping SAT models for \age_r[0]:
+  Trying to prove $equiv for \age_r[0] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[0] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[0] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[0] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \age_r[1]:
+  Trying to prove $equiv for \age_r[1] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[1] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[1] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[1] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \age_r[2]:
+  Trying to prove $equiv for \age_r[2] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[2] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[2] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[2] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \age_r[3]:
+  Trying to prove $equiv for \age_r[3] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[3] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[3] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[3] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \age_r[4]:
+  Trying to prove $equiv for \age_r[4] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[4] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[4] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[4] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \age_r[5]:
+  Trying to prove $equiv for \age_r[5] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[5] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[5] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \age_r[5] [3]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[1]:
+  Trying to prove $equiv for \cnt_r[1] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[1] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[0]:
+  Trying to prove $equiv for \cnt_r[0] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[0] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[5]:
+  Trying to prove $equiv for \cnt_r[5] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[5] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[4]:
+  Trying to prove $equiv for \cnt_r[4] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[4] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[3]:
+  Trying to prove $equiv for \cnt_r[3] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[3] [15]:ezsat
+ezsat
+ezsat
+ failed.
+ Grouping SAT models for \cnt_r[2]:
+  Trying to prove $equiv for \cnt_r[2] [0]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [1]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [2]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [3]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [4]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [5]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [6]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [7]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [8]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [9]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [10]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [11]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [12]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [13]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [14]:ezsat
+ezsat
+ezsat
+ failed.
+  Trying to prove $equiv for \cnt_r[2] [15]:ezsat
+ezsat
+ezsat
+ failed.
+Proved 124 previously unproven $equiv cells.
+
+12. Executing EQUIV_INDUCT pass.
+Found 230 unproven $equiv cells in module equiv:
+  Proving existence of base case for step 1. (24992 clauses over 9568 variables)
+  Proving induction step 1. (55807 clauses over 20993 variables)
+  Proof for induction step holds. Entire workset of 230 cells proven!
+Proved 230 previously unproven $equiv cells.
+
+13. Executing EQUIV_STATUS pass.
+Found 354 $equiv cells in equiv:
+  Of those cells 354 are proven and 0 are unproven.
+  Equivalence successfully proven!
+
+Warnings: 2 unique messages, 2 total
+End of script. Logfile hash: 4d148d452f, time: 0.78s, user: 0.76s, system: 0.02s, MEM: 46.67 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 70% 1x equiv_simple (0 sec), 11% 1x equiv_induct (0 sec), ...

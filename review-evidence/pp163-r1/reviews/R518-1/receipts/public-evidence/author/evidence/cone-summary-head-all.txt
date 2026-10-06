@@ -1,0 +1,233 @@
+paths 17990  max levels 16  above 0: 17989
+u_originator/release_valid_o_reg: max 16 levels, worst slack 12.286
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 11-16 levels, slack 12.286
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 11-15 levels, slack 12.431
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 8-12 levels, slack 13.222
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 12-12 levels, slack 13.814
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 8-9 levels, slack 14.201
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 128 paths, 8-8 levels, slack 15.084
+    -> u_tx_arbiter/gnt_r_reg[*]: 8 paths, 8-8 levels, slack 15.715
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 8-8 levels, slack 15.715
+    -> u_tx_arbiter/pend_r_reg[*]: 1 paths, 8-8 levels, slack 15.767
+u_originator/release_slot_o_reg[*]: max 16 levels, worst slack 12.144
+    -> u_tx_arbiter/slot_r_reg[*]: 18 paths, 10-16 levels, slack 12.144
+    -> u_tx_arbiter/owner_r_reg[*]: 18 paths, 10-15 levels, slack 12.289
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 15 paths, 7-12 levels, slack 13.080
+    -> u_tx_arbiter/start_sent_r_reg: 3 paths, 11-12 levels, slack 13.672
+    -> u_tx_arbiter/age_r_reg[*][*]: 96 paths, 7-9 levels, slack 14.059
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 384 paths, 7-8 levels, slack 14.942
+    -> u_tx_arbiter/gnt_r_reg[*]: 24 paths, 7-8 levels, slack 15.573
+    -> u_tx_arbiter/pace_nonsol_r_reg: 3 paths, 7-8 levels, slack 15.573
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 7-8 levels, slack 15.625
+u_ca_builder/cancel_release_slot_o_reg[*]: max 16 levels, worst slack 11.912
+    -> u_tx_arbiter/slot_r_reg[*]: 18 paths, 10-16 levels, slack 11.912
+    -> u_tx_arbiter/owner_r_reg[*]: 18 paths, 10-15 levels, slack 12.057
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 15 paths, 7-12 levels, slack 12.848
+    -> u_tx_arbiter/start_sent_r_reg: 3 paths, 11-12 levels, slack 13.440
+    -> u_tx_arbiter/age_r_reg[*][*]: 96 paths, 7-9 levels, slack 13.827
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 384 paths, 7-8 levels, slack 14.710
+    -> u_tx_arbiter/gnt_r_reg[*]: 24 paths, 7-8 levels, slack 15.341
+    -> u_tx_arbiter/pace_nonsol_r_reg: 3 paths, 7-8 levels, slack 15.341
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 7-8 levels, slack 15.393
+u_ca_builder/cancel_release_valid_o_reg: max 16 levels, worst slack 12.189
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 11-16 levels, slack 12.189
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 11-15 levels, slack 12.334
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 8-12 levels, slack 13.125
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 12-12 levels, slack 13.717
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 8-9 levels, slack 14.104
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 128 paths, 8-8 levels, slack 14.987
+    -> u_tx_arbiter/gnt_r_reg[*]: 8 paths, 8-8 levels, slack 15.618
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 8-8 levels, slack 15.618
+    -> u_tx_arbiter/pend_r_reg[*]: 1 paths, 8-8 levels, slack 15.670
+u_release_merge/pending_r_reg[*]: max 15 levels, worst slack 12.370
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 9-15 levels, slack 12.370
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 9-14 levels, slack 12.515
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 20 paths, 6-11 levels, slack 13.306
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 10-11 levels, slack 13.898
+    -> u_tx_arbiter/age_r_reg[*][*]: 128 paths, 6-8 levels, slack 14.285
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 512 paths, 6-7 levels, slack 15.168
+    -> u_tx_arbiter/gnt_r_reg[*]: 32 paths, 6-7 levels, slack 15.799
+    -> u_tx_arbiter/pace_nonsol_r_reg: 4 paths, 6-7 levels, slack 15.799
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 6-7 levels, slack 15.851
+org_withdraw_mask_r_reg[*]: max 12 levels, worst slack 13.512
+    -> u_tx_arbiter/slot_r_reg[*]: 48 paths, 7-12 levels, slack 13.512
+    -> u_tx_arbiter/owner_r_reg[*]: 48 paths, 7-11 levels, slack 13.657
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 40 paths, 5-8 levels, slack 14.448
+    -> u_tx_arbiter/start_sent_r_reg: 8 paths, 8-8 levels, slack 15.040
+    -> u_tx_arbiter/age_r_reg[*][*]: 256 paths, 5-6 levels, slack 15.049
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 1024 paths, 5-5 levels, slack 15.932
+    -> u_tx_arbiter/gnt_r_reg[*]: 64 paths, 5-5 levels, slack 16.563
+    -> u_tx_arbiter/pace_nonsol_r_reg: 8 paths, 5-5 levels, slack 16.563
+    -> u_tx_arbiter/pend_r_reg[*]: 8 paths, 4-4 levels, slack 16.993
+u_tx_slots/st_r_reg[*][*]: max 12 levels, worst slack 13.781
+    -> u_tx_arbiter/slot_r_reg[*]: 60 paths, 6-12 levels, slack 13.781
+    -> u_tx_arbiter/owner_r_reg[*]: 60 paths, 6-11 levels, slack 13.926
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 30 paths, 7-8 levels, slack 14.717
+    -> u_tx_arbiter/start_sent_r_reg: 10 paths, 7-8 levels, slack 15.309
+    -> u_tx_arbiter/age_r_reg[*][*]: 40 paths, 4-5 levels, slack 15.764
+    -> u_tx_arbiter/pend_r_reg[*]: 10 paths, 3-4 levels, slack 17.262
+laneq_org_r_reg[*][*]: max 12 levels, worst slack 13.763
+    -> u_tx_arbiter/slot_r_reg[*]: 18 paths, 7-12 levels, slack 13.763
+    -> u_tx_arbiter/owner_r_reg[*]: 18 paths, 7-11 levels, slack 13.908
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 9 paths, 8-8 levels, slack 14.699
+    -> u_tx_arbiter/start_sent_r_reg: 3 paths, 8-8 levels, slack 15.291
+    -> u_tx_arbiter/age_r_reg[*][*]: 12 paths, 5-5 levels, slack 15.746
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 4-4 levels, slack 17.244
+laneq_org_cnt_r_reg[*]: max 11 levels, worst slack 14.088
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 6-11 levels, slack 14.088
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 6-10 levels, slack 14.233
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 7-7 levels, slack 15.024
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 7-7 levels, slack 15.616
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 4-4 levels, slack 16.071
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 3-3 levels, slack 17.569
+u_aecp/a_st_r_reg[*]_rep: max 10 levels, worst slack 14.646
+    -> u_tx_arbiter/slot_r_reg[*]: 12 paths, 5-10 levels, slack 14.646
+    -> u_tx_arbiter/owner_r_reg[*]: 12 paths, 5-9 levels, slack 14.791
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 6 paths, 6-6 levels, slack 15.582
+    -> u_tx_arbiter/start_sent_r_reg: 2 paths, 6-6 levels, slack 16.174
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 3-3 levels, slack 16.883
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 2-2 levels, slack 18.362
+u_aecp/a_st_r_reg[*]: max 10 levels, worst slack 14.665
+    -> u_tx_arbiter/slot_r_reg[*]: 12 paths, 5-10 levels, slack 14.665
+    -> u_tx_arbiter/owner_r_reg[*]: 12 paths, 5-9 levels, slack 14.810
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 6 paths, 6-6 levels, slack 15.601
+    -> u_tx_arbiter/start_sent_r_reg: 2 paths, 6-6 levels, slack 16.193
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 3-3 levels, slack 16.902
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 2-2 levels, slack 18.381
+laneq_acmp_cnt_r_reg[*]: max 10 levels, worst slack 14.571
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 5-10 levels, slack 14.571
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 5-9 levels, slack 14.716
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 6-6 levels, slack 15.657
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 6-6 levels, slack 16.249
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 3-3 levels, slack 16.704
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 2-2 levels, slack 18.183
+u_tx_arbiter/age_r_reg[*][*]: max 10 levels, worst slack 14.842
+    -> u_tx_arbiter/slot_r_reg[*]: 96 paths, 6-10 levels, slack 14.842
+    -> u_tx_arbiter/owner_r_reg[*]: 96 paths, 4-9 levels, slack 14.987
+    -> u_tx_arbiter/age_r_reg[*][*]: 208 paths, 1-2 levels, slack 17.379
+u_tx_arbiter/pend_r_reg[*]: max 9 levels, worst slack 14.998
+    -> u_tx_arbiter/slot_r_reg[*]: 48 paths, 2-9 levels, slack 14.998
+    -> u_tx_arbiter/owner_r_reg[*]: 48 paths, 2-8 levels, slack 15.143
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 24 paths, 3-5 levels, slack 15.934
+    -> u_tx_arbiter/start_sent_r_reg: 8 paths, 3-5 levels, slack 16.526
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 1-2 levels, slack 17.235
+u_aecp/uns_r_reg: max 9 levels, worst slack 15.056
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 4-9 levels, slack 15.056
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 4-8 levels, slack 15.201
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 3 paths, 5-5 levels, slack 15.992
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 5-5 levels, slack 16.584
+    -> u_tx_arbiter/age_r_reg[*][*]: 8 paths, 2-2 levels, slack 17.293
+    -> u_tx_arbiter/pend_r_reg[*]: 2 paths, 1-1 levels, slack 18.519
+u_srp/u_encoder/st_r_reg[*]_rep: max 9 levels, worst slack 15.559
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 3-9 levels, slack 15.559
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 3-8 levels, slack 15.704
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 3 paths, 4-4 levels, slack 16.784
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 4-4 levels, slack 17.376
+    -> u_tx_arbiter/age_r_reg[*][*]: 4 paths, 3-3 levels, slack 17.061
+    -> u_tx_arbiter/pend_r_reg[*]: 1 paths, 2-2 levels, slack 18.517
+u_srp/u_encoder/st_r_reg[*]: max 9 levels, worst slack 15.421
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 2-9 levels, slack 15.421
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 2-8 levels, slack 15.566
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 3-4 levels, slack 16.646
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 3-4 levels, slack 17.238
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 2-3 levels, slack 16.923
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 1-2 levels, slack 18.391
+u_maap/FSM_sequential_w_st_r_reg[*]: max 9 levels, worst slack 15.447
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 2-9 levels, slack 15.447
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 2-8 levels, slack 15.592
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 3-4 levels, slack 16.400
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 3-4 levels, slack 16.992
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 2-3 levels, slack 16.927
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 1-2 levels, slack 18.383
+tkb_lane_valid_r_reg: max 9 levels, worst slack 15.297
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 4-9 levels, slack 15.297
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 4-8 levels, slack 15.442
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 3 paths, 5-5 levels, slack 16.233
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 5-5 levels, slack 16.825
+    -> u_tx_arbiter/age_r_reg[*][*]: 4 paths, 2-2 levels, slack 17.480
+    -> u_tx_arbiter/pend_r_reg[*]: 1 paths, 1-1 levels, slack 18.785
+laneq_adp_cnt_r_reg[*]: max 8 levels, worst slack 15.687
+    -> u_tx_arbiter/slot_r_reg[*]: 24 paths, 3-8 levels, slack 15.687
+    -> u_tx_arbiter/owner_r_reg[*]: 24 paths, 3-7 levels, slack 15.832
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 4-4 levels, slack 16.623
+    -> u_tx_arbiter/start_sent_r_reg: 4 paths, 4-4 levels, slack 17.215
+    -> u_tx_arbiter/age_r_reg[*][*]: 16 paths, 2-2 levels, slack 17.210
+    -> u_tx_arbiter/pend_r_reg[*]: 4 paths, 2-2 levels, slack 18.196
+u_tx_arbiter/pace_nonsol_r_reg: max 7 levels, worst slack 16.179
+    -> u_tx_arbiter/slot_r_reg[*]: 6 paths, 2-7 levels, slack 16.179
+    -> u_tx_arbiter/owner_r_reg[*]: 6 paths, 2-6 levels, slack 16.324
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 3 paths, 3-3 levels, slack 17.203
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 3-3 levels, slack 17.795
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 1-1 levels, slack 18.949
+u_tx_arbiter/owner_r_reg[*]: max 7 levels, worst slack 16.019
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 768 paths, 1-7 levels, slack 16.019
+    -> u_tx_arbiter/age_r_reg[*][*]: 96 paths, 1-2 levels, slack 17.119
+    -> u_tx_arbiter/gnt_r_reg[*]: 24 paths, 1-1 levels, slack 18.633
+    -> u_tx_arbiter/pace_nonsol_r_reg: 2 paths, 1-1 levels, slack 18.643
+u_tx_arbiter/cnt_r_reg[*][*]: max 7 levels, worst slack 15.841
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 8704 paths, 2-7 levels, slack 15.841
+u_tx_arbiter/slot_r_reg[*]: max 6 levels, worst slack 15.257
+    -> u_tx_arbiter/age_r_reg[*][*]: 96 paths, 4-6 levels, slack 15.257
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 384 paths, 4-5 levels, slack 16.140
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 15 paths, 4-5 levels, slack 16.254
+    -> u_tx_arbiter/gnt_r_reg[*]: 24 paths, 4-5 levels, slack 16.771
+    -> u_tx_arbiter/pace_nonsol_r_reg: 3 paths, 4-5 levels, slack 16.771
+    -> u_tx_arbiter/start_sent_r_reg: 3 paths, 4-5 levels, slack 16.790
+u_tx_slots/out_valid_r_reg: max 4 levels, worst slack 17.097
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 3-4 levels, slack 17.097
+sh_need_r_reg: max 4 levels, worst slack 16.987
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 3-4 levels, slack 16.987
+FSM_onehot_sh_st_r_reg[*]: max 4 levels, worst slack 16.719
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 10 paths, 3-4 levels, slack 16.719
+txp_valid_r_reg: max 4 levels, worst slack 16.665
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 3-4 levels, slack 16.665
+u_timer/us_cnt_r_reg[*]: max 4 levels, worst slack 16.395
+    -> u_tx_arbiter/age_r_reg[*][*]: 1024 paths, 3-4 levels, slack 16.395
+u_timer/ms_cnt_r_reg[*]: max 4 levels, worst slack 16.401
+    -> u_tx_arbiter/age_r_reg[*][*]: 1024 paths, 2-4 levels, slack 16.401
+u_tx_arbiter/start_sent_r_reg: max 3 levels, worst slack 16.911
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 2-3 levels, slack 16.911
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 2-2 levels, slack 17.665
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 128 paths, 2-2 levels, slack 17.794
+    -> u_tx_arbiter/gnt_r_reg[*]: 8 paths, 2-2 levels, slack 18.425
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 2-2 levels, slack 18.425
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 2-2 levels, slack 18.444
+u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: max 3 levels, worst slack 16.640
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 2-3 levels, slack 16.640
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 128 paths, 2-2 levels, slack 17.523
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 12 paths, 1-2 levels, slack 17.467
+    -> u_tx_arbiter/gnt_r_reg[*]: 8 paths, 2-2 levels, slack 18.154
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 2-2 levels, slack 18.154
+    -> u_tx_arbiter/start_sent_r_reg: 2 paths, 2-2 levels, slack 18.059
+    -> u_tx_arbiter/owner_r_reg[*]: 3 paths, 1-1 levels, slack 17.937
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 1-1 levels, slack 17.966
+u_tx_slots/out_last_r_reg: max 3 levels, worst slack 17.210
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 5 paths, 2-3 levels, slack 17.210
+u_aecp/tx_slot_r_reg[*]: max 2 levels, worst slack 18.513
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.513
+    -> u_tx_arbiter/pend_r_reg[*]: 6 paths, 1-1 levels, slack 18.658
+laneq_acmp_r_reg[*][*]: max 2 levels, worst slack 18.657
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.657
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 1-1 levels, slack 18.683
+laneq_adp_r_reg[*][*]: max 2 levels, worst slack 18.558
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.558
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 1-1 levels, slack 18.703
+u_srp/u_encoder/slot_r_reg[*]: max 2 levels, worst slack 18.402
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.402
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 1-1 levels, slack 18.664
+tkb_slot_r_reg[*]: max 2 levels, worst slack 18.518
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.518
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 1-1 levels, slack 18.676
+u_maap/bld_slot_r_reg[*]: max 2 levels, worst slack 18.655
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 2-2 levels, slack 18.655
+    -> u_tx_arbiter/pend_r_reg[*]: 3 paths, 1-1 levels, slack 18.696
+rst_n: max 1 levels, worst slack 99.000
+    -> u_tx_arbiter/FSM_onehot_arb_st_r_reg[*]: 3 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/cnt_r_reg[*][*]: 128 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/gnt_r_reg[*]: 8 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/owner_r_reg[*]: 3 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/pace_nonsol_r_reg: 1 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/pend_r_reg[*]: 8 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/slot_r_reg[*]: 3 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/start_sent_r_reg: 1 paths, 1-1 levels, slack 99.000
+    -> u_tx_arbiter/age_r_reg[*][*]: 32 paths, 1-1 levels, slack 99.000

@@ -1,0 +1,7 @@
+COMMAND ['python3', 'tb/pp_top/notify_mutants.py', '--output', '$REVIEWS/pp163-r518-1-packet/receipts/focused/withdraw-campaign', '--verilator', '$REVIEWS/pp163-r518-1-packet/scratch/bin/verilator-capped', '--jobs', '3', '--only', 'withdraw_unregistered', 'withdraw_abort_ignored', 'cancel_one_clock_late']
+{"mutant": "golden-aecp_notify-run", "verdict": "PASS"}
+{"mutant": "golden-pp_top-withdraw-only", "verdict": "PASS"}
+{"mutant": "cancel_one_clock_late", "verdict": "KILLED", "missing": []}
+{"mutant": "withdraw_abort_ignored", "verdict": "KILLED", "missing": []}
+{"mutant": "withdraw_unregistered", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 3 of 3 KILLED by their named checks; goldens PASS

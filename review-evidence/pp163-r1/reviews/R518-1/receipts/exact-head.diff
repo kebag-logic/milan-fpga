@@ -1,0 +1,817 @@
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index a732be0..41b616b 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -485,6 +485,7 @@ flowchart LR
+ |---|---|
+ | Priorities | ACMP (tightest budget, `T-BUDGET-ACMP-RESP`) > AECP solicited + originator commands > notification bursts > ADP periodic |
+ | Frame-atomic | grant holds sof→eof ([F02.4](02_interfaces.md#fig-02-txwave)); no preemption |
++| Withdrawal | an originated exchange cancelled before the serializer accepts its frame leaves the originator lane and the arbiter's pre-start abort one clock after the originator takes the cancellation (a registered mask, in the clock its registered release reaches the slot pool); a frame accepted in the cancelling clock itself is sent, and its slot is freed after its last byte |
+ | Starvation guard | aging promotes any requester older than `T-TX-AGING` to priority 1 |
+ | Notification pacing | fan-out engine spaces bursts so ≥ 1 slot/frame-time remains for solicited traffic; counters class additionally rate-limited ≤ 1/descriptor/s |
+ | Destination addressing | AECP: unicast to `src_mac` (or registry MAC for unsolicited). ACMP: **all** responses multicast `91-E0-F0-01-00-00`. ADP: multicast `91-E0-F0-01-00-00`. Identify: multicast `91-E0-F0-01-00-01` (IEEE Annex B). MRPDUs: MSRP `01-80-C2-00-00-0E` / MVRP `01-80-C2-00-00-21` |
+diff --git a/hdl/packet_engine/KL_pp_tx_arbiter.sv b/hdl/packet_engine/KL_pp_tx_arbiter.sv
+index 01440eb..f613063 100644
+--- a/hdl/packet_engine/KL_pp_tx_arbiter.sv
++++ b/hdl/packet_engine/KL_pp_tx_arbiter.sv
+@@ -159,7 +159,8 @@ module KL_pp_tx_arbiter
+   end
+ 
+   always_comb begin : selection
+-    logic [2:0] key_w, best_w;
++    logic [N_REQ_P-1:0][2:0] key_w;
++    logic [N_REQ_P-1:0]      win_w;
+     // a PP_SLOT_NULL_C handle means "no payload" (pp_pkg): never a grant.
+     // The cast is identity at the F01.5 shape (SLOT_W_C = 3 = handle width).
+     // The registered qualifier removes the long slot-compare path, but a
+@@ -173,17 +174,24 @@ module KL_pp_tx_arbiter
+     elig_w = (pace_nonsol_r && sol_pend_w) ? (pend_w & SOLICITED_MASK_P)
+                                            : pend_w;
+     // then rank: {fresh-bit, class} — an aged requester (0_cc) outranks
+-    // every fresh native (1_cc); ties resolve to the lowest index
+-    pick_ok_w = 1'b0;
++    // every fresh native (1_cc); ties resolve to the lowest index. Every
++    // pair is ranked at once: the winner is the eligible requester that no
++    // other eligible one outranks. A best-so-far scan computes the same
++    // winner but chains its compares through all N_REQ_P requesters, 17
++    // levels on the reference part ahead of slot_r (#163); here the classes
++    // are parameters, so each pairwise rank folds to two aged bits.
++    for (int i = 0; i < int'(N_REQ_P); i++)
++      key_w[i] = {~aged_w[i], PRIO_MAP_P[2*i +: 2]};
++    pick_ok_w = |elig_w;
+     pick_w    = '0;
+-    best_w    = 3'b111;
+     for (int i = 0; i < int'(N_REQ_P); i++) begin
+-      key_w = {~aged_w[i], PRIO_MAP_P[2*i +: 2]};
+-      if (elig_w[i] && (!pick_ok_w || (key_w < best_w))) begin
+-        pick_ok_w = 1'b1;
+-        pick_w    = REQ_IX_W_C'(i);
+-        best_w    = key_w;
++      win_w[i] = elig_w[i];
++      for (int j = 0; j < int'(N_REQ_P); j++) begin
++        if ((j < i) && elig_w[j] && (key_w[j] <= key_w[i])) win_w[i] = 1'b0;
++        if ((j > i) && elig_w[j] && (key_w[j] < key_w[i]))  win_w[i] = 1'b0;
+       end
++      // at most one winner, so OR-ing the indices encodes it
++      if (win_w[i]) pick_w = pick_w | REQ_IX_W_C'(i);
+     end
+   end
+ 
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 098c538..94b9970 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -4368,6 +4368,23 @@ module protocol_processor_top
+   logic                    laneq_org_release_head_w;
+   logic                    laneq_org_withdraw_head_w;
+ 
++  //! The originator's withdraw mask, one cycle late (#163). The mask is
++  //! combinational from the originator's response, cancel and expiry choice,
++  //! whose cones (the registry's identity index, the received header, the
++  //! response CAM) reached the TX arbiter's slot and state registers through
++  //! the lane request and start_abort_i: 51 logic levels at the 50 MHz clock.
++  //! Every reader below takes this copy, so a withdrawal reaches the lane
++  //! queue and the arbiter in the cycle the originator's registered release
++  //! reaches the pool. A frame the arbiter accepts in the cancelling cycle
++  //! itself is sent: the originator drops that acceptance (the entry is gone)
++  //! and the pool frees the slot after its last byte.
++  logic [7:0]              org_withdraw_mask_r;
++
++  always_ff @(posedge clk_i) begin : withdraw_mask_stage
++    if (!rst_n) org_withdraw_mask_r <= '0;
++    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;
++  end
++
+   logic [LANE_N_C-1:0]              arb_req_w;
+   logic [LANE_N_C-1:0][TXS_W_C-1:0] arb_slot_w;
+   logic [LANE_N_C-1:0]              arb_gnt_w;
+@@ -4387,7 +4404,7 @@ module protocol_processor_top
+                                   && (txs_release_slot_w
+                                       == laneq_org_r[0]);
+   assign laneq_org_withdraw_head_w = (laneq_org_cnt_r != 4'd0)
+-                                   && org_withdraw_slot_mask_w[laneq_org_r[0]];
++                                   && org_withdraw_mask_r[laneq_org_r[0]];
+   assign laneq_org_drop_w = (laneq_org_cnt_r != 4'd0)
+                           && (!txs_ready_nc_w[laneq_org_r[0]]
+                               || laneq_org_release_head_w
+@@ -4407,7 +4424,7 @@ module protocol_processor_top
+           && !((i == 0) && laneq_org_pop_w)
+           && !(txs_release_valid_w
+                && (laneq_org_r[i] == txs_release_slot_w))
+-          && !org_withdraw_slot_mask_w[laneq_org_r[i]]) begin
++          && !org_withdraw_mask_r[laneq_org_r[i]]) begin
+         laneq_org_next_w[laneq_org_next_cnt_w[2:0]] = laneq_org_r[i];
+         laneq_org_next_cnt_w = laneq_org_next_cnt_w + 4'd1;
+       end
+@@ -4485,7 +4502,7 @@ module protocol_processor_top
+   logic [7:0]  arb_tx_data_w;
+   logic        arb_start_abort_w;
+ 
+-  assign arb_start_abort_w = org_withdraw_slot_mask_w[ser_slot_w]
++  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]
+                            || (txs_release_valid_w
+                                && (txs_release_slot_w == ser_slot_w));
+ 
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index cdc903e..56a359d 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -10,8 +10,8 @@ cancellation before the row is cleared. It then reuses the same row for a
+ different controller and verifies that the next probe carries only the new
+ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+ section TS the counter throttle stamps' valid bit, section TW a counter round
+-that waits for the TX slot, and section DR a DEREGISTER drained between two jobs
+-of a round.
++that waits for the TX slot, section DR a DEREGISTER drained between two jobs
++of a round, and section CX the clock of the availability cancellation.
+ 
+ Run `make`. Exit status zero and the printed check tally are required.
+ 
+@@ -19,7 +19,7 @@ Run `make`. Exit status zero and the printed check tally are required.
+ 
+ | Build | Override | Runs |
+ |---|---|---|
+-| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks) and section DR (11 checks) |
++| `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks), section DR (11 checks) and section CX (1 check) |
+ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone |
+ 
+ Each binary prints its own build's count, and the Makefile prints the one
+@@ -144,15 +144,16 @@ The upper bound (8 cycles: the pick and the walk to the job) shows that the held
+ change is sent, not lost.
+ 
+ Mutation record (planted by `tb/pp_top/notify_mutants.py`, which runs `make run`
+-here; all thirteen KILLED). The fifth to the seventh are PR #153's review faults
++here; all fourteen KILLED). The fifth to the seventh are PR #153's review faults
+ (R452-1 and R453-1), each the reviewer's own edit; the next three are issue #148's,
+-and the last three issue #158's (section DR, below). Since #158 the three #148
+-controls fail DR3 as well, at ms 31512: none of them follows D's wait after the drain:
++the next three issue #158's (section DR, below), and the last issue #163's (section
++CX, below). Since #158 the three #148 controls fail DR3 as well, at ms 31512: none of
++them follows D's wait after the drain:
+ 
+ | Mutant | Planted | Failing checks |
+ |---|---|---|
+ | `ix_old_identity_kept` | a row write never clears the old identity | 1: IX1 |
+-| `ix_new_identity_unset` | a row write never sets the new identity | 3: IX3, IX4, IX6b |
++| `ix_new_identity_unset` | a row write never sets the new identity | 4: IX3, IX4, IX6b, CX1 (3 before #163) |
+ | `ix_last_chunk_ignored` | the match ignores the last 6-bit chunk | 1: IX2 |
+ | `ix_rewrite_unmatched` | the two rewrite cycles read the index, not the compare | 3: IX4, IX6, IX6b |
+ | `override_set_only` | the compare covers only the rewrite's second cycle; the row write's own cycle reads the index | 2: IX6, IX6b |
+@@ -164,6 +165,7 @@ controls fail DR3 as well, at ms 31512: none of them follows D's wait after the
+ | `dereg_mid_round_no_hold` | a drained DEREGISTER no longer waits for the round's boundary (`main`'s rule) | 3: DR1, DR2, DR3 |
+ | `dereg_pending_stops_follow` | the counter stamp stops following while a DEREGISTER is pending (review R477-1 S2's hazard) | 1: DR3 (ms 31512) |
+ | `dereg_lost_at_round_end` | the round's end drops the held DEREGISTER | 2: DR1b, DR2b |
++| `cancel_one_clock_late` | the availability cancellation registered, one clock after the command | 2: CX1, IX3 |
+ 
+ ## Section DR: a DEREGISTER drained between two jobs of a round (issue #158)
+ 
+@@ -198,3 +200,20 @@ round's notification and the DEREGISTER's own semantics, not the order the fix
+ chose. On `main`'s RTL DR1, DR2 and DR3 fail: D receives kind 0, descriptor
+ 0000:0 in DR1 and DR2, and in DR3 D's first GET_COUNTERS after the drain is the
+ next round's (ms 31513). DR1b and DR2b pass on `main`.
++
++## Section CX: the clock of the availability cancellation (issue #163)
++
++The top registers the originator's withdraw mask, so a cancellation reaches the TX
++arbiter one clock after the originator takes it (`tb/pp_top` section WD grades that
++boundary on the wire). The registry monitor adds no clock of its own: its
++cancellation is combinational from the command it supersedes. After a warm reset,
++E registers (row 0), its monitor draw is answered, the monitor expiry launches E's
++probe, and a command from E is presented for one clock:
++
++- **CX1** the cancellation, owner 0, is presented in that clock, before the edge
++  that takes the command, and in none of the eight clocks after it.
++
++IX3 reads the same match without a clock edge; CX1 takes the command through its
++edge and watches for a late or repeated cancellation. `cancel_one_clock_late`
++(above) registers the cancellation and fails both, and `ix_new_identity_unset`, whose
++command matches no row, fails CX1 as well.
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index 9d5621c..78c3cc8 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -81,6 +81,7 @@ struct Harness {
+   void dereg_counter_round();
+   void dereg_command_round();
+   void dereg_round_waits();
++  void cancel_clock();
+ 
+   void tick() {
+     d->now_ms_i = now;
+@@ -94,7 +95,8 @@ struct Harness {
+     for (int i = 0; i < n; ++i) tick();
+   }
+ 
+-  void register_row(uint64_t eid, uint64_t mac, bool time_limited) {
++  //! a REGISTER of {eid, mac}; true when the registry accepted the tuple
++  bool registers(uint64_t eid, uint64_t mac, bool time_limited) {
+     d->rgy_state_i = 0;
+     d->rgy_op_i = 0;
+     d->rgy_eid_i = eid;
+@@ -108,14 +110,20 @@ struct Harness {
+       if (!d->rgy_wait_o) break;
+       tick();
+     }
+-    CHECK(guard < REGISTRY_ACCEPT_CYCLES && d->rgy_data_o == 0,
+-          "registry accepts controller tuple");
++    const bool accepted = guard < REGISTRY_ACCEPT_CYCLES && d->rgy_data_o == 0;
+     tick();
+     d->rgy_req_i = 0;
+     idle(2);
++    return accepted;
+   }
+ 
+-  void complete_draw() {
++  void register_row(uint64_t eid, uint64_t mac, bool time_limited) {
++    CHECK(registers(eid, mac, time_limited), "registry accepts controller tuple");
++  }
++
++  //! the monitor draw a registration asks for, answered with 30 s; true when
++  //! it was asked for
++  bool draws() {
+     d->prng_draw_busy_i = 0;
+     int guard = 0;
+     while (guard++ < DRAW_REQUEST_CYCLES) {
+@@ -124,14 +132,18 @@ struct Harness {
+       if (d->prng_draw_req_o) break;
+       tick();
+     }
+-    CHECK(guard < DRAW_REQUEST_CYCLES,
+-          "registration requests an independent monitor draw");
++    const bool asked = guard < DRAW_REQUEST_CYCLES;
+     d->prng_draw_ms_i = 30000;
+     d->prng_draw_valid_i = 1;
+     tick();
+     d->prng_draw_valid_i = 0;
+     d->prng_draw_busy_i = 1;
+     idle(2);
++    return asked;
++  }
++
++  void complete_draw() {
++    CHECK(draws(), "registration requests an independent monitor draw");
+   }
+ 
+   void expire(uint8_t slot, uint8_t owner) {
+@@ -258,6 +270,7 @@ int Harness::run() {
+   dereg_counter_round();
+   dereg_command_round();
+   dereg_round_waits();
++  cancel_clock();
+   return fails ? 1 : 0;
+ }
+ 
+@@ -701,6 +714,41 @@ void Harness::dereg_round_waits() {
+   d->uns_done_i = 1;
+ }
+ 
++//! CX (issue #163): the top registers the originator's withdraw mask, so a
++//! cancellation reaches the TX arbiter one clock after the originator takes
++//! it. That is the only clock it gains: a command from the probing controller
++//! cancels the probe in the command's own clock, before the edge that takes
++//! the command, and in no clock after it.
++void Harness::cancel_clock() {
++  constexpr uint64_t EID_P = 0x5555000000000005ull;
++  constexpr uint64_t MAC_P = 0x020000000005ull;
++  warm_reset();
++  const bool registered = registers(EID_P, MAC_P, false);   // row 0
++  const bool drawn = draws();
++  expire(REGMON_BASE + N_CTRL, OWN_MON);
++  const bool probing = registered && drawn && wait_probe(EID_P, MAC_P);
++  idle(2);
++  d->rx_cmd_eid_i = EID_P;
++  d->rx_cmd_mac_i = MAC_P;
++  d->rx_cmd_valid_i = 1;
++  d->clk_i = 0;
++  d->eval();
++  const bool own = d->ca_cancel_valid_o && d->ca_cancel_owner_o == 0;
++  tick();                                   // the edge that takes the command
++  d->rx_cmd_valid_i = 0;
++  int later = 0;
++  for (int i = 0; i < DRAIN_WATCH_CYCLES; ++i) {
++    d->clk_i = 0;
++    d->eval();
++    later += d->ca_cancel_valid_o ? 1 : 0;
++    tick();
++  }
++  CHECK(probing && own && later == 0,
++        "CX1: a command from the probing controller cancels its probe in the command's "
++        "own clock (probe live %d, cancelled then %d) and in no later one (%d of %d)",
++        int(probing), int(own), later, DRAIN_WATCH_CYCLES);
++}
++
+ #else
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+index 725dc93..a60d29a 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -119,6 +119,10 @@ aecp-dispatch-mutants:
+ 	python3 aecp_dispatch_mutants.py --output "$(AECP_DISPATCH_MUTANT_OUTPUT)" \
+ 	    --verilator "$(VERILATOR)"
+ 
++# section WD alone (issue #163): notify_mutants.py's withdraw-stage arms
++withdraw: gsi-build
++	./obj_dir/Vpp_top_sim --withdraw-only
++
+ deadline: gsi-build
+ 	./obj_dir/Vpp_top_sim --deadline-only
+ 
+@@ -221,5 +225,5 @@ clean:
+ .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
+         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+         deadline d3 volatile cuts hazards counters budget budget-build \
+-        timer-defaults timer-defaults-build \
++        timer-defaults timer-defaults-build withdraw \
+         aecp-mutants ctr-mutants fixture-guards fixture-guards-test line-guards clean
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 88f1113..46540a9 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2226,17 +2226,19 @@ not a multiple of 8`). Verilator reports an elaboration `$error` as a warning th
+ 
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+-`notify_phases.hpp` holds seven sections, each on a fresh processor of its own
++`notify_phases.hpp` holds eight sections, each on a fresh processor of its own
+ (the section AD pattern: its own model, the suite's descriptor image, erased NVM,
+-both restore walks, link up and enable), so the main run's clock is untouched.
++both restore walks, link up and enable; WD boots as U10 does, link down and not
++enabled), so the main run's clock is untouched.
+ Every AECP and ACMP frame is logged with the clock its last byte left on, so
+ spacing and latency are read off the wire. Every expectation is built from the
+ clause byte offsets; a per-entry `sequence_id` is modelled from the wire alone, as
+ the count of unsolicited frames that controller was sent before (Milan §5.4.5.1).
+ 
+-`--identify-only` runs ID0 (default build), `--notify-only` runs NP, ST and RN, and
+-`--spacing-only` runs CS; `make identify` builds and runs the third build and ID0, and
+-`make timer-defaults` the sixth build, which runs TD alone.
++`--identify-only` runs ID0 (default build), `--notify-only` runs NP, ST and RN,
++`--spacing-only` runs CS and `--withdraw-only` (`make withdraw`) runs WD; `make
++identify` builds and runs the third build and ID0, and `make timer-defaults` the
++sixth build, which runs TD alone.
+ 
+ ### The third build: `P-EN-IDENTIFY-NOTIFICATION`
+ 
+@@ -2461,6 +2463,43 @@ fails (99,854, row 0, STREAM_OUTPUT 0) and CS2c fails (99,590, row 0, STREAM_INP
+ round starts a second after the previous round's last send, and a sixteen-row round
+ takes about 15,000 clocks here.
+ 
++### Section WD: the originator's withdraw mask, one clock late (#163)
++
++The originator's withdraw mask is combinational from its response, cancel and
++expiry choice. It fed the TX arbiter's slot and state registers through the
++originator lane's request and the arbiter's pre-start abort, 51 logic levels from
++the registry's identity index and the received header at the 50 MHz clock. The top
++now registers it (`org_withdraw_mask_r`): a cancellation reaches the lane and the
++abort one clock after the originator takes it, the clock its registered release
++reaches the TX slot pool. That moves the race between a cancellation and the
++serializer's acceptance by one clock, and WD grades the new boundary from both
++sides.
++
++Each run holds a solicited answer (GET_CONFIGURATION) on its last byte until a
++CONTROLLER_AVAILABLE probe waits in the originator lane, lets every waiting lane age
++past T-TX-AGING so that the probe's class is the arbiter's first, then feeds a
++GET_CONFIGURATION from the probed controller (Milan 5.4.5.3: any valid command
++supersedes the probe) and lets the held byte go on a clock the receive validator's
++commit shift gives in advance (`dbg_rxv_commit_o`; the command's header is valid,
++and its cancellation taken, two clocks after the shift's input rises). The wrap
++exports the arbiter's state, owner lane and started bit (`dbg_arb_st_o`,
++`dbg_arb_owner_o`, `dbg_arb_sent_o`) to read where the cancellation landed.
++
++- **WD1** the cancellation on the clock the arbiter accepts the probe (its start
++  state, owner lane 7, not yet started) no longer stops it: the probe leaves once
++  and byte-exact, nothing follows it in 1.5 s (no retry and no deregistration: its
++  exchange is gone), both answers leave, and the five TX slots, the originator and
++  its lane return idle. The pool frees the probe's slot after its last byte.
++- **WD2** the cancellation on the clock the arbiter selects the probe (idle, the
++  probe at the lane's head): the arbiter's start state holds that selection the
++  next clock, aborted, and is idle the clock after; the pool starts nothing.
++- **WD3** that probe never reaches the wire; both answers leave, and the five TX
++  slots, the originator and its lane return idle.
++
++Before #163 the acceptance clock's cancellation withdrew the probe (WD1 fails) and
++the selection clock's one left nothing to select (WD2 fails): the
++`withdraw_unregistered` control below plants that path.
++
+ ### Mutation record: `notify_mutants.py`
+ 
+ `python3 tb/pp_top/notify_mutants.py --output DIR [--jobs N] [--only NAME ...]`
+@@ -2482,7 +2521,13 @@ the one record #148 moves, and its named check is now ST2b alone (its row). Issu
+ adds three controls, graded by `tb/aecp_notify` section DR, for 56 of 56. Re-run
+ 2026-10-05 at `main` `054d01c7` (53 of 53) and at the #158 head (56 of 56): the
+ goldens PASS, and 50 of the 53 earlier controls fail the same checks at both. The
+-three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows):
++three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows). Issue #163
++adds three controls of the withdraw mask's clock, graded by section WD and by
++`tb/aecp_notify` section CX, for 59 of 59. Re-run 2026-10-06 at `main` `86a7b0c5` (56
++of 56) and at the #163 head (59 of 59): the goldens PASS, and 55 of the 56 earlier
++controls fail the same checks at both. `ix_new_identity_unset` fails CX1 as well since
++#163 (its row): without the new identity, the probing controller's command matches no
++row and cancels nothing:
+ 
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+@@ -2527,7 +2572,7 @@ three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows):
+ | `inflight_cancel_keeps_timer` | a cancellation leaves its timer armed | 5, R among them |
+ | `inflight_shared_seq` | one sequence counter for every owner | 10, R among them |
+ | `ix_old_identity_kept` | a row write never clears the old identity | 1: `tb/aecp_notify` IX1 |
+-| `ix_new_identity_unset` | a row write never sets the new identity | 3: `tb/aecp_notify` IX3, IX4, IX6b |
++| `ix_new_identity_unset` | a row write never sets the new identity | 4: `tb/aecp_notify` IX3, IX4, IX6b, CX1 (3 before #163) |
+ | `ix_last_chunk_ignored` | the match ignores the last 6-bit chunk | 1: `tb/aecp_notify` IX2 |
+ | `ix_rewrite_unmatched` | the two rewrite cycles read the index, not the compare | 3: `tb/aecp_notify` IX4, IX6, IX6b |
+ | `override_set_only` | the compare covers only the rewrite's second cycle; the row write's own cycle reads the index | 2: `tb/aecp_notify` IX6, IX6b |
+@@ -2542,6 +2587,9 @@ three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows):
+ | `dereg_mid_round_no_hold` | a DEREGISTER drained between two jobs of a round no longer waits for the round's boundary (`main`'s rule) | 3: `tb/aecp_notify` DR1, DR2, DR3 |
+ | `dereg_pending_stops_follow` | the counter stamp stops following while a DEREGISTER is pending (review R477-1 S2 on PR #159) | 1: `tb/aecp_notify` DR3 |
+ | `dereg_lost_at_round_end` | the round's end drops the held DEREGISTER | 2: `tb/aecp_notify` DR1b, DR2b |
++| `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 2: WD1, WD2 |
++| `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 2: WD2, WD3 |
++| `cancel_one_clock_late` | the registry monitor's cancellation registered, one clock after the command | 2: `tb/aecp_notify` CX1, IX3 |
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index d5a5062..9fab1ad 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -19,8 +19,9 @@ the STORM and RND sections (ST, RN), the originator's seeded inflight session
+ throttle stamps' valid bit in the first build of tb/aecp_notify (sections IX and TS,
+ issue #232), and the counter rounds' spacing from the previous round's send (issue
+ #148: tb/pp_top section CS and tb/aecp_notify section TW), and a DEREGISTER drained
+-between two jobs of a round (issue #158: tb/aecp_notify section DR). The suite READMEs
+-carry the matching mutation records.
++between two jobs of a round (issue #158: tb/aecp_notify section DR), and the
++originator's withdraw mask one clock late at the top (issue #163: tb/pp_top section WD
++and tb/aecp_notify section CX). The suite READMEs carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -349,8 +350,38 @@ DEREG_MID_ROUND = (
+         ("DR1b:", "DR2b:")),
+ )
+ 
++# the originator's withdraw mask registered at the top (issue #163), graded on the
++# wire by tb/pp_top section WD, and the notify cancellation's own clock by
++# tb/aecp_notify section CX
++WITHDRAW = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "--withdraw-only"))
++MASK_READS = ("                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
++              "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
++              "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]\n")
++CA_REQUEST = "  always_comb begin : ca_request\n"
++
++WITHDRAW_STAGE = (
++    Mutant("withdraw_unregistered", WITHDRAW, tuple(
++        (TOP, old, old.replace("org_withdraw_mask_r", "org_withdraw_slot_mask_w"))
++        for old in MASK_READS),
++        ("WD1:", "WD2:")),
++    Mutant("withdraw_abort_ignored", WITHDRAW, (
++        (TOP, "      .start_abort_i(arb_start_abort_w),\n", "      .start_abort_i(1'b0),\n"),),
++        ("WD2:", "WD3:")),
++    Mutant("cancel_one_clock_late", INDEX, (
++        (NTFY, CA_REQUEST, "  logic               cx_late_r;\n"
++                           "  logic [CIX_W_C-1:0] cx_late_ix_r;\n"
++                           "  always_ff @(posedge clk_i) begin : cx_late\n"
++                           "    cx_late_r    <= ca_cancel_ok_w;\n"
++                           "    cx_late_ix_r <= ca_cancel_ix_w;\n"
++                           "  end\n" + CA_REQUEST),
++        (NTFY, "    ca_cancel_valid_o = ca_cancel_ok_w\n", "    ca_cancel_valid_o = cx_late_r\n"),
++        (NTFY, "                        ? 4'(pd_ix_w) : 4'(ca_cancel_ix_w);\n",
++         "                        ? 4'(pd_ix_w) : 4'(cx_late_ix_r);\n")),
++        ("CX1:",)),
++)
++
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND)
++           + DEREG_MID_ROUND + WITHDRAW_STAGE)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+index 1716176..c81a038 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1639,6 +1639,190 @@ struct RndPhase : NotifyBench {
+   }
+ };
+ 
++// ==== WD. the originator's withdraw mask, one clock late (issue #163) =====
++// The originator's withdraw mask is combinational from its response, cancel
++// and expiry choice. It fed the TX arbiter's slot and state registers through
++// the originator lane's request and the arbiter's pre-start abort: 51 logic
++// levels from the registry's identity index and the received header, at the
++// 50 MHz clock. The top now registers it (org_withdraw_mask_r), so a
++// cancellation reaches the lane and the arbiter one clock after the
++// originator takes it, the clock its registered release reaches the TX slot
++// pool. Each run holds a solicited answer on its last byte until a
++// CONTROLLER_AVAILABLE probe waits in the originator lane, feeds a command
++// from the probed controller (Milan 5.4.5.3: any valid command supersedes the
++// probe) and lets the held byte go so that the command's cancellation lands
++// on a chosen arbiter clock. The receive validator's commit shift
++// (dbg_rxv_commit_o) gives that clock in advance: the header is valid, and
++// the cancellation taken, two clocks after the shift's input rises.
++//   WD1  on the clock the arbiter accepts the probe, the cancellation no
++//        longer stops it: the probe leaves once and byte-exact, nothing
++//        follows it (its exchange is gone: no retry, no deregistration), both
++//        answers leave, and the five TX slots, the originator and its lane
++//        return idle;
++//   WD2  on the clock the arbiter selects the probe, that selection is
++//        withdrawn one clock later, in the arbiter's start state, before the
++//        pool starts the slot;
++//   WD3  and that probe never reaches the wire; both answers leave, and the
++//        five TX slots, the originator and its lane return idle.
++struct WithdrawStagePhase : NotifyBench {
++  static constexpr unsigned A_IDLE = 0;          // KL_pp_tx_arbiter arb_st_e
++  static constexpr unsigned A_START = 1;
++  static constexpr unsigned LANE_ORIG = 7;       // the top's LANE_ORIG_C
++  static constexpr int AFTER = 16;               // clocks clocked after the command
++  static constexpr int AGED_MS = 12;             // past T-TX-AGING (08 F08.1)
++  //! the window after a race: the one retry comes 250 ms after a sent probe
++  //! (U10e) and the deregistration after it
++  static constexpr int QUIET_MS = 1500;
++
++  using NotifyBench::NotifyBench;
++
++  //! the taps of one clock, read before its edge
++  struct Clock {
++    unsigned st;                //!< arb_st_r
++    unsigned owner;             //!< owner_r, the selected lane
++    unsigned queue;             //!< the originator lane's depth
++    bool sent;                  //!< start_sent_r: the pool took the start
++    bool cancel;                //!< the registry monitor's cancellation
++    bool start;                 //!< the pool's serializer start
++  };
++  Clock sample() {
++    io.d->clk_i = 0;
++    io.d->eval();
++    return {unsigned(io.d->dbg_arb_st_o), unsigned(io.d->dbg_arb_owner_o),
++            unsigned(io.d->dbg_org_queue_o), io.d->dbg_arb_sent_o != 0,
++            io.d->dbg_ca_cancel_o != 0, io.d->dbg_ser_start_o != 0};
++  }
++  static bool is_probe(const std::vector<uint8_t>& f) {
++    return f.size() >= 38 && (f[15] & 0x0F) == 0 && f[36] == 0 && f[37] == 3;
++  }
++  static bool is_answer(const std::vector<uint8_t>& f, uint16_t seq) {
++    return f.size() >= 38 && (f[15] & 0x0F) == 1 && !unsolicited(f) && seq_of(f) == seq;
++  }
++
++  struct Race {
++    bool premise = false;       //!< a probe waited behind the held byte, let go on the bit
++    std::vector<Clock> clocks;  //!< every clock from the command's first byte
++    long c = -1;                //!< the cancellation's clock, an index into clocks
++    size_t from = 0;            //!< the log index the command was fed at
++    unsigned probes = 0;        //!< probes to the controller from `from` on
++    bool exact = true;          //!< ...each byte-exact
++    bool dereg = false;         //!< a deregistration followed
++    bool answers = false;       //!< both solicited answers left
++    bool idle = false;          //!< five free slots, the originator and its lane idle
++  };
++
++  //! hold `stall_seq`'s answer on its last byte until a probe waits in the
++  //! originator lane, feed `cancel_seq` from the probed controller, and let
++  //! the held byte go on the clock bit `bit` of the commit shift is set: bit 0
++  //! puts the cancellation on the clock the arbiter accepts the probe, bit 1
++  //! on the clock it selects it. Then watch the wire for QUIET_MS.
++  Race race(uint16_t stall_seq, uint16_t cancel_seq, int bit) {
++    Race r;
++    io.mac_tx_ready = false;
++    feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, stall_seq,
++                    AEM_GET_CONFIGURATION, {}, false));
++    bool stalled = false;
++    for (int i = 0; i < 1000 && !stalled; ++i) {
++      tick();
++      stalled = io.d->tx_valid_o != 0;
++    }
++    bool queued = false;
++    for (long i = 0; i < 66000L * MS_CYC && !queued; ++i) {
++      tick();
++      queued = io.d->dbg_org_queue_o != 0;
++    }
++    // every lane that waits behind the held answer ages past T-TX-AGING
++    // (10 ms) and then outranks a fresh one, so the probe waits that long
++    // too: aged against aged, its class is the arbiter's first
++    run_ms(AGED_MS);
++    io.stall_tx_at_eof = true;
++    io.mac_tx_ready = true;
++    for (int i = 0; i < 1000 && !io.tx_eof_stalled; ++i) tick();
++    const bool held = io.tx_eof_stalled && io.d->dbg_org_queue_o != 0;
++    io.release_eof_hit = false;
++    io.release_eof_on_commit = bit;
++    r.from = seen.size();
++    const auto f = aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, cancel_seq,
++                              AEM_GET_CONFIGURATION, {}, false);
++    for (size_t i = 0; i < f.size() + AFTER; ++i) {
++      const bool byte = i < f.size();
++      io.d->rx_valid_i = byte;
++      io.d->rx_data_i = byte ? f[i] : 0;
++      io.d->rx_last_i = byte && i + 1 == f.size();
++      r.clocks.push_back(sample());
++      tick();
++    }
++    io.release_eof_on_commit = -1;
++    io.stall_tx_at_eof = false;
++    io.tx_eof_stalled = false;
++    for (size_t i = 0; i < r.clocks.size() && r.c < 0; ++i)
++      if (r.clocks[i].cancel) r.c = long(i);
++    r.premise = stalled && queued && held && io.release_eof_hit && r.c >= 1
++                && r.c + 2 < long(r.clocks.size());
++    run_ms(QUIET_MS);
++    bool stall_rsp = false;
++    bool cancel_rsp = false;
++    for (const Seen& s : to_mac(CTLR_MAC, r.from)) {
++      if (is_probe(s.f)) {
++        ++r.probes;
++        r.exact = r.exact && s.f == aecp_frame(CTLR_MAC, OWN_MAC, 0, 0, CTLR_EID, EID,
++                                               uint16_t(seq_of(s.f)), 0x0003, {});
++      }
++      r.dereg = r.dereg || (unsolicited(s.f) && ct_of(s.f) == 0x0025);
++      stall_rsp = stall_rsp || is_answer(s.f, stall_seq);
++      cancel_rsp = cancel_rsp || is_answer(s.f, cancel_seq);
++    }
++    r.answers = stall_rsp && cancel_rsp;
++    r.idle = io.d->dbg_txs_free_o == 5 && io.d->dbg_org_busy_o == 0
++             && io.d->dbg_org_queue_o == 0;
++    printf("  [i] WD bit %d: stalled %d, probe queued %d, held %d, let go %d; the "
++           "cancellation at command clock %ld;", bit, int(stalled), int(queued),
++           int(held), int(io.release_eof_hit), r.c);
++    for (long i = r.c - 1; r.c >= 1 && i <= r.c + 2 && i < long(r.clocks.size()); ++i) {
++      const Clock& k = r.clocks[size_t(i)];
++      printf(" [%+ld st %u owner %u sent %d start %d queue %u]", i - r.c, k.st, k.owner,
++             int(k.sent), int(k.start), k.queue);
++    }
++    printf("; %u probe(s), deregistration %d, answers %d, idle %d\n", r.probes,
++           int(r.dereg), int(r.answers), int(r.idle));
++    return r;
++  }
++
++  void run() {
++    boot_to_idle(false);
++    const bool booted = io.boot_to_aecp();
++    const bool registered = booted && register_controller(CTLR_MAC, CTLR_EID, 0x7160);
++
++    const Race a = race(0x7161, 0x7162, 0);
++    const bool accept_clock = a.premise && registered
++        && a.clocks[size_t(a.c - 1)].st == A_IDLE && a.clocks[size_t(a.c)].st == A_START
++        && a.clocks[size_t(a.c)].owner == LANE_ORIG && !a.clocks[size_t(a.c)].sent;
++    CHECK(accept_clock && a.probes == 1 && a.exact && !a.dereg && a.answers && a.idle,
++          "WD1: a cancellation on the clock the arbiter accepts a queued probe no longer "
++          "stops it: it leaves once, byte-exact, and nothing follows (accept clock %d, "
++          "%u probe(s), exact %d, deregistration %d, answers %d, slots and originator "
++          "idle %d)", int(accept_clock), a.probes, int(a.exact), int(a.dereg),
++          int(a.answers), int(a.idle));
++
++    const Race b = race(0x7163, 0x7164, 1);
++    const bool select_clock = b.premise && registered
++        && b.clocks[size_t(b.c)].st == A_IDLE && b.clocks[size_t(b.c)].queue != 0;
++    const bool withdrawn = select_clock
++        && b.clocks[size_t(b.c + 1)].st == A_START
++        && b.clocks[size_t(b.c + 1)].owner == LANE_ORIG && !b.clocks[size_t(b.c + 1)].sent
++        && b.clocks[size_t(b.c + 2)].st == A_IDLE && !b.clocks[size_t(b.c)].start
++        && !b.clocks[size_t(b.c + 1)].start && !b.clocks[size_t(b.c + 2)].start;
++    CHECK(withdrawn,
++          "WD2: a cancellation on the clock the arbiter selects a queued probe withdraws "
++          "that selection one clock later, before the pool starts it (select clock %d)",
++          int(select_clock));
++    CHECK(select_clock && b.probes == 0 && !b.dereg && b.answers && b.idle,
++          "WD3: that probe never reaches the wire, both answers leave, and the slots, "
++          "the originator and its lane return idle (%u probe(s), deregistration %d, "
++          "answers %d, idle %d)", b.probes, int(b.dereg), int(b.answers), int(b.idle));
++  }
++};
++
+ [[maybe_unused]] static void run_rnd(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+@@ -1669,6 +1853,13 @@ struct RndPhase : NotifyBench {
+   printf("CS: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
++[[maybe_unused]] static void run_withdraw(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  WithdrawStagePhase{h}.run();
++  printf("WD: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++}
++
+ [[maybe_unused]] static void run_identify(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index 02a9d1a..974e27f 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -484,6 +484,15 @@ module pp_top_wrap (
+     output logic        dbg_ser_start_o,
+     output logic  [2:0] dbg_ser_slot_o,
+     output logic        dbg_txs_slot4_free_o,
++    //! section WD (issue #163): the receive validator's commit shift with its
++    //! input ({cp_r, end_pend_r && end_pass_r}: bit 0 two clocks before a
++    //! header is valid, bit 2 the clock it is) and the TX arbiter's state,
++    //! owner lane and started bit, so a command's cancellation can be put on
++    //! the clock the arbiter selects or accepts a queued probe
++    output logic  [2:0] dbg_rxv_commit_o,
++    output logic  [1:0] dbg_arb_st_o,
++    output logic  [2:0] dbg_arb_owner_o,
++    output logic        dbg_arb_sent_o,
+     //! section AQ (issue #639): the eight engine arm faces as the top's
+     //! timer arm-port mux receives them, in its drain order (listener,
+     //! talker, ADP, SRP, originator, MAAP, notify, notify monitor), each
+@@ -893,6 +902,12 @@ module pp_top_wrap (
+   assign dbg_ser_start_o     = u_dut.u_tx_slots.ser_start_w;
+   assign dbg_ser_slot_o      = 3'(u_dut.ser_slot_w);
+   assign dbg_txs_slot4_free_o = (u_dut.u_tx_slots.st_r[4] == 2'd0);
++  assign dbg_rxv_commit_o = {u_dut.u_rx_validator.cp_r,
++                             u_dut.u_rx_validator.end_pend_r
++                             && u_dut.u_rx_validator.end_pass_r};
++  assign dbg_arb_st_o     = u_dut.u_tx_arbiter.arb_st_r;
++  assign dbg_arb_owner_o  = u_dut.u_tx_arbiter.owner_r;
++  assign dbg_arb_sent_o   = u_dut.u_tx_arbiter.start_sent_r;
+   assign dbg_desc_line_bytes_o = 16'(u_dut.DESC_LINE_BYTES_P);
+   assign dbg_aq_vld_o = {u_dut.ntfy_mon_arm_valid_w, u_dut.ntfy_arm_valid_w,
+                          u_dut.maapeng_arm_valid_w, u_dut.org_arm_valid_w,
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 6cc2600..d2c8d13 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -833,6 +833,9 @@ struct H {
+   bool tx_eof_stalled = false;
+   bool release_eof_sync = false;
+   bool release_eof_hit = false;
++  // section WD: release a byte held at eof on the clock this bit of the
++  // receive validator's commit shift (dbg_rxv_commit_o) is set; -1 = never
++  int release_eof_on_commit = -1;
+   std::vector<uint8_t> cur;
+   std::deque<std::vector<uint8_t>> q_adp;
+   std::deque<std::vector<uint8_t>> q_acmp;
+@@ -1614,6 +1617,11 @@ struct H {
+       mac_tx_ready = true;
+       release_eof_hit = true;
+     }
++    if (release_eof_on_commit >= 0 && d->tx_valid_o && d->tx_eof_o
++        && ((d->dbg_rxv_commit_o >> release_eof_on_commit) & 1u)) {
++      mac_tx_ready = true;
++      release_eof_hit = true;
++    }
+     d->tx_ready_i = mac_tx_ready;
+     if (d->tx_valid_o && mac_tx_ready) {
+       if (d->tx_sof_o) { cur.clear(); in_frame = true; cur_sof_t = t; }
+@@ -2047,6 +2055,7 @@ struct H {
+     tx_eof_stalled = false;
+     release_eof_sync = false;
+     release_eof_hit = false;
++    release_eof_on_commit = -1;
+     d->tx_ready_i = 1;
+     d->aecp_txn_ready_i = 0;              // P4 uCPU seam: defined tie-off
+     d->aecp_rxs_free_i = 0;               // the external drain returns nothing
+@@ -14050,13 +14059,15 @@ int main(int argc, char** argv) {
+   const bool ctr_only = argc == 2 && std::strcmp(argv[1], "--counters-only") == 0;
+   const bool spacing_only = argc == 2 && std::strcmp(argv[1], "--spacing-only") == 0;
+   const bool aq_only = argc == 2 && std::strcmp(argv[1], "--arm-queue-only") == 0;
++  const bool withdraw_only = argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0;
+   if (argc == 2 && std::strcmp(argv[1], "--dr3a") == 0) {
+     run_dr3a(h);
+     return 0;
+   }
+   const bool one_section = gsi_only || name_only || d3_only || volatile_only || acmp_only || adp_only
+                            || cuts_only || one_seed || maap_only || aecp_only || dl_only || hz_only
+-                           || ident_only || notify_only || ctr_only || spacing_only || aq_only;
++                           || ident_only || notify_only || ctr_only || spacing_only || aq_only
++                           || withdraw_only;
+   if (maap_only) run_maap_internal(h);
+   if (!one_section || aq_only) Suite(h).run();
+   if (aecp_only) run_aecp_dispatch_focus(h);
+@@ -14076,6 +14087,7 @@ int main(int argc, char** argv) {
+   if (!one_section || notify_only) run_storm(h);
+   if (!one_section || notify_only) run_rnd(h);
+   if (!one_section || spacing_only) run_spacing(h);
++  if (!one_section || withdraw_only) run_withdraw(h);
+   if (!one_section || ctr_only) run_counters(h);
+   if (!one_section || aq_only) run_arm_queue(h);
+   const char* const build = "default";
+diff --git a/tb/tx_arbiter/README.md b/tb/tx_arbiter/README.md
+index de34a75..1e0141b 100644
+--- a/tb/tx_arbiter/README.md
++++ b/tb/tx_arbiter/README.md
+@@ -50,11 +50,20 @@ Mutation-proven, restored, and rerun green at the current 66-check shape:
+ |---|---|---|
+ | M1 | aging never promotes: selection key `{~aged_w[i], class}` → `{1'b1, class}` | fails 12 of 60 (aged-ADP and pacing sequences collapse; 102 model mismatches) |
+ | M2 | pacing dropped: eligibility mask condition `pace_nonsol_r && sol_pend_w` → `1'b0` | fails 6 of 60 (alternation becomes 1,4,3,..; 17 random-phase grant mismatches) |
+-| M3 | priority inverted: best-key compare `<` → `>` | fails 21 of 60 (strict-priority sequences reversed; 311 model mismatches) |
++| M3 | priority inverted: best-key compare `<` → `>` (since #163 the pairwise rank compares `<=` and `<` → `>=` and `>`) | fails 21 of 60 (strict-priority sequences reversed; 311 model mismatches) |
+ | M4 | frame atomicity broken: `eof_w = consume_w && ser_last_i` → `consume_w` (arbiter re-arbitrates after the first byte) | fails 27 of 60 (4 mid-frame grants, 55 byte errors, stalls, pool corruption) |
+ | M5 | pre-start abort ignored and serializer request left asserted | fails 3 of 66 (canceled grant, frame start, and slot lifecycle) |
+ 
+ All five are behavior-changing mutants (no equivalent mutants recorded).
++
++Issue #163 replaced the selection's best-so-far scan, whose compares chained
++through all requesters (17 logic levels on the reference part, ahead of
++`slot_r`), with a pairwise rank: the winner is the eligible requester no other
++eligible one outranks. The two are the same function: an equivalence proof of
++the old and the new module (sequential, every register matched, at the top's
++eight-lane parameters and at this suite's defaults) closes every point, and the
++five mutants re-planted 2026-10-06 at `main` `86a7b0c5` and at the #163 head fail
++the same checks at both: M1 13, M2 6, M3 23, M4 30 and M5 2 of 66.
+ M2 is exactly the class of defect the aged-flood pacing phase plants: with
+ strict priority alone it is invisible, because solicited classes natively
+ outrank the unsolicited ones — only an AGED non-solicited flood can take
