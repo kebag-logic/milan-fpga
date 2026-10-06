@@ -43,17 +43,21 @@ is an integration obligation, not a target-time result established here.
 
 The driver compiles the firmware for the host exactly as the target
 compiles it (`-std=c11 -Wall -Wextra -Werror -pedantic`), into a temporary
-directory, and runs these arms:
+directory, and runs these arms. Every arm but `rv32` is a GoogleTest binary
+graded by the tally it prints; the harness, its mocks, the port from the
+hand-rolled checks and the coverage ratchet are described in
+[the harness page](../gtest/README.md).
 
 | Arm | Source | What it shows |
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
-| `port` | `test_port_loop.c` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
-| `adp` | `test_adp.c` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
+| `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
+| `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the contract check field by field, the driver's refusals and bounds, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
+| `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
-| `entity` | `entity_probe.c` | every shipped config's ADPDU fields, against the fabric's own sources |
+| `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
-| `lwsrp` | `lwsrp_port.c` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+| `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 
 ### Reusing the processor's stimulus
 
@@ -75,16 +79,23 @@ tag the firmware did not issue.
 ### Planted defects
 
 `--self-test` writes each defect of `ctrl_mutants.py` into a copy of this
-tree and requires the arm it names to exit 1 with a `[FAIL]` naming the
-check. The arms: ADP clause defects caught by the walk (one per walked
+tree and requires the arm it names to exit 1 with a `[FAIL]` line naming the
+GoogleTest test and carrying the check's own words; a defect that breaks the
+build, or reddens only other tests, is an escape. The arms: ADP clause defects caught by the walk (one per walked
 Table 5.51 row but the foreign DISCOVER, which the fabric filter drops and
 `adp`'s A4 catches), adapter, latency, owed-output (an owed DEPARTING
 replaced, passed or dropped, an owed AVAILABLE dropped or kept wrongly, and
 the bound on owed DEPARTINGs included), events-first and available_index
 defects by `adp`, pool, sink, loop, tick-slice, tick-carry and driver
 defects (TX commit order included) by `port`, lane, model and model
-commit-order defects by `model`, a wrong ADPDU field source by `entity`, and
-a heap call by `rv32`. With `--lwsrp` it also requires the pin to refuse a
+commit-order defects by `model`, a wrong ADPDU field source by `entity`, a
+heap call by `rv32`, and a defect in each seam the `unit` arm mocks (the
+composition order, the contract fields, the driver's refusals, the
+adapter's bounds and the MMIO platform) by `unit`; each check written for
+branch coverage (P5 to P9, S3, L9, A22 to A24) has a defect of its own; P9's
+free list cut short, followed to its end, is caught by the crash report
+that names P9. With
+`--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
 another revision.
 
@@ -96,8 +107,11 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 ```
 
-Needs a host C and C++ compiler, PyYAML, and for `rv32` the pinned RV32 SDK
-(`scripts/ci_rv32_sdk.py`). lwSRP is referenced, never vendored, at the
+Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
+and `libgmock-dev`), PyYAML, and for `rv32` an RV32 compiler for
+`-mabi=ilp32` with its C headers (the CI-pinned SDK of
+`scripts/ci_rv32_sdk.py` is `ilp32d` and carries no `gnu/stubs-ilp32.h`, so
+`firmware-unit` runs this gate with the arm skipped). lwSRP is referenced, never vendored, at the
 revision `ctrl_arms.LWSRP_REV` records,
 `19f5796b63652eb1151906de73cb827d4980a53f`:
 

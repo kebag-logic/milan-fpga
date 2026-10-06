@@ -11,9 +11,14 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            passes through both bus adapters) run on the model, so the model
            the other arms rely on answers to the RTL's expectations;
   port     the lwSRP port layer (static pool, debug sink), the mailbox
-           driver and the event loop (test_port_loop.c);
+           driver and the event loop (test_port_loop.cpp);
   adp      the ADP core over fake ports, the adapter's tag race and every
-           response path's service-latency bound (test_adp.c);
+           response path's service-latency bound (test_adp.cpp);
+  unit     the firmware's own seams on GoogleMock: the mailbox window
+           (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
+           composition, the driver's contract and refusals, the adapter's
+           bounds (test_unit_seams.cpp, test_unit_driver.cpp), and the MMIO
+           platform over a host window (test_mmio.cpp);
   walk     the PROCESSOR's own ADP stimulus and expectations, cut out of the
            pinned submodule's tb/adp_engine/sim_main.cpp at build time (its
            entity constants, its model_frame builder and its Table 5.51
@@ -28,18 +33,26 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            for RV32I with the pinned SDK, every undefined symbol a C-library
            string or format function or a libgcc helper (no heap, no OS);
   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
-           the mailbox (lwsrp_port.c). lwSRP is referenced, never vendored:
+           the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
            with its src/ unmodified, or the arm refuses.
 
+Every arm but rv32 and entity's header generation is a GoogleTest binary
+(sw/firmware/gtest/README.md), graded by the tally it prints.
+
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
-firmware tree and requires the named check of the named arm to fail; with
---lwsrp it also requires the pin to refuse an edited and a moved clone.
+firmware tree and requires the named GoogleTest test of the named arm to
+fail on the check's own words; with --lwsrp it also requires the pin to
+refuse an edited and a moved clone.
+
+--coverage DIR builds the firmware with gcov's instrumentation into DIR and
+runs every arm that executes it (sw/firmware/gtest/fw_coverage.py reads DIR).
 
 Usage:
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
     python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+    python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --coverage <dir> [--lwsrp <lwSRP checkout>]
 
 Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
 2 = refused (the processor pin, a missing compiler, an extraction marker).
@@ -57,8 +70,26 @@ sys.path.insert(0, str(HERE))
 
 import ctrl_arms  # noqa: E402
 import ctrl_mutants  # noqa: E402
+import fw_gtest  # noqa: E402
 from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
+
+
+def coverage(out: Path, lwsrp: Path | None) -> int:
+    """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
+    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True))
+    try:
+        cut_reuse(tree.reuse)
+        outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
+        if lwsrp is not None:
+            outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
+    except Refusal as exc:
+        print(f"REFUSED: {exc}")
+        return 2
+    failed = ctrl_arms.report(outcomes)
+    print(f"test_ctrl_firmware coverage run: {'FAIL' if failed else 'PASS'}")
+    return 1 if failed else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -68,14 +99,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout: also run the lwSRP port arm")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
+    ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     args = ap.parse_args(argv)
+    if args.coverage is not None:
+        return coverage(args.coverage.resolve(), args.lwsrp)
+    print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
             tree = Tree(CTRL, out / "checkout", out / "reuse")
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
-                        ctrl_arms.arm_walk(tree),
+                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
