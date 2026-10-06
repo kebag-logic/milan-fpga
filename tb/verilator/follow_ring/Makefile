@@ -25,13 +25,17 @@
 # 12 - 3.
 
 VERILATOR ?= verilator
-VERILATOR_JOBS ?= 0
+VERILATOR_JOBS ?= 16
 RTL_DIR = ../../../hdl
+# traceability-text-input: milan_datapath.sv
 DP_SRC ?= $(RTL_DIR)/milan/milan_datapath.sv
 # mutants.py builds a planted COPY of the capture crossbar through this
 CMAP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv
 SHAPE  ?= ../../../configs/generated/endstation_ax7101_1x1_tdm8
 CLK_HZ ?= 6250000
+# Sub-sample holds resolve 1/64 sample; keep the servo tick exactly 1 ms.
+FRAME_DIV ?= 64
+AUDIO_TICK_CYC = $(shell expr $(FRAME_DIV) \* 48)
 MDIR   ?= obj_dir
 MUT_DEFS ?=
 SWEEP_JOBS ?= 4
@@ -50,15 +54,15 @@ SRCS = $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
 # --public-flat-rw: the harness reads the servo's window registers and the
 # loopback ring's pair pointers; it writes nothing through them.
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
-         --public-flat-rw -GCLK_HZ_P=$(CLK_HZ) +incdir+$(SHAPE) +incdir+$(MDIR) $(MUT_DEFS) \
+         --public-flat-rw -GCLK_HZ_P=$(CLK_HZ) -GFRAME_DIV_P=$(FRAME_DIV) -GTICK_CYC_P=$(AUDIO_TICK_CYC) +incdir+$(SHAPE) +incdir+$(MDIR) $(MUT_DEFS) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY \
          -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=$(CLK_HZ)"
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=$(CLK_HZ) -DFRAME_DIV_TB=$(FRAME_DIV)"
 
-.PHONY: all run build b8 pullin mutants sweep-b8 sweep-pullin clean
+.PHONY: all run build b8 pullin small-pullin mutants sweep-b8 sweep-pullin clean
 all: run mutants
-run: b8 pullin
+run: b8 pullin small-pullin
 
 build:
 	mkdir -p $(MDIR)
@@ -72,10 +76,17 @@ build:
 # graded; each hold runs past its settle recentre. pullin feeds at the phase
 # the 52 us hold's pull moves off the law.
 b8: build
-	./$(MDIR)/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
+	$(abspath $(MDIR))/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
 
 pullin: build
-	./$(MDIR)/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+	$(abspath $(MDIR))/Vfollow_ring --case pullin --latency-us 210.42 --after-s 1.5
+
+# The review's sub-arm pull is gradable on both sides of the law boundary
+# at 25 MHz. Audio edges resolve 1/64 sample, with the real 1 ms servo tick.
+small-pullin:
+	$(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
+	python3 small_pulls.py --exe $(abspath $(MDIR))_fine/Vfollow_ring \
+	  --out $(abspath $(MDIR))_fine/results --jobs $(SWEEP_JOBS)
 
 mutants:
 	python3 mutants.py --jobs $(SWEEP_JOBS)

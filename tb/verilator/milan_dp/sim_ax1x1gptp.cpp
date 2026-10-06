@@ -210,6 +210,7 @@ class Harness {
         unsigned seen = 0;
         unsigned duplicates = 0;
         unsigned skips = 0;
+        uint64_t last_wire_slot = 0;
     };
     std::array<OrderSlot, 6> order_capture{};
     std::deque<std::array<OrderSlot, 6>> order_frames;
@@ -226,7 +227,7 @@ class Harness {
     uint64_t recentre_complete = 0;
     bool order_control_planted = false;
     void recentre_edge();
-    void grade_recentre(const OrderSlot& slot);
+    void grade_recentre(const OrderSlot& slot, uint64_t wire_slot);
     bool payload_started = false;
     uint32_t last_sample = 0;
     bool seq_started = false;
@@ -683,7 +684,7 @@ void Harness::recentre_edge() {
         order_walk = {};
         if (recentre_slots_left) {
             const auto& event = recentres[recentre_active - 1];
-            order_walk = {event.step < 0 ? 0u : event.step > 0 ? 2u : 1u,
+            order_walk = {event.step < 0 ? 0u : static_cast<unsigned>(event.step + 1),
                           recentre_active};
             --recentre_slots_left;
         }
@@ -693,7 +694,7 @@ void Harness::recentre_edge() {
         if (recentre_armed) {
             recentre_armed = false;
             const unsigned fill = r->milan_datapath__DOT__chan_map_capture__DOT__q_cnt_r[0];
-            int step = fill < 5 ? -static_cast<int>(5 - fill) : fill > 5 ? 1 : 0;
+            int step = static_cast<int>(fill) - 5;
             if (test_control_ == TestControl::LargeStep && !order_control_planted && step < -1) {
                 // The real recentre is unchanged. Understate its declaration
                 // so its measured wire step must exceed the exact allowance.
@@ -737,21 +738,24 @@ void Harness::recentre_edge() {
     }
 }
 
-void Harness::grade_recentre(const OrderSlot& slot) {
+void Harness::grade_recentre(const OrderSlot& slot, uint64_t wire_slot) {
     if (!slot.recentre) return;
     auto& event = recentres.at(slot.recentre - 1);
     if (!event.output_pdu) event.output_pdu = tx_audio;
-    if (event.output_pdu != tx_audio) ++recentre_span_bad;
+    if (tx_audio > event.output_pdu + 1 ||
+        (event.seen && wire_slot != event.last_wire_slot + 1)) ++recentre_span_bad;
+    event.last_wire_slot = wire_slot;
     if (++event.seen != event.slots) return;
     ++recentre_complete;
     const auto* r = dut->rootp;
     const unsigned duplicates = r->milan_datapath__DOT__lb_dup_cnt_w;
     const unsigned skips = r->milan_datapath__DOT__lb_skip_cnt_w;
     if (duplicates != event.duplicates || skips != event.skips) ++recentre_slip_bad;
-    printf("RECENTRE output=%u input_pdu=%llu output_pdu=%llu step_events=%d "
+    printf("RECENTRE output=%u input_pdu=%llu output_pdu=%llu last_output_pdu=%llu step_events=%d "
            "dup=%u->%u skip=%u->%u\n", slot.recentre,
            static_cast<unsigned long long>(event.decision_pdu),
-           static_cast<unsigned long long>(event.output_pdu), event.step,
+           static_cast<unsigned long long>(event.output_pdu),
+           static_cast<unsigned long long>(tx_audio), event.step,
            event.duplicates, duplicates, event.skips, skips);
 }
 
@@ -800,7 +804,7 @@ void Harness::grade_audio(const std::vector<uint8_t>& f) {
                        static_cast<unsigned long long>(tx_audio), s, last_sample, index,
                        plan[s].delta, plan[s].recentre);
             }
-            grade_recentre(plan[s]);
+            grade_recentre(plan[s], 6 * tx_audio + s);
         }
         payload_started = true; last_sample = index;
         if (channels_ok) ++good_samples;
@@ -1091,7 +1095,7 @@ int Harness::report() {
     cumulative("all monitored AAF packet sequence errors", sequence_comparisons, sequence_bad);
     cumulative("every emitted audio PDU has its capture order plan", tx_audio, order_plan_bad);
     if (!recentres.empty()) {
-        check.dec("declared recentre occupies only its decision output PDU", recentre_span_bad, 0);
+        check.dec("declared recentre is consecutive within at most two output PDUs", recentre_span_bad, 0);
         check.dec("every declared recentre step reached the wire", recentre_complete, recentres.size());
         check.dec("declared recentres leave both loopback slip counters unchanged", recentre_slip_bad, 0);
     } else printf("NOT RUN: declared recentre checks (no decisions; uncounted)\n");

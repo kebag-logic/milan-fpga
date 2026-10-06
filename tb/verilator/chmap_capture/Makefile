@@ -6,6 +6,7 @@
 # slot absence + the map readback; lane B (N=8 all-8ch) exercises the widened
 # pair_slot up to slot 31.
 VERILATOR ?= verilator
+VERILATOR_JOBS ?= 16
 TOP = chmap_wrap
 # CMAP_SRC and MDIR are overridable so tb/verilator/capture_coherence's
 # mutation arm builds a MUTATED COPY of the crossbar through this exact recipe
@@ -18,7 +19,7 @@ SRCS = $(CMAP_SRC) \
        chmap_wrap.sv
 all: run
 $(MDIR)/V$(TOP): $(SRCS) sim_main.cpp
-	$(VERILATOR) --cc --exe --build -j 0 --top-module $(TOP) --Mdir $(MDIR) \
+	$(VERILATOR) --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) --Mdir $(MDIR) \
 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
 	  -Wno-PINCONNECTEMPTY -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
 	  $(SRCS) sim_main.cpp
@@ -48,21 +49,22 @@ run: $(MDIR)/V$(TOP)
 # dependency entirely rather than pinning a yosys build in CI.
 YOSYS ?= yosys
 SV2V  ?= sv2v
-NETLIST = obj_net/chmap_netlist.v
-LOWERED = obj_net/chmap_lowered.v
+NETDIR ?= obj_net
+NETLIST = $(NETDIR)/chmap_netlist.v
+LOWERED = $(NETDIR)/chmap_lowered.v
 $(NETLIST): ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv
-	mkdir -p obj_net
+	mkdir -p $(NETDIR)
 	$(SV2V) --top=KL_chan_map_capture $< > $(LOWERED)
 	$(YOSYS) -q -p "read_verilog $(LOWERED); hierarchy -top KL_chan_map_capture; \
 	  proc; opt; memory; opt -full; write_verilog -noattr $(NETLIST)"
-obj_net/Vchmap_netcheck: $(NETLIST) sim_netcheck.cpp
-	$(VERILATOR) --cc --exe --build -j 0 --top-module KL_chan_map_capture \
-	  --Mdir obj_net/obj_dir -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
+$(NETDIR)/Vchmap_netcheck: $(NETLIST) sim_netcheck.cpp
+	$(VERILATOR) --cc --exe --build -j $(VERILATOR_JOBS) --top-module KL_chan_map_capture \
+	  --Mdir $(NETDIR)/obj_dir -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
 	  -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-DECLFILENAME \
 	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
 	  $(NETLIST) sim_netcheck.cpp -o ../Vchmap_netcheck
-netcheck: obj_net/Vchmap_netcheck
-	./obj_net/Vchmap_netcheck
+netcheck: $(NETDIR)/Vchmap_netcheck
+	$(abspath $(NETDIR))/Vchmap_netcheck
 
 clean: ; rm -rf obj_dir obj_net
 .PHONY: all build run clean netcheck

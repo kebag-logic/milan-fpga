@@ -5,7 +5,7 @@
 
   mutants.py [--mdir DIR] [--jobs N]
 
-The #645 ruling's three planted controls, on the settle recentre that
+The #645 ruling's planted controls, on the settle recentre that
 milan_datapath ships (dp_glue.py copies it, so each is a planted COPY of
 milan_datapath.sv the build reads through DP_SRC, never an edit of a tracked
 file), the stage-1 W1 arm, and one on the loopback ring's own recentre (a
@@ -31,6 +31,12 @@ OVERSHOOT: the loopback ring's recentre aims one event past the depth (17
   a later PDU finds the queue full. Grading from the decision PDU's end
   catches the resulting drop without granting a post-decision grace period.
 
+NO-ARM: remove excursion arming under a running INTERNAL stream. The fine
+  hold (two samples plus 3/64 sample) crosses a gradable render-law boundary
+  while its peak error remains below the former four-band threshold.
+SINGLE-DROP: replace the full-side correction with one drop. The ten-event
+  pre-PDU fill must then fail the LRC wire expectation for five drops.
+
 Exit 0 = every mutant built and was killed by its named check.
 """
 
@@ -45,6 +51,7 @@ DATAPATH = HERE / "../../../hdl/milan/milan_datapath.sv"
 CAPTURE = HERE / "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv"
 
 B8 = ["--case", "b8", "--dwell-s", "1.0", "--set-phase", "0.0", "--hold-s", "16"]
+SMALL_PULLIN = ["--case", "pullin", "--hold-us", "42.64", "--latency-us", "204.4", "--after-s", "1.5"]
 PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
 
 #: (name, wrapper define or None, [(shipped text, planted text)] in the datapath,
@@ -52,6 +59,14 @@ PULLIN = ["--case", "pullin", "--latency-us", "210.42", "--after-s", "1.5"]
 Plant = list[tuple[str, str]]
 Mutant = tuple[str, str | None, Plant, Plant, list[str], str]
 MUTANTS: tuple[Mutant, ...] = (
+    ("NO-ARM", None,
+     [("                      (settle_exc_w && !settle_pend_r);\n",
+       "                      1'b0;\n")], [],
+     SMALL_PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
+    ("SINGLE-DROP", None, [],
+     [("? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;",
+       "? LB_DROPW_C'(1) : '0;")], [],
+     "LRC: ten left drops five excess events on both pairs"),
     ("NO-SETTLE", None,
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
      PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
@@ -88,7 +103,11 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     name, define, edits, cmap_edits, leg, check = mutant
     mdir = mdir_root / name.lower()
     mdir.mkdir(parents=True, exist_ok=True)
-    make = ["make", "-s", "--no-print-directory", "-C", str(HERE), "build", f"MDIR={mdir}"]
+    suite = HERE.parent / "chmap_capture" if name == "SINGLE-DROP" else HERE
+    make = ["make", "-j16", "-s", "--no-print-directory", "-C", str(suite), "build",
+            "VERILATOR_JOBS=16", f"MDIR={mdir}"]
+    if name == "NO-ARM":
+        make += ["CLK_HZ=25000000", "FRAME_DIV=64"]
     if define:
         make.append(f"MUT_DEFS=+define+{define}")
     for src, todo, var in ((DATAPATH, edits, "DP_SRC"), (CAPTURE, cmap_edits, "CMAP_SRC")):
@@ -101,7 +120,8 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     build = subprocess.run(make, capture_output=True, text=True, check=False)
     if build.returncode != 0:
         return name, False, f"did not build (rc {build.returncode})\n{build.stdout[-2000:]}{build.stderr[-2000:]}"
-    run = subprocess.run([str(mdir / "Vfollow_ring"), *leg], capture_output=True, text=True, check=False)
+    executable = "Vchmap_wrap" if name == "SINGLE-DROP" else "Vfollow_ring"
+    run = subprocess.run([str(mdir / executable), *leg], capture_output=True, text=True, check=False)
     killed = run.returncode != 0 and f"[FAIL] {check}" in run.stdout
     return name, killed, run.stdout
 
@@ -111,10 +131,12 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--mdir", type=Path, default=HERE / "obj_mut")
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--select", nargs="+", choices=[m[0] for m in MUTANTS])
     a = ap.parse_args()
     survivors = 0
+    selected = [m for m in MUTANTS if not a.select or m[0] in a.select]
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as pool:
-        futs = {pool.submit(run_one, a.mdir, m): m for m in MUTANTS}
+        futs = {pool.submit(run_one, a.mdir, m): m for m in selected}
         for fut in cf.as_completed(futs):
             name, killed, out = fut.result()
             check = futs[fut][5]
@@ -122,7 +144,7 @@ def main() -> int:
             if not killed:
                 print(out)
                 survivors += 1
-    print(f"follow_ring mutants: {len(MUTANTS) - survivors}/{len(MUTANTS)} caught")
+    print(f"follow_ring mutants: {len(selected) - survivors}/{len(selected)} caught")
     return 0 if survivors == 0 else 1
 
 

@@ -1089,11 +1089,21 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 |---|---|
 | Armed by | a change of the selected CLOCK_SOURCE index; the aligner's re-engagement; and, while none is pending, an aligner excursion past four settle bands (1/16 sample), which is how a pull-in under a running stream arms it |
 | Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre. A build with the servo pruned (`MCSERVO_P` = 0) never reads LOCKED, so there the ceiling fires it |
-| Fires at INTERNAL | once the aligner has rested inside its settle band, 1/64 sample, for 2,048 ticks running, or at once if it is not engaged (no pull to wait out). An excursion while the recentre is pending restarts that run |
+| Fires at INTERNAL | once the aligner has rested inside its settle band, 1/64 sample, for 2,048 ticks running, or has remained disengaged for the same 2,048 ticks (no pull to wait out). An excursion while the recentre is pending restarts that run |
 | Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
 | Reaches | the render stage, at its next PDU end (`render_recentre_p_w`), and the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`) |
-| Loopback target | 11 events at a class-A PDU end in a 16-entry ring: five events of the previous PDU still queued when the next one's first event lands, so that event pops 5 to 6 ticks after it lands. Decided as the stream's next PDU starts, on what its first pair has left: fewer than five holds the missing number of pops, one per walk; five does nothing; more than five drops every pair's oldest event once. All pairs act in the same walks, so they stay in lockstep |
+| Loopback target | 11 events at a class-A PDU end in a 16-entry ring: five events of the previous PDU still queued when the next one's first event lands, so that event pops 5 to 6 ticks after it lands. Decided as the stream's next PDU starts, on what its first pair has left: fewer than five holds the missing number of pops, one per walk; five does nothing; more than five drops exactly the excess above five from every pair before its next pop. All pairs act in the same walks, so they stay in lockstep |
 | Counted | the render stage counts it in `recentres_o`, as every recentre. On the loopback ring neither `SLIP_LB` counter moves: the recentre is the declared discontinuity, not a slip |
+
+**Open arm decision (#645 round 2).** The four-band arm still misses small
+INTERNAL pulls that cross a gradable render-law boundary. The standing
+`follow_ring` fine-hold regression exposes this unresolved defect. Lowering
+the constant alone can make the same pull's recovery overshoot arm a second
+recentre: the excursion comparator also restarts the 2,048-tick dwell.
+The [round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009543884)
+requires a STOP when no arm value meets both requirements. The existing arm
+is retained pending that decision; the render law and one-action requirement
+remain in force.
 
 Measured in `tb/verilator/follow_ring` at the bench's offsets, the settle
 recentre fires 10.75 s after a set from INTERNAL (LOCKED at 6.66 s), 7.04 s
@@ -1159,17 +1169,25 @@ it must not happen, and the follow_ring campaigns grade it at every phase.
 Startup lock and reset reacquisition also arm the settle recentre. Their
 recentres are declared discontinuities, under the
 [stage-2d ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410),
-with the same bound as a source-change recentre. At the decision PDU, the
-loopback ring holds at most five pops (five repeated sample events), or
-drops one oldest event. The decision uses the first pair's pre-PDU fill;
+with the same bound as a source-change recentre. The
+[round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009543884)
+and [span amendment](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6009767440)
+require a symmetric, exact action: the loopback ring holds at most five
+pops (five repeated sample events), or drops every excess event above five
+left before the PDU (up to eleven with depth sixteen). The decision uses the first pair's pre-PDU fill;
 every pair takes the same step, and neither `SLIP_LB` counter increments
 for that step. This bound describes the recentre itself, separately from
 the frequency-pull-in slips measured above.
 
-An ordering check must account for exactly the declared step at that
-decision PDU, recording its size in events and both slip counters. It must
-reject an extra repeat or gap elsewhere, and a step larger than the one
-declared. The zero-glitch run in #396 grades steady state outside these
+An ordering check accounts for the exact declared step in each output fed
+by that queue, recording its size in events and both slip counters. Its
+repeats or drops are consecutive source events and occupy at most two
+consecutive output PDUs: the PDU where the action starts and the next one.
+Independent talker enable histories give outputs different packet epochs.
+Every event outside the declared action remains strictly ordered, including
+other events in those PDUs. There is no grace interval. Nonconsecutive
+actions, a third affected PDU, any extra repeat or gap, and a step larger
+than declared must fail. The zero-glitch run in #396 grades steady state outside these
 declared startup, reset and source-change events; it does not turn a
 recentre into a steady-state slip allowance.
 
@@ -1468,7 +1486,7 @@ pass.
 | Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
 | Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The full leg runs one standing phase, +1,562; `tdm8render-pullin` runs all 18 `[LAW]` phases, one leg each | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
 | `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8's offsets: the peer 11.02 ppm slow of gPTP, the DUT's INTERNAL clock 5.1 ppm slow. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock. `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden) |
-| `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five or six events of the previous PDU left; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops the oldest, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves | (the module's own leg; the integration's planted controls are follow_ring's) |
+| `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves | (the module's own leg; the integration's planted controls are follow_ring's) |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
 **Why the switch row has three checks.** The round 3 evidence on PR #631

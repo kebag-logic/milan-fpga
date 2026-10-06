@@ -17,7 +17,10 @@ def run_case(binary: Path, switch: str) -> list[tuple[str, bool]]:
     output = result.stdout
     (binary.parent / f"{switch[2:]}.log").write_text(output)
     errors = re.findall(r"ORDER ERROR output_pdu=(\d+).*recentre=(\d+)", output)
-    declared = set(re.findall(r"RECENTRE output=\d+ input_pdu=\d+ output_pdu=(\d+)", output))
+    declared = set()
+    for first, last in re.findall(
+            r"RECENTRE output=\d+ input_pdu=\d+ output_pdu=(\d+) last_output_pdu=(\d+)", output):
+        declared.update(str(pdu) for pdu in range(int(first), int(last) + 1))
     failures = [line for line in output.splitlines() if "[FAIL]" in line]
     large = switch == "--large-step-control"
     position = bool(errors) and all((frame in declared) == large for frame, _ in errors)
@@ -49,10 +52,11 @@ def main() -> int:
     """Execute both independent controls with an explicit concurrency limit."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=2)
+    parser.add_argument("--exe", type=Path)
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be positive")
-    binary = (Path(__file__).resolve().parent.parent
+    binary = (args.exe.resolve() if args.exe else Path(__file__).resolve().parent.parent
               / "milan_dp/obj_ax1x1gptp/Vmilan_dp_ax1x1gptp")
     switches = ("--extra-repeat-control", "--large-step-control")
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:

@@ -17,7 +17,8 @@
 // THE CLOCKS (one femtosecond wheel; nothing is time-compressed):
 //   clk_i  CLK_HZ_TB (6.25 MHz): the axis clock. ptp_now_i is the wheel's
 //          own time in ns: the gPTP plane is ideal;
-//   audio  24.576 MHz / 32 at the DUT's INTERNAL offset, its edges moved by
+//   audio  48 kHz * FRAME_DIV_TB at the DUT's INTERNAL offset (64 by default,
+//          resolving a hold to 1/64 sample), its edges moved by
 //          the behavioral MMCM's fine phase steps (1 ns each, GAIN_NUM_P 1:
 //          one step per 1 ms tick per ppm, the servo's design plant gain);
 //   ps_clk 1 MHz, PSDONE 2 PSCLK cycles after PSEN (the servo waits for
@@ -65,6 +66,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <deque>
+#include <map>
 #include <random>
 #include <string>
 #include <vector>
@@ -73,7 +75,7 @@ namespace {
 
 constexpr double kClkHz = CLK_HZ_TB;
 constexpr double kHalfClk = 0.5e15 / kClkHz;
-constexpr double kAudioHz = 24.576e6 / 32.0;
+constexpr double kAudioHz = 48000.0 * FRAME_DIV_TB;
 constexpr double kHalfPs = 0.5e15 / 1e6;
 constexpr double kTickFs = 1e15 / 48000.0;        //! one nominal media tick
 constexpr double kPduNs = 125'000.0;              //! 6 samples at 48 kHz
@@ -284,6 +286,12 @@ class Bench {
         dut->frame_hold_i = 0;
     }
 
+    //! One sample on every media tick, retaining the signed error, not an
+    //! absolute peak or a millisecond subsample. Window selection is done by
+    //! the stimulus and the declared settle instant, never by the error.
+    struct GridSample { double time_s; int error_cyc; };
+    std::vector<GridSample> grid_samples;
+
     // what the run saw
     double first_locked_s = -1.0;
     std::vector<double> dup_times;                //! one per frame repeated (pair 0)
@@ -469,6 +477,9 @@ class Bench {
         watch_render();
         watch_servo();
         watch_grid();
+        auto* r = dut->rootp;
+        if (r->follow_ring_wrap__DOT__media_tick_p && r->follow_ring_wrap__DOT__mga_engaged_w)
+            grid_samples.push_back({now_s(), static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w)});
         if (dut->rootp->follow_ring_wrap__DOT__settle_recentre_p_r) settle_times.push_back(now_s());
     }
 
@@ -672,6 +683,32 @@ Law render_law(const Bench& b, double a, double e) {
     return w;
 }
 
+//! Signed steady-error distribution at media-tick resolution. Every selected
+//! sample is counted, including outliers; no error-based exclusion exists.
+void print_errors(const Bench& b, const char* name, double a, double e,
+                  milan::tb::Checker* steady = nullptr) {
+    std::map<int, uint64_t> hist;
+    uint64_t total = 0;
+    for (const auto& sample : b.grid_samples) {
+        if (sample.time_s >= a && sample.time_s < e) {
+            ++hist[sample.error_cyc];
+            ++total;
+        }
+    }
+    std::printf("ERROR-DISTRIBUTION: %s window %.9f %.9f samples %llu axis_hz %.0f histogram",
+                name, a, e, static_cast<unsigned long long>(total), kClkHz);
+    for (const auto& [error, count] : hist)
+        std::printf(" %d:%llu", error, static_cast<unsigned long long>(count));
+    std::printf("\n");
+    if (steady) {
+        char label[200];
+        std::snprintf(label, sizeof label, "[STEADY] %s has error samples", name);
+        steady->that(label, total > 0);
+        std::snprintf(label, sizeof label, "[STEADY] %s has no false settle pulse", name);
+        steady->dec(label, count_in(b.settle_times, a, e), 0);
+    }
+}
+
 void print_window(const Bench& b, const char* name, double a, double e) {
     const Range m = margin_range(b, a, e);
     const Law w = render_law(b, a, e);
@@ -809,10 +846,11 @@ void check_settle(milan::tb::Checker& ck, const char* tag, const Settle& s, cons
 //! own clock (the control) has no beat: the set is immediate.
 void wait_for_the_set(Bench& b, const Options& o, double beat_s) {
     if (std::fabs(o.dut_ppm - o.peer_ppm) <= 0.05) return;
-    const size_t slips0 = b.dup_times.size();
+    const auto& slips = o.dut_ppm > o.peer_ppm ? b.dup_times : b.skip_times;
+    const size_t slips0 = slips.size();
     const double guard = (b.now_s() + 2.0 * beat_s) * 1e15;
-    while (b.dup_times.size() == slips0 && b.now_s() * 1e15 < guard) b.run_for(1e-3);
-    if (b.dup_times.size() > slips0) b.run_until((b.dup_times.back() + o.set_phase * beat_s) * 1e15);
+    while (slips.size() == slips0 && b.now_s() * 1e15 < guard) b.run_for(1e-3);
+    if (slips.size() > slips0) b.run_until((slips.back() + o.set_phase * beat_s) * 1e15);
 }
 
 //! b8: every slip and recentre from the set on, against LOCKED
@@ -854,6 +892,7 @@ void run_switch(Bench& b, const Options& o, milan::tb::Checker& ck, uint16_t to,
                 tag, t_lock - t_sw, s.pre_slips + s.post_slips, before.hi, ahead.hi);
     print_window(b, tag, t_sw, b.now_s());
     print_settle(tag, s);
+    print_errors(b, tag, s.acted(), b.now_s(), &ck);
     std::printf("RESULT-645-SW: %s phase %.4f jitter %.1f us tail %.1f us p %.0e: LOCKED %.2f s, slips %d, "
                 "drift %+.3f ticks, settle %+.3f s after LOCKED, margin after %+.3f..%+.3f, render %s\n",
                 tag, o.set_phase, o.jitter_us, o.tail_us, o.tail_p, t_lock - t_sw, s.pre_slips + s.post_slips,
@@ -897,6 +936,8 @@ int run_b8(Bench& b, const Options& o, milan::tb::Checker& ck) {
     print_window(b, "LOCKED to the settle", t_lock, s.acted());
     print_window(b, "settle to the hold's end", s.acted(), t_end);
     print_settle("[B8]", s);
+    print_errors(b, "INTERNAL before switch", t_set - 0.5, t_set, &ck);
+    print_errors(b, "AAF after settle", s.acted(), t_end, &ck);
     const Range at_lock = margin_range(b, t_lock, t_lock + 0.5);
     std::printf("RESULT-645: phase %.4f jitter %.1f us tail %.1f us p %.0e: slips set-to-settle %d (declared "
                 "bound %d), after the settle %d, margin at LOCKED %+.3f..%+.3f, after the settle %+.3f..%+.3f "
@@ -937,6 +978,9 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     print_window(b, "the pull, first 0.2 s", t_hold, t_hold + 0.2);
     print_window(b, "after the settle", s.acted(), t_end);
     print_settle("[PULLIN]", s);
+    print_errors(b, "INTERNAL before hold", t_hold - 0.5, t_hold, &ck);
+    print_errors(b, "INTERNAL after hold", t_hold, t_end);
+    if (s.t_settle > 0.0) print_errors(b, "INTERNAL after settle", s.acted(), t_end, &ck);
     const uint32_t rc1 = b.render_recentres();
     const Law w0 = render_law(b, t_hold - 0.5, t_hold);
     const Law& w1 = s.law_after;
@@ -952,8 +996,13 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
                 w1.fill.hi, w0.clear, w1.clear, s.t_settle > 0.0 ? s.t_settle - t_hold : -1.0, rc1 - rc0,
                 s.pre_slips, s.post_slips, verdict);
     ck.that("[PULLIN] the stream was on the render law, or not gradable, before the hold",
-            w0.n > 0 && (!w0.gradable() || w0.on_law()));
-    check_settle(ck, "[PULLIN]", s, o, false);
+            law_holds(w0, o));
+    if (o.hold_us == 0.0) {
+        print_errors(b, "INTERNAL without a hold", t_hold, t_end, &ck);
+        ck.that("[STEADY] the running stream stays on its render law", law_holds(w1, o));
+    } else {
+        check_settle(ck, "[PULLIN]", s, o, false);
+    }
     return 0;
 }
 

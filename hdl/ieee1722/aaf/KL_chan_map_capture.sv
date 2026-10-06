@@ -240,8 +240,8 @@
                     pair has left decide for all its pairs alike: short
                     of five, and the walks that start next hold each pair's
                     pop, one walk per missing event; more than five, and
-                    the next walk drops each pair's oldest event before the
-                    pop, one event toward the target. Deciding at the start
+                    the next walk drops each pair's excess events before
+                    the pop, reaching the target. Deciding at the start
                     keeps a walk inside the PDU's own beats out of the count.
                     Held pops reach the target, or (a walk between the PDU's
                     first beat and its first event's landing) fall those few
@@ -514,6 +514,8 @@ module KL_chan_map_capture #(
   localparam int unsigned LB_LEFT_C    = LB_TARGET_C - 6;
   //! ...and the pops held to reach it from an empty queue, one per walk
   localparam int unsigned LB_HOLDW_C   = $clog2(LB_LEFT_C + 1);
+  //! The largest full-side correction, before the next PDU adds its events.
+  localparam int unsigned LB_DROPW_C   = $clog2(LB_QDEPTH_C - LB_LEFT_C + 1);
   //! the flat queue RAM's own index width - {pair,ptr} can be one bit
   //! wider than the array needs when LB_PAIRS_C is not a power of two,
   //! and the surplus high bit is always zero (pair < LB_PAIRS_C).
@@ -808,9 +810,9 @@ module KL_chan_map_capture #(
   logic [N_LB_STREAMS_P-1:0] rc_arm_r;           //! a recentre awaits the next PDU
   logic [N_LB_STREAMS_P-1:0] rc_dec_r;           //! decided, for the next walk
   logic [LB_HOLDW_C-1:0]     rc_hold_r [N_LB_STREAMS_P]; //! short of the target: pops to hold
-  logic [N_LB_STREAMS_P-1:0] rc_drop_r;          //! over it: drop the oldest event
+  logic [LB_DROPW_C-1:0] rc_drop_r [N_LB_STREAMS_P]; //! excess events to drop
   logic [LB_HOLDW_C-1:0]     act_hold_r [LB_PAIRS_C]; //! pops the pair still holds, one per walk
-  logic [LB_PAIRS_C-1:0]     act_drop_r;         //! this walk: drop one, then pop
+  logic [LB_DROPW_C-1:0] act_drop_r [N_LB_STREAMS_P]; //! this walk: same drop for every pair
 
   //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
   logic [47:0]       skid_data_r [LB_SKID_C];
@@ -883,15 +885,19 @@ module KL_chan_map_capture #(
   wire pop_hold_w = pop_visit_w && (act_hold_r[pop_pair_w] != '0);
   wire pop_act_w = pop_visit_w && q_primed_r[pop_pair_w]
                    && (pop_cnt_w != '0) && !pop_hold_w;
-  wire pop_drop_w = pop_act_w && act_drop_r[pop_pair_w]
-                    && (32'(pop_cnt_w) >= 2);
+  //! A short or malformed pair cannot underflow. Normal class-A arrivals
+  //! leave at least LB_LEFT_C events after the complete correction. These
+  //! pointer/count candidates are committed only under pop_act_w (count > 0).
+  wire [LB_QPTRW_C:0] pop_drop_n_w =
+      ((LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) < pop_cnt_w)
+          ? (LB_QPTRW_C+1)'(act_drop_r[32'(pop_pair_w) / LB_PPS_C]) : pop_cnt_w - 1'b1;
   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
                    && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
   //! the visit's read pointer, past a dropped event, and what it consumes
   wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w]
-                                   + LB_QPTRW_C'(pop_drop_w);
+                                   + LB_QPTRW_C'(pop_drop_n_w);
   wire [LB_QPTRW_C:0]   pop_n_w  = (LB_QPTRW_C+1)'(1)
-                                   + (LB_QPTRW_C+1)'(pop_drop_w);
+                                   + pop_drop_n_w;
   //! queue array addresses (read the pre-advance rd pointer)
   wire [LBPW_C+LB_QPTRW_C-1:0] pop_raddr_w  = {pop_pair_w, pop_rd_w};
   wire [LBPW_C+LB_QPTRW_C-1:0] push_waddr_w = {push_pair_w,
@@ -946,6 +952,8 @@ module KL_chan_map_capture #(
   //! ...short of it, one held pop per missing event
   wire [LB_HOLDW_C-1:0] rc_hold_n_w = rc_short_w
                           ? LB_HOLDW_C'(LB_LEFT_C - 32'(rc_left_w)) : '0;
+  wire [LB_DROPW_C-1:0] rc_drop_n_w = rc_over_w
+                          ? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;
   //! ...and its action, taken by every pair of the stream in the walks that
   //! start next, so no walk emits a frame half re-centred
   wire walk_start_w = (st_r == CM_IDLE_S) && tick_pend_r;
@@ -972,14 +980,16 @@ module KL_chan_map_capture #(
         lb_hold_r[pp]  <= 48'd0;
         act_hold_r[pp] <= '0;
       end
-      for (int s = 0; s < N_LB_STREAMS_P; s++) rc_hold_r[s] <= '0;
+      for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+        rc_hold_r[s] <= '0;
+        rc_drop_r[s] <= '0;
+        act_drop_r[s] <= '0;
+      end
       q_fed_r        <= '0;
       q_primed_r     <= '0;
       lb_sof_r       <= 1'b1;
       rc_arm_r       <= '0;
       rc_dec_r       <= '0;
-      rc_drop_r      <= '0;
-      act_drop_r     <= '0;
       skid_v_r       <= '0;
       skid_wp_r      <= 2'd0;
       skid_rp_r      <= 2'd0;
@@ -1049,23 +1059,22 @@ module KL_chan_map_capture #(
           rc_arm_r[s]  <= 1'b0;
           rc_dec_r[s]  <= 1'b1;
           rc_hold_r[s] <= rc_hold_n_w;
-          rc_drop_r[s] <= rc_over_w;
+          rc_drop_r[s] <= rc_drop_n_w;
         end else if (walk_start_w) begin
           rc_dec_r[s]  <= 1'b0;
         end
+        if (walk_start_w) act_drop_r[s] <= rc_dec_r[s] ? rc_drop_r[s] : '0;
         if (lb_recentre_i[s] && q_primed_r[s * LB_PPS_C]) rc_arm_r[s] <= 1'b1;
         if (lb_flush_i[s]) begin
           rc_arm_r[s] <= 1'b0;
           rc_dec_r[s] <= 1'b0;
+          act_drop_r[s] <= '0;
         end
       end
       if (walk_start_w) begin
         for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
           if (rc_dec_r[pp / int'(LB_PPS_C)]) begin
             act_hold_r[pp] <= rc_hold_r[pp / int'(LB_PPS_C)];
-            act_drop_r[pp] <= rc_drop_r[pp / int'(LB_PPS_C)];
-          end else begin
-            act_drop_r[pp] <= 1'b0;
           end
         end
       end
@@ -1088,7 +1097,6 @@ module KL_chan_map_capture #(
           q_fed_r[pp]   <= 1'b0;
           lb_hold_r[pp] <= 48'd0;
           act_hold_r[pp] <= '0;
-          act_drop_r[pp] <= 1'b0;
         end
       end
     end
