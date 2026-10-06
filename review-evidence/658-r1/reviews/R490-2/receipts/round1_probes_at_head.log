@@ -1,0 +1,61 @@
+P1-no-csr-hold: KILLED  tally=(162, 4)  CSR 0x900 writer not held while the boot writer is busy
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x2 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+P2-no-edit-wait: KILLED  tally=(162, 2)  edit face never waits for the boot writer
+    [FAIL] [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends got=0x0 exp=0x1
+    [FAIL] [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word got=0x1a03 exp=0x1203
+P3-no-final-sweep: KILLED  tally=(162, 6)  no sweep after the restore terminal
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0
+P4-clip-off-by-one: KILLED  tally=(162, 6)  input clip keeps stream channel == channel count
+    [FAIL] [DYNMAP] restored SPI 0: number_of_mappings    got=0x5 exp=0x4
+    [FAIL] [DYNMAP] restored SPI 0: records off the identity got=0x1 exp=0x0
+    [FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x1 exp=0x0
+    [FAIL] [DYNMAP] restored 4->8 SPI 0: number_of_mappings got=0x5 exp=0x4
+    [FAIL] [DYNMAP] restored 4->8 SPI 0: records off the identity got=0x1 exp=0x0
+    [FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x1 exp=0x0
+P5-no-closed-terminal: KILLED  tally=(162, 2)  boot window ignores the CLOSED terminal
+    [FAIL] [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0
+P6-window-ends-at-busy: KILLED  tally=(162, 5)  boot window ends when the restore starts, before formats apply
+    [FAIL] [DYNMAP] restored SPI 0: number_of_mappings    got=0x8 exp=0x4
+    [FAIL] [DYNMAP] restored SPI 0: records off the identity got=0x4 exp=0x0
+    [FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] restored 4->8 SPI 0: number_of_mappings got=0x8 exp=0x4
+    [FAIL] [DYNMAP] restored 4->8 SPI 0: records off the identity got=0x4 exp=0x0
+P7-writer-writes-image: KILLED  tally=(162, 2)  render RAM written from the unclipped image, not the store
+    [FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+P8-out-cluster-zero: KILLED  tally=(162, 13)  output cluster registers reset to 0 instead of k%8
+    [FAIL] [DYNMAP] power-on SPO 0: records off the identity got=0x7 exp=0x0
+    [FAIL] [DYNMAP] refused 8->4 SPO 0: records off the identity got=0x7 exp=0x0
+    [FAIL] [DYNMAP] 8->4 SPO 0: records off the identity  got=0x7 exp=0x0
+    [FAIL] [DYNMAP] 4->8 SPO 0: records off the identity  got=0x7 exp=0x0
+    [FAIL] [DYNMAP] restored SPO 0: records off the identity got=0x7 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0xc exp=0x0
+P9-no-drain: KILLED  tally=(162, 4)  busy drops the cycle the last boot write is still in flight
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0
+P10-writer-final-sweep-only: KILLED  tally=(162, 6)  crossbar RAMs written only in the final sweep, not in the window
+    [FAIL] [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map got=0x8 exp=0x0
+    [FAIL] [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map got=0x8 exp=0x0
+    [FAIL] [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map got=0x8 exp=0x0
+    [FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0
+P11-in-image-ignores-format: SURVIVED  tally=(162, 0)  input image not bounded by the declared default format
+P12-clip-forever: KILLED  tally=(162, 18)  store clip keeps running after the terminal (run-time re-add)
+    [FAIL] [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings got=0x8 exp=0x4
+    [FAIL] [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity got=0x4 exp=0x0
+    [FAIL] [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       got=0x7 exp=0x0
+    [FAIL] [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format got=0x0 exp=0x1
+    [FAIL] [DYNMAP] 8->4 SPI 0: number_of_mappings        got=0x8 exp=0x4
+    [FAIL] [DYNMAP] 8->4 SPI 0: records off the identity  got=0x4 exp=0x0

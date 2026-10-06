@@ -1,0 +1,11 @@
+Q5 KILLED (expected KILLED): the edit face waits only while the window is open, not in the sweep; rc 1; its tallies report 2 failure(s) across 162 checks; 2 [FAIL] lines; tally ['checks: 162   failures: 2']
+    [FAIL] [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends got=0x0 exp=0x1
+    [FAIL] [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word got=0x1a03 exp=0x1203
+Q6 KILLED (expected informative): the terminal does not rewind the cursor: the sweep starts mid-lap; rc 1; its tallies report 2 failure(s) across 162 checks; 2 [FAIL] lines; tally ['checks: 162   failures: 2']
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x2 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x2 exp=0x0
+Q7 KILLED (expected KILLED): the sweep after the terminal starts at key 5, skipping keys 0..4; rc 1; its tallies report 4 failure(s) across 162 checks; 4 [FAIL] lines; tally ['checks: 162   failures: 4']
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x5 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x5 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map got=0x1 exp=0x0

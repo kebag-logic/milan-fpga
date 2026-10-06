@@ -1,0 +1,8 @@
+Q1 SURVIVED (expected SURVIVED (equivalent on the shipping shape)): capture RAM site of the CSR hold removed alone; rc 0; no failure reported; 0 [FAIL] lines; tally ['checks: 162   failures: 0']
+Q2 SURVIVED (expected SURVIVED (equivalent on the shipping shape)): render RAM site of the CSR hold removed alone; rc 0; no failure reported; 0 [FAIL] lines; tally ['checks: 162   failures: 0']
+Q3 SURVIVED (expected SURVIVED (equivalent on the shipping shape)): both RAM sites of the CSR hold removed; rc 0; no failure reported; 0 [FAIL] lines; tally ['checks: 162   failures: 0']
+Q4 KILLED (expected KILLED): the store sites hold only while the window is open, not in the sweep; rc 1; its tallies report 4 failure(s) across 162 checks; 4 [FAIL] lines; tally ['checks: 162   failures: 4']
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x2 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
