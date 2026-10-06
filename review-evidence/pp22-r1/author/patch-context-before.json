@@ -1,0 +1,58 @@
+[
+  {
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "--",
+      "  logic                cancel_hit_w;",
+      "tb/**/*.patch",
+      "tb/**/*.py"
+    ],
+    "rc": 1,
+    "stdout": ""
+  },
+  {
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "--",
+      "  logic [IFL_AW_C-1:0] cancel_ix_w;",
+      "tb/**/*.patch",
+      "tb/**/*.py"
+    ],
+    "rc": 1,
+    "stdout": ""
+  },
+  {
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "--",
+      "  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;",
+      "tb/**/*.patch",
+      "tb/**/*.py"
+    ],
+    "rc": 1,
+    "stdout": ""
+  },
+  {
+    "command": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "--",
+      "  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;",
+      "tb/**/*.patch",
+      "tb/**/*.py"
+    ],
+    "rc": 1,
+    "stdout": ""
+  }
+]

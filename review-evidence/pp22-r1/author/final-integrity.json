@@ -1,0 +1,253 @@
+{
+  "base": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+  "head": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+  "parent_base": "28f9666feab2b2ba287643c63ed3a16b1e0bb863",
+  "processor_clean_including_ignored": true,
+  "declaration_only_diff": true,
+  "exports": [
+    {
+      "phase": "base",
+      "revision": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "tracked_blobs": 556,
+      "mismatches": []
+    },
+    {
+      "phase": "head",
+      "revision": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "tracked_blobs": 556,
+      "mismatches": []
+    }
+  ],
+  "processor_gates": [
+    {
+      "gate": "suites",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "byte-identical log",
+      "records": 37
+    },
+    {
+      "gate": "lint",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "byte-identical log",
+      "records": 41
+    },
+    {
+      "gate": "check",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "identical sorted records",
+      "records": 10
+    },
+    {
+      "gate": "matrix",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "byte-identical log",
+      "records": 1
+    },
+    {
+      "gate": "yosys",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "identical verdict records",
+      "records": 44
+    },
+    {
+      "gate": "stats",
+      "base_rc": 0,
+      "head_rc": 0,
+      "comparison": "three byte-identical complete statistics files",
+      "records": 3
+    }
+  ],
+  "suite_count": 33,
+  "suite_checks": 1021651,
+  "retained_build_tallies": [
+    {
+      "suite": "acmp_nvm",
+      "records": [
+        "372 0",
+        "16 0"
+      ],
+      "identical": true
+    },
+    {
+      "suite": "aecp_notify",
+      "records": [
+        "41 0",
+        "4 0"
+      ],
+      "identical": true
+    },
+    {
+      "suite": "nvm_port",
+      "records": [
+        "393 0",
+        "393 0",
+        "393 0",
+        "10 0",
+        "10 0",
+        "10 0",
+        "10 0"
+      ],
+      "identical": true
+    },
+    {
+      "suite": "pp_top",
+      "records": [
+        "9956 0",
+        "20 0",
+        "178 0",
+        "231 0",
+        "56 0",
+        "3 0"
+      ],
+      "identical": true
+    }
+  ],
+  "statistics": [
+    {
+      "module": "KL_pp_originator",
+      "bytes": 2045,
+      "sha256": "102354aa0632d5ca1fa83cf6c72f36cdb3f6a9a2524c5dc55114d5ff87b52298",
+      "identical": true
+    },
+    {
+      "module": "KL_pp_rx_validator",
+      "bytes": 2427,
+      "sha256": "b48ab8257a5d01221d8df24ec2138e12f0572f385ef4f657a0427af7554a2dda",
+      "identical": true
+    },
+    {
+      "module": "protocol_processor_top",
+      "bytes": 47371,
+      "sha256": "c19429cb06a6aa5f47e0f4b5fd53ac4d5bd390ba1f4d83b752ccbc14a35793e6",
+      "identical": true
+    }
+  ],
+  "analysis": {
+    "files": 46,
+    "base_3380": 2,
+    "base_8530": 2,
+    "head_3380": 0,
+    "head_8530": 0,
+    "all_head_rc_zero": true
+  },
+  "parent_consumers": [
+    {
+      "consumer": "01_cpp",
+      "rc": 0,
+      "seconds": 30.987
+    },
+    {
+      "consumer": "02_py",
+      "rc": 0,
+      "seconds": 92.463
+    },
+    {
+      "consumer": "03_sources",
+      "rc": 0,
+      "seconds": 36.498
+    },
+    {
+      "consumer": "04_pp_sources",
+      "rc": 0,
+      "seconds": 22.992
+    },
+    {
+      "consumer": "05_ports",
+      "rc": 0,
+      "seconds": 36.837
+    },
+    {
+      "consumer": "06_naming",
+      "rc": 0,
+      "seconds": 15.845
+    },
+    {
+      "consumer": "07_evidence",
+      "rc": 0,
+      "seconds": 84.575
+    },
+    {
+      "consumer": "08_docs",
+      "rc": 0,
+      "seconds": 19.507
+    },
+    {
+      "consumer": "09_xvlog",
+      "rc": 0,
+      "seconds": 313.787
+    },
+    {
+      "consumer": "10_builder",
+      "rc": 0,
+      "seconds": 1490.867
+    },
+    {
+      "consumer": "11_lint",
+      "rc": 0,
+      "seconds": 68.671
+    },
+    {
+      "consumer": "12_shadow",
+      "rc": 0,
+      "seconds": 427.774
+    },
+    {
+      "consumer": "13_nvm_lint",
+      "rc": 0,
+      "seconds": 47.838
+    },
+    {
+      "consumer": "14_nvm_quick",
+      "rc": 0,
+      "seconds": 184.971
+    },
+    {
+      "consumer": "15_datapath",
+      "rc": 0,
+      "seconds": 2216.178
+    },
+    {
+      "consumer": "16_render",
+      "rc": 0,
+      "seconds": 786.713
+    },
+    {
+      "consumer": "17_shell",
+      "rc": 0,
+      "seconds": 0.614
+    }
+  ],
+  "submodule_pins": [
+    {
+      "path": "protocol-processor",
+      "head_and_index": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "tracked_clean": true
+    },
+    {
+      "path": "gptp-processor",
+      "head_and_index": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "tracked_clean": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "head_and_index": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "tracked_clean": true
+    }
+  ],
+  "parent_only_prescribed_changes": true,
+  "memory_peak_bytes": 10100563968,
+  "memory_events": {
+    "low": 0,
+    "high": 0,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0,
+    "sock_throttled": 931
+  }
+}
