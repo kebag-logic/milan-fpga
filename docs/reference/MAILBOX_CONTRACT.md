@@ -5,7 +5,7 @@
 Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
 
 The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
-This page is contract version 1.0.
+This page is contract version 2.0.
 
 ## Byte order
 
@@ -42,6 +42,7 @@ Byte offsets from the window base.
 | `0x060` | `EVT_HEAD` | ro | Words the fabric has written into the event ring, modulo 2^16. |
 | `0x064` | `EVT_TAIL` | rw | Words the core has consumed from the event ring. Writing it releases the space. A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word: nothing posts until it is back in range. |
 | `0x070` | `BUS_ERR` | ro | Host accesses refused, saturating. A write with a partial byte strobe and a bad TMR_CMD are refused. |
+| `0x074` | `FILTER_MISMATCH` | ro | Untagged frames of a control EtherType that match no channel's tuple, saturating. A frame counts once, when it reaches byte 14 with an EtherType some tuple names and its destination MAC, EtherType and AVTP subtype together match no tuple of any channel; it also sets IRQ_STATUS.ERR. A frame that matches a tuple and fails its channel's identity term, a frame for a closed channel and a tagged frame never count, nor does a frame that ends before byte 14. |
 
 `ID` fields:
 
@@ -162,6 +163,12 @@ Byte offsets from the window base.
 |---|---|---|
 | `[15:0]` | `COUNT` | refusals |
 
+`FILTER_MISMATCH` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `COUNT` | frames |
+
 ### Interface registers
 
 Interface i's block starts at `0x040 + 0x10 * i`.
@@ -189,6 +196,27 @@ Interface i's block starts at `0x040 + 0x10 * i`.
 | Bits | Field | Meaning |
 |---|---|---|
 | `[7:0]` | `NUMBER` | gptp_domain_number |
+
+### Interface filter registers
+
+Interface i's filter block starts at `0x080 + 0x8 * i`.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `OWN_MAC_LO` | rw | This interface's own unicast MAC, low word. Reset 0; firmware writes it before it opens a channel. |
+| `0x004` | `OWN_MAC_HI` | rw | This interface's own unicast MAC, high 16 bits. |
+
+`OWN_MAC_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `MAC` | MAC[31:0], destination wire bytes 2 to 5 |
+
+`OWN_MAC_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `MAC` | MAC[47:32], destination wire bytes 0 and 1 |
 
 ### Channel registers
 
@@ -298,18 +326,37 @@ An RX or TX record is the header words, then ceil(LEN/4) payload words.
 
 ## Channels and the ingress filter
 
-A frame is classified by EtherType, and by AVTP subtype where the channel names one.
-It passes when its channel is open and one accept term holds.
+A frame is classified when its byte 14 arrives, by its full tuple.
+A channel's tuple holds when the destination MAC is the tuple's address,
+or, for an `own` tuple, `OWN_MAC` of the interface the frame arrived on;
+the EtherType is the tuple's; and the AVTP subtype is the tuple's where it names one.
+The frame passes when its channel is open and one accept term (the identity term) holds.
 It must also fit max_frame_bytes and the free ring space.
 Then the channel's token bucket must hold a token.
 
-| Channel | id | receive ring | transmit ring | Max frame | Match | Rate |
-|---|---:|---|---|---:|---|---|
-| `adp` | 0 | `0x1000`, 256 words | `0x1400`, 128 words | 128 | `0x22F0`, subtype `0xFA` | burst 8, one token per 10 ms |
-| `acmp` | 1 | `0x1800`, 256 words | `0x1C00`, 256 words | 128 | `0x22F0`, subtype `0xFC` | burst 16, one token per 5 ms |
-| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | `0x22F0`, subtype `0xFB` | burst 16, one token per 5 ms |
-| `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | `0x22F0`, subtype `0xFE` | burst 8, one token per 20 ms |
-| `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | `0x22EA` or `0x88F5` | burst 32, one token per 2 ms |
+Untagged frames only, by construction: a VLAN tag's TPID (`0x8100`, `0x88A8`, `0x88E7`) sits where the
+EtherType is read, and no tuple names one, so a tagged frame reaches no channel
+and no counter. An untagged frame whose EtherType some tuple names, matching no tuple,
+counts once in `FILTER_MISMATCH`. A frame failing its identity term is dropped uncounted.
+A frame that ends before byte 14 is classified into nothing and counted nowhere.
+
+| Channel | id | receive ring | transmit ring | Max frame | Rate |
+|---|---:|---|---|---:|---|
+| `adp` | 0 | `0x1000`, 256 words | `0x1400`, 128 words | 128 | burst 8, one token per 10 ms |
+| `acmp` | 1 | `0x1800`, 256 words | `0x1C00`, 256 words | 128 | burst 16, one token per 5 ms |
+| `aecp` | 2 | `0x2000`, 512 words | `0x2800`, 512 words | 1514 | burst 16, one token per 5 ms |
+| `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | burst 8, one token per 20 ms |
+| `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | burst 32, one token per 2 ms |
+
+| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | Why |
+|---|---:|---|---|---|---|---|
+| `adp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1) |
+| `acmp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFC` | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1; 8.2.1 sends every ACMPDU to it) |
+| `acmp` | 1 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFC` | this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission |
+| `aecp` | 0 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFB` | this interface's own unicast MAC (IEEE 1722.1-2021 9.2.2: commands and responses travel unicast) |
+| `maap` | 0 | absent | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | the MAAP multicast address (IEEE 1722-2016 Table B.10) |
+| `srp` | 0 | absent | `01:80:C2:00:00:0E` | `0x22EA` | not read | MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2) |
+| `srp` | 1 | absent | `01:80:C2:00:00:21` | `0x88F5` | not read | MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) |
 
 `adp` accepts a frame when one term holds (IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1):
 
@@ -325,11 +372,12 @@ Then the channel's token bucket must hold a token.
 | 0 | `eq_own` | 34 | any | `talker_entity_id` | a command or response addressed to this entity's talker |
 | 1 | `eq_own` | 42 | any | `listener_entity_id` | a command or response addressed to this entity's listener |
 
-`aecp` accepts a frame when one term holds (IEEE 1722.1-2021 9.2.2.7 (target_entity_id)):
+`aecp` accepts a frame when one term holds (IEEE 1722.1-2021 9.2.2.4 (Table 9-1), 9.2.2.7 and 9.2.2.8; Milan v1.2 5.4.5.3):
 
 | Term | Test | Wire byte | message_type | Field | Why |
 |---|---|---:|---|---|---|
-| 0 | `eq_own` | 18 | any | `target_entity_id` | a command addressed to this entity |
+| 0 | `eq_own` | 18 | 0, 2, 4, 6, 8, 10, 12, 14 | `target_entity_id` | a command addressed to this entity |
+| 1 | `eq_own` | 26 | 1, 3, 5, 7, 9, 11, 13, 15 | `controller_entity_id` | a response to a command this entity sent as a controller, such as CONTROLLER_AVAILABLE (Milan v1.2 5.4.5.3) |
 
 `maap` accepts a frame when one term holds (IEEE 1722-2016 B.2.5, B.2.6 and note b of Table B.7):
 
@@ -342,6 +390,12 @@ Then the channel's token bucket must hold a token.
 | Term | Test | Wire byte | message_type | Field | Why |
 |---|---|---:|---|---|---|
 | 0 | `any` | 0 | any | `MRPDU` | every MSRP and MVRP PDU; both are link-local to this port |
+
+| Destination | Value | Holds when |
+|---|---:|---|
+| `none` | 0 | never (an unused tuple) |
+| `mac` | 1 | the destination MAC is the tuple's address |
+| `own` | 2 | the destination MAC is OWN_MAC of the interface the frame arrived on |
 
 | Test | Value | Holds when |
 |---|---:|---|
@@ -358,7 +412,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 
 | Name | Value |
 |---|---:|
-| `MBX_VERSION_MAJOR` | `0x1` |
+| `MBX_VERSION_MAJOR` | `0x2` |
 | `MBX_VERSION_MINOR` | `0x0` |
 | `MBX_MAGIC` | `0x4d42` |
 | `MBX_WINDOW_BYTES` | `0x8000` |
@@ -369,10 +423,15 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_N_CH` | `0x5` |
 | `MBX_INDEX_BITS` | `0x10` |
 | `MBX_MAX_TERMS` | `0x2` |
+| `MBX_MAX_TUPLES` | `0x2` |
 | `MBX_TERM_FIELD_BYTES` | `0x8` |
+| `MBX_DST_BYTE` | `0x0` |
 | `MBX_ETHERTYPE_BYTE` | `0xc` |
 | `MBX_SUBTYPE_BYTE` | `0xe` |
 | `MBX_MSG_TYPE_BYTE` | `0xf` |
+| `MBX_DST_NONE` | `0x0` |
+| `MBX_DST_MAC` | `0x1` |
+| `MBX_DST_OWN` | `0x2` |
 | `MBX_TEST_NONE` | `0x0` |
 | `MBX_TEST_ANY` | `0x1` |
 | `MBX_TEST_EQ_OWN` | `0x2` |
@@ -456,6 +515,9 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_REG_BUS_ERR` | `0x70` |
 | `MBX_BUS_ERR_COUNT_LSB` | `0x0` |
 | `MBX_BUS_ERR_COUNT_WIDTH` | `0x10` |
+| `MBX_REG_FILTER_MISMATCH` | `0x74` |
+| `MBX_FILTER_MISMATCH_COUNT_LSB` | `0x0` |
+| `MBX_FILTER_MISMATCH_COUNT_WIDTH` | `0x10` |
 | `MBX_IF_BASE` | `0x40` |
 | `MBX_IF_STRIDE` | `0x10` |
 | `MBX_IF_REG_GM_LO` | `0x0` |
@@ -467,6 +529,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_IF_REG_DOMAIN` | `0x8` |
 | `MBX_DOMAIN_NUMBER_LSB` | `0x0` |
 | `MBX_DOMAIN_NUMBER_WIDTH` | `0x8` |
+| `MBX_IFF_BASE` | `0x80` |
+| `MBX_IFF_STRIDE` | `0x8` |
+| `MBX_IFF_REG_OWN_MAC_LO` | `0x0` |
+| `MBX_OWN_MAC_LO_MAC_LSB` | `0x0` |
+| `MBX_OWN_MAC_LO_MAC_WIDTH` | `0x20` |
+| `MBX_IFF_REG_OWN_MAC_HI` | `0x4` |
+| `MBX_OWN_MAC_HI_MAC_LSB` | `0x0` |
+| `MBX_OWN_MAC_HI_MAC_WIDTH` | `0x10` |
 | `MBX_CH_BASE` | `0x100` |
 | `MBX_CH_STRIDE` | `0x20` |
 | `MBX_CH_REG_RX_HEAD` | `0x0` |
@@ -556,12 +626,20 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ADP_TX_BASE` | `0x1400` |
 | `MBX_CH_ADP_TX_WORDS` | `0x80` |
 | `MBX_CH_ADP_MAX_FRAME_BYTES` | `0x80` |
-| `MBX_CH_ADP_ETHERTYPE0` | `0x22f0` |
-| `MBX_CH_ADP_ETHERTYPE1` | `0x22f0` |
-| `MBX_CH_ADP_HAS_SUBTYPE` | `0x1` |
-| `MBX_CH_ADP_SUBTYPE` | `0xfa` |
 | `MBX_CH_ADP_RATE_BURST` | `0x8` |
 | `MBX_CH_ADP_RATE_REFILL_MS` | `0xa` |
+| `MBX_CH_ADP_M0_DST` | `0x1` |
+| `MBX_CH_ADP_M0_DST_HI` | `0x91e0` |
+| `MBX_CH_ADP_M0_DST_LO` | `0xf0010000` |
+| `MBX_CH_ADP_M0_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_ADP_M0_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_ADP_M0_SUBTYPE` | `0xfa` |
+| `MBX_CH_ADP_M1_DST` | `0x0` |
+| `MBX_CH_ADP_M1_DST_HI` | `0x0` |
+| `MBX_CH_ADP_M1_DST_LO` | `0x0` |
+| `MBX_CH_ADP_M1_ETHERTYPE` | `0x0` |
+| `MBX_CH_ADP_M1_HAS_SUBTYPE` | `0x0` |
+| `MBX_CH_ADP_M1_SUBTYPE` | `0x0` |
 | `MBX_CH_ADP_T0_TEST` | `0x3` |
 | `MBX_CH_ADP_T0_OFFSET` | `0x12` |
 | `MBX_CH_ADP_T0_MSG_MASK` | `0x4` |
@@ -574,12 +652,20 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ACMP_TX_BASE` | `0x1c00` |
 | `MBX_CH_ACMP_TX_WORDS` | `0x100` |
 | `MBX_CH_ACMP_MAX_FRAME_BYTES` | `0x80` |
-| `MBX_CH_ACMP_ETHERTYPE0` | `0x22f0` |
-| `MBX_CH_ACMP_ETHERTYPE1` | `0x22f0` |
-| `MBX_CH_ACMP_HAS_SUBTYPE` | `0x1` |
-| `MBX_CH_ACMP_SUBTYPE` | `0xfc` |
 | `MBX_CH_ACMP_RATE_BURST` | `0x10` |
 | `MBX_CH_ACMP_RATE_REFILL_MS` | `0x5` |
+| `MBX_CH_ACMP_M0_DST` | `0x1` |
+| `MBX_CH_ACMP_M0_DST_HI` | `0x91e0` |
+| `MBX_CH_ACMP_M0_DST_LO` | `0xf0010000` |
+| `MBX_CH_ACMP_M0_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_ACMP_M0_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_ACMP_M0_SUBTYPE` | `0xfc` |
+| `MBX_CH_ACMP_M1_DST` | `0x2` |
+| `MBX_CH_ACMP_M1_DST_HI` | `0x0` |
+| `MBX_CH_ACMP_M1_DST_LO` | `0x0` |
+| `MBX_CH_ACMP_M1_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_ACMP_M1_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_ACMP_M1_SUBTYPE` | `0xfc` |
 | `MBX_CH_ACMP_T0_TEST` | `0x2` |
 | `MBX_CH_ACMP_T0_OFFSET` | `0x22` |
 | `MBX_CH_ACMP_T0_MSG_MASK` | `0xffff` |
@@ -592,30 +678,46 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_AECP_TX_BASE` | `0x2800` |
 | `MBX_CH_AECP_TX_WORDS` | `0x200` |
 | `MBX_CH_AECP_MAX_FRAME_BYTES` | `0x5ea` |
-| `MBX_CH_AECP_ETHERTYPE0` | `0x22f0` |
-| `MBX_CH_AECP_ETHERTYPE1` | `0x22f0` |
-| `MBX_CH_AECP_HAS_SUBTYPE` | `0x1` |
-| `MBX_CH_AECP_SUBTYPE` | `0xfb` |
 | `MBX_CH_AECP_RATE_BURST` | `0x10` |
 | `MBX_CH_AECP_RATE_REFILL_MS` | `0x5` |
+| `MBX_CH_AECP_M0_DST` | `0x2` |
+| `MBX_CH_AECP_M0_DST_HI` | `0x0` |
+| `MBX_CH_AECP_M0_DST_LO` | `0x0` |
+| `MBX_CH_AECP_M0_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_AECP_M0_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_AECP_M0_SUBTYPE` | `0xfb` |
+| `MBX_CH_AECP_M1_DST` | `0x0` |
+| `MBX_CH_AECP_M1_DST_HI` | `0x0` |
+| `MBX_CH_AECP_M1_DST_LO` | `0x0` |
+| `MBX_CH_AECP_M1_ETHERTYPE` | `0x0` |
+| `MBX_CH_AECP_M1_HAS_SUBTYPE` | `0x0` |
+| `MBX_CH_AECP_M1_SUBTYPE` | `0x0` |
 | `MBX_CH_AECP_T0_TEST` | `0x2` |
 | `MBX_CH_AECP_T0_OFFSET` | `0x12` |
-| `MBX_CH_AECP_T0_MSG_MASK` | `0xffff` |
-| `MBX_CH_AECP_T1_TEST` | `0x0` |
-| `MBX_CH_AECP_T1_OFFSET` | `0x0` |
-| `MBX_CH_AECP_T1_MSG_MASK` | `0x0` |
+| `MBX_CH_AECP_T0_MSG_MASK` | `0x5555` |
+| `MBX_CH_AECP_T1_TEST` | `0x2` |
+| `MBX_CH_AECP_T1_OFFSET` | `0x1a` |
+| `MBX_CH_AECP_T1_MSG_MASK` | `0xaaaa` |
 | `MBX_CH_MAAP` | `0x3` |
 | `MBX_CH_MAAP_RX_BASE` | `0x3000` |
 | `MBX_CH_MAAP_RX_WORDS` | `0x80` |
 | `MBX_CH_MAAP_TX_BASE` | `0x3200` |
 | `MBX_CH_MAAP_TX_WORDS` | `0x80` |
 | `MBX_CH_MAAP_MAX_FRAME_BYTES` | `0x40` |
-| `MBX_CH_MAAP_ETHERTYPE0` | `0x22f0` |
-| `MBX_CH_MAAP_ETHERTYPE1` | `0x22f0` |
-| `MBX_CH_MAAP_HAS_SUBTYPE` | `0x1` |
-| `MBX_CH_MAAP_SUBTYPE` | `0xfe` |
 | `MBX_CH_MAAP_RATE_BURST` | `0x8` |
 | `MBX_CH_MAAP_RATE_REFILL_MS` | `0x14` |
+| `MBX_CH_MAAP_M0_DST` | `0x1` |
+| `MBX_CH_MAAP_M0_DST_HI` | `0x91e0` |
+| `MBX_CH_MAAP_M0_DST_LO` | `0xf000ff00` |
+| `MBX_CH_MAAP_M0_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_MAAP_M0_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_MAAP_M0_SUBTYPE` | `0xfe` |
+| `MBX_CH_MAAP_M1_DST` | `0x0` |
+| `MBX_CH_MAAP_M1_DST_HI` | `0x0` |
+| `MBX_CH_MAAP_M1_DST_LO` | `0x0` |
+| `MBX_CH_MAAP_M1_ETHERTYPE` | `0x0` |
+| `MBX_CH_MAAP_M1_HAS_SUBTYPE` | `0x0` |
+| `MBX_CH_MAAP_M1_SUBTYPE` | `0x0` |
 | `MBX_CH_MAAP_T0_TEST` | `0x4` |
 | `MBX_CH_MAAP_T0_OFFSET` | `0x1a` |
 | `MBX_CH_MAAP_T0_MSG_MASK` | `0xe` |
@@ -628,12 +730,20 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_SRP_TX_BASE` | `0x5000` |
 | `MBX_CH_SRP_TX_WORDS` | `0x200` |
 | `MBX_CH_SRP_MAX_FRAME_BYTES` | `0x5ea` |
-| `MBX_CH_SRP_ETHERTYPE0` | `0x22ea` |
-| `MBX_CH_SRP_ETHERTYPE1` | `0x88f5` |
-| `MBX_CH_SRP_HAS_SUBTYPE` | `0x0` |
-| `MBX_CH_SRP_SUBTYPE` | `0x0` |
 | `MBX_CH_SRP_RATE_BURST` | `0x20` |
 | `MBX_CH_SRP_RATE_REFILL_MS` | `0x2` |
+| `MBX_CH_SRP_M0_DST` | `0x1` |
+| `MBX_CH_SRP_M0_DST_HI` | `0x180` |
+| `MBX_CH_SRP_M0_DST_LO` | `0xc200000e` |
+| `MBX_CH_SRP_M0_ETHERTYPE` | `0x22ea` |
+| `MBX_CH_SRP_M0_HAS_SUBTYPE` | `0x0` |
+| `MBX_CH_SRP_M0_SUBTYPE` | `0x0` |
+| `MBX_CH_SRP_M1_DST` | `0x1` |
+| `MBX_CH_SRP_M1_DST_HI` | `0x180` |
+| `MBX_CH_SRP_M1_DST_LO` | `0xc2000021` |
+| `MBX_CH_SRP_M1_ETHERTYPE` | `0x88f5` |
+| `MBX_CH_SRP_M1_HAS_SUBTYPE` | `0x0` |
+| `MBX_CH_SRP_M1_SUBTYPE` | `0x0` |
 | `MBX_CH_SRP_T0_TEST` | `0x1` |
 | `MBX_CH_SRP_T0_OFFSET` | `0x0` |
 | `MBX_CH_SRP_T0_MSG_MASK` | `0xffff` |

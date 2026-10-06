@@ -21,13 +21,21 @@ CHANNEL_TABLES = (
     ("CH_RX_BASE_TBL", "RX_BASE"), ("CH_RX_WORDS_TBL", "RX_WORDS"),
     ("CH_TX_BASE_TBL", "TX_BASE"), ("CH_TX_WORDS_TBL", "TX_WORDS"),
     ("CH_MAX_FRAME_BYTES_TBL", "MAX_FRAME_BYTES"),
-    ("CH_ETHERTYPE0_TBL", "ETHERTYPE0"), ("CH_ETHERTYPE1_TBL", "ETHERTYPE1"),
-    ("CH_HAS_SUBTYPE_TBL", "HAS_SUBTYPE"), ("CH_SUBTYPE_TBL", "SUBTYPE"),
     ("CH_RATE_BURST_TBL", "RATE_BURST"), ("CH_RATE_REFILL_MS_TBL", "RATE_REFILL_MS"),
 )
 
+#: Flattened match-tuple tables, indexed channel * MAX_TUPLES + tuple.
+TUPLE_TABLES = (("TUPLE_DST_TBL", "DST"), ("TUPLE_DST_HI_TBL", "DST_HI"), ("TUPLE_DST_LO_TBL", "DST_LO"),
+                ("TUPLE_ETHERTYPE_TBL", "ETHERTYPE"), ("TUPLE_HAS_SUBTYPE_TBL", "HAS_SUBTYPE"),
+                ("TUPLE_SUBTYPE_TBL", "SUBTYPE"))
+
 #: Flattened accept-term tables, indexed channel * MAX_TERMS + term.
 TERM_TABLES = (("TERM_TEST_TBL", "TEST"), ("TERM_OFFSET_TBL", "OFFSET"), ("TERM_MASK_TBL", "MSG_MASK"))
+
+#: Each table family's SystemVerilog size and index, by its name's prefix.
+TABLE_SHAPES = {"CH_": ("MBX_N_CH_C", "channel id"),
+                "TUPLE_": ("MBX_N_CH_C * MBX_MAX_TUPLES_C", "channel id * MAX_TUPLES + tuple"),
+                "TERM_": ("MBX_N_CH_C * MBX_MAX_TERMS_C", "channel id * MAX_TERMS + term")}
 
 
 def derived(contract: Contract) -> list[Constant]:
@@ -60,6 +68,9 @@ def _tables(contract: Contract) -> list[tuple[str, list[str]]]:
     out: list[tuple[str, list[str]]] = []
     for table, suffix in CHANNEL_TABLES:
         out.append((table, [f"CH_{ch.name.upper()}_{suffix}" for ch in contract.channels]))
+    for table, suffix in TUPLE_TABLES:
+        out.append((table, [f"CH_{ch.name.upper()}_M{k}_{suffix}"
+                            for ch in contract.channels for k in range(contract.max_tuples)]))
     for table, suffix in TERM_TABLES:
         out.append((table, [f"CH_{ch.name.upper()}_T{k}_{suffix}"
                             for ch in contract.channels for k in range(contract.max_terms)]))
@@ -97,9 +108,9 @@ def emit_sv_package(contract: Contract) -> str:
         lines.append(f"  localparam int unsigned MBX_{c.name}_C = {_num(c, sv=True)};")
     lines.append("")
     for table, members in _tables(contract):
-        size = "MBX_N_CH_C" if table.startswith("CH_") else "MBX_N_CH_C * MBX_MAX_TERMS_C"
+        size, index = next(shape for prefix, shape in TABLE_SHAPES.items() if table.startswith(prefix))
         body = ", ".join(f"MBX_{m}_C" for m in members)
-        lines.append(f"  //! by {'channel id' if table.startswith('CH_') else 'channel id * MAX_TERMS + term'}")
+        lines.append(f"  //! by {index}")
         lines.append(f"  localparam int unsigned MBX_{table}_C [{size}] = '{{{body}}};")
     lines += [
         "",
@@ -176,18 +187,33 @@ def _word_rows(words: tuple[Word, ...], label: str) -> list[str]:
     return rows
 
 
-def _channel_rows(contract: Contract) -> list[str]:
-    """The channel table and one rule table per channel."""
-    out = ["| Channel | id | receive ring | transmit ring | Max frame | Match | Rate |",
-           "|---|---:|---|---|---:|---|---|"]
+def _mac(value: int) -> str:
+    """A 48-bit MAC in the colon form the clauses write."""
+    return ":".join(f"{(value >> (8 * (5 - k))) & 0xFF:02X}" for k in range(6))
+
+
+def _tuple_rows(contract: Contract) -> list[str]:
+    """One row per match tuple: the full tuple a channel classifies on."""
+    out = ["| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | Why |",
+           "|---|---:|---|---|---|---|---|"]
     for ch in contract.channels:
-        match = " or ".join(f"`0x{e:04X}`" for e in ch.ethertypes)
-        if ch.subtype is not None:
-            match += f", subtype `0x{ch.subtype:02X}`"
+        for k, m in enumerate(ch.tuples):
+            dst = f"`{_mac(m.mac)}`" if m.dst == "mac" else "own MAC of the arrival interface (`OWN_MAC`)"
+            sub = "not read" if m.subtype is None else f"`0x{m.subtype:02X}`"
+            out.append(f"| `{ch.name}` | {k} | absent | {dst} | `0x{m.ethertype:04X}` | {sub} | {m.doc} |")
+    return out + [""]
+
+
+def _channel_rows(contract: Contract) -> list[str]:
+    """The channel table, the tuple table and one rule table per channel."""
+    out = ["| Channel | id | receive ring | transmit ring | Max frame | Rate |",
+           "|---|---:|---|---|---:|---|"]
+    for ch in contract.channels:
         out.append(f"| `{ch.name}` | {ch.ident} | `0x{ch.rx_base:04X}`, {ch.rx_words} words "
-                   f"| `0x{ch.tx_base:04X}`, {ch.tx_words} words | {ch.max_frame_bytes} | {match} "
+                   f"| `0x{ch.tx_base:04X}`, {ch.tx_words} words | {ch.max_frame_bytes} "
                    f"| burst {ch.burst}, one token per {ch.refill_ms} ms |")
     out.append("")
+    out += _tuple_rows(contract)
     for ch in contract.channels:
         out += [f"`{ch.name}` accepts a frame when one term holds ({ch.cite}):", "",
                 "| Term | Test | Wire byte | message_type | Field | Why |", "|---|---|---:|---|---|---|"]
@@ -233,6 +259,9 @@ def emit_doc(contract: Contract) -> str:
         "Interface registers", contract.if_registers,
         f"Interface i's block starts at `0x{contract.if_base:03X} + 0x{contract.if_stride:X} * i`.")
     lines += _register_section(
+        "Interface filter registers", contract.iff_registers,
+        f"Interface i's filter block starts at `0x{contract.iff_base:03X} + 0x{contract.iff_stride:X} * i`.")
+    lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")
     lines += ["## Records", "", contract.rx_doc, "", contract.tx_doc, "", contract.ev_doc, "",
@@ -245,13 +274,25 @@ def emit_doc(contract: Contract) -> str:
     lines += ["", "An RX or TX record is the header words, then ceil(LEN/4) payload words.", "",
               "| Event | TYPE | Meaning |", "|---|---:|---|"]
     lines += [f"| `{e.name}` | {e.value} | {e.doc} |" for e in contract.event_types]
+    tpids = ", ".join(f"`0x{t:04X}`" for t in contract.tpids)
     lines += ["", "## Channels and the ingress filter", "",
-              "A frame is classified by EtherType, and by AVTP subtype where the channel names one.",
-              "It passes when its channel is open and one accept term holds.",
+              f"A frame is classified when its byte {contract.subtype_byte} arrives, by its full tuple.",
+              "A channel's tuple holds when the destination MAC is the tuple's address,",
+              "or, for an `own` tuple, `OWN_MAC` of the interface the frame arrived on;",
+              "the EtherType is the tuple's; and the AVTP subtype is the tuple's where it names one.",
+              "The frame passes when its channel is open and one accept term (the identity term) holds.",
               "It must also fit max_frame_bytes and the free ring space.",
-              "Then the channel's token bucket must hold a token.", ""]
+              "Then the channel's token bucket must hold a token.", "",
+              f"Untagged frames only, by construction: a VLAN tag's TPID ({tpids}) sits where the",
+              "EtherType is read, and no tuple names one, so a tagged frame reaches no channel",
+              "and no counter. An untagged frame whose EtherType some tuple names, matching no tuple,",
+              "counts once in `FILTER_MISMATCH`. A frame failing its identity term is dropped uncounted.",
+              f"A frame that ends before byte {contract.subtype_byte} is classified into nothing and counted nowhere.",
+              ""]
     lines += _channel_rows(contract)
-    lines += ["| Test | Value | Holds when |", "|---|---:|---|"]
+    lines += ["| Destination | Value | Holds when |", "|---|---:|---|"]
+    lines += [f"| `{name}` | {value} | {doc} |" for name, value, doc in contract.dsts]
+    lines += ["", "| Test | Value | Holds when |", "|---|---:|---|"]
     lines += [f"| `{name}` | {value} | {doc} |" for name, value, doc in contract.tests]
     lines += ["", "## Constants", "",
               "Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.",

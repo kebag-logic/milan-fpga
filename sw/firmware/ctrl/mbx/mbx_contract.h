@@ -14,7 +14,7 @@
 #define MBX_CONTRACT_H
 
 /* contract major version */
-#define MBX_VERSION_MAJOR 1u
+#define MBX_VERSION_MAJOR 2u
 /* contract minor version */
 #define MBX_VERSION_MINOR 0u
 /* ID.MAGIC */
@@ -35,14 +35,24 @@
 #define MBX_INDEX_BITS 16u
 /* accept terms per channel */
 #define MBX_MAX_TERMS 2u
+/* match tuples per channel */
+#define MBX_MAX_TUPLES 2u
 /* bytes a filter term reads */
 #define MBX_TERM_FIELD_BYTES 8u
+/* wire byte of the destination MAC's first octet */
+#define MBX_DST_BYTE 0u
 /* wire byte of the EtherType */
 #define MBX_ETHERTYPE_BYTE 12u
 /* wire byte of the AVTP subtype */
 #define MBX_SUBTYPE_BYTE 14u
 /* wire byte whose low nibble is message_type */
 #define MBX_MSG_TYPE_BYTE 15u
+/* never (an unused tuple) */
+#define MBX_DST_NONE 0u
+/* the destination MAC is the tuple's address */
+#define MBX_DST_MAC 1u
+/* the destination MAC is OWN_MAC of the interface the frame arrived on */
+#define MBX_DST_OWN 2u
 /* never (an unused term) */
 #define MBX_TEST_NONE 0u
 /* always */
@@ -209,6 +219,12 @@
 #define MBX_BUS_ERR_COUNT_LSB 0u
 /* BUS_ERR: refusals */
 #define MBX_BUS_ERR_COUNT_WIDTH 16u
+/* Untagged frames of a control EtherType that match no channel's tuple, saturating. A frame counts once, when it reaches byte 14 with an EtherType some tuple names and its destination MAC, EtherType and AVTP subtype together match no tuple of any channel; it also sets IRQ_STATUS.ERR. A frame that matches a tuple and fails its channel's identity term, a frame for a closed channel and a tagged frame never count, nor does a frame that ends before byte 14. */
+#define MBX_REG_FILTER_MISMATCH 0x74u
+/* FILTER_MISMATCH: frames */
+#define MBX_FILTER_MISMATCH_COUNT_LSB 0u
+/* FILTER_MISMATCH: frames */
+#define MBX_FILTER_MISMATCH_COUNT_WIDTH 16u
 /* first interface register block */
 #define MBX_IF_BASE 0x40u
 /* bytes per interface block */
@@ -231,6 +247,22 @@
 #define MBX_DOMAIN_NUMBER_LSB 0u
 /* DOMAIN: gptp_domain_number */
 #define MBX_DOMAIN_NUMBER_WIDTH 8u
+/* first interface filter register block */
+#define MBX_IFF_BASE 0x80u
+/* bytes per interface filter block */
+#define MBX_IFF_STRIDE 0x8u
+/* This interface's own unicast MAC, low word. Reset 0; firmware writes it before it opens a channel. */
+#define MBX_IFF_REG_OWN_MAC_LO 0x0u
+/* OWN_MAC_LO: MAC[31:0], destination wire bytes 2 to 5 */
+#define MBX_OWN_MAC_LO_MAC_LSB 0u
+/* OWN_MAC_LO: MAC[31:0], destination wire bytes 2 to 5 */
+#define MBX_OWN_MAC_LO_MAC_WIDTH 32u
+/* This interface's own unicast MAC, high 16 bits. */
+#define MBX_IFF_REG_OWN_MAC_HI 0x4u
+/* OWN_MAC_HI: MAC[47:32], destination wire bytes 0 and 1 */
+#define MBX_OWN_MAC_HI_MAC_LSB 0u
+/* OWN_MAC_HI: MAC[47:32], destination wire bytes 0 and 1 */
+#define MBX_OWN_MAC_HI_MAC_WIDTH 16u
 /* first channel register block */
 #define MBX_CH_BASE 0x100u
 /* bytes per channel block */
@@ -409,18 +441,34 @@
 #define MBX_CH_ADP_TX_WORDS 128u
 /* adp largest frame */
 #define MBX_CH_ADP_MAX_FRAME_BYTES 128u
-/* adp EtherType */
-#define MBX_CH_ADP_ETHERTYPE0 0x22F0u
-/* adp second EtherType */
-#define MBX_CH_ADP_ETHERTYPE1 0x22F0u
-/* adp matches a subtype */
-#define MBX_CH_ADP_HAS_SUBTYPE 1u
-/* adp AVTP subtype */
-#define MBX_CH_ADP_SUBTYPE 0xFAu
 /* adp token bucket depth */
 #define MBX_CH_ADP_RATE_BURST 8u
 /* adp ms per refilled token */
 #define MBX_CH_ADP_RATE_REFILL_MS 10u
+/* adp tuple 0: the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1) */
+#define MBX_CH_ADP_M0_DST 1u
+/* adp tuple 0 destination [47:32] */
+#define MBX_CH_ADP_M0_DST_HI 0x91E0u
+/* adp tuple 0 destination [31:0] */
+#define MBX_CH_ADP_M0_DST_LO 0xF0010000u
+/* adp tuple 0 EtherType */
+#define MBX_CH_ADP_M0_ETHERTYPE 0x22F0u
+/* adp tuple 0 matches a subtype */
+#define MBX_CH_ADP_M0_HAS_SUBTYPE 1u
+/* adp tuple 0 AVTP subtype */
+#define MBX_CH_ADP_M0_SUBTYPE 0xFAu
+/* adp tuple 1: unused */
+#define MBX_CH_ADP_M1_DST 0u
+/* adp tuple 1 destination [47:32] */
+#define MBX_CH_ADP_M1_DST_HI 0x0u
+/* adp tuple 1 destination [31:0] */
+#define MBX_CH_ADP_M1_DST_LO 0x0u
+/* adp tuple 1 EtherType */
+#define MBX_CH_ADP_M1_ETHERTYPE 0x0u
+/* adp tuple 1 matches a subtype */
+#define MBX_CH_ADP_M1_HAS_SUBTYPE 0u
+/* adp tuple 1 AVTP subtype */
+#define MBX_CH_ADP_M1_SUBTYPE 0x0u
 /* adp term 0: ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2) */
 #define MBX_CH_ADP_T0_TEST 3u
 /* adp term 0 field byte */
@@ -445,18 +493,34 @@
 #define MBX_CH_ACMP_TX_WORDS 256u
 /* acmp largest frame */
 #define MBX_CH_ACMP_MAX_FRAME_BYTES 128u
-/* acmp EtherType */
-#define MBX_CH_ACMP_ETHERTYPE0 0x22F0u
-/* acmp second EtherType */
-#define MBX_CH_ACMP_ETHERTYPE1 0x22F0u
-/* acmp matches a subtype */
-#define MBX_CH_ACMP_HAS_SUBTYPE 1u
-/* acmp AVTP subtype */
-#define MBX_CH_ACMP_SUBTYPE 0xFCu
 /* acmp token bucket depth */
 #define MBX_CH_ACMP_RATE_BURST 16u
 /* acmp ms per refilled token */
 #define MBX_CH_ACMP_RATE_REFILL_MS 5u
+/* acmp tuple 0: the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1; 8.2.1 sends every ACMPDU to it) */
+#define MBX_CH_ACMP_M0_DST 1u
+/* acmp tuple 0 destination [47:32] */
+#define MBX_CH_ACMP_M0_DST_HI 0x91E0u
+/* acmp tuple 0 destination [31:0] */
+#define MBX_CH_ACMP_M0_DST_LO 0xF0010000u
+/* acmp tuple 0 EtherType */
+#define MBX_CH_ACMP_M0_ETHERTYPE 0x22F0u
+/* acmp tuple 0 matches a subtype */
+#define MBX_CH_ACMP_M0_HAS_SUBTYPE 1u
+/* acmp tuple 0 AVTP subtype */
+#define MBX_CH_ACMP_M0_SUBTYPE 0xFCu
+/* acmp tuple 1: this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission */
+#define MBX_CH_ACMP_M1_DST 2u
+/* acmp tuple 1 destination [47:32] */
+#define MBX_CH_ACMP_M1_DST_HI 0x0u
+/* acmp tuple 1 destination [31:0] */
+#define MBX_CH_ACMP_M1_DST_LO 0x0u
+/* acmp tuple 1 EtherType */
+#define MBX_CH_ACMP_M1_ETHERTYPE 0x22F0u
+/* acmp tuple 1 matches a subtype */
+#define MBX_CH_ACMP_M1_HAS_SUBTYPE 1u
+/* acmp tuple 1 AVTP subtype */
+#define MBX_CH_ACMP_M1_SUBTYPE 0xFCu
 /* acmp term 0: a command or response addressed to this entity's talker */
 #define MBX_CH_ACMP_T0_TEST 2u
 /* acmp term 0 field byte */
@@ -481,30 +545,46 @@
 #define MBX_CH_AECP_TX_WORDS 512u
 /* aecp largest frame */
 #define MBX_CH_AECP_MAX_FRAME_BYTES 1514u
-/* aecp EtherType */
-#define MBX_CH_AECP_ETHERTYPE0 0x22F0u
-/* aecp second EtherType */
-#define MBX_CH_AECP_ETHERTYPE1 0x22F0u
-/* aecp matches a subtype */
-#define MBX_CH_AECP_HAS_SUBTYPE 1u
-/* aecp AVTP subtype */
-#define MBX_CH_AECP_SUBTYPE 0xFBu
 /* aecp token bucket depth */
 #define MBX_CH_AECP_RATE_BURST 16u
 /* aecp ms per refilled token */
 #define MBX_CH_AECP_RATE_REFILL_MS 5u
+/* aecp tuple 0: this interface's own unicast MAC (IEEE 1722.1-2021 9.2.2: commands and responses travel unicast) */
+#define MBX_CH_AECP_M0_DST 2u
+/* aecp tuple 0 destination [47:32] */
+#define MBX_CH_AECP_M0_DST_HI 0x0u
+/* aecp tuple 0 destination [31:0] */
+#define MBX_CH_AECP_M0_DST_LO 0x0u
+/* aecp tuple 0 EtherType */
+#define MBX_CH_AECP_M0_ETHERTYPE 0x22F0u
+/* aecp tuple 0 matches a subtype */
+#define MBX_CH_AECP_M0_HAS_SUBTYPE 1u
+/* aecp tuple 0 AVTP subtype */
+#define MBX_CH_AECP_M0_SUBTYPE 0xFBu
+/* aecp tuple 1: unused */
+#define MBX_CH_AECP_M1_DST 0u
+/* aecp tuple 1 destination [47:32] */
+#define MBX_CH_AECP_M1_DST_HI 0x0u
+/* aecp tuple 1 destination [31:0] */
+#define MBX_CH_AECP_M1_DST_LO 0x0u
+/* aecp tuple 1 EtherType */
+#define MBX_CH_AECP_M1_ETHERTYPE 0x0u
+/* aecp tuple 1 matches a subtype */
+#define MBX_CH_AECP_M1_HAS_SUBTYPE 0u
+/* aecp tuple 1 AVTP subtype */
+#define MBX_CH_AECP_M1_SUBTYPE 0x0u
 /* aecp term 0: a command addressed to this entity */
 #define MBX_CH_AECP_T0_TEST 2u
 /* aecp term 0 field byte */
 #define MBX_CH_AECP_T0_OFFSET 18u
 /* aecp term 0 message types */
-#define MBX_CH_AECP_T0_MSG_MASK 0xFFFFu
-/* aecp term 1: unused */
-#define MBX_CH_AECP_T1_TEST 0u
+#define MBX_CH_AECP_T0_MSG_MASK 0x5555u
+/* aecp term 1: a response to a command this entity sent as a controller, such as CONTROLLER_AVAILABLE (Milan v1.2 5.4.5.3) */
+#define MBX_CH_AECP_T1_TEST 2u
 /* aecp term 1 field byte */
-#define MBX_CH_AECP_T1_OFFSET 0u
+#define MBX_CH_AECP_T1_OFFSET 26u
 /* aecp term 1 message types */
-#define MBX_CH_AECP_T1_MSG_MASK 0x0u
+#define MBX_CH_AECP_T1_MSG_MASK 0xAAAAu
 /* channel maap */
 #define MBX_CH_MAAP 3u
 /* maap receive ring byte offset */
@@ -517,18 +597,34 @@
 #define MBX_CH_MAAP_TX_WORDS 128u
 /* maap largest frame */
 #define MBX_CH_MAAP_MAX_FRAME_BYTES 64u
-/* maap EtherType */
-#define MBX_CH_MAAP_ETHERTYPE0 0x22F0u
-/* maap second EtherType */
-#define MBX_CH_MAAP_ETHERTYPE1 0x22F0u
-/* maap matches a subtype */
-#define MBX_CH_MAAP_HAS_SUBTYPE 1u
-/* maap AVTP subtype */
-#define MBX_CH_MAAP_SUBTYPE 0xFEu
 /* maap token bucket depth */
 #define MBX_CH_MAAP_RATE_BURST 8u
 /* maap ms per refilled token */
 #define MBX_CH_MAAP_RATE_REFILL_MS 20u
+/* maap tuple 0: the MAAP multicast address (IEEE 1722-2016 Table B.10) */
+#define MBX_CH_MAAP_M0_DST 1u
+/* maap tuple 0 destination [47:32] */
+#define MBX_CH_MAAP_M0_DST_HI 0x91E0u
+/* maap tuple 0 destination [31:0] */
+#define MBX_CH_MAAP_M0_DST_LO 0xF000FF00u
+/* maap tuple 0 EtherType */
+#define MBX_CH_MAAP_M0_ETHERTYPE 0x22F0u
+/* maap tuple 0 matches a subtype */
+#define MBX_CH_MAAP_M0_HAS_SUBTYPE 1u
+/* maap tuple 0 AVTP subtype */
+#define MBX_CH_MAAP_M0_SUBTYPE 0xFEu
+/* maap tuple 1: unused */
+#define MBX_CH_MAAP_M1_DST 0u
+/* maap tuple 1 destination [47:32] */
+#define MBX_CH_MAAP_M1_DST_HI 0x0u
+/* maap tuple 1 destination [31:0] */
+#define MBX_CH_MAAP_M1_DST_LO 0x0u
+/* maap tuple 1 EtherType */
+#define MBX_CH_MAAP_M1_ETHERTYPE 0x0u
+/* maap tuple 1 matches a subtype */
+#define MBX_CH_MAAP_M1_HAS_SUBTYPE 0u
+/* maap tuple 1 AVTP subtype */
+#define MBX_CH_MAAP_M1_SUBTYPE 0x0u
 /* maap term 0: a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range */
 #define MBX_CH_MAAP_T0_TEST 4u
 /* maap term 0 field byte */
@@ -553,18 +649,34 @@
 #define MBX_CH_SRP_TX_WORDS 512u
 /* srp largest frame */
 #define MBX_CH_SRP_MAX_FRAME_BYTES 1514u
-/* srp EtherType */
-#define MBX_CH_SRP_ETHERTYPE0 0x22EAu
-/* srp second EtherType */
-#define MBX_CH_SRP_ETHERTYPE1 0x88F5u
-/* srp matches a subtype */
-#define MBX_CH_SRP_HAS_SUBTYPE 0u
-/* srp AVTP subtype */
-#define MBX_CH_SRP_SUBTYPE 0x0u
 /* srp token bucket depth */
 #define MBX_CH_SRP_RATE_BURST 32u
 /* srp ms per refilled token */
 #define MBX_CH_SRP_RATE_REFILL_MS 2u
+/* srp tuple 0: MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2) */
+#define MBX_CH_SRP_M0_DST 1u
+/* srp tuple 0 destination [47:32] */
+#define MBX_CH_SRP_M0_DST_HI 0x180u
+/* srp tuple 0 destination [31:0] */
+#define MBX_CH_SRP_M0_DST_LO 0xC200000Eu
+/* srp tuple 0 EtherType */
+#define MBX_CH_SRP_M0_ETHERTYPE 0x22EAu
+/* srp tuple 0 matches a subtype */
+#define MBX_CH_SRP_M0_HAS_SUBTYPE 0u
+/* srp tuple 0 AVTP subtype */
+#define MBX_CH_SRP_M0_SUBTYPE 0x0u
+/* srp tuple 1: MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) */
+#define MBX_CH_SRP_M1_DST 1u
+/* srp tuple 1 destination [47:32] */
+#define MBX_CH_SRP_M1_DST_HI 0x180u
+/* srp tuple 1 destination [31:0] */
+#define MBX_CH_SRP_M1_DST_LO 0xC2000021u
+/* srp tuple 1 EtherType */
+#define MBX_CH_SRP_M1_ETHERTYPE 0x88F5u
+/* srp tuple 1 matches a subtype */
+#define MBX_CH_SRP_M1_HAS_SUBTYPE 0u
+/* srp tuple 1 AVTP subtype */
+#define MBX_CH_SRP_M1_SUBTYPE 0x0u
 /* srp term 0: every MSRP and MVRP PDU; both are link-local to this port */
 #define MBX_CH_SRP_T0_TEST 1u
 /* srp term 0 field byte */
@@ -593,12 +705,14 @@
 #define MBX_CH_TX_BASE_TBL { MBX_CH_ADP_TX_BASE, MBX_CH_ACMP_TX_BASE, MBX_CH_AECP_TX_BASE, MBX_CH_MAAP_TX_BASE, MBX_CH_SRP_TX_BASE }
 #define MBX_CH_TX_WORDS_TBL { MBX_CH_ADP_TX_WORDS, MBX_CH_ACMP_TX_WORDS, MBX_CH_AECP_TX_WORDS, MBX_CH_MAAP_TX_WORDS, MBX_CH_SRP_TX_WORDS }
 #define MBX_CH_MAX_FRAME_BYTES_TBL { MBX_CH_ADP_MAX_FRAME_BYTES, MBX_CH_ACMP_MAX_FRAME_BYTES, MBX_CH_AECP_MAX_FRAME_BYTES, MBX_CH_MAAP_MAX_FRAME_BYTES, MBX_CH_SRP_MAX_FRAME_BYTES }
-#define MBX_CH_ETHERTYPE0_TBL { MBX_CH_ADP_ETHERTYPE0, MBX_CH_ACMP_ETHERTYPE0, MBX_CH_AECP_ETHERTYPE0, MBX_CH_MAAP_ETHERTYPE0, MBX_CH_SRP_ETHERTYPE0 }
-#define MBX_CH_ETHERTYPE1_TBL { MBX_CH_ADP_ETHERTYPE1, MBX_CH_ACMP_ETHERTYPE1, MBX_CH_AECP_ETHERTYPE1, MBX_CH_MAAP_ETHERTYPE1, MBX_CH_SRP_ETHERTYPE1 }
-#define MBX_CH_HAS_SUBTYPE_TBL { MBX_CH_ADP_HAS_SUBTYPE, MBX_CH_ACMP_HAS_SUBTYPE, MBX_CH_AECP_HAS_SUBTYPE, MBX_CH_MAAP_HAS_SUBTYPE, MBX_CH_SRP_HAS_SUBTYPE }
-#define MBX_CH_SUBTYPE_TBL { MBX_CH_ADP_SUBTYPE, MBX_CH_ACMP_SUBTYPE, MBX_CH_AECP_SUBTYPE, MBX_CH_MAAP_SUBTYPE, MBX_CH_SRP_SUBTYPE }
 #define MBX_CH_RATE_BURST_TBL { MBX_CH_ADP_RATE_BURST, MBX_CH_ACMP_RATE_BURST, MBX_CH_AECP_RATE_BURST, MBX_CH_MAAP_RATE_BURST, MBX_CH_SRP_RATE_BURST }
 #define MBX_CH_RATE_REFILL_MS_TBL { MBX_CH_ADP_RATE_REFILL_MS, MBX_CH_ACMP_RATE_REFILL_MS, MBX_CH_AECP_RATE_REFILL_MS, MBX_CH_MAAP_RATE_REFILL_MS, MBX_CH_SRP_RATE_REFILL_MS }
+#define MBX_TUPLE_DST_TBL { MBX_CH_ADP_M0_DST, MBX_CH_ADP_M1_DST, MBX_CH_ACMP_M0_DST, MBX_CH_ACMP_M1_DST, MBX_CH_AECP_M0_DST, MBX_CH_AECP_M1_DST, MBX_CH_MAAP_M0_DST, MBX_CH_MAAP_M1_DST, MBX_CH_SRP_M0_DST, MBX_CH_SRP_M1_DST }
+#define MBX_TUPLE_DST_HI_TBL { MBX_CH_ADP_M0_DST_HI, MBX_CH_ADP_M1_DST_HI, MBX_CH_ACMP_M0_DST_HI, MBX_CH_ACMP_M1_DST_HI, MBX_CH_AECP_M0_DST_HI, MBX_CH_AECP_M1_DST_HI, MBX_CH_MAAP_M0_DST_HI, MBX_CH_MAAP_M1_DST_HI, MBX_CH_SRP_M0_DST_HI, MBX_CH_SRP_M1_DST_HI }
+#define MBX_TUPLE_DST_LO_TBL { MBX_CH_ADP_M0_DST_LO, MBX_CH_ADP_M1_DST_LO, MBX_CH_ACMP_M0_DST_LO, MBX_CH_ACMP_M1_DST_LO, MBX_CH_AECP_M0_DST_LO, MBX_CH_AECP_M1_DST_LO, MBX_CH_MAAP_M0_DST_LO, MBX_CH_MAAP_M1_DST_LO, MBX_CH_SRP_M0_DST_LO, MBX_CH_SRP_M1_DST_LO }
+#define MBX_TUPLE_ETHERTYPE_TBL { MBX_CH_ADP_M0_ETHERTYPE, MBX_CH_ADP_M1_ETHERTYPE, MBX_CH_ACMP_M0_ETHERTYPE, MBX_CH_ACMP_M1_ETHERTYPE, MBX_CH_AECP_M0_ETHERTYPE, MBX_CH_AECP_M1_ETHERTYPE, MBX_CH_MAAP_M0_ETHERTYPE, MBX_CH_MAAP_M1_ETHERTYPE, MBX_CH_SRP_M0_ETHERTYPE, MBX_CH_SRP_M1_ETHERTYPE }
+#define MBX_TUPLE_HAS_SUBTYPE_TBL { MBX_CH_ADP_M0_HAS_SUBTYPE, MBX_CH_ADP_M1_HAS_SUBTYPE, MBX_CH_ACMP_M0_HAS_SUBTYPE, MBX_CH_ACMP_M1_HAS_SUBTYPE, MBX_CH_AECP_M0_HAS_SUBTYPE, MBX_CH_AECP_M1_HAS_SUBTYPE, MBX_CH_MAAP_M0_HAS_SUBTYPE, MBX_CH_MAAP_M1_HAS_SUBTYPE, MBX_CH_SRP_M0_HAS_SUBTYPE, MBX_CH_SRP_M1_HAS_SUBTYPE }
+#define MBX_TUPLE_SUBTYPE_TBL { MBX_CH_ADP_M0_SUBTYPE, MBX_CH_ADP_M1_SUBTYPE, MBX_CH_ACMP_M0_SUBTYPE, MBX_CH_ACMP_M1_SUBTYPE, MBX_CH_AECP_M0_SUBTYPE, MBX_CH_AECP_M1_SUBTYPE, MBX_CH_MAAP_M0_SUBTYPE, MBX_CH_MAAP_M1_SUBTYPE, MBX_CH_SRP_M0_SUBTYPE, MBX_CH_SRP_M1_SUBTYPE }
 #define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST }
 #define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET }
 #define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK }

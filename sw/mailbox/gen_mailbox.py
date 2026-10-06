@@ -28,13 +28,20 @@ TWO CHECKS, BECAUSE THEY CATCH DIFFERENT THINGS.
 each output and requires the cross-check to name the planted constant, and it
 plants contract defects into copies of the YAML (an overlapping field, a ring
 that is not a power of two, two channels claiming one EtherType, a register
-with no fabric source) and requires each to be refused. A clean run of the
-tracked outputs is the positive control.
+with no fabric source, a match tuple naming a VLAN tag's TPID or no
+destination, an own-MAC block that spills or collides) and requires each to
+be refused. A clean run of the tracked outputs is the positive control.
+
+``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
+header of the same contract elaborated for N AVB interfaces into a build
+directory, cross-checked; the mailbox suite builds its per-interface own-MAC
+checks on a two-interface variant. It never writes the tree.
 
 Usage:
     python3 sw/mailbox/gen_mailbox.py --write
     python3 sw/mailbox/gen_mailbox.py --check --crosscheck
     python3 sw/mailbox/gen_mailbox.py --selftest
+    python3 sw/mailbox/gen_mailbox.py --variant-interfaces 2 --out obj_if2/gen
 
 Exit 0 = clean; 1 = drift, a mismatch, or a self-test arm that did not bite;
 2 = the contract itself is refused.
@@ -53,7 +60,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from mailbox_emit import all_constants, emit_c_header, emit_doc, emit_sv_package, _tables  # noqa: E402
-from mailbox_model import CONTRACT, Contract, ContractError, load  # noqa: E402
+from mailbox_model import CONTRACT, Contract, ContractError, load, with_interfaces  # noqa: E402
 from mailbox_skeleton import emit_sv_top  # noqa: E402
 
 REPO = HERE.parent.parent
@@ -71,7 +78,7 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
 SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
 SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
 DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|CH_REG)_(\w+)_C\b")
+SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|CH_REG)_(\w+)_C\b")
 
 
 def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
@@ -114,12 +121,12 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
                 findings.append(f"{label}: table MBX_{table} lists {got_tables.get(table)}, want {members}")
     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
     named = set(SV_REG_REF.findall(top))
-    for reg in contract.registers + contract.if_registers + contract.ch_registers:
+    every = contract.registers + contract.if_registers + contract.iff_registers + contract.ch_registers
+    for reg in every:
         if reg.name not in named:
             findings.append(f"skeleton: register {reg.name} is never decoded")
     findings += [f"skeleton: decodes {n}, which the contract does not define"
-                 for n in sorted(named - {r.name for r in contract.registers + contract.if_registers
-                                          + contract.ch_registers})]
+                 for n in sorted(named - {r.name for r in every})]
     return findings
 
 
@@ -152,6 +159,24 @@ def write_all(contract: Contract, root: Path = REPO) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
         print(f"wrote {path}")
+
+
+#: The outputs a variant build compiles: the package, the skeleton and the header.
+VARIANT_OUTPUTS = ("hdl/milan/mailbox/KL_mbx_pkg.sv", "hdl/milan/mailbox/KL_mbx.sv",
+                   "sw/firmware/ctrl/mbx/mbx_contract.h")
+
+
+def write_variant(contract: Contract, interfaces: int, out: Path) -> list[str]:
+    """The contract for `interfaces` AVB interfaces, its compiled outputs written
+    flat into `out` (a build directory, never the tree); returns the cross-check's
+    findings on them, which must be none."""
+    variant = with_interfaces(contract, interfaces)
+    texts = generate(variant)
+    out.mkdir(parents=True, exist_ok=True)
+    for path in VARIANT_OUTPUTS:
+        (out / Path(path).name).write_text(texts[path], encoding="utf-8")
+        print(f"wrote {out / Path(path).name} ({interfaces} interfaces)")
+    return crosscheck(variant, texts)
 
 
 def _plant(texts: dict[str, str], path: str, old: str, new: str) -> dict[str, str]:
@@ -195,6 +220,20 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
                                         "{ MBX_CH_ACMP_RX_WORDS, MBX_CH_ADP_RX_WORDS,"), "CH_RX_WORDS_TBL"),
         ("skeleton register dropped", _plant_all(base, top, "MBX_REG_OWN_EID_HI_C", "MBX_REG_OWN_EID_LO_C"),
          "OWN_EID_HI"),
+        # lane FC: the tuple, the AECP response term, the counter and the own MAC
+        ("C header tuple destination", _plant(base, hdr, "#define MBX_CH_AECP_M0_DST 2u",
+                                              "#define MBX_CH_AECP_M0_DST 1u"), "MBX_CH_AECP_M0_DST"),
+        ("SV package tuple address", _plant(base, pkg, "MBX_CH_SRP_M1_DST_LO_C = 32'hC2000021",
+                                            "MBX_CH_SRP_M1_DST_LO_C = 32'hC200000E"), "MBX_CH_SRP_M1_DST_LO"),
+        ("C header response term", _plant(base, hdr, "#define MBX_CH_AECP_T1_MSG_MASK 0xAAAAu",
+                                          "#define MBX_CH_AECP_T1_MSG_MASK 0x5555u"), "MBX_CH_AECP_T1_MSG_MASK"),
+        ("reference page counter", _plant(base, doc, "| `MBX_REG_FILTER_MISMATCH` | `0x74` |",
+                                          "| `MBX_REG_FILTER_MISMATCH` | `0x70` |"), "MBX_REG_FILTER_MISMATCH"),
+        ("C header tuple table order", _plant(base, hdr, "{ MBX_CH_ADP_M0_ETHERTYPE, MBX_CH_ADP_M1_ETHERTYPE,",
+                                              "{ MBX_CH_ADP_M1_ETHERTYPE, MBX_CH_ADP_M0_ETHERTYPE,"),
+         "TUPLE_ETHERTYPE_TBL"),
+        ("skeleton own MAC dropped", _plant_all(base, top, "MBX_IFF_REG_OWN_MAC_HI_C", "MBX_IFF_REG_OWN_MAC_LO_C"),
+         "OWN_MAC_HI"),
     ]
 
 
@@ -204,13 +243,23 @@ def _contract_arms() -> list[tuple[str, str, str]]:
         ("overlapping field", "- {name: MAJOR, lsb: 8, width: 8", "- {name: MAJOR, lsb: 4, width: 8"),
         ("ring not a power of two", "rx: {base: 0x1000, words: 256}", "rx: {base: 0x1000, words: 192}"),
         ("rings overlap", "tx: {base: 0x1400, words: 128}", "tx: {base: 0x1000, words: 128}"),
-        ("two channels, one EtherType", "match: {ethertypes: [0x22F0], subtype: 0xFC}",
-         "match: {ethertypes: [0x22F0], subtype: 0xFA}"),
+        ("two channels, one EtherType", "- {dst: 0x91E0F0010000, ethertype: 0x22F0, subtype: 0xFC,",
+         "- {dst: 0x91E0F0010000, ethertype: 0x22F0, subtype: 0xFA,"),
         ("register outside its block", "  - name: BUS_ERR\n    offset: 0x070", "  - name: BUS_ERR\n    offset: 0x400"),
         ("register with no fabric source", "  - name: BUS_ERR\n    offset: 0x070",
          "  - name: BUS_ERRX\n    offset: 0x070"),
         ("term past the frame", "{test: eq_own, offset: 34, field: talker_entity_id",
          "{test: eq_own, offset: 124, field: talker_entity_id"),
+        # lane FC: a tagged frame reaches no channel, a tuple names its destination, the own-MAC block fits
+        ("a tuple names the C-VLAN TPID", "{dst: 0x0180C2000021, ethertype: 0x88F5,",
+         "{dst: 0x0180C2000021, ethertype: 0x8100,"),
+        ("a tuple names the S-VLAN TPID", "{dst: 0x0180C200000E, ethertype: 0x22EA,",
+         "{dst: 0x0180C200000E, ethertype: 0x88A8,"),
+        ("a tuple with no destination", "- {dst: own, ethertype: 0x22F0, subtype: 0xFB,",
+         "- {ethertype: 0x22F0, subtype: 0xFB,"),
+        ("own MAC spills its stride", "  stride: 0x08\n", "  stride: 0x04\n"),
+        ("own MAC over the channel registers", "interface_filter_registers:\n  base: 0x080",
+         "interface_filter_registers:\n  base: 0x100"),
     ]
 
 
@@ -241,6 +290,18 @@ def selftest() -> int:
                 failures += 1
             except ContractError as exc:
                 print(f"[ok] contract arm {arm}: refused ({exc})")
+        # The two-interface variant the suite builds cross-checks clean; one
+        # whose interface blocks run into the global registers is refused.
+        found = write_variant(contract, 2, Path(tmp) / "if2")
+        print(f"[{'ok' if not found else 'FAIL'}] variant of 2 interfaces: "
+              f"{found[0] if found else 'generated outputs cross-check clean'}")
+        failures += bool(found)
+        try:
+            with_interfaces(contract, 4)
+            print("[FAIL] variant of 4 interfaces: accepted")
+            failures += 1
+        except ContractError as exc:
+            print(f"[ok] variant of 4 interfaces: refused ({exc})")
     print(f"selftest: {failures} arm(s) failed")
     return 1 if failures else 0
 
@@ -252,11 +313,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check", action="store_true", help="fail when a tracked output drifted")
     ap.add_argument("--crosscheck", action="store_true", help="compare the tracked outputs name by name")
     ap.add_argument("--selftest", action="store_true", help="prove both checks can fail")
+    ap.add_argument("--variant-interfaces", type=int, metavar="N",
+                    help="write the package, skeleton and header for N interfaces into --out")
+    ap.add_argument("--out", type=Path, help="the build directory a variant is written into")
     args = ap.parse_args(argv)
     if args.selftest:
         return selftest()
     try:
         contract = load()
+        if args.variant_interfaces is not None:
+            if args.out is None:
+                ap.error("--variant-interfaces needs --out")
+            found = write_variant(contract, args.variant_interfaces, args.out)
+            for f in found:
+                print(f"[FAIL] {f}")
+            return 1 if found else 0
     except ContractError as exc:
         print(f"REFUSED: {exc}")
         return 2
