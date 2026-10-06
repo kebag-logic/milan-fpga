@@ -1,0 +1,41 @@
+["git", "log", "--format=%H %s", "6714181d..HEAD"]
+04e1435a218908d2b12b4053e5dab2c2dcac2ebf fix: exclude local definitions from firmware runtime resolution
+0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe Fix RV32 firmware object checks for the pinned SDK
+
+
+exit_code=0
+["git", "diff", "--name-status", "6714181d..HEAD"]
+M	.github/workflows/rtl-fast.yml
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/ci_events.py
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/test/ctrl_arms.py
+M	sw/firmware/ctrl/test/ctrl_build.py
+M	sw/firmware/ctrl/test/test_ctrl_firmware.py
+M	sw/firmware/ctrl_nvm/README.md
+M	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+M	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+M	sw/firmware/gtest/README.md
+A	sw/firmware/gtest/fw_rv32.py
+A	sw/firmware/gtest/fw_rv32_selftest.py
+A	sw/firmware/gtest/rv32_include/stdio.h
+A	sw/firmware/gtest/rv32_include/string.h
+
+
+exit_code=0
+["git", "diff", "--name-status", "0a004a8c..HEAD"]
+M	sw/firmware/ctrl/test/ctrl_arms.py
+M	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+M	sw/firmware/gtest/README.md
+M	sw/firmware/gtest/fw_rv32_selftest.py
+
+
+exit_code=0
+["git", "diff", "--exit-code", "6714181d..HEAD", "--", "hdl", "protocol-processor", "gptp-processor", "third_party/verilog-axis", "scripts/ci_rv32_sdk.py", "sw/firmware/milan_baremetal"]
+
+
+exit_code=0
+["git", "diff", "--exit-code", "0a004a8c..HEAD", "--", "sw/firmware/ctrl/test/ctrl_build.py", "sw/firmware/gtest/fw_rv32.py", "sw/firmware/gtest/rv32_include", "sw/firmware/gtest/coverage.ratchet"]
+
+
+exit_code=0

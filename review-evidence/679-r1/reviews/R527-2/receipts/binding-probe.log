@@ -1,0 +1,25 @@
+PASS ctrl binding=none nm_types=['U'] partial_link=0 unresolved=True arm_rc=1
+  [FAIL] symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS ctrl binding=t nm_types=['t', 'U'] partial_link=0 unresolved=True arm_rc=1
+  [FAIL] symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS ctrl binding=d nm_types=['d', 'U'] partial_link=0 unresolved=True arm_rc=1
+  [FAIL] symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS ctrl binding=b nm_types=['b', 'U'] partial_link=0 unresolved=True arm_rc=1
+  [FAIL] symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS ctrl binding=r nm_types=['r', 'U'] partial_link=0 unresolved=True arm_rc=1
+  [FAIL] symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS ctrl binding=T nm_types=['T', 'U'] partial_link=0 unresolved=False arm_rc=0
+PASS ctrl binding=W nm_types=['W', 'U'] partial_link=0 unresolved=False arm_rc=0
+PASS nvm binding=none nm_types=['U'] partial_link=0 unresolved=True arm_rc=1
+rv32: symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS nvm binding=t nm_types=['U', 't'] partial_link=0 unresolved=True arm_rc=1
+rv32: symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS nvm binding=d nm_types=['U', 'd'] partial_link=0 unresolved=True arm_rc=1
+rv32: symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS nvm binding=b nm_types=['U', 'b'] partial_link=0 unresolved=True arm_rc=1
+rv32: symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS nvm binding=r nm_types=['U', 'r'] partial_link=0 unresolved=True arm_rc=1
+rv32: symbols outside the C library and libgcc: __r527_runtime_dependency
+PASS nvm binding=T nm_types=['U', 'T'] partial_link=0 unresolved=False arm_rc=0
+PASS nvm binding=W nm_types=['U', 'W'] partial_link=0 unresolved=False arm_rc=0
+PASS: 14 compiled binding controls; local t/d/b/r stay unresolved; global T and weak W resolve

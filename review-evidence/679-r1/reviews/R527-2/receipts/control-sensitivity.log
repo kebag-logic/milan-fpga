@@ -1,0 +1,14 @@
+argv: ["/usr/bin/python3", "<packet>/scripts/control_sensitivity.py", "<checkout>", "<packet>"]
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: removing ctrl external-only filter breaks its new same-name static control
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: removing nvm external-only filter breaks its new same-name static control
+PASS: both new controls detect removal of their respective binding filter
+
+exit_code=0
+elapsed_seconds=7.743

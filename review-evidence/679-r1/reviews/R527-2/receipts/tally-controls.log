@@ -1,0 +1,43 @@
+argv: ["python3", "sw/firmware/gtest/tally_selftest.py", "--mutants"]
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] a passing test (the control): exit 0, tally 1/0, 1 tests, 0 failures
+[ok] a failing assertion: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGSEGV: exit -11, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] an abort: exit -6, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGBUS: exit -7, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGFPE: exit -8, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGILL: exit -4, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] exit(0) inside a test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a skipped test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] an uncaught exception: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a disabled test: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a disabled suite: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+[ok] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 2 failure(s) across 1 checks
+[ok] a failure in a suite's tear-down: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] a failure in the global environment: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+[ok] _exit(0) inside a test: exit 0, no tally, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] no test selected: exit 0, tally 0/0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+tally self-test: 18 of 18 planted cases read as planted
+[caught] skip-not-counted: Skip.* (tally checks 1 failures 0, want checks 1 failures 1); also SetUpFails.*
+[caught] suite-failure-not-counted: SetUpFails.*, TearDownFails.* (tally checks 1 failures 1, want checks 1 failures 2)
+[caught] crash-tally-passes: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] crashed-test-not-counted: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (tally checks 0 failures 1, want checks 1 failures 1)
+[caught] early-exit-tally-passes: Exit.Zero (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-not-counted: Disabled.*, DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+[caught] result-always-pass: Fail.*, Crash.Segv, Exit.Zero, Skip.*, Disabled.*, TearDownFails.*, ProgramFails.* (RESULT lines ['PASS'], want ['FAIL']); also Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill, DISABLED_Suite.*, SetUpFails.*, Throw.*
+[caught] tests-not-counted: Pass.*, Fail.* (tally checks 0 failures 0, want checks 1 failures 0); also ProgramFails.*, SetUpFails.*, Skip.*, TearDownFails.*, Throw.*
+[caught] fail-line-dropped: Fail.* (no [FAIL] line names Fail.Expect); also Throw.*
+[caught] no-atexit: Exit.Zero (not one listener tally line: [])
+[caught] no-signal-handler: Crash.Segv, Crash.Abort, Crash.Bus, Crash.Fpe, Crash.Ill (not one listener tally line: [])
+[caught] sigsegv-unhandled: Crash.Segv (not one listener tally line: [])
+[caught] sigbus-unhandled: Crash.Bus (not one listener tally line: [])
+[caught] sigfpe-unhandled: Crash.Fpe (not one listener tally line: [])
+[caught] sigill-unhandled: Crash.Ill (not one listener tally line: [])
+[caught] sigabrt-unhandled: Crash.Abort (not one listener tally line: [])
+[caught] program-failure-not-counted: ProgramFails.* (tally checks 1 failures 0, want checks 1 failures 1)
+[caught] disabled-suite-not-counted: DISABLED_Suite.* (tally checks 0 failures 0, want checks 0 failures 1)
+listener defects: 18 of 18 caught
+
+exit_code=0
+elapsed_seconds=72.079
