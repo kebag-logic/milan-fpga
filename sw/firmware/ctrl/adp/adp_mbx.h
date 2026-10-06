@@ -27,7 +27,7 @@
 // with a fixed number of mailbox accesses and no wait on the fabric, and its
 // response is committed there when A3 holds (otherwise see owed frames).
 // ADP_MBX_LAT_* is that number for ONE pass with nothing else pending,
-// derived below and counted access by access on the host model (test_adp.c,
+// derived below and counted access by access on the host model (test_adp.cpp,
 // C0 to C6), which fails a path that exceeds it:
 //
 //   an event record    EVT_HEAD + 4 words + EVT_TAIL                    6
@@ -62,7 +62,7 @@
 // pass that starts after the fabric posted it, and under A3 its response is
 // committed in that pass. With the pass already running when the input
 // arrived, that is ADP_MBX_EVT_ACCESSES and ADP_MBX_RX_ACCESSES mailbox
-// accesses from input to committed response. test_adp.c (F0 to F7) fills
+// accesses from input to committed response. test_adp.cpp (F0 to F7) fills
 // both rings with legal records, coalesces ticks behind them, and fails a
 // pass or a path that exceeds these figures.
 //
@@ -76,7 +76,7 @@
 // from the first pass that starts after both the room's return and the
 // expiry's posting, and with a pass already running then, within
 // ADP_MBX_OWED_ACCESSES (4 x 407 = 1,628) accesses. A DEPARTING has at most
-// one owed ahead of it. test_adp.c E5 runs 1, 2 and 64 SHUTDOWNs behind a full
+// one owed ahead of it. test_adp.cpp E5 runs 1, 2 and 64 SHUTDOWNs behind a full
 // ring through the driver, the model and the loop, the expiry taken before
 // and after the room returns, and fails a commit later than pass k + 1 or
 // beyond these figures.

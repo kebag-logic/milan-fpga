@@ -51,42 +51,53 @@ inline std::uint32_t field(std::uint32_t word, std::uint32_t lsb, std::uint32_t 
 
 inline std::uint32_t ch_reg(std::uint32_t ch, std::uint32_t reg) { return MBX_CH_BASE + MBX_CH_STRIDE * ch + reg; }
 
-template <class Bench>
+//! The checks are graded by `Check`: milan::tb::Checker on the RTL benches,
+//! and on the host model a GoogleTest adapter (sw/firmware/ctrl/test/
+//! model_suite.cpp), which runs each group as a test of its own. A Check
+//! answers hex(), dec() and that() as Checker does.
+template <class Bench, class Check = milan::tb::Checker>
 class Suite {
  public:
-    Suite(Bench& bench, milan::tb::Checker& check) : b_(bench), ck_(check) {}
+    Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
+
+    //! The groups run() runs, in its order.
+    static constexpr unsigned kGroups = 14;
+    static constexpr const char* kGroupNames[kGroups] = {
+        "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
+        "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
+        "BadHostCounters", "LinkAndGmEvents", "Timers", "Tick", "GmSnapshot"};
 
     void run() {
-        b_.reset();
-        check_reset_and_identity();
-        check_register_masks();
-        restart();
-        check_partial_strobe_refused();
-        restart();
-        check_adp_filter();
-        restart();
-        check_classification();
-        restart();
-        check_drop_never_touches_an_unread_record();
-        restart();
-        check_rate_limit();
-        restart();
-        check_tx_merge();
-        restart();
-        check_tx_commit_order();
-        restart();
-        check_tx_refusals();
-        restart();
-        check_bad_host_counters();
-        restart();
-        check_link_and_gm_events();
-        restart();
-        check_timers();
-        restart();
-        check_tick();
-        restart();
-        check_gm_snapshot();
+        for (unsigned g = 0; g < kGroups; ++g) {
+            run_group(g);
+        }
         ck_.dec("no bus access went unanswered", b_.bus_timeouts, 0);
+    }
+
+    //! One group: the first on the bench's reset, every later one on a restart.
+    void run_group(unsigned g) {
+        if (g == 0) {
+            b_.reset();
+            check_reset_and_identity();
+            check_register_masks();
+            return;
+        }
+        restart();
+        switch (g) {
+        case 1: check_partial_strobe_refused(); break;
+        case 2: check_adp_filter(); break;
+        case 3: check_classification(); break;
+        case 4: check_drop_never_touches_an_unread_record(); break;
+        case 5: check_rate_limit(); break;
+        case 6: check_tx_merge(); break;
+        case 7: check_tx_commit_order(); break;
+        case 8: check_tx_refusals(); break;
+        case 9: check_bad_host_counters(); break;
+        case 10: check_link_and_gm_events(); break;
+        case 11: check_timers(); break;
+        case 12: check_tick(); break;
+        default: check_gm_snapshot(); break;
+        }
     }
 
  private:
@@ -163,15 +174,15 @@ class Suite {
     void fill_event_ring_with_expiries();
 
     Bench& b_;
-    milan::tb::Checker& ck_;
+    Check& ck_;
     std::vector<std::uint32_t> rx_tail_ = std::vector<std::uint32_t>(MBX_N_CH, 0);
     std::vector<std::uint32_t> tx_head_ = std::vector<std::uint32_t>(MBX_N_CH, 0);
     std::uint32_t evt_tail_ = 0;
     std::uint32_t tx_seq_ = 0;   //!< the commit count send_tx stamps into SEQ, as the driver does
 };
 
-template <class Bench>
-void Suite<Bench>::check_reset_and_identity() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_reset_and_identity() {
     const std::uint32_t id = rd(MBX_REG_ID);
     ck_.hex("R0 ID.MAGIC", field(id, MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH), MBX_MAGIC);
     ck_.hex("R0 ID.MAJOR", field(id, MBX_ID_MAJOR_LSB, MBX_ID_MAJOR_WIDTH), MBX_VERSION_MAJOR);
@@ -202,8 +213,8 @@ void Suite<Bench>::check_reset_and_identity() {
     ck_.dec("R0 NOW_MS counts the millisecond pulse", rd(MBX_REG_NOW_MS), 3);
 }
 
-template <class Bench>
-void Suite<Bench>::check_register_masks() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_register_masks() {
     struct Rw {
         std::uint32_t off;
         std::uint32_t mask;
@@ -233,8 +244,8 @@ void Suite<Bench>::check_register_masks() {
              rd(MBX_REG_NOW_MS) < 100u && field(rd(MBX_REG_ID), MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH) == MBX_MAGIC);
 }
 
-template <class Bench>
-void Suite<Bench>::check_partial_strobe_refused() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_partial_strobe_refused() {
     b_.write(MBX_REG_OWN_EID_LO, 0xA5A5A5A5u, 0x3);
     ck_.hex("R2 a write with a partial strobe leaves the register", rd(MBX_REG_OWN_EID_LO), 0);
     ck_.dec("R2 the refusal counts in BUS_ERR", rd(MBX_REG_BUS_ERR), 1);
@@ -255,8 +266,8 @@ void Suite<Bench>::check_partial_strobe_refused() {
     ck_.dec("R2 a write that reaches no register is still answered", b_.bus_timeouts, 0);
 }
 
-template <class Bench>
-void Suite<Bench>::check_adp_filter() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_adp_filter() {
     const auto discover0 = mbx_tb::adpdu(2, 0);
     b_.send_frame(discover0, 0);
     b_.drain_rx();
@@ -286,8 +297,8 @@ void Suite<Bench>::check_adp_filter() {
     check_adp_terms();
 }
 
-template <class Bench>
-void Suite<Bench>::check_adp_terms() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_adp_terms() {
     b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
     b_.drain_rx();
     ck_.dec("F2 ENTITY_DISCOVER for this entity passes", rx_pass(kAdp), 2);
@@ -305,8 +316,8 @@ void Suite<Bench>::check_adp_terms() {
     ck_.dec("F2 a DISCOVER truncated inside its entity_id field is not passed", rx_pass(kAdp), 2);
 }
 
-template <class Bench>
-void Suite<Bench>::check_classification() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_classification() {
     open((1u << MBX_N_CH) - 1u);
     wr(MBX_REG_MAAP_BASE_LO, 0x00000100u);
     wr(MBX_REG_MAAP_BASE_HI, 0x91E0u);
@@ -315,8 +326,8 @@ void Suite<Bench>::check_classification() {
     check_classification_other();
 }
 
-template <class Bench>
-void Suite<Bench>::check_classification_avtp() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_classification_avtp() {
     b_.send_frame(mbx_tb::acmpdu(0, kOwnEid, kForeignEid), 0);
     b_.send_frame(mbx_tb::acmpdu(2, kForeignEid, kOwnEid), 0);
     b_.send_frame(mbx_tb::acmpdu(2, kForeignEid, kForeignEid), 0);
@@ -340,8 +351,8 @@ void Suite<Bench>::check_classification_avtp() {
             rx_pass(MBX_CH_MAAP), 3);
 }
 
-template <class Bench>
-void Suite<Bench>::check_classification_other() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_classification_other() {
     const std::vector<std::uint8_t> body = {0x01, 0x22, 0x04, 0x00, 0x00};
     b_.send_frame(mbx_tb::mrp(mbx_tb::kEtherMsrp, body), 0);
     b_.send_frame(mbx_tb::mrp(mbx_tb::kEtherMvrp, body), 0);
@@ -368,8 +379,8 @@ void Suite<Bench>::check_classification_other() {
     ck_.dec("C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere", total, 8);
 }
 
-template <class Bench>
-void Suite<Bench>::check_drop_never_touches_an_unread_record() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_drop_never_touches_an_unread_record() {
     open(1u << kAdp);
     static const std::uint32_t words[MBX_N_CH] = MBX_CH_RX_WORDS_TBL;
     const std::uint32_t per = 2u + 21u;
@@ -407,8 +418,8 @@ void Suite<Bench>::check_drop_never_touches_an_unread_record() {
     ck_.that("D1 the record after it is still the next frame's", same_bytes(peek(kAdp).bytes, extra));
 }
 
-template <class Bench>
-void Suite<Bench>::check_rate_limit() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_rate_limit() {
     open(1u << kAdp);
     const std::uint32_t burst = MBX_CH_ADP_RATE_BURST;
     for (std::uint32_t i = 0; i < burst + 2u; ++i) {
@@ -429,8 +440,8 @@ void Suite<Bench>::check_rate_limit() {
 }
 
 //! Commit one TX record; word 1 is `w1` with the next commit count in SEQ.
-template <class Bench>
-void Suite<Bench>::send_tx(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t w0, std::uint32_t w1) {
+template <class Bench, class Check>
+void Suite<Bench, Check>::send_tx(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t w0, std::uint32_t w1) {
     static const std::uint32_t base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
     static const std::uint32_t words[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
     auto put = [&](std::uint32_t i, std::uint32_t v) { wr(base[ch] + 4u * ((tx_head_[ch] + i) & (words[ch] - 1u)), v); };
@@ -453,8 +464,8 @@ inline std::uint32_t tx_w0(std::size_t len, std::uint32_t iface, std::uint32_t k
            (kind << MBX_TXREC_W0_KIND_LSB);
 }
 
-template <class Bench>
-void Suite<Bench>::check_tx_merge() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tx_merge() {
     tx_head_.assign(MBX_N_CH, 0);
     b_.tx_ready_pattern(0x5A);
     auto a = mbx_tb::adpdu(0, kOwnEid);
@@ -478,8 +489,8 @@ void Suite<Bench>::check_tx_merge() {
 }
 
 //! A well-formed TX record of channel `ch` whose SEQ is `seq`, not the commit count.
-template <class Bench>
-void Suite<Bench>::send_tx_seq(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t seq) {
+template <class Bench, class Check>
+void Suite<Bench, Check>::send_tx_seq(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t seq) {
     const std::uint32_t keep = tx_seq_;
     tx_seq_ = seq;
     send_tx(ch, frame, tx_w0(frame.size(), 0, MBX_TX_KIND), 0);
@@ -498,8 +509,8 @@ inline std::vector<std::uint32_t> channels_of(const std::vector<TxFrame>& frames
 // Records leave in commit order across channels (the #653 case: an ACMP
 // response before the AECP notification it causes), whichever channel the
 // merge served last and however long the sink stalled.
-template <class Bench>
-void Suite<Bench>::check_tx_commit_order() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tx_commit_order() {
     tx_head_.assign(MBX_N_CH, 0);
     const std::uint32_t acmp = MBX_CH_ACMP;
     const std::uint32_t aecp = MBX_CH_AECP;
@@ -572,8 +583,8 @@ void Suite<Bench>::check_tx_commit_order() {
     ck_.that("X2 every TX_TAIL reaches its TX_HEAD", drained);
 }
 
-template <class Bench>
-void Suite<Bench>::check_tx_refusals() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tx_refusals() {
     tx_head_.assign(MBX_N_CH, 0);
     const auto a = mbx_tb::adpdu(0, kOwnEid);
     struct Bad {
@@ -612,8 +623,8 @@ void Suite<Bench>::check_tx_refusals() {
 // A wrong host counter (a partial reset, a driver bug) never lets the fabric
 // write over a ring: an RX_TAIL or EVT_TAIL out of range leaves no free word,
 // and a TX_HEAD more than the ring ahead of TX_TAIL is refused.
-template <class Bench>
-void Suite<Bench>::check_bad_host_counters() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bad_host_counters() {
     open(1u << kAdp);
     const auto d = mbx_tb::adpdu(2, 0);
     wr(ch_reg(kAdp, MBX_CH_REG_RX_TAIL), 40u);
@@ -656,8 +667,8 @@ void Suite<Bench>::check_bad_host_counters() {
     ck_.dec("H2 back in range, the waiting expiry posts", rd(MBX_REG_EVT_HEAD) & 0xFFFFu, (head + MBX_EV_WORDS) & 0xFFFFu);
 }
 
-template <class Bench>
-std::vector<std::uint32_t> Suite<Bench>::take_event() {
+template <class Bench, class Check>
+std::vector<std::uint32_t> Suite<Bench, Check>::take_event() {
     std::vector<std::uint32_t> w;
     if ((rd(MBX_REG_EVT_HEAD) & 0xFFFFu) == evt_tail_) {
         return w;
@@ -674,8 +685,8 @@ inline std::uint32_t ev_type(const std::vector<std::uint32_t>& e) {
     return e.empty() ? 0u : field(e[0], MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH);
 }
 
-template <class Bench>
-void Suite<Bench>::check_link_and_gm_events() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_link_and_gm_events() {
     ck_.that("E0 no event before anything changes", take_event().empty());
     wr(MBX_REG_IRQ_ENABLE, 1u << MBX_IRQ_ENABLE_EVT_LSB);
     b_.ms(2);
@@ -716,8 +727,8 @@ void Suite<Bench>::check_link_and_gm_events() {
     ck_.dec("E2 with its level at posting time", last_up, 0);
 }
 
-template <class Bench>
-void Suite<Bench>::fill_event_ring_with_expiries() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::fill_event_ring_with_expiries() {
     const std::uint32_t now = rd(MBX_REG_NOW_MS);
     for (std::uint32_t s = 0; s < MBX_EVT_WORDS / MBX_EV_WORDS; ++s) {
         wr(MBX_REG_TMR_DEADLINE, now);
@@ -727,8 +738,8 @@ void Suite<Bench>::fill_event_ring_with_expiries() {
     ck_.dec("E2 the ring is full of expiries", (rd(MBX_REG_EVT_HEAD) - evt_tail_) & 0xFFFFu, MBX_EVT_WORDS);
 }
 
-template <class Bench>
-void Suite<Bench>::check_timers() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_timers() {
     const std::uint32_t now = rd(MBX_REG_NOW_MS);
     auto arm = [&](std::uint32_t slot, std::uint32_t tag, std::uint32_t dl) {
         wr(MBX_REG_TMR_DEADLINE, dl);
@@ -761,8 +772,8 @@ void Suite<Bench>::check_timers() {
             e.size() == 4 ? field(e[1], MBX_EV_TIMER_W1_TAG_LSB, 16) : 0u, 0x0066);
 }
 
-template <class Bench>
-void Suite<Bench>::check_tick() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tick() {
     b_.ms(25);
     ck_.that("K0 no TICK while TICK_CTL.EN is clear", take_event().empty());
     wr(MBX_REG_TICK_CTL, 1);
@@ -790,8 +801,8 @@ void Suite<Bench>::check_tick() {
     ck_.that("K2 clearing EN stops the ticks", take_event().empty());
 }
 
-template <class Bench>
-void Suite<Bench>::check_gm_snapshot() {
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_gm_snapshot() {
     b_.set_gm(0, 0x1111111122222222ull, 3);
     b_.idle(2);
     const std::uint32_t lo = rd(MBX_IF_BASE + MBX_IF_REG_GM_LO);
