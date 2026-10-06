@@ -1,0 +1,222 @@
+test_port_loop: 81 literal check call sites, 0 missing labels
+  PRESENT P0 an arena one byte short is refused
+  PRESENT P0 a misaligned arena is refused
+  PRESENT P0 classes that do not grow are refused
+  PRESENT P0 an empty class is refused
+  PRESENT P0 the exact arena is accepted
+  PRESENT P1 four 24-byte blocks come from the 32-byte class, aligned
+  PRESENT P1 an exhausted class spills into the next larger one
+  PRESENT P1 a size no class holds is refused
+  PRESENT P1 a zero-byte allocation is refused
+  PRESENT P1 refusals are counted
+  PRESENT P1 the last block of the large class
+  PRESENT P1 then nothing is left
+  PRESENT P1 every block is in use
+  PRESENT P2 a released block is the next one handed out
+  PRESENT P2 a double free is refused and counted
+  PRESENT P2 a free into the middle of a block is refused
+  PRESENT P2 a free of a pointer the pool never handed out is refused
+  PRESENT P2 a free of NULL is a no-op
+  PRESENT P2 the high-water mark of the small class
+  PRESENT P3 calloc hands out a zeroed block, even a reused one
+  PRESENT P3 calloc refuses a count times size that wraps to a small size
+  PRESENT P4 shlan_malloc before the pool is bound refuses
+  PRESENT P4 shlan_malloc and shlan_calloc draw on the bound pool
+  PRESENT P4 shlan_free returns both blocks
+  PRESENT S0 with no sink bound shlan_printf emits nothing
+  PRESENT S0 and counts the discard
+  PRESENT S1 shlan_printf reaches the bound sink formatted
+  PRESENT S2 a line over the buffer is truncated to it
+  PRESENT S2 and the sink receives that many bytes
+  PRESENT S2 in one call
+  PRESENT S2 the truncation is counted
+  PRESENT D0 mbx_open accepts the model's contract
+  PRESENT D0 the model commits a DISCOVER
+  PRESENT D0 mbx_rx_take returns it
+  PRESENT D0 byte for byte, with its length, interface and arrival
+  PRESENT D0 the release moved RX_TAIL to RX_HEAD
+  PRESENT D0 an empty ring
+  PRESENT D1 a record with the wrong KIND is refused
+  PRESENT D1 and the ring is resynchronised to RX_HEAD, the next record included
+  PRESENT D1 bad channel
+  PRESENT D2 a frame becomes a TX record
+  PRESENT D2 and leaves the merge byte for byte
+  PRESENT D2 a 13-byte frame is refused
+  PRESENT D2 a frame over max_frame_bytes is refused
+  PRESENT D2 an unknown interface is refused
+  PRESENT D3 a held merge fills the ring to its last whole record
+  PRESENT D3 once drained every record leaves
+  PRESENT D3 and none was refused
+  PRESENT D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+  PRESENT D4 a LINK event
+  PRESENT D4 a GM event with the identity and domain
+  PRESENT D4 a TIMER event with slot, tag and deadline
+  PRESENT D4 a cancelled timer posts nothing
+  PRESENT D4 TICK events count the centiseconds
+  PRESENT D5 the grandmaster read is coherent
+  PRESENT L0 bindings fit their tables
+  PRESENT L0 an unknown channel cannot be bound
+  PRESENT L1 ctrl_loop_open brings the mailbox up
+  PRESENT L1 OWN_EID is written before any channel opens
+  PRESENT L1 only the bound channel opens
+  PRESENT L1 the tick starts because a centisecond consumer is bound
+  PRESENT L1 IRQ_ENABLE holds the bound channel and the event ring
+  PRESENT L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+  PRESENT L2 and polls every module once
+  PRESENT L2 the rest follow in later passes
+  PRESENT L3 a pass takes at most CTRL_LOOP_EVENTS_PER_PASS events
+  PRESENT L3 the rest follow in the next pass
+  PRESENT L4 (a late firmware: the ring is full while three ticks pass)
+  PRESENT L4 every centisecond reaches the first consumer
+  PRESENT L4 and the second
+  PRESENT L4 in registration order, tick by tick (a b a b a b)
+  PRESENT L5 a malformed record is counted, not handed out
+  PRESENT L5 and no handler saw it
+  PRESENT L6 a pass after which a module still owes output asks for the next pass at once
+  PRESENT L6 a pass that handled nothing and owes nothing lets the loop sleep
+  PRESENT L7 every one of 40 coalesced centiseconds reaches the consumer
+  PRESENT L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass
+  PRESENT L7 and the loop keeps passing until the last is dispatched
+  PRESENT L8 (centiseconds are carried when the second TICK record is posted, alone in the ring)
+  PRESENT L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer
+  PRESENT L8 and none is left owed
+test_adp: 121 literal check call sites, 0 missing labels
+  PRESENT A0 enabled with the link down: DOWN (5.6.3.5.1)
+  PRESENT A0 and no timer
+  PRESENT A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3)
+  PRESENT A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9)
+  PRESENT A1 valid_time 10, control_data_length 56
+  PRESENT A1 the first available_index is 0
+  PRESENT A1 available_index is incremented after the send (6.2.2.15)
+  PRESENT A2 the next cycle carries index 1 and the grandmaster sampled at build
+  PRESENT A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7)
+  PRESENT A2 with the new current_configuration_index (6.2.2.18)
+  PRESENT A2 and the entity's identify_control_index (6.2.2.19)
+  PRESENT A3 enabled with the link up: DELAY with a 0..2 s draw (5.6.3.5.2)
+  PRESENT A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51)
+  PRESENT A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+  PRESENT A4 and leave WAITING alone
+  PRESENT A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4)
+  PRESENT A5 an expiry with no timer running is a stray, counted
+  PRESENT A5 and sends nothing
+  PRESENT A6 a refused send keeps ENTITY_AVAILABLE owed in DELAY
+  PRESENT A6 a poll without room retries and keeps it
+  PRESENT A6 a poll with room sends it and completes 5.6.3.5.9
+  PRESENT A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10)
+  PRESENT A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset
+  PRESENT A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+  PRESENT A8 SHUTDOWN in DOWN sends nothing (Table 5.51)
+  PRESENT A10 the first ENTITY_AVAILABLE carries 0
+  PRESENT A10 the second carries 1
+  PRESENT A10 SHUTDOWN is taken in WAITING
+  PRESENT A10 SHUTDOWN in WAITING, sent at once: ENTITY_DEPARTING carries the current index, 2
+  PRESENT A11 the first ENTITY_AVAILABLE after a restart carries 0
+  PRESENT A12 SHUTDOWN is taken in DELAY
+  PRESENT A12 SHUTDOWN in DELAY, sent at once: ENTITY_DEPARTING carries the current index, 1
+  PRESENT A13 SHUTDOWN with no room leaves ENTITY_DEPARTING owed
+  PRESENT A13 sent from a later poll, it carries the index current at SHUTDOWN, 2
+  PRESENT A13 and the restart's first ENTITY_AVAILABLE carries 0
+  PRESENT A14 available_index 0xFFFFFFFF goes on the wire
+  PRESENT A14 the next ENTITY_AVAILABLE carries 0, modulo 2^32
+  PRESENT A14 SHUTDOWN after the wrap: ENTITY_DEPARTING carries the current index, 1
+  PRESENT A15 advertised once, SHUTDOWN behind a full ring: ENTITY_DEPARTING owed with index 1
+  PRESENT A15 the restart runs while it is owed: DELAY, the startup TMR_DELAY armed
+  PRESENT A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+  PRESENT A15 a poll without room keeps both owed
+  PRESENT A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+  PRESENT A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+  PRESENT A15 then WAITING with TMR_ADVERTISE armed 5 s, available_index 1
+  PRESENT A15 and nothing stranded: nothing owed, a further poll sends nothing
+  PRESENT A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1
+  PRESENT A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+  PRESENT A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+  PRESENT A16 the restart running meanwhile is untouched: DELAY, its TMR_DELAY armed
+  PRESENT A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+  PRESENT A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+  PRESENT A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+  PRESENT A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+  PRESENT A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3)
+  PRESENT A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+  PRESENT A18 with room the ENTITY_DEPARTING leaves, index 1
+  PRESENT A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING
+  PRESENT A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+  PRESENT A19 so does an ENTITY_DISCOVER
+  PRESENT A19 and a stray expiry, which is counted
+  PRESENT A19 the next poll with room sends it, index 0, then WAITING with TMR_ADVERTISE 5 s
+  PRESENT A20 a link loss drops the owed ENTITY_AVAILABLE at once, before any poll (5.6.3.5.10)
+  PRESENT A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3)
+  PRESENT A20 whose expiry sends the ENTITY_AVAILABLE, index 0; WAITING
+  PRESENT A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+  PRESENT A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+  PRESENT A21 and so are 100000 more, each counted, the two owed unchanged
+  PRESENT A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+  PRESENT A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING
+  PRESENT A9 every startup draw is 0..2 s and every other draw 0..4 s
+  PRESENT A9 the two kinds are distinct: the 0..4 s draws pass 2 s
+  PRESENT A9 and both reach near their maxima
+  PRESENT B0 the app starts on the model
+  PRESENT B1 the model reaches WAITING
+  PRESENT B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag
+  PRESENT B1 and the replacing TMR_DELAY stands
+  PRESENT C0 LINK_UP -> TMR_DELAY armed, one pass
+  PRESENT C0 LINK_UP -> TMR_DELAY armed
+  PRESENT C1 TMR_DELAY -> ENTITY_AVAILABLE committed and TMR_ADVERTISE armed, one pass
+  PRESENT C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE
+  PRESENT C2 RCV_ADP_DISCOVER -> TMR_DELAY armed, one pass
+  PRESENT C2 RCV_ADP_DISCOVER -> TMR_DELAY armed
+  PRESENT C3 TMR_ADVERTISE -> TMR_DELAY armed, one pass
+  PRESENT C3 TMR_ADVERTISE -> TMR_DELAY armed
+  PRESENT C4 GM_CHANGE -> TMR_DELAY armed, one pass
+  PRESENT C4 GM_CHANGE -> TMR_DELAY armed
+  PRESENT C5 LINK_DOWN -> timer cancelled, one pass
+  PRESENT C5 LINK_DOWN -> timer cancelled
+  PRESENT C6 SHUTDOWN -> ENTITY_DEPARTING committed
+  PRESENT C6 SHUTDOWN -> ENTITY_DEPARTING committed
+  PRESENT E0 LINK_UP takes the machine to DELAY
+  PRESENT E0 TMR_DELAY expires behind a full transmit ring: ENTITY_AVAILABLE is owed
+  PRESENT E0 and nothing else can wake the core: no RX, no event, TICK off
+  PRESENT E1 the loop does not sleep while a frame is owed
+  PRESENT E2 once the ring drains, the next pass sends the owed ENTITY_AVAILABLE
+  PRESENT E2 and restarts its timer: TMR_ADVERTISE armed 5 s after the frame left, the machine in WAITING
+  PRESENT E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+  PRESENT E4 advertised once: the first ENTITY_AVAILABLE left with index 0, the machine in WAITING
+  PRESENT E4 SHUTDOWN behind the full ring leaves ENTITY_DEPARTING owed with index 1; the restart arms TMR_DELAY
+  PRESENT E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm
+  PRESENT E4 the loop does not sleep while both are owed
+  PRESENT E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0
+  PRESENT E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+  PRESENT E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+  PRESENT F0 the F0 composition with a centisecond consumer comes up
+  PRESENT F0 the event ring is full, ADP's TMR_DELAY expiry its 16th record
+  PRESENT F0 the receive ring is full: it refuses the next frame
+  PRESENT F0 30 centiseconds wait coalesced behind the full event ring
+  PRESENT F0 and holds no more records than A1 assumes
+  PRESENT F1 events first: no event-ring access follows a receive-ring access in a pass
+  PRESENT F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+  PRESENT F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it
+  PRESENT F2 within ADP_MBX_EVT_ACCESSES of the backlog's first access
+  PRESENT F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS)
+  PRESENT F3 within CTRL_LOOP_RX_PASSES(256) passes and ADP_MBX_RX_ACCESSES accesses
+  PRESENT F4 every coalesced centisecond reaches the consumer
+  PRESENT F4 at most CTRL_LOOP_TICKS_PER_PASS of them in a pass
+  PRESENT F5 the costliest pass of the backlog
+  PRESENT F6 the loop passes until the backlog is gone, then may sleep
+  PRESENT F7 the backlog left exactly one frame, the ENTITY_AVAILABLE
+lwsrp_port: 13 literal check call sites, 0 missing labels
+  PRESENT W0 the pool is carved
+  PRESENT W0 the SRP channel and the centisecond tick bind
+  PRESENT W0 the loop opens the mailbox
+  PRESENT W0 mvrp_app_create succeeds on the static pool
+  PRESENT W0 and its state is pool blocks
+  PRESENT W1 a JoinIn through the SRP channel registers the VID
+  PRESENT W1 VID
+  PRESENT W2 the leavetimer has not expired after 59 fabric centiseconds
+  PRESENT W2 and has by 61: the deregistration indication fires
+  PRESENT W2 the loop dispatched the fabric's ticks
+  PRESENT W3 lwSRP allocated only from the pool, and nothing was refused
+  PRESENT W3 mvrp_app_destroy returns every block
+  PRESENT W3 no free was refused
+mailbox shared suite: 125 labelled assertions, 0 missing
+NVM base driver/table references: ['apply_fault_rolls_back', 'authority_unknown', 'binding_walk', 'blank_boot', 'blankcheck_tail', 'both_torn_blank', 'change_commit_bytes', 'debounce', 'dr2c_console', 'dr2c_unchanged_set', 'erased_records', 'failed_commit_not_skipped', 'fallback_restage', 'first_commit_bytes', 'golden_restore', 'media_failures', 'media_verdicts', 'model_unproven_closes', 'newer_wins', 'port_clock', 'port_deadline', 'port_guard', 'port_stall', 'powercut', 'read_alias_at_stage', 'read_disagreement', 'read_fail_boot', 'read_flip_at_stage', 'read_flip_boot', 'recovers_after_failure', 'refused_keeps_default', 'refused_slot_kept', 'rollback_fault_closes', 'service_bound', 'settle_fault_rolls_back', 'time_base', 'torn_falls_back', 'unchanged_no_erase', 'vector_round_trip', 'verdict_parity', 'verify_tail', 'wrong_version_falls_back']
+NVM missing registrations: []
+PASS: inventoried old labels and NVM registrations retained; expression and setup semantics require review.

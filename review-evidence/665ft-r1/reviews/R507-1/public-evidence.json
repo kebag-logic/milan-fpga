@@ -1,0 +1,47 @@
+{
+  "observed_utc": "2026-10-06T07:38:47.849418+00:00",
+  "head": "27433e47c6d7805376547a91b418cf6aa9d95d2a",
+  "prior_pr_findings": [
+    "R506-1-F1",
+    "R506-1-F2",
+    "R506-1-F3",
+    "R506-1-S1",
+    "R506-1-S2",
+    "R506-1-R1"
+  ],
+  "pr_comments": [
+    {
+      "id": 6011448005,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/675#issuecomment-6011448005",
+      "created_at": "2026-10-06T07:22:56Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R506-1\n\nR506 (internal reviewer) reconstructs issue #665 / PR #675 at exact head `27433e47c6d7805376547a91b418cf6aa9d95d2a`, tree `b8eed7686df2a3a1980ac68f3667da45451e5e3b`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6011448807,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/675#issuecomment-6011448807",
+      "created_at": "2026-10-06T07:22:59Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R507-1\n\nR507 (external reviewer) reconstructs issue #665 / PR #675 at exact head `27433e47c6d7805376547a91b418cf6aa9d95d2a`, tree `b8eed7686df2a3a1980ac68f3667da45451e5e3b`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    }
+  ],
+  "pr_reviews": [],
+  "pr_inline_comments": [],
+  "latest_issue_comment": {
+    "id": 6011410375,
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6011410375",
+    "created_at": "2026-10-06T07:20:23Z"
+  },
+  "evidence_commit": "b7eb2edc01e87810ff3e01629af0c9bc4a9438f1",
+  "retrieved_public_handoff_sha256": "384499e16f855cde3ffdf6d922c9c6d892f029f947a34f662052a334a49df34c",
+  "hosted_log_sha256": "87f10fd1c7e84fac0a5f01a13d247b24ae0afe8bb73948dacc4d4075715c8078",
+  "hosted_log_extract": "Selected lines containing checks:, failures:, gcov, gcc , libgtest-dev, libgmock-dev, GoogleTest, SKIPPED, ratchet:, coverage:, PASS , All checks, failures=; ANSI CSI sequences removed. Full retrieved hosted log retained only in disposable scratch.",
+  "mailbox_result_extract": "Raw output lines starting Verilator , RUN make , [ok] , mbx mutants:, RESULT:, or containing checks:. Build commands and local installation paths are omitted; the full raw invocation log remains only in scratch.",
+  "final_thread_observed_utc": "2026-10-06T07:58:02.767243+00:00",
+  "final_pr_comment_ids": [
+    6011448005,
+    6011448807,
+    6011948437
+  ],
+  "final_pr_reviews": [],
+  "final_pr_inline_comments": [],
+  "prior_findings_disposition": "Initial independent verdict/ledger preceded publication; final thread check found comment 6011948437. Findings then assessed and retained; see report and prior-public-findings.json."
+}

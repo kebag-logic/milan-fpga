@@ -1,0 +1,37 @@
+guard exit 0 Corrupted released block: refused=1, free_count=1, null=1
+unguarded exit -11 
+
+Mutated skipped test raw output:
+Note: Google Test filter = Skip.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Skip
+[ RUN      ] Skip.Silent
+$REVIEWS/r507-1-665ft/sw/firmware/gtest/tally_cases.cpp:53: Skipped
+a planted skip
+
+  [FAIL] Skip.Silent: skipped: a planted skip
+[  SKIPPED ] Skip.Silent (0 ms)
+[----------] 1 test from Skip (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] Skip.Silent
+== firmware tally listener (planted cases): checks: 1   failures: 0 ==
+RESULT: PASS
+
+[ok] a passing test (the control): exit 0, 1 tests, 0 failures
+[ok] a failing assertion: exit 1, its tallies report 1 failure(s) across 1 checks
+[ok] a crash on SIGSEGV: exit -11, its tallies report 1 failure(s) across 1 checks
+[ok] an abort: exit -6, its tallies report 1 failure(s) across 1 checks
+[ok] exit(0) inside a test: exit 0, its tallies report 1 failure(s) across 1 checks
+[ok] a skipped test: exit 0, it carries 1 [FAIL] line(s), first: [FAIL] Skip.Silent: skipped: a planted skip
+[ok] an uncaught exception: exit 1, its tallies report 1 failure(s) across 1 checks
+[ok] a disabled test: exit 0, its tallies report 1 failure(s) across 0 checks
+[ok] a failure in a suite's set-up: exit 1, its tallies report 1 failure(s) across 1 checks
+[ok] _exit(0) inside a test: exit 0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+[ok] no test selected: exit 0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+Unchanged tally self-test findings for skip-not-counted mutant: []
+REPRODUCED: released-block corruption reaches the pool guard; false skip tally survives all eleven self-test cases.

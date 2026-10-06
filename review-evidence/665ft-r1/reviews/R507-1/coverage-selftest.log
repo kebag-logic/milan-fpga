@@ -1,0 +1,19 @@
+[ok] the control: the only gap excluded, at its record: no finding
+[ok] a branch of f no longer taken: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a line of f no longer run: sw/firmware/ctrl/x.c: lines 6/7 fell below the recorded 7/7
+[ok] the record is a floor: a measurement over it passes: no finding
+[ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+[ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+[ok] an exclusion with no reason: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no reason given
+[ok] an exclusion whose statement is not in its function: exclusion sw/firmware/ctrl/x.c g(): `if (a == 8)`: the statement occurs 0 times in the function, not once
+[ok] an exclusion whose statement is not one statement: exclusion sw/firmware/ctrl/x.c g(): `return`: the statement occurs 2 times in the function, not once
+[ok] an exclusion naming no function measured: exclusion sw/firmware/ctrl/x.c h(): `if (a == 7)`: no such function in the measurement
+[ok] an exclusion gone stale: what it names is covered now: exclusion sw/firmware/ctrl/x.c g(): the rows say 1 arcs and 1 lines uncovered, the measurement 0 and 0
+[ok] an exclusion that states less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): the rows say 1 arcs and 0 lines uncovered, the measurement 1 and 1
+[ok] an exclusion whose count cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+[ok] two builds of one source merge to the union: no finding
+[ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+[ok] a test, a host model and a source outside the tree are not measured: no finding
+[ok] an exception edge is not a branch: no finding
+[ok] gcc and gcov on this host read as planted: no finding
+coverage self-test: 18 of 18 planted cases read as planted

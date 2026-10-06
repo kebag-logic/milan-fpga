@@ -1,0 +1,15 @@
+Verilator 5.050 2026-07-01 rev v5.050
+RUN make -j16 run-wb
+== mbx (Wishbone host): checks: 134   failures: 0 ==
+RESULT: PASS
+RUN make -j16 run-axil
+== mbx (AXI4-Lite host): checks: 179   failures: 0 ==
+RESULT: PASS
+RUN make -j16 run-cosim
+== mbx cosim (firmware on the RTL and on the model): checks: 13   failures: 0 ==
+RESULT: PASS
+[ok] rx-lanes-big-endian: 4 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-partial-strobe-accepted: 1 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+mbx mutants: 4 of 4 caught

@@ -1,0 +1,13 @@
+CRC-closed whole container: verdict=0 (OK=0)
+Public check_body with loaded=40, img_len=3336: verdict=7 (REC=7)
+Original firmware line 350: if (pos + NVM_REC_HDR > loaded), arcs=[1, 54]
+Original firmware line 351: executed 1 time(s)
+
+Compensating coverage swap against the real gcov reader:
+before uncovered lines [3]
+before uncovered arcs [(2, [0, 2])]
+before gate findings: [] coverage: Tally(lines=(5, 5), branches=(3, 3))
+after uncovered lines [5]
+after uncovered arcs [(4, [0, 1])]
+after gate findings: [] coverage: Tally(lines=(5, 5), branches=(3, 3))
+REPRODUCED: a reachable public refusal is excluded; a different uncovered branch can inherit an exclusion.
