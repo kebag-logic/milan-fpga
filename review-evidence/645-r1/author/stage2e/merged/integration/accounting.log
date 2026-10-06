@@ -1,0 +1,43 @@
+[ ok ] setup error exits nonzero
+[ ok ] setup failure runs zero cycles
+[ ok ] only the executed setup failure is counted
+[ ok ] uncounted omission: all monitored audio payload errors, excluding declared warm-up
+[ ok ] uncounted omission: all monitored audio sample ordering errors
+[ ok ] uncounted omission: all monitored AAF packet sequence errors
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+[ ok ] --no-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --no-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --no-tx-control: activity and payload assertions still fail
+[ ok ] --no-tx-control: comparison history matches the selected control
+[ ok ] --no-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --no-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --no-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --no-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --stop-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --stop-tx-control: activity and payload assertions still fail
+[ ok ] --stop-tx-control: comparison history matches the selected control
+[ ok ] --stop-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --stop-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --stop-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+[ ok ] --no-pdelay-control: missing response retains a nonzero DUT verdict
+[ ok ] --no-pdelay-control: a real request was unanswered
+[ ok ] --no-pdelay-control: missing response assertion still fails
+[ ok ] --no-pdelay-control: first exchange remains incomplete
+[ ok ] --no-pdelay-control: the unchanged acquisition deadline actually elapsed
+[ ok ] --no-pdelay-control: acquired publication was reached and retains its health failure
+[ ok ] --no-pdelay-control: uncounted omission: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: no unexecuted pass: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: uncounted omission: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: peer delay equals independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: peer delay equals independent event oracle within 28 ns
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==

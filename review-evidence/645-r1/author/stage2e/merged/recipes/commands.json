@@ -1,0 +1,127 @@
+{
+  "physical-build": {
+    "argv": [
+      "make",
+      "-j16",
+      "ax1x1gptp-build",
+      "VERILATOR_JOBS=3"
+    ],
+    "cwd": "$WORK/physical/tb/verilator/milan_dp"
+  },
+  "datapath": {
+    "argv": [
+      "make",
+      "-j16",
+      "VERILATOR_JOBS=2",
+      "SIM_JOBS=2"
+    ],
+    "cwd": "$WORK/broad/tb/verilator/milan_dp"
+  },
+  "render": {
+    "argv": [
+      "make",
+      "-j16",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$WORK/broad/tb/verilator/milan_dp_render"
+  },
+  "media-clock": {
+    "argv": [
+      "make",
+      "-j16",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$WORK/broad/tb/verilator/milan_dp_mclk"
+  },
+  "physical": {
+    "argv": [
+      "/usr/bin/time",
+      "-f",
+      "wall_clock_seconds=%e process_exit_status=%x",
+      "./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp"
+    ],
+    "cwd": "$WORK/physical/tb/verilator/milan_dp"
+  },
+  "pp-shadow": {
+    "argv": [
+      "make",
+      "-j16",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$WORK/broad/tb/verilator/pp_shadow"
+  },
+  "builder": {
+    "argv": [
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$REPO"
+  },
+  "portability": {
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh"
+    ],
+    "cwd": "$REPO"
+  },
+  "render-pullin": {
+    "argv": [
+      "make",
+      "-j16",
+      "tdm8render-pullin",
+      "PULLIN_JOBS=8",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$WORK/focused/tb/verilator/milan_dp_render"
+  },
+  "source-selftest": {
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$REPO"
+  },
+  "wire-truth-selftest": {
+    "argv": [
+      "python3",
+      "-B",
+      "tb/tools/avtp_wire_truth.py",
+      "--self-test"
+    ],
+    "cwd": "$REPO"
+  },
+  "render-boundary": {
+    "argv": [
+      "python3",
+      "-B",
+      "tdm8_render_mutants.py",
+      "--law-boundary",
+      "--jobs",
+      "4"
+    ],
+    "cwd": "$WORK/focused/tb/verilator/milan_dp_render"
+  },
+  "accounting": {
+    "argv": [
+      "python3",
+      "-B",
+      "verify_abort.py"
+    ],
+    "cwd": "$WORK/physical/tb/verilator/milan_dp_gptp"
+  },
+  "recentre-controls": {
+    "argv": [
+      "python3",
+      "-B",
+      "verify_recentres.py",
+      "--jobs",
+      "2"
+    ],
+    "cwd": "$WORK/physical/tb/verilator/milan_dp_gptp"
+  }
+}

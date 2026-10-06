@@ -1,0 +1,65 @@
+ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=0 extended=0
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] audio ratio 782/1591 within one quantized edge
+  [ ok ] 200 MHz auxiliary clock has four rising edges per Milan cycle
+  [ ok ] TDM8 master captures four pairs per frame
+  [ ok ] TDM8 FSYNC period follows audio divided by 512
+  [ ok ] PHC advances 20 ns per modeled cycle before Sync selection got=200840 exp=200840
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO length      got=62 exp=62
+  [ ok ] pre-acquisition GET_AVB_INFO SUCCESS     got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO has no selected GM got=0x0 exp=0x0
+PROGRESS simulated_seconds=0.25 rx_aaf=2000 tx_aaf=1999
+PROGRESS simulated_seconds=0.50 rx_aaf=4000 tx_aaf=3999
+PROGRESS simulated_seconds=0.75 rx_aaf=6000 tx_aaf=5999
+CONTROL large-step: actual step=-5 declared step=-4 events
+RECENTRE decision=1 input_pdu=6047 cycle=37790215 fill=0 step_events=-4 dup=0 skip=0
+RECENTRE output=1 input_pdu=6047 output_pdu=6047 step_events=-4 dup=0->0 skip=0->0
+ORDER ERROR output_pdu=6047 sample=5 last=36276 index=36276 expected_delta=1 recentre=0
+RECENTRE WIRE decision=1 output_pdu=6047 declared_step=-4 observed_step=-5 events dup=0 skip=0
+PROGRESS simulated_seconds=1.00 rx_aaf=8000 tx_aaf=7999
+Pdelay event seq=0 t1=1200012614 t2=1200022928 t3=1200042928 t4=1200033240 oracle=313 ns
+  [ ok ] first Pdelay response completed          got=1 exp=1
+  [ ok ] one response cannot assert asCapable     got=0x0 exp=0x0
+FIRST PDELAY published=313 oracle=313 ns
+  [ ok ] first peer delay matches independent event oracle within 28 ns
+  [ ok ] Pdelay_Req TX flags: frames observed     got=1 exp=1
+  [ ok ] Pdelay_Req TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Pdelay_Req: 1 frames, 0 wrong, expected 0x0000
+  [ ok ] all monitored audio payload errors, excluding declared warm-up got=0 exp=0
+  [FAIL] all monitored audio sample ordering errors got=1 exp=0
+  [ ok ] all monitored AAF packet sequence errors got=0 exp=0
+  [ ok ] every emitted audio PDU has its capture order plan got=0 exp=0
+  [ ok ] declared recentre occupies only its decision output PDU got=0 exp=0
+  [ ok ] every declared recentre step reached the wire got=1 exp=1
+  [ ok ] declared recentres leave both loopback slip counters unchanged got=0 exp=0
+RECENTRE totals decisions=1 completed=1 planted=1
+AUDIO comparisons payload=469776 sample_order=58721 packet_sequence=9866
+NOT RUN TO COMPLETION: acquisition and public coherence
+NOT RUN TO COMPLETION: healthy audio
+NOT RUN TO COMPLETION: backpressure
+NOT RUN TO COMPLETION: loss and recovery
+NOT RUN TO COMPLETION: reset and reacquisition
+simulated_duration_seconds=1.233477920 cycles=61673896
+clock_audio_hz=24575738.529227 clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20
+NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+exit_status=1 negative_control=0
+== ax1x1gptp physical: checks: 34   failures: 1 ==
+RESULT: FAIL

@@ -1,0 +1,135 @@
+{
+  "scopes": {
+    "alinx_ax7101": {
+      "base": {
+        "LUT": 50702,
+        "logic_LUT": 48470,
+        "LUTRAM": 2228,
+        "SRL": 4,
+        "FF": 59677,
+        "RAMB36": 79,
+        "RAMB18": 27,
+        "DSP": 14
+      },
+      "head": {
+        "LUT": 49779,
+        "logic_LUT": 46095,
+        "LUTRAM": 3680,
+        "SRL": 4,
+        "FF": 54280,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14
+      },
+      "delta": {
+        "LUT": -923,
+        "logic_LUT": -2375,
+        "LUTRAM": 1452,
+        "SRL": 0,
+        "FF": -5397,
+        "RAMB36": -5,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    },
+    "alinx_ax7101/milan_datapath/@own": {
+      "base": {
+        "LUT": 562,
+        "logic_LUT": 562,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 2850,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "head": {
+        "LUT": 637,
+        "logic_LUT": 637,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 2955,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "delta": {
+        "LUT": 75,
+        "logic_LUT": 75,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 105,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    },
+    "alinx_ax7101/milan_datapath/chan_map_capture": {
+      "base": {
+        "LUT": 1076,
+        "logic_LUT": 1076,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 1321,
+        "RAMB36": 1,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "head": {
+        "LUT": 1125,
+        "logic_LUT": 1125,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 1353,
+        "RAMB36": 1,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "delta": {
+        "LUT": 49,
+        "logic_LUT": 49,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 32,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    }
+  },
+  "settle_FF": 41,
+  "settle_full_LUT_cone": 80,
+  "own_FF_delta": 73,
+  "own_LUT_conservative_bound": 129,
+  "two_changed_scopes_delta": {
+    "LUT": 124,
+    "logic_LUT": 124,
+    "LUTRAM": 0,
+    "SRL": 0,
+    "FF": 137,
+    "RAMB36": 0,
+    "RAMB18": 0,
+    "DSP": 0
+  }
+}
+Ownership refinement: {
+  "full_cone_LUT": 80,
+  "capture_cone_LUT_counted_in_module_delta": 1,
+  "identical_base_functions": 6,
+  "remaining_cone_LUT_upper_bound": 73,
+  "capture_LUT_delta": 49,
+  "own_LUT_upper_bound": 122,
+  "own_FF_delta": 73
+}
+Final ownership bound: {
+  "full_cone_LUT": 80,
+  "capture_cone_LUT_counted_in_module_delta": 1,
+  "identical_base_functions": 6,
+  "remaining_cone_LUT_upper_bound": 73,
+  "capture_LUT_delta": 49,
+  "own_LUT_upper_bound": 122,
+  "own_FF_delta": 73,
+  "shared_band_functions_proved_identical": 10,
+  "final_remaining_cone_LUT_upper_bound": 63,
+  "final_own_LUT_upper_bound": 112
+}

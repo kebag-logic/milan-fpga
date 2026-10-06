@@ -1,0 +1,18 @@
+  info: INTERNAL: 2 slips in 6.453 s (beat 3.519 s); margin at the set +0.438..+0.745 ticks
+  info: t=6.452892 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.657 s after the set; trim -6.188 ppm at the end
+  info: slip at 1.5381 s after the set, -5.1191 s from LOCKED
+  info: slip at 6.8320 s after the set, +0.1747 s from LOCKED
+  info: render recentre at 0.0428 s after the set, -6.6145 s from LOCKED
+  info: INTERNAL, last second      [   5.453,    6.453) s: ring slips 0, margin +0.438..+0.960 ticks; render n 7999 fill 12..12 (off-law 7999), delay 6.344..6.866 (out of band 7999), end-to-pop clearance 0.134 ticks
+  info: set to LOCKED              [   6.453,   13.110) s: ring slips 1, margin +0.008..+1.236 ticks; render n 53256 fill 12..14 (off-law 40172), delay 6.336..8.571 (out of band 40484), end-to-pop clearance 0.003 ticks NOT GRADABLE
+  info: LOCKED to the hold's end   [  13.110,   66.453) s: ring slips 1, margin +0.008..+1.244 ticks; render n 426736 fill 12..13 (off-law 426736), delay 6.881..7.158 (out of band 426736), end-to-pop clearance 0.004 ticks NOT GRADABLE
+  info: the hold's last 10 s       [  56.453,   66.453) s: ring slips 0, margin +0.975..+1.229 ticks; render n 79998 fill 12..13 (off-law 79998), delay 6.881..7.135 (out of band 79998), end-to-pop clearance 0.004 ticks NOT GRADABLE
+RESULT-645: phase 0.5625 jitter 5.0 us tail 0.0 us p 0e+00: slips set-to-LOCKED 1, after LOCKED 1 (last +0.17 s), margin at LOCKED +0.008..+1.244 ticks, LOCKED 6.66 s, render at the end fill 12..13 delay 6.881..7.135 (not gradable)
+  info: t=66.452892 s  CLOCK_SOURCE <- 1
+  info: t=86.452892 s  CLOCK_SOURCE <- 2
+  info: AAF to CRF: LOCKED 2.978 s after, ring slips 0; CRF to AAF: LOCKED 6.018 s after, ring slips 0
+  info: AAF to CRF hold            [  66.453,   86.453) s: ring slips 0, margin +0.975..+1.236 ticks; render n 159996 fill 12..15 (off-law 102147), delay 6.889..9.147 (out of band 96438), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: CRF to AAF hold            [  86.453,  106.453) s: ring slips 0, margin +0.991..+1.283 ticks; render n 159997 fill 14..15 (off-law 124759), delay 8.901..9.185 (out of band 119089), end-to-pop clearance 0.001 ticks NOT GRADABLE
+== follow_ring: checks: 5   failures: 0 ==
+RESULT: PASS

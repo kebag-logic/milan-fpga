@@ -1,0 +1,15 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    3 descriptor burst(s) served from the 7512-byte generated image
+
+[PULLIN] #647: a running stream through T14's serial-clock hold at INTERNAL, graded after its settle recentre, at 1 feed phase(s)
+  [i]    LAW: waited 4013 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T647 PULLIN +1562 before the hold: over 73 steady PDU ends the first pop after the end is taken +463..+465 cycles from it and the pop nearest the boundary +463..+465 (walk 2); the least clearance is 462 cycles, at PDU 2 (offset +463), against the 9-cycle ambiguity window: margin 453
+  [i]    T647 PULLIN +1562 before the hold: 60 PDUs, fill at the PDU end 14..14, first-event delay from it 17131..17133 cycles = 8.223..8.224 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T647 PULLIN +1562 pull: +64 ms aligner err 212..1058 cycles, engaged 1, trim -1182, settle run 0
+  [i]    T647 PULLIN +1562 pull: +128 ms aligner err 0..212 cycles, engaged 1, trim -395, settle run 867
+  [i]    T647 PULLIN +1562: the settle recentre came 15262500 axis cycles (152.6 ms) after the hold; loopback slips 0 during the pull, 0 after the settle
+  [i]    T647 PULLIN +1562 after the settle: over 123 steady PDU ends the first pop after the end is taken +1550..+1560 cycles from it and the pop nearest the boundary -533..-524 (walk 9); the least clearance is 524 cycles, at PDU 108 (offset -524), against the 9-cycle ambiguity window: margin 515
+  [i]    T647 PULLIN +1562 after the settle: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 18218..18228 cycles = 8.745..8.749 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+== tdm8_render: checks: 26   failures: 0 ==
+RESULT: PASS

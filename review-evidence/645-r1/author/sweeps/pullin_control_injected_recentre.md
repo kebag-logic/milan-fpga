@@ -1,0 +1,34 @@
+| Run | rc | Result |
+|---|---|---|
+| pullin_h52_p00 | 0 | RESULT-647: latency 200.00 us hold 52.0 us: delay 8.241..8.248 -> 8.748..8.801 ticks (shift +0.530), fill 14..14 -> 14..14, clearance 0.241 -> 0.199 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p01 | 0 | RESULT-647: latency 201.30 us hold 52.0 us: delay 8.179..8.187 -> 8.686..8.740 ticks (shift +0.530), fill 14..14 -> 14..14, clearance 0.179 -> 0.260 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p02 | 0 | RESULT-647: latency 202.60 us hold 52.0 us: delay 8.118..8.125 -> 8.625..8.678 ticks (shift +0.530), fill 14..14 -> 14..14, clearance 0.118 -> 0.322 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p03 | 0 | RESULT-647: latency 203.91 us hold 52.0 us: delay 8.056..8.064 -> 8.563..8.617 ticks (shift +0.530), fill 14..14 -> 14..14, clearance 0.056 -> 0.383 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p04 | 0 | RESULT-647: latency 205.21 us hold 52.0 us: delay 8.993..9.001 -> 8.502..8.548 ticks (shift -0.472), fill 15..15 -> 14..14, clearance 0.001 -> 0.452 ticks, recentres 1: BEFORE NOT GRADABLE |
+| pullin_h52_p05 | 0 | RESULT-647: latency 206.51 us hold 52.0 us: delay 8.932..8.940 -> 8.440..8.486 ticks (shift -0.472), fill 14..14 -> 14..14, clearance 0.060 -> 0.440 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p06 | 0 | RESULT-647: latency 207.81 us hold 52.0 us: delay 8.870..8.878 -> 8.379..8.425 ticks (shift -0.472), fill 14..14 -> 14..14, clearance 0.122 -> 0.379 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p07 | 0 | RESULT-647: latency 209.11 us hold 52.0 us: delay 8.809..8.817 -> 8.310..8.364 ticks (shift -0.476), fill 14..14 -> 14..14, clearance 0.183 -> 0.310 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p08 | 0 | RESULT-647: latency 210.42 us hold 52.0 us: delay 8.748..8.755 -> 8.248..8.302 ticks (shift -0.476), fill 14..14 -> 14..14, clearance 0.245 -> 0.248 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p09 | 0 | RESULT-647: latency 211.72 us hold 52.0 us: delay 8.678..8.686 -> 8.187..8.241 ticks (shift -0.468), fill 14..14 -> 14..14, clearance 0.314 -> 0.187 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p10 | 0 | RESULT-647: latency 213.02 us hold 52.0 us: delay 8.617..8.625 -> 8.125..8.179 ticks (shift -0.468), fill 14..14 -> 14..14, clearance 0.375 -> 0.125 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p11 | 0 | RESULT-647: latency 214.32 us hold 52.0 us: delay 8.556..8.563 -> 8.064..8.110 ticks (shift -0.472), fill 14..14 -> 14..14, clearance 0.437 -> 0.064 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p12 | 0 | RESULT-647: latency 215.62 us hold 52.0 us: delay 8.494..8.502 -> 8.003..8.049 ticks (shift -0.472), fill 14..14 -> 14..14, clearance 0.494 -> 0.003 ticks, recentres 1: AFTER NOT GRADABLE |
+| pullin_h52_p13 | 0 | RESULT-647: latency 216.93 us hold 52.0 us: delay 8.433..8.440 -> 7.941..7.987 ticks (shift -0.472), fill 14..14 -> 13..14, clearance 0.433 -> 0.013 ticks, recentres 1: AFTER NOT GRADABLE |
+| pullin_h52_p14 | 0 | RESULT-647: latency 218.23 us hold 52.0 us: delay 8.371..8.379 -> 8.878..8.924 ticks (shift +0.526), fill 14..14 -> 14..14, clearance 0.371 -> 0.076 ticks, recentres 1: ON THE LAW |
+| pullin_h52_p15 | 0 | RESULT-647: latency 219.53 us hold 52.0 us: delay 8.310..8.317 -> 8.817..8.863 ticks (shift +0.526), fill 14..14 -> 14..14, clearance 0.310 -> 0.137 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p00 | 0 | RESULT-647: latency 200.00 us hold 56.0 us: delay 8.241..8.248 -> 8.901..8.932 ticks (shift +0.672), fill 14..14 -> 14..14, clearance 0.241 -> 0.068 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p01 | 0 | RESULT-647: latency 201.30 us hold 56.0 us: delay 8.179..8.187 -> 8.840..8.870 ticks (shift +0.672), fill 14..14 -> 14..14, clearance 0.179 -> 0.130 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p02 | 0 | RESULT-647: latency 202.60 us hold 56.0 us: delay 8.118..8.125 -> 8.778..8.809 ticks (shift +0.672), fill 14..14 -> 14..14, clearance 0.118 -> 0.191 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p03 | 0 | RESULT-647: latency 203.91 us hold 56.0 us: delay 8.056..8.064 -> 8.717..8.748 ticks (shift +0.672), fill 14..14 -> 14..14, clearance 0.056 -> 0.252 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p04 | 0 | RESULT-647: latency 205.21 us hold 56.0 us: delay 8.993..9.001 -> 8.648..8.686 ticks (shift -0.330), fill 15..15 -> 14..14, clearance 0.001 -> 0.314 ticks, recentres 1: BEFORE NOT GRADABLE |
+| pullin_h56_p05 | 0 | RESULT-647: latency 206.51 us hold 56.0 us: delay 8.932..8.940 -> 8.586..8.625 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.060 -> 0.375 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p06 | 0 | RESULT-647: latency 207.81 us hold 56.0 us: delay 8.870..8.878 -> 8.525..8.563 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.122 -> 0.437 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p07 | 0 | RESULT-647: latency 209.11 us hold 56.0 us: delay 8.809..8.817 -> 8.463..8.494 ticks (shift -0.334), fill 14..14 -> 14..14, clearance 0.183 -> 0.463 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p08 | 0 | RESULT-647: latency 210.42 us hold 56.0 us: delay 8.748..8.755 -> 8.402..8.433 ticks (shift -0.334), fill 14..14 -> 14..14, clearance 0.245 -> 0.402 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p09 | 0 | RESULT-647: latency 211.72 us hold 56.0 us: delay 8.678..8.686 -> 8.340..8.371 ticks (shift -0.326), fill 14..14 -> 14..14, clearance 0.314 -> 0.340 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p10 | 0 | RESULT-647: latency 213.02 us hold 56.0 us: delay 8.617..8.625 -> 8.279..8.310 ticks (shift -0.326), fill 14..14 -> 14..14, clearance 0.375 -> 0.279 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p11 | 0 | RESULT-647: latency 214.32 us hold 56.0 us: delay 8.556..8.563 -> 8.210..8.248 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.437 -> 0.210 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p12 | 0 | RESULT-647: latency 215.62 us hold 56.0 us: delay 8.494..8.502 -> 8.148..8.187 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.494 -> 0.148 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p13 | 0 | RESULT-647: latency 216.93 us hold 56.0 us: delay 8.433..8.440 -> 8.087..8.125 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.433 -> 0.087 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p14 | 0 | RESULT-647: latency 218.23 us hold 56.0 us: delay 8.371..8.379 -> 8.026..8.056 ticks (shift -0.334), fill 14..14 -> 14..14, clearance 0.371 -> 0.026 ticks, recentres 1: ON THE LAW |
+| pullin_h56_p15 | 0 | RESULT-647: latency 219.53 us hold 56.0 us: delay 8.310..8.317 -> 8.963..9.001 ticks (shift +0.668), fill 14..14 -> 14..15, clearance 0.310 -> 0.001 ticks, recentres 1: AFTER NOT GRADABLE |

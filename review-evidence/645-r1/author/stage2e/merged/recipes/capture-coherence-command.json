@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "taskset",
+    "-c",
+    "32,33",
+    "make",
+    "-j16",
+    "VERILATOR_JOBS=2"
+  ],
+  "cwd": "$WORK/broad/tb/verilator/capture_coherence"
+}
