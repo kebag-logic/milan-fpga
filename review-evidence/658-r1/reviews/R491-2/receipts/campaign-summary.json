@@ -1,0 +1,122 @@
+[
+  {
+    "case": "clean",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 20.138,
+    "checks": 162,
+    "failures": 0,
+    "runtime_sha256": "4906a2812b8f4e9b3f200c36d32537207fe89705f2ebe907b2a015b879bc2515"
+  },
+  {
+    "case": "mutant-05",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 22.819,
+    "checks": 162,
+    "failures": 4,
+    "runtime_sha256": "3337df415e4a4eec740b55388f4989bd47bcf47deb890b367ccd9f1d21c596ca"
+  },
+  {
+    "case": "mutant-06",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 23.111,
+    "checks": 162,
+    "failures": 2,
+    "runtime_sha256": "99f687f91b668e683a22973ee8052ae520d11f8b57235a1e03d7e5d3a86550db"
+  },
+  {
+    "case": "mutant-07",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 22.079,
+    "checks": 162,
+    "failures": 2,
+    "runtime_sha256": "20e8845745a318b18874bf89f030f4add9a0252e0391bdcd3cb10623a1daec39"
+  },
+  {
+    "case": "mutant-08",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended",
+    "ok": true,
+    "seconds": 21.893,
+    "checks": 162,
+    "failures": 2,
+    "runtime_sha256": "f19ec3248fd217f462328432045137c2b876ce043978b1a7e31e5518a0c23e10"
+  },
+  {
+    "case": "mutant-09",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map",
+    "ok": true,
+    "seconds": 25.889,
+    "checks": 162,
+    "failures": 6,
+    "runtime_sha256": "1428b8607c000ac0d973d874d653b4858b7b2aad5a6874cc160fef412858b17b"
+  },
+  {
+    "case": "mutant-10",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 26.862,
+    "checks": 162,
+    "failures": 4,
+    "runtime_sha256": "3d4484a7b4ee4084352f1b37f5ff1efe5dd53ee469478fd8c0d02102fcb02503"
+  },
+  {
+    "case": "mutant-11",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends",
+    "ok": true,
+    "seconds": 37.012,
+    "checks": 162,
+    "failures": 2,
+    "runtime_sha256": "5b6c429b1d32b7aea32c7e9d76be962fd7d33763880ad26ac29b96bee99cab0f"
+  },
+  {
+    "case": "capture-ram-only",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 39.103,
+    "checks": 162,
+    "failures": 0,
+    "runtime_sha256": "4906a2812b8f4e9b3f200c36d32537207fe89705f2ebe907b2a015b879bc2515"
+  },
+  {
+    "case": "render-ram-only",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 25.905,
+    "checks": 162,
+    "failures": 0,
+    "runtime_sha256": "4906a2812b8f4e9b3f200c36d32537207fe89705f2ebe907b2a015b879bc2515"
+  }
+]

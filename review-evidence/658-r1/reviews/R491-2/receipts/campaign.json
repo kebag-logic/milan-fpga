@@ -1,0 +1,92 @@
+[
+  {
+    "case": "clean",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 20.138
+  },
+  {
+    "case": "mutant-05",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 22.819
+  },
+  {
+    "case": "mutant-06",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 23.111
+  },
+  {
+    "case": "mutant-07",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 22.079
+  },
+  {
+    "case": "mutant-08",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended",
+    "ok": true,
+    "seconds": 21.893
+  },
+  {
+    "case": "mutant-09",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map",
+    "ok": true,
+    "seconds": 25.889
+  },
+  {
+    "case": "mutant-10",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM",
+    "ok": true,
+    "seconds": 26.862
+  },
+  {
+    "case": "mutant-11",
+    "build_rc": 0,
+    "run_rc": 1,
+    "verdict": "caught",
+    "named_check": "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends",
+    "ok": true,
+    "seconds": 37.012
+  },
+  {
+    "case": "capture-ram-only",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 39.103
+  },
+  {
+    "case": "render-ram-only",
+    "build_rc": 0,
+    "run_rc": 0,
+    "verdict": "pass",
+    "named_check": null,
+    "ok": true,
+    "seconds": 25.905
+  }
+]
