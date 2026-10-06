@@ -1100,11 +1100,19 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 replaces the former four-settle-band arm. The arm threshold is two axis
 cycles: twice the quiet +/-1-cycle excursion. Unlike the #386 settling band,
 it does not scale with the clock frequency. The absolute-error comparator
-arms strictly above that threshold. All 128 baseline phases, both offset
+arms strictly above that threshold. All 128 campaign phases, both offset
 signs crossed with four arrival envelopes, must contribute their complete
 signed quiet distributions before this choice is accepted; the standing
 `quiet_distributions.py` check rejects incomplete data and out-of-band
 excursions. Quiet windows are selected by stimulus time, not measured error.
+
+Measured at 6.25 MHz over all 128 phases and their 512 quiet windows,
+320,462,699 samples, the quiet error never leaves +/-1 axis cycle, so the
+band is exactly twice the largest quiet excursion. In every one of those
+runs the standing checks find no settle pulse, excursion arm or pending
+settle in a quiet window, and each of the run's three transients gets exactly
+one settle recentre. The preserved four-band implementation gives the same
+histograms, sample for sample, because the arm does not feed the aligner.
 
 | Axis clock | Quiet band | Use |
 |---|---|---|
