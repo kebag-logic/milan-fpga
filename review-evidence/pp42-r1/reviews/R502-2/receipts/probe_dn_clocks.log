@@ -1,0 +1,25 @@
+  [probe] space_out returns at 100000 (last_sent 0)
+  [probe] link down at 100000
+  [i] DN4b: GET_AVB_INFO sequence_id 0 left 466 clocks after the stimulus
+  [probe] space_out returns at 220000 (last_sent 100466)
+  [probe] link up at 220000
+  [i] DN4d: GET_AVB_INFO sequence_id 1 left 466 clocks after the stimulus
+  [probe] space_out returns at 340000 (last_sent 220466)
+  [probe] MRPDU vid 5: 30 bytes, last byte at 340030, feed() returns at 340034
+  [i] DN1b: GET_AVB_INFO sequence_id 2 left 495 clocks after the stimulus
+  [probe] space_out returns at 460034 (last_sent 340529)
+  [probe] MRPDU vid 5: 30 bytes, last byte at 460064, feed() returns at 460068
+  [probe] space_out returns at 580068 (last_sent 340529)
+  [probe] MRPDU vid 2: 30 bytes, last byte at 580098, feed() returns at 580102
+  [i] DN2b: GET_AVB_INFO sequence_id 3 left 495 clocks after the stimulus
+  [i] DN2: class-D adopted 1 after the default is declared back
+  [probe] space_out returns at 700102 (last_sent 580597)
+  [probe] MRPDU vid 2: 30 bytes, last byte at 700132, feed() returns at 700136
+  [probe] frame to A #0 at 3464: u 0 ct 0x0024 seq 16896 status 0
+  [probe] frame to A #1 at 100466: u 1 ct 0x0027 seq 0 status 0
+  [probe] frame to A #2 at 220466: u 1 ct 0x0027 seq 1 status 0
+  [probe] frame to A #3 at 340529: u 1 ct 0x0027 seq 2 status 0
+  [probe] frame to A #4 at 580597: u 1 ct 0x0027 seq 3 status 0
+  [i] DN: 8167 ms of the timebase after the registration (the controller monitor's floor is 30 s)
+DN: 15 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 15 checks, 0 failures

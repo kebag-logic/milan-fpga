@@ -1,0 +1,40 @@
+merge 0f5562b49a566694ef1b2a8e27467f13d9172c64 parents 72facc6d48807808e4d97a454a0ecceb2769ac9e 7e5415e069cae46b63cafcc9e6ac9f68e058d9d0 re-merge tree 692d8f4c8327e168c581fe140e5fb711b4d7c8ae recorded tree 692d8f4c8327e168c581fe140e5fb711b4d7c8ae IDENTICAL
+merge ad670a71b4d2f38f59672d51d8309d59ffed0808 parents 9be9cd7af428a9497a9ca2a8dad716823ca3bb6a 86a7b0c57831c15e9cd8b42d64cc4a9843f4e726 re-merge tree 224aadfa2ffc348ad3123bd4580b573a7d97c098 recorded tree 224aadfa2ffc348ad3123bd4580b573a7d97c098 IDENTICAL
+
+PR-own delta vs main 86a7b0c5:
+ docs/architecture/09_verification.md |   6 +-
+ tb/pp_top/README.md                  |  77 ++++++++++++++-
+ tb/pp_top/notify_mutants.py          |  54 ++++++++++-
+ tb/pp_top/notify_phases.hpp          | 179 +++++++++++++++++++++++++++++++++++
+ tb/pp_top/sim_main.cpp               |   5 +-
+ 5 files changed, 309 insertions(+), 12 deletions(-)
+
+#22 delta (9be9cd7..ad670a7):
+ hdl/packet_engine/KL_pp_originator.sv   | 6 +++---
+ hdl/packet_engine/KL_pp_rx_validator.sv | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+*   ad670a7 Merge main 86a7b0c5 (#22) into pp42-domain-notify
+|\  
+| *   86a7b0c Merge pull request #162 from Mister-M-alt/pp22-decl-order
+| |\  
+| | *   d52bd7f Merge main 7e5415e0 (#134) into pp22-decl-order
+| | |\  
+| | |/  
+| |/|   
+| | * 2139f3d Move packet-engine declarations above their first use
+* | 9be9cd7 State section DN's latency from feed()'s return and the MRPDU's last byte, and its spacing from the latest notification
+* | 0f5562b Merge processor main 7e5415e0 (#134) into pp42-domain-notify
+|\| 
+| * 7e5415e Merge pull request #160 from Mister-M-alt/pp134-lv-leave
+| * ffc3a8e Merge main e6a759de (#158) into pp134-lv-leave
+| * a596c76 Correct full-suite LV mutation records (#134)
+| * 9050c4b Merge processor main 21c6f709 into the LV leave lane (#134)
+| * 9d26598 Supply the record count in D3 restore failure diagnostics (#134)
+| * ed727d4 Preserve renewal indications while prioritizing leave expiry (#134)
+| * ab3c168 Consume registrar leave expiry before simultaneous received events (#134)
+| * 5ab43bd State the LV-case withdrawal behaviour in 10 section 6.5 (#134)
+| * 68b0e61 Grade a withdrawal that meets an LV Listener registrar after a LeaveAll (#134)
+* 72facc6 Record #42's section DN and its nine controls in the pp_top README and 09 section 8.4
+* 5cd4082 Plant #42's nine controls against tb/pp_top section DN
+* bc74bc3 Grade #42's Domain and link-edge GET_AVB_INFO notification: tb/pp_top section DN on a fresh processor

@@ -1,0 +1,47 @@
+--- head/tb/pp_top/notify_phases.hpp	2026-10-06 12:59:58.000000000 +0200
++++ probe/tb/pp_top/notify_phases.hpp	2026-10-06 13:03:07.934956134 +0200
+@@ -1689,11 +1689,18 @@
+   //! the 06 7 spacing: a second after the latest notification to A left
+   void space_out() {
+     while (io.t < last_sent + SPACING) tick();
++    printf("  [probe] space_out returns at %llu (last_sent %llu)\n",
++           (unsigned long long)io.t, (unsigned long long)last_sent);
+   }
+   //! the bridge's Class A Domain {3, vid}: Class A arrives as value 1 (10 3)
+   void declare_domain(uint16_t vid) {
+     Msg dom{4, 4, false, {Vec{false, 2, fv_domain(5, 2, vid), {EV_JOININ, EV_JOININ}, {}}}};
+-    feed(mrpdu_frame(true, T1_MAC, {dom}));
++    const auto fr = mrpdu_frame(true, T1_MAC, {dom});
++    const uint64_t tb = io.t;
++    feed(fr);
++    printf("  [probe] MRPDU vid %u: %zu bytes, last byte at %llu, feed() returns at %llu\n",
++           unsigned(vid), fr.size(), (unsigned long long)(tb + fr.size()),
++           (unsigned long long)io.t);
+   }
+   //! the window after a stimulus that ended at log index `from`; returns the
+   //! frames A received in it
+@@ -1742,10 +1749,12 @@
+     space_out();
+     size_t from = seen.size();
+     io.d->link_up_i = 0;
++    printf("  [probe] link down at %llu\n", (unsigned long long)io.t);
+     one_notification("DN4b", "DN4c", "link down", from, io.t);
+     space_out();
+     from = seen.size();
+     io.d->link_up_i = 1;
++    printf("  [probe] link up at %llu\n", (unsigned long long)io.t);
+     one_notification("DN4d", "DN4e", "link up", from, io.t);
+     CHECK(io.domain_changes == ch0,
+           "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link "
+@@ -1806,6 +1815,11 @@
+     identical("DN3", ADOPT_VID);
+     revert();
+     identical("DN3b", SRP_DEF_VID);
++    for (size_t i = 0; i < seen.size(); ++i)
++      if (da_of(seen[i].f) == CTLR_MAC)
++        printf("  [probe] frame to A #%zu at %llu: u %d ct 0x%04x seq %u status %u\n", i,
++               (unsigned long long)seen[i].t, int(unsolicited(seen[i].f)), ct_of(seen[i].f),
++               seq_of(seen[i].f), status_of(seen[i].f));
+     printf("  [i] DN: %u ms of the timebase after the registration (the controller monitor's "
+            "floor is 30 s)\n", unsigned(io.d->dbg_now_ms_o - ms0));
+   }

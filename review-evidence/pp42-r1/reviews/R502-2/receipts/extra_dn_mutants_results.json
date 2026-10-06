@@ -1,0 +1,61 @@
+[
+ {
+  "arm": "golden",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "arm": "link_level_while_down",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named": [
+   "DN4b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 287 frames: 287 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4d: link up: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 2 frames: 2 GET_AVB_INFO, 0 GET_AS_PATH)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "arm": "link_rise_only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named": [
+   "DN4b:",
+   "DN4c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "arm": "avb_takes_adopted_level",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named": [
+   "DN1b:",
+   "DN3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 287 frames: 287 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN3: the bridge declares the operating {3, 5} again: no DOMAIN_CHANGE (saw 0) and nothing reaches A (got 288 frames)",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 288 frames: 288 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN3b: the bridge declares the operating {3, 2} again: no DOMAIN_CHANGE (saw 0) and nothing reaches A (got 288 frames)"
+  ],
+  "verdict": "KILLED"
+ }
+]
