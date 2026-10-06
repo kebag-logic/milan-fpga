@@ -7,12 +7,15 @@
 //  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0 and FC)
 //
 //  Description : The ingress filter and the receive ring writer. A frame arrives
-//                one byte per accepted cycle. When its byte 14 arrives its full
-//                tuple picks at most one channel: the destination MAC (wire
-//                bytes 0 to 5) against each match tuple's address, or, for an
-//                `own` tuple, against OWN_MAC of the interface the frame
-//                arrived on; the EtherType (bytes 12 and 13); and the AVTP
-//                subtype (byte 14) where the tuple names one. Every channel's
+//                one byte per accepted cycle. When its byte 15 arrives (or its
+//                last byte, if it ends at byte 14) its full tuple picks at most
+//                one channel: the destination MAC (wire bytes 0 to 5) against
+//                each match tuple's address, or, for an `own` tuple, against
+//                OWN_MAC of the interface the frame arrived on; the EtherType
+//                (bytes 12 and 13); the AVTP subtype (byte 14) where the tuple
+//                names one; and the message_type (the low nibble of byte 15, 0
+//                when the frame ends at byte 14) where the tuple names some, as
+//                the MAAP DEFEND to own unicast does. Every channel's
 //                accept terms (the identity term: an 8-byte compare against
 //                OWN_EID or zero, or a MAAP range captured for the overlap
 //                test) are evaluated as the bytes pass, and the frame's words
@@ -34,6 +37,9 @@
 //                at bytes 12 and 13, which the contract lets no tuple name, so
 //                a tagged frame matches no tuple and is of no control
 //                EtherType: it reaches no channel and no counter.
+//
+//                The decision at byte 15 needs no drain first: bytes 0 to 15
+//                are words 0 to 3, which the four-word queue holds.
 //
 //                The one decision that matters: a speculative word is
 //                written only into space the core has released (the word
@@ -95,6 +101,7 @@ module KL_mbx_rx
   logic [47:0]             dst_r;          //! destination MAC, shifted in big-endian
   logic [7:0]              b12_r;          //! EtherType high byte
   logic [7:0]              b13_r;          //! EtherType low byte
+  logic [7:0]              sub_r;          //! AVTP subtype, wire byte 14
   logic                    cls_done_r;     //! the channel decision is taken
   logic                    hit_r;          //! the frame classified into an open channel
   logic                    mis_r;          //! a control EtherType that matched no tuple
@@ -142,13 +149,19 @@ module KL_mbx_rx
     end
   end : own_mac
 
-  // ---- classification of the byte at index 14: the full tuple ----------------
+  // ---- classification at byte 15, or at the last byte of a frame ending at 14 --
+  logic                  cls_at_w;    //! the byte taken now decides the channel
   logic                  cls_hit_w;   //! a channel's tuple holds
   logic [MBX_CH_W_C-1:0] cls_ch_w;    //! that channel
   logic                  ctrl_et_w;   //! the EtherType is one some tuple names
+  assign cls_at_w = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) || (rx_last_i && cnt_r == 11'(MBX_SUBTYPE_BYTE_C));
   always_comb begin : classify
     logic [15:0] ethertype;
+    logic [7:0]  subtype;
+    logic [3:0]  msg;
     ethertype = {b12_r, b13_r};
+    subtype   = (cnt_r == 11'(MBX_SUBTYPE_BYTE_C)) ? rx_data_i : sub_r;
+    msg       = (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C)) ? rx_data_i[3:0] : 4'd0;
     cls_hit_w = 1'b0;
     cls_ch_w  = '0;
     ctrl_et_w = 1'b0;
@@ -160,7 +173,8 @@ module KL_mbx_rx
       if (MBX_TUPLE_DST_TBL_C[j] != MBX_DST_NONE_C && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j]))
         ctrl_et_w = 1'b1;
       if (!cls_hit_w && dst_ok && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j])
-          && (MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || rx_data_i == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))) begin
+          && (MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || subtype == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))
+          && MBX_TUPLE_MSG_MASK_TBL_C[j][{1'b0, msg}]) begin
         cls_hit_w = 1'b1;
         cls_ch_w  = MBX_CH_W_C'(j / int'(MBX_MAX_TUPLES_C));
       end
@@ -272,6 +286,7 @@ module KL_mbx_rx
       dst_r        <= '0;
       b12_r        <= '0;
       b13_r        <= '0;
+      sub_r        <= '0;
       cls_done_r   <= 1'b0;
       hit_r        <= 1'b0;
       mis_r        <= 1'b0;
@@ -307,8 +322,9 @@ module KL_mbx_rx
         if (32'(cnt_r) - MBX_DST_BYTE_C < 32'd6)    dst_r <= {dst_r[39:0], rx_data_i};
         if (cnt_r == 11'(MBX_ETHERTYPE_BYTE_C))     b12_r <= rx_data_i;
         if (cnt_r == 11'(MBX_ETHERTYPE_BYTE_C + 1)) b13_r <= rx_data_i;
+        if (cnt_r == 11'(MBX_SUBTYPE_BYTE_C))       sub_r <= rx_data_i;
         if (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C))      msg_r <= rx_data_i[3:0];
-        if (cnt_r == 11'(MBX_SUBTYPE_BYTE_C)) begin
+        if (cls_at_w) begin
           cls_done_r <= 1'b1;
           hit_r      <= cls_hit_w && open_i[cls_ch_w];
           ch_r       <= cls_ch_w;
