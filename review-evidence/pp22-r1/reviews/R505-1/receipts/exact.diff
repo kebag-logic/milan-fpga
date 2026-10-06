@@ -1,0 +1,47 @@
+diff --git a/hdl/packet_engine/KL_pp_originator.sv b/hdl/packet_engine/KL_pp_originator.sv
+index 058b10c..0aaeb6e 100644
+--- a/hdl/packet_engine/KL_pp_originator.sv
++++ b/hdl/packet_engine/KL_pp_originator.sv
+@@ -185,6 +185,9 @@ module KL_pp_originator #(
+     end
+   end
+ 
++  logic                cancel_hit_w;
++  logic [IFL_AW_C-1:0] cancel_ix_w;
++
+   logic [IFL_N_C-1:0]  cancel_work_w;
+   logic                cancel_pend_ok_w;
+   logic [IFL_AW_C-1:0] cancel_pend_ix_w;
+@@ -233,9 +236,6 @@ module KL_pp_originator #(
+     end
+   end
+ 
+-  logic                cancel_hit_w;
+-  logic [IFL_AW_C-1:0] cancel_ix_w;
+-
+   always_comb begin : cancel_pick
+     cancel_hit_w = 1'b0;
+     cancel_ix_w  = '0;
+diff --git a/hdl/packet_engine/KL_pp_rx_validator.sv b/hdl/packet_engine/KL_pp_rx_validator.sv
+index 4e1e93e..158f0b1 100644
+--- a/hdl/packet_engine/KL_pp_rx_validator.sv
++++ b/hdl/packet_engine/KL_pp_rx_validator.sv
+@@ -229,6 +229,8 @@ module KL_pp_rx_validator
+   logic [11:0] pcnt_end_w;
+   logic        v1_pass_w;
+   logic        ev_da_w, ev_et_w, ev_len_w;
++  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
++  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign acc_w  = rx_valid_i;
+   assign end_w  = rx_valid_i && rx_last_i;
+@@ -618,9 +620,7 @@ module KL_pp_rx_validator
+   logic [7:0] od_data_r;
+   logic       out_valid_r, out_emit_r;
+ 
+-  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
+   logic       vq_head_w;
+-  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign fifo_ne_w   = (wptr_r != rptr_r);
+   assign fifo_full_w = (wptr_r == (rptr_r ^ 7'h40));

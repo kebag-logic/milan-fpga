@@ -1,0 +1,81 @@
+{
+  "base": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+  "head": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+  "single_commit": true,
+  "only_two_files_changed": true,
+  "results": [
+    {
+      "path": "hdl/packet_engine/KL_pp_originator.sv",
+      "pure_byte_move": true,
+      "mode": "100644",
+      "base_sha256": "3037627e73f92001a83c83f692b0a2ae34d0bcdafd19ed83a4fb66ec9cb8b114",
+      "head_sha256": "1ce78869316a6d3699e144d5544dd0ce80e741d6f9a628c3795db68ac9b638dc",
+      "declarations": [
+        {
+          "name": "cancel_hit_w",
+          "declaration_line": 188,
+          "first_use_line": 197
+        },
+        {
+          "name": "cancel_ix_w",
+          "declaration_line": 189,
+          "first_use_line": 198
+        }
+      ]
+    },
+    {
+      "path": "hdl/packet_engine/KL_pp_rx_validator.sv",
+      "pure_byte_move": true,
+      "mode": "100644",
+      "base_sha256": "50f9b21f92bf83fc311a6831a1c65802416b9913372c6269a6f451f75bd1ed2f",
+      "head_sha256": "5785ee26cc75f25547b5632ec175a34410eb2fb6f67387ae5835d5af48181ea4",
+      "declarations": [
+        {
+          "name": "fifo_ne_w",
+          "declaration_line": 232,
+          "first_use_line": 625
+        },
+        {
+          "name": "fifo_full_w",
+          "declaration_line": 232,
+          "first_use_line": 626
+        },
+        {
+          "name": "vq_ne_w",
+          "declaration_line": 232,
+          "first_use_line": 627
+        },
+        {
+          "name": "vq_full_w",
+          "declaration_line": 232,
+          "first_use_line": 385
+        },
+        {
+          "name": "push_w",
+          "declaration_line": 233,
+          "first_use_line": 631
+        },
+        {
+          "name": "vd_push_w",
+          "declaration_line": 233,
+          "first_use_line": 385
+        },
+        {
+          "name": "vd_val_w",
+          "declaration_line": 233,
+          "first_use_line": 635
+        },
+        {
+          "name": "rd_fire_w",
+          "declaration_line": 233,
+          "first_use_line": 648
+        },
+        {
+          "name": "retire_w",
+          "declaration_line": 233,
+          "first_use_line": 647
+        }
+      ]
+    }
+  ]
+}

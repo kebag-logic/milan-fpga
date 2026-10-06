@@ -1,0 +1,45 @@
+[
+  {
+    "name": "originator-controls",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/pp22-r505-1-packet/scratch/planting-head/tb/pp_top/notify_mutants.py",
+      "--output",
+      "$REVIEWS/pp22-r505-1-packet/receipts/originator-controls",
+      "--verilator",
+      "$REVIEWS/pp22-r505-1-packet/scripts/limited_verilator.py",
+      "--jobs",
+      "2",
+      "--only",
+      "inflight_highest_free_id",
+      "inflight_match_ignores_seq",
+      "inflight_cancel_keeps_timer",
+      "inflight_shared_seq"
+    ],
+    "rc": 0,
+    "seconds": 16.154,
+    "killed": 4,
+    "goldens": 1
+  },
+  {
+    "name": "validator-control",
+    "command": [
+      "python3",
+      "-B",
+      "$REVIEWS/pp22-r505-1-packet/scratch/planting-head/tb/pp_top/d3_mutants.py",
+      "--output",
+      "$REVIEWS/pp22-r505-1-packet/receipts/validator-control",
+      "--verilator",
+      "$REVIEWS/pp22-r505-1-packet/scripts/limited_verilator.py",
+      "--jobs",
+      "1",
+      "--only",
+      "validator_admits_held_aecp"
+    ],
+    "rc": 0,
+    "seconds": 10.846,
+    "killed": 1,
+    "goldens": 1
+  }
+]

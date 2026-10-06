@@ -1,0 +1,39 @@
+{
+  "parent_base": "28f9666feab2b2ba287643c63ed3a16b1e0bb863",
+  "source_sha256_before": {
+    "scripts/xvlog.budget": "5ae30bdbafb9f846c62f46a486e2ed27aa987a14467ccb050516408dc94eae08",
+    "scripts/xvlog_gate.py": "3efbfb835b5de7d9a44f342b35b8cf2c67bff93300877913452a94aa9eb28ebe",
+    "scripts/pp_srcs.py": "af84950a79c2ac3c8624d60a3b62d14f0256029f3d22c3129f10fa1556485366",
+    "tb/verilator/milan_dp/sim_nxn.cpp": "b9c38d11698307553b24496551b71a91d8c1cda11892c370a53fa2ea57358f42",
+    ".gitmodules": "dfc148e8c336f8122874db3fe09fbdbdc3cf112b8d4fe6c3e9e401af7f5cc77f"
+  },
+  "derived_source_count": 46,
+  "derived_order_matches_published_tables": true,
+  "patches_in_order": [
+    {
+      "patch": "parent-adoption-148-6c22d3ca.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "parent-adoption-22-28f9666f.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "budget_before": {
+    "hdl": [],
+    "submodules": [
+      "protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w",
+      "protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w"
+    ]
+  },
+  "budget_after": {
+    "hdl": [],
+    "submodules": []
+  },
+  "xvlog_path": "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/xvlog",
+  "scope": "Patch application and budget/parser check only; no parent bank rerun."
+}

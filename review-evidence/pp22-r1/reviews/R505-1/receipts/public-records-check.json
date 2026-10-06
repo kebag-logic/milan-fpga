@@ -1,0 +1,48 @@
+{
+  "statistics": [
+    {
+      "module": "KL_pp_originator",
+      "bytes": 2045,
+      "sha256": "102354aa0632d5ca1fa83cf6c72f36cdb3f6a9a2524c5dc55114d5ff87b52298",
+      "byte_identical": true,
+      "reached_modules": 1
+    },
+    {
+      "module": "KL_pp_rx_validator",
+      "bytes": 2427,
+      "sha256": "b48ab8257a5d01221d8df24ec2138e12f0572f385ef4f657a0427af7554a2dda",
+      "byte_identical": true,
+      "reached_modules": 1
+    },
+    {
+      "module": "protocol_processor_top",
+      "bytes": 47371,
+      "sha256": "c19429cb06a6aa5f47e0f4b5fd53ac4d5bd390ba1f4d83b752ccbc14a35793e6",
+      "byte_identical": true,
+      "reached_modules": 43
+    }
+  ],
+  "analysis_files": 46,
+  "base_failures": [
+    {
+      "file": "hdl/packet_engine/KL_pp_originator.sv",
+      "rc": 1,
+      "VRFC 10-3380": 1,
+      "VRFC 10-8530": 1
+    },
+    {
+      "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+      "rc": 1,
+      "VRFC 10-3380": 1,
+      "VRFC 10-8530": 1
+    }
+  ],
+  "head_all_zero": true,
+  "suite_count": 33,
+  "suite_checks": 1021651,
+  "published_suite_table_identical": true,
+  "public_raw_full_suite_logs_available": false,
+  "parent_consumers_rc_zero": 17,
+  "calibration": "NOT RUN",
+  "note": "Statistics and analysis tables directly checked; complete-suite and parent runs are published records, not reviewer reruns."
+}

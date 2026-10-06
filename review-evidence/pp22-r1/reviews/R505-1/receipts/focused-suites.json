@@ -1,0 +1,75 @@
+{
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "max_compile_workers": 12,
+  "identical_records": true,
+  "results": [
+    {
+      "revision": "base",
+      "pin": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "suite": "originator",
+      "rc": 0,
+      "seconds": 5.829,
+      "command": [
+        "make",
+        "-j16",
+        "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+        "VFLAGS=--cc --exe --build -j 3 --top-module KL_pp_originator -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -I$REVIEWS/pp22-r505-1-packet/scratch/suites-base/tb/originator -Wall -Wextra\"",
+        "run"
+      ],
+      "records": [
+        "107 checks: 107 PASS, 0 FAIL"
+      ]
+    },
+    {
+      "revision": "base",
+      "pin": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "suite": "rx_validator",
+      "rc": 0,
+      "seconds": 6.436,
+      "command": [
+        "make",
+        "-j16",
+        "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+        "VFLAGS=--cc --exe --build -j 3 --top-module KL_pp_rx_validator -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -I$REVIEWS/pp22-r505-1-packet/scratch/suites-base/tb/rx_validator -Wall -Wextra\"",
+        "run"
+      ],
+      "records": [
+        "555 checks: 555 PASS, 0 FAIL"
+      ]
+    },
+    {
+      "revision": "head",
+      "pin": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "suite": "originator",
+      "rc": 0,
+      "seconds": 5.831,
+      "command": [
+        "make",
+        "-j16",
+        "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+        "VFLAGS=--cc --exe --build -j 3 --top-module KL_pp_originator -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -I$REVIEWS/pp22-r505-1-packet/scratch/suites-head/tb/originator -Wall -Wextra\"",
+        "run"
+      ],
+      "records": [
+        "107 checks: 107 PASS, 0 FAIL"
+      ]
+    },
+    {
+      "revision": "head",
+      "pin": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "suite": "rx_validator",
+      "rc": 0,
+      "seconds": 5.929,
+      "command": [
+        "make",
+        "-j16",
+        "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+        "VFLAGS=--cc --exe --build -j 3 --top-module KL_pp_rx_validator -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS \"-std=c++17 -O2 -I$REVIEWS/pp22-r505-1-packet/scratch/suites-head/tb/rx_validator -Wall -Wextra\"",
+        "run"
+      ],
+      "records": [
+        "555 checks: 555 PASS, 0 FAIL"
+      ]
+    }
+  ]
+}

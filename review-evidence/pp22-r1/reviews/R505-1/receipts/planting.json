@@ -1,0 +1,3733 @@
+{
+  "pin": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+  "jobs": 4,
+  "searches": [
+    {
+      "revision": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "text": "  logic                cancel_hit_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "text": "  logic [IFL_AW_C-1:0] cancel_ix_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "text": "  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8",
+      "text": "  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "text": "  logic                cancel_hit_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "text": "  logic [IFL_AW_C-1:0] cancel_ix_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "text": "  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "revision": "2139f3dc10161b456dfbd51d2f73a63f9164e041",
+      "text": "  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;",
+      "rc": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "patches": [
+    {
+      "patch": "tb/adp_engine/mutations/arc-bind-keeps-discovered.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-departing-silent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-discover-no-noadp-arm.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-fresh-no-rearm.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-fresh-no-store.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-fresh-store-max.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-fresh-store-plus-one.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-noadp-expiry-silent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-not-discovered-no-guard.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-restart-detector-off-by-one.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/arc-restart-skips-guard.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-dependent-field.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-frozen-at-top.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-nonzero-for-valid.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-overlay-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-read-live.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-valid-any-selector.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-valid-hard-reset.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-valid-no-reset.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-valid-not-sticky.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/cfg-valid-ucpu-bus.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-departing-ignores-interface.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-fresh-checks-gm.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-not-discovered-checks-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-not-discovered-checks-interface.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-restart-not-rediscovered.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-stray-noadp-departs.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/disc-unbind-keeps-timer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/gate-enable-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-delay-answers-discover.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-delay-ignores-link-down.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-delay-shutdown-silent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-departing-keeps-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-down-answers-discover.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-down-answers-gm-change.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-down-shutdown-departs.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-foreign-discover-answered.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-link-down-keeps-timer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/adp_engine/mutations/walk-stale-draw-arms.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/compare-mac-forward.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/defend-rdefend-ignored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/defend-rdefend-no-tiebreak.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/drain-waits-for-the-link.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/fit-compare-forced-true.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/fit-compare-off-by-one.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/idle-serves-a-latched-expiry-first.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/ival-sends-after-release.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/off-waits-for-an-edge.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/post-publishes-after-release.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/probe-rannounce-tiebreak.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/probe-rprobe-never-yields.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/release-keeps-draw-mark.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/release-waits-for-draw.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/rx-release-returns-to-idle.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/seed-clamp-off-by-one.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/seed-clamp-removed.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/seed-rearmed-on-idle-release-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/teardown-keeps-announce-timer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-path-absorbs-release.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-set-omits-alloc.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-set-omits-commit.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-set-omits-gwait.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-set-omits-lane.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/tx-set-omits-write.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/validator-maap-version-1-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/maap/mutations/yield-reuses-range.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/a5b-reboot-success-arm.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/line-buffer-fixed-592.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-add-mappings.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-dynamic-info.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-get-name.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-remove-mappings.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-name.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-format.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-info.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/ov-top-oversize-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-base-no-overlay.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-cfg-any.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/rd-tail-uncut.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-branch-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-preload-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-target-next-word.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-avb-not-supported.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-block-beats-swapped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-change-type-from-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-ckd-not-supported.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-index-from-type.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-locate-ignored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-avb-any-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-avb-as-clock.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-avb-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-ckd-any-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-ckd-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-no-window.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-one-window.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-stri-past-shape.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/ctr-notify-stro-past-shape.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/store-counts-domain-strobes.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/acmp-waits-for-aecp.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-armed-at-admission.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-boot-hold-not-exempt.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-edit-preempted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-gdi-runs-on.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-kill-ack-keeps-owner.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-kill-tied-off.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-lock-preempted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-mvu-forced-status-10.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-non-aem-forced-status-10.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-preempt-after-effect.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-registry-preempted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dl-released-before-queued.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/dlkill-always-misbehaving.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/fanout-never-ends.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-acmp-reads-as-steps.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-barrier-no-priority.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-clock-as-lock.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-clock-as-ro.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-clock-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-foreign-target-classified.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-gdi-as-barrier.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-gdi-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-identify-as-ro.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-identify-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-lock-not-lockop.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-map-as-ro.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-map-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-name-as-ro.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-name-as-stream.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-name-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-reads-keyed-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-registry-as-ro.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-response-classified.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-setcfg-not-barrier.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-stream-key-none.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-stub-restored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/hz-talker-keyed-as-listener.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/mvu-echo-slot-std.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/mvu-fault-status-10.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/mvu-silent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/td-lock-default-59s.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/td-tl-default-301s.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/ucpu-preempt-cuts-a-wait.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/ucpu-preempt-keeps-the-body.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/pp_top/mutations/ucpu-preempt-repeats.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/action-omitted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/already-full-missed.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/bad-listener-length.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/before-slot.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/canceled-content-never-drains.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/count-up-unsends.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/draw-kind-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/empty-canceled-pdu.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/encoder-peer-ignored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/expiry-congestion.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/expiry-event.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/expiry-only-redraw.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/expiry-outranks-peer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/full-drain-missing.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/join-ms-400.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/join-sent-at-handover.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/leaveall-expiry-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/licence-ignores-join.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-lane-cut.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-lost-txla.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-no-expiry.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-no-own.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-no-renewal.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-sid-ignored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/listener-strict-lv.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/missing-registrar-edge.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/mvrp-expiry-only-redraw.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/mvrp-flag-at-expiry.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/mvrp-passive-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/mvrp-stale-expiry-honoured.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/mvrp-supersedes-msrp.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-cancel-eats-new-intent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-drop-join-during-wait.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-edge-cancel-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-expiry-pulse.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-join-edge-peer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-la-outranks-leave.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-no-walk-at-sLA.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/own-flags-missing.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/pending-peer-ignored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/periodic-ms-3000.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/preparation-before-slot.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-accept-edge-drain-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-cancel-consumes-new-intent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-cancel-latch-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-collect-blocks-pushes.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-expiry-pulse-restored.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-flag-ignores-edge-peer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-join-coalesce-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-join-start-guard-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-la-only-emission-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-mvrp-start-during-prepare.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-rearm-no-deadline.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-rearm-no-inflight.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-reuse-without-action.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/r-sink-receive-priority-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/rearm-at-issue.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/receive-priority-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/renewal-congestion.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/repeated-action.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/repeated-expiry-queued.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/reserved-slot-not-reused.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/reset-retains-intent.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/round-completion-lost.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/slope-read-source-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/slope-store-source-0-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/slope-stored-at-source-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/slope-stored-at-stage-2-index.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/stale-expiry-honoured.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/table-one-short.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-lost-txla.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-no-expiry.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-no-own.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-no-renewal.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-strict-lv.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/talker-vid-unreset.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-full-guard-31.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-head-at-write-pointer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-heads-swapped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-listener-push-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-ls-write-ignores-full.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-tk-head-read-ahead.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-tk-write-at-rptr.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tf-tk-write-ignores-full.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/tx-strobe-any-app.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/walk-record-written-on-close.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-flops-da-of-gate-source.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-flops-sid-of-source-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-flops-vid-of-source-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-ram-first-open-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-ram-read-at-gate-source.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wid-ram-read-neighbour.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wsid-flops-of-control-sink.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wsid-flops-read-sink-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wsid-ram-first-settle-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wsid-ram-written-on-teardown.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wsid-write-ignores-ready.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-first-open-only.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-latency-field-shifted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-latency-shifted.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-prio-rank-swapped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-rank-dropped.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-read-at-gate-source.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-read-at-source-0.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "patch": "tb/srp_top/mutations/wtsp-write-ignores-ready.patch",
+      "rc": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "exact_text_arms": [
+    {
+      "table": "notify_mutants",
+      "index": 0,
+      "name": "ident_two_frames",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 1,
+      "name": "ident_seq_per_frame",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 2,
+      "name": "ident_no_rearm",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 3,
+      "name": "ident_rearm_from_third_frame",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 4,
+      "name": "ident_burst_100ms",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 5,
+      "name": "ident_t0_at_request",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv",
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 6,
+      "name": "ident_burst_from_t0",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 7,
+      "name": "ident_departure_is_retirement",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 8,
+      "name": "ident_departure_unwired",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 9,
+      "name": "ident_next_burst_at_once",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv",
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 10,
+      "name": "ident_wait_ignores_gap",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 11,
+      "name": "ident_press_not_latched",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 12,
+      "name": "ident_burst_press_not_latched",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 13,
+      "name": "ident_departure_ignores_ready",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 14,
+      "name": "ident_burst_deadline_one_tick_short",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 15,
+      "name": "ident_t0_same_ms",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 16,
+      "name": "ident_cut_on_release",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 17,
+      "name": "ident_release_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 18,
+      "name": "ident_unicast_da",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 19,
+      "name": "ident_face_taken_mid_job",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 20,
+      "name": "ident_built_at_default",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv",
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 21,
+      "name": "enq_dropped_configuration",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/ucode/gen_ucode.py"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 22,
+      "name": "enq_dropped_stream_info",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/ucode/gen_ucode.py"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 23,
+      "name": "class_4_mapped_to_rate",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 24,
+      "name": "class_9_mapped_to_control",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 25,
+      "name": "requester_not_excluded",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 26,
+      "name": "entry_seq_not_advanced",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 27,
+      "name": "stream_info_get_body",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 28,
+      "name": "counter_limit_500ms",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 29,
+      "name": "fan_out_skips_row_0",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 30,
+      "name": "refresh_resets_seq",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 31,
+      "name": "foreign_unlock_allowed",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 32,
+      "name": "lock_taker_notified",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 33,
+      "name": "deregister_keeps_row",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 34,
+      "name": "registry_holds_15",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 35,
+      "name": "set_control_ignores_lock",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/ucode/gen_ucode.py"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 36,
+      "name": "inflight_highest_free_id",
+      "suite": "tb/originator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_originator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 37,
+      "name": "inflight_match_ignores_seq",
+      "suite": "tb/originator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_originator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 38,
+      "name": "inflight_cancel_keeps_timer",
+      "suite": "tb/originator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_originator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 39,
+      "name": "inflight_shared_seq",
+      "suite": "tb/originator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_originator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 40,
+      "name": "ix_old_identity_kept",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 41,
+      "name": "ix_new_identity_unset",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 42,
+      "name": "ix_last_chunk_ignored",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 43,
+      "name": "ix_rewrite_unmatched",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 44,
+      "name": "override_set_only",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 45,
+      "name": "own_compare_new_row",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 46,
+      "name": "stamp_read_without_valid",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 47,
+      "name": "counter_spacing_from_selection",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 48,
+      "name": "counter_spacing_from_selection_tw",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 49,
+      "name": "counter_stamp_at_send_only",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 50,
+      "name": "counter_stamp_first_job_only",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 51,
+      "name": "counter_limit_500ms_cs",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 52,
+      "name": "registry_holds_15_cs",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 53,
+      "name": "dereg_mid_round_no_hold",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 54,
+      "name": "dereg_pending_stops_follow",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "notify_mutants",
+      "index": 55,
+      "name": "dereg_lost_at_round_end",
+      "suite": "tb/aecp_notify",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 0,
+      "name": "msg_ok_forced",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 1,
+      "name": "msg_ok_forced",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 2,
+      "name": "guard_ctlr_dropped",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 3,
+      "name": "guard_talker_eid_dropped",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 4,
+      "name": "guard_talker_uid_dropped",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 5,
+      "name": "cdl_not_44_rejected",
+      "suite": "tb/rx_validator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_rx_validator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 6,
+      "name": "cdl_not_44_rejected",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/packet_engine/KL_pp_rx_validator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 7,
+      "name": "st_ls_settle_as_withdraw",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 8,
+      "name": "st_ls_teardown_as_declare",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 9,
+      "name": "st_ls_sid_da_swapped",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 10,
+      "name": "st_ls_state_none",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 11,
+      "name": "st_ls_vid_dropped",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 12,
+      "name": "st_ls_index_zero",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 13,
+      "name": "st_ls_teardown_lost",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 14,
+      "name": "bound_view_not_latched",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 15,
+      "name": "bound_dmac_from_sid",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 16,
+      "name": "bound_view_not_cleared",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 17,
+      "name": "matcher_da_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/srp/KL_srp_listener_fsm.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 18,
+      "name": "matcher_vid_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/srp/KL_srp_listener_fsm.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 19,
+      "name": "rec_read_sink_zero",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 20,
+      "name": "rec_read_in_idle",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 21,
+      "name": "rec_started_unstored",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 22,
+      "name": "rec_settled_vlan_unstored",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 23,
+      "name": "rec_sweep_misaddressed",
+      "suite": "tb/acmp_listener",
+      "paths": [
+        "hdl/acmp/KL_pp_acmp_listener.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 24,
+      "name": "armq_read_tail",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 25,
+      "name": "armq_head_stuck",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 26,
+      "name": "armq_ring_of_three",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 27,
+      "name": "armq_write_at_head",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 28,
+      "name": "armq_write_at_mid",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 29,
+      "name": "armq_write_refused",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 30,
+      "name": "armq_write_wrap_hi",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 31,
+      "name": "armq_full_pop_refuses",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "acmp_mutants",
+      "index": 32,
+      "name": "armq_drop_skip_sat",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 0,
+      "name": "hold_released_at_go",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 1,
+      "name": "dispatch_not_held",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv",
+        "hdl/aecp/KL_aecp_engine.sv",
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 2,
+      "name": "own_taken_at_the_walk",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 3,
+      "name": "image_unproven_continues",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 4,
+      "name": "latch_ignores_program",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 5,
+      "name": "TRG_cfg",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 6,
+      "name": "TRG_rate",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 7,
+      "name": "TRG_clks",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 8,
+      "name": "TRG_fmti",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 9,
+      "name": "TRG_fmto",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 10,
+      "name": "TRG_ptof",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 11,
+      "name": "taint_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 12,
+      "name": "clear_wins_same_edge",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 13,
+      "name": "clear_by_group",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 14,
+      "name": "clear_by_index",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 15,
+      "name": "identify_is_a_change",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv",
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 16,
+      "name": "unchanged_compare_ignores_validity",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 17,
+      "name": "RPL_cfg",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 18,
+      "name": "RPL_rate",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 19,
+      "name": "RPL_clks",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 20,
+      "name": "RPL_fmti",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 21,
+      "name": "RPL_fmto",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 22,
+      "name": "RPL_ptof",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 23,
+      "name": "rule_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 24,
+      "name": "passes_may_disagree",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 25,
+      "name": "device_error_reads_as_blank",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv",
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 26,
+      "name": "unframed_reads_as_device_error",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv",
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 27,
+      "name": "desc_error_is_a_refusal",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 28,
+      "name": "no_restore_watchdog",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 29,
+      "name": "restore_writes_are_changes",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 30,
+      "name": "enable_not_released_by_restore",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 31,
+      "name": "done_without_d3",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 32,
+      "name": "blank_ignores_d3",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 33,
+      "name": "store_not_cleared",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_dyn_state.sv",
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 34,
+      "name": "valid_not_cleared",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 35,
+      "name": "quarantine_released_by_time",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 36,
+      "name": "no_rollback",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 37,
+      "name": "dyn_not_rolled_back",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 38,
+      "name": "store_not_rolled_back",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 39,
+      "name": "rollback_ignores_debt",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 40,
+      "name": "closed_releases_the_entity",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 41,
+      "name": "no_backoff_d3",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 42,
+      "name": "fourth_attempt",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 43,
+      "name": "alarm_forgiven_by_success",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 44,
+      "name": "no_backoff_binding",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/acmp/KL_acmp_nvm_shadow.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 45,
+      "name": "fourth_attempt_binding",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/acmp/KL_acmp_nvm_shadow.sv",
+        "hdl/acmp/KL_acmp_nvm_shadow.sv",
+        "hdl/acmp/KL_acmp_nvm_shadow.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 46,
+      "name": "alarm_forgiven_binding",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/acmp/KL_acmp_nvm_shadow.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 47,
+      "name": "backoff_derivation",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 48,
+      "name": "backoff_holds_dispatch",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 49,
+      "name": "disagree_one_direction",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 50,
+      "name": "rollback_one_cycle",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 51,
+      "name": "pass1_read_not_drained",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 52,
+      "name": "judge_wait_unwatched",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 53,
+      "name": "rate_walk_stuck_on_first_lane",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 54,
+      "name": "rate_walk_unbounded",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 55,
+      "name": "no_aggregate_deadline",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 56,
+      "name": "aggregate_mirrored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 57,
+      "name": "aggregate_from_the_walk",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv",
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 58,
+      "name": "per_wait_floor",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 59,
+      "name": "agg_closes_before_proof",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 60,
+      "name": "binding_walk_ignores_aggregate",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/acmp/KL_acmp_nvm_shadow.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 61,
+      "name": "proof_reads_records_past_bound",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 62,
+      "name": "agg_not_in_rollback",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 63,
+      "name": "agg_not_stopped_at_terminal",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 64,
+      "name": "agg_fires_with_event_in_hand",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 65,
+      "name": "drain_misses_issue_cycle",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 66,
+      "name": "drain_misses_issue_cycle_m1",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 67,
+      "name": "issue_arm_cross_intent",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 68,
+      "name": "issue_arm_ignores_we",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 69,
+      "name": "issue_arm_write_too",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 70,
+      "name": "issue_arm_stale_we",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 71,
+      "name": "owned_arm_write_too",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 72,
+      "name": "owned_arm_cross_intent",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 73,
+      "name": "cross_own_m1_drains_m0",
+      "suite": "tb/acmp_nvm",
+      "paths": [
+        "hdl/packet_engine/KL_pp_nvm_mgr_arb.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 74,
+      "name": "agg_closes_during_proof",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 75,
+      "name": "proof_past_needs_fire",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 76,
+      "name": "proof_default_only_from_img",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 77,
+      "name": "proof_past_bound_needs_fired",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 78,
+      "name": "agg_o_pulse",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 79,
+      "name": "aecp_hold_unbounded",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 80,
+      "name": "held_drop_uncounted",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/packet_engine/KL_pp_rx_validator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 81,
+      "name": "resident_never_returned",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/top/protocol_processor_top.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 82,
+      "name": "validator_admits_held_aecp",
+      "suite": "tb/rx_validator",
+      "paths": [
+        "hdl/packet_engine/KL_pp_rx_validator.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 83,
+      "name": "clks_row_two_bits",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 84,
+      "name": "clks_restore_count_narrowed",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 85,
+      "name": "clks_restore_index_narrowed",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 86,
+      "name": "clks_restore_bound_inclusive",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 87,
+      "name": "registry_survives_reset",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 88,
+      "name": "lock_survives_reset",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_notify.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 89,
+      "name": "identify_survives_reset",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_dyn_state.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 90,
+      "name": "cfg_crc_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 91,
+      "name": "clks_crc_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 92,
+      "name": "torn_read_not_an_abort",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 93,
+      "name": "torn_read_not_an_abort_cfg",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 94,
+      "name": "frame_crc_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 95,
+      "name": "blank_applies_zero",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 96,
+      "name": "blank_applies_zero_cfg",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 97,
+      "name": "TRG_name",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 98,
+      "name": "RPL_name",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 99,
+      "name": "name_rule_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 100,
+      "name": "name_empty_refused",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 101,
+      "name": "name_record_id_shifted",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 102,
+      "name": "name_entry_shifted",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 103,
+      "name": "name_lanes_partial",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 104,
+      "name": "name_taint_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 105,
+      "name": "name_restore_pulses",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 106,
+      "name": "name_restore_is_a_change",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_engine.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 107,
+      "name": "names_before_the_image",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 108,
+      "name": "cut_binding_crc_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/acmp/KL_acmp_nvm_shadow.sv"
+      ],
+      "refusal": ""
+    },
+    {
+      "table": "d3_mutants",
+      "index": 109,
+      "name": "cut_frame_crc_ignored",
+      "suite": "tb/pp_top",
+      "paths": [
+        "hdl/aecp/KL_aecp_nvm_writer.sv"
+      ],
+      "refusal": ""
+    }
+  ],
+  "patch_count": 277,
+  "exact_arm_count": 199,
+  "planting_only": true
+}
