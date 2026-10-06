@@ -1,0 +1,36 @@
+https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009584763
+[A10] **Lane for #664: Mark II requirements, documents only.** Executor [A548], branch `664-mark2-reqs` from dev `423ac5d9`. Reviewers [R508] (internal) and [R509] (external). The owner decisions in 6009576644 replace the matching lines of the issue body.
+
+**Items:**
+1. **Ownership and placement** (`REQUIREMENTS.md` section 1).
+   - ADP, ACMP, AECP (including unsolicited notifications and counters), MAAP and SRP become build-selectable placements.
+   - The Mark II default is the bare-metal core. The all-fabric build is a supported option, and it is the shipping default until the switch flips after F2 to F5 pass the bench. Say so explicitly.
+   - The fabric keeps framing and timestamps, the gPTP plane, the media path and the ingress filter.
+2. **FR_NFR** (`docs/reference/FR_NFR.md`).
+   - Rewrite NFR-SCOUT-01 (the single control hart and how stream capacity grows) and NFR-SCOUT-02 (who owns protocol control).
+   - Rewrite NFR-SCOUT-03. For each moved path, a bounded firmware service latency inside its normative timeout replaces "never on firmware service latency". Derive each bound from the clause that sets the timeout, and cite the clause number. Use `docs/spec-refs.md` and the in-repo extracts first.
+   - Define each path's test hook: where the latency is measured, from mailbox RX to TX commit.
+   - Audio and gPTP deadlines stay fabric-only.
+   - Update every row these trace to.
+3. **The split document** (`docs/ARCHITECTURE_HW_SW_SPLIT.md`).
+   - Give the ownership rule for each placement.
+   - Describe the mailbox interface: several packet mailboxes; block RAM rings, a doorbell and one interrupt; 32-bit accesses, no DMA; a bus adapter per host; portable C behind a small HAL; one YAML contract. Cite `docs/design/MAILBOX_SPLIT.md` and `docs/reference/MAILBOX_CONTRACT.md` (F0), and the saved-state boot read and apply (F1).
+   - State the bare-metal-first rule and the unit-test rule (#665 5992455815, 6008744385).
+4. **No contradiction in the tree.**
+   - Grep every document that cites these rows or states the old ownership: "never on firmware", "fabric-only" for these protocols, the AECP placement. Correct each one.
+   - Regenerate the traceability matrix with its generator. Never hand-edit generated files.
+5. **Version.** State the version-3 rule (`0x0003` identifies only images that run the split) and the five-simulation landing plan for the default-flip PR, including the `>> 16` major check in `tb/verilator/hostplane`. VERSION stays at major 2 in this PR.
+6. **Owner approval.** PR-BODY.md gets a section titled "Requirement text for owner approval". It shows every changed requirement row as old text and new text, side by side.
+
+**STOP conditions:**
+- Any change outside documentation, requirement tables, traceability generators' outputs and docs gates' registrations. STOP and name it.
+- A normative timeout you cannot cite. STOP with the list.
+
+**Gates:**
+- the full docs-check set on the committed head: `docs/traceability/gen_module_matrix.py --check`, `check_wire_accountability`, the requirement/traceability checks, TOC and style;
+- the 48-command builder set, because docs-only PRs get the bank too.
+
+All gates rc 0. Output: HANDOFF.md and PR-BODY.md ("Relates to #664" until the owner approves; the manager switches it to Closes at approval). Then post REVIEW READY with the head on #664. Do not push.
+
+Do not edit or delete any existing comment.
+

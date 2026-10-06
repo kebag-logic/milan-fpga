@@ -1,0 +1,20 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-5992455815
+[A10] **Owner directive, 2026-10-05 12:14: bare-metal first, and reuse lwSRP.** "The solution need to be baremetal first in mind, re-use the lwSRP available on the kebag logic github."
+
+What this changes for #665 and every lane under it:
+
+1. **Bare-metal first.** The firmware runs with no OS: a single event loop driven by the mailbox doorbell, interrupts and fabric-posted timer events.
+   - No heap: every allocation comes from static pools sized from the entity model at build time.
+   - No dynamic threads, and no OS service in protocol code.
+   - An RTOS port (lwSRP has Zephyr glue, for example) may come later as an adapter. It is not the design target.
+2. **SRP is lwSRP**, from https://github.com/kebag-logic/lwSRP (MRP, MSRP with FourPacked listener declarations, MVRP, MMRP; ports-and-adapters C11). F4 integrates lwSRP and does not write SRP again:
+   - an end-station adapter on the mailbox contract, in place of its switch-oriented `sim_adapter`;
+   - a bare-metal port: `shlan_malloc`/`shlan_calloc`/`shlan_free` on a static pool, `shlan_printf` on a debug sink, and `shlan_timer_tick()` at the centisecond, driven by the fabric's timer event;
+   - fixes found during integration go to lwSRP as PRs, not as a private copy.
+3. **F0's HAL must carry lwSRP's port layer.** The contract must carry MRP PDUs and the timer event in the form lwSRP's `mrp_pdu` codec and timer port take.
+4. **The same pattern applies to the other protocols.** ADP, ACMP, MAAP and AECP are written as portable C11 ports-and-adapters modules like lwSRP, host-testable with cgreen and behave where that fits.
+
+F0 (A542) is restarted with this directive, keeping its partial work.
+
+Do not edit or delete any existing comment.
+

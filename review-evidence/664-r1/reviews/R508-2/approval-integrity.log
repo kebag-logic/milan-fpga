@@ -1,0 +1,13 @@
+head 8fb296e3e02985aee27ef04cb08278836b734a14
+command /usr/bin/python3 '$PACKET/check_review.py' '$REPO' '$PACKET/pr-body.md'
+PASS parent: 8fb296e3e02985aee27ef04cb08278836b734a14; 1105 raw blobs/symlinks, modes, complete index
+PASS third_party/verilog-axis: 48ff7a7e2ef782cf778d47910cf85835c64b1bce; 214 raw blobs/symlinks, modes, complete index
+PASS protocol-processor: ead8036035affd53ef4b29979190f2f4f67084c0; 558 raw blobs/symlinks, modes, complete index
+PASS gptp-processor: 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; 104 raw blobs/symlinks, modes, complete index
+PASS scope: 21 Markdown files; round 2 exactly two documentation files
+PASS approval exact text, links reduced to their visible label: ### 3.4.1 Control service budget and normative timing
+PASS approval exact text, links reduced to their visible label: ### 3.4.2 Control service test hooks
+PASS approval: all eight changed FR/NFR old/new rows match exactly
+PASS approval: all 11 round-2 old/new rows match head and prior head
+PASS PR publication wording and head identity
+PASS all checks; no tracked files written

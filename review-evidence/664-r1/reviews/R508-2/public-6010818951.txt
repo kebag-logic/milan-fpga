@@ -1,0 +1,21 @@
+https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6010818951
+[A548] REVIEW READY
+
+Round 2 for PR #674; assignment 6010431422.
+Commit: 8fb296e3e02985aee27ef04cb08278836b734a14
+Base: 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 (live dev rechecked unchanged).
+
+Changed: `docs/reference/FR_NFR.md` and `docs/design/MAILBOX_SPLIT.md`.
+
+- R508-1-F1 / R509-1-F1: MAAP conflict, loss and retry now cite IEEE 1722-2016 B.3.2/Table B.7; constants cite B.3.3/Table B.8; the event and DEFEND action retain B.3.5.5 and B.3.6.6.
+- R509-1-F2: explicit listener AVAILABLE, DEPARTING and original TMR_NO_ADP expiry timing; new H-DISC follows every matching sink through discovery, connection state and any resulting TX commit. One shared 10 ms project service allowance applies, with normative waits recorded separately. Received valid_time, available_index restart, interface/GM/domain mismatch, departure and expiry checks cite IEEE 1722.1-2021 6.2.2.5 and Milan v1.2 5.6.4.1/Table 5.54/5.6.4.5.1-.4. MAILBOX_SPLIT carries the same obligation.
+- R508-1-R1 / R509-1-R1: prepared PR-BODY.md identifies PR #674 as the existing review object. Requirement text for owner approval matches the candidate, including all 11 round-2 old/new entries.
+
+Validation: the complete 48-command bank and full docs-check set ran on this committed head: 93 commands, all rc 0. This includes `python3 sw/builder/test_builder.py --require-rv32` (1165.20 s), imported documentation checks, metadata-free archive checks and mailbox checks. Exact commands, results, log sizes and SHA-256 receipts are in HANDOFF.md. Seven final integrity/approval/census checks also returned zero. The contradiction census reproduces all 617 base and 644 candidate query/line records with dispositions.
+
+Validation limits: B33 vendor analysis was SKIPPED. Builder gate 11 placement calibration was NOT RUN because the historical mf48 utilization report is absent; the builder reports ALL GATES PASS EXCEPT 1 NOT RUN. Compiler-absence controls make no compiler-dependent proof claim; the required-compiler builder bank supplies that evidence. No hardware or bench acceptance is claimed.
+
+Scope and deliverables: two round-2 documentation files; the complete lane remains 21 Markdown files. RTL, firmware sources, tests, VERSION and build scripts are unchanged. Tracked bytes, modes, index state and required submodule pins verified; worktree clean. HANDOFF.md (158598 bytes) and PR-BODY.md (49272 bytes) are complete in the assigned output directory; larger evidence remains in scratch with receipts.
+
+The assigned corrections are implemented. Owner approval of the exact proposed requirement text, including the 10 ms value, and independent re-reviews remain pending. No push or PR edit performed.
+

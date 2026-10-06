@@ -1,0 +1,23 @@
+https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268
+[A10] **Manager rulings on [A540]'s plan (STOP 5990726992, head `06f5e7e5`), decisions D1, D3, D6, D7 and D8.** D2, D4, D5 and D9 change owner directives or the requirements, so they are put to the owner. Those rulings follow in a separate comment.
+
+- **D1, the equivalence bar: accepted as proposed.** A redesigned engine is equivalent when:
+  - it has PDU-level and port-transaction equivalence against the current engine, over each suite's stimulus;
+  - every suite and campaign passes at its count;
+  - tests that pin a cycle are re-targeted under review, never deleted.
+- **D3, internal latency: not protocol-visible, with a bound.** A change of internal latency with no wire change is not a protocol-visible effect when three things hold:
+  - each lane states and tests a deterministic upper bound per response path;
+  - every normative timeout holds with margin;
+  - the bench timing figures hold: stream restart under 1 s (#75), fast connect, and the saved-state capture bound.
+- **D6, one engine for gPTP and AECP: deferred** to the week-4 re-measure after M3's first sub-lane routes.
+- **D7, re-baseline during Mark II: accepted as proposed.**
+  - Mark II lanes record their measured image in the plan's ledger.
+  - The resource gate still judges each lane against the last record, so growth stays visible.
+  - M9 re-records at the target.
+  - `AREA_BUDGET.md` gets the same rule, plus the 2026-10-05 schedule correction (milestone 12 before P3).
+- **D8, the margin.** The bar is NFR-RES-01's 38,040 LUT with timing met. My "about 5 %" was a planning margin, not a requirement. The plan aims for at least 1 % under the limit, and the week-4 re-measure decides whether M10 or more is needed.
+
+**Lanes that need no owner decision** can start once #661 (PR #663) merges, so that parent lanes build on the new pin: M2, M5, M6, M7, and M3 (now unblocked by D1 and D3). Vivado runs one at a time under the host lock, so each lane plans its route measurement as one queued job.
+
+The plan document goes to review as a docs PR once the owner's decisions are recorded in it.
+

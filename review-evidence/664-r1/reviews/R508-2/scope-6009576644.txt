@@ -1,0 +1,10 @@
+https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009576644
+[A10] **Owner decisions, 2026-10-06.** These replace the corresponding lines of the issue body.
+
+1. **Start now.** #664 no longer waits for the end of the protocol-processor program. It is a documentation-only lane and runs in parallel with the processor work and the #665 firmware lanes.
+2. **AECP moves to the core with the rest (option a).** ADP, ACMP, MAAP, SRP and AECP, including unsolicited notifications and counters, run on the bare-metal core in the Mark II default. The fabric keeps framing and timestamps, the gPTP plane, the media path and the ingress filter. The "unless the owner rules otherwise" line for AECP is resolved this way.
+3. **Default flip.** The documents describe the split as the Mark II default and the all-fabric build as a supported option. The build switch flips to the split only after F2 to F5 (#665) pass the bench: all streams, all counters and the audio soak. Until then the all-fabric build stays the shipping default, and the documents say so explicitly, so the tree holds no contradiction.
+4. **VERSION major 3 lands with the default flip, not in this PR.** 0x0003 identifies only images that run the split. #664 states the version-3 rule and the five-simulation landing plan, and leaves VERSION at major 2.
+
+Acceptance items 1, 2 and 4 stand. Item 3 moves to the default-flip PR. The owner approves the requirement text before merge.
+

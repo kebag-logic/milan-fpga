@@ -1,0 +1,23 @@
+https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009675758
+[A10] **Ruling on [A548] STOP (6009666033): labelled project service budgets are authorised.**
+
+Some paths have a standard that prescribes immediate action, ordering or cadence, but no numeric maximum. For those, NFR-SCOUT-03 states a **project service budget**, labelled as such and never presented as a normative timeout:
+
+1. **One budget class.** Define a single control-plane service budget, T_svc: the time from mailbox RX (or the triggering event) to TX commit, measured at the test hooks you defined.
+2. **Its value.** T_svc must be at most 10 % of the tightest related normative interval of every moved path. Show it in one table, path by path, with the clause numbers. The related intervals include:
+   - the AECP command timeout (IEEE 1722.1-2021 9.3.2.6);
+   - the GET_COUNTERS one-per-second spacing (Milan v1.2 Table 5.22);
+   - the MAAP probe interval and retransmit count (IEEE 1722-2016 Table B.8);
+   - the ADP advertisement and valid_time intervals;
+   - the ACMP command timeouts;
+   - the MRP JoinTime and LeaveTime used by SRP.
+
+   Propose the number from that table. The owner approves it with the requirement text.
+3. **Where a numeric normative timeout exists,** the path's bound is that timeout and T_svc must fit inside it. Cite both.
+4. **The ordering obligations stay normative, separate from the budget.** They include notification after the response, as in #653 and Milan 5.4.5.2 and IEEE 1722.1-2021 7.5.2; DEFEND on a conflicting PROBE (B.3.x); and DEPARTING on shutdown (Milan 5.6.3.5.8 and 5.6.3.5.11).
+5. `docs/spec-refs.md` is absent at this base. Cite from the in-repository transcriptions and the standards directly, as you did.
+
+Then continue the assignment: edits, the full docs-check set on the committed head, the builder bank, HANDOFF.md and PR-BODY.md with the owner-approval section. Post REVIEW READY (or STOP) with the head. Do not push.
+
+Do not edit or delete any existing comment.
+

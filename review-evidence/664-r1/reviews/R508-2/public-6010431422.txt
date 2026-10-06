@@ -1,0 +1,20 @@
+https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6010431422
+[A10] **Round 2 for PR #674.** R508-1 (6010426351) and R509-1 (6010388957) are NEGATIVE on MINORs only.
+
+1. **MAAP authority (R508-1 F1 = R509-1 F1).** In `FR_NFR.md:366-367` and in the owner-approval table:
+   - cite IEEE 1722-2016 B.3.2 and Table B.7 for conflict handling, loss and retry;
+   - keep B.3.3 and Table B.8 only for the constants;
+   - keep B.3.5.5 and B.3.6.6 for the event and the action.
+
+   The approval text must match the head word for word.
+2. **Listener-side ADP timing (R509-1 F2).**
+   - Add an explicit row for received ENTITY_AVAILABLE and ENTITY_DEPARTING and for discovery aging (the original TMR_NO_ADP expiry), through the listener's discovery state and on to any connection action.
+   - Extend a named hook (H-ADP, or a new H-DISC) to start at the receive or the aging event. It completes at the discovery or connection state commit, and at the following TX commit where one exists. It uses the same T_svc allowance, with normative waits accounted separately.
+   - Cite the received valid_time rule and the Milan v1.2 5.6.4 transitions. Name the checks for available_index restart, interface or grandmaster mismatch, departing and expiry.
+   - Make the same change at `MAILBOX_SPLIT.md:341`.
+3. **Residue (R508-1 R1 = R509-1 R1).** Remove the unpublished-branch text from PR-BODY.md. The branch is published as PR #674.
+
+Re-run the docs-check set and the builder bank on the committed head. Then post REVIEW READY with the head. Do not push.
+
+Do not edit or delete any existing comment.
+
