@@ -1,0 +1,18 @@
+control: raw={'sw/firmware/ctrl/probe.c': Tally(lines=(5, 6), branches=(3, 4))} adjusted={'sw/firmware/ctrl/probe.c': Tally(lines=(5, 5), branches=(3, 3))} findings=[]
+swap: raw={'sw/firmware/ctrl/probe.c': Tally(lines=(5, 6), branches=(3, 4))} adjusted={'sw/firmware/ctrl/probe.c': Tally(lines=(5, 6), branches=(3, 4))} findings=["exclusion sw/firmware/ctrl/probe.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]", 'exclusion sw/firmware/ctrl/probe.c h(): `if (x == 7)`: line 3 `return 7;` runs now', 'exclusion sw/firmware/ctrl/probe.c h(): line 4 arc 1 is uncovered, and no row names it', 'exclusion sw/firmware/ctrl/probe.c h(): line 5 is unexecuted, and no row names it']
+renamed-statement: REFUSED ['exclusion sw/firmware/ctrl/probe.c h(): `if (x == 8)`: the statement occurs 0 times in the function, not once', 'exclusion sw/firmware/ctrl/probe.c h(): line 2 arc 1 is uncovered, and no row names it', 'exclusion sw/firmware/ctrl/probe.c h(): line 3 is unexecuted, and no row names it']
+renamed-line: REFUSED ["exclusion sw/firmware/ctrl/probe.c h(): `if (x == 7)`: no line from the statement's on holds `return 8;`", 'exclusion sw/firmware/ctrl/probe.c h(): line 3 is unexecuted, and no row names it']
+wrong-arc-position: REFUSED ["exclusion sw/firmware/ctrl/probe.c h(): `if (x == 7)`: arcs [1] of the statement's 2 are uncovered, the row names [2]", 'exclusion sw/firmware/ctrl/probe.c h(): line 2 arc 1 is uncovered, and no row names it']
+shorter-arc-vector: REFUSED ['exclusion sw/firmware/ctrl/probe.c h(): `if (x == 7)`: the statement (lines 2-2) has 2 arcs, the row says 4', 'exclusion sw/firmware/ctrl/probe.c h(): line 2 arc 1 is uncovered, and no row names it']
+compensating swap and identity controls PASS
+multiline-control: raw={'sw/firmware/ctrl/multiline.c': Tally(lines=(4, 4), branches=(3, 4))} findings=[]
+multiline-swap: raw={'sw/firmware/ctrl/multiline.c': Tally(lines=(3, 4), branches=(3, 4))} findings=["exclusion sw/firmware/ctrl/multiline.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]", 'exclusion sw/firmware/ctrl/multiline.c m(): line 2 arc 3 is uncovered, and no row names it', 'exclusion sw/firmware/ctrl/multiline.c m(): line 4 is unexecuted, and no row names it']
+multiline controls PASS
+codec: exact 40-byte and 47-byte blank prefixes refused REC
+codec: exact 48-byte framed prefix refused REC; full framed image accepted
+codec header loaded guard: {'count': 111, 'arcs': [2, 109]}
+codec loaded-prefix boundary probe PASS
+pool: free_count=1 with empty list refused and counted once
+pool guard: {'count': 4, 'arcs': [4, 0, 4, 0, 3, 1]}
+pool public corruption probe PASS
+independent focused probes PASS

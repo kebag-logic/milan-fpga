@@ -1,0 +1,74 @@
+e7e0c10f4d4e9f3180b5650507a83aa300c5d4d7 Say which state the ADP machine is left in by a timer port that calls back from inside timer_start, as the two probes show (#665 FT)
+7412748ebffaeac9d36c0e880812aa8ccc826c5f Hold every planted case of the tally self-test to its tally line, plant listener defects it must catch, keep GTEST_ variables away from test binaries, and print the ctrl gate's toolchain (#665 FT)
+341ea77e34edd4797bb65eef8df57070730d2bdf Bind each coverage exclusion to its statement's exact uncovered arcs and lines, refuse one whose items move even with the function's totals unchanged, and print the toolchain the gate measured with (#665 FT)
+8387d18fedfaceacc4d614a55fae9bc4c8098c57 Test the pool's free list cut short and the codec's loaded prefix that ends before a record header, each with planted defects, and drop both coverage exclusions (#665 FT)
+
+ .github/workflows/rtl-fast.yml                   |   66 +-
+ docs/README.md                                   |    1 +
+ docs/design/MAILBOX_SPLIT.md                     |    1 +
+ docs/testing/CI_WORKFLOWS.md                     |   40 +-
+ scripts/ci_events.py                             |   60 +-
+ scripts/ci_scope.py                              |   16 +
+ sw/firmware/ctrl/README.md                       |   36 +-
+ sw/firmware/ctrl/adp/adp_mbx.h                   |    6 +-
+ sw/firmware/ctrl/test/adp_walk.cpp               |  353 ++++---
+ sw/firmware/ctrl/test/ctrl_arms.py               |   94 +-
+ sw/firmware/ctrl/test/ctrl_build.py              |   88 +-
+ sw/firmware/ctrl/test/ctrl_mutants.py            |  300 ++++--
+ sw/firmware/ctrl/test/entity_fields.cpp          |   75 ++
+ sw/firmware/ctrl/test/entity_probe.c             |   70 --
+ sw/firmware/ctrl/test/lwsrp_port.c               |  145 ---
+ sw/firmware/ctrl/test/lwsrp_port.cpp             |  166 ++++
+ sw/firmware/ctrl/test/mmio_window.h              |   27 +
+ sw/firmware/ctrl/test/mock_mbx_hal.cpp           |   53 +
+ sw/firmware/ctrl/test/mock_mbx_hal.hpp           |   58 ++
+ sw/firmware/ctrl/test/mock_shlan_port.cpp        |   66 ++
+ sw/firmware/ctrl/test/mock_shlan_port.hpp        |   40 +
+ sw/firmware/ctrl/test/model_suite.cpp            |   58 +-
+ sw/firmware/ctrl/test/test_adp.c                 |  989 -------------------
+ sw/firmware/ctrl/test/test_adp.cpp               | 1121 ++++++++++++++++++++++
+ sw/firmware/ctrl/test/test_check.c               |   39 -
+ sw/firmware/ctrl/test/test_check.h               |   19 -
+ sw/firmware/ctrl/test/test_ctrl_firmware.py      |   47 +-
+ sw/firmware/ctrl/test/test_mmio.cpp              |   51 +
+ sw/firmware/ctrl/test/test_port_loop.c           |  476 ---------
+ sw/firmware/ctrl/test/test_port_loop.cpp         |  695 ++++++++++++++
+ sw/firmware/ctrl/test/test_unit_driver.cpp       |  180 ++++
+ sw/firmware/ctrl/test/test_unit_seams.cpp        |  144 +++
+ sw/firmware/ctrl/test/unit_window.hpp            |   99 ++
+ sw/firmware/ctrl_nvm/README.md                   |   55 +-
+ sw/firmware/ctrl_nvm/nvm_klj2.c                  |    4 +-
+ sw/firmware/ctrl_nvm/test/mock_litespi_csr.cpp   |   64 ++
+ sw/firmware/ctrl_nvm/test/mock_litespi_csr.hpp   |   44 +
+ sw/firmware/ctrl_nvm/test/mock_nvm_flash.hpp     |   51 +
+ sw/firmware/ctrl_nvm/test/nvm_bench.py           |  220 ++---
+ sw/firmware/ctrl_nvm/test/nvm_c.hpp              |   31 +
+ sw/firmware/ctrl_nvm/test/nvm_checks.py          |  595 ------------
+ sw/firmware/ctrl_nvm/test/nvm_checks_write.py    |  755 ---------------
+ sw/firmware/ctrl_nvm/test/nvm_fixture.py         |  346 +++++++
+ sw/firmware/ctrl_nvm/test/nvm_mutants.py         |  107 ++-
+ sw/firmware/ctrl_nvm/test/nvm_rig.cpp            |  634 ++++++++++++
+ sw/firmware/ctrl_nvm/test/nvm_rig.hpp            |   75 ++
+ sw/firmware/ctrl_nvm/test/nvm_suite.cpp          |  334 +++++++
+ sw/firmware/ctrl_nvm/test/nvm_suite.hpp          |  135 +++
+ sw/firmware/ctrl_nvm/test/nvm_test.c             |  733 --------------
+ sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py       |  265 +++--
+ sw/firmware/ctrl_nvm/test/test_nvm_boot.cpp      |  406 ++++++++
+ sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp     |  113 +++
+ sw/firmware/ctrl_nvm/test/test_nvm_flashmock.cpp |  170 ++++
+ sw/firmware/ctrl_nvm/test/test_nvm_litespi.cpp   |   89 ++
+ sw/firmware/ctrl_nvm/test/test_nvm_more.cpp      |  118 +++
+ sw/firmware/ctrl_nvm/test/test_nvm_shapes.cpp    |   73 ++
+ sw/firmware/ctrl_nvm/test/test_nvm_vector.cpp    |   86 ++
+ sw/firmware/ctrl_nvm/test/test_nvm_write.cpp     |  691 +++++++++++++
+ sw/firmware/gtest/README.md                      |  345 +++++++
+ sw/firmware/gtest/coverage.ratchet               |   18 +
+ sw/firmware/gtest/fw_coverage.py                 |  481 ++++++++++
+ sw/firmware/gtest/fw_coverage_selftest.py        |  302 ++++++
+ sw/firmware/gtest/fw_gtest.hpp                   |   44 +
+ sw/firmware/gtest/fw_gtest.py                    |  207 ++++
+ sw/firmware/gtest/fw_gtest_main.cpp              |  200 ++++
+ sw/firmware/gtest/tally_cases.cpp                |   71 ++
+ sw/firmware/gtest/tally_selftest.py              |  272 ++++++
+ tb/verilator/mbx/suite.hpp                       |  163 ++--
+ 68 files changed, 9523 insertions(+), 4453 deletions(-)

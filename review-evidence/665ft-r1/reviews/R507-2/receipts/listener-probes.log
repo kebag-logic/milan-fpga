@@ -1,0 +1,17 @@
+skip: self-test rc=1; expected 1
+[FAIL] a skipped test: exit 0, tally 1/1, it carries 1 [FAIL] line(s), first: [FAIL] Skip.Silent: skipped: a planted skip
+    tally checks 1 failures 0, want checks 1 failures 1
+    RESULT lines ['PASS'], want ['FAIL']
+[FAIL] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 1 failure(s) across 1 checks
+    tally checks 1 failures 1, want checks 1 failures 2
+setup: self-test rc=1; expected 1
+[FAIL] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 1 failure(s) across 1 checks
+    tally checks 1 failures 1, want checks 1 failures 2
+crash: self-test rc=1; expected 1
+[FAIL] a crash on SIGSEGV: exit -11, tally 1/1, it carries 1 [FAIL] line(s), first: [FAIL] Crash.Segv: crashed on signal 11
+    tally checks 1 failures 0, want checks 1 failures 1
+    RESULT lines ['PASS'], want ['FAIL']
+[FAIL] an abort: exit -6, tally 1/1, it carries 1 [FAIL] line(s), first: [FAIL] Crash.Abort: crashed on signal 6
+    tally checks 1 failures 0, want checks 1 failures 1
+    RESULT lines ['PASS'], want ['FAIL']
+three prior listener regressions now rejected by their own tally lines: PASS
