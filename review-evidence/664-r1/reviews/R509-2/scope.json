@@ -1,0 +1,91 @@
+{
+  "base": "423ac5d910d09ab189b3acc39ae3ae1d10d50b19",
+  "previous_head": "a27808375427859dc357f6bfd0a88842062b20ed",
+  "head": "8fb296e3e02985aee27ef04cb08278836b734a14",
+  "tree": "ce846f8ab472d3c9bf605598224ae2521966d928",
+  "changed_files": [
+    "README.md",
+    "REQUIREMENTS.md",
+    "docs/ARCHITECTURE_HW_SW_SPLIT.md",
+    "docs/ENDSTATION_BUILDER.md",
+    "docs/GLOSSARY.md",
+    "docs/README.md",
+    "docs/design/MAAP_FABRIC.md",
+    "docs/design/MAILBOX_SPLIT.md",
+    "docs/fpga/DATAPLANE_WALKTHROUGH.md",
+    "docs/fpga/FPGA_DESIGN.md",
+    "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md",
+    "docs/integration/INTEGRATION_GUIDE.md",
+    "docs/litex/LITEX_SOC.md",
+    "docs/overview/ARCHITECTURE.md",
+    "docs/overview/FULL_FPGA_SOLUTION.md",
+    "docs/overview/SYSTEM_DOMAIN_MAP.md",
+    "docs/reference/FR_NFR.md",
+    "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+    "docs/traceability/ieee8021q.md",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl_nvm/README.md"
+  ],
+  "round2_files": [
+    "docs/design/MAILBOX_SPLIT.md",
+    "docs/reference/FR_NFR.md"
+  ],
+  "round2_commits": [
+    "8fb296e3e02985aee27ef04cb08278836b734a14 docs: cite listener transitions without requiring imported archive files",
+    "2449d83ae72511f43192570c9dc976297d805e54 docs: keep the discovery source citation valid in source archives",
+    "870eef84792506ca81cffa0d5280178dde6aaa2c docs: link discovery timing to its rendered section heading",
+    "ff6d673ccf32136be0d0daeabe4188358b84041a docs: specify listener discovery service timing and correct MAAP authority"
+  ],
+  "version_inputs_unchanged": [
+    {
+      "path": "hdl/common/csr/milan_csr.sv",
+      "blob": "3392e01af7a095449ce3563cffd81850befebf80",
+      "value": "32'h0002_0060",
+      "lines": [
+        200
+      ]
+    },
+    {
+      "path": "tb/verilator/csr/sim_main.cpp",
+      "blob": "ab9e27a69bb6980640038b47e13a6a4e10272246",
+      "value": "0x00020060",
+      "lines": [
+        355
+      ]
+    },
+    {
+      "path": "tb/verilator/milan_dp/sim_main.cpp",
+      "blob": "eae7615e99498ab8ffe0a956acefe98cc3e28474",
+      "value": "0x00020060",
+      "lines": [
+        280
+      ]
+    },
+    {
+      "path": "tb/verilator/milan_dp/sim_nxn.cpp",
+      "blob": "9a4f4fedc07da2675af80e9a854cad28494044a1",
+      "value": "0x00020060",
+      "lines": [
+        2682
+      ]
+    },
+    {
+      "path": "tb/verilator/milan_dp/sim_gptp.cpp",
+      "blob": "b9f28d9f7388dc6f108d9dda9222d11556fcc8f4",
+      "value": "0x00020060",
+      "lines": [
+        816
+      ]
+    },
+    {
+      "path": "tb/verilator/milan_dp/sim_prune.cpp",
+      "blob": "547ccf2b56f774df16faa9026f1cf1e0c9577a53",
+      "value": "0x00020060",
+      "lines": [
+        334
+      ]
+    }
+  ],
+  "retired_suite_absent_at_base": true,
+  "diff_check": "PASS"
+}

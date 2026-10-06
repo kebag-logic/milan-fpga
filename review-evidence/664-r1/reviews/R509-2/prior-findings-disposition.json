@@ -1,0 +1,76 @@
+{
+  "sources": [
+    "https://github.com/kebag-logic/milan-fpga/pull/674#issuecomment-6010388957",
+    "https://github.com/kebag-logic/milan-fpga/pull/674#issuecomment-6010426351"
+  ],
+  "read_after_independent_verdict_and_ledger": true,
+  "submitted_reviews_observed": 0,
+  "inline_comments_observed": 0,
+  "findings": [
+    {
+      "ids": [
+        "R508-1-F1",
+        "R509-1-F1"
+      ],
+      "original_severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "head": "8fb296e3e02985aee27ef04cb08278836b734a14",
+      "artifacts": [
+        "docs/reference/FR_NFR.md:367",
+        "docs/reference/FR_NFR.md:368",
+        "pr-body.md"
+      ],
+      "evidence": [
+        "standards-audit.md",
+        "approval-check.log"
+      ]
+    },
+    {
+      "ids": [
+        "R509-1-F2"
+      ],
+      "original_severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "head": "8fb296e3e02985aee27ef04cb08278836b734a14",
+      "artifacts": [
+        "docs/reference/FR_NFR.md:360",
+        "docs/reference/FR_NFR.md:403",
+        "docs/reference/FR_NFR.md:411",
+        "docs/reference/FR_NFR.md:576",
+        "docs/design/MAILBOX_SPLIT.md:345"
+      ],
+      "evidence": [
+        "standards-audit.md",
+        "approval-check.log"
+      ]
+    },
+    {
+      "ids": [
+        "R508-1-R1",
+        "R509-1-R1"
+      ],
+      "original_severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "artifacts": [
+        "pr-body.md"
+      ],
+      "evidence": [
+        "approval-check.log",
+        "public-state-summary.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "id": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 6.181
+  },
+  {
+    "id": "style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.169
+  },
+  {
+    "id": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.204
+  },
+  {
+    "id": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "423ac5d910d09ab189b3acc39ae3ae1d10d50b19"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 4.385
+  },
+  {
+    "id": "traceability",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 1.375
+  },
+  {
+    "id": "feature-status",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 1.019
+  },
+  {
+    "id": "solution-docs",
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.215
+  },
+  {
+    "id": "baremetal",
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 19.378
+  },
+  {
+    "id": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.365
+  },
+  {
+    "id": "mailbox-contract",
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.165
+  }
+]
