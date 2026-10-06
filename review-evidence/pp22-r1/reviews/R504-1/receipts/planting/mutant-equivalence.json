@@ -1,0 +1,82 @@
+[
+ {
+  "arm": "tb/pp_top/notify_mutants.py:inflight_highest_free_id",
+  "file": "hdl/packet_engine/KL_pp_originator.sv",
+  "base": "de855d995fc07a4c201a5b5ba3c9ace4299ce59ea5e70d1c15dae7fb9214c9db",
+  "base_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "head": "de855d995fc07a4c201a5b5ba3c9ace4299ce59ea5e70d1c15dae7fb9214c9db",
+  "head_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/notify_mutants.py:inflight_match_ignores_seq",
+  "file": "hdl/packet_engine/KL_pp_originator.sv",
+  "base": "f5f9504c6377354b864eb3a15a89eeae3001d15ddd3b2f6103280e94d673bbc9",
+  "base_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "head": "f5f9504c6377354b864eb3a15a89eeae3001d15ddd3b2f6103280e94d673bbc9",
+  "head_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/notify_mutants.py:inflight_cancel_keeps_timer",
+  "file": "hdl/packet_engine/KL_pp_originator.sv",
+  "base": "de4786fc45c10c916cbe4a9d0ccc9abb2da45ff0aab46e7bb3f57f9163809251",
+  "base_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "head": "de4786fc45c10c916cbe4a9d0ccc9abb2da45ff0aab46e7bb3f57f9163809251",
+  "head_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/notify_mutants.py:inflight_shared_seq",
+  "file": "hdl/packet_engine/KL_pp_originator.sv",
+  "base": "923a2d9da9154060d11636de94c22dcdfc47085b803e84df3ec8ef7c417387f2",
+  "base_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "head": "923a2d9da9154060d11636de94c22dcdfc47085b803e84df3ec8ef7c417387f2",
+  "head_clean": "8fe3fbc66d962de86a2ffa179b0c07d536bad484af415191a205741f1a3bff22",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/acmp_mutants.py:cdl_not_44_rejected",
+  "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+  "base": "0e1d0814375c23098883c1cc916ba1ea0890e6627cd57f3704cbe366202046d6",
+  "base_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "head": "0e1d0814375c23098883c1cc916ba1ea0890e6627cd57f3704cbe366202046d6",
+  "head_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/d3_mutants.py:held_drop_uncounted",
+  "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+  "base": "f279b1559ed7688de0e972b550fb053a04bf711e985c5b45443e28ec61b58f8b",
+  "base_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "head": "f279b1559ed7688de0e972b550fb053a04bf711e985c5b45443e28ec61b58f8b",
+  "head_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/pp_top/d3_mutants.py:validator_admits_held_aecp",
+  "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+  "base": "e97fa6ea2d6adf4a234c96b83e8732d6446f1536a0f2a2a0465a7d465f2790fd",
+  "base_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "head": "e97fa6ea2d6adf4a234c96b83e8732d6446f1536a0f2a2a0465a7d465f2790fd",
+  "head_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ },
+ {
+  "arm": "tb/maap/mutations/validator-maap-version-1-only.patch",
+  "file": "hdl/packet_engine/KL_pp_rx_validator.sv",
+  "base": "2644e2d4e2574190dedfc8ea2c93d5dbf03633f062d011b024928aa821cd33e4",
+  "base_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "head": "2644e2d4e2574190dedfc8ea2c93d5dbf03633f062d011b024928aa821cd33e4",
+  "head_clean": "b1d4d968ccd49c1c94e7ce61e4e0c4fb4a95357c157ab69910fa1c6c83e853d0",
+  "mutant_same_base_head": true,
+  "mutant_differs_from_clean": true
+ }
+]

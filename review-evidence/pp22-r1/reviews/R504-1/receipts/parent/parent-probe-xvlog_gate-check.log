@@ -1,0 +1,15 @@
+  REGRESSION [submodules]: protocol-processor:hdl/packet_engine/KL_pp_originator.sv|VRFC 10-3380|cancel_hit_w is not grandfathered in scripts/xvlog.budget - fix it or add it with a reason
+  REGRESSION [submodules]: protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv|VRFC 10-3380|vd_push_w is not grandfathered in scripts/xvlog.budget - fix it or add it with a reason
+xvlog gate: 2 finding(s) across 2 module(s)
+  analysed: 73 tracked .sv/.v file(s) under hdl/ and 52 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@e6a759de; gptp-processor@5dce647a - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 2 finding(s)
+    protocol-processor:hdl/packet_engine/KL_pp_originator.sv:194  [VRFC 10-3380] 'cancel_hit_w'  identifier 'cancel_hit_w' is used before its declaration
+    protocol-processor:hdl/packet_engine/KL_pp_rx_validator.sv:383  [VRFC 10-3380] 'vd_push_w'  identifier 'vd_push_w' is used before its declaration
+Command exited with non-zero status 1
+wall_s=150.22
+rc=1

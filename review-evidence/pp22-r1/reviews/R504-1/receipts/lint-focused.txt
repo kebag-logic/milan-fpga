@@ -1,0 +1,4 @@
+KL_pp_originator base rc=0 warn=0 | head rc=0 warn=0 | logs identical: N
+KL_pp_rx_validator base rc=0 warn=0 | head rc=0 warn=0 | logs identical: N
+protocol_processor_top base rc=0 warn=0 | head rc=0 warn=0 | logs identical: N
+- lint logs base vs head differ only in the Verilator 'Walltime ... allocated' timing line (checked with diff)
