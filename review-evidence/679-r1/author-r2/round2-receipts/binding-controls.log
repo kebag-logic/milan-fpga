@@ -1,0 +1,16 @@
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl same-name static control catches restored local-name resolution
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: nvm same-name static control catches restored local-name resolution
+PASS: ctrl private-definition probe emitted both t and U for __review_runtime_service
+PASS: ctrl accepts global definition; partial link resolves the reference
+PASS: ctrl accepts weak definition; partial link resolves the reference
+PASS: nvm private-definition probe emitted both t and U for __review_runtime_service
+PASS: nvm accepts global definition; partial link resolves the reference
+PASS: nvm accepts weak definition; partial link resolves the reference
+Binding controls: all passed
