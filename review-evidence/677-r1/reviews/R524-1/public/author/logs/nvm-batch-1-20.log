@@ -1,0 +1,21 @@
+  self-test OK: no_crc_check               caught by torn_falls_back, verdict_parity; first: [FAIL] Ports/NvmBoth.torn_falls_back/model: torn newer slot: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54
+  self-test OK: pick_older                 caught by newer_wins; first: [FAIL] Ports/NvmBoth.newer_wins/model: seq A 0x9 B 0xa: chose 0, want 1
+  self-test OK: pick_no_wrap               caught by newer_wins; first: [FAIL] Ports/NvmBoth.newer_wins/model: seq A 0xffffffff B 0x0: chose 0, want 1
+  self-test OK: no_crc_anywhere            caught by powercut; first: [FAIL] Ports/NvmBoth.powercut/model: model: runner POWERCUT-BAD effect=4 frac=128
+  self-test OK: erased_header_only         caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: erased header, live payload: codec 0, klj2_decode 7
+  self-test OK: tie_picks_b                caught by newer_wins; first: [FAIL] Ports/NvmBoth.newer_wins/model: seq A 0x7 B 0x7: chose 1, want 0
+  self-test OK: no_ascending               caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: duplicate record id: codec 0, klj2_decode 7
+  self-test OK: overrun_as_rec             caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: framed record overruns the area: codec 7, klj2_decode 3
+  self-test OK: incomplete_accepted        caught by verdict_parity, codec_parity; first: [FAIL] NvmCodec.codec_parity: parity: truncated by one record: codec 0, klj2_decode 10
+  self-test OK: erased_payload_end_bound   caught by codec_erased_loaded_prefix; first: [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+  self-test OK: erased_payload_guard_early caught by codec_erased_loaded_prefix; first: [FAIL] NvmCodec.codec_erased_loaded_prefix: erased last payload at its exact loaded boundary
+  self-test OK: erased_payload_guard_late  caught by codec_erased_loaded_prefix; first: [FAIL] NvmCodec.codec_erased_loaded_prefix: crashed on signal 6
+  self-test OK: room_unchecked             caught by codec_room; first: [FAIL] NvmCodec.codec_room: a container one byte longer than its room is refused VD_LEN
+  self-test OK: short_prefix_read_on       caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: one byte short of record 0's header, the guard refuses it VD_REC
+  self-test OK: short_prefix_as_len        caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: a prefix of the container header alone is refused VD_REC
+  self-test OK: header_guard_early         caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: at record 0's header's exact end, the guard passes and the header is VD_L
+  self-test OK: header_guard_late          caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: one byte short of record 0's header, the guard refuses it VD_REC
+  self-test OK: payload_guard_early        caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: a prefix that ends at the last record's payload's exact end is accepted
+  self-test OK: payload_guard_late         caught by codec_loaded_prefix; first: [FAIL] NvmCodec.codec_loaded_prefix: a prefix one byte short of the last record's payload is refused VD_REC
+  self-test OK: lookup_index_unbounded     caught by codec_lookups; first: [FAIL] NvmCodec.codec_lookups: no record past a group's count
+Batch 1-20: 20/20 caught

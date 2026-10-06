@@ -1,0 +1,12 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+reentry-guard-removed: reentry_debug: AdpReentry.AdvertiseInlineExpiry: caught=True
+reentry-guard-removed: reentry_debug: AdpReentry.DelayInlineExpiryOnGmChange: caught=True
+reentry-guard-removed: reentry_release: AdpReentry.AdvertiseInlineExpiry: caught=True
+reentry-guard-removed: reentry_release: AdpReentry.DelayInlineExpiryOnGmChange: caught=True
+reentry-uncounted: reentry_release: AdpReentry.AdvertiseInlineExpiry: caught=True
+reentry-not-ignored: reentry_release: AllPorts/AdpPortEntry.RefusesBeforeTouchingState/: caught=True
+prefix control passed=True
+erased_payload_end_bound: passed=False survivors=[]
+erased_payload_guard_early: passed=False survivors=[]
+erased_payload_guard_late: passed=False survivors=[]
+focused probe failures: []

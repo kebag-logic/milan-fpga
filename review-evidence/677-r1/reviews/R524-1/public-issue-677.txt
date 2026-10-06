@@ -1,0 +1,87 @@
+Issue #677: ctrl_nvm: nvm_klj2_record's erased-record branch reads past the loaded bytes
+https://github.com/kebag-logic/milan-fpga/issues/677
+[A10] Found by #665 lane FT (A547, round 2; PR #675 HANDOFF section 0, `gates/probe-overread.log`).
+
+`nvm_klj2_record`'s erased-record branch (`sw/firmware/ctrl_nvm/nvm_klj2.c:298`, `nvm_all_erased(p + NVM_REC_HDR, r.plen)`) bounds the payload by `end`, not by `loaded`. The framed branch refuses a payload past `loaded` before reading it.
+
+**Reproduction.** A caller holds exactly the first 48 bytes of a CRC-closed blank container (the header loaded, the payload not), which `nvm_klj2.h` permits. `nvm_klj2_check_body` then reads past the buffer: AddressSanitizer reports heap-buffer-overflow, READ of size 1, in `nvm_all_erased`. The verdict (`NVM_VD_REC`) is right; the read is not. The store's own calls load the whole stage and cannot reach it.
+
+**Acceptance:**
+1. The erased branch refuses a payload past `loaded` before any read, as the framed branch does.
+2. A GoogleTest case calls with a buffer of exactly `loaded` bytes at 40, 47 and 48, under AddressSanitizer in CI or the local gate. A planted defect restoring the `end` bound must fail it.
+3. The coverage ratchet holds and the store's 102 planted defects stay caught.
+
+Relates to #665 (F1 code). Bare metal, no heap.
+
+
+Comment 6021510152 https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6021510152
+[A10] **Lane for #677 and #678.** Executor [A556], branch `677-fw-fixes` from dev `6714181d` (FT merged). Reviewers [R524] (internal) and [R525] (external). One lane, two firmware fixes, both under the FT coverage ratchet.
+
+1. **#677:** apply the acceptance in #677.
+   - `nvm_klj2_record`'s erased branch refuses a payload past `loaded` before any read.
+   - Add a GoogleTest case with a buffer of exactly `loaded` bytes at 40, 47 and 48, run under AddressSanitizer in the local gate (and in `firmware-unit` if feasible).
+   - Plant a defect restoring the `end` bound; the test must catch it.
+   - Keep the 102 store defects caught.
+2. **#678:** the no-callback rule (manager ruling in #678).
+   - State it in `adp.h` and in every port header.
+   - Add a re-entry guard in the core: assert in debug and test builds, count in release.
+   - The two re-entry probes become standing GoogleTest cases, with a planted defect that removes the guard.
+   - Update the gtest README's ADP exclusion rows to cite the header rule.
+3. **Coverage.** The ratchet holds at 100 % branch, with no new exclusions.
+
+**Gates:** firmware-unit (gtest, tally, coverage), both mutation campaigns, the RV32 builds that exist, the builder bank, and the docs gates. No RTL change.
+
+**Output:** HANDOFF.md and PR-BODY.md ("Closes #677", "Closes #678"). Then post REVIEW READY with the head on #677. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+Comment 6021539044 https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6021539044
+[A556] TAKEN
+Branch: `677-fw-fixes`, base `6714181d0c8a16e2983f85b724f4d688f5111835`.
+Authoritative references: #677 acceptance, #678 manager ruling, assignment comment 6021510152, firmware public headers and FT coverage contract.
+Interpreted scope: bound erased-record payload reads by loaded bytes; document the synchronous no-callback rule on all firmware ports and guard ADP re-entry, with regression and planted-defect evidence. Bare-metal firmware only; no RTL, default-build, or shipping-image changes.
+Validation plan: firmware host gates, tally and coverage gates, both mutation campaigns, available RV32 builds, builder bank, docs gates; 100% branch ratchet with no new exclusions.
+Executor: [A556]. Internal reviewer: [R524]. External reviewer: [R525].
+Blockers: none identified during initial scope check.
+
+
+Comment 6024328677 https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024328677
+[A556] REVIEW READY
+Commit: `6c94e9f5f496ac25f8c4e31f9e3685c725de29f3` on `677-fw-fixes`, one commit on dev `6714181d0c8a16e2983f85b724f4d688f5111835`. Not pushed: this lane may not push, so publishing the branch is the next step.
+
+Changed (bounds-checking and re-entrancy robustness, firmware only, 26 files under `sw/firmware/`):
+- **#677:** `nvm_klj2_record` refuses an erased payload beyond `loaded` (`NVM_VD_REC`) before any read. The `end` check still runs first, so an overrun container still gets `NVM_VD_LEN`. This closes the read past a caller's loaded prefix.
+- **#678:** the no-callback rule is stated in `adp.h` and the nine other port headers, including zero-delay timers and calls into any instance. A shared guard brackets all six port calls and checks every public ADP entry before it touches arguments. Debug and test builds assert. Release builds ignore the call and count it (`adp_reentry_count`).
+- **Docs:** the five ADP exclusion rows in the gtest README cite the header rule.
+- **Not changed:** no RTL, configuration, builder, workflow, default-build or shipping-image change.
+
+Validation (every command ran at the exact head; all rc 0):
+- `tally_selftest.py --mutants`: 18/18 listener defects caught.
+- `test_ctrl_firmware.py --require-rv32 --self-test --jobs 4`: 423 host checks and the RV32I build pass. Includes 122 re-entry tests in each of debug and release. 79/79 mutants caught.
+- `test_ctrl_nvm.py --require-rv32 --jobs 4`: 435 tests over 5 shapes; all RV32 builds pass.
+- NVM campaign: 109/109 mutants caught. It ran as six bounded batches through the repository's `plant_and_grade`, and every repository mutant was graded exactly once.
+- `fw_coverage.py --selftest` and `--check --jobs 4` (with the pinned lwSRP arm): 14/14 files at 100% lines and branches. Exclusion table unchanged (15 rows); no new exclusion.
+- Builder bank: all 100 functions of `test_builder.py --require-rv32` pass.
+  - Function 13's census ran as disjoint slices: 358 mutations and 43 controls, each exactly once, with 53/53 RTL variants elaborated.
+  - Only skip: resource calibration (the historical mf48 report is absent).
+- Docs and tooling bank: 47 commands pass. Includes `docs_check`, `gen_toc --check/--verify-anchors`, `check_em_dash --base`, `lint_rtl --check --self-test`, `xvlog_gate --check` and `git diff --check`.
+- Extra: lwSRP arm and pin defects pass; the mailbox firmware co-simulation passes (13 checks).
+
+Acceptance criteria:
+- **#677, met.** `NvmCodec.codec_erased_loaded_prefix` runs under AddressSanitizer in the default firmware-unit command, with exact buffers of 40, 47 and 48 bytes. With the old `end` bound restored it reports `heap-buffer-overflow`, so the planted defect is caught. Two off-by-one guard defects are also caught. The 102 store defects (106 at base) all stay caught.
+- **#678, met.**
+  - The rule is in `adp.h` and every port header.
+  - The guard asserts in debug and test builds and counts in release.
+  - Both probes are standing tests: `AdpReentry.AdvertiseInlineExpiry` and `DelayInlineExpiryOnGmChange`, plus a 120-case port/entry matrix.
+  - `reentry-guard-removed`, `reentry-uncounted` and `reentry-not-ignored` are all caught.
+- **Coverage, met.** 100% branches, no new exclusions.
+
+Open risks/questions:
+- **Long local gates owed.** `scripts/ci_scope.py` treats any `sw/` change as RTL/tooling-relevant. CONTRIBUTING therefore also asks for `scripts/run_all_suites.sh` and `syn/yosys/run.sh` before the PR is marked validated. They were outside this lane's assigned gates and have not run; the RTL is unchanged.
+- **Not run.** Hosted CI and the local hosted-workflow replica need a published head.
+- **RV32 limit.** The RV32 evidence is freestanding objects and the symbol inventory, not a linked target assertion handler.
+- **Not a lock.** The guard serves a single event loop and is not a concurrency lock.
+
+Executor: [A556]. Reviewers: [R524] (internal, cleared context), [R525] (external). The executor gives no verdict.
+

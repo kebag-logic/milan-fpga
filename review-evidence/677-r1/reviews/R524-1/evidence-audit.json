@@ -1,0 +1,77 @@
+{
+  "head": "6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+  "base": "6714181d0c8a16e2983f85b724f4d688f5111835",
+  "published_manifest_verified": [
+    "author/evidence.json",
+    "author/logs/coverage-check.log",
+    "author/logs/coverage-selftest.log",
+    "author/logs/ctrl.log",
+    "author/logs/erased-end-asan.log",
+    "author/logs/lwsrp.log",
+    "author/logs/mbx-cosim.log",
+    "author/logs/nvm-batch-1-20.log",
+    "author/logs/nvm-batch-21-40.log",
+    "author/logs/nvm-batch-41-60.log",
+    "author/logs/nvm-batch-61-80.log",
+    "author/logs/nvm-batch-81-95.log",
+    "author/logs/nvm-batch-96-109.log",
+    "author/logs/nvm-controls.log",
+    "author/nvm-campaign.json"
+  ],
+  "ctrl": {
+    "base_mutants": 76,
+    "head_mutants": 79,
+    "baseline_definitions_unchanged": true,
+    "added": [
+      "reentry-guard-removed",
+      "reentry-not-ignored",
+      "reentry-uncounted"
+    ],
+    "public_raw_kills_exactly_once": 79
+  },
+  "ctrl_nvm": {
+    "base_mutants": 106,
+    "head_mutants": 109,
+    "baseline_definitions_unchanged": true,
+    "added": [
+      "erased_payload_end_bound",
+      "erased_payload_guard_early",
+      "erased_payload_guard_late"
+    ],
+    "public_raw_kills_exactly_once": 109
+  },
+  "coverage_exclusions": {
+    "rows": 14,
+    "identity_and_excluded_items_unchanged": true,
+    "adp_rows": 5
+  },
+  "changed_paths": [
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/adp/adp.c",
+    "sw/firmware/ctrl/adp/adp.h",
+    "sw/firmware/ctrl/adp/adp_mbx.h",
+    "sw/firmware/ctrl/mbx/mbx.h",
+    "sw/firmware/ctrl/mbx/mbx_hal.h",
+    "sw/firmware/ctrl/port/ctrl_debug.h",
+    "sw/firmware/ctrl/port/ctrl_pool.h",
+    "sw/firmware/ctrl/port/shlan_port.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/nvm_flash.h",
+    "sw/firmware/ctrl_nvm/nvm_klj2.c",
+    "sw/firmware/ctrl_nvm/nvm_state.h",
+    "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+    "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+    "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+    "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "sw/firmware/gtest/fw_coverage.py",
+    "sw/firmware/gtest/fw_gtest.py"
+  ],
+  "diff_changes_no_rtl_shipping_image_builds_workflows_or_gitlinks": true
+}
