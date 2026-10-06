@@ -1132,8 +1132,21 @@ exactly one action and a pull starting after re-arm must restore the normal
 render law. The window is state-qualified, not a fixed timeout: continuing
 noise or further pulls can extend it. The evidence records the largest
 observed window over the declared stimulus set, not a finite bound for an
-arbitrarily disturbed input. `small_pulls.py` independently grades two pulls
-on both sides of re-arm, including the persistent shift inside the window.
+arbitrarily disturbed input. The worst observed isolated-pull window is
+**0.551148640 s**, across 32 hold/arrival-phase cases at 6.25 MHz and the
+seven nonzero fine-hold cases at 25 MHz. It occurs after the 56 us hold at
+6.25 MHz. The longest fine-hold window is 0.538336080 s after a 43.29 us
+hold. Each completed recovery contains 2,048 uninterrupted quiet ticks;
+the minimum quiet dwell itself is 42.667 ms at 48 kHz. There is no finite
+worst-case duration if further disturbances prevent that dwell.
+
+`small_pulls.py` starts a second hold 0.10 s after a prior action, inside
+its measured 0.409918800 s isolated recovery, and grades the persistent
+render-law shift with no second action. Starting the same second hold
+1.50 s after the prior action instead must give one new action and restore
+the law. The second stimulus is independently checked against the actual
+recovery state, so moving it outside the declared window cannot pass the
+residual check.
 Removing recovery qualification, raising the arm above the +9-cycle pull,
 or lowering the quiet band to zero must each fail a named standing check.
 
