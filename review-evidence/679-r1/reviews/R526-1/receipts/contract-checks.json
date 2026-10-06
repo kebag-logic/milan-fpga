@@ -1,0 +1,64 @@
+{
+  "ci-events-check": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.19
+  },
+  "ci-events-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 17.43
+  },
+  "ci-scope-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.65
+  },
+  "coverage-selftest": {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.51
+  },
+  "docs-check": {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 6.01
+  },
+  "doc-style": {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.06
+  },
+  "em-dash": {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6714181d0c8a16e2983f85b724f4d688f5111835"
+    ],
+    "rc": 2,
+    "elapsed_seconds": 1.16
+  }
+}

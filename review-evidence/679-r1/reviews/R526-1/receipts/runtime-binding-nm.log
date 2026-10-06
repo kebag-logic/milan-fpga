@@ -1,0 +1,23 @@
+ctrl nm symbol rows:
+000000d4 t __review_runtime_service
+         U __review_runtime_service
+ctrl nm -g --defined-only symbol rows:
+ctrl partial link undefined symbols:
+         U __lshrdi3
+         U __mulsi3
+         U __review_runtime_service
+         U __udivsi3
+         U __umodsi3
+         U memcpy
+         U memset
+         U vsnprintf
+nvm nm symbol rows:
+         U __review_runtime_service
+000014f4 t __review_runtime_service
+nvm nm -g --defined-only symbol rows:
+nvm partial link undefined symbols:
+         U __muldi3
+         U __review_runtime_service
+         U __udivdi3
+         U __umoddi3
+         U memcpy
