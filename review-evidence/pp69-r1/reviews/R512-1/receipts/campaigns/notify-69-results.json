@@ -1,0 +1,179 @@
+[
+ {
+  "mutant": "golden-aecp_notify-interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-obj_if2_Vpp_top_if2",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "port_not_latched",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry, and with both rows held a third tuple is refused NO_RESOURCES (results 0 and 0, 2 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 0 on index 0, want 1000 to 1008 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_compared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry, and with both rows held a third tuple is refused NO_RESOURCES (results 0 and 0, 2 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_stored",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry, and with both rows held a third tuple is refused NO_RESOURCES (results 1 and 1, 2 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 2 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (2 notification(s))",
+   "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_named_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0024:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4007 on index 0, want 4004 to 4012 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_collapsed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 4294964292 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4007 on index 0, want 4004 to 4012 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_any_index",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 6, 0009:1, 6 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4007 on index 0, want 4004 to 4012 on index 1",
+   "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0009:1)",
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_name_overlaps_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rgy_port_tied_zero",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3: REGISTER from C on interface 0 and again on interface 1 makes two entries: D's lock change reaches C twice, at sequence_id 0 and 0, and the unlock twice at 1 and 1",
+   "IF3b: DEREGISTER from C on interface 1 removes interface 1's entry: the next lock and unlock reach C once each, at interface 0's sequence_id 2 and 3 (0 and 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

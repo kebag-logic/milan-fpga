@@ -1,0 +1,77 @@
+21a22,26
+> if guard 1: lints clean
+> if guard 2: lints clean
+> if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+> if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+> if guards: 4 checks, 0 failing
+28,36d32
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+88,96d83
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+103,111d89
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+153,161d130
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+169,177d137
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+202,210d161
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c3_the_aaf_index_is_restored()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2959:5: note: in expansion of macro ‘CHECK’
+< In file included from ../sim_main.cpp:10903:
+< ../d3_phases.hpp:2963:48: note: format string is defined here
+< ../d3_phases.hpp: In member function ‘void D3ClockSourcePhase::c4_a_smaller_image_refuses_the_saved_index()’:
+< ../sim_main.cpp:49:36: warning: format ‘%d’ expects a matching ‘int’ argument [-Wformat=]
+< ../d3_phases.hpp:2989:7: note: in expansion of macro ‘CHECK’
+< ../d3_phases.hpp:2993:38: note: format string is defined here
+214c165,172
+< 10444 checks: 10444 PASS, 0 FAIL
+---
+>                           ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+>                           ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+>                      ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+>                      ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+>   [i] IF3: two registrations; the lock reached C 2 time(s), the unlock 2
+> IF: 6 checks, 0 failures
+> [build interfaces, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6 checks, 0 failures
+> 10450 checks: 10450 PASS, 0 FAIL

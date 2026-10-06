@@ -1,0 +1,77 @@
+NW: 85 checks, 0 failures
+D3: 319 checks, 0 failures
+  [i] D3KR cfg: 32 seeds over 15 clocks; at the cut A whole 3, erased 7, torn header 13, torn payload 1, B whole 8
+  [i] D3KR rate: 32 seeds over 17 clocks; at the cut A whole 5, erased 3, torn header 8, torn payload 8, B whole 8
+  [i] D3KR clks: 32 seeds over 15 clocks; at the cut A whole 5, erased 5, torn header 9, torn payload 5, B whole 8
+  [i] D3KR fmti: 32 seeds over 21 clocks; at the cut A whole 5, erased 2, torn header 11, torn payload 8, B whole 6
+  [i] D3KR fmto: 32 seeds over 21 clocks; at the cut A whole 4, erased 3, torn header 9, torn payload 9, B whole 7
+  [i] D3KR ptof: 32 seeds over 17 clocks; at the cut A whole 3, erased 4, torn header 12, torn payload 4, B whole 9
+  [i] D3KR name: 32 seeds over 77 clocks; at the cut A whole 0, erased 2, torn header 2, torn payload 27, B whole 1
+  [i] D3KR bind: 32 seeds over 33 clocks; at the cut A whole 3, erased 2, torn header 7, torn payload 18, B whole 2
+ACMP: 43 checks, 0 failures
+AD: 67 checks, 0 failures
+AX: 231 checks, 0 failures
+DL: 64 checks, 0 failures
+HZ: 189 checks, 0 failures
+ID: 3 checks, 0 failures
+NP: 47 checks, 0 failures
+  [i] ST2: descriptor 0005:0 sent 4 rounds, closest 115100 clocks apart
+  [i] ST2: descriptor 0005:1 sent 4 rounds, closest 115100 clocks apart
+  [i] ST2: descriptor 0006:0 sent 4 rounds, closest 115077 clocks apart
+  [i] ST2: descriptor 0009:0 sent 4 rounds, closest 115077 clocks apart
+  [i] ST2: descriptor 0024:0 sent 4 rounds, closest 115077 clocks apart
+  [i] ST3: worst solicited latency AECP 70681, ACMP 485 clocks
+ST: 19 checks, 0 failures
+  [i] RN: seed 0xC6A46301, 720 steps, 2211 frames compared in 10777 ms; 11 NO_RESOURCES, 120 lock denials, 7 lock takes, 6 automatic unlocks, 220 lock-refused SETs, 409 pushes
+RN: 4 checks, 0 failures
+  [i] CS2a: churn 0 clocks after ST's phase, closest rounds 115077 clocks apart (row 0, descriptor 0006:0), fewest rounds at a row 4
+  [i] CS2b: churn 30 clocks after ST's phase, closest rounds 115070 clocks apart (row 0, descriptor 0005:0), fewest rounds at a row 4
+  [i] CS2c: churn 95 clocks after ST's phase, closest rounds 115077 clocks apart (row 0, descriptor 0006:0), fewest rounds at a row 4
+CS: 9 checks, 0 failures
+AQ: 4 checks, 0 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9956 checks, 0 failures
+[build fixture, SRP_DOM_DEF_VID_P 0x5a3c, DESC_LINE_BYTES_P 576] 20 checks, 0 failures
+  [i] ID1c: gaps 15268 and 15300 clocks
+  [i] ID2c: gaps 15268 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2c: gaps 15299 and 15300 clocks
+  [i] ID2d: burst 2 starts 100269 clocks after burst 1
+  [i] ID2d: burst 3 starts 100300 clocks after burst 2
+  [i] ID3c: gaps 15268 and 15300 clocks
+  [i] ID3e: gaps 15299 and 15300 clocks
+  [i] ID3f: the new burst follows the third frame by 15301 clocks
+  [i] ID5e: gaps 15304 and 15300 clocks
+  [i] ID5i: fan-out at frame 1 + 14450 clocks: gaps 15775 and 15297
+  [i] ID5i: fan-out at frame 1 + 14700 clocks: gaps 15897 and 15244
+  [i] ID5i: fan-out at frame 1 + 14950 clocks: gaps 16147 and 15313
+  [i] ID8: the gap's expiry came 63 clocks into its deadline's ms
+  [i] ID8c: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8d: gaps 15299 and 15300 clocks
+  [i] ID8h: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = -1: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 0: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8n: k = 1: the burst starts 166 clocks after the expiry
+  [i] ID8m: the press's burst follows the third frame by 15302 clocks, 167 after the gap ended
+  [i] ID8n: k = 2: the burst starts 167 clocks after the expiry
+  [i] ID8q: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID8u: the press's burst follows the third frame by 15301 clocks, 166 after the gap ended
+  [i] ID9: frame 1's last byte was held 40001 clocks; gaps 15232 and 15300 clocks
+  [i] ID9e: frame 2's last byte was held 40001 clocks; gaps 55267 and 15299 clocks
+  [i] ID6d: gaps 15299 and 15279 clocks
+  [i] ID7: stall inside frame 1: it left 40167 clocks after the press; gaps 15274 and 15300
+  [i] ID7f: stall after frame 1: gaps 40093 and 15268 clocks
+  [i] ID7j: stall after frame 2: gaps 15294 and 25093 clocks
+  [i] ID7n: gaps 90060, 15273 | 15301 | 15299, 15300 clocks
+  [i] ID7s: gaps 15299 and 15300 clocks
+ID: 178 checks, 0 failures
+[build identify, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 178 checks, 0 failures
+AX: 231 checks, 0 failures
+[build line, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 584] 231 checks, 0 failures
+TB: 56 checks, 0 failures
+[build timebase, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 56 checks, 0 failures
+TD: 3 checks, 0 failures
+[build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 0 failures
+10444 checks: 10444 PASS, 0 FAIL
