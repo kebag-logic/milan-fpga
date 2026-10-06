@@ -102,6 +102,13 @@ Keep `--timing-opt`, `--floorplan` and every emitted design argument.
 Keep `--vivado-max-threads 32`.
 Never substitute an uninitialized firmware ROM.
 
+For a memory-constrained measurement, pass `--single-thread-synthesis` to the
+baseline helper for each endpoint. It emits `set_param synth.maxThreads 1`
+before the exported commands, leaving `general.maxThreads` and the directives
+unchanged. The resource gate records this setting in the flow identity.
+Changing it requires a new baseline; do not compare its figures as an RTL-only
+delta against a baseline recorded without it.
+
 ## Integrated measurements
 
 Prepare scripts from the generated shipping Tcl.
