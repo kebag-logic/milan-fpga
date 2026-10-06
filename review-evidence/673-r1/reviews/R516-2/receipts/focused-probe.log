@@ -1,0 +1,20 @@
+PASS scope: four documentation files in round 2; eight total changed files
+PASS no RTL, suite executable, workflow, shard assignment, or gitlink change
+PASS six shell budget cases: unset
+PASS six shell budget cases: empty
+PASS six shell budget cases: explicit
+PASS six shell budget cases: fractional
+PASS six shell budget cases: zero
+PASS mutation refused: SUITE_TIMEOUT:-1800
+PASS mutation refused: SUITE_TIMEOUT:-2400
+PASS mutation refused: SUITE_TIMEOUT:-3600
+PASS mutation refused: SUITE_TIMEOUT:-4800
+PASS mutation refused: SUITE_TIMEOUT:-5400
+PASS mutation refused: capture_coherence)
+PASS mutation refused: milan_dp)
+PASS mutation refused: milan_dp_mclk)
+PASS mutation refused: milan_dp_gptp)
+PASS mutation refused: TMO=$(suite_timeout "$suite")
+PASS live selection: 60 default suites, one separate scheduled suite
+PASS real 0.05-second deadline: UNKNOWN, zero passes, zero failures, exit 92
+PASS all focused probes; no source writes

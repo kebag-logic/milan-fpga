@@ -1,0 +1,33 @@
+PASS shard 1/5: siblings 3381.779282, envelope 5899.359282 < 6480 seconds
+PASS shard 2/5: siblings 2517.453393, envelope 6203.901393 < 6480 seconds
+PASS shard 4/5: siblings 0.000000, envelope 4889.438000 < 6480 seconds
+job 112155955445; raw log sha256 a2408a0b7cfd58335f963f6545000c7defee357590bfb339bbb57fa9abb63f7c
+2026-10-06T07:24:33.7584026Z PASS     avtp_rxmon
+2026-10-06T07:51:56.0383249Z PASS     capture_coherence
+measured window 1642.279922 seconds; PASS
+job started_at=2026-10-06T07:22:26Z; completed_at=2026-10-06T08:47:25Z
+job span=5099.0; suite windows=4985.650798; overhead=113.349202
+PASS timestamp sample
+job 112142195163; raw log sha256 94c2b5f2afcf3d635ea1ca2878bdfb7b56536d0bd952248af514af303c0421f4
+2026-10-06T06:40:07.2832370Z shard: 4/5   selected suites: 1
+2026-10-06T07:38:36.8449083Z PASS     milan_dp
+measured window 3509.561671 seconds; PASS
+job started_at=2026-10-06T06:38:42Z; completed_at=2026-10-06T07:38:41Z
+job span=3599.0; suite windows=3509.561671; overhead=89.438329
+PASS timestamp sample
+job 112160880744; raw log sha256 cb3563e6275dad607944bdb17e61d41eb681727e6a5c757a0fac482b1520e884
+2026-10-06T07:57:13.8141128Z PASS     mbx
+2026-10-06T08:27:13.8216771Z TIMEOUT  milan_dp_mclk   (1800s wall clock - result UNKNOWN, not a failure)
+measured window 1800.007565 seconds; TIMEOUT
+job started_at=2026-10-06T07:37:06Z; completed_at=2026-10-06T08:50:21Z
+job span=4395.0; suite windows=4309.804357; overhead=85.195643
+PASS timestamp sample
+job 112142195196; raw log sha256 c1eb702d34f8ae815ee2048f18c6214cb8fa0396fad3e104db38a769e17e5402
+job started_at=2026-10-06T06:38:44Z; completed_at=2026-10-06T08:03:49Z
+job span=5105.0; suite windows=4987.420038; overhead=117.579962
+PASS timestamp sample
+job 112155955407; raw log sha256 0c9c81ec1ef1c88751c031b96c197f0039fc9f661baa193d39ab98ffdef91a93
+job started_at=2026-10-06T07:22:26Z; completed_at=2026-10-06T08:35:37Z
+job span=4391.0; suite windows=4304.551954; overhead=86.448046
+PASS timestamp sample
+PASS all published-envelope calculations and five original hosted-log samples

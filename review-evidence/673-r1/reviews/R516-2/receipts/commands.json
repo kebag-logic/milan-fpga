@@ -1,0 +1,77 @@
+[
+  {
+    "receipt": "evidence-check.log",
+    "command": "python3 scripts/measure_test_evidence.py --check",
+    "rc": 0
+  },
+  {
+    "receipt": "evidence-selftest.log",
+    "command": "python3 scripts/measure_test_evidence.py --selftest",
+    "rc": 0
+  },
+  {
+    "receipt": "docs-check.log",
+    "command": "python3 scripts/docs_check.py",
+    "rc": 0
+  },
+  {
+    "receipt": "doc-paths.log",
+    "command": "python3 scripts/check_doc_paths.py",
+    "rc": 0
+  },
+  {
+    "receipt": "doc-style.log",
+    "command": "python3 scripts/check_doc_style.py",
+    "rc": 0
+  },
+  {
+    "receipt": "focused-probe.log",
+    "command": "python3 $PACKET/scripts/focused_probe.py $REVIEW_CLONE $PACKET",
+    "rc": 0
+  },
+  {
+    "receipt": "measurements.log",
+    "command": "python3 $PACKET/scripts/check_measurements.py $REVIEW_CLONE $PACKET",
+    "rc": 0
+  },
+  {
+    "receipt": "integrity.log",
+    "command": "python3 $PACKET/scripts/verify_integrity.py $REVIEW_CLONE",
+    "rc": 0
+  },
+  {
+    "receipt": "toc-check.log",
+    "command": "python3 scripts/gen_toc.py --check",
+    "rc": 2
+  },
+  {
+    "receipt": "toc-check-pinned.log",
+    "command": "$PACKET/scratch/docs-env/bin/python scripts/gen_toc.py --check",
+    "rc": 0
+  },
+  {
+    "receipt": "toc-anchors.log",
+    "command": "python3 scripts/gen_toc.py --verify-anchors",
+    "rc": 2
+  },
+  {
+    "receipt": "toc-anchors-pinned.log",
+    "command": "$PACKET/scratch/docs-env/bin/python scripts/gen_toc.py --verify-anchors",
+    "rc": 0
+  },
+  {
+    "receipt": "em-dash.log",
+    "command": "python3 scripts/check_em_dash.py --base bd884631684ccf5060339efa92263d5c3e5c262c",
+    "rc": 2
+  },
+  {
+    "receipt": "em-dash-pinned.log",
+    "command": "$PACKET/scratch/docs-env/bin/python scripts/check_em_dash.py --base bd884631684ccf5060339efa92263d5c3e5c262c",
+    "rc": 0
+  },
+  {
+    "receipt": "integrity-final.log",
+    "command": "python3 $PACKET/scripts/verify_integrity.py $REVIEW_CLONE",
+    "rc": 0
+  }
+]

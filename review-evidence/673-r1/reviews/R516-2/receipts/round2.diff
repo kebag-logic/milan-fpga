@@ -1,0 +1,65 @@
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 7e2d3d469..9e77c01cc 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -80,9 +80,10 @@ See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+ for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+-check count cannot be read. The default selection contains 54 suites, each
+-with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+-under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
++check count cannot be read.
++The default selection contains 60 suites.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+ rates. CI shards the default selection; the physical job runs nightly and on
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5932ffd25..bbb713a8e 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -166,10 +166,9 @@ The directory inventory includes one environment-dependent measurement exception
+ It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+ Its README provides measurement commands and the complete receipt.
+ 
+-The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+-The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+-It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
++The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+ The separate physical job permits 5400 seconds, including compilation.
+ Its workflow job permits 120 minutes, including toolchain setup.
+ Both target a four-core `ubuntu-latest` hosted worker.
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index bff4c7a49..3f962ae20 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -306,7 +306,8 @@ The unchanged acquisition deadline expires before the acquired-publication check
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+ The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+-Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+ Physical regressions are therefore caught nightly, outside the PR aggregate.
+ Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index c15b5f188..5fca90b3a 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -28,8 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.
+-The historical `milan_dp` suite has its own 3600-second budget.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ 
+ The accounting verifier retains each failing DUT control transcript.
+ They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.
