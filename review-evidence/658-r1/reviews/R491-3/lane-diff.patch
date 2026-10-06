@@ -1,0 +1,3061 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index b1be81a85..f259e3435 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
+ - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
+ - **[Unreleased - CRF unbind counts its unlock](#unreleased---crf-unbind-counts-its-unlock)** -- Counted at the unbind.
+ - **[Unreleased - AAF or CRF media-clock following](#unreleased---aaf-or-crf-media-clock-following)** -- Follows one selected source.
+@@ -39,6 +40,26 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - power-on audio maps
++
++- Every dynamic stream port powered up unmapped (#658).
++- A controller saw no mapping until it added one.
++- Now stream channel c maps to the port's cluster c.
++- That holds below the smaller of channels and clusters.
++- AX7101: TDM8 In slot c feeds talker channel c.
++- Listener channel c renders on TDM8 Out slot c.
++- Both crossbar RAMs hold that map from boot.
++- A restored narrower format comes back with its map clipped.
++- Milan 5.4.2.7 still refuses an orphaning format.
++- So narrowing a listener first needs REMOVEs.
++- The CSR map window refuses writes.
++- That lasts until one sweep after the restore's terminal.
++- No port, register field or parameter changes.
++- VERSION is unchanged; the release step owns the bump.
++- `tb/verilator/milan_dp` proves it in `[DYNMAP]`.
++- It also stages the boot window's guard arms.
++- `make dynmap-mutants` plants 13 defects over three legs.
++
+ ## Unreleased - processor pin ead80360
+ 
+ - Issue #661 adopts processor `ead80360`.
+diff --git a/docs/CHANNEL_MAP_64.md b/docs/CHANNEL_MAP_64.md
+index 053080d36..284482af8 100644
+--- a/docs/CHANNEL_MAP_64.md
++++ b/docs/CHANNEL_MAP_64.md
+@@ -360,10 +360,19 @@ datapath. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` validate every row
+ before atomically committing the command. A failed row leaves the live map
+ unchanged.
+ 
++The stores power up with the #658 identity map on every dynamic port: stream
++channel c on the port's cluster c, within the channel and cluster counts. Until
++the restore's terminal they follow the restored formats, and the parent's boot
++writer copies them into both crossbar RAMs, one key per cycle. A
++`SET_STREAM_FORMAT` never edits a map: one that would orphan a mapping is
++refused (Milan v1.2 5.4.2.7), so narrowing a stream needs a REMOVE first
++([`ENDSTATION_BUILDER.md` D7](ENDSTATION_BUILDER.md#d7-direction-specific-dynamic-map-keys)).
++
+ The CSR window is a diagnostic override of those stores. Its write path is
+ blocked while the map is disarmed or `LOCK_ENTITY` is held, and protocol map
+ transactions exclude CSR writes until commit or abort. This prevents a
+-diagnostic write from changing the validation baseline mid-command.
++diagnostic write from changing the validation baseline mid-command. The boot
++writer excludes them too, until one sweep after the restore's terminal.
+ 
+ `KL_pcm_route` has a separate two-bit Listener route field at LCTX
+ `CTRL[2:1]`. Bit 1 is the retained `RENDER` flag and bit 0 is reserved zero.
+diff --git a/docs/ENDSTATION_BUILDER.md b/docs/ENDSTATION_BUILDER.md
+index dba38aa00..f93640b0f 100644
+--- a/docs/ENDSTATION_BUILDER.md
++++ b/docs/ENDSTATION_BUILDER.md
+@@ -621,6 +621,27 @@ projects only backed clusters into the render and capture crossbars. The
+ `0x900` window remains a local debug and override path, but its map writes are
+ refused while `LOCK_ENTITY` is held.
+ 
++**The power-on map (#658).** Every dynamic Stream Port powers up mapped:
++stream channel `c` maps to the port's cluster `c`, for every `c` below the
++smaller of the stream's channel count and the port's cluster count.
++`milan_datapath` computes the map from the generated `ADP_DMAP_*` constants,
++the same bounds an `ADD` is validated against, and the boot writer projects it
++into both crossbars. On the shipping AX7101 1x1 TDM8 shape, Stream In 0's
++channels 0..7 render on TDM8 Out slots 0..7, and TDM8 In slots 0..7 feed
++Stream Out 0's channels 0..7. Until the restore releases AECP the map follows
++the restored formats, so a saved narrower format comes back with the higher
++mappings already gone. No controller is registered by then, so nothing is
++notified.
++
++**A format change never edits a map** (Milan v1.2 5.4.2.7). A
++`SET_STREAM_FORMAT` whose new format drops a channel that a mapping references
++is refused with `BAD_ARGUMENTS`, and the format and the maps stay as they
++were. So a controller adapting a listener to a narrower talker first
++`REMOVE`s the mappings of the channels the new format drops, then sets the
++format. Widening the format again adds no mapping back. The power-on map
++makes this the common case: narrowing Stream In 0 from 8 to 4 channels needs
++`REMOVE_AUDIO_MAPPINGS` of channels 4..7 first.
++
+ **Protocol validity and physical projection are separate questions.** A legal
+ `ADD` / `GET_AUDIO_MAP` / `REMOVE_AUDIO_MAPPINGS` on a cluster with no physical
+ projection SUCCEEDS, is stored, appears in the GET page, and changes no render
+@@ -706,8 +727,10 @@ board the loopback clusters are the only source that can hand a talker
+ per-channel-distinct audio.
+ 
+ **Power-on fall-through.** Only one segment can be the power-on source, so a
+-static AUDIO_MAP or dynamic-map initial image uses the first backed segment:
+-`physical`, then (talker) `loopback`, `pilot`, `virtual`. Talker *t*'s
++static AUDIO_MAP uses the first backed segment: `physical`, then (talker)
++`loopback`, `pilot`, `virtual`. The builder's dynamic-map initial image
++(`AEM_ODMAP_INIT_C`) follows the same rule, but no gateware has read it since
++2026-08-13: a dynamic port powers up with the identity map of D7 instead. Talker *t*'s
+ loopback pool starts at received stream *t* channel 0, so the eight talkers
+ offer eight *different* source sets, not eight copies of one.
+ 
+@@ -736,9 +759,11 @@ the device is at 61 039 / 63 400 LUT and dies in *packing*.
+ 
+ The important part is what the declaration also does: `primary_segment()`
+ reads the **same fact**, so with the lane off an unbacked loopback cluster is
+-not a candidate for the power-on image. The 8×8 build therefore arms its one
+-backed Pilot cluster per output port and leaves the other seven initial keys
+-unmapped. Before task #65 the preference was unconditional, and because the
++not a candidate for the builder's power-on image, which arms one backed Pilot
++cluster per output port and leaves the other seven keys unmapped. The gateware
++does not read that image. Its identity map (D7) maps each 8×8 output's
++stream channel 0 to the Pilot and channels 1..7 to the port's first loopback
++clusters, which carry silence while the lane is off. Before task #65 the preference was unconditional, and because the
+ AX routes no audio pins the fall-through reached loopback — so every talker
+ woke mapped to a cluster whose fabric source did not exist. Milan v1.2
+ **5.3.9.1** makes the corrected image explicit and legal: a Stream Output
+diff --git a/docs/design/SAVED_STATE_MATERIALIZATION.md b/docs/design/SAVED_STATE_MATERIALIZATION.md
+index 7486e9156..0727e9477 100644
+--- a/docs/design/SAVED_STATE_MATERIALIZATION.md
++++ b/docs/design/SAVED_STATE_MATERIALIZATION.md
+@@ -192,7 +192,7 @@ Where each live value is held, read at the current source:
+ | `0x0A`.. | clock source | selector 2 | the same per-record bit |
+ | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same per-record bit |
+ | `0x50`.. | presentation time offset | selector 5 | the same per-record bit |
+-| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` block `amap_edit_commit`) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
++| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the power-on identity of #658 (stream channel c on the port's cluster c), clipped to the restored formats until the restore's terminal (`milan_datapath.sv` blocks `amap_boot_clip`, `amap_boot_walk` and `amap_edit_commit`; the crossbar RAMs take the same set from the boot writer) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+ | `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
+ 
+ `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
+@@ -601,9 +601,17 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
+   clean first boot (H8).
+ 
+ With stage 3 the map plane (`milan_datapath.sv` and `KL_chan_map_capture.sv`)
+-puts the port sets back to their reset value, the EMPTY set, when the D3 walk
+-rolls back (`restore_rb_o`). The processor's roll-back strobe stays inside the
+-processor (section 15 item 2, amended).
++puts the port sets back to their reset value when the D3 walk rolls back
++(`restore_rb_o`): the #658 power-on identity, clipped to the formats then in
++force. The processor's roll-back strobe stays inside the processor (section 15
++item 2, amended).
++
++Until then the parent's boot window (`amap_boot_r`, from reset to the
++restore's terminal) recomputes that clipped identity from the live formats on
++every cycle. So a roll-back of the formats already brings the whole identity
++back. The window also holds the map edit face and the CSR map writer, so it
++must change with stage 3, whose map restore drives the edit face inside it:
++stage 3 takes the window over for the ports it restores.
+ 
+ [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owes the PP_STAT rows for
+ the combined restore verdicts, and the PP_CTRL[0] and ADP_CTRL[0] rows (they
+@@ -1200,9 +1208,16 @@ ABORTS and rolls back (section 8.6) instead of leaving the port empty as it
+ did in round one, and V9 kills it by the refused record's neighbour, lost to
+ the roll-back: "ptof0 0 valid 0, rolled back 1".
+ 
+-The shipping shapes' dynamic ports reset to the EMPTY set, so step 3 has
+-nothing to orphan there. The model uses a non-empty reset set so that every
+-step runs (section 14).
++The shipping shapes' dynamic ports reset to the #658 identity set. While no
++map record is restored (stages 1 and 2), the parent clips that set to the
++restored formats before AECP is released. So a persisted narrower format is
++kept, and nothing is left orphaned. The formats are still judged on
++"supported" alone: judging the map bit would silently discard a persisted
++format (#658 ruling, comment 5988843004). The clip raises neither
++`amap_edit_live_wr_p` nor map-persistence work. Controller edits raise sticky
++live-map pending; records `0x60` to `0x7F` remain unmaterialized in stages 1
++and 2. Stage 3 supplies their writer. The model uses a non-empty reset set so
++that every step runs (section 14).
+ 
+ **Which judge.** The product's verdict (`hdl/milan/milan_datapath.sv`,
+ `sfv_supported_w`) admits an OUTPUT format only when it equals the
+diff --git a/docs/development/CODE_QUALITY.md b/docs/development/CODE_QUALITY.md
+index a395a1af2..b4df14072 100644
+--- a/docs/development/CODE_QUALITY.md
++++ b/docs/development/CODE_QUALITY.md
+@@ -1758,7 +1758,7 @@ did not move.
+ |---|---:|---|
+ | RTL suites with no executable mutation or negative arm | 82 of 87 (was 83) | Ratchet across the superproject (54 suites, entry `scripts/run_all_suites.sh`) and both project-owned processor submodules (30 under `protocol-processor/tb`, entry `protocol-processor/scripts/run_suites.sh` and its CI; 3 under `gptp-processor/tb/verilator`, entry `gptp-processor/Makefile`). Only an executed recipe arms a suite, as defined above. |
+ | First-party files drawing random values with no recorded seed | **10** | Ratchet. The scan reads code, not comments or strings, in every language the test trees carry: Python module draws, `random.Random()`/`SystemRandom()` instance draws, `from random import …`, `choices`/`gauss` and friends, numpy, `secrets`; C `rand()`, `std::rand()`, `random()`, `*rand48`, `random_device`; SystemVerilog `$urandom`, `$urandom_range`, `$random`, `randomize()`. A seed is `random.seed(x)`, `random.Random(x)` with any non-empty `x` (the documented `TEST_SEED` pattern), `np.random.seed`/`default_rng(x)`, `srand(x)` (not `srand(time(NULL))`), a printed seed beside `random_device`, `srandom(x)`, `$urandom(x)` or a `+seed` plusarg. **All ten are legacy xsim benches** under `tb/utests`, `tb/itests` and `tb/avtp_packet_gen_sv` drawing `$urandom` with no seed ([TESTING.md section 5](../testing/TESTING.md#5-legacy--auxiliary-testbenches): superseded, not exit-code gating). Every gating harness is seeded. |
+-| Unexplained tests reading production HDL text | **0** | Nine readers are explicitly classified: eight mutation campaigns and one structural boundary check. The count is the live disposition list in `scripts/measure_test_evidence.py`, which the gate prints on every run and requires to match the readers exactly. Idioms: `read_text`/`read_bytes`, `open(…).read()`/`readlines()`, C++ `ifstream`/`fopen`, SystemVerilog `` `include `` of `hdl/` or `$fopen`/`$readmemh`, shell `cat`/`grep`/`sed`/`awk` over `hdl/`, each paired with an `hdl/` path. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
++| Unexplained tests reading production HDL text | **0** | Nine readers are explicitly classified: eight mutation campaigns and one structural boundary check. The count is the live disposition list in `scripts/measure_test_evidence_readers.py`, which the gate imports, prints on every run and requires to match the readers exactly. Idioms: `read_text`/`read_bytes`, `open(…).read()`/`readlines()`, C++ `ifstream`/`fopen`, SystemVerilog `` `include `` of `hdl/` or `$fopen`/`$readmemh`, shell `cat`/`grep`/`sed`/`awk` over `hdl/`, each paired with an `hdl/` path. A new reader is refused until review proves it is not importing expected behavior from the DUT. |
+ | Suite files using host wall-clock/process deadlines | **3** | Ratcheted. Two are in the external `tsn_fuzz` cosimulation boundary; the third is the tcam mutation driver's per-mutant guard, a bound on a hang, not an oracle. Idioms: Python `time.*`/`datetime.now`/`settimeout`/`select.select`/`signal.alarm`/`SO_RCVTIMEO` and a `timeout=` keyword on `run`/`check_output`/`communicate`/`wait`/`wait_for` and friends (nested parentheses included); C++ `chrono`, `clock()`, `time(NULL)`, `gettimeofday`, `usleep`/`sleep`; shell and Makefile `sleep N`, `timeout N …`, `date`. Behavioral RTL timeouts elsewhere advance explicit DUT cycles. |
+ 
+ ### Audit of weak-evidence failure modes
+diff --git a/docs/fpga/DATAPLANE_WALKTHROUGH.md b/docs/fpga/DATAPLANE_WALKTHROUGH.md
+index 9c01a13a3..d3418e381 100644
+--- a/docs/fpga/DATAPLANE_WALKTHROUGH.md
++++ b/docs/fpga/DATAPLANE_WALKTHROUGH.md
+@@ -84,7 +84,7 @@ flowchart LR
+ | # | hop | instance in `milan_datapath.sv` | what happens | read it at |
+ |---|---|---|---|---|
+ | 1 | **capture** | `aaf_capture` (`KL_aaf_capture_i2s`) or `tdm_capture` (`KL_tdm_capture`) | the I2S/TDM front end recovers L/R sample pairs and hands them over as a `pair_valid` + slot + 24-bit L/R bus. Which one is built is an elaboration choice, not a runtime one | `LTAP_TX_EPOCH` `0x874` samples the gPTP ns at this edge |
+-| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which I2S/TDM pair, tone source, receive-loopback pair, or zero feeds it; reserved source encodings resolve to silence. The map resets empty; `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the direct diagnostic writer. `GET_AUDIO_MAP` reads the live stores, and `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` update them through the processor's transactional path. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
++| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which I2S/TDM pair, tone source, receive-loopback pair, or zero feeds it; reserved source encodings resolve to silence. On a shape with dynamic output maps the crossbar is in circuit from reset and the parent's boot writer fills it with the #658 power-on map, talker channel c from cluster c. Elsewhere the map resets empty, `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the direct diagnostic writer. `GET_AUDIO_MAP` reads the live stores, and `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` update them through the processor's transactional path. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
+ | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
+ | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
+ | 5 | **merge boundary** | `crf_dp_mux` (`adp_tx_arbiter`) | the packetizer output heads the data lane and the CRF talker joins it here. Product audio sees no queue and no credit accounting - there is no shaper in the trunk (Section 2) | `TXARB_DIAG` `0x784` lane 2 |
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 2dbc2f98d..db8bc8e69 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -2157,6 +2157,13 @@ commit or abort, so the validation baseline cannot change underneath it. The
+ CSR writer is also refused whenever `LOCK_ENTITY` is held. This protects both
+ map stores and the authoritative protocol ownership state from non-ATDECC edits.
+ 
++On a shape with dynamic maps, each dynamic direction's store and crossbar hold
++the #658 power-on map from boot: stream channel c on the port's cluster c. The
++parent's boot writer fills the crossbars from reset until one sweep after the
++restore's terminal (`PP_STAT` done or CLOSED). The CSR writer is refused for
++that long, as it is during a transaction. `CHMAP_STAT` cannot see either
++refusal: it counts such a write in `[15:0]` as a commit.
++
+ | Offset | Name | Acc | Reset | Description |
+ |--------|------|-----|-------|-------------|
+ | `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` map arm. While 0 the default capture/render paths drive bit-identically; set 1 to select the CSR-programmed crossbars. It also gates the `CHMAP_WORD` write window (refusals counted in `CHMAP_STAT[23:16]`) |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 47218f0fd..5932ffd25 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -271,6 +271,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
+ | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
++| #658 power-on audio maps, the 13 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants` | the change's own validation, and every reviewer of a change that touches the map stores, their reset or the boot window in `milan_datapath.sv`, `gen_nvm_window.py` or the `[DYNMAP]` section of `sim_nxn.cpp` |
+ | #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls | `make -C tb/verilator/milan_dp gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
+ | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+ 
+@@ -295,12 +296,13 @@ of any kind; `controller_rate` is the gating regression born from the
+ control-rate boundary; `cbs`/`ptp` check
+ arithmetic against independent reference models (10⁴-10⁵ checks each).
+ 
+-The `milan_dp` default `run` retains eleven ordinary commands in this order:
+-`obj_dir`, `obj_notify`, `obj_crflic`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`,
+-`obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, then `obj_aclk`.
++The `milan_dp` default `run` retains twelve ordinary commands in this order:
++`obj_dir`, `obj_notify`, `obj_crflic`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`,
++`obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, then `obj_aclk`.
+ All run through the two-child pool after their builds.
+ `SIM_JOBS=1` runs that same inventory sequentially.
+-The five `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
++The six `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
++`obj_dynmap` also writes a unique `milan_nvm_*` window directory.
+ Each contains images, a generator log, and eleven builder files.
+ The generated shape header stays inside that private directory.
+ Timestamp and file-operation audits found no repository writes.
+@@ -311,6 +313,7 @@ The #508 GET_STREAM_INFO checks stay in `obj_notify`.
+ The #653 `[UNB]` unbind checks run there too.
+ The #443 render CSR checks stay in `obj_aclk`.
+ Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
++The #658 `dynmap` leg runs in the pool; its focused `dynmap` and `dynmap-mutants` targets remain available.
+ The `gptp`, `gptp-lat` and `gmstep` prerequisites run before the ordinary pool.
+ The render-law and default GM-step mutation controls run after it succeeds.
+ Explicit mutation campaigns above retain their separate targets and full inventories.
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index b8afe5ed2..48a2e59a9 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1149,6 +1149,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   logic [5:0] amap_edit_owr_slot_r;
+   logic [12:0] amap_edit_owr_word_r;
+   logic       amap_edit_txn_active_r;
++  //! #658: the boot map writer owns both crossbar write legs while this is
++  //! set (block amap_boot_walk below), so the CSR 0x900 writer is held out;
++  //! declared ahead of its first reader, the capture write mux (#193).
++  logic       amap_boot_busy_w;
+   //! task #26 shape truth from the AECP builder (the one module that
+   //! compiles the generated ROM): 1 = this build carries the dynamic-map
+   //! writers + boot seeder for that side. Elaboration constants.
+@@ -1252,7 +1256,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
+                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
+                     (!aecp_odmap_wr_p_w && !amap_edit_txn_active_r
+-                     && !aecp_locked
++                     && !amap_boot_busy_w && !aecp_locked
+                      && cfg_chmap_wr_en &&
+                      cfg_chmap_wr_side &&
+                      32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
+@@ -1359,11 +1363,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .fill_cnt_o ()
+   );
+ 
+-  //! task #26 (USER: the ATDECC map IS the model): on a shape that
+-  //! compiled the capture-map machinery the crossbar is IN-CIRCUIT BY
+-  //! CURRENT CONSTRUCTION: the map RAM resets to silence and has no AECP
+-  //! writer or boot seeder. The declared front-end routing stays selected
+-  //! after reset. Software writes the map through the CSR window and then
++  //! task #26 (USER: the ATDECC map IS the model): on a shape with dynamic
++  //! output maps the crossbar is in circuit from reset, and its map RAM
++  //! holds the #658 identity image from the boot writer (amap_boot_walk)
++  //! on, so talker channel c carries cluster c until a controller remaps
++  //! it. On a static-output shape the declared front-end routing stays
++  //! selected: software writes the map through the CSR window and then
+   //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
+   //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
+   //! below) is declared here ahead of its first reader (#193).
+@@ -4097,8 +4102,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! This freezes the live baseline between the validation and commit passes,
+   //! so a concurrent CSR write cannot create a time-of-check/time-of-use partial edit.
+   //! Phase 1 rechecks that baseline and reserves the complete commit. This
+-  //! root never asserts wait, so phases 5 and 2 complete without a timeout
+-  //! point between live writes.
++  //! root asserts wait only while the #658 boot map writer is busy, which
++  //! ends for good one sweep after the restore's terminal, so a transaction
++  //! meets it at phase 0 at the latest and phases 5 and 2 still complete
++  //! without a timeout point between live writes.
+   logic        amap_edit_seen_r;
+   logic  [2:0] amap_edit_seen_phase_r;
+   logic  [7:0] amap_edit_seen_rec_r;
+@@ -4348,7 +4355,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     endcase
+   end : amap_edit_validate
+ 
+-  assign pp_amap_edit_wait_w = 1'b0;
++  assign pp_amap_edit_wait_w = amap_boot_busy_w;
+ 
+   // Preserve the store's input-change priority. The same comparisons feed
+   // the shadow's pending input on this axis_clk edge.
+@@ -4386,6 +4393,220 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [16:0] cfg_cmap_cluster_w = amap_out_cluster(cfg_cmap_entry_w,
+                                                     cfg_cmap_port_w);
+ 
++  //! ==== #658: the power-on map image and its boot clip ===================
++  //! THE IMAGE (#658 ruling): on every dynamic Stream Port, stream channel c
++  //! maps to cluster c for each c below the smaller of the stream's channel
++  //! count and the port's cluster count. Port p is STREAM_INPUT p's or
++  //! STREAM_OUTPUT p's own, so input mapping c sits at global cluster key
++  //! PBASE[p] + c and output mapping c at stream-channel key p*8 + c. The
++  //! image applies the bounds amap_edit_validate applies to an ADD (the
++  //! generated wire shape SCH, the port's clusters, the stream format), so
++  //! each of its mappings is one a controller could have added. It is the
++  //! stores' reset value, which costs no logic.
++  //!
++  //! THE BOOT CLIP (#658 ruling, item 3). From reset until the restore's
++  //! terminal (the boot window), the stores hold the image without the
++  //! mappings each stream's CURRENT format does not carry: the processor's
++  //! row once valid, else the declared default the GET serves, which carries
++  //! the whole image. The clip only ever removes. The terminal is
++  //! pp_restore_done_w, the D3 walk's COMPLETE or DEFAULTS, which is the
++  //! cycle AECP starts to dispatch, or pp_restore_closed_w, after which AECP
++  //! stays held and nothing changes a format again. So a restored narrower
++  //! format keeps no mapping it orphans (the Milan 5.4.2.7 invariant) and the
++  //! persisted format survives, and no controller can be registered yet, so
++  //! nothing is notified. A roll-back to the default formats brings the whole
++  //! image back. None of this is a live map write, so amap_edit_live_wr_p
++  //! stays the map plane's persistence trigger. After the terminal only
++  //! ADD/REMOVE and the CSR window change a map, and a SET_STREAM_FORMAT that
++  //! would orphan a mapping is still refused (Milan 5.4.2.7, the format
++  //! verdict's bit 1). A boot that never starts the restore keeps the window,
++  //! as it keeps AECP and the ACMP listener held, until reset.
++  //!
++  //! THE CROSSBAR RAMS hold the same image through amap_boot_walk: one key
++  //! per cycle through the AECP write legs phase 5 uses, continuously while
++  //! the window is open and once more after its terminal, from the stores as
++  //! they stand then. Until that last sweep ends (amap_boot_busy_w) the edit
++  //! face waits and the CSR window is held out, so the RAMs and the stores
++  //! agree before any edit validates against them. A writer through the
++  //! existing legs is smaller than reset images in the two leaves, which
++  //! would still need it for the clip. #70 stage 3, whose map restore drives
++  //! the edit face inside the window, takes the window over for the ports it
++  //! restores.
++
++  //! a stream's declared default channel count, the one its
++  //! GET_STREAM_FORMAT serves while no format is set; 0 past the rows
++  function automatic logic [9:0] amap_decl_ch(input logic out_i,
++                                              input int s_i);
++    logic [9:0] r;
++    r = 10'd0;
++    for (int k = 0; k < ADP_STRIN_NFMT_C; k++)
++      if (!out_i && (k == s_i)) r = ADP_STRIN_FMT_C[k][31:22];
++    for (int k = 0; k < ADP_STROUT_NFMT_C; k++)
++      if (out_i && (k == s_i)) r = ADP_STROUT_FMT_C[k][31:22];
++    return r;
++  endfunction
++
++  //! the input identity: the generated shape bounded by the declared
++  //! default format
++  function automatic logic [AMAP_IN_KEYS_C*8-1:0] amap_in_image();
++    logic [AMAP_IN_KEYS_C*8-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_IN_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (ADP_DMAP_IN_MASK_C[p] && (p < 8) && (p < ADP_DMAP_IN_NSTRIN_C)
++            && ADP_DMAP_IN_SAAF_C[p]
++            && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
++            && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
++            && (c < 32'(amap_decl_ch(1'b0, p)))
++            && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
++          r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
++    return r;
++  endfunction
++
++  //! the output identity's owned keys, bounded the same way
++  function automatic logic [AMAP_OUT_KEYS_C-1:0] amap_out_image();
++    logic [AMAP_OUT_KEYS_C-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (ADP_DMAP_OUT_MASK_C[p] && (p < N_STREAMS)
++            && (c < 32'(ADP_DMAP_OUT_PCLS_C[p]))
++            && (c < 32'(ADP_DMAP_OUT_SCH_C[p]))
++            && (c < 32'(amap_decl_ch(1'b1, p)))
++            && ((32'(ADP_DMAP_OUT_PCBASE_C[p]) + c) < ADP_DMAP_OUT_NSRC_C))
++          r[p*8 + c] = 1'b1;
++    return r;
++  endfunction
++
++  //! the capture word of each output identity key: the CSRC word an ADD of
++  //! cluster c on port p writes (amap_edit_out_encode)
++  function automatic logic [AMAP_OUT_KEYS_C*13-1:0] amap_out_words();
++    logic [AMAP_OUT_KEYS_C*13-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if ((p < N_STREAMS)
++            && ((32'(ADP_DMAP_OUT_PCBASE_C[p]) + c) < ADP_DMAP_OUT_NSRC_C))
++          r[(p*8 + c)*13 +: 13] =
++              ADP_DMAP_OUT_CSRC_C[32'(ADP_DMAP_OUT_PCBASE_C[p]) + c];
++    return r;
++  endfunction
++
++  localparam logic [AMAP_IN_KEYS_C*8-1:0] AMAP_IN_IMAGE_C = amap_in_image();
++  localparam logic [AMAP_OUT_KEYS_C-1:0] AMAP_OUT_IMAGE_C = amap_out_image();
++  localparam logic [AMAP_OUT_KEYS_C*13-1:0] AMAP_OUT_WORDS_C = amap_out_words();
++
++  //! the output owner and cluster registers of an owned-key vector: port
++  //! k/8, cluster k%8 where owned, zero (what a REMOVE leaves) elsewhere
++  function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_owner_of(
++      input logic [AMAP_OUT_KEYS_C-1:0] v_i);
++    logic [AMAP_OUT_KEYS_C*16-1:0] r;
++    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
++      r[k*16 +: 16] = v_i[k] ? 16'(k / 8) : 16'd0;
++    return r;
++  endfunction
++  function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_cluster_of(
++      input logic [AMAP_OUT_KEYS_C-1:0] v_i);
++    logic [AMAP_OUT_KEYS_C*16-1:0] r;
++    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
++      r[k*16 +: 16] = v_i[k] ? 16'(k % 8) : 16'd0;
++    return r;
++  endfunction
++
++  //! each stream's current channel count, as the clip reads it
++  logic [9:0] amap_in_ch_w  [AMAP_IN_PORTS_C];
++  logic [9:0] amap_out_ch_w [N_STREAMS];
++  always_comb begin : amap_boot_channels
++    for (int s = 0; s < AMAP_IN_PORTS_C; s++) begin
++      amap_in_ch_w[s] = amap_decl_ch(1'b0, s);
++      if ((s < ACMP_SINKS_C) && pp_aecp_fmt_in_v_w[s])
++        amap_in_ch_w[s] = pp_aecp_fmt_in_w[64*s + 22 +: 10];
++    end
++    for (int s = 0; s < N_STREAMS; s++) begin
++      amap_out_ch_w[s] = amap_decl_ch(1'b1, s);
++      if ((s < ACMP_SRC_C) && pp_aecp_fmt_out_v_w[s])
++        amap_out_ch_w[s] = pp_aecp_fmt_out_w[64*s + 22 +: 10];
++    end
++  end : amap_boot_channels
++
++  //! the clipped image the stores hold while the window is open
++  logic [AMAP_IN_KEYS_C*8-1:0] amap_in_boot_w;
++  logic [AMAP_OUT_KEYS_C-1:0]  amap_out_boot_w;
++  always_comb begin : amap_boot_clip
++    amap_in_boot_w = '0;
++    for (int k = 0; k < AMAP_IN_KEYS_C; k++)
++      for (int s = 0; s < AMAP_IN_PORTS_C; s++)
++        if (AMAP_IN_IMAGE_C[k*8 + 7]
++            && (32'(AMAP_IN_IMAGE_C[k*8 + 3 +: 3]) == s)
++            && (32'(AMAP_IN_IMAGE_C[k*8 +: 3]) < 32'(amap_in_ch_w[s])))
++          amap_in_boot_w[k*8 +: 8] = AMAP_IN_IMAGE_C[k*8 +: 8];
++    amap_out_boot_w = '0;
++    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
++      if (AMAP_OUT_IMAGE_C[k] && ((k % 8) < 32'(amap_out_ch_w[k / 8])))
++        amap_out_boot_w[k] = 1'b1;
++  end : amap_boot_clip
++
++  //! THE BOOT WRITER's cursor. amap_boot_r is the window (reset to the
++  //! restore's terminal), amap_boot_last_r the one sweep after it, from key
++  //! 0, and amap_boot_drain_r the cycle its last write lands in the RAM.
++  localparam int AMAP_BOOT_KEYS_C = (AMAP_IN_KEYS_C > AMAP_OUT_KEYS_C)
++                                  ? AMAP_IN_KEYS_C : AMAP_OUT_KEYS_C;
++  localparam int AMAP_BOOT_KW_C = (AMAP_BOOT_KEYS_C <= 2)
++                                ? 1 : $clog2(AMAP_BOOT_KEYS_C);
++  logic                      amap_boot_r, amap_boot_last_r, amap_boot_drain_r;
++  logic [AMAP_BOOT_KW_C-1:0] amap_boot_k_r;
++  wire amap_boot_wrap_w = (32'(amap_boot_k_r) == AMAP_BOOT_KEYS_C - 1);
++  wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;
++  assign amap_boot_busy_w = amap_boot_wr_w || amap_boot_drain_r;
++
++  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_boot_walk
++    if (!axis_resetn) begin
++      amap_boot_r       <= 1'b1;
++      amap_boot_last_r  <= 1'b0;
++      amap_boot_drain_r <= 1'b0;
++      amap_boot_k_r     <= '0;
++    end else begin
++      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;
++      if (amap_boot_r && (pp_restore_done_w || pp_restore_closed_w)) begin
++        amap_boot_r      <= 1'b0;
++        amap_boot_last_r <= 1'b1;
++        amap_boot_k_r    <= '0;
++      end else if (amap_boot_wr_w) begin
++        amap_boot_k_r <= amap_boot_wrap_w ? '0
++                                          : amap_boot_k_r + AMAP_BOOT_KW_C'(1);
++        if (amap_boot_wrap_w) amap_boot_last_r <= 1'b0;
++      end
++    end
++  end : amap_boot_walk
++
++  //! the cursor's key, projected as phase 5 projects it: an input key onto
++  //! its physical render key (RPHYS), an output key onto its capture word.
++  //! A key outside the image projects its reset value, zero.
++  logic        amap_boot_iwr_w, amap_boot_owr_w;
++  logic  [5:0] amap_boot_iaddr_w;
++  logic  [7:0] amap_boot_iword_w;
++  logic [12:0] amap_boot_oword_w;
++  always_comb begin : amap_boot_slot
++    amap_boot_iwr_w = 1'b0;
++    amap_boot_iaddr_w = 6'd0;
++    amap_boot_iword_w = 8'd0;
++    amap_boot_owr_w = 1'b0;
++    amap_boot_oword_w = 13'd0;
++    for (int k = 0; k < AMAP_IN_KEYS_C; k++)
++      if ((32'(amap_boot_k_r) == k) && aecp_dmap_dyn_w
++          && ADP_DMAP_IN_RPHYS_C[k][6]) begin
++        amap_boot_iwr_w = 1'b1;
++        amap_boot_iaddr_w = ADP_DMAP_IN_RPHYS_C[k][5:0];
++        amap_boot_iword_w = amap_in_store_r[k*8 +: 8];
++      end
++    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
++      if ((32'(amap_boot_k_r) == k) && aecp_odmap_dyn_w) begin
++        amap_boot_owr_w = 1'b1;
++        amap_boot_oword_w = amap_out_owner_v_r[k]
++                          ? AMAP_OUT_WORDS_C[k*13 +: 13] : 13'd0;
++      end
++  end : amap_boot_slot
++
+   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
+     if (!axis_resetn) begin
+       amap_edit_seen_r <= 1'b0;
+@@ -4405,10 +4626,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       amap_edit_oclaim_expect_r <= '0;
+       amap_edit_oclaim_cluster_r <= '0;
+       amap_edit_out_resv_r <= '0;
+-      amap_in_store_r <= '0;
+-      amap_out_owner_v_r <= '0;
+-      amap_out_owner_r <= '0;
+-      amap_out_cluster_r <= '0;
++      amap_in_store_r <= AMAP_IN_IMAGE_C;
++      amap_out_owner_v_r <= AMAP_OUT_IMAGE_C;
++      amap_out_owner_r <= amap_out_owner_of(AMAP_OUT_IMAGE_C);
++      amap_out_cluster_r <= amap_out_cluster_of(AMAP_OUT_IMAGE_C);
+       amap_edit_iwr_p_r <= 1'b0;
+       amap_edit_iwr_addr_r <= 6'd0;
+       amap_edit_iwr_word_r <= 8'd0;
+@@ -4418,6 +4639,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     end else begin
+       amap_edit_iwr_p_r <= 1'b0;
+       amap_edit_owr_p_r <= 1'b0;
++      //! #658 boot writer: never beside a phase-5 write, which cannot run
++      //! while the edit face waits; phase 5 below would win the legs anyway
++      if (amap_boot_wr_w && amap_boot_iwr_w) begin
++        amap_edit_iwr_p_r <= 1'b1;
++        amap_edit_iwr_addr_r <= amap_boot_iaddr_w;
++        amap_edit_iwr_word_r <= amap_boot_iword_w;
++      end
++      if (amap_boot_wr_w && amap_boot_owr_w) begin
++        amap_edit_owr_p_r <= 1'b1;
++        amap_edit_owr_slot_r <= 6'(amap_boot_k_r);
++        amap_edit_owr_word_r <= amap_boot_oword_w;
++      end
+       if (!pp_amap_edit_req_w) begin
+         amap_edit_seen_r <= 1'b0;
+       end else if (amap_edit_beat_w) begin
+@@ -4506,7 +4739,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+         endcase
+       end
+       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+-          && !aecp_locked
++          && !amap_boot_busy_w && !aecp_locked
+           && cfg_chmap_wr_en && cfg_chmap_wr_side
+           && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
+         amap_out_owner_v_r[
+@@ -4518,13 +4751,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+           <= cfg_cmap_cluster_w[15:0];
+       end
+       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+-          && !aecp_locked
++          && !amap_boot_busy_w && !aecp_locked
+           && cfg_chmap_wr_en && !cfg_chmap_wr_side
+           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
+         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+           <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
+       end
++      //! #658 boot clip: the window holds the stores at the clipped image
++      if (amap_boot_r) begin
++        amap_in_store_r <= amap_in_boot_w;
++        amap_out_owner_v_r <= amap_out_boot_w;
++        amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);
++        amap_out_cluster_r <= amap_out_cluster_of(amap_out_boot_w);
++      end
+     end
+   end : amap_edit_commit
+ 
+@@ -6543,7 +6783,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .map_wr_en_i   ((aecp_dmap_wr_p_w &&
+                      32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
+                     (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
+-                     && !aecp_locked
++                     && !amap_boot_busy_w && !aecp_locked
+                      && cfg_chmap_wr_en &&
+                      !cfg_chmap_wr_side &&
+                      cfg_chmap_rphys_w[6]
+@@ -6574,8 +6814,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //      which mapped fabric playback reaches the line-out). -------------
+   KL_i2s_feed_mux i2s_feed_mux (
+     .clk_i (axis_clk), .rst_n (axis_resetn),
+-    //! The crossbar has no current boot seeder. The bring-up tap passes
+-    //! through unless CHMAP_CTRL[0] selects the CSR-programmed crossbar.
++    //! A dynamic-input shape renders through the crossbar, which the #658
++    //! boot writer fills with the identity image. Otherwise the bring-up
++    //! tap passes through unless CHMAP_CTRL[0] selects the CSR crossbar.
+     .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
+     .tap_tdata_i  (rend_pcm_tdata_w),
+     .tap_tvalid_i (rend_pcm_tvalid_w),
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index c9d4ebd32..198b59d6c 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -102,6 +102,7 @@ BUDGET = Path(__file__).resolve().parent / "test_evidence.budget"
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ from code_quality_scope import tracked  # noqa: E402
++from measure_test_evidence_readers import DUT_READER_DISPOSITIONS  # noqa: E402
+ import suite_tally  # noqa: E402
+ 
+ #: Every suite tree, and the files whose `make` invocations are its entry. A
+@@ -586,143 +587,14 @@ def seed_population() -> list[str]:
+ # DUT and structural contract checks must inspect it. It is, however, the
+ # smallest useful static population for an implementation-derived-oracle
+ # review. Every present reader has a narrow recorded reason; a new one is debt
+-# until it is classified.
++# until it is classified. The reasons are DUT_READER_DISPOSITIONS, data kept in
++# measure_test_evidence_readers.py and imported above.
+ DUT_READ_PY = re.compile(r"\bread_text\s*\(|\bread_bytes\s*\(|\bopen\s*\(|\.read\s*\(|\.readlines\s*\(")
+ DUT_READ_C = re.compile(r"\bifstream\b|\bfopen\s*\(|\bstd::filesystem\b")
+ DUT_READ_SV = re.compile(r"`include\s+\"[^\"\n]*hdl/|\$fopen\s*\(|\$readmem[hb]\s*\(")
+ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\n]*"
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+-DUT_READER_DISPOSITIONS = {
+-    "protocol-processor/tb/pp_top/acmp_mutants.py":
+-        "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
+-        "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
+-        "requires every named check to fail in a completed run; no expected value is read from the text",
+-    "protocol-processor/tb/pp_top/notify_mutants.py":
+-        "mutation campaign; it plants one notification, identify or inflight defect from its own table "
+-        "into an isolated copy and requires every named check to fail in a completed run; no expected "
+-        "value is read from the text",
+-    "protocol-processor/tb/pp_top/d3_mutants.py":
+-        "mutation campaign; it plants one D3 saved-state defect from its own table into an "
+-        "isolated copy and requires every named check to fail in a completed run; no expected "
+-        "value is read from the text",
+-    "protocol-processor/tb/acmp_talker/retry_mutants.py":
+-        "mutation campaign; plants named defects in a scratch copy and requires named assertion "
+-        "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
+-    "protocol-processor/tb/desc_store/test_gen_desc_image.py":
+-        "unit test of the descriptor packer and its model lint; it imports the generator by path "
+-        "to call build() and its CLI on synthetic models and on the two models packaged beside it, "
+-        "passes the packaged model_ids.json in as the recorded digests, and reads no expectation "
+-        "from source",
+-    "protocol-processor/tb/pp_top/name_wr_mutant.py":
+-        "mutation campaign; removes the accepted name-write export in a copy "
+-        "and requires the named pulse check to fail",
+-    "tb/verilator/pp_shadow/pending_mutant.py":
+-        "mutation campaign; restores the late mark trigger in a copy and "
+-        "requires both K10/K12 durability checks to fail",
+-
+-    "tb/verilator/mmcm_servo/slew_mutants.py":
+-        "mutation campaign; copies the servo and requires named failures for "
+-        "discard removal, tied-low level, partial-tail trust, omitted tally, "
+-        "boundary step double counting, retained guard streak, streak increment "
+-        "on slew discard and slew discard counted as a guard trip; "
+-        "no expectations read from RTL",
+-    "tb/verilator/aaf_clock_meter/mutants.py":
+-        "mutation campaign; it plants one of the #629 design's named AAF clock meter "
+-        "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
+-        "requires the named check of the meter, servo or unit leg to fail; no expected "
+-        "value is read from RTL",
+-    "tb/verilator/capture_coherence/mutants.py":
+-        "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
+-        "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
+-        "and requires a named failure from the junction, datapath or chmap_capture harness; no "
+-        "expected value is read from RTL",
+-    "tb/verilator/crf_rx/mutants.py":
+-        "mutation campaign; copies the receiver and servo, requiring named failures "
+-        "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
+-        "refill, accept-edge, ignored-validity and PI-resume defects; "
+-        "no expectations read from RTL",
+-    "gptp-processor/tb/check_phc_contract.py":
+-        "structural boundary check; it asserts required/forbidden tokens, not behavior",
+-    "gptp-processor/tb/tsngen/mutants.py":
+-        "mutation campaign; it stages three engine defects and requires failure",
+-    "protocol-processor/tb/desc_mem_guard/mutate.py":
+-        "mutation campaign; it removes the guard's two request holds in a copy and "
+-        "requires the completed late-byte assertion to fail",
+-    "protocol-processor/tb/nvm_port/measure_figures.py":
+-        "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
+-    "protocol-processor/tb/pp_top/gsi_mutants.py":
+-        "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
+-        "into an isolated copy and requires the named response check to fail",
+-    "protocol-processor/tb/srp_admission/mutants.py":
+-        "mutation campaign; it plants one admission defect into a temporary tree, "
+-        "requires the named check to fail, and runs clean controls first",
+-    "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
+-        "orchestration lifecycle fixture; it identifies the planted mutation and "
+-        "compares caller bytes/modes/index across interruption. Synthetic commands "
+-        "grade isolation and cleanup only; RTL behavior still requires the real suite",
+-    "tb/verilator/milan_dp/crflic_mutants.py":
+-        "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
+-        "named failure. It is the explicit crflic-mutants target, outside the default sweep",
+-    "tb/verilator/milan_dp/gsi_mutants.py":
+-        "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
+-        "the datapath or of the processor tree and requires a named failure. It is the explicit "
+-        "gsi-mutants target, outside the default sweep",
+-    "tb/verilator/milan_dp/unb_mutants.py":
+-        "mutation campaign; it plants one of five #653 unbind defects (the response held behind "
+-        "the push, a CRF unbind that misses, doubles or mislabels its unlock, or arms no push) "
+-        "into a copy of the processor tree or of the CRF engine and requires named failures "
+-        "beside named passes. It is the explicit unb-mutants target, outside the default sweep",
+-    "tb/verilator/milan_dp/gmstep_mutants.py":
+-        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
+-        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
+-        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
+-    "tb/verilator/milan_dp/render_csr_controls.py":
+-        "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+-        "and bit-9 selector defects into copies and requires named failures. Its "
+-        "absent-stage control removes the instance and requires structural zero "
+-        "despite accepted ingress; no expected value is derived from source text",
+-    "tb/verilator/milan_dp/render_mutants.py":
+-        "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+-    "tb/verilator/milan_dp_mclk/mclk_mutants.py":
+-        "mutation campaign; it plants the #629 design's fourteen named root defects as "
+-        "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "
+-        "block, selected per run by a plusarg, and requires each short leg to fail its "
+-        "named check while the schemata at id 0 and the clean legs pass; no expected "
+-        "value is read from RTL",
+-    "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
+-        "mutation campaign; it plants one render-lane defect from its own table into "
+-        "a copy or runs a leg-side defect arm, and requires the named check to fail. "
+-        "The suite's default target runs its --leg-defects arms; the gateware and "
+-        "shape mutants are the explicit tdm8render-mutants target",
+-    "tb/verilator/mbx/mutants.py":
+-        "mutation campaign; it plants one packet-mailbox defect from its own table into a scratch "
+-        "copy of hdl/milan/mailbox, builds the suite with the Makefile's own recipe and requires the "
+-        "named check to fail; no expected value is read from RTL",
+-    "tb/verilator/nvm_backend/mutate.py":
+-        "mutation campaign; it plants one of four backend defects into a copy and requires failure",
+-    "tb/verilator/nvm_cosim/run_cases.py":
+-        "co-simulation driver; it reads the SHIPPING backend and the "
+-        "SHIPPING writer because they ARE the pair under test -- it "
+-        "compiles that writer for the host and Verilates that backend "
+-        "behind it, planting a named defect through mutate.py or taking a "
+-        "pre-contract copy for the non-vacuity control. It grades nothing "
+-        "from the text: every verdict is a named check in cosim_checks.py "
+-        "over a dumped journal",
+-    "tb/verilator/ptp_ts/sva_campaign.py":
+-        "mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a "
+-        "scratch copy and requires the named SVA property, or for one row the scoreboard, "
+-        "to fail; no expected value is read from the text",
+-    "tb/verilator/render_setpoint/mutants.py":
+-        "mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure",
+-    "tb/verilator/rx_filter/binding_mutant.py":
+-        "mutation campaign; it ties a real named binding low and requires failure",
+-    "tb/verilator/tcam/mutants.py":
+-        "mutation campaign; it injects three RTL defects and requires failure",
+-    "tb/verilator/tkdiag/mcr_mutants.py":
+-        "mutation campaign; it plants one of four restart-engine defects against the #387 "
+-        "pending-restart merge and its wire boundary into a copy and requires a named failure",
+-}
+ 
+ 
+ def reads_dut_source(text: str, suffix: str = ".py") -> bool:
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+new file mode 100644
+index 000000000..fbb02cc52
+--- /dev/null
++++ b/scripts/measure_test_evidence_readers.py
+@@ -0,0 +1,154 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The DUT-source reader dispositions of `measure_test_evidence.py`.
++
++This is the table behind the third inventory of the Rule 8 measurement
++(docs/development/CODE_QUALITY.md): every test program under a `tb/` tree that
++reads production HDL text, keyed by its path, with the recorded reason that the
++read is not an implementation-derived oracle. It is data, not machinery -
++nothing here reads a file or decides what a reader is - which is why it lives
++in its own module: the measurement stays under rule 12's long-module ratchet,
++and a reviewer weighing one disposition never has to read the scan.
++
++`measure_test_evidence.py` imports the table and requires it to match the live
++readers exactly. A reader with no entry is UNEXPLAINED, which the ratchet
++refuses, and an entry whose reader has gone is stale, which `--check` refuses.
++A new reader is debt until review classifies it here.
++"""
++
++DUT_READER_DISPOSITIONS = {
++    "protocol-processor/tb/pp_top/acmp_mutants.py":
++        "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
++        "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
++        "requires every named check to fail in a completed run; no expected value is read from the text",
++    "protocol-processor/tb/pp_top/notify_mutants.py":
++        "mutation campaign; it plants one notification, identify or inflight defect from its own table "
++        "into an isolated copy and requires every named check to fail in a completed run; no expected "
++        "value is read from the text",
++    "protocol-processor/tb/pp_top/d3_mutants.py":
++        "mutation campaign; it plants one D3 saved-state defect from its own table into an "
++        "isolated copy and requires every named check to fail in a completed run; no expected "
++        "value is read from the text",
++    "protocol-processor/tb/acmp_talker/retry_mutants.py":
++        "mutation campaign; plants named defects in a scratch copy and requires named assertion "
++        "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
++    "protocol-processor/tb/desc_store/test_gen_desc_image.py":
++        "unit test of the descriptor packer and its model lint; it imports the generator by path "
++        "to call build() and its CLI on synthetic models and on the two models packaged beside it, "
++        "passes the packaged model_ids.json in as the recorded digests, and reads no expectation "
++        "from source",
++    "protocol-processor/tb/pp_top/name_wr_mutant.py":
++        "mutation campaign; removes the accepted name-write export in a copy "
++        "and requires the named pulse check to fail",
++    "tb/verilator/pp_shadow/pending_mutant.py":
++        "mutation campaign; restores the late mark trigger in a copy and "
++        "requires both K10/K12 durability checks to fail",
++
++    "tb/verilator/mmcm_servo/slew_mutants.py":
++        "mutation campaign; copies the servo and requires named failures for "
++        "discard removal, tied-low level, partial-tail trust, omitted tally, "
++        "boundary step double counting, retained guard streak, streak increment "
++        "on slew discard and slew discard counted as a guard trip; "
++        "no expectations read from RTL",
++    "tb/verilator/aaf_clock_meter/mutants.py":
++        "mutation campaign; it plants one of the #629 design's named AAF clock meter "
++        "and meter-in-front-of-servo defects into a copy of the meter or the servo and "
++        "requires the named check of the meter, servo or unit leg to fail; no expected "
++        "value is read from RTL",
++    "tb/verilator/capture_coherence/mutants.py":
++        "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
++        "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
++        "and requires a named failure from the junction, datapath or chmap_capture harness; no "
++        "expected value is read from RTL",
++    "tb/verilator/crf_rx/mutants.py":
++        "mutation campaign; copies the receiver and servo, requiring named failures "
++        "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "
++        "refill, accept-edge, ignored-validity and PI-resume defects; "
++        "no expectations read from RTL",
++    "gptp-processor/tb/check_phc_contract.py":
++        "structural boundary check; it asserts required/forbidden tokens, not behavior",
++    "gptp-processor/tb/tsngen/mutants.py":
++        "mutation campaign; it stages three engine defects and requires failure",
++    "protocol-processor/tb/desc_mem_guard/mutate.py":
++        "mutation campaign; it removes the guard's two request holds in a copy and "
++        "requires the completed late-byte assertion to fail",
++    "protocol-processor/tb/nvm_port/measure_figures.py":
++        "mutation campaign; it rewrites one RTL arm and requires the suite to fail",
++    "protocol-processor/tb/pp_top/gsi_mutants.py":
++        "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
++        "into an isolated copy and requires the named response check to fail",
++    "protocol-processor/tb/srp_admission/mutants.py":
++        "mutation campaign; it plants one admission defect into a temporary tree, "
++        "requires the named check to fail, and runs clean controls first",
++    "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
++        "orchestration lifecycle fixture; it identifies the planted mutation and "
++        "compares caller bytes/modes/index across interruption. Synthetic commands "
++        "grade isolation and cleanup only; RTL behavior still requires the real suite",
++    "tb/verilator/milan_dp/crflic_mutants.py":
++        "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
++        "named failure. It is the explicit crflic-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/gsi_mutants.py":
++        "mutation campaign; it plants one of eight #508 GET_STREAM_INFO seam defects into a copy of "
++        "the datapath or of the processor tree and requires a named failure. It is the explicit "
++        "gsi-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/unb_mutants.py":
++        "mutation campaign; it plants one of five #653 unbind defects (the response held behind "
++        "the push, a CRF unbind that misses, doubles or mislabels its unlock, or arms no push) "
++        "into a copy of the processor tree or of the CRF engine and requires named failures "
++        "beside named passes. It is the explicit unb-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/dynmap_mutants.py":
++        "mutation campaign; it plants one of four #658 power-on map defects (an empty image, no clip "
++        "of a restored input format or of an output format row, no crossbar writer) into a copy of "
++        "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
++        "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
++    "tb/verilator/milan_dp/gmstep_mutants.py":
++        "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
++        "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "
++        "the three #387 acceptance names; gmstep-mutants plants all, and --slew selects the three #545 controls",
++    "tb/verilator/milan_dp/render_csr_controls.py":
++        "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
++        "and bit-9 selector defects into copies and requires named failures. Its "
++        "absent-stage control removes the instance and requires structural zero "
++        "despite accepted ingress; no expected value is derived from source text",
++    "tb/verilator/milan_dp/render_mutants.py":
++        "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
++    "tb/verilator/milan_dp_mclk/mclk_mutants.py":
++        "mutation campaign; it plants the #629 design's fourteen named root defects as "
++        "mutant schemata in copies of the datapath, the AAF clock meter and the CSR "
++        "block, selected per run by a plusarg, and requires each short leg to fail its "
++        "named check while the schemata at id 0 and the clean legs pass; no expected "
++        "value is read from RTL",
++    "tb/verilator/milan_dp_render/tdm8_render_mutants.py":
++        "mutation campaign; it plants one render-lane defect from its own table into "
++        "a copy or runs a leg-side defect arm, and requires the named check to fail. "
++        "The suite's default target runs its --leg-defects arms; the gateware and "
++        "shape mutants are the explicit tdm8render-mutants target",
++    "tb/verilator/mbx/mutants.py":
++        "mutation campaign; it plants one packet-mailbox defect from its own table into a scratch "
++        "copy of hdl/milan/mailbox, builds the suite with the Makefile's own recipe and requires the "
++        "named check to fail; no expected value is read from RTL",
++    "tb/verilator/nvm_backend/mutate.py":
++        "mutation campaign; it plants one of four backend defects into a copy and requires failure",
++    "tb/verilator/nvm_cosim/run_cases.py":
++        "co-simulation driver; it reads the SHIPPING backend and the "
++        "SHIPPING writer because they ARE the pair under test -- it "
++        "compiles that writer for the host and Verilates that backend "
++        "behind it, planting a named defect through mutate.py or taking a "
++        "pre-contract copy for the non-vacuity control. It grades nothing "
++        "from the text: every verdict is a named check in cosim_checks.py "
++        "over a dumped journal",
++    "tb/verilator/ptp_ts/sva_campaign.py":
++        "mutation campaign; it plants one of fifteen axis_mux_rr_2in_1out defects into a "
++        "scratch copy and requires the named SVA property, or for one row the scoreboard, "
++        "to fail; no expected value is read from the text",
++    "tb/verilator/render_setpoint/mutants.py":
++        "mutation campaign; it plants one of thirteen setpoint-stage defects into a copy and requires failure",
++    "tb/verilator/rx_filter/binding_mutant.py":
++        "mutation campaign; it ties a real named binding low and requires failure",
++    "tb/verilator/tcam/mutants.py":
++        "mutation campaign; it injects three RTL defects and requires failure",
++    "tb/verilator/tkdiag/mcr_mutants.py":
++        "mutation campaign; it plants one of four restart-engine defects against the #387 "
++        "pending-restart merge and its wire boundary into a copy and requires a named failure",
++}
+diff --git a/tb/verilator/capture_coherence/sim_dp.cpp b/tb/verilator/capture_coherence/sim_dp.cpp
+index a6146d0c7..9d7a66b09 100644
+--- a/tb/verilator/capture_coherence/sim_dp.cpp
++++ b/tb/verilator/capture_coherence/sim_dp.cpp
+@@ -17,12 +17,15 @@
+ // THE STIMULUS. The same bench as the junction leg (coherence_bench.hpp): the
+ // SoC shifts the #451 pattern into tdm_data_i off tdm_bclk_o/tdm_fsync_o, and
+ // the oscillator runs the TDM clock (clk_tdm_i, which is clk_audio_i on this
+-// shape) on a chosen plan against the 50 MHz axis clock. The talker is set up
+-// the way the #451 bench set it up, through the CSR face: eight identity
+-// mappings on the capture map (CHMAP_SEL/CHMAP_WORD with CHMAP_CTRL armed;
+-// the shape's dynamic STREAM_PORT_OUTPUT map already puts the crossbar in
+-// circuit) and AAF_CTRL's enable with the diagnostic bypass, so no ACMP or
+-// SRP exchange is needed to see the frames.
++// shape) on a chosen plan against the 50 MHz axis clock. The talker carries
++// the #658 power-on map with NO map command: the shape's dynamic
++// STREAM_PORT_OUTPUT map puts the crossbar in circuit, and its identity image
++// maps stream channel c to TDM capture slot c (this leg never starts the
++// restore walk, so the boot window stays open and the boot writer holds the
++// capture RAM at that image). So every column graded below is also the
++// end-to-end proof that capture slot c reaches stream channel c by default.
++// The only CSR write is AAF_CTRL's enable with the diagnostic bypass, so no
++// ACMP or SRP exchange is needed to see the frames.
+ //
+ // INTERNAL AND CRF. INTERNAL is the power-on selection. CRF is selected by
+ // poking the processor's stored CLOCK_SOURCE row, the documented
+@@ -66,9 +69,6 @@ constexpr int kAxiGuardCycles = 2048;
+ //! CSR byte offsets (docs/reference/REGISTER_MAP.md), plain integers because
+ //! each is handed straight to the BFM as an address
+ constexpr std::uint16_t kAafCtrl = 0x654;
+-constexpr std::uint16_t kChmapCtrl = 0x900;
+-constexpr std::uint16_t kChmapSel = 0x904;
+-constexpr std::uint16_t kChmapWord = 0x908;
+ //! AAF_CTRL: [0] enable, [1] diagnostic bypass, [27:16] VID 2
+ constexpr std::uint32_t kAafCtrlRun = 0x0002'0003;
+ //! the AX 1x1 shape's CRF CLOCK_SOURCE index (INTERNAL is 0)
+@@ -254,13 +254,8 @@ void DatapathHarness::axi_write(std::uint16_t addr, std::uint32_t data) {
+ 
+ //! The #451 routed DIN setup through the CSR face: stream channel c takes
+ //! TDM slot c ({EN, SRC=TDM, HALF=c&1, IDX_LO=c/2}), then the talker runs.
++//! The talker's enable alone: its channels are the power-on map's (#658).
+ void DatapathHarness::program_the_talker() {
+-    axi_write(kChmapCtrl, 1);
+-    for (int c = 0; c < kChans; c++) {
+-        axi_write(kChmapSel, (1u << 8) | static_cast<std::uint32_t>(c));
+-        axi_write(kChmapWord, (1u << 15) | (2u << 12) | (static_cast<std::uint32_t>(c & 1) << 8) |
+-                                  static_cast<std::uint32_t>(c >> 1));
+-    }
+     axi_write(kAafCtrl, kAafCtrlRun);
+ }
+ 
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 0ad6973e6..df2f944cf 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -17,6 +17,10 @@
+ #                 (gsi_mutants.py), outside the sweep's deadline
+ #   make unb-mutants - the #653 [UNB] section's explicit mutation campaign
+ #                 (unb_mutants.py), outside the sweep's deadline
++#   make dynmap - run only the #658 [DYNMAP] leg: the power-on audio maps,
++#                 a format change under Milan 5.4.2.7 and a restored format
++#   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
++#                 outside the sweep's deadline
+ #   make gmstep - run only the #387 GM step re-base leg; the sweep also runs
+ #                 the acceptance's controls of it (gmstep_mutants.py)
+ #   make gmstep-mutants - that leg's whole control inventory, with five
+@@ -211,7 +215,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -306,6 +310,25 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(NOTIFY_MDIR) \
+   $(SRCS) sim_nxn.cpp -o Vmilan_dp_notify
+ endef
+ 
++# #658: the power-on audio maps on both stream ports, a SET_STREAM_FORMAT
++# under Milan 5.4.2.7 (refused while it would orphan a mapping) and the maps a
++# restored 4-channel input format leaves, graded by sim_nxn's [DYNMAP] section
++# on the shipping AX 1x1 TDM8 geometry (the AX1X1_BUILD argv), exiting right
++# after it (DYNMAP_DEFAULT_TB). Its restore serves a saved-state window that
++# gen_nvm_window.py frames; dynmap_probes.vlt opens the one processor row
++# its output-clip arm stages. dynmap_mutants.py builds a MUTATED datapath
++# through this same recipe (DP_SRC and DYNMAP_MDIR overridden), so its planted
++# controls elaborate exactly the gateware the positive leg does.
++DYNMAP_MDIR ?= obj_dynmap
++define DYNMAP_BUILD
++$(VERILATOR) dynmap_probes.vlt $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(DYNMAP_MDIR) \
++  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
++  -GAUDIO_IF_MASTER_P=1 \
++  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
++  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -Wall -Wextra" \
++  $(SRCS) sim_nxn.cpp -o Vmilan_dp_dynmap
++endef
++
+ # #447: the shipping TDM8 render lane's two elaborations, its leg source and
+ # its mutation campaign live in tb/verilator/milan_dp_render, their own suite
+ # directory. They are still built from THIS suite's datapath source list and
+@@ -484,6 +507,20 @@ gsi-mutants: notify
+ unb-mutants: notify
+ 	python3 unb_mutants.py
+ 
++# #658 (see DYNMAP_BUILD); `run` builds and runs the same leg.
++dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
++	$(DYNMAP_BUILD)
++
++dynmap: dynmap-build
++	$(abspath $(DYNMAP_MDIR))/Vmilan_dp_dynmap
++
++# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 13
++# mutated elaborations, 11 of the dynmap leg and one each of the two
++# end-to-end legs it names (milan_dp_render's and capture_coherence's
++# datapath leg), each with its clean control run.
++dynmap-mutants: dynmap
++	python3 dynmap_mutants.py
++
+ ax1x1gptp: VERILATOR_JOBS = 4
+ ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+ 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
+@@ -565,14 +602,18 @@ run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F) gptp gptp-lat
+ # above states the recipe; the real-time legs run [NOTIFY] untimed.
+ 	$(NOTIFY_BUILD)
+ 	$(CRFLIC_BUILD)
+-# The write audit found only unique milan_nxn_* scratch directories; no
+-# ordinary legs share a written path. Frame-dump presence serializes the set.
++	$(DYNMAP_BUILD)
++# The write audit found only unique milan_nxn_* scratch directories, and
++# obj_dynmap's unique milan_nvm_* window; no ordinary legs share a written
++# path. Frame-dump presence serializes the set.
+ 	@exec python3 sim_pool.py --jobs="$(SIM_JOBS)" \
+ 	  ./obj_dir/Vmilan_dp_sim \
+ 	  --banner "---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" \
+ 	  ./$(NOTIFY_MDIR)/Vmilan_dp_notify \
+ 	  --banner "---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" \
+ 	  ./$(CRFLIC_MDIR)/Vmilan_dp_crflic \
++	  --banner "---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" \
++	  ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap \
+ 	  ./obj_nxn/Vmilan_dp_nxn \
+ 	  --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" \
+ 	  ./obj_nxndv/Vmilan_dp_nxndv \
+@@ -620,4 +661,4 @@ print-dp-vflags:
+ 	@echo '$(GPTP_OFF_VFLAGS)'
+ 
+ clean:
+-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
++	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 253b9769b..bff4c7a49 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -21,10 +21,11 @@ Only these two values are accepted, independently of make flags.
+ Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
+ The mutation driver starts only after every ordinary simulation succeeds.
+ 
+-Five `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
+-`obj_notify`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
++Six `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
++`obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, then `obj_nxn4c`.
+ Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
+ Those include the private `gen/adp_shape_defaults.svh` shape header.
++`obj_dynmap` also writes one unique `milan_nvm_*` directory: its saved-state window.
+ Timestamp and file-operation audits found no repository writes.
+ The other six legs write no data files.
+ All private write sets are disjoint; no exclusive marks remain.
+@@ -73,6 +74,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
+ | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
+ | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
+ | `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
++| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
+ | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+ | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
+@@ -91,6 +93,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+ - **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and why FRAMES_TX is an interval count
+ - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
+ - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
++- **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+ - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+ - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+ - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+@@ -724,6 +727,90 @@ Its 4 failures are exactly the four U2 order checks; nothing else in the leg mov
+ The last mutant's 2 are the push to A and to B.
+ The campaign runs explicitly: five mutant elaborations and six runs.
+ 
++## The #658 power-on audio maps (`obj_dynmap`)
++
++The leg runs the shipping AX7101 1x1 TDM8 geometry and stops after `[DYNMAP]`.
++It grades #658's rulings (comments 5988293154 and 5988843004).
++
++- **The power-on map.** On both stream ports, stream channel c maps to
++  cluster c, for c below the smaller of the channel and cluster counts. Each
++  page is read with GET_AUDIO_MAP. The two crossbar RAMs are read through the
++  CSR snapshot: render keys 2..9 and capture keys 0..7.
++- **A format change.** Milan v1.2 5.4.2.7 governs. With channels 4..7 mapped,
++  8 -> 4 is refused BAD_ARGUMENTS, the format and both maps unchanged. A
++  REMOVE of channels 4..7 lets 8 -> 4 succeed, and 4 -> 8 keeps 4 mappings.
++- **The output clip.** No command can place a narrower output format, so
++  `dynmap_probes.vlt` opens the processor's output format row. The leg stages
++  4 channels there in a fresh boot window, and capture keys 4..7 must empty.
++  With the row invalid again, as a D3 roll-back leaves it, they must refill.
++- **A restore.** `gen_nvm_window.py` frames a saved-state window for the
++  shipping config, from `scripts/nvm_shape.py`'s record set and
++  `scripts/nvm_klj2.py`'s codec. Record `0x30` holds a 4-channel input format
++  and every other record is erased. The script writes nothing unless the
++  codec's own decoder accepts the container. The leg loads it as `nvm_boot()`
++  does: re-base, fill, RELOAD, publish. Then it starts the restore walk. GET
++  reads 4 channels and 4 identity mappings, and SET of 8 channels succeeds.
++- **The boot window's guard arms** (review R490-1 F1). Four arms keep the
++  stores and the crossbar RAMs one map across the window's end. The scenario
++  above cannot move any of them: its terminal is COMPLETE, no CSR write comes
++  near it, and AECP's first edit arrives long after the sweep. So each arm is
++  staged in a fresh boot on the clock it guards, through `dynmap_probes.vlt`.
++  - *The CSR hold and the CLOSED terminal.* The D3 writer's CLOSED flag is set
++    on a chosen clock. One CSR map write commits at each offset from two
++    clocks inside the window to four past the sweep, once per side. Each
++    write lands in both the store and the RAM, or in neither. It is refused
++    through offset 9 (the 8-key sweep and its drain clock) and lands from
++    offset 10. CLOSED holds AECP, so the stores are read through the probe
++    file.
++  - *The sweep after the terminal.* Both format rows hold 4 channels in the
++    window. A D3 roll-back invalidates them on the clock CLOSED ends the
++    window, so only the sweep can write the whole image into the RAMs.
++  - *The edit face's wait.* After a COMPLETE restore, output stream channels 6
++    and 7 are removed. Channel 7 is then ADDed back on cluster 6 while the
++    sweep after the terminal is held open for 1000 clocks. The ADD must be
++    answered only after the sweep ends, and capture key 7 must keep the ADD's
++    word: the boot writer writes the power-on word of every owned key.
++
++The media path is graded end to end elsewhere, with no map command issued.
++The listener: `tb/verilator/milan_dp_render`, `T18 POWER-ON`, decodes stream
++channel c at TDM8 serial slot c. The talker: `tb/verilator/capture_coherence`,
++the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
++
++**Failing arms.** `make dynmap-mutants` runs `dynmap_mutants.py`. It plants
++each defect in a copy of `milan_datapath.sv` and builds the named leg through
++its own suite's recipe. Each mutant must fail its named check, and each leg's
++clean build must still pass. Measured on 2026-10-05 UTC: 16 of 16.
++
++| Leg | Mutant | Named check that fails | Failures |
++|---|---|---|---|
++| dynmap | an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 50 of 162 |
++| dynmap | no clip after the restore | `[DYNMAP] restored SPI 0: number_of_mappings` | 6 of 162 |
++| dynmap | no output clip | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 2 of 162 |
++| dynmap | the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 25 of 162 |
++| dynmap | the CSR writer is not held while the boot writer is busy (all four sites) | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 162 |
++| dynmap | the input store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 2 of 162 |
++| dynmap | the output store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM` | 2 of 162 |
++| dynmap | the boot window ignores the CLOSED terminal | `[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended` | 2 of 162 |
++| dynmap | no sweep after the restore's terminal | `[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map` | 6 of 162 |
++| dynmap | no drain clock: busy ends while the last boot write is in flight | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 162 |
++| dynmap | the edit face never waits for the boot writer | `[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends` | 2 of 162 |
++| listener (`milan_dp_render`) | an empty reset | `T18 POWER-ON: with no map command since the reset, the lane renders injected events` | 8 of 256 |
++| talker (`capture_coherence`, `--quick`) | an empty reset | `[V] every requested column was decoded` | 20 of 134 |
++
++**The hold's two RAM sites are equivalent on this shape.** The CSR writer's
++hold sits at four places: the input store, the output store and the two
++crossbar write muxes. The two store sites are planted alone and caught. The
++two RAM sites are not, because no stimulus on this shape can tell either one
++from its removal. Here the boot writer drives both crossbar write legs on
++every busy clock: all 8 input keys have a physical render key, and all 8
++output keys are dynamic. Each leaf's mux gives that leg priority over the CSR
++writer, so the RAMs drop a CSR write while the writer is busy, whether or not
++the RAM site is there. The RAM sites act only where the cursor leaves a leg
++idle: an input key with no physical render key, or a direction with no
++dynamic map (the Arty shapes' outputs). No leg grades that today. Removing all
++four sites at once is caught (the fifth dynmap row above, review R490-1's
++probe P1).
++
+ ## GM step re-base leg (#387)
+ 
+ The true-ratio leg also commands an absolute software settime.
+@@ -1115,10 +1202,12 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
+   `clk_audio` 1:1 with `axis_clk`, so the static path measured 195.3 kHz and
+   looked like a 6× cadence defect. `[T66]` now leaves the crossbar armed and
+   `[T67]`'s banner states which grid it is on.
+-* **The `0x002C` boot seed.** There is no seeder any more, so key 0 reads empty.
+-  The check grades the two halves of the new structural truth — the read mux is
+-  still live, the RAM is empty, `CHMAP_CTRL[0]` is 0 — and will fail the day a
+-  seeder returns in any form.
++* **The `0x002C` boot seed.** Until #658 there was no seeder, so key 0 read
++  empty, and the check was written to fail the day a seeder returned. One did:
++  the parent's boot writer fills the capture RAM with the power-on map. The
++  check now reads key 0 as the Pilot word, every output port's GET page as the
++  identity and every capture key as its cluster's word, with `CHMAP_CTRL[0]`
++  still 0.
+ 
+ Issue #443 adds `RENDER-CSR` checks to `obj_aclk`.
+ They read `RENDER_STAT` (`0x8DC`) through AXI-Lite.
+diff --git a/tb/verilator/milan_dp/dynmap_mutants.py b/tb/verilator/milan_dp/dynmap_mutants.py
+new file mode 100644
+index 000000000..3c51ae521
+--- /dev/null
++++ b/tb/verilator/milan_dp/dynmap_mutants.py
+@@ -0,0 +1,298 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Planted controls for the #658 [DYNMAP] leg in milan_dp: prove its checks can fail.
++
++sim_nxn.cpp's [DYNMAP] section (the dynmap leg, shipping AX 1x1 TDM8 shape)
++grades the power-on audio maps, a SET_STREAM_FORMAT under Milan v1.2 5.4.2.7
++and the maps a restored 4-channel input format leaves. #658's ruling
++(comment 5988843004, item 5) names two controls: an empty reset, and no clip
++after the restore. Each must fail its check. Two more cover the arms the
++ruling's two cannot reach: the output clip, which only the boot-window arm
++exercises, and the crossbar RAMs, which only the CSR readback grades.
++
++Seven more remove the boot window's guard arms, one each (review R490-1 F1):
++the CSR writer's hold at all four sites, then at each store alone; the
++CLOSED terminal; the sweep after the terminal; its drain clock; and the edit
++face's wait. Each is caught by the staged arm that places its stimulus on
++the clock the guard owns.
++
++The empty reset is also planted under the two end-to-end checks the ruling
++asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
++whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
++talker (tb/verilator/capture_coherence's milan_datapath leg, whose columns
++carry TDM capture slot c in stream channel c). Neither issues a map command,
++so both must fail when the power-on map is empty.
++
++Each defect is planted in a COPY of milan_datapath and the leg is rebuilt
++through its suite's own recipe (`make dynmap-build`, `make tdm8render-build`
++or `make dp-build`, with DP_SRC and the objdir overridden) and run. A mutant
++is caught only when the leg FAILS by its own verdict (a `[FAIL]` line or a
++tally with failures, read by scripts/suite_tally.py) AND the named check is
++among the failures; a crash or an abort is not a catch. Each leg's positive
++control is its clean build, run again here.
++
++What bounds a run: no host-time deadline. The leg is cycle-bounded by
++construction (each AEM command waits a fixed number of cycles for its answer,
++the restore wait is bounded, the AXI4-Lite BFM gives up after a fixed number
++of cycles per handshake), so a mutant ends no later than the clean leg. This
++is an explicit campaign outside the sweep (docs/testing/TESTING.md); the
++SIGTERM handler turns a kill into an exit that removes the temporary
++directory.
++
++Usage: make -C tb/verilator/milan_dp dynmap-mutants
++       (or python3 dynmap_mutants.py [N ...] from tb/verilator/milan_dp,
++       where each N selects one mutant by its 1-based place in MUTATIONS;
++       the clean control runs every time)
++Exit 0 = every selected mutant was caught and the clean leg still passes.
++"""
++
++import signal
++import subprocess
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
++#: each leg's suite, build target, objdir variable, clean objdir, executable,
++#: the arguments it runs with and the generated inputs its build may not remake
++LEGS = {
++    "dynmap": (HERE, "dynmap-build", "DYNMAP_MDIR", "obj_dynmap",
++               "Vmilan_dp_dynmap", (), ("ltn_rom.hex", "ucode.hex")),
++    "listener": (HERE / "../milan_dp_render", "tdm8render-build", "TDM8R_MDIR",
++                 "obj_tdm8r", "Vmilan_dp_tdm8r", (),
++                 ("ltn_rom.hex", "ucode.hex", "tdm8r_aemi.bin")),
++    "talker": (HERE / "../capture_coherence", "dp-build", "DP_MDIR", "obj_dp",
++               "Vcoherence_dp", ("--quick",), ("ltn_rom.hex", "ucode.hex")),
++}
++sys.path.insert(0, str(HERE / "../../../scripts"))
++from suite_tally import log_reports_failure  # noqa: E402
++
++#: the two image constants: the stores' reset value and the window's source
++IMG_IN = "  localparam logic [AMAP_IN_KEYS_C*8-1:0] AMAP_IN_IMAGE_C = amap_in_image();"
++IMG_OUT = "  localparam logic [AMAP_OUT_KEYS_C-1:0] AMAP_OUT_IMAGE_C = amap_out_image();"
++#: the clip's reading of the processor's published rows, per direction
++ROW_IN = ("      if ((s < ACMP_SINKS_C) && pp_aecp_fmt_in_v_w[s])\n"
++          "        amap_in_ch_w[s] = pp_aecp_fmt_in_w[64*s + 22 +: 10];\n")
++ROW_OUT = ("      if ((s < ACMP_SRC_C) && pp_aecp_fmt_out_v_w[s])\n"
++           "        amap_out_ch_w[s] = pp_aecp_fmt_out_w[64*s + 22 +: 10];\n")
++#: the boot writer's enable onto the two crossbar write legs
++WRITER = "  wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;"
++
++EMPTY = [(IMG_IN, IMG_IN.replace("amap_in_image()", "'0")),
++         (IMG_OUT, IMG_OUT.replace("amap_out_image()", "'0"))]
++
++#: the CSR writer's hold at its four sites: the two crossbar write muxes and
++#: the two stores (review R490-1 F1). The RAM sites are not planted alone:
++#: on this shape the boot writer drives both write legs on every busy clock
++#: and each mux gives that leg priority, so neither RAM site can change a
++#: write here (README, "The boot window's guard arms").
++HOLD = "&& !amap_boot_busy_w && !aecp_locked"
++HOLD_CAPTURE_RAM = ("(!aecp_odmap_wr_p_w && !amap_edit_txn_active_r\n"
++                    f"                     {HOLD}")
++HOLD_RENDER_RAM = ("(!aecp_dmap_wr_p_w && !amap_edit_txn_active_r\n"
++                   f"                     {HOLD}")
++HOLD_OUT_STORE = (f"          {HOLD}\n"
++                  "          && cfg_chmap_wr_en && cfg_chmap_wr_side")
++HOLD_IN_STORE = (f"          {HOLD}\n"
++                 "          && cfg_chmap_wr_en && !cfg_chmap_wr_side")
++
++
++def unheld(site: str) -> tuple[str, str]:
++    """The edit that removes the hold's term at one site."""
++    return (site, site.replace(HOLD, "&& !aecp_locked"))
++
++
++#: the window's end: its terminal, its sweep and the sweep's drain clock
++TERMINAL = "if (amap_boot_r && (pp_restore_done_w || pp_restore_closed_w)) begin"
++SWEEP = "        amap_boot_last_r <= 1'b1;\n"
++DRAIN = "      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;"
++WAIT = "  assign pp_amap_edit_wait_w = amap_boot_busy_w;"
++
++# (leg, name, [(the text it replaces, its replacement)], the check it must fail)
++MUTATIONS = [
++    ("dynmap", "an empty reset: the power-on image holds no mapping", EMPTY,
++     "[DYNMAP] power-on SPI 0: number_of_mappings"),
++    ("dynmap", "no clip after the restore: the window ignores a restored input format",
++     [(ROW_IN, "")],
++     "[DYNMAP] restored SPI 0: number_of_mappings"),
++    ("dynmap", "no output clip: the window ignores a STREAM_OUTPUT row",
++     [(ROW_OUT, "")],
++     "[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold "
++     "the output map"),
++    ("dynmap", "the boot writer never fills the crossbar RAMs",
++     [(WRITER, "  wire amap_boot_wr_w   = 1'b0;")],
++     "[DYNMAP] power-on: render RAM keys 2..9 hold the input map"),
++    ("dynmap", "the CSR writer is not held while the boot writer is busy",
++     [unheld(HOLD_CAPTURE_RAM), unheld(HOLD_RENDER_RAM), unheld(HOLD_OUT_STORE),
++      unheld(HOLD_IN_STORE)],
++     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
++    ("dynmap", "the input store alone takes a CSR write while the writer is busy",
++     [unheld(HOLD_IN_STORE)],
++     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
++    ("dynmap", "the output store alone takes a CSR write while the writer is busy",
++     [unheld(HOLD_OUT_STORE)],
++     "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM"),
++    ("dynmap", "the boot window ignores the CLOSED terminal",
++     [(TERMINAL, "if (amap_boot_r && pp_restore_done_w) begin")],
++     "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED "
++     "has ended"),
++    ("dynmap", "no sweep after the restore's terminal",
++     [(SWEEP, "        amap_boot_last_r <= 1'b0;\n")],
++     "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the "
++     "input map"),
++    ("dynmap", "no drain clock: busy ends while the last boot write is in flight",
++     [(DRAIN, "      amap_boot_drain_r <= 1'b0;")],
++     "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM"),
++    ("dynmap", "the edit face never waits for the boot writer",
++     [(WAIT, "  assign pp_amap_edit_wait_w = 1'b0;")],
++     "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep "
++     "ends"),
++    ("listener", "an empty reset, under the listener's end-to-end check", EMPTY,
++     "T18 POWER-ON: with no map command since the reset, the lane renders "
++     "injected events"),
++    ("talker", "an empty reset, under the talker's end-to-end check", EMPTY,
++     "[V] every requested column was decoded"),
++]
++
++
++def build(leg: str, dp_path: Path, mdir: Path) -> Path | None:
++    """Build `leg` against `dp_path` through its suite's own recipe; the
++    executable, or None when the recipe failed or left none. The generated
++    inputs the leg reads are the clean build's: `-o` keeps them unmade."""
++    suite, target, mvar, _clean, exe_name, _args, keep = LEGS[leg]
++    cmd = ["make", "-s", "-C", str(suite)]
++    for name in keep:
++        cmd += ["-o", name]
++    cmd += [target, f"DP_SRC={dp_path}", f"{mvar}={mdir}"]
++    out = subprocess.run(cmd, capture_output=True, text=True, check=False)
++    exe = mdir / exe_name
++    if out.returncode != 0 or not exe.is_file():
++        sys.stdout.write(out.stdout[-2000:])
++        sys.stdout.write(out.stderr[-2000:])
++        return None
++    return exe
++
++
++def run_leg(leg: str, exe: Path) -> tuple[int, str]:
++    """(rc, stdout) of one run of `leg`, from its suite directory, with no
++    host deadline: every leg is cycle-bounded (module docstring)."""
++    suite, _t, _m, _c, _e, args, _k = LEGS[leg]
++    out = subprocess.run([str(exe), *args], cwd=str(suite), capture_output=True,
++                         text=True, check=False)
++    return out.returncode, out.stdout + out.stderr
++
++
++def verdict(rc: int, out: str, must_fail: str | None) -> str:
++    """'pass', 'caught', or why the run is not evidence."""
++    reason, failed = log_reports_failure(out)
++    if rc == 0 and not failed:
++        return "pass"
++    if rc == 0 and failed:
++        return f"exited 0 but {reason} - a masked verdict is not evidence"
++    if failed:
++        if must_fail and not any(line.strip().startswith("[FAIL]") and must_fail in line
++                                 for line in out.splitlines()):
++            return f"failed, but not the named check ({must_fail!r})"
++        return "caught"
++    if rc < 0:
++        return f"died by signal {-rc} with no harness verdict - a crash is not a catch"
++    return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
++
++
++def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str) -> Path | None:
++    """Write the mutant's datapath; None when a pattern no longer matches
++    exactly once, so the mutant would mutate nothing."""
++    text = DP_RTL.read_text()
++    for pattern, replacement in edits:
++        count = text.count(pattern)
++        if count != 1:
++            print(f"[FAIL] mutation {name!r}: a pattern appears {count} time(s) in "
++                  f"milan_datapath.sv, expected exactly 1. The RTL moved and this "
++                  f"mutant is no longer mutating anything - fix the pattern, do not "
++                  f"delete the arm.")
++            return None
++        text = text.replace(pattern, replacement)
++    dp_path = work / f"milan_datapath_{tag}.sv"
++    dp_path.write_text(text)
++    return dp_path
++
++
++def run_mutant(mutation: tuple[str, str, list[tuple[str, str]], str], work: Path) -> bool:
++    """Plant one mutation, build and run its leg; True when it was caught."""
++    leg, name, edits, breaks = mutation
++    tag = "".join(c if c.isalnum() else "_" for c in name)[:48]
++    dp_path = plant(name, edits, work, tag)
++    if dp_path is None:
++        return False
++    exe = build(leg, dp_path, work / f"obj_{tag}")
++    if exe is None:
++        print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
++              f"proves nothing about the leg")
++        return False
++    rc, out = run_leg(leg, exe)
++    answer = verdict(rc, out, breaks)
++    if answer == "caught":
++        print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\" "
++              f"({log_reports_failure(out)[0]})")
++        return True
++    if answer == "pass":
++        print(f"[FAIL] mutant SURVIVED: {name}. The leg does not prove \"{breaks}\".")
++    else:
++        print(f"[FAIL] mutant {name!r} {answer}")
++    return False
++
++
++def selected(argv: list[str]) -> list[tuple[str, str, list[tuple[str, str]], str]] | None:
++    """The mutants `argv` names by 1-based place, every one when it names
++    none; None when an argument names no mutant."""
++    if not argv:
++        return MUTATIONS
++    picks = []
++    for arg in argv:
++        if not arg.isdigit() or not 1 <= int(arg) <= len(MUTATIONS):
++            print(f"[FAIL] {arg!r} names no mutant: use 1..{len(MUTATIONS)}")
++            return None
++        picks.append(MUTATIONS[int(arg) - 1])
++    return picks
++
++
++def main() -> int:
++    """Run the positive control and the selected mutants; 1 if any survived."""
++    mutations = selected(sys.argv[1:])
++    if mutations is None:
++        return 2
++
++    def on_sigterm(*_: object) -> None:
++        """Exit on a kill so the temporary directory is removed."""
++        sys.exit(143)
++
++    signal.signal(signal.SIGTERM, on_sigterm)
++    passes = 0
++    fails = 0
++    with tempfile.TemporaryDirectory(prefix="dynmap-mutants-") as td:
++        work = Path(td)
++        for leg in dict.fromkeys(m[0] for m in mutations):
++            suite, _t, _m, clean_mdir, exe_name, _a, _k = LEGS[leg]
++            clean = suite / clean_mdir / exe_name
++            exe = clean if clean.is_file() else build(leg, DP_RTL, work / f"obj_clean_{leg}")
++            answer = verdict(*run_leg(leg, exe), None) if exe else "did not compile"
++            if answer == "pass":
++                passes += 1
++                print(f"[PASS] the unmutated gateware still passes the {leg} leg")
++            else:
++                fails += 1
++                print(f"[FAIL] the unmutated gateware does NOT pass the {leg} leg "
++                      f"({answer}) - its mutant results are meaningless")
++        for mutation in mutations:
++            if run_mutant(mutation, work):
++                passes += 1
++            else:
++                fails += 1
++    print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL")
++    return 1 if fails else 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/dynmap_probes.vlt b/tb/verilator/milan_dp/dynmap_probes.vlt
+new file mode 100644
+index 000000000..6349c6dd5
+--- /dev/null
++++ b/tb/verilator/milan_dp/dynmap_probes.vlt
+@@ -0,0 +1,23 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// #658: stage a STREAM_OUTPUT format row in the processor's dynamic-state
++// store while the boot window is open. It is the only stimulus that reaches
++// the parent's output clip: the format verdict admits no narrower output
++// format, so neither a restore nor a SET_STREAM_FORMAT can place one there.
++`verilator_config
++public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_r"
++public_flat_rw -module "KL_aecp_dyn_state" -var "fmtout_v_r"
++// The boot window's guard arms (R490-1 F1). The input row is staged and
++// invalidated as a D3 roll-back leaves it, and the restore is ended CLOSED
++// on a chosen clock: no blank or saved window ends it there.
++public_flat_rw -module "KL_aecp_dyn_state" -var "fmtin_r"
++public_flat_rw -module "KL_aecp_dyn_state" -var "fmtin_v_r"
++public_flat_rw -module "KL_aecp_nvm_writer" -var "closed_r"
++// CLOSED keeps AECP held, so no GET can read the stores there; the CSR
++// writer's one-cycle commit places each write against the terminal.
++public_flat_rd -module "milan_datapath" -var "amap_in_store_r"
++public_flat_rd -module "milan_datapath" -var "amap_out_owner_v_r"
++public_flat_rd -module "milan_datapath" -var "amap_out_cluster_r"
++public_flat_rd -module "milan_datapath" -var "cfg_chmap_wr_en"
++// The post-terminal sweep, held open so that an edit meets it.
++public_flat_rw -module "milan_datapath" -var "amap_boot_last_r"
+diff --git a/tb/verilator/milan_dp/gen_nvm_window.py b/tb/verilator/milan_dp/gen_nvm_window.py
+new file mode 100644
+index 000000000..c2ef31ec5
+--- /dev/null
++++ b/tb/verilator/milan_dp/gen_nvm_window.py
+@@ -0,0 +1,124 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""gen_nvm_window.py - a saved-state window for a datapath leg to serve.
++
++The firmware boots the saved state by copying a verified KLJ2 slot into the
++reserved main-memory window, telling KL_nvm_backend where the record area is
++(the section 8.2 control tuple) and marking it valid; the restore walk then
++reads records through the backend's memory face (docs/design/
++SAVED_STATE_MATERIALIZATION.md section 5.3). A desk leg that wants a restore
++with something to restore needs the same three things, and this script makes
++them from the repository's own codec rather than from a second description of
++the record layout:
++
++  * the record set and every payload length come from scripts/nvm_shape.py's
++    inventory of the named config (the one check_nvm_record_space.py and the
++    firmware's generated constants read);
++  * each record is framed by scripts/nvm_klj2.py, an ERASED span unless the
++    command line names it, and the container is assembled by the same module;
++  * the container is decoded again by that module's section 6.2 acceptance
++    rules, and nothing is written unless it is accepted with exactly the named
++    records applied.
++
++Usage: gen_nvm_window.py <config.yaml> <out.txt> [--record ID=HEXPAYLOAD]...
++
++ID is a record id (0x30 is STREAM_INPUT 0's format) and HEXPAYLOAD its payload
++bytes, big-endian, as the D3 writer frames them. The output is line-based for a
++C++ reader: `img_len N` (the record area's length, PP_NVM word 1), one
++`map_in K WORD` / `map_out K WORD` per port (the channel-map table words,
++`(framed length << 16) | prefix`), `record ID OFFSET PLEN` per framed record
++and one `area HEX` line holding the record area itself.
++"""
++
++from __future__ import annotations
++
++import argparse
++import json
++import sys
++import tempfile
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++sys.path.insert(0, str(HERE / "../../../scripts"))
++
++import nvm_shape  # noqa: E402
++from nvm_contract import KLJ2_HDR, KLJ2_TRAILER, REC_HDR, VD_OK, Donor, Ident, Shape  # noqa: E402
++from nvm_klj2 import erased_record, frame_record, klj2_assemble, klj2_decode  # noqa: E402
++
++
++def parse_records(items: list[str]) -> dict[int, bytes]:
++    """{record id: payload} from the ID=HEX arguments."""
++    out = {}
++    for item in items:
++        rid_s, _, hex_s = item.partition("=")
++        if not hex_s:
++            sys.exit(f"FATAL: --record {item!r} is not ID=HEXPAYLOAD")
++        out[int(rid_s, 0)] = bytes.fromhex(hex_s)
++    return out
++
++
++def main() -> int:
++    """Write the window description; exit 1 if the codec refuses it."""
++    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
++    ap.add_argument("config", type=Path)
++    ap.add_argument("out", type=Path)
++    ap.add_argument("--record", action="append", default=[])
++    args = ap.parse_args()
++    # nvm_shape.build runs the builder from the repository root
++    args.config = args.config.resolve()
++    framed = parse_records(args.record)
++
++    with tempfile.TemporaryDirectory(prefix="nvm-window-") as td:
++        names, dc, spi, spo = nvm_shape.build(args.config, Path(td))
++        overlay = json.loads((Path(td) / args.config.stem / "aem_overlay.json").read_text())
++    shape = Shape(cfg=args.config, names=names, dc=dc, spi=spi, spo=spo)
++    donor = Donor(base=nvm_shape.binding_base(), layout=nvm_shape.layout_version())
++    ident = Ident(seq=1, entity_id=int(overlay["adp"]["entity_id"], 0),
++                  model_id=int(overlay["entity"]["entity_model_id"], 0))
++    rows = nvm_shape.inventory(shape, donor.base)
++    if any(rid is None for _g, _i, rid, _p, _b in rows):
++        sys.exit(f"FATAL: {args.config.name} overflows a record block")
++
++    frames, expect, plen_of = {}, {}, {}
++    for group, index, rid, plen, _block in rows:
++        expect[(group, index)] = plen
++        plen_of[rid] = plen
++        frames[rid] = (frame_record(rid, framed[rid], donor.layout)
++                       if rid in framed else erased_record(plen))
++    for rid, payload in framed.items():
++        if plen_of.get(rid) != len(payload):
++            sys.exit(f"FATAL: record {rid:#04x} is not a {len(payload)}-byte "
++                     f"record of {args.config.name} (shape length "
++                     f"{plen_of.get(rid)})")
++
++    blob, offs = klj2_assemble(frames, donor, ident)
++    verdict, applied = klj2_decode(blob, donor, ident, expect)
++    applied_ids = {rid for group, index, rid, _p, _b in rows if (group, index) in applied}
++    if verdict != VD_OK or applied_ids != set(framed):
++        print(f"FATAL: the assembled window decodes to verdict {verdict} with "
++              f"records {sorted(applied_ids)} applied, not VD_OK with "
++              f"{sorted(framed)}", file=sys.stderr)
++        return 1
++
++    area = blob[KLJ2_HDR:len(blob) - KLJ2_TRAILER]
++    lines = [f"# {args.config.name}: {len(rows)} records, binding base "
++             f"{donor.base:#04x}, layout {donor.layout:#04x}",
++             f"img_len {len(area)}"]
++    for label, group in (("map_in", "MAPS_IN"), ("map_out", "MAPS_OUT")):
++        prefix = 0
++        for g, index, _rid, plen, _block in rows:
++            if g != group:
++                continue
++            flen = REC_HDR + plen
++            lines.append(f"{label} {index} {(flen << 16) | prefix:#010x}")
++            prefix += flen
++    for rid in sorted(framed):
++        lines.append(f"record {rid:#04x} {offs[rid]} {plen_of[rid]}")
++    lines.append(f"area {area.hex()}")
++    args.out.write_text("\n".join(lines) + "\n")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 9a4f4fedc..f4ca8742e 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -55,6 +55,7 @@
+ #include <array>
+ #include <deque>
+ #include <filesystem>
++#include <functional>
+ #include <string>
+ #include <vector>
+ #include <map>
+@@ -205,6 +206,73 @@ class NxnDatapathHarness {
+         }
+     }
+ 
++    // ---- SAVED-STATE WINDOW: KL_nvm_backend's memory face ---------------------
++    // The record area of a KLJ2 window, served the way the response memory
++    // above is served (the same handshake, which the backend's face shares by
++    // contract). It answers only once a section loads a window
++    // (load_the_saved_state_window below); until then the four ready/valid
++    // inputs stay low, which the backend reads as "no memory to offer", so a
++    // leg that configures no image sees exactly what it always saw.
++    static constexpr uint32_t NVM_AREA_BASE = 0x20200028u;  // window + 40-byte header
++    std::vector<uint8_t> nmem;                 // the record area, byte for byte
++    bool     nm_answering = false;
++    bool     nm_busy  = false;
++    uint32_t nm_cur   = 0;
++    int      nm_left  = 0;
++    bool     nm_wpend = false;
++    uint32_t nm_waddr = 0;
++    uint64_t nm_wdata = 0;
++    uint32_t nm_wstrb = 0;
++
++    uint64_t nmem_beat(uint32_t byte_addr) {
++        uint64_t v = 0;
++        for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
++            const uint32_t off = byte_addr - NVM_AREA_BASE + static_cast<uint32_t>(i);
++            v = (v << 8) | static_cast<uint64_t>((off < nmem.size()) ? nmem[off] : 0xFF);
++        }
++        return v;
++    }
++
++    void nmem_drive() {
++        if (!nm_answering) return;
++        dut->i_nvm_mem_req_ready = nm_busy ? 0 : 1;
++        dut->i_nvm_mem_rsp_valid = nm_busy ? 1 : 0;
++        dut->i_nvm_mem_rsp_data  = nm_busy ? nmem_beat(nm_cur) : 0;
++        dut->i_nvm_mem_rsp_last  = (nm_busy && nm_left == 1) ? 1 : 0;
++        dut->i_nvm_mem_rsp_err   = 0;
++        dut->i_nvm_mem_wr_ready  = nm_wpend ? 0 : 1;   // low while a commit is owed
++        dut->i_nvm_mem_wr_done   = nm_wpend ? 1 : 0;
++        dut->i_nvm_mem_wr_err    = 0;
++    }
++
++    void nmem_edge() {
++        if (!nm_answering) return;
++        if (!nm_busy) {
++            if (dut->o_nvm_mem_req_valid && dut->i_nvm_mem_req_ready) {
++                nm_cur  = dut->o_nvm_mem_req_addr;
++                nm_left = static_cast<int>(dut->o_nvm_mem_req_beats);
++                nm_busy = (nm_left > 0);
++            }
++        } else if (dut->o_nvm_mem_rsp_ready) {         // real backpressure
++            nm_cur += 8;
++            if (--nm_left <= 0) nm_busy = false;
++        }
++        if (nm_wpend) {
++            for (int i = 0; i < 8; i++) {
++                if (nm_wstrb & (1u << i)) {             // zero-strobe byte untouched
++                    const uint32_t k = nm_waddr - NVM_AREA_BASE + static_cast<uint32_t>(i);
++                    if (k < nmem.size()) nmem[k] = static_cast<uint8_t>(nm_wdata >> (56 - 8 * i));
++                }
++            }
++            nm_wpend = false;
++        } else if (dut->o_nvm_mem_wr_valid && dut->i_nvm_mem_wr_ready) {
++            nm_waddr = dut->o_nvm_mem_wr_addr;
++            nm_wdata = dut->o_nvm_mem_wr_data;
++            nm_wstrb = dut->o_nvm_mem_wr_strb;
++            nm_wpend = true;
++        }
++    }
++
+     // ---- AEM DESCRIPTOR MEMORY: THE MEMORY THAT WORKS --------------------------
+     // The nine desc_mem ports are the entity model's supply. Every AECP check
+     // written before [AECP-IMG] drove them DEAD, and that was the whole of the
+@@ -557,8 +625,8 @@ class NxnDatapathHarness {
+     //! toggles it 1:1 with axis_clk
+     bool audio_held = false;
+     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
+-                       rmem_drive(); dmem_drive(); dut->eval();
+-                       rmem_edge(); dmem_edge(); }
++                       rmem_drive(); dmem_drive(); nmem_drive(); dut->eval();
++                       rmem_edge(); dmem_edge(); nmem_edge(); }
+     void hi() { dut->axis_clk = 1; dut->gtx_clk = 1;
+                 dut->clk_audio_i = audio_held ? 0 : 1; dut->eval(); }
+     unsigned long tkd_dirty_seen = 0;
+@@ -859,12 +927,16 @@ class NxnDatapathHarness {
+         uns_log.swap(moved);
+         uns_log_when.push_back(-1);
+     }   // `moved` owns the old buffer now, and frees it here
+-    std::vector<uint8_t> await_aecp(int cyc = 200000) {
++    //! `each`, when given, runs ahead of every clock with its index: the
++    //! [DYNMAP] section holds a sweep open with it while an answer is owed
++    std::vector<uint8_t> await_aecp(int cyc = 200000,
++                                    const std::function<void(int)>& each = nullptr) {
+         std::vector<uint8_t> cur, resp;
+         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
+         dut->m_axis_mac_tx_tready = 1;
+         force_uns_log_realloc();
+         for (int c = 0; c < cyc && resp.empty(); c++) {
++            if (each) each(c);
+             lo();
+             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                 for (int l = 0; l < 8; l++)
+@@ -2676,6 +2748,107 @@ class NxnDatapathHarness {
+            st & (kDone | kClosed), kDone);
+     }
+ 
++    //! THE FIRMWARE'S WINDOW LOAD, for a saved state worth restoring: what
++    //! nvm_boot() does through nvm_load_window() and nvm_publish()
++    //! (sw/firmware/milan_baremetal/milan_baremetal.c). Re-base the backend
++    //! (the record area's base and length, then each port's channel-map table
++    //! word), fill the window, RELOAD it, and publish the sequence and the
++    //! VD_OK verdict with the valid bit. The window is the one
++    //! gen_nvm_window.py frames for `cfg` with `records` ("ID=HEXPAYLOAD")
++    //! written and every other record erased, so its layout is the
++    //! repository's codec's and not this file's. Run it after a reset and
++    //! before start_the_boot_restore_walk(), the firmware's order. False, with
++    //! the reason, when the window cannot be generated or read.
++    bool load_the_saved_state_window(const char* cfg,
++                                     const std::vector<std::string>& records,
++                                     std::string* why) {
++        constexpr uint16_t A_PP_NVM_SEL = 0x934;
++        constexpr uint16_t A_PP_NVM_DATA = 0x938;
++        constexpr uint16_t A_PP_NVM_STAT = 0x93C;
++        const char* scratch = getenv("TMPDIR");
++        if (!scratch || !*scratch) scratch = "/tmp";
++        std::string temp_template = std::string(scratch) + "/milan_nvm_XXXXXX";
++        std::vector<char> temp_buf(temp_template.begin(), temp_template.end());
++        temp_buf.push_back('\0');
++        char* made = mkdtemp(temp_buf.data());
++        if (!made) {
++            *why = std::string("cannot create window scratch under ") + scratch;
++            return false;
++        }
++        const std::string temp_dir(made);
++        const std::string out = temp_dir + "/window.txt";
++        std::string cmd = "python3 gen_nvm_window.py "
++            + shell_quote(std::string("../../../configs/") + cfg + ".yaml")
++            + " " + shell_quote(out);
++        for (const std::string& r : records) cmd += " --record " + shell_quote(r);
++        cmd += " > " + shell_quote(temp_dir + "/gen.log") + " 2>&1";
++        if (system(cmd.c_str()) != 0) {
++            *why = "gen_nvm_window.py failed; its output is in " + temp_dir + "/gen.log";
++            return false;
++        }
++        std::string doc;
++        FILE* fh = fopen(out.c_str(), "rb");
++        if (!fh) { *why = "gen_nvm_window.py wrote no window"; return false; }
++        char buf[4096];
++        size_t n;
++        while ((n = fread(buf, 1, sizeof buf, fh)) > 0) doc.append(buf, n);
++        fclose(fh);
++        uint32_t img_len = 0;
++        std::vector<std::pair<uint32_t, uint32_t> > tables;   // {PP_NVM word, value}
++        nmem.clear();
++        size_t at = 0;
++        while (at < doc.size()) {
++            size_t end = doc.find('\n', at);
++            if (end == std::string::npos) end = doc.size();
++            const std::string line = doc.substr(at, end - at);
++            at = end + 1;
++            const char* s = line.c_str();
++            if (line.rfind("img_len ", 0) == 0) {
++                img_len = static_cast<uint32_t>(strtoul(s + 8, nullptr, 0));
++            } else if (line.rfind("map_in ", 0) == 0 || line.rfind("map_out ", 0) == 0) {
++                const bool is_out = line[4] == 'o';
++                char* rest = nullptr;
++                const unsigned long port = strtoul(s + (is_out ? 8 : 7), &rest, 0);
++                tables.emplace_back((is_out ? 0x30u : 0x20u) | static_cast<uint32_t>(port),
++                                    static_cast<uint32_t>(strtoul(rest, nullptr, 0)));
++            } else if (line.rfind("area ", 0) == 0) {
++                for (size_t i = 5; i + 1 < line.size(); i += 2)
++                    nmem.push_back(static_cast<uint8_t>(
++                        strtoul(line.substr(i, 2).c_str(), nullptr, 16)));
++            }
++        }
++        std::error_code cleanup_error;
++        std::filesystem::remove_all(temp_dir, cleanup_error);
++        if (img_len == 0 || nmem.size() != img_len || tables.empty()) {
++            *why = "the window description has no record area, length or table";
++            return false;
++        }
++        //! the re-base: base and length, then the channel-map tables
++        axi_write(A_PP_NVM_SEL, 0);
++        axi_write(A_PP_NVM_DATA, NVM_AREA_BASE);
++        axi_write(A_PP_NVM_SEL, 1);
++        axi_write(A_PP_NVM_DATA, img_len);
++        for (const std::pair<uint32_t, uint32_t>& t : tables) {
++            axi_write(A_PP_NVM_SEL, t.first);
++            axi_write(A_PP_NVM_DATA, t.second);
++        }
++        //! the window is filled (nmem above) and starts answering, then the
++        //! RELOAD strobe (word 4 bit 6) claims it
++        nm_answering = true;
++        axi_write(A_PP_NVM_STAT, 0x40u);
++        const uint32_t loaded = axi_read(A_PP_NVM_STAT);
++        ck("[NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, "
++           "[11] 0)", (loaded >> 2) & 0x201u, 1);
++        //! the publish: the sequence, then VD_OK with the valid bit
++        axi_write(A_PP_NVM_SEL, 2);
++        axi_write(A_PP_NVM_DATA, 1);
++        axi_write(A_PP_NVM_SEL, 3);
++        axi_write(A_PP_NVM_DATA, 0x10u);
++        ck("[NVM] ...and holds it valid (PP_NVM_STAT[7])",
++           (axi_read(A_PP_NVM_STAT) >> 7) & 1u, 1);
++        return true;
++    }
++
+     void prove_the_identity_and_provision_the_entity_id() {
+         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
+         ck("VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
+@@ -2825,6 +2998,16 @@ class NxnDatapathHarness {
+         //! here, after the restore proved the image, in every leg and before
+         //! the timed leg's return
+         prove_a_wedged_response_memory_reports_and_heals();
++        #ifdef DYNMAP_DEFAULT_TB
++        //! THE #658 LEG ENDS HERE: the image is served and AECP is
++        //! released, and nothing before this point has touched a map, so
++        //! the first GET_AUDIO_MAP below reads the power-on maps.
++        dynmap_power_on_and_adaptation_section();
++        printf("--------------------------------------------------------------\n");
++        printf("checks: %ld   failures: %ld\n", checks, fails);
++        printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
++        return true;
++        #endif
+         #ifdef NOTIFY_TIMED_TB
+         //! THE TIMED LEG ENDS HERE: the image is served, so the
+         //! notification section has names to set, and nothing after it
+@@ -3714,26 +3897,18 @@ class NxnDatapathHarness {
+ 
+     void prove_the_dynamic_map_store_starts_empty() {
+         #ifdef AX8X8_TB
+-        // ---- task #26: RESET STARTS FROM AN EMPTY DYNAMIC-MAP STORE ------------
+-        //      This check used to prove the AECP builder had walked the declared
+-        //      identity image into the capture map RAM during its post-reset IDLE
+-        //      cycles, so key 0 read the now-retired reserved-source template with
+-        //      0x900[0] never written - the "in-circuit by construction" law.
+-        //      The boot seeder remains absent, so the RAM starts empty. The AECP
+-        //      transaction writer is now live and [T66] below proves that accepted
+-        //      commands populate and clear it after reset.
++        // ---- #658: RESET STARTS FROM THE POWER-ON MAP, AND IT IS IN THE RAM ----
++        //      Until #658 this proved the opposite: no seeder wrote the capture
++        //      map RAM, so key 0 read EMPTY, and its comment said this block
++        //      must change the day a seeder returned. It has: the parent's boot
++        //      writer projects the power-on map (stream channel c on cluster c)
++        //      into the RAM, so key 0 - output port 0's stream channel 0 - holds
++        //      cluster 0's capture word, the Pilot {en, src 4 TONE}. On this
++        //      shape the dynamic output map puts the crossbar in circuit from
++        //      reset, so no CHMAP_CTRL arm is involved.
+         //
+-        //      The RTL treats this as its documented STATIC-shape arm rather than
+-        //      as breakage (milan_datapath.sv:1238-1252): with the crossbar
+-        //      bypassed the DECLARED front-end routing stays wired straight to the
+-        //      packetizer, so talkers do NOT wake streaming an empty map's
+-        //      silence - the loopback/fabric sections below frame real audio
+-        //      through that path.
+-        //
+-        //      So the two checks become the two halves of the new structural
+-        //      truth, and neither is vacuous: the READ mux is still live (bit 26
+-        //      valid) and the RAM is EMPTY. The day a seeder returns, the second
+-        //      one fails and this block must be restored.
++        //      The READ mux is still live (bit 26 valid), and the RAM holds the
++        //      power-on map rather than whatever a CSR write left there.
+         {
+             axi_write(0x904, 0x100);             // capture side, key 0
+             axi_write(0x910, 1);
+@@ -3745,15 +3920,617 @@ class NxnDatapathHarness {
+             uint32_t seed0 = axi_read(0x914);
+             ck("0x002C: the capture-map READ mux is still live (bit 26)",
+                (seed0 >> 26) & 1, 1);
+-            ck("0x002C: key 0 is EMPTY - no AEM seeder writes it any more",
+-               seed0 & 0x1FFF, 0x0);
+-            ck("0x002C: ...and CHMAP_CTRL[0] is 0, so the crossbar is BYPASSED "
+-               "and the declared front end is the power-on path",
++            ck("0x002C: key 0 holds the power-on map's Pilot word (#658)",
++               seed0 & 0x1FFF, 0x1400);
++            ck("0x002C: ...with CHMAP_CTRL[0] still 0: no CSR arm wrote it",
+                axi_read(0x900) & 1, 0);
+         }
++        {
++            //! ...and every port's: GET_AUDIO_MAP reads stream channel c on
++            //! cluster c, and capture key p*8 + c holds that cluster's word -
++            //! the Pilot at cluster 0, then port p's loopback channels, whose
++            //! words carry the port in their idxh field
++            long off = 0;
++            long ram_off = 0;
++            for (int p = 0; p < kNstreamsTb; p++) {
++                off += power_on_page_off(0x000F, static_cast<uint16_t>(p),
++                                         static_cast<uint16_t>(p), 8);
++                for (int c = 0; c < 8; c++) {
++                    const uint32_t want = (c == 0) ? 0x1400u
++                        : ((((c - 1) & 1) ? 0x0800u : 0u) | 0x0500u
++                           | (static_cast<uint32_t>(p) << 4)
++                           | (static_cast<uint32_t>(c - 1) >> 1));
++                    axi_write(0x904, 0x100u | static_cast<uint32_t>(p * 8 + c));
++                    axi_write(0x910, 1);
++                    for (int g = 0; g < 64; g++)
++                        if ((axi_read(0x910) & 1) == 0) break;
++                    if ((axi_read(0x914) & 0x1FFF) != want) ram_off++;
++                }
++            }
++            ck("#658: every output port powers up with the identity map", off, 0);
++            ck("#658: ...and the capture RAM holds every port's", ram_off, 0);
++        }
+         #endif
+     }
+ 
++    // ==================================================================
++    //  [DYNMAP] issue #658: THE POWER-ON AUDIO MAPS, A FORMAT CHANGE UNDER
++    //  MILAN 5.4.2.7, AND THE MAPS A RESTORED FORMAT LEAVES, on the
++    //  shipping AX7101 1x1 TDM8 geometry (#658 rulings 5988293154 and
++    //  5988843004).
++    //
++    //  THE POWER-ON MAP. On both stream ports, stream channel c maps to
++    //  cluster c for every c below the smaller of the stream's channel count
++    //  and the port's cluster count. It is read where a controller reads it,
++    //  GET_AUDIO_MAP, and where the media path reads it, the two crossbar
++    //  RAMs through the CSR readback.
++    //
++    //  A FORMAT CHANGE. Milan v1.2 5.4.2.7 governs: a SET_STREAM_FORMAT that
++    //  drops a channel an existing mapping references is refused with
++    //  BAD_ARGUMENTS, the format and the maps unchanged. A controller that
++    //  narrows a stream REMOVEs the higher mappings first, and nothing adds
++    //  a mapping back when the stream widens again.
++    //
++    //  A RESTORE. A saved 4-channel input format (record 0x30, framed by
++    //  gen_nvm_window.py with every other record erased) is restored at the
++    //  next boot beside the power-on map clipped to it before AECP is
++    //  released: GET reads 4 channels and 4 identity mappings, and a SET of
++    //  8 channels succeeds because no mapping is orphaned.
++    //
++    //  Every count the expectation uses is READ, not restated: the channel
++    //  counts come from GET_STREAM_FORMAT, the cluster counts from the
++    //  shipped image's STREAM_PORT descriptors (number_of_clusters,
++    //  1722.1-2021 7.2.13, offset 12). Only the scenario's 8 -> 4 -> 8 and
++    //  the saved 4 are literals, because they are the scenario.
++    // ==================================================================
++
++    //! ONE GET_AUDIO_MAP page as a controller reads it (1722.1-2021
++    //! 7.4.44.2): number_of_maps @44, number_of_mappings @46, the records
++    //! from @50 as {stream_index, stream_channel, cluster_offset,
++    //! cluster_channel}
++    struct AmapPage {
++        long status = -1;
++        long cdl = -1;
++        long nmaps = -1;
++        long nmappings = -1;
++        std::vector<std::array<uint16_t, 4> > rec;
++    };
++    uint16_t dynmap_sq = 0x6580;
++
++    AmapPage get_audio_map_page0(uint16_t ty, uint16_t ix) {
++        //! the full 7.4.44.1 command: the key, map_index 0, reserved 0
++        std::vector<uint8_t> pl = desc_key(ty, ix);
++        pl.resize(8, 0);
++        const std::vector<uint8_t> r = aecp_xact(0x002B, dynmap_sq++, pl);
++        AmapPage p;
++        p.status = aecp_status(r);
++        p.cdl = cdl_of(r);
++        if (r.size() < 50) return p;
++        p.nmaps = (r[44] << 8) | r[45];
++        p.nmappings = (r[46] << 8) | r[47];
++        for (size_t at = 50; at + 8 <= r.size()
++                 && p.rec.size() < static_cast<size_t>(p.nmappings); at += 8) {
++            std::array<uint16_t, 4> m{};
++            for (size_t f = 0; f < 4; f++)
++                m[f] = static_cast<uint16_t>((r[at + 2*f] << 8) | r[at + 2*f + 1]);
++            p.rec.push_back(m);
++        }
++        return p;
++    }
++
++    //! a stream's CURRENT channel count (GET_STREAM_FORMAT @42, the AAF
++    //! channels_per_frame field at [31:22]), and the format itself
++    long current_channels(uint16_t ty, uint16_t ix, uint64_t* fmt) {
++        const std::vector<uint8_t> r =
++            aecp_xact(0x0009, dynmap_sq++, desc_key(ty, ix));
++        if (aecp_status(r) != 0 || r.size() < 50) return -1;
++        *fmt = be64_at(r, 42);
++        return static_cast<long>((*fmt >> 22) & 0x3FF);
++    }
++
++    //! a Stream Port's number_of_clusters, out of the image this leg serves
++    long port_clusters(uint16_t ty, uint16_t ix) {
++        const std::vector<uint8_t>* d = desc_of(ty, ix);
++        if (d == nullptr || d->size() < 14) return -1;
++        return ((*d)[12] << 8) | (*d)[13];
++    }
++
++    //! One page against the identity {stream, c, c, 0} for c < n.
++    long identity_pages = 0;
++    void grade_identity_page(const char* tag, uint16_t ty, uint16_t stream,
++                             long n) {
++        const AmapPage p = get_audio_map_page0(ty, 0);
++        printf("  [i]    %s: status %ld, number_of_maps %ld, %ld mapping(s)",
++               tag, p.status, p.nmaps, p.nmappings);
++        for (const std::array<uint16_t, 4>& m : p.rec)
++            printf(" s%u.c%u->o%u.c%u", static_cast<unsigned>(m[0]),
++                   static_cast<unsigned>(m[1]), static_cast<unsigned>(m[2]),
++                   static_cast<unsigned>(m[3]));
++        printf("\n");
++        char w[160];
++        snprintf(w, sizeof w, "[DYNMAP] %s: GET_AUDIO_MAP SUCCESS", tag);
++        ck(w, static_cast<unsigned long>(p.status), 0);
++        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_maps 1", tag);
++        ck(w, static_cast<unsigned long>(p.nmaps), 1);
++        snprintf(w, sizeof w, "[DYNMAP] %s: cdl carries every counted record",
++                 tag);
++        ck(w, static_cast<unsigned long>(p.cdl),
++           static_cast<unsigned long>(24 + 8 * p.nmappings));
++        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_mappings", tag);
++        ck(w, static_cast<unsigned long>(p.nmappings),
++           static_cast<unsigned long>(n));
++        long off = std::labs(static_cast<long>(p.rec.size()) - n);
++        for (size_t i = 0; i < p.rec.size() && static_cast<long>(i) < n; i++) {
++            const uint16_t c = static_cast<uint16_t>(i);
++            const std::array<uint16_t, 4> want = {stream, c, c, 0};
++            if (p.rec[i] != want) off++;
++        }
++        snprintf(w, sizeof w, "[DYNMAP] %s: records off the identity", tag);
++        ck(w, static_cast<unsigned long>(off), 0);
++        identity_pages++;
++    }
++
++    //! THE MEDIA PATH'S COPY: the two crossbar RAMs through the CSR readback
++    //! (0x904 selects, 0x910 snaps, 0x914 reads). On this shape the input
++    //! port's cluster c projects onto physical render key 2 + c (the TDM8
++    //! lane; keys 0 and 1 are the I2S pair), holding {en, AVB source, stream
++    //! 0, channel c}. Output stream channel c is capture key c, holding TDM
++    //! capture slot c: {en, half c&1, source 2 TDM, pair c>>1}, the TDM8
++    //! front end's pair convention (pair k carries slots 2k and 2k+1).
++    uint32_t dynmap_ram_rd(uint32_t sel) {
++        axi_write(0x904, sel);
++        axi_write(0x910, 1);
++        for (int g = 0; g < 256; g++)
++            if ((axi_read(0x910) & 1) == 0) break;
++        return axi_read(0x914);
++    }
++
++    static uint32_t dynmap_slot_word(uint32_t c) {
++        return 0x1000u | ((c & 1u) << 11) | 0x200u | (c >> 1);
++    }
++
++    void grade_the_crossbar_rams(const char* tag, long in_n, long out_n) {
++        long render_off = 0;
++        long capture_off = 0;
++        for (uint32_t c = 0; c < 8; c++) {
++            const uint32_t r = dynmap_ram_rd(2 + c) & 0xFFu;
++            const uint32_t want_r = (static_cast<long>(c) < in_n) ? (0x80u | c) : 0u;
++            if (r != want_r) render_off++;
++            const uint32_t k = dynmap_ram_rd(0x100u | c) & 0x1FFFu;
++            const uint32_t want_k = (static_cast<long>(c) < out_n)
++                ? dynmap_slot_word(c) : 0u;
++            if (k != want_k) capture_off++;
++        }
++        char w[160];
++        snprintf(w, sizeof w, "[DYNMAP] %s: render RAM keys 2..9 hold the input "
++                 "map", tag);
++        ck(w, static_cast<unsigned long>(render_off), 0);
++        snprintf(w, sizeof w, "[DYNMAP] %s: capture RAM keys 0..7 hold the "
++                 "output map", tag);
++        ck(w, static_cast<unsigned long>(capture_off), 0);
++    }
++
++    //! One SET_STREAM_FORMAT on STREAM_INPUT 0 to `ch` channels of `base`,
++    //! with the status Milan 5.4.2.7 owes and the format it must leave
++    void dynmap_set_input_channels(uint64_t base, long ch, long status,
++                                   const char* tag) {
++        uint64_t before = 0;
++        current_channels(0x0005, 0, &before);
++        const uint64_t want = (base & ~(0x3FFull << 22))
++                            | (static_cast<uint64_t>(ch) << 22);
++        const std::vector<uint8_t> r =
++            aecp_xact(0x0008, dynmap_sq++, sf_pl(0x0005, 0, want));
++        char w[160];
++        snprintf(w, sizeof w, "[DYNMAP] %s: SET_STREAM_FORMAT %s", tag,
++                 status == 0 ? "SUCCESS" : "BAD_ARGUMENTS (Milan 5.4.2.7)");
++        ck(w, static_cast<unsigned long>(aecp_status(r)),
++           static_cast<unsigned long>(status));
++        uint64_t now = 0;
++        current_channels(0x0005, 0, &now);
++        snprintf(w, sizeof w, "[DYNMAP] %s: GET_STREAM_FORMAT reads the %s format",
++                 tag, status == 0 ? "new" : "unchanged");
++        ck(w, static_cast<unsigned long>(now == (status == 0 ? want : before)), 1);
++        printf("  [i]    %s: STREAM_INPUT 0 format %016llx\n", tag,
++               static_cast<unsigned long long>(now));
++    }
++
++    //! ADD (0x002C, 1722.1-2021 7.4.45) or REMOVE (0x002D, 7.4.46) of the
++    //! #658 power-on map's own records {stream, c, c, 0}, c in [first, last],
++    //! on Stream Port `ty` index `port`; the answer's status
++    long identity_edit(uint16_t cmd, uint16_t ty, uint16_t port,
++                       uint16_t stream, unsigned first, unsigned last) {
++        std::vector<uint8_t> pl = {
++            static_cast<uint8_t>(ty >> 8), static_cast<uint8_t>(ty),
++            static_cast<uint8_t>(port >> 8), static_cast<uint8_t>(port),
++            0x00, static_cast<uint8_t>(last - first + 1), 0x00, 0x00};
++        for (unsigned c = first; c <= last; c++) {
++            const uint8_t row[8] = {
++                static_cast<uint8_t>(stream >> 8), static_cast<uint8_t>(stream),
++                0, static_cast<uint8_t>(c), 0, static_cast<uint8_t>(c), 0, 0};
++            pl.insert(pl.end(), row, row + 8);
++        }
++        return aecp_status(aecp_xact(cmd, dynmap_sq++, pl));
++    }
++
++    //! one port's page against the power-on map {stream, c, c, 0}, c < n:
++    //! the number of records that are not it (0 when the page IS the map)
++    long power_on_page_off(uint16_t ty, uint16_t port, uint16_t stream, long n) {
++        const AmapPage p = get_audio_map_page0(ty, port);
++        if (p.status != 0) return -1;
++        long off = std::labs(static_cast<long>(p.rec.size()) - n)
++                 + std::labs(p.nmappings - n);
++        for (size_t i = 0; i < p.rec.size() && static_cast<long>(i) < n; i++) {
++            const uint16_t c = static_cast<uint16_t>(i);
++            const std::array<uint16_t, 4> want = {stream, c, c, 0};
++            if (p.rec[i] != want) off++;
++        }
++        return off;
++    }
++
++    void dynmap_power_on_and_adaptation_section() {
++        printf("-- [DYNMAP] #658: the power-on maps, a format change under "
++               "Milan 5.4.2.7, and a restored format --\n");
++        uint64_t fin = 0;
++        uint64_t fout = 0;
++        const long in_ch = current_channels(0x0005, 0, &fin);
++        const long out_ch = current_channels(0x0006, 0, &fout);
++        const long in_cl = port_clusters(0x000E, 0);
++        const long out_cl = port_clusters(0x000F, 0);
++        printf("  [i]    STREAM_INPUT 0 %016llx (%ld ch), STREAM_OUTPUT 0 "
++               "%016llx (%ld ch); clusters SPI 0 %ld, SPO 0 %ld\n",
++               static_cast<unsigned long long>(fin), in_ch,
++               static_cast<unsigned long long>(fout), out_ch, in_cl, out_cl);
++        //! the scenario's precondition and the image's own geometry, so a
++        //! missing descriptor or format cannot make an expectation of zero
++        ck("[DYNMAP] the reset input format is 8 channels",
++           static_cast<unsigned long>(in_ch), 8);
++        ck("[DYNMAP] the image declares both ports' clusters",
++           static_cast<unsigned long>(in_cl > 0 && out_cl > 0 && out_ch > 0), 1);
++        const long in_n = std::min(in_ch, in_cl);
++        const long out_n = std::min(out_ch, out_cl);
++        grade_identity_page("power-on SPI 0", 0x000E, 0, in_n);
++        grade_identity_page("power-on SPO 0", 0x000F, 0, out_n);
++        grade_the_crossbar_rams("power-on", in_n, out_n);
++
++        //! Milan 5.4.2.7: channels 4..7 are mapped, so 8 -> 4 is refused and
++        //! nothing moves
++        dynmap_set_input_channels(fin, 4, 7, "8->4 while 4..7 are mapped");
++        grade_identity_page("refused 8->4 SPI 0", 0x000E, 0, in_n);
++        grade_identity_page("refused 8->4 SPO 0", 0x000F, 0, out_n);
++        //! ...so the controller removes them first
++        ck("[DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS",
++           static_cast<unsigned long>(identity_edit(0x002D, 0x000E, 0, 0, 4, 7)), 0);
++        grade_identity_page("after REMOVE 4..7 SPI 0", 0x000E, 0, 4);
++        grade_the_crossbar_rams("after REMOVE 4..7", 4, out_n);
++        dynmap_set_input_channels(fin, 4, 0, "8->4");
++        grade_identity_page("8->4 SPI 0", 0x000E, 0, 4);
++        grade_identity_page("8->4 SPO 0", 0x000F, 0, out_n);
++        //! ...and widening adds nothing back
++        dynmap_set_input_channels(fin, 8, 0, "4->8");
++        grade_identity_page("4->8 SPI 0", 0x000E, 0, 4);
++        grade_identity_page("4->8 SPO 0", 0x000F, 0, out_n);
++        grade_the_crossbar_rams("4->8", 4, out_n);
++
++        dynmap_restored_format_section(fin, fout, in_n, out_n);
++        #ifdef DYNMAP_DEFAULT_TB
++        //! the boot writer's sweep walks the larger key space: the input
++        //! store keys one word per cluster of the dynamic input port, the
++        //! output store one per stream channel, 8 per STREAM_OUTPUT
++        dynmap_boot_window_guards_section(fin, fout, in_n, out_n,
++                                          std::max(in_cl, 8L));
++        #endif
++        //! every page above and below ran: a GET that never answered would
++        //! otherwise leave its identity checks unrun rather than failed
++        ck("[DYNMAP] every identity page ran (vacuity guard)",
++           static_cast<unsigned long>(identity_pages), 12);
++    }
++
++    //! THE OUTPUT CLIP AND THE ROLL-BACK TARGET, in the boot window of a
++    //! fresh boot (AECP still held, the restore not started). No command
++    //! reaches the output clip: the format verdict admits only the declared
++    //! channel count on a Stream Output, so a narrower output format can be
++    //! neither set nor restored. So the processor's published row is staged
++    //! directly (dynmap_probes.vlt). At 4 channels the capture RAM must drop
++    //! output channels 4..7. Once the row is invalid again, which is what a
++    //! D3 roll-back leaves, the whole image must come back: the window holds
++    //! the clipped default, not whatever it once clipped.
++    void dynmap_stage_an_output_row_in_the_window(uint64_t fout, long in_n,
++                                                  long out_n) {
++        auto& row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
++        auto& valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
++        row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
++        valid = static_cast<uint8_t>(valid | 1u);
++        for (int c = 0; c < 64; c++) step();
++        grade_the_crossbar_rams("window, output row staged at 4 ch", in_n, 4);
++        valid = static_cast<uint8_t>(valid & ~1u);
++        for (int c = 0; c < 64; c++) step();
++        grade_the_crossbar_rams("window, output row invalid again", in_n, out_n);
++    }
++
++    //! THE RESTORE (ruling item 3): a saved 4-channel input format and a
++    //! fresh boot. The restore applies the format before AECP is released
++    //! and the power-on map is clipped to it by then, so the first commands
++    //! a controller can send read 4 channels and 4 identity mappings, the
++    //! output map untouched. Widening to 8 is then allowed, because no
++    //! mapping is orphaned; it adds nothing.
++    void dynmap_restored_format_section(uint64_t fin, uint64_t fout, long in_n,
++                                        long out_n) {
++        constexpr uint32_t kFail = 1u << 3;
++        constexpr uint32_t kBlank = 1u << 7;
++        const uint64_t saved = (fin & ~(0x3FFull << 22)) | (4ull << 22);
++        char rec[40];
++        snprintf(rec, sizeof rec, "0x30=%016llx",
++                 static_cast<unsigned long long>(saved));
++        bring_the_datapath_out_of_reset();
++        axi_write(A_ADP_EIDHI, 0x020000FF);
++        axi_write(A_ADP_EIDLO, 0xFE000001);
++        dynmap_stage_an_output_row_in_the_window(fout, in_n, out_n);
++        std::string why;
++        const bool loaded = load_the_saved_state_window(AEMI_CFG_C, {rec}, &why);
++        ck("[DYNMAP] restore: the saved-state window holds a 4 ch input format",
++           static_cast<unsigned long>(loaded), 1);
++        if (!loaded) {
++            printf("  [i]    %s\n", why.c_str());
++            return;
++        }
++        start_the_boot_restore_walk();
++        const uint32_t st = axi_read(A_PP_STAT);
++        ck("[DYNMAP] restore: the walk applied a record (fail 0, blank 0)",
++           st & (kFail | kBlank), 0);
++        uint64_t now = 0;
++        const long ch = current_channels(0x0005, 0, &now);
++        printf("  [i]    restored STREAM_INPUT 0 format %016llx (%ld ch)\n",
++               static_cast<unsigned long long>(now), ch);
++        ck("[DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format",
++           static_cast<unsigned long>(now == saved), 1);
++        grade_identity_page("restored SPI 0", 0x000E, 0, 4);
++        grade_identity_page("restored SPO 0", 0x000F, 0, out_n);
++        grade_the_crossbar_rams("restored", 4, out_n);
++        dynmap_set_input_channels(fin, 8, 0, "restored 4->8");
++        grade_identity_page("restored 4->8 SPI 0", 0x000E, 0, 4);
++    }
++
++    //! the guard arms reach state only dynmap_probes.vlt opens, and they
++    //! read the stores at the shipping shape's widths: the dynmap leg alone
++    #ifdef DYNMAP_DEFAULT_TB
++    // ==================================================================
++    //  THE BOOT WINDOW'S GUARD ARMS (#658 review R490-1 F1). Four arms keep
++    //  the stores and the crossbar RAMs one map across the window's end:
++    //  the CSR writer's hold, the CLOSED terminal, the sweep after the
++    //  terminal with its drain clock, and the edit face's wait. None of them
++    //  moves a GET or a RAM word in the scenario above. Its terminal is
++    //  COMPLETE, no CSR write comes near it, and AECP's first edit arrives
++    //  long after the sweep. So each arm is staged on the clock it guards:
++    //
++    //   - THE CSR HOLD AND CLOSED. A CSR map write commits on each clock
++    //     from inside the window to past the sweep, against a restore ended
++    //     CLOSED on a chosen clock (dynmap_probes.vlt). Each write lands in
++    //     the store and the RAM or in neither. Every write refused until one
++    //     sweep after the terminal (REGISTER_MAP.md, CHMAP), and every later
++    //     one lands.
++    //   - THE SWEEP. A D3 roll-back invalidates both format rows on the
++    //     clock CLOSED ends the window, so only the sweep after the terminal
++    //     can carry the store's last value into the RAMs.
++    //   - THE EDIT FACE'S WAIT. An output ADD meets a post-terminal sweep
++    //     held open, as a longer key space or a restore that edits would
++    //     make it. It is answered only once the sweep has ended, and the
++    //     capture RAM keeps the word it committed.
++    // ==================================================================
++    static constexpr uint16_t kChmapCtrl = 0x900;
++    static constexpr uint16_t kChmapSel = 0x904;
++    static constexpr uint16_t kChmapWord = 0x908;
++
++    //! the D3 writer's CLOSED flag: from the next clock on the restore has
++    //! ended CLOSED, as an unprovable image or a failed roll-back ends it
++    void dynmap_close_the_restore() {
++        dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__closed_r = 1;
++    }
++
++    //! One CSR map write of `word` at CHMAP_SEL `sel` in a fresh boot, whose
++    //! window has run a few laps. CLOSED is set ahead of clock `close_at` of
++    //! a fixed run in which the AXI write starts at clock 32. Returns the
++    //! clock that takes the write's one-cycle commit, counted on the same
++    //! run, or -1 when none came.
++    long dynmap_csr_write_in_a_run(uint32_t sel, uint32_t word, int close_at) {
++        constexpr int kAxiAt = 32;
++        constexpr int kRun = 96;
++        bring_the_datapath_out_of_reset();
++        for (int c = 0; c < 64; c++) step();
++        axi_write(kChmapCtrl, 1);
++        axi_write(kChmapSel, sel);
++        long commit = -1;
++        for (int n = 0; n < kRun; n++) {
++            if (n == close_at) dynmap_close_the_restore();
++            if (n == kAxiAt) {
++                dut->s_axi_awaddr = kChmapWord; dut->s_axi_awvalid = 1;
++                dut->s_axi_wdata = word;  dut->s_axi_wvalid = 1;
++                dut->s_axi_wstrb = 0xF;   dut->s_axi_bready = 1;
++            }
++            dut->eval();
++            const bool acc = dut->s_axi_awvalid && dut->s_axi_awready
++                          && dut->s_axi_wready;
++            step();
++            if (acc) { dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; }
++            //! a commit seen after clock n is taken by clock n + 1
++            if (dut->rootp->milan_datapath__DOT__cfg_chmap_wr_en) commit = n + 1;
++        }
++        dut->s_axi_bready = 0;
++        return commit;
++    }
++
++    //! The store's word at input key `k` ({en, AVB, stream, channel}), and
++    //! at output key `k` its owner flag over its cluster
++    uint32_t dynmap_in_store(uint32_t k) {
++        return static_cast<uint32_t>(
++            (dut->rootp->milan_datapath__DOT__amap_in_store_r >> (8 * k)) & 0xFFu);
++    }
++    uint32_t dynmap_out_store(uint32_t k) {
++        const uint32_t v = (dut->rootp->milan_datapath__DOT__amap_out_owner_v_r >> k) & 1u;
++        const uint32_t w = dut->rootp->milan_datapath__DOT__amap_out_cluster_r[(16 * k) / 32];
++        return (v << 16) | ((w >> ((16 * k) % 32)) & 0xFFFFu);
++    }
++
++    //! One side's CSR hold across a CLOSED terminal. Key `key` holds its
++    //! power-on word in the store (`boot_store`) and the RAM (`boot_ram`);
++    //! the CSR write of `word` would make them `csr_store` and `csr_ram`.
++    //! Every commit is placed at offset d from the first clock that sees
++    //! CLOSED, d from inside the window to past the sweep.
++    void dynmap_csr_hold_across_closed(const char* side, bool capture,
++                                       uint32_t key, uint32_t word,
++                                       uint32_t boot_store, uint32_t boot_ram,
++                                       uint32_t csr_store, uint32_t csr_ram,
++                                       long sweep) {
++        const uint32_t sel = (capture ? 0x100u : 0u) | key;
++        const uint32_t ram_sel = capture ? (0x100u | key) : (2u + key);
++        const uint32_t ram_mask = capture ? 0x1FFFu : 0xFFu;
++        //! the commit's clock in a run with no CLOSED in it
++        const long at = dynmap_csr_write_in_a_run(sel, word, 1 << 20);
++        long split = 0;
++        long early = 0;
++        long late = 0;
++        long first = 1L << 20;
++        long last = -(1L << 20);
++        long seen = 0;
++        for (long d = -2; d <= sweep + 4; d++) {
++            const int close_at = static_cast<int>(at - d);
++            if (close_at < 0) continue;     //! a run cannot close before it starts
++            const long commit = dynmap_csr_write_in_a_run(sel, word, close_at);
++            if (commit < 0) continue;
++            const long off = commit - close_at;
++            seen++;
++            first = std::min(first, off);
++            last = std::max(last, off);
++            const uint32_t st = capture ? dynmap_out_store(key) : dynmap_in_store(key);
++            const uint32_t ram = dynmap_ram_rd(ram_sel) & ram_mask;
++            const bool refused = (st == boot_store) && (ram == boot_ram);
++            const bool landed = (st == csr_store) && (ram == csr_ram);
++            printf("  [i]    %s: CSR commit at CLOSED%+ld: store 0x%05x, RAM 0x%04x (%s)\n",
++                   side, off, st, ram,
++                   refused ? "refused" : landed ? "landed" : "SPLIT");
++            if (!refused && !landed) split++;
++            if (off <= sweep + 1 && !refused) early++;
++            if (off >= sweep + 2 && !landed) late++;
++        }
++        char w[160];
++        snprintf(w, sizeof w, "[DYNMAP] %s: the CSR commits ran from the window to past "
++                 "the sweep (vacuity guard)", side);
++        ck(w, static_cast<unsigned long>(seen == sweep + 7 && first == -2
++                                         && last == sweep + 4), 1);
++        snprintf(w, sizeof w, "[DYNMAP] %s: no CSR write splits the store from the RAM",
++                 side);
++        ck(w, static_cast<unsigned long>(split), 0);
++        snprintf(w, sizeof w, "[DYNMAP] %s: CSR refused in the window and for one sweep "
++                 "after CLOSED", side);
++        ck(w, static_cast<unsigned long>(early), 0);
++        snprintf(w, sizeof w, "[DYNMAP] %s: CSR lands in both once the sweep after "
++                 "CLOSED has ended", side);
++        ck(w, static_cast<unsigned long>(late), 0);
++    }
++
++    //! A D3 roll-back resets the dynamic-state store, which invalidates every
++    //! format row, and a failed re-LOCATE ends the restore CLOSED. Both rows
++    //! hold 4 channels in the window first, so keys 4..7 are empty in both
++    //! RAMs. Then both rows are invalidated on the clock CLOSED ends the
++    //! window: the stores take the whole image on the window's last clock,
++    //! and only the sweep after the terminal can write it into the RAMs.
++    void dynmap_roll_back_to_closed(uint64_t fin, uint64_t fout, long in_n,
++                                    long out_n) {
++        auto& in_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_r;
++        auto& in_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_v_r;
++        auto& out_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
++        auto& out_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
++        bring_the_datapath_out_of_reset();
++        in_row[0] = (fin & ~(0x3FFull << 22)) | (4ull << 22);
++        out_row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
++        in_valid = static_cast<uint8_t>(in_valid | 1u);
++        out_valid = static_cast<uint8_t>(out_valid | 1u);
++        for (int c = 0; c < 64; c++) step();
++        grade_the_crossbar_rams("window, both rows staged at 4 ch", 4, 4);
++        in_valid = static_cast<uint8_t>(in_valid & ~1u);
++        out_valid = static_cast<uint8_t>(out_valid & ~1u);
++        dynmap_close_the_restore();
++        for (int c = 0; c < 64; c++) step();
++        long store_off = 0;
++        for (uint32_t c = 0; c < 8; c++) {
++            if (dynmap_in_store(c) != ((static_cast<long>(c) < in_n) ? (0x80u | c) : 0u))
++                store_off++;
++            if (dynmap_out_store(c) != ((static_cast<long>(c) < out_n) ? (0x10000u | c) : 0u))
++                store_off++;
++        }
++        ck("[DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image",
++           static_cast<unsigned long>(store_off), 0);
++        grade_the_crossbar_rams("CLOSED on the roll-back's clock", in_n, out_n);
++    }
++
++    //! An output ADD meeting the sweep after the terminal. After a COMPLETE
++    //! restore, stream channels n-2 and n-1 are removed, and stream channel
++    //! n-1 is ADDed back on cluster n-2. The sweep is held open from the
++    //! frame's arrival for kHeld clocks, well inside the processor's 4096
++    //! clock bound on a held edit phase. The edit must wait for the sweep,
++    //! and the sweep must not overwrite the word the edit commits: the boot
++    //! writer writes the power-on word of every owned key.
++    void dynmap_edit_meets_the_sweep(long out_n) {
++        constexpr int kHeld = 1000;
++        auto& last = dut->rootp->milan_datapath__DOT__amap_boot_last_r;
++        bring_the_datapath_out_of_reset();
++        axi_write(A_ADP_EIDHI, 0x020000FF);
++        axi_write(A_ADP_EIDLO, 0xFE000001);
++        start_the_boot_restore_walk();
++        const uint16_t moved = static_cast<uint16_t>(out_n - 1);
++        const uint16_t onto = static_cast<uint16_t>(out_n - 2);
++        ck("[DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS",
++           static_cast<unsigned long>(identity_edit(0x002D, 0x000F, 0, 0, onto, moved)), 0);
++        const std::vector<uint8_t> pl = {
++            0x00, 0x0F, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
++            0x00, 0x00, 0x00, static_cast<uint8_t>(moved),
++            0x00, static_cast<uint8_t>(onto), 0x00, 0x00};
++        const std::vector<uint8_t> f = aecp_request(0x002C, dynmap_sq++, pl);
++        last = 1;
++        inject(f.data(), f.size(), 40);
++        long answered = -1;
++        const std::vector<uint8_t> r = await_aecp(200000, [&](int c) {
++            if (c < kHeld) last = 1;
++            answered = c;
++        });
++        printf("  [i]    edit meets the sweep: ADD answered %ld clocks into the wait, "
++               "the sweep held for %d\n", answered, kHeld);
++        ck("[DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS",
++           static_cast<unsigned long>(aecp_status(r)), 0);
++        ck("[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends",
++           static_cast<unsigned long>(answered >= kHeld), 1);
++        for (int c = 0; c < 64; c++) step();
++        const AmapPage p = get_audio_map_page0(0x000F, 0);
++        std::vector<std::array<uint16_t, 4> > want;
++        for (uint16_t c = 0; c < onto; c++) want.push_back({0, c, c, 0});
++        want.push_back({0, moved, onto, 0});
++        ck("[DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster",
++           static_cast<unsigned long>(p.status == 0 && p.rec == want), 1);
++        ck("[DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word",
++           dynmap_ram_rd(0x100u | moved) & 0x1FFFu, dynmap_slot_word(onto));
++        ck("[DYNMAP] edit meets the sweep: the removed channel's capture key stays empty",
++           dynmap_ram_rd(0x100u | onto) & 0x1FFFu, 0);
++    }
++
++    void dynmap_boot_window_guards_section(uint64_t fin, uint64_t fout,
++                                           long in_n, long out_n, long sweep) {
++        //! input key n-1 moved to stream channel 3, {en, AVB, stream 0, ch 3}
++        const uint32_t ik = static_cast<uint32_t>(in_n - 1);
++        dynmap_csr_hold_across_closed("CSR hold, input", false, ik, 0x8003,
++                                      0x80u | ik, 0x80u | ik, 0x83, 0x83, sweep);
++        //! output key n-1 moved to TDM capture slot n-2: the CSR word carries
++        //! {en, source, half, pair} as {[15], [14:12], [8], [7:0]}
++        const uint32_t ok = static_cast<uint32_t>(out_n - 1);
++        const uint32_t slot = dynmap_slot_word(ok - 1);
++        const uint32_t word = (((slot >> 12) & 1u) << 15) | (((slot >> 8) & 7u) << 12)
++                            | (((slot >> 11) & 1u) << 8) | (slot & 0xFFu);
++        dynmap_csr_hold_across_closed("CSR hold, output", true, ok, word,
++                                      0x10000u | ok, dynmap_slot_word(ok),
++                                      0x10000u | (ok - 1), slot, sweep);
++        dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
++        dynmap_edit_meets_the_sweep(out_n);
++    }
++    #endif
++
+     // ==================================================================
+     //  DELETED 2026-08-13: the 5.5.2.7 SRP-only licence at t>0 straight from reset.
+     //  SUBJECT GONE. hdl/ieee8021q/srp/ is deleted in full - applicant,
+@@ -4874,6 +5651,19 @@ class NxnDatapathHarness {
+         constexpr uint16_t A_CHMAP_CTRL = 0x900;
+         constexpr uint16_t A_CHMAP_SEL = 0x904;
+         constexpr uint16_t A_CHMAP_WORD = 0x908;
++        #ifndef AX8X8_TB
++        // #658: SPI 0 powers up with the identity map. The records below are
++        // graded exactly, so the section clears the port's four clusters
++        // first and puts the power-on map back when it is done.
++        ck("[AMAP] SPI 0 powers up with the identity map (#658)",
++           power_on_page_off(0x000E, 0, 0, 4), 0);
++        axi_write(A_CHMAP_CTRL, 0x1);
++        for (uint32_t k = 0; k < 4; k++) {
++            axi_write(A_CHMAP_SEL, k);
++            axi_write(A_CHMAP_WORD, 0x0000);
++        }
++        axi_write(A_CHMAP_CTRL, 0x0);
++        #endif
+         // provision: cluster 0 <- AVB {stream 1, ch 1}, cluster 2 <- AVB
+         // {stream 0, ch 3}, cluster 1 <- a retired/reserved source encoding
+         // that must NOT appear as a 7.4.44.2.1 record, cluster 3 unmapped
+@@ -4889,12 +5679,23 @@ class NxnDatapathHarness {
+         grade_the_get_audio_map_page_rule(pl);
+         prove_an_undeclared_stream_port_input_has_no_map(pl);
+         grade_the_output_side_of_the_same_face(pl);
+-        // leave the map as this section found it: unmapped
++        // leave the map as this section found it
+         axi_write(A_CHMAP_CTRL, 0x1);
++        #ifdef AX8X8_TB
+         axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x0000);
+         axi_write(A_CHMAP_SEL, 1);  axi_write(A_CHMAP_WORD, 0x0000);
+         axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x0000);
++        #else
++        for (uint32_t k = 0; k < 4; k++) {          // {en, AVB, stream 0, ch k}
++            axi_write(A_CHMAP_SEL, k);
++            axi_write(A_CHMAP_WORD, 0x8000u | k);
++        }
++        #endif
+         axi_write(A_CHMAP_CTRL, 0x0);
++        #ifndef AX8X8_TB
++        ck("[AMAP] ...and the power-on map is back on SPI 0",
++           power_on_page_off(0x000E, 0, 0, 4), 0);
++        #endif
+     }
+ 
+     //! one RMAP-side entry, read back through the 0x904/0x910/0x914 window
+@@ -5039,20 +5840,22 @@ class NxnDatapathHarness {
+     //! The capture-side map RAM answers through the same face, routed by
+     //! descriptor_type. Milan 5.4.2.26 requires NOT_SUPPORTED when the
+     //! output has static AUDIO_MAP descriptors. Only the AX7101 8x8 leg
+-    //! declares dynamic output mappings and therefore returns one empty
+-    //! runtime page here.
++    //! declares dynamic output mappings and therefore returns one runtime
++    //! page here: the #658 power-on map, stream channel c on cluster c.
+     void grade_the_output_side_of_the_same_face(std::vector<uint8_t>& pl) {
+         pl[1] = 0x0F; pl[3] = 0x00;
+         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
+         #ifdef AX8X8_TB
+         ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
+            aecp_status(ro), 0);
+-        ck("[AMAP] ...number_of_maps 1, empty page, cdl 24",
++        ck("[AMAP] ...number_of_maps 1, eight records, cdl 24 + 8*8",
+            static_cast<long>(ro.size() >= 50
+                   ? static_cast<long>((((static_cast<unsigned>(ro[16]) & 7) << 8) | ro[17]) << 16
+                            | ((static_cast<unsigned>(ro[44]) << 8) | ro[45]) << 8
+                            | ((static_cast<unsigned>(ro[46]) << 8) | ro[47]))
+-                  : -1), (24 << 16) | (1 << 8) | 0);
++                  : -1), (88 << 16) | (1 << 8) | 8);
++        ck("[AMAP] ...and the eight are the power-on map (#658)",
++           power_on_page_off(0x000F, 0, 0, 8), 0);
+         #else
+         ck("[AMAP] static STREAM_PORT_OUTPUT returns NOT_SUPPORTED(11)",
+            aecp_status(ro), 11);
+@@ -6068,6 +6871,21 @@ class NxnDatapathHarness {
+         const uint64_t fmt_base = be64_at(r2, 42);
+         const uint64_t fmt_2ch =
+             (fmt_base & ~(0x3FFull << 22)) | (2ull << 22);
++        #ifndef AX8X8_TB
++        // #658: the high input powers up mapped (stream channel c on its own
++        // port's cluster c), and a 2ch or 1ch format would orphan its
++        // channels 2..3 (Milan 5.4.2.7). The setters below grade the format
++        // faces on an unmapped stream, and the probe below maps SPI 0's
++        // cluster 0, so both power-on mappings are removed first and put back
++        // at the end.
++        const unsigned hi_n = static_cast<unsigned>(
++            std::min(static_cast<long>((fmt_base >> 22) & 0x3FF),
++                     port_clusters(0x000E, hi_in)));
++        ck("#67 pre: the high input's power-on mappings are removed (#658)",
++           identity_edit(0x002D, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
++        ck("#67 pre: SPI 0's cluster 0 is freed for the probe mapping",
++           identity_edit(0x002D, 0x000E, 0, 0, 0, 0), 0);
++        #endif
+         // the leg's DECLARED channel count: the 4x4 legs declare a 4ch
+         // base, the 8x8 leg 8ch - reading the format octet at [47:38]
+         // instead of channels at [31:22] returns 8 on EVERY leg, so
+@@ -6096,6 +6914,12 @@ class NxnDatapathHarness {
+         prove_the_divergent_rows_serve_their_own_base();
+         grade_all_output_offset_rows();
+         grade_set_stream_info_presentation_offset();
++        #ifndef AX8X8_TB
++        ck("#67 cleanup: SPI 0's power-on cluster 0 mapping is back",
++           identity_edit(0x002C, 0x000E, 0, 0, 0, 0), 0);
++        ck("#67 cleanup: the high input's power-on mappings are back",
++           identity_edit(0x002C, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
++        #endif
+     }
+ 
+     // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
+@@ -6236,6 +7060,15 @@ class NxnDatapathHarness {
+         r2 = aecp_xact(0x0009, setter_sq++, desc_key(0x0005, 0));
+         ck("#67dv row 0's reset GET serves row 0's base",
+            static_cast<long>(be64_at(r2, 42) == static_cast<uint64_t>(DV_ROW0_FMT)), 1);
++        // #658: row 1 powers up mapped on its own port's clusters, and a
++        // 2ch member would orphan its channels 2..3 (Milan 5.4.2.7). The
++        // family arm is graded on an unmapped stream, so its power-on
++        // mappings are removed first and put back after the restore below.
++        const unsigned dv_n = static_cast<unsigned>(
++            std::min(static_cast<long>((static_cast<uint64_t>(DV_ROW1_FMT) >> 22) & 0x3FF),
++                     port_clusters(0x000E, 1)));
++        ck("#67dv pre: row 1's power-on mappings are removed (#658)",
++           identity_edit(0x002D, 0x000E, 1, 1, 0, dv_n - 1), 0);
+         // row 1 accepts its OWN family's 2ch member...
+         const uint64_t dv_2ch =
+             (static_cast<uint64_t>(DV_ROW1_FMT) & ~(0x3FFull << 22)) | (2ull << 22);
+@@ -6254,6 +7087,8 @@ class NxnDatapathHarness {
+                        sf_pl(0x0005, 1, static_cast<uint64_t>(DV_ROW1_FMT)));
+         ck("#67dv restore: row 1's declared base is accepted back",
+            aecp_status(r2), 0);
++        ck("#67dv cleanup: row 1's power-on mappings are back",
++           identity_edit(0x002C, 0x000E, 1, 1, 0, dv_n - 1), 0);
+         #endif
+     }
+ 
+@@ -7178,6 +8013,7 @@ class NxnDatapathHarness {
+         // Stop every talker, then prove four independent writes.
+         axi_write(A_AAF_CTRL, 0x00020002);
+         for (int c = 0; c < 32; c++) step();
++        clear_the_output_maps();
+         prove_a_state_only_edit_commits_its_ownership_sideband();
+         prove_every_generated_output_cluster_round_trips();
+         prove_the_output_edit_reservation_masks_a_local_start();
+@@ -7289,6 +8125,30 @@ class NxnDatapathHarness {
+         return aecp_status(r);
+     }
+ 
++    //! #658: the output ports power up mapped (the 0x002C block after boot
++    //! grades all eight), and the loopback-lane section before this one edits
++    //! capture keys through the CSR window. The edits below grade a port from
++    //! EMPTY, so every capture key is cleared through that window first: an
++    //! EN = 0 word also drops the key's protocol ownership. The precondition
++    //! is read back on both observations.
++    void clear_the_output_maps() {
++        const uint32_t ctrl_before = axi_read(A_CHMAP_CTRL2);
++        axi_write(A_CHMAP_CTRL2, ctrl_before | 1u);
++        for (int k = 0; k < kNstreamsTb * 8; k++) {
++            axi_write(A_CHMAP_SEL2, 0x100u | static_cast<uint32_t>(k));
++            axi_write(A_CHMAP_WORD2, 0);
++        }
++        axi_write(A_CHMAP_CTRL2, ctrl_before);
++        long left = 0;
++        for (int k = 0; k < kNstreamsTb * 8; k++)
++            if (cap_ram(k) != 0) left++;
++        ck("T66 pre: every capture key is empty", left, 0);
++        long owned = 0;
++        for (int p = 0; p < kNstreamsTb; p++)
++            owned += get_audio_map_page0(DT_SPO, static_cast<uint16_t>(p)).nmappings;
++        ck("T66 pre: ...and no output port owns a mapping", owned, 0);
++    }
++
+     // Port 0's generated CMAP templates, {valid, half, src[2:0],
+     // idxh[3:0], idx[3:0]}. The obsolete 8-cluster media pool is absent
+     // (src 3), so the port block is 9 clusters: the pilot TONE at
+diff --git a/tb/verilator/milan_dp/sim_pool.py b/tb/verilator/milan_dp/sim_pool.py
+index 899ca6931..cac734ad1 100644
+--- a/tb/verilator/milan_dp/sim_pool.py
++++ b/tb/verilator/milan_dp/sim_pool.py
+@@ -5,12 +5,14 @@
+ 
+     python3 sim_pool.py [--jobs=1|2] [--exclusive] [--banner TEXT] EXE ...
+ 
+-The `run` recipe builds every model first and used to run eleven of them one
+-after another. Each is a finished executable that takes no argument. Measured
+-with the frame dump absent, the five sim_nxn legs write only their unique
+-milan_nxn_* scratch directories: generator.log, image.bin, image.json, and
+-eleven builder files including the private gen/adp_shape_defaults.svh.
+-The other six legs write no data files. No leg writes a repository file, and
++The `run` recipe builds every model first and used to run its legs one
++after another; there are twelve since #658. Each is a finished executable
++that takes no argument. Measured with the frame dump absent, the six sim_nxn
++legs write only their unique milan_nxn_* scratch directories: generator.log,
++image.bin, image.json, and eleven builder files including the private
++gen/adp_shape_defaults.svh. The dynmap leg also writes one unique milan_nvm_*
++directory holding its saved-state window. The other six legs write no data
++files. No leg writes a repository file, and
+ their private write sets are disjoint, so the recipe needs no --exclusive
+ marks. The option remains available for a shared group: only one marked leg
+ runs at a time, in recipe order; independent legs may bypass a waiting member.
+diff --git a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+index 86fded163..3c9c176bc 100644
+--- a/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
++++ b/tb/verilator/milan_dp_render/sim_tdm8_render.cpp
+@@ -18,8 +18,10 @@
+ //     ordinal e on stream wire channel s. The AAF feeder transmits FROM that
+ //     table and never writes back to it.
+ //   * The ROUTE RECORD is built only from the ADD and REMOVE records this leg
+-//     issued and the SUCCESS status each returned. GET_AUDIO_MAP and the CSR
+-//     render-RAM readback are GRADED against it; they do not define it.
++//     issued and the SUCCESS status each returned, starting from the #658
++//     power-on map (stream channel c on cluster c) once the leg has read that
++//     map back. GET_AUDIO_MAP and the CSR render-RAM readback are GRADED
++//     against it; they do not define it.
+ //   * The PIN DECODER reads exactly three signals - tdm_bclk_o, tdm_fsync_o
+ //     and tdm_dout_o - sampled after each half step. It reads no DUT internal,
+ //     and specifically not the exported frame position or bit-clock enables.
+@@ -1109,6 +1111,18 @@ class TdmRenderHarness {
+         inject(f, 64);
+     }
+ 
++    //! #658's power-on proofs insert commands into this leg's timeline. A law
++    //! window is graded only where no PDU end meets a pop (#643), and where
++    //! they meet depends on the ABSOLUTE timeline: the CRF timestamps are PHC
++    //! time while every phase starts its feeds relative to its own start. So
++    //! an inserted segment is padded to a whole CRF PDU period (2 ms, which is
++    //! 32 x 3 media frames), and every later phase meets the CRF and media
++    //! grids where it met them before (the physical TDM grid, 96 frames to
++    //! 200 002.1 cycles, moves by 2.1 cycles per period).
++    void pad_to_a_whole_crf_period(long since) {
++        while ((axis_cycle - since) % kCrfPduPeriodCycles != 0) step();
++    }
++
+     void run_fed(long n) {
+         const long stop = axis_cycle + n;
+         while (axis_cycle < stop) {
+@@ -1134,13 +1148,28 @@ class TdmRenderHarness {
+     //! route[co] = the stream wire channel feeding global cluster key co, and
+     //! route_stream[co] = the STREAM INDEX it names; -1 for a cluster with no
+     //! mapping. Written only from an ADD/REMOVE this leg issued that returned
+-    //! SUCCESS. The stream is a separate dimension from the channel because a
++    //! SUCCESS, or set to the #658 power-on map by route_power_on() once
++    //! prove_the_power_on_map() has read that map back. The stream is a
++    //! separate dimension from the channel because a
+     //! mapping carries both, and on a multi-stream shape a lane key may name
+     //! a stream whose ordinals the stream-0 injection record does not hold.
+     std::array<int, kSlots> route{};
+     std::array<int, kSlots> route_stream{};
+ 
+     void route_reset() { route.fill(-1); route_stream.fill(-1); }
++    //! #658: the power-on map routes serial slot c from stream 0 channel c
++    void route_power_on() {
++        for (int k = 0; k < kSlots; k++) {
++            route[static_cast<size_t>(k)] = k;
++            route_stream[static_cast<size_t>(k)] = 0;
++        }
++    }
++    //! ...as ADD/REMOVE rows {stream_channel c, cluster_offset c}
++    static std::vector<std::pair<int, int>> power_on_rows() {
++        std::vector<std::pair<int, int>> rows;
++        for (int c = 0; c < kSlots; c++) rows.emplace_back(c, c);
++        return rows;
++    }
+     //! serial slot k is fed by the cluster whose key is k (PBASE 0), so its
+     //! source channel is route[k]
+     int src_of_slot(int k) const { return route[static_cast<size_t>(k)]; }
+@@ -1412,6 +1441,8 @@ class TdmRenderHarness {
+     void boot_the_entity();
+     void start_the_boot_restore_walk();
+     void bind_listener_zero();
++    void prove_the_power_on_map(const char* tag);
++    void clear_the_power_on_map(const char* tag);
+     void run_the_bind_ladder(int listener, int talker, uint16_t seq,
+                              const char* tag);
+     void phase_map();
+@@ -1797,10 +1828,68 @@ TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
+ //  Phases                                                                //
+ // ====================================================================== //
+ 
++//! #658: the power-on map, read back before anything is mapped. Every cluster
++//! c of STREAM_PORT_INPUT 0 holds stream 0 channel c, in the AECP store
++//! (GET_AUDIO_MAP) and on physical render key kTdmBase + c, and the pruned DAC
++//! keys hold nothing. On the multi-stream shape port 1's virtual clusters hold
++//! stream 1's channels, in the store alone.
++void TdmRenderHarness::prove_the_power_on_map(const char* tag) {
++    char what[200];
++    long nmaps = -1;
++    const auto page = get_audio_map(0, 0, &nmaps);
++    long ident = 0;
++    for (const auto& r : page)
++        if (r[0] == 0 && r[1] == r[2] && r[2] >= 0 && r[2] < kSlots) ++ident;
++    std::snprintf(what, sizeof what, "%s: GET_AUDIO_MAP reads port 0's eight "
++                  "identity mappings and nothing else", tag);
++    check.dec(what, static_cast<uint64_t>(static_cast<long>(page.size()) == kSlots ? ident : -1),
++              kSlots);
++    long projected = 0;
++    for (int k = 0; k < kSlots; k++)
++        if (render_ram(kTdmBase + k) == (0x80u | static_cast<uint32_t>(k))) ++projected;
++    std::snprintf(what, sizeof what, "%s: physical keys 2..9 hold stream 0 "
++                  "channel c", tag);
++    check.dec(what, static_cast<uint64_t>(projected), kSlots);
++    long dac_clear = 0;
++    for (int k = 0; k < kI2sN; k++)
++        if (render_ram(kI2sBase + k) == 0) ++dac_clear;
++    std::snprintf(what, sizeof what, "%s: nothing on the pruned DAC lane keys",
++                  tag);
++    check.dec(what, static_cast<uint64_t>(dac_clear), kI2sN);
++    if (kMultiShape) {
++        const auto page1 = get_audio_map(1, 0);
++        long ident1 = 0;
++        for (const auto& r : page1)
++            if (r[0] == 1 && r[1] == r[2] && r[2] >= 0 && r[2] < kSlots) ++ident1;
++        std::snprintf(what, sizeof what, "%s: port 1 reads stream 1's eight "
++                      "identity mappings", tag);
++        check.dec(what, static_cast<uint64_t>(static_cast<long>(page1.size()) == kSlots ? ident1 : -1),
++                  kSlots);
++    }
++}
++
++//! #658: the entity powers up mapped, and a permutation needs every cluster
++//! of port 0 free. So the power-on map is read back, then port 0's mappings
++//! are REMOVEd and the route record follows the REMOVE back to empty. The
++//! segment costs whole CRF periods (pad_to_a_whole_crf_period).
++void TdmRenderHarness::clear_the_power_on_map(const char* tag) {
++    char what[200];
++    const long t_power_on = axis_cycle;
++    prove_the_power_on_map(tag);
++    route_power_on();
++    std::snprintf(what, sizeof what, "%s: port 0's power-on mappings are "
++                  "REMOVEd before the routes below", tag);
++    check.dec(what, static_cast<uint64_t>(map_cmd(kCmdRemoveMappings,
++                                                  power_on_rows(), 0, 0)), 0);
++    std::snprintf(what, sizeof what, "%s: ...so no serial slot is routed", tag);
++    check.dec(what, static_cast<uint64_t>(routed_slots()), 0);
++    pad_to_a_whole_crf_period(t_power_on);
++}
++
+ void TdmRenderHarness::phase_map() {
+     std::printf("\n[MAP] the dynamic AUDIO_MAP command path and its projection\n");
+     bind_listener_zero();
+-    route_reset();
++    clear_the_power_on_map("T1 POWER-ON");
+     // The AECP store must actually have READ the entity image, or a refusal
+     // below would be a stalled model rather than a verdict.
+     check.that("the AECP descriptor store fetched the entity image",
+@@ -2697,14 +2786,41 @@ void TdmRenderHarness::prove_a_reset_inside_an_outstanding_round_trip() {
+                 static_cast<unsigned long long>(lane_epochs()));
+ }
+ 
+-//! ...and the lane comes back: rebind, remap, and the first nonzero frame is a
+-//! POST-reset injected event.
++//! ...and the lane comes back: rebind, and with NO map command since the reset
++//! it renders the #658 power-on map, stream channel c at serial slot c. Then
++//! remap, and the first nonzero frame is a POST-reset injected event.
+ void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
+-    // ...and the lane comes back: rebind, remap, and the first nonzero frame
+-    // is a post-reset injected event.
+     const uint64_t epochs_before = lane_epochs();
+     bind_listener_zero();
+-    route_reset();
++    const long t_power_on = axis_cycle;
++    prove_the_power_on_map("T18 POWER-ON");
++    route_power_on();
++    check.dec("T18 POWER-ON: the power-on map routes every serial slot, so no "
++              "frame can match trivially", static_cast<uint64_t>(routed_slots()),
++              kSlots);
++    build_injection_record(200);
++    feed_on = true;
++    next_pdu_at = axis_cycle + 64;
++    run_fed(60 * kPduPeriodCycles);
++    decoder_reset();
++    collect = true;
++    run_fed(40 * kPduPeriodCycles);
++    collect = false;
++    feed_on = false;
++    const long start = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
++    check.that("T18 POWER-ON: with no map command since the reset, the lane "
++               "renders injected events", start >= 0);
++    if (start >= 0) {
++        const Grade g = grade_frames(start, "T18i");
++        check.dec("T18 POWER-ON: stream channel c is at serial slot c in every "
++                  "decoded frame", static_cast<uint64_t>(g.identity_failures), 0);
++        check.dec("T18 POWER-ON: each slot's channel field is its own channel",
++                  static_cast<uint64_t>(g.channel_field_failures), 0);
++    }
++    check.dec("T18 POWER-ON: the power-on mappings are REMOVEd before the remap",
++              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, power_on_rows())),
++              0);
++    pad_to_a_whole_crf_period(t_power_on);
+     std::vector<std::pair<int, int>> rows;
+     for (int co = 0; co < kSlots; co++)
+         rows.emplace_back(kPerm[static_cast<size_t>(co)], co);
+@@ -3961,7 +4077,8 @@ void TdmRenderHarness::phase_multistream() {
+     check.that("M1: the AECP descriptor store fetched this shape's entity "
+                "image", desc_requests > 0);
+ 
+-    route_reset();
++    // #658: port 1's power-on mappings stay; its clusters reach no pin
++    clear_the_power_on_map("M1 POWER-ON");
+     std::vector<std::pair<int, int>> rows;
+     for (int co = 0; co < kSlots; co++)
+         rows.emplace_back(kPerm[static_cast<size_t>(co)], co);
+diff --git a/tb/verilator/pp_shadow/README.md b/tb/verilator/pp_shadow/README.md
+index 9c2803a21..f356ab78a 100644
+--- a/tb/verilator/pp_shadow/README.md
++++ b/tb/verilator/pp_shadow/README.md
+@@ -68,7 +68,8 @@ The default run includes a dynamic-output fixture.
+ Both input and output maps use their real parent owners.
+ GET_NAME and GET_AUDIO_MAP independently confirm the accepted values.
+ All eight name lanes change in K10.
+-K12 ADD starts with an empty map and durable status.
++Each boot clears the #658 power-on maps through the CSR window.
++So K12 ADD starts with an empty map and durable status.
+ REMOVE and duplicate controls each preload a mapping through CSRs.
+ Each then starts separately with durable status.
+ The duplicate must succeed, preserve the map and leave pending clear.
+diff --git a/tb/verilator/pp_shadow/sim_main.cpp b/tb/verilator/pp_shadow/sim_main.cpp
+index ac66eab60..ed93301c5 100644
+--- a/tb/verilator/pp_shadow/sim_main.cpp
++++ b/tb/verilator/pp_shadow/sim_main.cpp
+@@ -1402,6 +1402,7 @@ class PpShadowHarness {
+            "CLOSED 0)", walk & ((1u << 2) | (1u << 3) | (1u << 16)), (1u << 2) | (1u << 3));
+         axi_write(A_PP_CTRL, 1);
+         run_idle(2000);
++        clear_the_power_on_maps();
+         ck("K control: reset/load permits durable status",
+            axi_read(A_PP_STAT) & 0xb40u, 0x40u);
+         ck("K control: backend pending agrees after reset/load",
+@@ -1460,6 +1461,23 @@ class PpShadowHarness {
+         ck(label, (axi_read(A_PP_NVM_STAT) >> 22) & 1u, changed);
+     }
+ 
++    //! #658: a dynamic port powers up with the identity map. K12 grades a
++    //! map edit from EMPTY, so every boot clears both directions through the
++    //! CSR window: 64 keys a side covers every shape this harness builds, and
++    //! the RTL drops a key past its own. That window is no live write, so the
++    //! durable status the next check reads stays untouched.
++    void clear_the_power_on_maps() {
++        axi_write(A_CHMAP_CTRL, 1);
++        for (uint32_t k = 0; k < 64; ++k) {
++            axi_write(A_CHMAP_SEL, k);
++            axi_write(A_CHMAP_WORD, 0);
++            axi_write(A_CHMAP_SEL, 0x100 | k);
++            axi_write(A_CHMAP_WORD, 0);
++        }
++        axi_write(A_CHMAP_CTRL, 0);
++        run_idle(200);
++    }
++
+     void pending_commit_control() {
+         // A completed snapshot acknowledgement cannot retire producer work.
+         axi_write(A_PP_NVM_STAT, 8); // ARM
+@@ -1508,6 +1526,9 @@ class PpShadowHarness {
+ 
+     void pending_map_commands(uint16_t type) {
+         pending_boot(6);
++        pending_map_value(type, 0, 0x5029,
++                          type == 0xe ? "K12 boot: the input map starts empty"
++                                      : "K12 boot: the output map starts empty");
+         std::vector<uint8_t> map(8, 0);
+         put16be(map.data(), type);
+         pending_command(0x002c, map, static_cast<uint16_t>(0x5030 + type));

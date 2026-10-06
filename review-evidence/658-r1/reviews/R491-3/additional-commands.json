@@ -1,0 +1,39 @@
+[
+  {
+    "name": "pre-move-idiom",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "expected_rc": 1,
+    "actual_rc": 1
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0
+  },
+  {
+    "name": "foreign-cwd-import",
+    "command": [
+      "python3",
+      "$REVIEWS/r491-3-658/scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0
+  }
+]
