@@ -1,0 +1,7 @@
+Q0 rc=0 :: parse old/new table, compare items and order
+Q1 rc=1 :: drop acmp_mutants.py entry; expect --check nonzero
+Q2 rc=1 :: add stale entry; expect --check nonzero
+Q3 rc=1 :: pad new module to >1000 lines; expect long module 11 > 10
+Q4 rc=1 :: 200-char line in new module; expect over-long line > 0
+Q5 rc=0 :: ci_scope on the new path; expect true
+Q6 rc=0 :: ci_scope --selftest
