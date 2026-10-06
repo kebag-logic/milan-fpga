@@ -1,0 +1,73 @@
+--- $LANES/658-dynmap-default/hdl/milan/milan_datapath.sv	2026-10-05 06:50:45.432000000 +0200
++++ $VALIDATION_STORAGE/658-a539/dp_protoA.sv	2026-10-05 07:07:31.756000000 +0200
+@@ -4386,6 +4386,55 @@
+   wire [16:0] cfg_cmap_cluster_w = amap_out_cluster(cfg_cmap_entry_w,
+                                                     cfg_cmap_port_w);
+ 
++  // SCRATCH PROTOTYPE (#658 stage 1, option A): the identity reset image
++  // of the two protocol stores, from the generated shape constants.
++  function automatic logic [AMAP_IN_KEYS_C*8-1:0] amap_in_identity();
++    logic [AMAP_IN_KEYS_C*8-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_IN_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (ADP_DMAP_IN_MASK_C[p] && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
++            && (p < ADP_DMAP_IN_NSTRIN_C) && ADP_DMAP_IN_SAAF_C[p]
++            && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
++            && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
++          r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] =
++              {1'b1, 1'b0, 3'(p), 3'(c)};
++    return r;
++  endfunction
++  function automatic logic [N_STREAMS*8-1:0] amap_out_identity_v();
++    logic [N_STREAMS*8-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (ADP_DMAP_OUT_MASK_C[p] && (p < N_STREAMS)
++            && (c < 32'(ADP_DMAP_OUT_SCH_C[p]))
++            && (c < 32'(ADP_DMAP_OUT_PCLS_C[p])))
++          r[p*8 + c] = 1'b1;
++    return r;
++  endfunction
++  function automatic logic [N_STREAMS*8*16-1:0] amap_out_identity_owner();
++    logic [N_STREAMS*8*16-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (p < N_STREAMS) r[(p*8 + c)*16 +: 16] = 16'(p);
++    return r;
++  endfunction
++  function automatic logic [N_STREAMS*8*16-1:0] amap_out_identity_cluster();
++    logic [N_STREAMS*8*16-1:0] r;
++    r = '0;
++    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
++      for (int c = 0; c < 8; c++)
++        if (p < N_STREAMS) r[(p*8 + c)*16 +: 16] = 16'(c);
++    return r;
++  endfunction
++  localparam logic [AMAP_IN_KEYS_C*8-1:0] AMAP_IN_INIT_C = amap_in_identity();
++  localparam logic [N_STREAMS*8-1:0] AMAP_OUT_INIT_V_C = amap_out_identity_v();
++  localparam logic [N_STREAMS*8*16-1:0] AMAP_OUT_INIT_OWNER_C =
++      amap_out_identity_owner();
++  localparam logic [N_STREAMS*8*16-1:0] AMAP_OUT_INIT_CLUSTER_C =
++      amap_out_identity_cluster();
++
+   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
+     if (!axis_resetn) begin
+       amap_edit_seen_r <= 1'b0;
+@@ -4405,10 +4454,10 @@
+       amap_edit_oclaim_expect_r <= '0;
+       amap_edit_oclaim_cluster_r <= '0;
+       amap_edit_out_resv_r <= '0;
+-      amap_in_store_r <= '0;
+-      amap_out_owner_v_r <= '0;
+-      amap_out_owner_r <= '0;
+-      amap_out_cluster_r <= '0;
++      amap_in_store_r <= AMAP_IN_INIT_C;
++      amap_out_owner_v_r <= AMAP_OUT_INIT_V_C;
++      amap_out_owner_r <= AMAP_OUT_INIT_OWNER_C;
++      amap_out_cluster_r <= AMAP_OUT_INIT_CLUSTER_C;
+       amap_edit_iwr_p_r <= 1'b0;
+       amap_edit_iwr_addr_r <= 6'd0;
+       amap_edit_iwr_word_r <= 8'd0;
