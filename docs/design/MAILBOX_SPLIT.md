@@ -578,6 +578,24 @@ each interface in `KL_mbx`. The "before" column equals the measurement
 above. The event and TX blocks' RTL did not change; their figures moved only
 with Vivado's optimisation across the hierarchy.
 
+The MAAP DEFEND to own unicast (lane FC, round 2) was measured with the same
+recipe on 2026-10-07, beside the round-1 head `021b9c1f`, whose figures
+repeated the "after" column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,136 | 1,151 | 1,061 | 1,069 |
+| `KL_mbx` registers, decode, read mux | 296 | 295 | 532 | 532 |
+| `KL_mbx_evt` | 681 | 682 | 978 | 978 |
+| `KL_mbx_tx` | 530 | 529 | 280 | 280 |
+| `KL_mbx_wb` | 67 | 67 | 1 | 1 |
+| **Total** | **2,730** | **2,745** | **2,852** | **2,860** |
+
+It costs 15 LUT and 8 FF: the subtype byte held for the decision at byte 15,
+and the second MAAP tuple's compares. The block RAM is unchanged, with no
+DSP. WNS is +0.186 ns at 10 ns (+0.271 ns before), with all 5,630 nets
+routed.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
