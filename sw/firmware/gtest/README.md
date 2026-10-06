@@ -251,8 +251,9 @@ first: the timer port calls `adp_timer_expired` once, `delay_ms` after
 core is calling it. The adapter (`adp_mbx.c`) keeps both: an expiry
 reaches the core from the mailbox's event stream, never from inside
 `timer_start`. A timer port that expired a timer from inside `timer_start`
-would reach the third and fourth ADP rows, and would leave the machine in
-DELAY with no timer running.
+would reach the third and fourth ADP rows: expiring TMR_ADVERTISE that way
+leaves the machine in WAITING with no timer running, and expiring TMR_DELAY
+leaves it in DELAY with none.
 
 | File | Function | Statement | Uncovered | Why no input reaches it |
 |---|---|---|---|---|
