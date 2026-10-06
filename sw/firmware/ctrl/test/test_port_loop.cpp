@@ -221,6 +221,32 @@ TEST(Pool, P8PortLayerUnbound) {
     shlan_port_bind_pool(nullptr);
 }
 
+// A free block's first bytes hold the free list, so a client that writes
+// into a block after freeing it can leave a class counting free blocks
+// behind a list that has ended. That class is exhausted, not followed: the
+// next class that fits serves, and with none left the allocation is refused
+// and counted (#665 FT, R506-1-F1).
+TEST(Pool, P9AFreeListShorterThanItsCountIsExhausted) {
+    ctrl_pool pool;
+    ASSERT_TRUE(ctrl_pool_init(&pool, arena, sizeof arena, classes, 2));
+    void* a = ctrl_pool_alloc(&pool, 24u);
+    void* b = ctrl_pool_alloc(&pool, 24u);
+    ASSERT_TRUE(in_bin(pool, 0, a) && in_bin(pool, 0, b));
+    ctrl_pool_free(&pool, a);
+    ctrl_pool_free(&pool, b);
+    void* const end = nullptr;
+    std::memcpy(b, &end, sizeof end);  // the client's write into b, which heads the list
+    EXPECT_EQ(ctrl_pool_alloc(&pool, 24u), b) << "P9 the head of the cut list is still handed out";
+    EXPECT_EQ(pool.bins[0].free_count, 3u) << "P9 leaving the small class counting three free blocks and no list";
+    const std::uint32_t refused = pool.refused;
+    void* spill = ctrl_pool_alloc(&pool, 24u);
+    void* last = ctrl_pool_alloc(&pool, 24u);
+    EXPECT_TRUE(in_bin(pool, 1, spill) && in_bin(pool, 1, last))
+        << "P9 a class whose list ends before its count is exhausted, not followed: the next class serves";
+    EXPECT_EQ(ctrl_pool_alloc(&pool, 24u), nullptr) << "P9 then with no fitting class left the allocation is refused";
+    EXPECT_EQ(pool.refused - refused, 1u) << "P9 and counted";
+}
+
 // ---- S: the debug sink ----------------------------------------------------
 
 struct SinkCapture {

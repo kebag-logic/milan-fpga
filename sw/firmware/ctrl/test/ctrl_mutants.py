@@ -245,6 +245,15 @@ MUTANTS = (
            "P7 a free below the first class is refused and counted"),
     Mutant("port-pool-unreported", "port/shlan_port.c", "\treturn port_pool;\n", "\treturn NULL;\n",
            "port", "Pool.P8PortLayerUnbound", "P8 the bound pool is the one reported"),
+    # R506-1-F1: a free list a client cut short. Followed to its end, the
+    # NULL it ends in is dereferenced, and the crash report names the test.
+    Mutant("pool-follows-a-cut-free-list", "port/ctrl_pool.c", " && bin->free_head != NULL) {", ") {",
+           "port", "Pool.P9AFreeListShorterThanItsCountIsExhausted", "crashed on signal 11"),
+    Mutant("pool-cut-list-refuses-outright", "port/ctrl_pool.c",
+           "\t\tif (bin->stride >= bytes && bin->free_count > 0u && bin->free_head != NULL) {\n",
+           "\t\tif (bin->stride >= bytes && bin->free_count > 0u && bin->free_head == NULL) {\n\t\t\tbreak;\n\t\t}\n"
+           "\t\tif (bin->stride >= bytes && bin->free_count > 0u) {\n",
+           "port", "Pool.P9AFreeListShorterThanItsCountIsExhausted", "P9 a class whose list ends before its count"),
     Mutant("encoding-failure-swallowed", "port/ctrl_debug.c", "return want < 0 ? want : 0;", "return 0;",
            "port", "DebugSink.S3UnencodablePrintDiscarded", "S3 an encoding failure is returned"),
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",

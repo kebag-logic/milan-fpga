@@ -365,11 +365,11 @@ store in process, over the flash model directly and over the LiteSPI port on
 the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
 byte and every verdict is compared with the fixture
 [`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
-`scripts/nvm_klj2.py`, the reference codec. Per shape, 52 checks in 84
+`scripts/nvm_klj2.py`, the reference codec. Per shape, 53 checks in 85
 tests: 32 on both ports, ten on the model port alone (its read and refusal
 faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
 alone (the PHC, `timer0`, the command master and the guard exist only
-there), three that ask the codec directly and two on GoogleMock's flash
+there), four that ask the codec directly and two on GoogleMock's flash
 port. The recorded vector's round trip runs on both ports at the two shapes
 that have one. At the shipping 1x1 shape three more binaries run: two
 builds against a doctored shape header, and the LiteSPI port alone on
@@ -440,7 +440,8 @@ GoogleMock's command master and `timer0`.
     capture's window edges (DR2a);
   - [`test/test_nvm_codec.cpp`](test/test_nvm_codec.cpp): the codec asked
     directly, every refusal of the parity table, the room a container is
-    held in, and the record lookups;
+    held in, a loaded prefix that ends before a record header, and the
+    record lookups;
   - [`test/test_nvm_flashmock.cpp`](test/test_nvm_flashmock.cpp): two
     refusals of different verdicts, and two alike in verdict and CRC-32
     digest over different byte counts (a collision the test forges), are a
@@ -462,7 +463,7 @@ GoogleMock's command master and `timer0`.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (100 defects). They are graded at the 1x1 shape, except a defect that only
+by at least one (102 defects). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 

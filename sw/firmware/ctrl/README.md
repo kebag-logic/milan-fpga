@@ -85,7 +85,9 @@ commit-order defects by `model`, a wrong ADPDU field source by `entity`, a
 heap call by `rv32`, and a defect in each seam the `unit` arm mocks (the
 composition order, the contract fields, the driver's refusals, the
 adapter's bounds and the MMIO platform) by `unit`; each check written for
-branch coverage (P5 to P8, S3, L9, A22 to A24) has a defect of its own. With
+branch coverage (P5 to P9, S3, L9, A22 to A24) has a defect of its own; P9's
+free list cut short, followed to its end, is caught by the crash report
+that names P9. With
 `--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
 another revision.

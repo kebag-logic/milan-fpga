@@ -43,7 +43,7 @@ prints the one shape [`scripts/suite_tally.py`](../../../scripts/suite_tally.py)
 reads:
 
 ```text
-== ctrl port, driver and loop (host model): checks: 29   failures: 0 ==
+== ctrl port, driver and loop (host model): checks: 30   failures: 0 ==
 RESULT: PASS
 ```
 
@@ -120,7 +120,7 @@ it.
 | Arm | Hand-rolled source | Checks before | GoogleTest source | Tests now |
 |---|---|---:|---|---:|
 | `model` | `model_suite.cpp` (one `Checker`) | 134 | `model_suite.cpp`: one test per group of `tb/verilator/mbx/suite.hpp` | 14 |
-| `port` | `test_port_loop.c` | 81 | `test_port_loop.cpp`: P0 to P8, S0 to S3, D0 to D5, L0 to L9 | 29 |
+| `port` | `test_port_loop.c` | 81 | `test_port_loop.cpp`: P0 to P9, S0 to S3, D0 to D5, L0 to L9 | 30 |
 | `adp` | `test_adp.c` | 163 | `test_adp.cpp`: A0 to A24, B1, C0 to C6, E0 to E5, F0 to F7 | 26 |
 | `walk` | `adp_walk.cpp` (one `Checker`) | 320 | `adp_walk.cpp`: one test per walked Table 5.51 cell, and four scenarios | 41 |
 | `entity` | `entity_probe.c` and the arm's own compare | 45 | `entity_fields.cpp`: one test per field per shipped config | 45 |
@@ -128,7 +128,7 @@ it.
 | `unit` | (new) | 0 | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | 23 |
 | `rv32` | the arm's symbol check | 1 | unchanged: a cross build, not a host test | 1 |
 | `ctrl_nvm`, per shape | `nvm_test.c` with `nvm_checks.py`, `nvm_checks_write.py` | 42 checks | `test_nvm_boot.cpp`, `test_nvm_write.cpp`, `test_nvm_vector.cpp`: one test per check per port it runs on | 71 (69 at a shape with no recorded vector) |
-| `ctrl_nvm`, per shape | (new) | 0 | `test_nvm_codec.cpp`, `test_nvm_more.cpp`, `test_nvm_flashmock.cpp` | 15 |
+| `ctrl_nvm`, per shape | (new) | 0 | `test_nvm_codec.cpp`, `test_nvm_more.cpp`, `test_nvm_flashmock.cpp` | 16 |
 | `ctrl_nvm`, 1x1 shape | (new) | 0 | `test_nvm_shapes.cpp` (two doctored builds), `test_nvm_litespi.cpp` | 5 |
 
 The saved-state store's checks kept their names: a check that ran on both
@@ -202,14 +202,18 @@ function went uncovered) fails the gate.
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | 1 arc | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the contract, so the operand is read once, while still false. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | 1 arc | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
 | `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | 2 arcs, 1 line | The adapter refusing the app. `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
-| `sw/firmware/ctrl/port/ctrl_pool.c` | `ctrl_pool_alloc` | `bin->free_head != NULL` | 1 arc | A class counting free blocks with an empty list. `free_count` and the free list move together: `bin_carve` builds a list of `blocks` entries and sets the count to `blocks`; `bin_take` pops one and decrements; `ctrl_pool_free` pushes one and increments, after its range and double-free checks. |
 | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | 3 arcs, 1 line | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX`. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
 | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | 1 arc | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant. |
-| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_klj2_check_body` | `if (pos + NVM_REC_HDR > loaded)` | 1 arc, 1 line | A header past the loaded bytes, which the comment above it already calls unreachable. With the whole container loaded, `loaded` is `img_len` and the test before it refused `pos + NVM_REC_HDR > img_len - 4`. With only `NVM_STAGE_BYTES` loaded, `pos` advances only past accepted records of this shape, so `pos + NVM_REC_HDR <= NVM_KLJ2_HDR + NVM_AREA_RAW + NVM_REC_HDR < NVM_IMG_LEN + NVM_REC_HDR = NVM_STAGE_BYTES`. |
 | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | 1 arc | The first-dirty window open with nothing dirty. `nvm_store_changed` opens the window only with the bit it sets. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
 | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | 5 arcs | A staged record span that starts with the magic but is not a frame of its record. The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote. Only the first byte of an erased span can differ. |
 | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_erase_start` | `nvm.target == nvm.st.auth` | 1 arc | Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1. |
 | `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `ls_in_journal` | `len <= MILAN_FLASH_JOURNAL_SIZE` | 1 arc | A length longer than the journal. `ls_program` passes at most `LS_PAGE`, checked just before the call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this arc under the expression's first line. |
+
+The two rows a public caller reaches were tested and taken out:
+`ctrl_pool_alloc`'s `bin->free_head != NULL`, a client writing into a block
+after freeing it (`Pool.P9`), and `nvm_klj2_check_body`'s refusal of a loaded
+prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`).
+Each has a planted defect that removes it.
 
 ## Run
 

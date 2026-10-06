@@ -5,11 +5,12 @@
 // (#665 lane FT): every refusal of the parity table and every one the
 // fixture crafts for a test of the acceptance order the table does not
 // reach, each held to klj2_decode's verdict on the same bytes; the room a
-// container is held in; and the record lookups' answers for a record the
-// shape does not have.
+// container is held in; a loaded prefix that ends before a record header;
+// and the record lookups' answers for a record the shape does not have.
 
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -63,6 +64,37 @@ TEST(NvmCodec, codec_room) {
         << "a container one byte longer than its room is refused VD_LEN";
     EXPECT_EQ(nvm_klj2_check(golden.data(), static_cast<std::uint32_t>(golden.size())), NVM_VD_OK)
         << "and accepted in a room of its own length";
+}
+
+// nvm_klj2.h lets a caller judge a CRC-closed container with only its first
+// `loaded` bytes at hand, whatever the store loads. A prefix that ends before
+// a record header is refused VD_REC: the blank container's container header
+// alone, and its first record header one byte short; then, before every
+// record of a container of frames, its header one byte short, and its header
+// whole with its payload not loaded. Each buffer holds the whole container,
+// so a walk that read past the prefix would find valid bytes there, and the
+// blank one's erased records would be accepted (#665 FT, R507-1-F1).
+TEST(NvmCodec, codec_loaded_prefix) {
+    std::vector<std::uint8_t> blank(NVM_IMG_LEN);
+    nvm_klj2_blank(blank.data());
+    ASSERT_EQ(nvm_klj2_check(blank.data(), NVM_IMG_LEN), NVM_VD_OK) << "the blank container is CRC-closed";
+    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ2_HDR), NVM_VD_REC)
+        << "a prefix of the container header alone is refused VD_REC";
+    EXPECT_EQ(nvm_klj2_check_body(blank.data(), NVM_IMG_LEN, NVM_KLJ2_HDR + NVM_REC_HDR - 1u), NVM_VD_REC)
+        << "a prefix one byte short of the first record header is refused VD_REC";
+    const Bytes& frames = fx().blob("golden@5");
+    const auto len = static_cast<std::uint32_t>(frames.size());
+    ASSERT_EQ(nvm_klj2_check(frames.data(), len), NVM_VD_OK) << "the container of frames is CRC-closed";
+    for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
+        const std::uint32_t header = NVM_KLJ2_HDR + r.off;
+        EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
+            << "a prefix one byte short of record " << unsigned{r.id} << "'s header is refused VD_REC";
+        if (r.plen != 0u) {
+            EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR), NVM_VD_REC)
+                << "a prefix holding record " << unsigned{r.id} << "'s header but not its payload is refused VD_REC";
+        }
+    }
+    EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, len), NVM_VD_OK) << "and the whole container is accepted";
 }
 
 // The lookups answer "no record" for a group or an index the shape does not

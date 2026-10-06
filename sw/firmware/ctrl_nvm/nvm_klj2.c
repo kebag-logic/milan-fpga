@@ -345,8 +345,8 @@ enum nvm_verdict nvm_klj2_check_body(const uint8_t *img, uint32_t img_len, uint3
 
 		if (pos + NVM_REC_HDR > end)
 			return NVM_VD_LEN;
-		/* unreachable for any position the walk can reach (see the
-		 * stage size); kept so no read leaves the loaded bytes */
+		/* a loaded prefix that ends short of this header is refused
+		 * before it is read (never the store's: see the stage size) */
 		if (pos + NVM_REC_HDR > loaded)
 			return NVM_VD_REC;
 		vd = nvm_klj2_record(img, pos, end, loaded, last, &r);

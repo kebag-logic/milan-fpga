@@ -138,8 +138,14 @@ MUTANTS = (
        "verdict_parity", "codec_parity"),
     _m("incomplete_accepted", CODEC, "\tif (seen != NVM_N_REC)\n\t\treturn NVM_VD_INCOMPLETE;\n", "",
        "verdict_parity", "codec_parity"),
-    # ---- the codec asked directly: its room and its lookups ----
+    # ---- the codec asked directly: its room, a short loaded prefix, its lookups ----
     _m("room_unchecked", CODEC, "\tif (img_len > room)\n\t\treturn NVM_VD_LEN;\n", "", "codec_room"),
+    # R507-1-F1: a prefix that ends before a record header, read on past
+    # its end, or refused as a length fault
+    _m("short_prefix_read_on", CODEC, "\t\tif (pos + NVM_REC_HDR > loaded)\n\t\t\treturn NVM_VD_REC;\n", "",
+       "codec_loaded_prefix"),
+    _m("short_prefix_as_len", CODEC, "\t\tif (pos + NVM_REC_HDR > loaded)\n\t\t\treturn NVM_VD_REC;\n",
+       "\t\tif (pos + NVM_REC_HDR > loaded)\n\t\t\treturn NVM_VD_LEN;\n", "codec_loaded_prefix"),
     _m("lookup_index_unbounded", CODEC,
        "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn r;",
        "\tif (group >= NVM_G_COUNT)\n\t\treturn r;", "codec_lookups"),
