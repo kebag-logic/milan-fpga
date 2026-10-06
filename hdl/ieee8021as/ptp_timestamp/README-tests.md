@@ -15,4 +15,3 @@ hand-edit. Part of the IEEE 802.1AS family; rolled up in
 | ✅ `ptp_ts_core` | `ptp_ts_core.sv` | `ptp_ts` | -- |
 | ✅ `ptp_ts_top` | `ptp_ts_top.sv` | `ptp_ts` | -- |
 | ✅ `timestamp_counter` | `timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `gptp_txts` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.2 |
-

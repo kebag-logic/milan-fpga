@@ -16,4 +16,3 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_media_grid_align` | `KL_media_grid_align.sv` | `capture_coherence` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_media_nco` | `KL_media_nco.sv` | `capture_coherence` · `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_mmcm_drp_servo` | `KL_mmcm_drp_servo.sv` | `aaf_clock_meter` · `crf_rx` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-

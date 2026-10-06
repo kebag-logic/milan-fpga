@@ -17,4 +17,3 @@ hand-edit. Part of the Common / integration family; rolled up in
 | ✅ `cdc_pulse` | `cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `crf_tx` · `gptp_shadow` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-
