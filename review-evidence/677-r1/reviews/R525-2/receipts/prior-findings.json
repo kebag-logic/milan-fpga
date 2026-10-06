@@ -1,0 +1,46 @@
+[
+  {
+    "comment_id": 6024750681,
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024750681",
+    "findings": [
+      {
+        "id": "R525-1-F1",
+        "severity": "MINOR",
+        "lenses": "Conformance, Docs",
+        "artifact": "PR #684 body, Authoritative references, adp.h bullet",
+        "public_finding_text": "Authority/evidence: The [PR body](https://github.com/kebag-logic/milan-fpga/pull/684) attributes the state-machine reference to `IEEE 1722.1-2021 section 5.6.3`. `sw/firmware/ctrl/adp/adp.h:9` correctly assigns the advertiser to Milan v1.2 5.6.3 and the ADPDU to IEEE 1722.1-2021 6.2. `docs/design/MAILBOX_SPLIT.md:277` uses the same separation. [The final public snapshot](https://github.com/kebag-logic/milan-fpga/blob/7c974e36447f48a18bf666473ca601f7709b0bb1/review-evidence/677-r1/reviews/R525-1/receipts/final-pr-reference.json) retains the erroneous bullet.\n\nImpact: A cold reviewer is directed to the wrong specification clause. The source header and examined behavior are correct.\n\nRequired outcome: Replace that PR-body bullet with: `sw/firmware/ctrl/adp/adp.h: Milan v1.2 Section 5.6.3 advertiser, IEEE 1722.1-2021 Section 6.2 ADPDU, and the no-callback port contract from #678.`\n\nVerification: Re-read the corrected public bullet against the header and mailbox design. A public-text correction needs reviewer disposition; it does not require another firmware build.",
+        "disposition": "RESOLVED in R525-2 after independent verification of the public correction"
+      },
+      {
+        "id": "R525-1-F2",
+        "severity": "MINOR",
+        "lenses": "Tests, Docs",
+        "artifact": "issue #677, REVIEW READY comment 6024328677, coverage evidence bullet",
+        "public_finding_text": "Authority/evidence: The [review-ready comment](https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024328677) says `Exclusion table unchanged (15 rows)`. The table at `sw/firmware/gtest/README.md:283` contains 14 data rows, including five ADP rows. The independent [static audit](https://github.com/kebag-logic/milan-fpga/blob/7c974e36447f48a18bf666473ca601f7709b0bb1/review-evidence/677-r1/reviews/R525-1/receipts/static-audit.json) proves the same 14 file/function/statement/excluded-item identities at base and head. [The public claim receipt](https://github.com/kebag-logic/milan-fpga/blob/7c974e36447f48a18bf666473ca601f7709b0bb1/review-evidence/677-r1/reviews/R525-1/receipts/issue-exclusion-claim.json) records the discrepancy.\n\nImpact: The public evidence census gives the wrong exclusion population. The actual no-new-exclusions claim and coverage ratchet hold.\n\nRequired outcome: Publish a follow-up correction: `The coverage exclusion table has 14 data rows, unchanged from the source base; five are ADP rows.` Preserve the existing comment, as assignment 6021510152 requires. Keep the correct source table and ratchet unchanged.\n\nVerification: Run `python3 scripts/static_audit.py <source>` from this packet and compare its 14-row result with the public correction. No coverage-measurement change is required.",
+        "disposition": "RESOLVED in R525-2 after independent verification of the public correction"
+      }
+    ]
+  },
+  {
+    "comment_id": 6024636464,
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024636464",
+    "findings": [
+      {
+        "id": "R524-1-F1",
+        "severity": "MINOR",
+        "lenses": "Conformance, Docs",
+        "artifact": "PR #684 body, Authoritative references, adp.h bullet",
+        "public_finding_text": "- Authority/evidence: The [PR body](https://github.com/kebag-logic/milan-fpga/pull/684) cites \u201cIEEE 1722.1-2021 section 5.6.3\u201d for the state machine. `sw/firmware/ctrl/adp/adp.h:9` correctly identifies **Milan v1.2 5.6.3** as the Advertise state machine and **IEEE 1722.1-2021 6.2** as the ADPDU authority. See the public snapshot `public-pr-684.txt`.\n- Impact: The published authority directs a cold reviewer to the wrong standard/clause. The header and reviewed transitions are correct; no wire-behavior defect is alleged.\n- Required outcome: Correct that PR-body bullet to cite Milan v1.2 Section 5.6.3 for the state machine and IEEE 1722.1-2021 Section 6.2 for the ADPDU, retaining the no-callback header reference.\n- Verification: Re-read the corrected public body against `adp.h:9` and its clause-bearing comments. Public correction and reviewer disposition suffice; another firmware build is unnecessary.",
+        "disposition": "RESOLVED in R525-2 after independent verification of the public correction"
+      },
+      {
+        "id": "R524-1-F2",
+        "severity": "MINOR",
+        "lenses": "Tests, Docs",
+        "artifact": "issue #677, REVIEW READY comment 6024328677, coverage evidence bullet",
+        "public_finding_text": "- Authority/evidence: The [review-ready comment](https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024328677) says \u201cExclusion table unchanged (15 rows)\u201d. The table at `sw/firmware/gtest/README.md:284` has **14 data rows**, including five ADP rows, at both source base and head. `audit_evidence.py` compares every row's file, function, statement and excluded items; `evidence-audit.json` records 14 unchanged rows. The README correctly says fourteen at line 218.\n- Impact: The public validation census disagrees with the exclusion population. The no-new-exclusions claim and 100% ratchet actually hold; there is no fifteenth exclusion in this tree.\n- Required outcome: Publish a follow-up correction: \u201cThe coverage exclusion table has 14 data rows, unchanged from the source base; five are ADP rows.\u201d Preserve the existing comment, as assignment 6021510152 requires. Keep the correct table and ratchet unchanged.\n- Verification: Re-run `audit_evidence.py` and compare its 14-row result with the public correction. No behavior or coverage-measurement change is needed.",
+        "disposition": "RESOLVED in R525-2 after independent verification of the public correction"
+      }
+    ]
+  }
+]

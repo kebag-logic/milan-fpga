@@ -1,0 +1,24 @@
+head: 6c94e9f5f496ac25f8c4e31f9e3685c725de29f3
+base: 6714181d0c8a16e2983f85b724f4d688f5111835
+PR updated: 2026-10-06T20:23:10Z
+correction URL: https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024757146
+original URL: https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024328677
+PASS F1: Advertise state machine = Milan v1.2 5.6.3; ADPDU = IEEE 1722.1-2021 6.2
+PASS F2: base 14 rows / 5 ADP; head 14 rows / 5 ADP; all exclusion coordinates unchanged
+PASS: original 15-row comment retained; created_at equals updated_at
+PASS: 26 changed paths, all firmware; no RTL/configuration/workflow/gitlink delta
+PASS: wrong-clause, wrong-count and widened-exclusion negative controls rejected (3/3)
+exclusion 01: `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2
+exclusion 02: `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2
+exclusion 03: `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4
+exclusion 04: `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;`
+exclusion 05: `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;`
+exclusion 06: `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4
+exclusion 07: `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6
+exclusion 08: `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;`
+exclusion 09: `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;`
+exclusion 10: `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | arc 2 of 4
+exclusion 11: `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | arc 4 of 6
+exclusion 12: `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | arcs 2, 4, 6, 10, 12 of 12
+exclusion 13: `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_erase_start` | `nvm.target == nvm.st.auth` | arc 2 of 4
+exclusion 14: `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `ls_in_journal` | `return addr >= MILAN_FLASH_JOURNAL_OFFSET &&` | arc 2 of 6

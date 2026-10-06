@@ -1,0 +1,51 @@
+[
+  {
+    "check": "public-final",
+    "argv": [
+      "/usr/bin/python3",
+      "<packet>/scripts/capture_public.py",
+      "<packet>/receipts"
+    ],
+    "rc": 0,
+    "seconds": 5.629,
+    "finished_utc": "2026-10-06T20:29:24.331977+00:00"
+  },
+  {
+    "check": "delta-check",
+    "argv": [
+      "/usr/bin/python3",
+      "<packet>/scripts/verify_delta.py",
+      "<source>",
+      "<packet>/receipts"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "finished_utc": "2026-10-06T20:29:24.446440+00:00"
+  },
+  {
+    "check": "integrity-final",
+    "argv": [
+      "/usr/bin/python3",
+      "<packet>/scripts/verify_integrity.py",
+      "<source>"
+    ],
+    "rc": 0,
+    "seconds": 0.315,
+    "finished_utc": "2026-10-06T20:29:24.761406+00:00"
+  },
+  {
+    "check": "source-whitespace",
+    "argv": [
+      "git",
+      "-C",
+      "<source>",
+      "diff",
+      "--check",
+      "6714181d0c8a16e2983f85b724f4d688f5111835",
+      "6c94e9f5f496ac25f8c4e31f9e3685c725de29f3"
+    ],
+    "rc": 0,
+    "seconds": 0.008,
+    "finished_utc": "2026-10-06T20:29:24.769538+00:00"
+  }
+]
