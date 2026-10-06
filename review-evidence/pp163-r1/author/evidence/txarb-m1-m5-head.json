@@ -1,0 +1,57 @@
+{
+ "golden": {
+  "rc": 0,
+  "tally": "66 checks: 66 PASS, 0 FAIL",
+  "failing": 0,
+  "first": []
+ },
+ "M1": {
+  "rc": 2,
+  "tally": "66 checks: 53 PASS, 13 FAIL",
+  "failing": 13,
+  "first": [
+   "D aged ADP outranks fresh native ACMP (got 2)",
+   "D ACMP resumes after the aged frame (got 3)",
+   "D clean"
+  ]
+ },
+ "M2": {
+  "rc": 2,
+  "tally": "66 checks: 60 PASS, 6 FAIL",
+  "failing": 6,
+  "first": [
+   "E grant #1 is 4 exp 2",
+   "E grant #2 is 3 exp 4",
+   "E grant #4 is 2 exp 3"
+  ]
+ },
+ "M3": {
+  "rc": 2,
+  "tally": "66 checks: 43 PASS, 23 FAIL",
+  "failing": 23,
+  "first": [
+   "B1 grant #0 is 1 exp 2",
+   "B1 grant #2 is 4 exp 5",
+   "B1 grant #3 is 5 exp 1"
+  ]
+ },
+ "M4": {
+  "rc": 2,
+  "tally": "66 checks: 36 PASS, 30 FAIL",
+  "failing": 30,
+  "first": [
+   "B1 all five frames drain",
+   "B1 stream byte-exact, no model mismatch",
+   "B2 clean"
+  ]
+ },
+ "M5": {
+  "rc": 2,
+  "tally": "66 checks: 64 PASS, 2 FAIL",
+  "failing": 2,
+  "first": [
+   "H withdrawn selection produces no grant or frame",
+   "H aborted start leaves the committed slot untouched"
+  ]
+ }
+}
