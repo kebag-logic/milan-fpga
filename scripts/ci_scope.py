@@ -19,6 +19,13 @@ every generator, manifest and budget under `docs/`. A page some skipped gate
 also reads stays documentation only where an always-run docs.yml job runs
 the same check on it; the policy page names each reader.
 
+rtl-fast's `firmware-unit` job, which runs the bare-metal firmware's host
+suites and coverage ratchet (#665 lane FT), gates on the same answer: a
+change under `sw/firmware/` is relevant whatever its suffix, the README whose
+exclusion table the ratchet reads included. That job's gates read the
+builder, the configs, scripts/ and the processor submodule as well, so no
+narrower list decides it.
+
 The list a classifier-gated workflow hands in names BOTH sides of a rename:
 each builds it with `git diff --no-renames --name-only` ([R198] N2), so
 renaming a file a skipped gate reads to a documentation path is relevant
@@ -302,6 +309,13 @@ def _cases() -> list[Case]:
         (["docs/x.md", "hdl/ieee1722/aaf/doc/x.svg.in"], True),
         (["requirements.txt"], True),
         (["hdl/milan/milan_datapath.sv"], True),
+        # #665 lane FT: rtl-fast's `firmware-unit` runs on this answer, so
+        # the bare-metal firmware, its tests, the README whose exclusion
+        # table the coverage gate reads and the ratchet are all relevant.
+        (["sw/firmware/ctrl/adp/adp.c"], True),
+        (["sw/firmware/ctrl_nvm/test/test_nvm_write.cpp"], True),
+        (["sw/firmware/gtest/README.md"], True),
+        (["docs/x.md", "sw/firmware/gtest/coverage.ratchet"], True),
         (["scripts/lint_rtl.py"], True),
         ([".github/workflows/rtl.yml"], True),
         (["docs/x.md", "tb/verilator/cdc/Makefile"], True),
@@ -444,6 +458,8 @@ def _mutation_arms(cases: list[Case]) -> int:
                 (DOC_PREFIXES, "hdl/ieee1722/avtp/doc/"),
                 (DOC_PREFIXES, "hdl/ieee8021as/gptp_plane/doc/"),
                 (DOC_PREFIXES, "tb/"),
+                (DOC_PREFIXES, "sw/firmware/"),
+                (DOC_PREFIXES, "sw/firmware/gtest/"),
                 (DOCS_TREE_SUFFIXES, ".py"),
                 (DOCS_TREE_SUFFIXES, ".json"),
                 (TOP_LEVEL_SUFFIXES, ".svg")):

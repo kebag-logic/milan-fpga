@@ -38,10 +38,33 @@ pull-request update and on every push to `dev`. It produces one stable
   this job installs, and through nothing else -- three models of the directive
   layer were each accepted and then broken by a construct they did not model
   ([R0] on PR #240, rounds one to three), so a missing front end is a refusal
-  with no flag to soften it.
+  with no flag to soften it;
+- the bare-metal control-plane firmware's host unit tests, `firmware-unit`
+  (#665), when RTL or its tooling changes: the GoogleTest suites of
+  `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
+  saved-state store's RV32 build, the tally listener's planted failure and
+  crash, and the line and branch coverage ratchet with its planted cases
+  ([the harness page](../../sw/firmware/gtest/README.md)). GoogleTest and
+  GoogleMock are the runner distribution's `libgtest-dev` and
+  `libgmock-dev`; the job prints the versions it installed and the gcc and
+  gcov the ratchet is measured with. The RV32 SDK is the docs job's pinned
+  cache and install. Three arms stay local gates (see
+  [Local commands](#local-commands)), and the job names each:
+  - the ctrl gate's `rv32` arm. It builds against the SDK's C headers with
+    `-mabi=ilp32`, and the pinned SDK is `ilp32d` with no
+    `gnu/stubs-ilp32.h`, at the base this job was added on as well. The
+    ctrl gate therefore runs before the SDK is installed and reports that
+    arm SKIPPED.
+  - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
+    workflow's token cannot read; the ratchet reads the same with and
+    without that arm.
+  - both gates' planted-defect campaigns (`--self-test`).
+
+  The tally listener's planted defects (`tally_selftest.py --mutants`) are a
+  local campaign too; the job runs its planted cases.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
 other than the builder bank that `docs-check` runs whole. A page a gated module
@@ -2226,6 +2249,19 @@ The fast Yosys mode is diagnostic only:
 ```sh
 syn/yosys/run.sh --mode elaborate --no-structural \
   --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow
+```
+
+The bare-metal firmware's host suites run locally as `firmware-unit` runs
+them, and their planted-defect campaigns, which no hosted job runs, are added
+with `--self-test`, and the tally listener's with `--mutants`
+([the harness page](../../sw/firmware/gtest/README.md#run)):
+
+```sh
+python3 sw/firmware/gtest/tally_selftest.py --mutants
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
+python3 sw/firmware/gtest/fw_coverage.py --selftest
+python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
 ```
 
 ## Failure and cancellation semantics

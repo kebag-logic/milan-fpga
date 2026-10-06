@@ -3,11 +3,15 @@
 
 Status: **F0 implemented behind a default-off build switch.** The all-fabric
 build is unchanged and remains the shipping image. This page is the design
-of the contract between the fabric and the bare-metal control-plane firmware
-of milestone 13 (Mark II: out-of-fabric slow path), as the owner decisions of
+of the contract between the fabric and the bare-metal control-plane firmware.
+The split integrates before P3; milestone 13 retains the hard-core port.
+The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+All-fabric stays the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+The owner decisions of
 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
 and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
-describe it. The numbers live in one place, the generated
+define the interface. The numbers live in one place, the generated
 [reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
 
 ## Contents
@@ -28,8 +32,8 @@ describe it. The numbers live in one place, the generated
 ## What moves, and what the fabric keeps
 
 The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
-fabric keeps framing and timestamps, the gPTP plane, the timers that carry
-hard deadlines, and an ingress filter in front of the core. The two exchange
+fabric keeps framing and timestamps, the gPTP plane, the media path,
+the timers that carry hard deadlines, and an ingress filter. The two exchange
 frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
 interrupt, 32-bit accesses only and no DMA.
 
@@ -141,6 +145,17 @@ ring not empty) and a sticky error, so a service pass that drains the rings
 leaves the line low.
 
 ## The ingress filter
+
+The following describes the implemented F0 filter.
+[NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
+and [product ownership](../../REQUIREMENTS.md#1-product-ownership)
+add the owner's full-tuple acceptance rules and filter hooks.
+They require per-interface own MACs and two-sided AECP identity matching.
+Untagged control tuple failures must increment FILTER_MISMATCH.
+The contract lane after FT implements these additions before F2 to F5.
+Its YAML, generated outputs and filter tests must change together.
+The command-only AECP term and uncounted refusals below describe F0 only.
+They do not satisfy the added ingress requirement.
 
 A frame is classified by EtherType, and by AVTP subtype where the channel
 names one, into at most one channel. It is stored only when its channel is
@@ -338,7 +353,26 @@ The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3. Its
 ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
 the ADP channel does not carry yet; adding one is a minor contract change.
 
+F3 must also meet the listener-discovery timing requirement.
+[H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP expiry.
+It ends after discovery and resulting connection-state commitments.
+Any resulting TX commit shares that same service allowance.
+Normative waits are recorded separately; service remains <= 10 ms.
+Milan v1.2 5.6.4.1 requires processing every matching bound sink.
+Sections 5.6.4.5.1/.2 arm/reset aging from the received `valid_time`.
+IEEE 1722.1-2021 6.2.2.5 defines its two-second units.
+Table 5.54 and 5.6.4.5.1-.4 supply the transition checks.
+They cover available_index restart, interface/GM/domain mismatch, departing and expiry.
+Delayed receive handling or aging must fail H-DISC independently.
+F0's advertiser checks do not establish this listener timing.
+
 ### Service latency
+
+The figures below are F0's conditional mailbox-access evidence.
+[NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+adds the proposed 10 ms project budget for integrated firmware.
+Its [hooks](../reference/FR_NFR.md#342-control-service-test-hooks) count backlog and egress separately.
+F0 does not prove that target-time budget.
 
 The D3 ruling on #640 asks each lane to state and test a deterministic upper
 bound per response path. The bound is stated in mailbox accesses and holds
@@ -416,6 +450,7 @@ simulation and is left open (see [Open items](#open-items)).
 | the same suite on the host model | the 134 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
+| [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
 | planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; four of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total |
 

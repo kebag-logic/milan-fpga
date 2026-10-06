@@ -229,12 +229,72 @@ jobs:
       - name: Prove the result cache refuses a planted entry
         run: python3 syn/yosys/cache_selftest.py
 
+  # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
+  # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
+  # every shipped shape, the saved-state store's RV32 build, the tally
+  # listener's planted failure and crash, and the coverage ratchet with its
+  # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
+  # are the distribution's packages, and the install step prints the
+  # versions and the compiler and gcov the ratchet is measured with.
+  # Three arms stay local gates, each named where it is left out: the ctrl
+  # gate runs before the RV32 SDK is installed, so its rv32 arm is SKIPPED,
+  # visibly (it builds against the SDK's C headers for -mabi=ilp32, which
+  # the pinned ilp32d SDK does not carry: no gnu/stubs-ilp32.h); the ctrl
+  # gate's lwsrp arm is opt-in (--lwsrp) and lwSRP is a private repository
+  # this workflow's token cannot read (the ratchet reads the same with and
+  # without it); and both gates' planted-defect campaigns (--self-test).
+  firmware-unit:
+    needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch RTL dependencies
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+
+      - name: Install GoogleTest and GoogleMock and print the versions
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+          python3 -m pip install --quiet pyyaml
+          dpkg-query -W libgtest-dev libgmock-dev
+          g++ --version | head -n 1
+          gcov --version | head -n 1
+
+      - name: Prove the tally reads a failing and a crashing test as failures
+        run: python3 sw/firmware/gtest/tally_selftest.py
+
+      - name: Run the control-plane firmware suites
+        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+
+      - name: Cache the pinned RV32 SDK
+        uses: actions/cache@v4
+        with:
+          path: ~/br-milan-rv32/host
+          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+      - name: Install and verify the pinned RV32 SDK
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_rv32_sdk_selftest.py
+          python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run the saved-state store suites and its RV32 build
+        run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+
+      - name: Hold the firmware coverage ratchet
+        run: |
+          set -euo pipefail
+          python3 sw/firmware/gtest/fw_coverage.py --selftest
+          python3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"
+
   # This stable aggregate is the required fast verdict. Skipped RTL jobs are a
   # deliberate docs-only result; failures and cancellations remain failures.
   rtl-fast:
     name: rtl-fast
     if: ${{ always() && !cancelled() }}
-    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration]
+    needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, firmware-unit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -244,6 +304,7 @@ jobs:
           VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+          FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
         run: |
           set -euo pipefail
           bad=0
@@ -251,7 +312,8 @@ jobs:
             "changes:$CHANGES_RESULT" \
             "verilator-lint:$VERILATOR_LINT_RESULT" \
             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
-            "yosys-elaboration:$YOSYS_ELABORATION_RESULT"; do
+            "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+            "firmware-unit:$FIRMWARE_UNIT_RESULT"; do
             name="${pair%%:*}"
             result="${pair#*:}"
             printf '%-24s %s\n' "$name" "$result"

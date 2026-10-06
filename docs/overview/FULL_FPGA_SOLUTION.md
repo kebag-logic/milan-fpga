@@ -1,8 +1,14 @@
 # Full FPGA solution
 
-The release architecture is a self-contained Milan fabric datapath with a
-bare-metal RV32 control CPU. The CPU boots and configures the design; it does
-not carry product packets or audio samples.
+The current shipping image uses the all-fabric control placement.
+One bare-metal RV32 core boots and configures that image.
+Mark II defaults control protocols to the core through packet mailboxes.
+ADP, ACMP, AECP, MAAP and SRP remain selectable per function.
+Audio, gPTP, framing, timestamps and ingress filtering remain in fabric.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines these requirements.
+The implementation inventory below describes the current shipping build.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -87,11 +93,10 @@ refuses a set whose installed or target identity cannot be proven.
 
 ## 5. Performance model
 
-Audio payload stays on deterministic fabric paths. The CPU's current workload
-is bounded to initialization, infrequent control operations, and diagnostics;
-#70 completes persistence management. Timing closure and board-wire
-measurements, rather than firmware throughput, are the relevant release
-metrics.
+Audio payload stays on deterministic fabric paths in both placements.
+Mark II control throughput must also meet NFR-SCOUT-03.
+Its [service hooks](../reference/FR_NFR.md#342-control-service-test-hooks) measure worst-case firmware latency.
+Timing closure and board-wire evidence remain required for release.
 
 ## 6. Compliance evidence
 
