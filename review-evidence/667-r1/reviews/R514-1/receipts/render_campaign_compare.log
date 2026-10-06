@@ -1,0 +1,7 @@
+normalised lines base=491 head=491; judgment lines base=34 head=34
+judgment lines identical: True
+normalised logs identical: True
+BASE-JUDGMENT [FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless
+BASE-JUDGMENT [FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+BASE-JUDGMENT [FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.
+BASE-JUDGMENT [FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove "T6 ORDER: every repeat is a counted underrun".

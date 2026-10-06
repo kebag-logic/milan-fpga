@@ -1,0 +1,14 @@
+05f58ca91d7b0e4158e68c37cac79c9c65dc8a8b403df91419e150de3a9d75ca  <PACKET>/scratch/dev/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=0 stall=2 sample plus own offset got=0 exp=2000160
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=0 stall=2 complete rows got=0 exp=1
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=0 stall=2 step 125000 got=2125160 exp=125000
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=1 stall=2 sample plus own offset got=0 exp=2000160
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=1 stall=2 complete rows got=0 exp=1
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=0 reset=1 stall=2 step 125000 got=2125160 exp=125000
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=3800000000 reset=0 stall=2 complete rows got=0 exp=1
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=3800000000 reset=0 stall=2 step 125000 got=-494821316 exp=125000
+[FAIL] pch=4 nt=1 origin=0 stride=1 phase=1 idle=3800000000 reset=1 stall=2 sample plus own offset got=2250160 exp=3802271140
+PROBE pch=4 nt=1 stall=2 runs=2176 checks=171904 failures=3900
+  fail-class complete rows: 1170
+  fail-class sample plus own offset: 1170
+  fail-class step 125000: 1560
