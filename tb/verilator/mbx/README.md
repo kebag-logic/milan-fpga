@@ -58,13 +58,14 @@ filter table. Register offsets and field positions are the generated
 | R2 | a partial-strobe write is refused, counted in BUS_ERR and raises a sticky ERR; a disabled cause leaves the line low; write-1-to-clear |
 | F0 to F2 | a closed channel stores nothing; ENTITY_DISCOVER for entity_id 0 or this entity passes, whole, byte k in word 2 + k/4 at bits 8*(k%4); foreign, AVAILABLE, DEPARTING and truncated ADPDUs do not; the RX level and the interrupt follow RX_TAIL |
 | C0 to C4 | ACMP by talker or listener entity_id, AECP by target, MAAP range overlap with message types, MSRP and MVRP whole (the MRPDU at byte 14), tagged, foreign and too-short frames nowhere |
-| Q0 | the full tuple (lane FC, [product ownership](../../../REQUIREMENTS.md#1-product-ownership)): one valid frame per table row (ADP, ACMP multicast and own unicast, an AECP command and a response, MAAP, MSRP, MVRP) reaches its channel whole and counts nothing |
+| Q0 | the full tuple (lane FC, [product ownership](../../../REQUIREMENTS.md#1-product-ownership)): one valid frame per table row (ADP, ACMP multicast and own unicast, an AECP command and a response, MAAP multicast and a DEFEND to own unicast, MSRP, MVRP) reaches its channel whole and counts nothing |
 | Q1 to Q5 | each row's frame changed one element at a time: tagged (no ring, no count); to another destination, under another control EtherType, with the unassigned AVTP subtype `0xFD`, or for MSRP and MVRP as AVTP (no ring, counted once each in `FILTER_MISMATCH`); a non-control EtherType (no count); the identity term refused, both AECP directions included (no ring, no count) |
 | Q6 | untagged AAF and CRF, to a stream address, the ADP address and the own MAC, never delivered and counted once each; tagged AAF and CRF counted nothing |
 | Q7 | the CONTROLLER_AVAILABLE response for this controller delivered whole; one for another controller dropped even to this target; every message_type sent both ways: even ones pass on target_entity_id only, odd ones on controller_entity_id only |
-| Q8 | the own MAC per interface: on every interface index the stream can name, each interface's own MAC passes AECP and the ACMP tolerance only on its own interface, with the record's IF that index, and counts once elsewhere; a MAC differing in its high or low part; a rewritten own MAC |
+| Q8 | the own MAC per interface: on every interface index the stream can name, each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND only on its own interface, with the record's IF that index, and counts once elsewhere; a MAC differing in its high or low part; a rewritten own MAC |
 | Q9 | `FILTER_MISMATCH` judges the tuple whatever `FILTER_EN` holds, counts five failures as five, and sets `IRQ_STATUS.ERR`; valid, tagged, identity-refused and short frames leave it and ERR alone |
 | Q10 | tuple and identity refusals take no token: a full burst passes after them, the frame past it counts in RATE_DROP |
+| Q11 | the MAAP DEFEND (IEEE 1722-2016 B.2.1): a DEFEND to the own MAC delivered whole and uncounted; a PROBE, an ANNOUNCE and every reserved message_type there, and a DEFEND to a foreign unicast, never delivered and counted once each; a DEFEND to the own MAC for a range beside this entity's dropped uncounted; a multicast DEFEND still delivered; a DEFEND cut at byte 14 (no message_type: counted) and at byte 15 (no range: uncounted), then the next DEFEND delivered |
 | D0, D1 | the ring fills to its last whole record; a frame the space cannot hold, or one over the channel's limit, counts in RX_DROP and never touches an unread record |
 | T0, T1 | the token bucket: a burst of its depth, then one frame per refill period |
 | X0, X1 | TX records leave byte for byte under backpressure, in commit order between channels; a wrong KIND, non-zero reserved bits in word 1, an unknown interface, a short or long LEN, or a payload past TX_HEAD is refused once and flushes the ring |
@@ -181,6 +182,20 @@ first as positive controls.
 | `rx-short-frame-counted` | a frame that ends before byte 14 counts | Q9, the short frame leaves it |
 | `rx-mismatch-sets-no-err` | a mismatch does not set IRQ_STATUS.ERR | Q9, ERR set |
 | `rx-refusal-takes-a-token` | a frame refused by the identity term spends a token | Q10, a full burst after the refusals |
+
+The MAAP DEFEND to own unicast (lane FC round 2) adds seven defects, each
+planted twice, through Wishbone (the name below) and through AXI4-Lite (the
+name with `-axil`), and each caught by Q11 on both:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `pkg-maap-defend-tuple-dropped` | the package drops the DEFEND tuple | Q11, a DEFEND to the own MAC delivered |
+| `rx-msg-type-off-by-one` | the tuple's message_type read from byte 14 | Q11, a DEFEND to the own MAC delivered |
+| `rx-classified-before-msg-type` | the channel decided at byte 14, before the message_type arrives | Q11, a DEFEND to the own MAC delivered |
+| `rx-tuple-msg-type-ignored` | the tuple's message types never compared | Q11, a PROBE to the own MAC reaches no ring |
+| `rx-own-unicast-never-counted` | a frame to the own MAC never counts | Q11, a PROBE to the own MAC counted once |
+| `rx-defend-any-unicast` | the DEFEND tuple takes any unicast destination | Q11, a DEFEND to a foreign unicast reaches no ring |
+| `rx-short-frame-never-classified` | a frame that ends at byte 14 is never decided, so the receive path waits | Q11, the DEFEND cut at byte 14 counted once |
 
 ## Run
 
