@@ -46,6 +46,11 @@ static uint32_t if_reg(unsigned interface, uint32_t reg)
 	return MBX_IF_BASE + MBX_IF_STRIDE * (uint32_t)interface + reg;
 }
 
+static uint32_t iff_reg(unsigned interface, uint32_t reg)
+{
+	return MBX_IFF_BASE + MBX_IFF_STRIDE * (uint32_t)interface + reg;
+}
+
 static uint16_t counter(uint32_t byte_offset)
 {
 	return (uint16_t)mbx_field(mbx_hal_read32(byte_offset), 0u, MBX_INDEX_BITS);
@@ -91,6 +96,24 @@ void mbx_filter_set_maap_range(uint64_t base, uint16_t count)
 	mbx_hal_write32(MBX_REG_MAAP_BASE_HI,
 			mbx_place((uint32_t)(base >> 32), MBX_MAAP_BASE_HI_ADDR_LSB, MBX_MAAP_BASE_HI_ADDR_WIDTH));
 	mbx_hal_write32(MBX_REG_MAAP_COUNT, mbx_place(count, MBX_MAAP_COUNT_COUNT_LSB, MBX_MAAP_COUNT_COUNT_WIDTH));
+}
+
+bool mbx_filter_set_own_mac(unsigned interface, uint64_t mac)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(iff_reg(interface, MBX_IFF_REG_OWN_MAC_LO),
+			mbx_place((uint32_t)mac, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH));
+	mbx_hal_write32(iff_reg(interface, MBX_IFF_REG_OWN_MAC_HI),
+			mbx_place((uint32_t)(mac >> 32), MBX_OWN_MAC_HI_MAC_LSB, MBX_OWN_MAC_HI_MAC_WIDTH));
+	return true;
+}
+
+uint16_t mbx_filter_mismatch(void)
+{
+	return (uint16_t)mbx_field(mbx_hal_read32(MBX_REG_FILTER_MISMATCH), MBX_FILTER_MISMATCH_COUNT_LSB,
+				   MBX_FILTER_MISMATCH_COUNT_WIDTH);
 }
 
 static uint32_t rx_word(unsigned ch, uint32_t index)
