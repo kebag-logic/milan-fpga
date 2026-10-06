@@ -192,7 +192,7 @@ Where each live value is held, read at the current source:
 | `0x0A`.. | clock source | selector 2 | the same per-record bit |
 | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same per-record bit |
 | `0x50`.. | presentation time offset | selector 5 | the same per-record bit |
-| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the EMPTY set (`KL_chan_map_capture.sv` line 427, `milan_datapath.sv` block `amap_edit_commit`) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+| `0x60` to `0x7F` | channel maps in and out | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the power-on identity of #658 (stream channel c on the port's cluster c), clipped to the restored formats until the restore's terminal (`milan_datapath.sv` blocks `amap_boot_clip`, `amap_boot_walk` and `amap_edit_commit`; the crossbar RAMs take the same set from the boot writer) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
 | `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
 
 `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
@@ -601,9 +601,17 @@ The accepted D3 glue contract changes `KL_pp_shadow.sv` without adding CSRs:
   clean first boot (H8).
 
 With stage 3 the map plane (`milan_datapath.sv` and `KL_chan_map_capture.sv`)
-puts the port sets back to their reset value, the EMPTY set, when the D3 walk
-rolls back (`restore_rb_o`). The processor's roll-back strobe stays inside the
-processor (section 15 item 2, amended).
+puts the port sets back to their reset value when the D3 walk rolls back
+(`restore_rb_o`): the #658 power-on identity, clipped to the formats then in
+force. The processor's roll-back strobe stays inside the processor (section 15
+item 2, amended).
+
+Until then the parent's boot window (`amap_boot_r`, from reset to the
+restore's terminal) recomputes that clipped identity from the live formats on
+every cycle. So a roll-back of the formats already brings the whole identity
+back. The window also holds the map edit face and the CSR map writer, so it
+must change with stage 3, whose map restore drives the edit face inside it:
+stage 3 takes the window over for the ports it restores.
 
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) owes the PP_STAT rows for
 the combined restore verdicts, and the PP_CTRL[0] and ADP_CTRL[0] rows (they
@@ -1200,9 +1208,16 @@ ABORTS and rolls back (section 8.6) instead of leaving the port empty as it
 did in round one, and V9 kills it by the refused record's neighbour, lost to
 the roll-back: "ptof0 0 valid 0, rolled back 1".
 
-The shipping shapes' dynamic ports reset to the EMPTY set, so step 3 has
-nothing to orphan there. The model uses a non-empty reset set so that every
-step runs (section 14).
+The shipping shapes' dynamic ports reset to the #658 identity set. While no
+map record is restored (stages 1 and 2), the parent clips that set to the
+restored formats before AECP is released. So a persisted narrower format is
+kept, and nothing is left orphaned. The formats are still judged on
+"supported" alone: judging the map bit would silently discard a persisted
+format (#658 ruling, comment 5988843004). The clip raises neither
+`amap_edit_live_wr_p` nor map-persistence work. Controller edits raise sticky
+live-map pending; records `0x60` to `0x7F` remain unmaterialized in stages 1
+and 2. Stage 3 supplies their writer. The model uses a non-empty reset set so
+that every step runs (section 14).
 
 **Which judge.** The product's verdict (`hdl/milan/milan_datapath.sv`,
 `sfv_supported_w`) admits an OUTPUT format only when it equals the

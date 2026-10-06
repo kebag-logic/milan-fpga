@@ -5,12 +5,14 @@
 
     python3 sim_pool.py [--jobs=1|2] [--exclusive] [--banner TEXT] EXE ...
 
-The `run` recipe builds every model first and used to run eleven of them one
-after another. Each is a finished executable that takes no argument. Measured
-with the frame dump absent, the five sim_nxn legs write only their unique
-milan_nxn_* scratch directories: generator.log, image.bin, image.json, and
-eleven builder files including the private gen/adp_shape_defaults.svh.
-The other six legs write no data files. No leg writes a repository file, and
+The `run` recipe builds every model first and used to run its legs one
+after another; there are twelve since #658. Each is a finished executable
+that takes no argument. Measured with the frame dump absent, the six sim_nxn
+legs write only their unique milan_nxn_* scratch directories: generator.log,
+image.bin, image.json, and eleven builder files including the private
+gen/adp_shape_defaults.svh. The dynmap leg also writes one unique milan_nvm_*
+directory holding its saved-state window. The other six legs write no data
+files. No leg writes a repository file, and
 their private write sets are disjoint, so the recipe needs no --exclusive
 marks. The option remains available for a shared group: only one marked leg
 runs at a time, in recipe order; independent legs may bypass a waiting member.

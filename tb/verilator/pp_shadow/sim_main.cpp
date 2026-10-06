@@ -1402,6 +1402,7 @@ class PpShadowHarness {
            "CLOSED 0)", walk & ((1u << 2) | (1u << 3) | (1u << 16)), (1u << 2) | (1u << 3));
         axi_write(A_PP_CTRL, 1);
         run_idle(2000);
+        clear_the_power_on_maps();
         ck("K control: reset/load permits durable status",
            axi_read(A_PP_STAT) & 0xb40u, 0x40u);
         ck("K control: backend pending agrees after reset/load",
@@ -1460,6 +1461,23 @@ class PpShadowHarness {
         ck(label, (axi_read(A_PP_NVM_STAT) >> 22) & 1u, changed);
     }
 
+    //! #658: a dynamic port powers up with the identity map. K12 grades a
+    //! map edit from EMPTY, so every boot clears both directions through the
+    //! CSR window: 64 keys a side covers every shape this harness builds, and
+    //! the RTL drops a key past its own. That window is no live write, so the
+    //! durable status the next check reads stays untouched.
+    void clear_the_power_on_maps() {
+        axi_write(A_CHMAP_CTRL, 1);
+        for (uint32_t k = 0; k < 64; ++k) {
+            axi_write(A_CHMAP_SEL, k);
+            axi_write(A_CHMAP_WORD, 0);
+            axi_write(A_CHMAP_SEL, 0x100 | k);
+            axi_write(A_CHMAP_WORD, 0);
+        }
+        axi_write(A_CHMAP_CTRL, 0);
+        run_idle(200);
+    }
+
     void pending_commit_control() {
         // A completed snapshot acknowledgement cannot retire producer work.
         axi_write(A_PP_NVM_STAT, 8); // ARM
@@ -1508,6 +1526,9 @@ class PpShadowHarness {
 
     void pending_map_commands(uint16_t type) {
         pending_boot(6);
+        pending_map_value(type, 0, 0x5029,
+                          type == 0xe ? "K12 boot: the input map starts empty"
+                                      : "K12 boot: the output map starts empty");
         std::vector<uint8_t> map(8, 0);
         put16be(map.data(), type);
         pending_command(0x002c, map, static_cast<uint16_t>(0x5030 + type));
