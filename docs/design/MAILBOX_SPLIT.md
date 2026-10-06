@@ -342,6 +342,19 @@ The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3. Its
 ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
 the ADP channel does not carry yet; adding one is a minor contract change.
 
+F3 must also meet the listener-discovery timing requirement.
+[H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP expiry.
+It ends after discovery and resulting connection-state commitments.
+Any resulting TX commit shares that same service allowance.
+Normative waits are recorded separately; service remains <= 10 ms.
+Milan v1.2 5.6.4.1 requires processing every matching bound sink.
+Sections 5.6.4.5.1/.2 arm/reset aging from the received `valid_time`.
+IEEE 1722.1-2021 6.2.2.5 defines its two-second units.
+Table 5.54 and 5.6.4.5.1-.4 supply the transition checks.
+They cover available_index restart, interface/GM/domain mismatch, departing and expiry.
+Delayed receive handling or aging must fail H-DISC independently.
+F0's advertiser checks do not establish this listener timing.
+
 ### Service latency
 
 The figures below are F0's conditional mailbox-access evidence.
