@@ -1,0 +1,226 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 21b0c768f..d76988361 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -193,11 +193,57 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | original hosted basis: at most 548 s |
++| every other default suite | 1800 s | retained; #673's near-limit survey appears below |
+ | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+-| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
++| `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
++| `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
++| `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
++authorizes those three increases within existing shard envelopes.
++The survey covers ten hosted runs on 2026-10-06.
++Its endpoints are `37420502040` and `37457223191`.
++Available logs provide 425 completed suite windows.
++Seven active jobs withheld logs; one run skipped suites.
++These windows include tally overhead between adjacent verdicts.
++Timeout windows establish cutoffs, never successful completion bounds.
++
++| Suite above 60% | Largest window | Previous limit | Usage | Run / job |
++|---|---|---|---|---|
++| `capture_coherence` | 1642.280 s PASS | 1800 s | 91.24% | [37429204551 / 112155955445](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955445) |
++| `milan_dp` | 3509.562 s PASS | 3600 s | 97.49% | [37424768281 / 112142195163](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195163) |
++| `milan_dp_mclk` | 1800.008 s TIMEOUT | 1800 s | 100.00% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `milan_dp_render` | 1285.710 s PASS | 1800 s | 71.43% | [37429204551 / 112155955318](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955318) |
++| `mmcm_servo` | 1147.315 s PASS | 1800 s | 63.74% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `pp_shadow` | 1201.263 s PASS | 1800 s | 66.74% | [37424768281 / 112142195196](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195196) |
++| `milan_dp_gptp` | 5400.003 s TIMEOUT | 5400 s | 100.00% | [37430728685 / 112160880673](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880673) |
++
++The largest completed `milan_dp_mclk` window was 1084.530 seconds.
++It came from run `37424768281`, job `112142195210`.
++The three default suites exceeding 80% receive increases.
++The remaining default suites retain their limits.
++The ruling assigns `milan_dp_gptp` scheduling to a follow-up.
++
++Each envelope substitutes new limits for changed suites.
++It adds each sibling's largest observed window independently.
++Job overhead equals total job time minus suite windows.
++The largest observed overhead is added for each shard.
++This includes setup, preflights, tally, upload, and cleanup.
++Every affected shard remains below 6480 seconds: 90% utilization.
++
++| Shard | New limit | Sibling maxima sum | Maximum overhead | Envelope | Remaining / 7200 s |
++|---|---|---|---|---|---|
++| 1/5 | 2400 s | 3381.779 s | 117.580 s | 5899.359 s | 1300.641 s / 18.06% |
++| 2/5 | 3600 s | 2517.453 s | 86.448 s | 6203.901 s | 996.099 s / 13.83% |
++| 4/5 | 4800 s | 0 s | 89.438 s | 4889.438 s | 2310.562 s / 32.09% |
++
++Overhead maxima come from jobs `112142195196`, `112155955407`, and `112142195163`.
++No requested limit needs trimming under this measured envelope.
++These samples cannot bound future runner or cache-miss delays.
++Checks, campaigns, shard assignments, and job timeouts remain unchanged.
++An explicit `SUITE_TIMEOUT` still overrides every selected suite's limit.
++
+ PR #563's first head timed out during servo mutations.
+ 
+ The #545 decision keeps all clean checks under 1800 seconds.
+@@ -238,11 +284,11 @@ The PR samples build candidate merges onto dev `57456af9`.
+ The day's observed spread was 1296-2460 s.
+ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+ That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+-The new budget leaves 1140.1 s: 31.7%, approximately 32%.
++That historical budget left 1140.1 s: 31.7%, approximately 32%.
+ These historical samples do not measure the corrected candidate.
+ The five default gmstep controls remain in `run` (#602).
+ The additional controls stay in the explicit `gmstep-mutants` campaign.
+-The hosted shards allow 120 minutes, accommodating this one-hour deadline.
++The hosted shards allow 120 minutes; #673's envelopes appear above.
+ If later exact-head margin falls below 10%, split further.
+ 
+ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 7e2d3d469..9e77c01cc 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -80,9 +80,10 @@ See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+ for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+-check count cannot be read. The default selection contains 54 suites, each
+-with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+-under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
++check count cannot be read.
++The default selection contains 60 suites.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+ rates. CI shards the default selection; the physical job runs nightly and on
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5932ffd25..bbb713a8e 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -166,10 +166,9 @@ The directory inventory includes one environment-dependent measurement exception
+ It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+ Its README provides measurement commands and the complete receipt.
+ 
+-The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+-The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+-It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
++The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+ The separate physical job permits 5400 seconds, including compilation.
+ Its workflow job permits 120 minutes, including toolchain setup.
+ Both target a four-core `ubuntu-latest` hosted worker.
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 198b59d6c..8d217e548 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -668,13 +668,15 @@ def runner_contract(text: str) -> list[str]:
+         problems.append("the per-suite wall-clock guard is missing")
+     budget = '''suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }'''
+     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+-        problems.append("the declared 1800/3600/5400-second suite budgets changed")
++        problems.append("the declared 1800/2400/3600/4800/5400-second suite budgets changed")
+     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+diff --git a/scripts/measure_test_evidence_selftest.py b/scripts/measure_test_evidence_selftest.py
+index 302544ab7..4e16490a8 100644
+--- a/scripts/measure_test_evidence_selftest.py
++++ b/scripts/measure_test_evidence_selftest.py
+@@ -291,10 +291,14 @@ def _arms_runner_contract(ck):
+     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
+                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
+                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
+-                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
++                     ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-4800", "SUITE_TIMEOUT:-3600"),
+                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
++                     ("capture_coherence)", "capture_coherence_typo)"),
+                      ("milan_dp_gptp)", "milan_dp)"),
+-                     ("    milan_dp)      ", "    milan_dp_render) "),
++                     ("milan_dp_mclk)", "milan_dp_render)"),
++                     ("milan_dp)", "milan_dp_render)"),
+                      ('TMO=$(suite_timeout "$suite")', 'TMO=2400')):
+         ck(f"a changed suite budget is rejected: {old}",
+            bool(runner_contract(runner.replace(old, new))))
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index 997bea9fb..133a9c8f5 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -36,7 +36,8 @@
+ #
+ # Environment:
+ #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
+-#                        Defaults: 1800 s; milan_dp gets 3600 s and the
++#                        Defaults: 1800 s; capture_coherence gets 2400 s,
++#                        milan_dp_mclk 3600 s, milan_dp 4800 s and the
+ #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
+ #                        See docs/testing/TESTING.md for the physical timer floor.
+ #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
+@@ -237,14 +238,17 @@ acquire_lock() {
+ 
+ #! Declared per-suite defaults; an explicit caller override retains its meaning.
+ #! The CI runner contract pins every budget and each named suite.
+-#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
+-#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+-#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
++#! #673, decision 6015726285: capture_coherence passed in 1642.280 s,
++#! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
++#! The new limits leave >=10% in each hosted shard's measured job envelope.
++#! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
+ suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index bff4c7a49..3f962ae20 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -306,7 +306,8 @@ The unchanged acquisition deadline expires before the acquired-publication check
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+ The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+-Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+ Physical regressions are therefore caught nightly, outside the PR aggregate.
+ Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index c15b5f188..5fca90b3a 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -28,8 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.
+-The historical `milan_dp` suite has its own 3600-second budget.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ 
+ The accounting verifier retains each failing DUT control transcript.
+ They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.

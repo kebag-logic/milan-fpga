@@ -1,0 +1,26 @@
+HEAD 72d3780d23a0b96362f8ae64059311b866ff5776
+TREE 286ad25c56908e8d1987ae90db41a474c70a6fba
+SOURCE 793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df PARENT 28cdb5891b2b2d8a79b94a5bc2fb703c9fa8c721 COMMON_BASE bd884631684ccf5060339efa92263d5c3e5c262c
+CHANGED 8 PREDECESSOR_CHANGED 92
+OVERLAP ['docs/testing/CI_WORKFLOWS.md']
+SOURCE_IDENTICAL docs/testing/RUNNING_TESTS.md 100644 blob 9e77c01cce6010019767637b55ca6447bf19e56a
+SOURCE_IDENTICAL docs/testing/TESTING.md 100644 blob bbb713a8e09a6e4deb27ace139c94993ddaa3a39
+SOURCE_IDENTICAL scripts/measure_test_evidence.py 100644 blob 8d217e54855063b6633ec10f61ff678bfc78dfd0
+SOURCE_IDENTICAL scripts/measure_test_evidence_selftest.py 100644 blob 4e16490a8b379c61f5827ad51cec9466901529d2
+SOURCE_IDENTICAL scripts/run_all_suites.sh 100755 blob 133a9c8f524d174e9cd47bb996ca1a65b85e48b8
+SOURCE_IDENTICAL tb/verilator/milan_dp/README.md 100644 blob 3f962ae20e72a065e8e40f75cbd2b2cd1cbda769
+SOURCE_IDENTICAL tb/verilator/milan_dp_gptp/README.md 100644 blob 5fca90b3a01e7b9eb05c48802b5a7b0e1cd720e8
+ALL OTHER ENTRIES IDENTICAL TO PREDECESSOR
+7412748ebffaeac9d36c0e880812aa8ccc826c5f Hold every planted case of the tally self-test to its tally line, plant listener defects it must catch, keep GTEST_ variables away from test binaries, and print the ctrl gate's toolchain (#665 FT)
+36014e0b48f34e9074ea97e03c109c2552403b00 Run the firmware's GoogleTest suites and coverage ratchet in rtl-fast's firmware-unit job (#665 FT)
+
+RAW THREE-WAY MERGE EXACTLY EQUALS CANDIDATE
+PREDECESSOR SECTION INTACT Fast feedback
+PREDECESSOR SECTION INTACT Local commands
+SOURCE SECTION INTACT Exhaustive validation
+GITLINKS
+external 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 UNCHANGED source/parent/candidate
+gptp-processor 160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d UNCHANGED source/parent/candidate
+protocol-processor 160000 commit ead8036035affd53ef4b29979190f2f4f67084c0 UNCHANGED source/parent/candidate
+third_party/verilog-axis 160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce UNCHANGED source/parent/candidate
+PASS composition entry and section identity

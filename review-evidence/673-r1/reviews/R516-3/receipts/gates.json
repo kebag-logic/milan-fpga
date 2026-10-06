@@ -1,0 +1,122 @@
+[
+  {
+    "name": "docs_check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.628
+  },
+  {
+    "name": "toc_check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.165
+  },
+  {
+    "name": "toc_anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "seconds": 0.115
+  },
+  {
+    "name": "em_dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "28cdb5891b2b2d8a79b94a5bc2fb703c9fa8c721"
+    ],
+    "rc": 2,
+    "seconds": 1.017
+  },
+  {
+    "name": "ci_events_check",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.265
+  },
+  {
+    "name": "ci_events_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 17.003
+  },
+  {
+    "name": "evidence_check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.782
+  },
+  {
+    "name": "evidence_selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.732
+  },
+  {
+    "name": "scope_selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.074
+  },
+  {
+    "name": "shards_selftest",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.114
+  },
+  {
+    "name": "shell_syntax",
+    "command": [
+      "bash",
+      "-n",
+      "scripts/run_all_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 0.032
+  },
+  {
+    "name": "suite_inventory",
+    "command": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "--list"
+    ],
+    "rc": 0,
+    "seconds": 0.214
+  }
+]

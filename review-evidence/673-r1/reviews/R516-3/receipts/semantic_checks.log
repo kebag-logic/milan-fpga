@@ -1,0 +1,27 @@
+PASS budget capture_coherence override=None result=2400
+PASS budget milan_dp override=None result=4800
+PASS budget milan_dp_gptp override=None result=5400
+PASS budget milan_dp_mclk override=None result=3600
+PASS budget mmcm_servo override=None result=1800
+PASS budget aaf override=None result=1800
+PASS budget capture_coherence override='17' result=17
+PASS budget milan_dp override='17' result=17
+PASS budget milan_dp_gptp override='17' result=17
+PASS budget milan_dp_mclk override='17' result=17
+PASS budget mmcm_servo override='17' result=17
+PASS budget aaf override='17' result=17
+PASS budget capture_coherence override='' result=2400
+PASS budget milan_dp override='' result=4800
+PASS budget milan_dp_gptp override='' result=5400
+PASS budget milan_dp_mclk override='' result=3600
+PASS budget mmcm_servo override='' result=1800
+PASS budget aaf override='' result=1800
+PASS policy table agrees with executed suite_timeout function
+PASS shard 1/5 owns capture_coherence inventory aaf_latency_taps,avtp_rxmon,capture_coherence,cbs,cdc,clkvalid,controller_rate,crf_rx,datapath,fw_service_budget,gptp_plane,gptp_shadow,lat_history_ring,maap,mac_rmon,media_nco,mmcm_servo_autorepair,nvm_cosim,pair_fill,pcmlpf,pp_shadow,tcam_csr,tsn_fuzz
+PASS shard 2/5 owns milan_dp_mclk inventory aaf,aaf_audio_loop,aaf_clock_meter,aes3,chmap_render,crf_tx,mbx,milan_dp_mclk,mmcm_servo,ptp_sync,ptp_ts,render_setpoint,shaper_core
+PASS shard 4/5 owns milan_dp inventory milan_dp
+PASS preserved historical envelope 1 5899.359 below 6480; not a new timing measurement
+PASS preserved historical envelope 2 6203.901 below 6480; not a new timing measurement
+PASS preserved historical envelope 4 4889.438 below 6480; not a new timing measurement
+PASS predecessor AAF mutation-reader registry remains imported by changed evidence checker tb/verilator/aaf/start_mutants.py
+PASS 18 budget probes, documentation mapping, affected shard ownership, historical arithmetic and registry integration
