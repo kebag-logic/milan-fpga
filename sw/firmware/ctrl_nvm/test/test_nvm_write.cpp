@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <cstdlib>
 #include <string>
 #include <tuple>
@@ -517,7 +518,7 @@ TEST_F(NvmLitespi, port_deadline) {
 
 //! Sequences the generation restart meets differently: a tie with 1, an
 //! ordinary one, the half-range point and the wrap.
-constexpr unsigned long long kAuthSeqs[] = {1, 5, 0x80000000, 0xFFFFFFFF};
+constexpr std::array<unsigned long long, 4> kAuthSeqs{1, 5, 0x80000000, 0xFFFFFFFF};
 
 std::string hex(unsigned long long v) {
     char buf[24];

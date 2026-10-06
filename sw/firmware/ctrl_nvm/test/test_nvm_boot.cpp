@@ -12,6 +12,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <string>
 #include <vector>
 
@@ -163,9 +164,12 @@ TEST_F(NvmModel, read_flip_at_stage) {
     expect_state(f, "st", fx().payloads("golden"));
 }
 
+//! The sequences slots A and B hold.
+using SeqPair = std::array<unsigned long long, 2>;
+
 // The slot the store names is the one applied, under the sequence it holds:
 // published SEQ = staged SEQ = that slot's own, and the state is its records.
-void consistent(const Files& f, const Result& r, const char* const payloads[2], const unsigned long long seqs[2],
+void consistent(const Files& f, const Result& r, const char* const payloads[2], const SeqPair& seqs,
                 const std::string& what) {
     const long long auth = r.at("auth");
     EXPECT_TRUE(r.at("terminal") == NVM_T_COMPLETE && (auth == 0 || auth == 1)) << what << ": " << r.text();
@@ -190,7 +194,7 @@ void consistent(const Files& f, const Result& r, const char* const payloads[2], 
 // displaces the newer one.
 TEST_F(NvmModel, read_flip_boot) {
     static const char* const kPayloads[2] = {"golden", "changed37"};
-    static constexpr unsigned long long kPairs[4][2] = {{5, 6}, {6, 5}, {0xFFFFFFFF, 0}, {0, 0xFFFFFFFF}};
+    static constexpr std::array<SeqPair, 4> kPairs{{{5, 6}, {6, 5}, {0xFFFFFFFF, 0}, {0, 0xFFFFFFFF}}};
     for (const auto& seqs : kPairs) {
         const long long newer = ((seqs[0] - seqs[1]) & 0xFFFFFFFFu) < 0x80000000u ? 0 : 1;
         for (const long long slot : {0LL, 1LL}) {
@@ -218,7 +222,7 @@ TEST_F(NvmModel, read_flip_boot) {
 // re-stage is read again and the chosen slot applied.
 TEST_F(NvmModel, read_alias_at_stage) {
     static const char* const kPayloads[2] = {"golden", "changed37"};
-    static constexpr unsigned long long kSeqs[2] = {6, 5};
+    static constexpr SeqPair kSeqs{6, 5};
     Files f = fx().files({{"a.bin", "golden@6"}, {"b.bin", "changed37@5"}});
     // reads 0-3 judge the two slots; read 4 re-stages slot A
     Result r = go(port(), f,
@@ -245,7 +249,7 @@ TEST_F(NvmModel, read_alias_at_stage) {
 // again.
 TEST_F(NvmModel, read_fail_boot) {
     static const char* const kPayloads[2] = {"golden", "changed37"};
-    static constexpr unsigned long long kSeqs[2] = {5, 6};
+    static constexpr SeqPair kSeqs{5, 6};
     struct Case {
         std::string fault;
         long long auth;

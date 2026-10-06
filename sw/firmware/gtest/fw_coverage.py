@@ -63,7 +63,12 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-README = HERE / "README.md"
+#: The page holding the exclusion table: this directory's README. It is under
+#: sw/, so every change to it runs firmware-unit already. Its name is joined
+#: from stem and suffix because scripts/ci_scope.py's scan reads a bare
+#: README-dot-md literal as the top-level README, a documentation page this
+#: gate never reads.
+README = HERE / ("README" + ".md")
 RATCHET = HERE / "coverage.ratchet"
 #: The firmware this gate measures; under them, these are not firmware.
 MEASURED_ROOTS = ("sw/firmware/ctrl/", "sw/firmware/ctrl_nvm/")

@@ -19,8 +19,7 @@ binaries and grade each one by the tally it prints.
 - **[The tally](#the-tally)** -- The listener's summary line, what counts as a failure, and the planted cases that prove a failing or crashing test fails the tally.
 - **[The seams and their mocks](#the-seams-and-their-mocks)** -- The four ports the firmware already has, and the GoogleMock object for each.
 - **[The port](#the-port)** -- Every hand-rolled check moved onto GoogleTest, arm by arm, with the counts.
-- **[Coverage](#coverage)** -- Line and branch coverage of the firmware's sources with gcc's gcov, and the ratchet that refuses a drop.
-- **[Coverage exclusions](#coverage-exclusions)** -- Each branch no input can reach, with its proof.
+- **[Coverage](#coverage)** -- Line and branch coverage of the firmware's sources with gcc's gcov, the ratchet that refuses a drop, and each branch no input can reach, with its proof.
 - **[Run](#run)** -- The commands, and what each needs.
 - **[CI](#ci)** -- The hosted job, the arms it leaves to the local gates, and the versions it runs with.
 - **[Not in this lane](#not-in-this-lane)** -- lwSRP's own suites.
