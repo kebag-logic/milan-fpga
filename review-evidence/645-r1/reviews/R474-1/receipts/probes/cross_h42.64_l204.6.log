@@ -1,0 +1,12 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +1.048..+1.050 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.963..8.964 (out of band 0), end-to-pop clearance 0.036 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +1.048..+1.100 ticks; render n 1600 fill 14..15 (off-law 899), delay 8.963..9.014 (out of band 803), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: after the settle           [   4.601,    6.100) s: ring slips 0+0, margin +1.050..+1.104 ticks; render n 11990 fill 14..15 (off-law 11297), delay 8.964..9.016 (out of band 11201), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: [PULLIN]: settle recentre DID NOT FIRE (0 pulse(s), render recentre executed 0); slips before it 0, after it 0; after it the loopback margin +1.050..+1.104 ticks, render fill 15..15 delay 9.009..9.011, OFF THE LAW
+MARGINS: [PULLIN] empty 1.050240 full 9.974400 ticks
+RESULT-647: latency 204.60 us hold 42.6 us: delay 8.963..8.964 -> 9.009..9.011 ticks (shift +0.046), fill 14..14 -> 15..15, clearance 0.036 -> 0.009 ticks, settle -1.000 s after the hold, recentres 0, loopback slips 0 before the settle and 0 after: LEFT THE LAW
+  [FAIL] [PULLIN] exactly one settle recentre from the transient to the hold's end got=0 exp=1
+  [FAIL] [PULLIN] the render stage executed the settle recentre got=0 exp=1
+  [FAIL] [PULLIN] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)
+  [FAIL] [PULLIN] the render stage is on its law after the settle recentre
+== follow_ring: checks: 8   failures: 4 ==
+RESULT: FAIL
