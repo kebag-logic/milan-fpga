@@ -1,0 +1,7 @@
+{
+  "number": 677,
+  "title": "ctrl_nvm: nvm_klj2_record's erased-record branch reads past the loaded bytes",
+  "body": "[A10] Found by #665 lane FT (A547, round 2; PR #675 HANDOFF section 0, `gates/probe-overread.log`).\n\n`nvm_klj2_record`'s erased-record branch (`sw/firmware/ctrl_nvm/nvm_klj2.c:298`, `nvm_all_erased(p + NVM_REC_HDR, r.plen)`) bounds the payload by `end`, not by `loaded`. The framed branch refuses a payload past `loaded` before reading it.\n\n**Reproduction.** A caller holds exactly the first 48 bytes of a CRC-closed blank container (the header loaded, the payload not), which `nvm_klj2.h` permits. `nvm_klj2_check_body` then reads past the buffer: AddressSanitizer reports heap-buffer-overflow, READ of size 1, in `nvm_all_erased`. The verdict (`NVM_VD_REC`) is right; the read is not. The store's own calls load the whole stage and cannot reach it.\n\n**Acceptance:**\n1. The erased branch refuses a payload past `loaded` before any read, as the framed branch does.\n2. A GoogleTest case calls with a buffer of exactly `loaded` bytes at 40, 47 and 48, under AddressSanitizer in CI or the local gate. A planted defect restoring the `end` bound must fail it.\n3. The coverage ratchet holds and the store's 102 planted defects stay caught.\n\nRelates to #665 (F1 code). Bare metal, no heap.\n",
+  "html_url": "https://github.com/kebag-logic/milan-fpga/issues/677",
+  "updated_at": "2026-10-06T20:23:03Z"
+}

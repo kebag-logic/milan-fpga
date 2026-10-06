@@ -1,0 +1,154 @@
+{
+  "result": "PASS",
+  "head": "6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+  "tree": "25b32c793bd4bb6d959640094a44fb2b5c9d7a45",
+  "source_base": "6714181d0c8a16e2983f85b724f4d688f5111835",
+  "F1": {
+    "result": "RESOLVED",
+    "public_bullet": "- `sw/firmware/ctrl/adp/adp.h`: Milan v1.2 section 5.6.3 (Advertise state machine) and IEEE 1722.1-2021 section 6.2 (ADPDU) references, and the no-callback port contract.",
+    "authority": "sw/firmware/ctrl/adp/adp.h:9; docs/design/MAILBOX_SPLIT.md:279"
+  },
+  "F2": {
+    "result": "RESOLVED",
+    "base_data_rows": 14,
+    "head_data_rows": 14,
+    "adp_data_rows": 5,
+    "excluded_identities_and_items_unchanged": true,
+    "original_comment_unedited": true,
+    "original_created_at": "2026-10-06T19:56:50Z",
+    "original_updated_at": "2026-10-06T19:56:50Z",
+    "correction_url": "https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024757146"
+  },
+  "changed_paths": [
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/adp/adp.c",
+    "sw/firmware/ctrl/adp/adp.h",
+    "sw/firmware/ctrl/adp/adp_mbx.h",
+    "sw/firmware/ctrl/mbx/mbx.h",
+    "sw/firmware/ctrl/mbx/mbx_hal.h",
+    "sw/firmware/ctrl/port/ctrl_debug.h",
+    "sw/firmware/ctrl/port/ctrl_pool.h",
+    "sw/firmware/ctrl/port/shlan_port.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/nvm_flash.h",
+    "sw/firmware/ctrl_nvm/nvm_klj2.c",
+    "sw/firmware/ctrl_nvm/nvm_state.h",
+    "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+    "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+    "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+    "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "sw/firmware/gtest/fw_coverage.py",
+    "sw/firmware/gtest/fw_gtest.py"
+  ],
+  "rows": [
+    [
+      "`sw/firmware/ctrl/adp/adp.c`",
+      "`adp_link_change`",
+      "`if (a->state == ADP_STATE_DOWN) {`",
+      "arc 2 of 2",
+      "A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp.c`",
+      "`adp_link_change`",
+      "`if (a->state != ADP_STATE_DOWN) {`",
+      "arc 2 of 2",
+      "A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp.c`",
+      "`adp_timer_expired`",
+      "`if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {`",
+      "arc 4 of 4",
+      "DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp.c`",
+      "`adp_timer_expired`",
+      "`} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {`",
+      "arcs 2, 4 of 4; line `a->stray_expiries++;`",
+      "The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp.c`",
+      "`adp_poll`",
+      "`if (a->enabled && a->state == ADP_STATE_DELAY) {`",
+      "arcs 2, 4 of 4; line `a->available_owed = false;`",
+      "An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp_mbx.c`",
+      "`on_poll`",
+      "`owed = adp_poll(&m->ifs[k].adp)`",
+      "arc 3 of 4",
+      "The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching."
+    ],
+    [
+      "`sw/firmware/ctrl/adp/adp_mbx.c`",
+      "`adp_mbx_attach`",
+      "`ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)`",
+      "arc 2 of 6",
+      "The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4)."
+    ],
+    [
+      "`sw/firmware/ctrl/app/ctrl_app.c`",
+      "`ctrl_app_start`",
+      "`if (!adp_mbx_init(`",
+      "arcs 2, 3 of 4; line `return false;`",
+      "The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/nvm_klj2.c`",
+      "`nvm_shape_consistent`",
+      "`(int)r.id <= last`",
+      "arcs 2, 4, 5 of 6; line `return 0;`",
+      "The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`)."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/nvm_klj2.c`",
+      "`nvm_shape_consistent`",
+      "`return count == NVM_N_REC && bytes == NVM_AREA_RAW;`",
+      "arc 2 of 4",
+      "The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/nvm_store.c`",
+      "`nvm_idle`",
+      "`due = nvm.dirty_armed && nvm_any(nvm.dirty) &&`",
+      "arc 4 of 6",
+      "The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/nvm_store.c`",
+      "`nvm_framed_as`",
+      "`return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)`",
+      "arcs 2, 4, 6, 10, 12 of 12",
+      "A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/nvm_store.c`",
+      "`nvm_erase_start`",
+      "`nvm.target == nvm.st.auth`",
+      "arc 2 of 4",
+      "Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1."
+    ],
+    [
+      "`sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c`",
+      "`ls_in_journal`",
+      "`return addr >= MILAN_FLASH_JOURNAL_OFFSET &&`",
+      "arc 2 of 6",
+      "A length longer than the journal (`len <= MILAN_FLASH_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second."
+    ]
+  ],
+  "public_pr_body_sha256": "eb067f1b53f95049b4271ab66850b3bb602418e2279a847005af7da19f3e46e8",
+  "original_comment_body_sha256": "39824a6cf5d77229bdc04f25613a42bfdcc0a206f6502f2fdd73def0b68c84eb",
+  "correction_body_sha256": "e76d062c03dae386bee0eac45441d0254b2e1c187818ba4703f153eb60572d5b",
+  "whitespace_check": "PASS"
+}

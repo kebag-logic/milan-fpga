@@ -1,0 +1,127 @@
+{
+  "verdict_written_before_external_findings": true,
+  "report_sha256_before_external_findings": "a4b0fd0e1adc77d50ac1cf5d7ef6e078bdc8e8ff2fc3856d3894b5373439815b",
+  "time_utc": "2026-10-06T20:28:45.283415+00:00",
+  "comments": [
+    {
+      "id": 6024359315,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024359315",
+      "updated_at": "2026-10-06T19:58:44Z",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R524-1",
+      "body_sha256": "6c1503b706c6f546722356d592a375b51e23dced79e412b6e75a57a8f581523d"
+    },
+    {
+      "id": 6024360223,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024360223",
+      "updated_at": "2026-10-06T19:58:47Z",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R525-1",
+      "body_sha256": "66479025ff25b3751b2a600ec31186cbc58464287e0bd4d2705e56fc0f50d00f"
+    },
+    {
+      "id": 6024636464,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024636464",
+      "updated_at": "2026-10-06T20:15:38Z",
+      "first_line": "[R524] NEGATIVE - exact head 6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+      "body_sha256": "c1b7b63a4874de3ee54c485a98f61cd79990dc2d9fd133d1122e89ad9b9ee517"
+    },
+    {
+      "id": 6024750681,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024750681",
+      "updated_at": "2026-10-06T20:22:38Z",
+      "first_line": "[R525] NEGATIVE - exact head 6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+      "body_sha256": "6aab2f7f79cd83c570ec429f959a4a115341ee4855e41a81f713ffa8504c13fd"
+    },
+    {
+      "id": 6024758039,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024758039",
+      "updated_at": "2026-10-06T20:23:06Z",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R524-2",
+      "body_sha256": "7aa485c879bed5dbe5d02bd655a347639a80fb5dc6d2c14230d4f30c9f0fba69"
+    },
+    {
+      "id": 6024758957,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/684#issuecomment-6024758957",
+      "updated_at": "2026-10-06T20:23:10Z",
+      "first_line": "[A10] INDEPENDENT REVIEW STARTED: R525-2",
+      "body_sha256": "5d9b6a76661a6e61d82e885d51b107ea078f3e2bcd7c630e5979fb2717139ed7"
+    }
+  ],
+  "reviews": [],
+  "inline": [],
+  "issue-comments": [
+    {
+      "id": 6021510152,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6021510152",
+      "updated_at": "2026-10-06T17:13:38Z",
+      "first_line": "[A10] **Lane for #677 and #678.** Executor [A556], branch `677-fw-fixes` from dev `6714181d` (FT merged). Reviewers [R524] (internal) and [R525] (external). One lane, two firmware fixes, both under the FT coverage ratchet.",
+      "body_sha256": "f6c719aa084fe3196b378a6d33401e7912c4b4e429bc2fce37a0386b2cfb9ddb"
+    },
+    {
+      "id": 6021539044,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6021539044",
+      "updated_at": "2026-10-06T17:15:22Z",
+      "first_line": "[A556] TAKEN",
+      "body_sha256": "338429618f86a2251cabf528228b3339b3823ba341a4555816eeeb618c4e30ee"
+    },
+    {
+      "id": 6024328677,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024328677",
+      "updated_at": "2026-10-06T19:56:50Z",
+      "first_line": "[A556] REVIEW READY",
+      "body_sha256": "39824a6cf5d77229bdc04f25613a42bfdcc0a206f6502f2fdd73def0b68c84eb"
+    },
+    {
+      "id": 6024757146,
+      "url": "https://github.com/kebag-logic/milan-fpga/issues/677#issuecomment-6024757146",
+      "updated_at": "2026-10-06T20:23:03Z",
+      "first_line": "[A10] **Correction to [A556] REVIEW READY 6024328677** (R524-1 F2 = R525-1 F2). The coverage-evidence bullet should read: \"The coverage exclusion table has 14 data rows, unchanged from the source base; five are ADP rows.\" The table at `sw/firmware/gtest/README.md:284` and the README's count at line 218 are correct; only the comment's \"15 rows\" was wrong. The PR #684 body's clause citation is also corrected (R524-1 F1 = R525-1 F1): Milan v1.2 5.6.3 for the Advertise state machine, IEEE 1722.1-2021 6.2 for the ADPDU.",
+      "body_sha256": "e76d062c03dae386bee0eac45441d0254b2e1c187818ba4703f153eb60572d5b"
+    }
+  ],
+  "disposition": {
+    "R524-1-F1": {
+      "status": "RESOLVED",
+      "lenses": [
+        "Conformance",
+        "Docs"
+      ],
+      "evidence": [
+        "pr-body.json",
+        "delta-audit.json"
+      ]
+    },
+    "R525-1-F1": {
+      "status": "RESOLVED",
+      "lenses": [
+        "Conformance",
+        "Docs"
+      ],
+      "evidence": [
+        "pr-body.json",
+        "delta-audit.json"
+      ]
+    },
+    "R524-1-F2": {
+      "status": "RESOLVED",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "evidence": [
+        "comment-6024757146.json",
+        "delta-audit.json"
+      ]
+    },
+    "R525-1-F2": {
+      "status": "RESOLVED",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "evidence": [
+        "comment-6024757146.json",
+        "delta-audit.json"
+      ]
+    }
+  }
+}
