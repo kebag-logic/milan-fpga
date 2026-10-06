@@ -72,6 +72,7 @@ Publish conflicts before continuing.
 | Follow a stream's media clock | [Media-clock following, proposed](design/MEDIA_CLOCK_FOLLOWING.md) |
 | Review saved-state snapshot ownership | [Snapshot ownership, implemented](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
 | Review saved-state materialization | [Materialization contract, accepted](design/SAVED_STATE_MATERIALIZATION.md) |
+| Review the firmware mailbox | [Packet mailbox split, F0](design/MAILBOX_SPLIT.md) |
 
 ## Verification
 

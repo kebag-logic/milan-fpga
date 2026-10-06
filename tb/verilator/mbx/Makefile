@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Verilator verification of the packet-mailbox fabric skeleton (KL_mbx and
+# its leaves, #665 lane F0), through BOTH bus adapters.
+#   make           - the RTL checks through KL_mbx_wb, then through KL_mbx_axil,
+#                    then the firmware co-simulation over the real RTL, then
+#                    four planted RTL defects (one per leaf), each of which must
+#                    redden the check it names (mutants.py --quick)
+#   make mutants   - every planted RTL defect, after both positive controls
+#   make clean     - remove build artifacts
+#
+# The RTL list is the mailbox's own, package first. RTL_DIR is overridable so
+# mutants.py builds a planted COPY with this same recipe (print-vflags).
+
+VERILATOR ?= verilator
+ROOT      := ../../..
+RTL_DIR   ?= $(ROOT)/hdl/milan/mailbox
+TOP        = tb_mbx_top
+
+RTL = $(RTL_DIR)/KL_mbx_pkg.sv $(RTL_DIR)/KL_mbx_ring.sv $(RTL_DIR)/KL_mbx_rx.sv \
+      $(RTL_DIR)/KL_mbx_tx.sv $(RTL_DIR)/KL_mbx_evt.sv $(RTL_DIR)/KL_mbx.sv \
+      $(RTL_DIR)/KL_mbx_wb.sv $(RTL_DIR)/KL_mbx_axil.sv tb_mbx_top.sv
+
+# -Werror-USERERROR: an elaboration $error is a failed build, never a warning.
+# -Werror-PINMISSING / -Werror-UNDRIVEN: a dropped binding is refused by name.
+VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
+         -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN \
+         -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL \
+         -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(abspath $(ROOT))/sw/firmware/ctrl/mbx"
+
+# The firmware the co-simulation links: the mailbox driver, the event loop,
+# the port layer, the ADP slice and the app, compiled as C11 exactly as the
+# target builds them, plus the host model the same scenario also runs on.
+# mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
+FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
+FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
+            port/shlan_port.c adp/adp.c adp/adp_mbx.c app/ctrl_app.c host/mbx_model.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp app)
+CC     ?= cc
+AR     ?= ar
+
+.PHONY: all run-wb run-axil run-cosim mutants-quick mutants print-vflags clean
+all: run-wb run-axil run-cosim mutants-quick
+
+run-wb:
+	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_wb $(RTL) sim_main.cpp -o Vmbx_wb
+	@echo "======================================================================"
+	./obj_wb/Vmbx_wb 0
+
+run-axil:
+	$(VERILATOR) $(VFLAGS) -GHOST_P=1 --Mdir obj_axil $(RTL) sim_main.cpp -o Vmbx_axil
+	@echo "======================================================================"
+	./obj_axil/Vmbx_axil 1
+
+obj_fw/libctrlfw.a: $(FW_SRC)
+	@mkdir -p obj_fw
+	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
+	cd obj_fw && $(AR) crs libctrlfw.a *.o
+
+run-cosim: obj_fw/libctrlfw.a
+	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
+	  -CFLAGS "-Wall -Wextra $(FW_INC)" -LDFLAGS "$(abspath obj_fw/libctrlfw.a)" -o Vmbx_cosim
+	@echo "======================================================================"
+	./obj_cosim/Vmbx_cosim
+
+# run-wb and run-axil are this arm's positive controls, hence the prerequisites
+mutants-quick: run-wb run-axil
+	python3 -B mutants.py --quick
+
+mutants:
+	python3 -B mutants.py
+
+# mutants.py builds its copies with this recipe, read through this target.
+print-vflags:
+	@printf '%s\n' $(VERILATOR) $(VFLAGS)
+
+clean:
+	rm -rf obj_wb obj_axil obj_cosim obj_fw

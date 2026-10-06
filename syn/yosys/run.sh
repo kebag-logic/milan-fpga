@@ -298,6 +298,12 @@ build_inventory() {
     # the saved-state backing store behind the processor's NVM device face,
     # also reached inside KL_pp_shadow and milan_datapath above
     "KL_nvm_backend|$R/hdl/milan/KL_nvm_backend.sv"
+    # #665 lane F0: the packet mailbox (sw/mailbox/mailbox.yaml), reachable only
+    # under the SoC's default-off --ctrl-mailbox, so no shipping top elaborates
+    # it; the fabric skeleton and each bus adapter get their own rows.
+    "KL_mbx|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_ring.sv $R/hdl/milan/mailbox/KL_mbx_rx.sv $R/hdl/milan/mailbox/KL_mbx_tx.sv $R/hdl/milan/mailbox/KL_mbx_evt.sv $R/hdl/milan/mailbox/KL_mbx.sv"
+    "KL_mbx_wb|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_wb.sv"
+    "KL_mbx_axil|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_axil.sv"
     "axis_fifo|$A/axis_fifo.v"
     "axis_demux|$A/axis_demux.v"
     "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
