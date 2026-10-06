@@ -275,7 +275,8 @@ leaves it in DELAY with none.
 The two rows a public caller reaches were tested and taken out:
 `ctrl_pool_alloc`'s `bin->free_head != NULL`, a client writing into a block
 after freeing it (`Pool.P9`), and `nvm_klj2_check_body`'s refusal of a loaded
-prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`).
+prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`,
+which pins that guard and the payload's at their exact ends).
 Each has a planted defect that removes it.
 
 ## Run

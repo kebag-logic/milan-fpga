@@ -74,6 +74,19 @@ TEST(NvmCodec, codec_room) {
 // whole with its payload not loaded. Each buffer holds the whole container,
 // so a walk that read past the prefix would find valid bytes there, and the
 // blank one's erased records would be accepted (#665 FT, R507-1-F1).
+//
+// Each guard is pinned at its exact end (R506-2-F1). For every record, the
+// container of frames is resealed with that record's header claiming a
+// payload one byte past the container's end: one byte short of the header's
+// end the guard refuses it VD_REC, and at the header's exact end the walk
+// reads the header and refuses it VD_LEN, its own verdict, which only a
+// guard that passes there can reach. On the last record, the payload's
+// guard: one byte short of the payload's end VD_REC, at its exact end VD_OK.
+//
+// Left out: an erased record whose header ends exactly at `loaded`. Its
+// verdict is right, but nvm_klj2_record reads its erased payload past
+// `loaded` to reach it, which a buffer holding the whole container cannot
+// show; the fix and its test are #677's.
 TEST(NvmCodec, codec_loaded_prefix) {
     std::vector<std::uint8_t> blank(NVM_IMG_LEN);
     nvm_klj2_blank(blank.data());
@@ -84,7 +97,9 @@ TEST(NvmCodec, codec_loaded_prefix) {
         << "a prefix one byte short of the first record header is refused VD_REC";
     const Bytes& frames = fx().blob("golden@5");
     const auto len = static_cast<std::uint32_t>(frames.size());
+    const std::uint32_t end = len - NVM_KLJ2_TRAILER;
     ASSERT_EQ(nvm_klj2_check(frames.data(), len), NVM_VD_OK) << "the container of frames is CRC-closed";
+    std::uint32_t payload_end = 0;
     for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
         const std::uint32_t header = NVM_KLJ2_HDR + r.off;
         EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
@@ -93,7 +108,24 @@ TEST(NvmCodec, codec_loaded_prefix) {
             EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR), NVM_VD_REC)
                 << "a prefix holding record " << unsigned{r.id} << "'s header but not its payload is refused VD_REC";
         }
+        Bytes overrun = frames;
+        const std::uint32_t claim = end + 1u - header - NVM_REC_HDR;
+        ASSERT_LE(claim, 0xFFFFu) << "a payload length one byte past the end fits the header's 16 bits";
+        overrun[header + 4u] = static_cast<std::uint8_t>(claim >> 8);
+        overrun[header + 5u] = static_cast<std::uint8_t>(claim);
+        nvm_wr32le(overrun.data() + end, ~nvm_crc32_update(0xFFFFFFFFu, overrun.data(), end));
+        ASSERT_EQ(nvm_klj2_check(overrun.data(), len), NVM_VD_LEN)
+            << "resealed, record " << unsigned{r.id} << "'s header claiming a payload past the end: CRC-closed, VD_LEN";
+        EXPECT_EQ(nvm_klj2_check_body(overrun.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
+            << "one byte short of record " << unsigned{r.id} << "'s header, the guard refuses it VD_REC";
+        EXPECT_EQ(nvm_klj2_check_body(overrun.data(), len, header + NVM_REC_HDR), NVM_VD_LEN)
+            << "at record " << unsigned{r.id} << "'s header's exact end, the guard passes and the header is VD_LEN";
+        payload_end = header + NVM_REC_HDR + r.plen;
     }
+    EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, payload_end - 1u), NVM_VD_REC)
+        << "a prefix one byte short of the last record's payload is refused VD_REC";
+    EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, payload_end), NVM_VD_OK)
+        << "a prefix that ends at the last record's payload's exact end is accepted";
     EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, len), NVM_VD_OK) << "and the whole container is accepted";
 }
 

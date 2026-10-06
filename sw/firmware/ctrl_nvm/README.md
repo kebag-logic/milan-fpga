@@ -440,8 +440,8 @@ GoogleMock's command master and `timer0`.
     capture's window edges (DR2a);
   - [`test/test_nvm_codec.cpp`](test/test_nvm_codec.cpp): the codec asked
     directly, every refusal of the parity table, the room a container is
-    held in, a loaded prefix that ends before a record header, and the
-    record lookups;
+    held in, a loaded prefix that ends before a record header or its
+    payload (each guard pinned at its exact end), and the record lookups;
   - [`test/test_nvm_flashmock.cpp`](test/test_nvm_flashmock.cpp): two
     refusals of different verdicts, and two alike in verdict and CRC-32
     digest over different byte counts (a collision the test forges), are a
@@ -463,7 +463,7 @@ GoogleMock's command master and `timer0`.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (102 defects). They are graded at the 1x1 shape, except a defect that only
+by at least one (106 defects). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 
