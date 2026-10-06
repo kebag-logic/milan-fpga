@@ -1,0 +1,456 @@
+Exact head 72facc6d48807808e4d97a454a0ecceb2769ac9e
+docs/README.md:170: | `CTRL` | remote ATDECC controller |
+docs/README.md:171: | `TALKER` | remote talker entity (its ACMP/ADP/SRP behavior) |
+docs/README.md:172: | `ADP` / `ACMP` / `AECP` | the corresponding engine inside this processor |
+docs/README.md:173: | `NOTIF` | unsolicited-notification engine + controller registry |
+docs/README.md:174: | `SRP` | SRP/MSRP + MAAP adapter (and, transitively, the SRP network) |
+docs/README.md:175: | `GPTP` / `AVTP` / `MCLK` | the integrator's gPTP, streaming and media-clock datapaths, which the processor reaches through levels and read faces ([02 §4.3 to §4.5](architecture/02_interfaces.md)) |
+docs/README.md:176: | `NVM` | persistence manager |
+docs/README.md:177: | `TX` | TX arbiter / wire egress |
+docs/README.md:178: 
+docs/README.md:179: ## 6. Editing workflow
+docs/README.md:180: 
+docs/README.md:181: | To change… | Do |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:488: | REQ-NET-001 | Milan §5.3.6.1 | Track per interface: gPTP GM ID, path sequence, domain, propagation delay (GET_AVB_INFO/GET_AS_PATH + notifications) | shall | P | [GAP-04](#gap-04) | E_GAVB/E_GASP + gsi face (supports live propagation delay, depth-8 path data, and independent AVB/path change strobes; the consumer owns their sources) | 02 §4.3, 06 §6.10 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:489: | REQ-NET-002 | Milan §5.3.6.2, §4.2.7.2.1 | Track MSRP domain params (Class A priority 3, default VID 2); adopt + re-declare on differing Domain declaration; notify on change | shall | A | [GAP-04](#gap-04) | `srp` contract; SRP engine | 02 §4, 10 §6.1 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:490: | REQ-NET-003 | Milan §5.3.7.2–.4, §5.3.8.8/.9 | Track SRP talker declaration + listener registration states, failure code + bridge ID, accumulated latency | shall | A | [GAP-04](#gap-04) | `srp` contract; SRP engine | 02 §4, 10 §6.3/.4 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:491: | REQ-NET-004 | Milan Tables 5.1/5.13 | LINK_UP/LINK_DOWN counter invariant; GPTP_GM_CHANGED counter | shall | A | [GAP-05](#gap-05) | the integrator's AVB_INTERFACE bank behind the `ctr_*` face (owner decision 2026-09-19): `link_up_i` edges and grandmaster identity changes, per the [integrator guide §7.1](guides/integrator.md#counters-face) | integrator guide §7.1, 02 §4.6 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:492: | REQ-NET-005 | Milan §4.4.2.2 | Listener discards AVTPDUs not matching configured input format (enforced in AVTP engine; control plane configures) | shall | A | [GAP-04](#gap-04) | the integrator's AVTP datapath, armed from the published bound view and input formats (`acmp_bound_*`, `aecp_fmt_in_o`) | 02 §4.4 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:493: 
+docs/00_MILAN_COMPLIANCE_REVIEW.md:494: ### 6.9 SRP endpoint engine (in scope by owner decision — §8 item 9)
+docs/00_MILAN_COMPLIANCE_REVIEW.md:495: 
+docs/00_MILAN_COMPLIANCE_REVIEW.md:496: | REQ | Clause | Requirement | Mand | Cov | Finding | Arch | Doc | Ver |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:497: |---|---|---|---|---|---|---|---|---|
+docs/00_MILAN_COMPLIANCE_REVIEW.md:498: | REQ-SRP-001 | Milan Table 4.3 | MRP timers: joinTime 200 ms (180–240), LeaveTime 5000 ms (4500–7500), leavealltimer 10–15 s, periodictimer 1000 ms (900–1500) | shall | A | [GAP-04](#gap-04) | T-MRP-* | 10 §9, 08 §2 | TIM |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:499: | REQ-SRP-002 | Milan §4.2.7.1.2 | Malformed MRPDU: may process up to the bad field, then discard the rest of that vector-attribute list and all subsequent messages in the PDU | shall | A | [GAP-04](#gap-04) | decoder tolerance | 10 §3 | TOL |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:500: | REQ-SRP-003 | Milan §4.2.7.1.3 | EndMark transmitted as explicit 0x0000 when padding follows | shall | A | [GAP-04](#gap-04) | vector encoder | 10 §3 | DIR |
+docs/00_MILAN_COMPLIANCE_REVIEW.md:501: | REQ-SRP-004 | Milan §4.2.7.2.1 | Class A Domain: priority 3 / default VID 2 at startup and link-up; adopt received params + re-declare on differing declaration; Domain TX independent of gPTP port state | shall | A | [GAP-04](#gap-04) | Domain FSM F10.2 | 10 §6.1 | DIR |
+docs/architecture/02_interfaces.md:361: ### 4.3 `gptp` — time-sync data
+docs/architecture/02_interfaces.md:362: 
+docs/architecture/02_interfaces.md:363: **Landed shape on `protocol_processor_top`** (interface 0; `P-N-AVB-INTERFACES` is 1).
+docs/architecture/02_interfaces.md:364: No request reaches a gPTP stack: the integrator publishes the gPTP pair as levels,
+docs/architecture/02_interfaces.md:365: strobes its changes, and answers the GET_AVB_INFO and GET_AS_PATH words on the `gsi_*`
+docs/architecture/02_interfaces.md:366: read face.
+docs/architecture/02_interfaces.md:367: 
+docs/architecture/02_interfaces.md:368: | What it serves | Landed as | Dir |
+docs/architecture/02_interfaces.md:369: |---|---|---|
+docs/architecture/02_interfaces.md:370: | the ADPDU's `gptp_grandmaster_id` and `gptp_domain_number`, and the talker-discovery guard (Milan §5.6.2, §5.6.4.5.1) | `gm_id_i[63:0]`, `gptp_domain_i[7:0]`, class D | in |
+docs/architecture/02_interfaces.md:371: | GM_CHANGE: the ADP re-advertise (Milan §5.6.3.5.7) and the GET_AVB_INFO notification (Milan Table 5.22) | `gm_change_i`, one cycle after a changed `gm_id_i` **or** `gptp_domain_i` is published | in |
+docs/architecture/02_interfaces.md:372: | the link state, for ADP, the SRP Domain and the GET_AVB_INFO notification | `link_up_i`, a level already synchronised | in |
+docs/architecture/02_interfaces.md:373: | GET_AVB_INFO's words (IEEE 1722.1-2021 §7.4.40.2): the grandmaster id, propagation delay, domain, flags (AS_CAPABLE and the rest of Table 7-148) and the msrp mappings | `gsi_*` kind 1: selector 0 the grandmaster id; 1 `{propagation_delay, domain, flags, msrp_mappings_count}`; 8 the msrp mapping of ordinal `gsi_ord_o` ([06 §6.10](06_aecp_engine.md#sec-06-gsi)) | out / in |
+docs/architecture/02_interfaces.md:374: | a changed integrator-owned GET_AVB_INFO word (asCapable, propagation delay) | `gsi_avb_chg_i`, one-cycle strobe | in |
+docs/architecture/02_interfaces.md:375: | GET_AS_PATH's words (§7.4.41.2): the path count and each ClockIdentity | `gsi_*` kind 2: selector 0 the count; 8 the path entry of ordinal `gsi_ord_o` | out / in |
+docs/architecture/02_interfaces.md:376: | a changed path sequence, entry 0 on a new grandmaster included: the GET_AS_PATH notification | `gsi_asp_chg_i`, one-cycle strobe | in |
+docs/architecture/02_interfaces.md:377: | the AVB_INTERFACE LINK_UP, LINK_DOWN and GPTP_GM_CHANGED counters | the integrator's, on the `ctr_*` face (§4.6) | — |
+docs/architecture/02_interfaces.md:378: 
+docs/architecture/02_interfaces.md:379: The `gsi_*` face, shared with §4.4:
+docs/architecture/02_interfaces.md:380: 
+docs/architecture/02_interfaces.md:381: | Signal | Dir | Meaning |
+docs/architecture/02_interfaces.md:382: |---|---|---|
+docs/architecture/02_interfaces.md:383: | `gsi_req_o` | out | a word is being asked for |
+docs/architecture/02_interfaces.md:384: | `gsi_kind_o[1:0]` | out | 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH |
+docs/architecture/02_interfaces.md:385: | `gsi_desc_type_o[15:0]`, `gsi_desc_index_o[15:0]` | out | the addressed descriptor |
+docs/architecture/02_interfaces.md:386: | `gsi_sel_o[3:0]` | out | the word within the kind ([06 §6.2](06_aecp_engine.md#sec-06-stri), [06 §6.10](06_aecp_engine.md#sec-06-gsi)); bit 3 marks a record word |
+docs/architecture/02_interfaces.md:387: | `gsi_ord_o[7:0]` | out | the record ordinal of a record word |
+docs/architecture/02_interfaces.md:388: | `gsi_prop_fmt_o[63:0]` | out | the proposed stream format while SET_STREAM_FORMAT asks for its verdict (kind 0 selector 15) |
+docs/architecture/02_interfaces.md:389: | `gsi_data_i[63:0]` | in | the word |
+docs/architecture/02_interfaces.md:390: | `gsi_wait_i` | in | **HOLD** the beat |
+docs/architecture/02_interfaces.md:391: | `gsi_avb_chg_i`, `gsi_asp_chg_i` | in | the two change strobes above |
+docs/architecture/02_interfaces.md:392: 
+docs/architecture/02_interfaces.md:393: The GET_AS_PATH µprogram reads the count and each entry from the face itself. asCapable
+docs/architecture/02_interfaces.md:394: and path changes reach the processor only as the two `gsi` strobes, and no counter tick
+docs/architecture/02_interfaces.md:395: leaves it.
+docs/architecture/02_interfaces.md:396: 
+docs/architecture/02_interfaces.md:397: ### 4.4 `avtp` — streaming engine control
+docs/architecture/02_interfaces.md:398: 
+docs/architecture/02_interfaces.md:399: **Landed shape on `protocol_processor_top`.** The processor sends the streaming
+docs/architecture/06_aecp_engine.md:837: ### 6.10 GET_AVB_INFO / GET_AS_PATH and the Milan-info face
+docs/architecture/06_aecp_engine.md:838: 
+docs/architecture/06_aecp_engine.md:839: **Realization status (2026-08-15, `E_GAVB`/`E_GASP` + the shared `gsi_*` face).**
+docs/architecture/06_aecp_engine.md:840: The two gPTP read commands ride the SAME selector-coded gather face GET_STREAM_INFO
+docs/architecture/06_aecp_engine.md:841: introduced (`gsi_kind` 1 and 2), because the answers are integrator truth: the
+docs/architecture/06_aecp_engine.md:842: elected grandmaster, asCapable, the SRP class-A domain and the link state live in
+docs/architecture/06_aecp_engine.md:843: the fabric, not in a command parser. Word tables (each one `BUILD_FLD` wide):
+docs/architecture/06_aecp_engine.md:844: 
+docs/architecture/06_aecp_engine.md:845: | kind | sel | word | lands at |
+docs/architecture/06_aecp_engine.md:846: |---|---|---|---|
+docs/architecture/06_aecp_engine.md:847: | 1 AVB | 0 | gptp_grandmaster_id (qword) | @28 |
+docs/architecture/06_aecp_engine.md:848: | 1 AVB | 1 | {propagation_delay[31:0], domain[7:0], flags[7:0], msrp_mappings_count[15:0]} | @36..@43 |
+docs/architecture/06_aecp_engine.md:849: | 1 AVB | 8 | msrp_mapping[`gsi_ord`] {traffic_class, priority, vlan_id} (dword) | @44 + 4k |
+docs/architecture/06_aecp_engine.md:850: | 2 ASP | 0 | {48'0, path count} | @26 |
+docs/architecture/06_aecp_engine.md:851: | 2 ASP | 8 | path_sequence[`gsi_ord`] ClockIdentity (qword) | @28 + 8k |
+docs/architecture/06_aecp_engine.md:852: 
+docs/architecture/06_aecp_engine.md:853: Selector bit 3 marks the record-class words; the engine's shared ordinal counter
+docs/architecture/06_aecp_engine.md:854: (the audio-map record counter, reused) numbers them. Existence comes from the
+docs/architecture/06_aecp_engine.md:855: descriptor store's AVB_INTERFACE locate — GET_AS_PATH's command carries only the
+docs/architecture/06_aecp_engine.md:856: index (§7.4.41.1), so the engine packs the locate key with the AVB_INTERFACE
+docs/architecture/06_aecp_engine.md:857: constant. Both emit count-many records: a zero-count face answers an EMPTY list
+docs/architecture/06_aecp_engine.md:858: (cdl 32 / 16) — absent, never invented.
+docs/architecture/06_aecp_engine.md:859: 
+docs/architecture/06_aecp_engine.md:860: **Honesty contract** (what the processor accepts from an integrator): the engine
+docs/architecture/06_aecp_engine.md:861: does not synthesize network state. The face supplies propagation_delay and a
+docs/architecture/06_aecp_engine.md:862: counted path of up to eight ClockIdentity entries. A consumer may publish zero
+docs/architecture/06_aecp_engine.md:863: when no propagation-delay measurement or grandmaster is available. The response
+docs/architecture/06_aecp_engine.md:864: builder serves exactly those words. `gsi_avb_chg_i` reports a change in an
+docs/architecture/06_aecp_engine.md:865: integrator-owned GET_AVB_INFO word, while `gsi_asp_chg_i` independently reports a
+docs/architecture/06_aecp_engine.md:866: path change, including a tail change with an unchanged grandmaster. Connecting
+docs/architecture/06_aecp_engine.md:867: the live measurements, the atomic PathTrace store, and both strobes is the
+docs/architecture/06_aecp_engine.md:868: consumer integration's responsibility and is not implemented in this repository.
+docs/architecture/06_aecp_engine.md:1000: corresponding response, requester excluded: the body is the command's own response
+docs/architecture/06_aecp_engine.md:1001: format from current state, so an unsolicited SET_STREAM_INFO carries 1722.1-2021
+docs/architecture/06_aecp_engine.md:1002: Figure 7-40's complete 84-byte body, MSRP_ACC_LAT_VALID with the presentation-time
+docs/architecture/06_aecp_engine.md:1003: offset in force, never Milan's GET_STREAM_INFO form, which §5.4.2.10 substitutes for the
+docs/architecture/06_aecp_engine.md:1004: GET response alone); (2) MGMT/front-panel-equivalent changes while unlocked — read-only
+docs/architecture/06_aecp_engine.md:1005: objects use the GET_ form (IEEE §7.5.2). **MGMT-origin changes are not supported by
+docs/architecture/06_aecp_engine.md:1006: this build**: nothing outside ATDECC can change command-settable state (no MGMT
+docs/architecture/06_aecp_engine.md:1007: producer, [03 §5](03_packet_engine.md#5-origins-originator-and-event-router)), so Milan
+docs/architecture/06_aecp_engine.md:1008: §5.4.5.2's non-ATDECC duty has no trigger here; (3) async
+docs/architecture/06_aecp_engine.md:1009: Table 5.22 set: GET_STREAM_INFO field changes (input/output splits per F06.13),
+docs/architecture/06_aecp_engine.md:1010: GET_AVB_INFO (GM, prop delay, domain, asCapable, class-A prio/VID), GET_AS_PATH,
+docs/architecture/06_aecp_engine.md:1011: GET_COUNTERS (`T-CTR-NOTIF`-limited), LOCK_ENTITY auto-unlock, targeted DEREGISTER.
+docs/architecture/06_aecp_engine.md:1012: **STREAM_INPUT triggers** (`protocol_processor_top` `stri_events`): the
+docs/architecture/06_aecp_engine.md:1013: committed pbsta/acmpsta compare off the listener record write bus (bind,
+docs/architecture/06_aecp_engine.md:1014: unbind, settle, teardown, double probe timeout, retry); the committed
+docs/architecture/06_aecp_engine.md:1015: started/stopped change under a live binding (`act_strt_chg_o`: the §5.5.3.5.6
+docs/architecture/06_aecp_engine.md:1016: re-bind short-circuit, and a re-bind to another talker from a bound state,
+docs/architecture/06_aecp_engine.md:1017: which from PRB_W_RESP leaves pbsta/acmpsta at ACTIVE/0 so this is its only
+docs/architecture/06_aecp_engine.md:1018: push); the SRP registration and unregistration events; SRP's committed
+docs/architecture/06_aecp_engine.md:1019: per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+docs/architecture/06_aecp_engine.md:1020: latency-only Talker refresh, with no pulse for an unchanged value); and SRP's
+docs/architecture/06_aecp_engine.md:1021: FailureInformation change strobe. Both change strobes feed only this notification (no
+docs/architecture/06_aecp_engine.md:1022: Listener re-declaration, no event-router or ACMP event, [10 §6.4](10_srp_engine.md)).
+docs/architecture/06_aecp_engine.md:1023: The SRP change strobes register on the attribute latch write alongside any
+docs/architecture/06_aecp_engine.md:1024: registration event; the per-sink OR therefore raises one event even if several
+docs/architecture/06_aecp_engine.md:1025: fields change together. No GET_COUNTERS rate limit applies to GET_STREAM_INFO.
+docs/architecture/06_aecp_engine.md:1026: The two listener terms register off the same record write, so a walk that
+docs/architecture/06_aecp_engine.md:1027: moves both pushes one frame. A START/STOP_STREAMING's own change is excluded:
+docs/architecture/06_aecp_engine.md:1028: the command sends its opcode-specific unsolicited response instead.
+docs/architecture/06_aecp_engine.md:1029: Coalescing merges same-key pending triggers (safe: notifications carry current full
+docs/architecture/06_aecp_engine.md:1030: state); LOCK/DEREGISTER events are never coalesced. Ordering: notification after
+docs/architecture/06_aecp_engine.md:1031: commit and after the solicited response ([03 §6](03_packet_engine.md) rule a).
+docs/architecture/06_aecp_engine.md:1032: 
+docs/architecture/08_timing.md:30: | T-IDENT-BURST | 150 ms ×3 | identify (`KL_aecp_notify`): **landed**, issue #80, built only with P-EN-IDENTIFY-NOTIFICATION = 1 (not at its default 0); graded by `tb/pp_top` ID and `tb/aecp_notify` FT ([09 §8.4](09_verification.md#84-notifications-and-identify-the-rnd-and-storm-evidence-issues-54-58-80-86)) | IDENTIFY_NOTIFICATION triple: each later frame due T-IDENT-BURST after the first ms boundary following its IDENT-BURST arm, which the previous frame's departure (its last byte to the MAC) makes on its next clock or later, so never less than T-IDENT-BURST after that departure; the next burst's first frame no sooner after the third, so a late frame or a TX stall delays the rest and never shortens a gap; a press made while a burst or that gap runs is latched and its burst starts when the gap ends | IEEE §7.5.1, §7.5.1.2.1 | |
+docs/architecture/08_timing.md:31: | T-IDENT-REARM | 1 s | identify (`KL_aecp_notify`): **landed**, as T-IDENT-BURST | re-arm while button held: Figure 7-142's timeout, from the burst's first frame | IEEE §7.5.1.2.1, §7.5.1.3 | |
+docs/architecture/08_timing.md:32: | T-CTR-OBSERVE | ≤ 1 s tick | **integrator-owned**: the integrator's counter banks behind the `ctr_*` face; no RTL here, so no suite here grades it | observation-interval commit of the interval counters; the processor keeps no tick for it ([06 §6.6](06_aecp_engine.md#sec-06-counters)) | Milan §5.3.7.7, §5.3.8.10 | |
+docs/architecture/08_timing.md:33: | T-CTR-NOTIF | 1 s | notif engine | ≥ 1 s between GET_COUNTERS notifications per descriptor | Milan Table 5.22 | |
+docs/architecture/08_timing.md:34: | T-ACMP-DA-RETRY | 100 ms | talker DA gate | allocation retry round for enabled NO_DA sources; one attempt/source/round | implementation policy, [05 §6bis](05_acmp_engine.md#6bis-talker-side-stateless-responder) | |
+docs/architecture/10_srp_engine.md:255: ### 6.1 Domain FSM (×1)
+docs/architecture/10_srp_engine.md:256: 
+docs/architecture/10_srp_engine.md:257: <a id="fig-10-domsm"></a>**F10.2 — Class A Domain (Milan §4.2.7.2.1)**
+docs/architecture/10_srp_engine.md:258: 
+docs/architecture/10_srp_engine.md:259: ```mermaid
+docs/architecture/10_srp_engine.md:260: stateDiagram-v2
+docs/architecture/10_srp_engine.md:261:     [*] --> DEFAULTS: startup or LINK_UP / declare Domain A with priority 3, VID P-SRP-DOM-DEF-VID
+docs/architecture/10_srp_engine.md:262:     DEFAULTS --> ADOPTED: rx Class A Domain declaration with different params / adopt received FirstValue, re-declare it, DOMAIN_CHANGE
+docs/architecture/10_srp_engine.md:263:     ADOPTED --> ADOPTED: rx differing Domain again / adopt + re-declare + DOMAIN_CHANGE
+docs/architecture/10_srp_engine.md:264:     ADOPTED --> DEFAULTS: LINK_DOWN / restore defaults, declared again on the next LINK_UP
+docs/architecture/10_srp_engine.md:265:     DEFAULTS --> DEFAULTS: periodic or LeaveAll / re-join declaration
+docs/architecture/10_srp_engine.md:266: ```
+docs/architecture/10_srp_engine.md:267: 
+docs/architecture/10_srp_engine.md:268: Rules: Domain transmission is **independent of gPTP port state** (Milan §4.2.7.2.1);
+docs/architecture/10_srp_engine.md:269: a Domain change updates `class_a_prio`/`class_a_vid`, fires the GET_AVB_INFO
+docs/architecture/10_srp_engine.md:270: notification path, steers *future* MVRP joins to the new VID (already-declared VIDs
+docs/architecture/10_srp_engine.md:271: stay frozen, §6.2), and (on PCP change) triggers the talker withdraw →
+docs/architecture/10_srp_engine.md:272: `T-SRP-LEAVEALL2` → re-declare flow of [F05.12](05_acmp_engine.md#fig-05-dagate).
+docs/architecture/10_srp_engine.md:273: 
+hdl/srp/KL_srp_domain.sv:143:       // ---- adoption / re-join request capture ---------------------------
+hdl/srp/KL_srp_domain.sv:144:       if (rxdom_valid_i && declared_r && covers6_w
+hdl/srp/KL_srp_domain.sv:145:           && ({surf_prio_w, rxdom_vid_i} != {decl_prio_r, decl_vid_r})) begin
+hdl/srp/KL_srp_domain.sv:146:         rx_pend_prio_r <= surf_prio_w;    // newest received Domain wins
+hdl/srp/KL_srp_domain.sv:147:         rx_pend_vid_r  <= rxdom_vid_i;
+hdl/srp/KL_srp_domain.sv:148:         rx_pend_v_r    <= 1'b1;
+hdl/srp/KL_srp_domain.sv:149:       end
+hdl/srp/KL_srp_domain.sv:150:       if ((periodic_tick_i || leaveall_tick_i) && declared_r) begin
+hdl/srp/KL_srp_domain.sv:151:         rejoin_pend_r <= 1'b1;
+hdl/srp/KL_srp_domain.sv:152:       end
+hdl/srp/KL_srp_domain.sv:153: 
+hdl/srp/KL_srp_domain.sv:154:       // ---- link transitions own the state (F10.2 revert rule) -----------
+hdl/srp/KL_srp_domain.sv:155:       if (link_fall_w) begin
+hdl/srp/KL_srp_domain.sv:156:         // revert to defaults on LINK_DOWN only; nothing goes on the wire
+hdl/srp/KL_srp_domain.sv:157:         if (adopted_r) evt_domain_change_o <= 1'b1;
+hdl/srp/KL_srp_domain.sv:158:         decl_prio_r   <= DEF_PRIO_P;
+hdl/srp/KL_srp_domain.sv:159:         decl_vid_r    <= DEF_VID_P;
+hdl/srp/KL_srp_domain.sv:160:         adopted_r     <= 1'b0;
+hdl/srp/KL_srp_domain.sv:161:         declared_r    <= 1'b0;
+hdl/srp/KL_srp_domain.sv:162:         q0_valid_r    <= 1'b0;
+hdl/srp/KL_srp_domain.sv:163:         q1_valid_r    <= 1'b0;
+hdl/srp/KL_srp_domain.sv:164:         rx_pend_v_r   <= 1'b0;
+hdl/srp/KL_srp_domain.sv:165:         rejoin_pend_r <= 1'b0;
+hdl/srp/KL_srp_domain.sv:166:       end else if (link_rise_w) begin
+hdl/srp/KL_srp_domain.sv:167:         // declare the defaults (New) — startup lands here too
+hdl/srp/KL_srp_domain.sv:168:         q0_valid_r <= 1'b1;
+hdl/srp/KL_srp_domain.sv:169:         q0_ev_r    <= EV_NEW_C;
+hdl/srp/KL_srp_domain.sv:170:         q0_val_r   <= {CLASS_A_ID_C, DEF_PRIO_P, DEF_VID_P};
+hdl/srp/KL_srp_domain.sv:171:         declared_r <= 1'b1;
+hdl/srp/KL_srp_domain.sv:172:       end else if (rx_pend_v_r && q_empty_w) begin
+hdl/srp/KL_srp_domain.sv:173:         // adopt: withdraw the old declaration, re-declare the adopted one
+hdl/srp/KL_srp_domain.sv:174:         q0_valid_r          <= 1'b1;
+hdl/srp/KL_srp_domain.sv:175:         q0_ev_r             <= EV_LV_C;
+hdl/srp/KL_srp_domain.sv:176:         q0_val_r            <= {CLASS_A_ID_C, decl_prio_r, decl_vid_r};
+hdl/srp/KL_srp_domain.sv:177:         q1_valid_r          <= 1'b1;
+hdl/srp/KL_srp_domain.sv:178:         q1_ev_r             <= EV_NEW_C;
+hdl/srp/KL_srp_domain.sv:179:         q1_val_r            <= {CLASS_A_ID_C, rx_pend_prio_r, rx_pend_vid_r};
+hdl/srp/KL_srp_domain.sv:180:         decl_prio_r         <= rx_pend_prio_r;
+hdl/srp/KL_srp_domain.sv:181:         decl_vid_r          <= rx_pend_vid_r;
+hdl/srp/KL_srp_domain.sv:182:         adopted_r           <= 1'b1;
+hdl/srp/KL_srp_domain.sv:183:         rx_pend_v_r         <= 1'b0;
+hdl/srp/KL_srp_domain.sv:184:         evt_domain_change_o <= 1'b1;
+hdl/srp/KL_srp_domain.sv:185:       end else if (rejoin_pend_r && declared_r && q_empty_w) begin
+hdl/top/protocol_processor_top.sv:4011:       //! ev_asp_i therefore takes the integrator's path-source event ALONE.
+hdl/top/protocol_processor_top.sv:4012:       //! gsi_asp_chg_i is the one face that can see whether the served path
+hdl/top/protocol_processor_top.sv:4013:       //! sequence moved: the integrator owns entry 0 (the grandmaster) and
+hdl/top/protocol_processor_top.sv:4014:       //! entries 1.. (the published PathTrace tail), answers them through
+hdl/top/protocol_processor_top.sv:4015:       //! gsi_data_i, and raises gsi_asp_chg_i from the SAME sources. An
+hdl/top/protocol_processor_top.sv:4016:       //! integrator that does not drive the gsi face answers an empty path
+hdl/top/protocol_processor_top.sv:4017:       //! and has nothing to notify about.
+hdl/top/protocol_processor_top.sv:4018:       .ev_avb_i              (gm_change_i || srp_evt_domain_change_w
+hdl/top/protocol_processor_top.sv:4019:                               || (link_up_i != link_q_r) || gsi_avb_chg_i),
+hdl/top/protocol_processor_top.sv:4020:       .ev_asp_i              (gsi_asp_chg_i),
+hdl/top/protocol_processor_top.sv:4021:       .ev_amap_i             (aecp_eff_notify_stb_nc_w
+hdl/aecp/KL_aecp_notify.sv:665:       pick_di_w   = amap_index_r;
+hdl/aecp/KL_aecp_notify.sv:666:     end else if (pe_avb_r) begin
+hdl/aecp/KL_aecp_notify.sv:667:       pick_kind_w = PP_UNS_AVB_C;
+hdl/aecp/KL_aecp_notify.sv:668:       pick_dt_w   = 16'h0009;           // AVB_INTERFACE
+hdl/aecp/KL_aecp_notify.sv:669:     end else if (pe_asp_r) begin
+hdl/aecp/KL_aecp_notify.sv:670:       pick_kind_w = PP_UNS_ASP_C;
+hdl/aecp/KL_aecp_notify.sv:671:       pick_dt_w   = 16'h0009;
+hdl/aecp/KL_aecp_notify.sv:672:     end else begin
+hdl/aecp/KL_aecp_notify.sv:1073:       if (ev_avb_i) pe_avb_r <= 1'b1;
+hdl/aecp/KL_aecp_notify.sv:1074:       if (ev_asp_i) pe_asp_r <= 1'b1;
+hdl/aecp/KL_aecp_notify.sv:1098:       if (ev_ctr_i && ctr_ev_ok_w) ctr_dirty_r[ctr_ev_ix_w] <= 1'b1;
+hdl/aecp/KL_aecp_notify.sv:1099:       for (int unsigned c = 0; c < N_CTR_DESC_C; c++) begin
+hdl/aecp/KL_aecp_notify.sv:1100:         if (ctr_dirty_r[c] && !ctr_pend_r[c]
+hdl/aecp/KL_aecp_notify.sv:1101:             && (!ctr_sent_r[c]
+hdl/aecp/KL_aecp_notify.sv:1102:                 || ((now_ms_i - ctr_last_r[c]) >= 32'd1000))) begin
+hdl/aecp/KL_aecp_notify.sv:1103:           ctr_dirty_r[c] <= 1'b0;
+hdl/aecp/KL_aecp_notify.sv:1104:           ctr_pend_r[c]  <= 1'b1;
+hdl/aecp/KL_aecp_notify.sv:1105:         end
+hdl/aecp/KL_aecp_notify.sv:1106:       end
+tb/pp_top/notify_phases.hpp:83:   //! H::feed, clocked through tick() so a frame sent meanwhile is logged
+tb/pp_top/notify_phases.hpp:84:   void feed(const std::vector<uint8_t>& f) {
+tb/pp_top/notify_phases.hpp:85:     for (size_t i = 0; i < f.size(); ++i) {
+tb/pp_top/notify_phases.hpp:86:       io.d->rx_valid_i = 1;
+tb/pp_top/notify_phases.hpp:87:       io.d->rx_data_i = f[i];
+tb/pp_top/notify_phases.hpp:88:       io.d->rx_last_i = (i + 1 == f.size()) ? 1 : 0;
+tb/pp_top/notify_phases.hpp:89:       tick();
+tb/pp_top/notify_phases.hpp:90:     }
+tb/pp_top/notify_phases.hpp:91:     io.d->rx_valid_i = 0;
+tb/pp_top/notify_phases.hpp:92:     io.d->rx_last_i = 0;
+tb/pp_top/notify_phases.hpp:93:     for (int i = 0; i < 4; ++i) tick();
+tb/pp_top/notify_phases.hpp:94:   }
+tb/pp_top/notify_phases.hpp:1642: // ==== DN. The Domain and link-edge GET_AVB_INFO notification (issue #42) ===
+tb/pp_top/notify_phases.hpp:1643: // Milan 5.3.6.2 and Table 5.22: a change of the MSRP Class A Domain (4.2.7.2.1:
+tb/pp_top/notify_phases.hpp:1644: // its priority and VID) or of the link state is reported to every registered
+tb/pp_top/notify_phases.hpp:1645: // controller as an unsolicited GET_AVB_INFO for the AVB_INTERFACE. The top ORs
+tb/pp_top/notify_phases.hpp:1646: // four triggers into the notification block's ev_avb_i: gm_change_i and
+tb/pp_top/notify_phases.hpp:1647: // gsi_avb_chg_i (section V, V6 to V6i), the SRP Domain machine's DOMAIN_CHANGE
+tb/pp_top/notify_phases.hpp:1648: // and the link_up_i edge. This section grades the last two. One controller A
+tb/pp_top/notify_phases.hpp:1649: // is registered; a bridge feeds its Class A Domain in the certified two-class
+tb/pp_top/notify_phases.hpp:1650: // shape of S8 and DV4 (FirstValue {5, 2, VID}, NumberOfValues 2). The body is
+tb/pp_top/notify_phases.hpp:1651: // the integrator's face answer, V1's words (06 6.10: the processor serves them
+tb/pp_top/notify_phases.hpp:1652: // and makes none of them), so a frame is graded byte-exact for its trigger,
+tb/pp_top/notify_phases.hpp:1653: // header, entry sequence_id and AVB_INTERFACE 0. GET_AVB_INFO has no rate limit
+tb/pp_top/notify_phases.hpp:1654: // of its own (06 7: T-CTR-NOTIF limits GET_COUNTERS); every stimulus still
+tb/pp_top/notify_phases.hpp:1655: // waits a second after the latest notification left, so no count here depends
+tb/pp_top/notify_phases.hpp:1656: // on coalescing or on a limiter.
+tb/pp_top/notify_phases.hpp:1657: struct DomainNotifyPhase : NotifyBench {
+tb/pp_top/notify_phases.hpp:1658:   static constexpr uint16_t ADOPT_VID = 5;          // a bridge's Class A VID (S8)
+tb/pp_top/notify_phases.hpp:1659:   static_assert(ADOPT_VID != SRP_DEF_VID, "<bench-switch-model> must see the VID move");
+tb/pp_top/notify_phases.hpp:1660:   static constexpr long WINDOW = 1200L * MS_CYC;    // longer than the spacing
+tb/pp_top/notify_phases.hpp:1661:   static constexpr long SPACING = 1000L * MS_CYC;   // T-CTR-NOTIF (06 7)
+tb/pp_top/notify_phases.hpp:1662:   uint16_t seq = 0x4200;
+tb/pp_top/notify_phases.hpp:1663:   uint64_t last_sent = 0;   //!< the clock the latest frame to A left
+tb/pp_top/notify_phases.hpp:1664: 
+tb/pp_top/notify_phases.hpp:1665:   using NotifyBench::NotifyBench;
+tb/pp_top/notify_phases.hpp:1666: 
+tb/pp_top/notify_phases.hpp:1667:   //! the u = 1 GET_AVB_INFO response to A for AVB_INTERFACE 0 (IEEE
+tb/pp_top/notify_phases.hpp:1668:   //! 7.4.40.2), its body the integrator's words at the 06 6.10 offsets
+tb/pp_top/notify_phases.hpp:1669:   static std::vector<uint8_t> avb_info(unsigned s) {
+tb/pp_top/notify_phases.hpp:1670:     const uint64_t w1 = H::gsi_value(1, 0x0009, 0, 1, 0);
+tb/pp_top/notify_phases.hpp:1671:     const size_t n = size_t(w1 & 0xFFFF);
+tb/pp_top/notify_phases.hpp:1672:     std::vector<uint8_t> b(20 + 4 * n, 0);
+tb/pp_top/notify_phases.hpp:1673:     putbe(&b[0], 0x0009, 2);                             // AVB_INTERFACE @24
+tb/pp_top/notify_phases.hpp:1674:     putbe(&b[2], 0, 2);                                  // index 0 @26
+tb/pp_top/notify_phases.hpp:1675:     putbe(&b[4], H::gsi_value(1, 0x0009, 0, 0, 0), 8);   // grandmaster @28
+tb/pp_top/notify_phases.hpp:1676:     putbe(&b[12], w1, 8);              // delay, domain, flags, count @36
+tb/pp_top/notify_phases.hpp:1677:     for (size_t k = 0; k < n; ++k)                       // msrp_mappings @44
+tb/pp_top/notify_phases.hpp:1678:       putbe(&b[20 + 4 * k], H::gsi_value(1, 0x0009, 0, 8, uint8_t(k)), 4);
+tb/pp_top/notify_phases.hpp:1679:     auto f = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID,
+tb/pp_top/notify_phases.hpp:1680:                         uint16_t(s), 0x0027, b);
+tb/pp_top/notify_phases.hpp:1681:     f[36] |= 0x80;                                       // u = 1
+tb/pp_top/notify_phases.hpp:1682:     return f;
+tb/pp_top/notify_phases.hpp:1683:   }
+tb/pp_top/notify_phases.hpp:1684:   bool class_a_is(unsigned vid) const {
+tb/pp_top/notify_phases.hpp:1685:     return io.d->srp_class_a_prio_o == 3 && io.d->srp_class_a_vid_o == vid;
+tb/pp_top/notify_phases.hpp:1686:   }
+tb/pp_top/notify_phases.hpp:1687:   //! the 06 7 spacing: a second after the latest frame to A left
+tb/pp_top/notify_phases.hpp:1688:   void space_out() {
+tb/pp_top/notify_phases.hpp:1689:     while (io.t < last_sent + SPACING) tick();
+tb/pp_top/notify_phases.hpp:1690:   }
+tb/pp_top/notify_phases.hpp:1691:   //! the bridge's Class A Domain {3, vid}: Class A arrives as value 1 (10 3)
+tb/pp_top/notify_phases.hpp:1692:   void declare_domain(uint16_t vid) {
+tb/pp_top/notify_phases.hpp:1693:     Msg dom{4, 4, false, {Vec{false, 2, fv_domain(5, 2, vid), {EV_JOININ, EV_JOININ}, {}}}};
+tb/pp_top/notify_phases.hpp:1694:     feed(mrpdu_frame(true, T1_MAC, {dom}));
+tb/pp_top/notify_phases.hpp:1695:   }
+tb/pp_top/notify_phases.hpp:1696:   //! the window after a stimulus that ended at log index `from`; returns the
+tb/pp_top/notify_phases.hpp:1697:   //! frames A received in it
+tb/pp_top/notify_phases.hpp:1698:   std::vector<size_t> watch(size_t from) {
+tb/pp_top/notify_phases.hpp:1699:     for (long c = 0; c < WINDOW; ++c) tick();
+tb/pp_top/notify_phases.hpp:1700:     const auto at = at_mac(CTLR_MAC, from);
+tb/pp_top/notify_phases.hpp:1701:     if (!at.empty()) last_sent = seen[at.back()].t;
+tb/pp_top/notify_phases.hpp:1702:     return at;
+tb/pp_top/notify_phases.hpp:1703:   }
+tb/pp_top/notify_phases.hpp:1704:   //! one stimulus that must notify: exactly one frame at A, a u = 1
+tb/pp_top/notify_phases.hpp:1705:   //! GET_AVB_INFO (so no GET_AS_PATH and nothing else), byte-exact at the
+tb/pp_top/notify_phases.hpp:1706:   //! entry's sequence_id (Milan 5.4.5.1, modelled from the wire as in NP)
+tb/pp_top/notify_phases.hpp:1707:   void one_notification(const char* tag, const char* tag_b, const char* what,
+tb/pp_top/notify_phases.hpp:1708:                         size_t from, uint64_t t0) {
+tb/pp_top/notify_phases.hpp:1709:     const auto at = watch(from);
+tb/pp_top/notify_phases.hpp:1710:     unsigned avb = 0;
+tb/pp_top/notify_phases.hpp:1711:     unsigned asp = 0;
+tb/pp_top/notify_phases.hpp:1712:     for (size_t i : at) {
+tb/pp_top/notify_phases.hpp:1713:       avb += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0027;
+tb/pp_top/notify_phases.hpp:1714:       asp += unsolicited(seen[i].f) && ct_of(seen[i].f) == 0x0028;
+tb/pp_top/notify_phases.hpp:1715:     }
+tb/pp_top/notify_phases.hpp:1716:     CHECK(at.size() == 1 && avb == 1,
+tb/pp_top/notify_phases.hpp:1717:           "%s: %s: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH "
+tb/pp_top/notify_phases.hpp:1718:           "(got %zu frames: %u GET_AVB_INFO, %u GET_AS_PATH)", tag, what, at.size(), avb, asp);
+tb/pp_top/notify_phases.hpp:1719:     const std::vector<uint8_t> got = at.empty() ? std::vector<uint8_t>{} : seen[at[0]].f;
+tb/pp_top/notify_phases.hpp:1720:     const unsigned want_seq = at.empty() ? 0 : notified_before(CTLR_MAC, at[0]);
+tb/pp_top/notify_phases.hpp:1721:     const auto want = avb_info(want_seq);
+tb/pp_top/notify_phases.hpp:1722:     CHECK(got == want,
+tb/pp_top/notify_phases.hpp:1723:           "%s: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its "
+tb/pp_top/notify_phases.hpp:1724:           "sequence_id %u, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)%s", tag_b, want_seq,
+tb/pp_top/notify_phases.hpp:1725:           got.empty() ? "; no frame" : "");
+tb/pp_top/notify_phases.hpp:1726:     if (!got.empty() && got != want) { dump("got", got); dump("exp", want); }
+tb/pp_top/notify_phases.hpp:1727:     if (!at.empty())
+tb/pp_top/notify_phases.hpp:1728:       printf("  [i] %s: GET_AVB_INFO sequence_id %u left %ld clocks after the stimulus\n", tag,
+tb/pp_top/notify_phases.hpp:1729:              seq_of(got), long(seen[at[0]].t - t0));
+tb/pp_top/notify_phases.hpp:1730:   }
+tb/pp_top/notify_phases.hpp:1731: 
+tb/pp_top/notify_phases.hpp:1732:   // ---- DN4: the link edge alone, at DEFAULTS --------------------------------
+tb/pp_top/notify_phases.hpp:1733:   // KL_srp_domain strobes a LINK_DOWN revert only from ADOPTED (10 6.1 F10.2),
+tb/pp_top/notify_phases.hpp:1734:   // so at DEFAULTS neither edge raises DOMAIN_CHANGE and the link term is the
+tb/pp_top/notify_phases.hpp:1735:   // only trigger of ev_avb_i.
+tb/pp_top/notify_phases.hpp:1736:   void link_edges() {
+tb/pp_top/notify_phases.hpp:1737:     const int ch0 = io.domain_changes;
+tb/pp_top/notify_phases.hpp:1738:     space_out();
+tb/pp_top/notify_phases.hpp:1739:     size_t from = seen.size();
+tb/pp_top/notify_phases.hpp:1740:     io.d->link_up_i = 0;
+tb/pp_top/notify_phases.hpp:1741:     one_notification("DN4b", "DN4c", "link down", from, io.t);
+tb/pp_top/notify_phases.hpp:1742:     space_out();
+tb/pp_top/notify_phases.hpp:1743:     from = seen.size();
+tb/pp_top/notify_phases.hpp:1744:     io.d->link_up_i = 1;
+tb/pp_top/notify_phases.hpp:1745:     one_notification("DN4d", "DN4e", "link up", from, io.t);
+tb/pp_top/notify_phases.hpp:1746:     CHECK(io.domain_changes == ch0,
+tb/pp_top/notify_phases.hpp:1747:           "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link "
+tb/pp_top/notify_phases.hpp:1748:           "term alone notifies), saw %d", io.domain_changes - ch0);
+tb/pp_top/notify_phases.hpp:1749:   }
+tb/pp_top/notify_phases.hpp:1750:   // ---- <bench-switch-model>: a differing Domain is adopted and notified ----------------------
+tb/pp_top/notify_phases.hpp:1751:   void adoption() {
+tb/pp_top/notify_phases.hpp:1752:     const int ch0 = io.domain_changes;
+tb/pp_top/notify_phases.hpp:1753:     space_out();
+tb/pp_top/notify_phases.hpp:1754:     const size_t from = seen.size();
+tb/pp_top/notify_phases.hpp:1755:     declare_domain(ADOPT_VID);
+tb/pp_top/notify_phases.hpp:1756:     const uint64_t t0 = io.t;
+tb/pp_top/notify_phases.hpp:1757:     one_notification("DN1b", "DN1c", "the bridge's {3, 5} adopted", from, t0);
+tb/pp_top/notify_phases.hpp:1758:     CHECK(io.domain_changes == ch0 + 1 && class_a_is(ADOPT_VID) && io.d->srp_domain_adopted_o,
+tb/pp_top/notify_phases.hpp:1759:           "<bench-switch-model>: the bridge's {3, %u} is adopted with one DOMAIN_CHANGE (premise), saw %d, "
+tb/pp_top/notify_phases.hpp:1760:           "class-D {%u, %u, adopted %u}", unsigned(ADOPT_VID), io.domain_changes - ch0,
+tb/pp_top/notify_phases.hpp:1761:           unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o),
+tb/pp_top/notify_phases.hpp:1762:           unsigned(io.d->srp_domain_adopted_o));
+tb/pp_top/notify_phases.hpp:1763:   }
+tb/pp_top/notify_phases.hpp:1764:   // ---- DN2: the declaration that returns the Domain to its default ----------
+tb/pp_top/notify_phases.hpp:1765:   // A received Domain that differs from the operating one is adopted, the
+tb/pp_top/notify_phases.hpp:1766:   // default's values included (KL_srp_domain's adoption arm; only LINK_DOWN
+tb/pp_top/notify_phases.hpp:1767:   // restores the DEFAULTS state), so it strobes DOMAIN_CHANGE once.
+tb/pp_top/notify_phases.hpp:1768:   void revert() {
+tb/pp_top/notify_phases.hpp:1769:     const int ch0 = io.domain_changes;
+tb/pp_top/notify_phases.hpp:1770:     space_out();
+tb/pp_top/notify_phases.hpp:1771:     const size_t from = seen.size();
+tb/pp_top/notify_phases.hpp:1772:     declare_domain(SRP_DEF_VID);
+tb/pp_top/notify_phases.hpp:1773:     const uint64_t t0 = io.t;
+tb/pp_top/notify_phases.hpp:1774:     one_notification("DN2b", "DN2c", "the default {3, 2} declared back", from, t0);
+tb/pp_top/notify_phases.hpp:1775:     CHECK(io.domain_changes == ch0 + 1 && class_a_is(SRP_DEF_VID),
+tb/pp_top/notify_phases.hpp:1776:           "DN2: the declared default {3, %u} is in force with one DOMAIN_CHANGE (premise), "
+tb/pp_top/notify_phases.hpp:1777:           "saw %d, class-D {%u, %u}", unsigned(SRP_DEF_VID), io.domain_changes - ch0,
+tb/pp_top/notify_phases.hpp:1778:           unsigned(io.d->srp_class_a_prio_o), unsigned(io.d->srp_class_a_vid_o));
+tb/pp_top/notify_phases.hpp:1779:     printf("  [i] DN2: class-D adopted %u after the default is declared back\n",
+tb/pp_top/notify_phases.hpp:1780:            unsigned(io.d->srp_domain_adopted_o));
+tb/pp_top/notify_phases.hpp:1781:   }
+tb/pp_top/notify_phases.hpp:1782:   // ---- DN3: an identical re-declaration changes nothing and sends nothing ---
+tb/pp_top/notify_phases.hpp:1783:   void identical(const char* tag, uint16_t vid) {
+tb/pp_top/notify_phases.hpp:1784:     const int ch0 = io.domain_changes;
+tb/pp_top/notify_phases.hpp:1785:     space_out();
+tb/pp_top/notify_phases.hpp:1786:     const size_t from = seen.size();
+tb/pp_top/notify_phases.hpp:1787:     declare_domain(vid);
+tb/pp_top/notify_phases.hpp:1788:     const auto at = watch(from);
+tb/pp_top/notify_phases.hpp:1789:     CHECK(io.domain_changes == ch0 && at.empty(),
+tb/pp_top/notify_phases.hpp:1790:           "%s: the bridge declares the operating {3, %u} again: no DOMAIN_CHANGE (saw %d) "
+tb/pp_top/notify_phases.hpp:1791:           "and nothing reaches A (got %zu frames)", tag, unsigned(vid),
+tb/pp_top/notify_phases.hpp:1792:           io.domain_changes - ch0, at.size());
+tb/pp_top/notify_phases.hpp:1793:   }
+tb/pp_top/notify_phases.hpp:1794: 
+tb/pp_top/notify_phases.hpp:1795:   void run() {
+tb/pp_top/notify_phases.hpp:1796:     boot_to_idle(true);
+tb/pp_top/notify_phases.hpp:1797:     CHECK(register_controller(CTLR_MAC, CTLR_EID, seq++),
+tb/pp_top/notify_phases.hpp:1798:           "DN0: controller A registered (premise)");
+tb/pp_top/notify_phases.hpp:1799:     const uint32_t ms0 = io.d->dbg_now_ms_o;
+tb/pp_top/notify_phases.hpp:1800:     link_edges();
+tb/pp_top/notify_phases.hpp:1801:     adoption();
+tb/pp_top/notify_phases.hpp:1802:     identical("DN3", ADOPT_VID);
+tb/pp_top/notify_phases.hpp:1803:     revert();
+tb/pp_top/notify_phases.hpp:1804:     identical("DN3b", SRP_DEF_VID);
+tb/pp_top/notify_phases.hpp:1805:     printf("  [i] DN: %u ms of the timebase after the registration (the controller monitor's "
+tb/pp_top/notify_phases.hpp:1806:            "floor is 30 s)\n", unsigned(io.d->dbg_now_ms_o - ms0));
+tb/pp_top/notify_phases.hpp:1807:   }
+tb/pp_top/notify_phases.hpp:1808: };
+tb/pp_top/notify_phases.hpp:1809: 
+tb/pp_top/notify_phases.hpp:1810: [[maybe_unused]] static void run_rnd(H& h) {
+tb/pp_top/notify_phases.hpp:1811:   const int checks0 = h.checks;
+tb/pp_top/README.md:2465: ### Section DN: the Domain and link-edge GET_AVB_INFO notification (#42)
+tb/pp_top/README.md:2466: 
+tb/pp_top/README.md:2467: Milan §5.3.6.2 and Table 5.22 report a change of the Class A Domain (§4.2.7.2.1: its
+tb/pp_top/README.md:2468: priority and VID) and of the link state to every registered controller as an
+tb/pp_top/README.md:2469: unsolicited GET_AVB_INFO. The top ORs four triggers into `KL_aecp_notify`'s `ev_avb_i`:
+tb/pp_top/README.md:2470: `gm_change_i` and `gsi_avb_chg_i`, which section V grades (V6 to V6i), and the two this
+tb/pp_top/README.md:2471: section grades, the SRP Domain machine's DOMAIN_CHANGE (`srp_evt_domain_change_w`) and
+tb/pp_top/README.md:2472: the edge of `link_up_i`. One controller A is registered, and a bridge feeds its Class A
+tb/pp_top/README.md:2473: Domain in S8's certified two-class shape (FirstValue {5, 2, VID}, NumberOfValues 2).
+tb/pp_top/README.md:2474: Each notifying step is graded twice: exactly one frame reaches A in the 1.2 s after the
+tb/pp_top/README.md:2475: stimulus, and it is a u = 1 GET_AVB_INFO (so no GET_AS_PATH and nothing else); and it is
+tb/pp_top/README.md:2476: byte-exact: SUCCESS to A's DA and entity_id at the entry's `sequence_id`, AVB_INTERFACE
+tb/pp_top/README.md:2477: 0, cdl 40 and V1's body. The body is the integrator's face answer (06 §6.10), so the
+tb/pp_top/README.md:2478: check grades the trigger and the frame, not the words.
+tb/pp_top/README.md:2479: 
+tb/pp_top/README.md:2480: - **DN0** (premise) A registers.
+tb/pp_top/README.md:2481: - **DN4b-DN4e** the link edge, at DEFAULTS: link down sends one GET_AVB_INFO,
+tb/pp_top/README.md:2482:   byte-exact at `sequence_id` 0, and link up one more at 1 (issue #42 acceptance 4).
+tb/pp_top/README.md:2483:   **DN4** (premise) neither edge raises DOMAIN_CHANGE: `KL_srp_domain` strobes its
+tb/pp_top/README.md:2484:   LINK_DOWN revert only from ADOPTED, so the link term is the only trigger.
+tb/pp_top/README.md:2485: - **<bench-switch-model>** (premise) the bridge's {3, 5} is adopted with one DOMAIN_CHANGE. **DN1b,
+tb/pp_top/README.md:2486:   DN1c** one GET_AVB_INFO, byte-exact at `sequence_id` 2 (acceptance 1).
+tb/pp_top/README.md:2487: - **DN3** the bridge declares the adopted {3, 5} again, as its periodic re-declaration
+tb/pp_top/README.md:2488:   does: no DOMAIN_CHANGE, and nothing reaches A (acceptance 2).
+tb/pp_top/README.md:2489: - **DN2** (premise) the bridge declares the default {3, 2}, which is then in force
+tb/pp_top/README.md:2490:   with one DOMAIN_CHANGE. **DN2b, DN2c** one more GET_AVB_INFO, byte-exact at
+tb/pp_top/README.md:2491:   `sequence_id` 3. The strobe comes from the adoption arm (`KL_srp_domain.sv:184`): a
+tb/pp_top/README.md:2492:   received Domain that differs from the operating one is adopted, even when it carries
+tb/pp_top/README.md:2493:   the default's values, so `srp_domain_adopted_o` stays 1 (the section's `[i]` line).
+tb/pp_top/README.md:2494:   The revert at `:157` runs on LINK_DOWN alone.
+tb/pp_top/README.md:2495: - **DN3b** the default declared again: nothing.
+tb/pp_top/README.md:2496: 
+tb/pp_top/README.md:2497: Each notification leaves 466 clocks after a link edge and 495 after the MRPDU's last
+tb/pp_top/README.md:2498: byte. The LINK_DOWN revert at `:157` is not graded on its own here. It strobes on the
+tb/pp_top/README.md:2499: same edge that raises the link term of this OR, so at `ev_avb_i` it cannot be told
+tb/pp_top/README.md:2500: apart from the link term, and removing `srp_evt_domain_change_w` still leaves a
+tb/pp_top/README.md:2501: notification on that edge. DV5 grades the revert's DOMAIN_CHANGE.
+tb/pp_top/README.md:2502: 
+tb/pp_top/README.md:2503: **Spacing.** The only notification rate limit 06 §7 defines is the GET_COUNTERS one:
+tb/pp_top/README.md:2504: `T-CTR-NOTIF`, one second per descriptor from the previous round's last send.
+tb/pp_top/README.md:2505: GET_AVB_INFO coalesces into one pending bit and has no limit. The section still waits
+tb/pp_top/README.md:2506: out that second. Each stimulus comes at least 1,000 ms (100,000 clocks) after the
+tb/pp_top/README.md:2507: latest frame to A left, and each window is 1.2 s, so no count depends on coalescing or
+tb/pp_top/README.md:2508: on a limiter. The section takes 8,167 ms of the timebase after the registration. That
+tb/pp_top/README.md:2509: is under the controller monitor's 30 s floor, so no CONTROLLER_AVAILABLE reaches A.
+tb/pp_top/README.md:2510: 

@@ -1,0 +1,677 @@
+{
+  "base_controls": 56,
+  "head_controls": 65,
+  "all_old_definitions_unchanged": true,
+  "all_65_plant_exactly_once": true,
+  "changed_files": [
+    "M\tdocs/architecture/09_verification.md",
+    "M\ttb/pp_top/README.md",
+    "M\ttb/pp_top/notify_mutants.py",
+    "M\ttb/pp_top/notify_phases.hpp",
+    "M\ttb/pp_top/sim_main.cpp"
+  ],
+  "controls": [
+    {
+      "name": "ident_two_frames",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_seq_per_frame",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_no_rearm",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_rearm_from_third_frame",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_burst_100ms",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_t0_at_request",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_burst_from_t0",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_departure_is_retirement",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_departure_unwired",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_next_burst_at_once",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        },
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_wait_ignores_gap",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_press_not_latched",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_burst_press_not_latched",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_departure_ignores_ready",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_burst_deadline_one_tick_short",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_t0_same_ms",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_cut_on_release",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_release_ignored",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_unicast_da",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_face_taken_mid_job",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ident_built_at_default",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        },
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "enq_dropped_configuration",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/ucode/gen_ucode.py",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "enq_dropped_stream_info",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/ucode/gen_ucode.py",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "class_4_mapped_to_rate",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "class_9_mapped_to_control",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "requester_not_excluded",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "entry_seq_not_advanced",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "stream_info_get_body",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_engine.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_limit_500ms",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "fan_out_skips_row_0",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "refresh_resets_seq",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "foreign_unlock_allowed",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "lock_taker_notified",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "deregister_keeps_row",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "registry_holds_15",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "set_control_ignores_lock",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/ucode/gen_ucode.py",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "inflight_highest_free_id",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "inflight_match_ignores_seq",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "inflight_cancel_keeps_timer",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "inflight_shared_seq",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/packet_engine/KL_pp_originator.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ix_old_identity_kept",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ix_new_identity_unset",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ix_last_chunk_ignored",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "ix_rewrite_unmatched",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "override_set_only",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "own_compare_new_row",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "stamp_read_without_valid",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_spacing_from_selection",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_spacing_from_selection_tw",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_stamp_at_send_only",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_stamp_first_job_only",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "counter_limit_500ms_cs",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "registry_holds_15_cs",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "dereg_mid_round_no_hold",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "dereg_pending_stops_follow",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "dereg_lost_at_round_end",
+      "unchanged_from_base": true,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "avb_domain_term_dropped",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "avb_link_term_dropped",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "asp_takes_domain",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "avb_notify_not_interface",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "domain_same_readopted",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/srp/KL_srp_domain.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "adoption_no_strobe",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/srp/KL_srp_domain.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "revert_strobes_at_defaults",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/srp/KL_srp_domain.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "registry_never_claims",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/aecp/KL_aecp_notify.sv",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "name": "restore_never_done",
+      "unchanged_from_base": null,
+      "planting": [
+        {
+          "path": "hdl/top/protocol_processor_top.sv",
+          "occurrences": 1
+        }
+      ]
+    }
+  ]
+}
