@@ -31,12 +31,14 @@ PP_ADP_PKG = PP / "hdl/adp/pp_adp_pkg.sv"
 TB_MBX = ROOT / "tb/verilator/mbx"
 TB_COMMON = ROOT / "tb/common"
 
-#: The firmware every target links: the driver, the loop, the port layer, ADP, the app.
+#: The firmware every target links: the driver, the loop, the port layer, ADP, ACMP, the app.
 PORTABLE = ("mbx/mbx.c", "loop/ctrl_loop.c", "port/ctrl_pool.c", "port/ctrl_debug.c", "port/shlan_port.c",
-            "adp/adp.c", "adp/adp_mbx.c", "app/ctrl_app.c")
+            "adp/adp.c", "adp/adp_mbx.c", "acmp/acmp.c", "acmp/acmp_mbx.c", "acmp/acmp_nvm.c", "app/ctrl_app.c")
 #: The host side: the model and mbx_hal.h on it. Test equipment, never measured.
 HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
-INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "app", "test")
+INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "acmp", "app", "test")
+#: The saved-state store's state port (nvm_state.h), which acmp_nvm.c serves.
+NVM_DIR = ROOT / "sw/firmware/ctrl_nvm"
 C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
 
 RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"), "riscv32-unknown-elf-gcc",
@@ -77,7 +79,7 @@ def run(argv: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess
 
 def includes(tree: Tree) -> list[str]:
     """The firmware's include path, from the tree being built, then the harness."""
-    return [f"-I{tree.src / d}" for d in INCLUDE_DIRS] + [f"-I{HARNESS}"]
+    return [f"-I{tree.src / d}" for d in INCLUDE_DIRS] + [f"-I{NVM_DIR}", f"-I{HARNESS}"]
 
 
 def compile_c(tree: Tree, sources: list[Path], tag: str, extra: tuple[str, ...] = (),

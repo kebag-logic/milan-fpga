@@ -7,7 +7,7 @@
 
 #include "shlan_port.h"
 
-bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
+bool ctrl_app_compose(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 {
 	if (!ctrl_pool_init(&app->pool, cfg->arena, cfg->arena_bytes, cfg->classes, cfg->n_classes)) {
 		return false;
@@ -19,6 +19,15 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	    !adp_mbx_attach(&app->adp, &app->loop)) {
 		return false;
 	}
+	// ACMP stands in front of ADP's binding of the adp channel, so it comes
+	// after it
+	return cfg->acmp == NULL ||
+	       (acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) &&
+		acmp_mbx_attach(&app->acmp, &app->loop));
+}
+
+bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
+{
 	// ADP sends the entity's one MAC on every interface (adp.c), so it is
 	// every interface's own unicast address
 	uint64_t own_mac[MBX_N_IF];
@@ -30,4 +39,9 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	}
 	adp_mbx_set_enable(&app->adp, true);
 	return true;
+}
+
+bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
+{
+	return ctrl_app_compose(app, cfg) && ctrl_app_open(app, cfg);
 }

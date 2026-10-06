@@ -146,7 +146,7 @@ std::vector<Sent> scenario(Fabric& fab) {
     const ctrl_pool_class classes[1] = {{32u, 8u}};
     std::vector<std::uint8_t> arena(1024);
     const auto app = std::make_unique<ctrl_app>();
-    const ctrl_app_config cfg{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr};
+    const ctrl_app_config cfg{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr, nullptr, nullptr};
     std::vector<Sent> out;
     if (!ctrl_app_start(app.get(), &cfg)) {
         return out;

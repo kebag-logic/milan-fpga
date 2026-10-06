@@ -41,8 +41,9 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
-            port/shlan_port.c adp/adp.c adp/adp_mbx.c app/ctrl_app.c host/mbx_model.c)
-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp app)
+            port/shlan_port.c adp/adp.c adp/adp_mbx.c acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c \
+            app/ctrl_app.c host/mbx_model.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
 CC     ?= cc
 AR     ?= ar
 
