@@ -20,16 +20,22 @@ most arcs is the line's measure. Exception edges (`throw`) are not counted;
 the firmware is C.
 
 THE EXCLUSIONS are the table under "Coverage exclusions" in
-sw/firmware/gtest/README.md, one row per function: the file, the function,
-a fragment of the statement left uncovered (which must occur once in the
-function, so the row names its code), what is left uncovered there ("N arcs",
-"N lines", or both) and why it cannot be reached. A row is matched against
-the whole function, as gcov's own function ranges bound it, because gcc at
--O0 files the arcs of a condition that spans lines under one of them, and
-not the same one in every version: the function's uncovered arcs and
-unexecuted lines must be exactly what its rows say. A row that does not
-match the measurement, names no reason, or whose fragment is missing or
-repeated in the function is refused.
+sw/firmware/gtest/README.md, one row per statement: the file, the function,
+a fragment of the statement's first line (which must occur once in the
+function), the items it leaves uncovered and why no input reaches them. The
+items are named exactly: "arcs 2, 4 of 4" are the second and fourth of the
+statement's four arcs, counted in gcov's order line by line from the
+statement's first line to its last (gcc at -O0 files the arcs of a condition
+that spans lines under one of them, and not the same one in every version,
+so the count runs over the statement, not one line); "line `frag`" is the
+first line from the statement's on that holds the fragment, and it must be
+unexecuted. A row is refused when its statement does not have that many
+arcs, when any other arc of it is uncovered or a named one is covered, when
+a named line runs, and when it names no reason. Across a function, every
+uncovered arc and unexecuted line must be one its rows name. Only the named
+items are taken out of the measurement, so an item that moves (to another
+arc of the statement, another statement or another line) is refused even
+when the function's totals are unchanged.
 
 THE RATCHET is sw/firmware/gtest/coverage.ratchet: per file, covered over
 total for lines and for branches after the exclusions. A file whose line or
@@ -63,6 +69,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+sys.path.insert(0, str(HERE))
+
+import fw_gtest  # noqa: E402
+
 #: The page holding the exclusion table: this directory's README. It is under
 #: sw/, so every change to it runs firmware-unit already. Its name is joined
 #: from stem and suffix because scripts/ci_scope.py's scan reads a bare
@@ -99,6 +109,17 @@ class Exclusion:
     statement: str
     uncovered: str
     reason: str
+
+
+@dataclass(frozen=True)
+class Permit:
+    """What a row's Uncovered cell names: the positions (from 1) of the
+    statement's arcs left uncovered, how many arcs the statement has, and a
+    fragment of each unexecuted line."""
+
+    arcs: tuple[int, ...]
+    of: int
+    lines: tuple[str, ...]
 
 
 @dataclass
@@ -199,63 +220,135 @@ def exclusions(readme: str) -> list[Exclusion]:
     return rows
 
 
-def parse_uncovered(text: str) -> tuple[int, int] | None:
-    """(arcs, lines) a row's Uncovered cell states: "1 arc", "2 arcs, 1 line"."""
-    arcs = lines = 0
-    for part in (p.strip() for p in text.split(",")):
-        m = re.fullmatch(r"(\d+) (arcs?|lines?)", part)
-        if m is None:
+#: The two parts of a row's Uncovered cell: "arc 1 of 2" or "arcs 2, 4 of 4",
+#: and "line `frag`" or "lines `a`, `b`", the second after "; " when both
+#: are there. A fragment may hold a semicolon of its own, so the cell is
+#: read part by part, never split on one.
+ARCS_PART = re.compile(r"arcs? (\d+(?:, \d+)*) of (\d+)")
+LINES_PART = re.compile(r"lines? (`[^`]+`(?:, `[^`]+`)*)")
+
+
+def parse_uncovered(text: str) -> Permit | None:
+    """The items a row's Uncovered cell names, or None when it cannot be read."""
+    rest = text.strip()
+    arcs: tuple[int, ...] = ()
+    of = 0
+    m = ARCS_PART.match(rest)
+    if m is not None:
+        arcs, of = tuple(int(k) for k in m.group(1).split(", ")), int(m.group(2))
+        rest = rest[m.end():]
+        if rest and not rest.startswith("; "):
             return None
-        if m.group(2).startswith("arc"):
-            arcs += int(m.group(1))
+        rest = rest[2:]
+    lines = LINES_PART.fullmatch(rest) if rest else None
+    if (rest and lines is None) or not (arcs or lines):
+        return None
+    if list(arcs) != sorted(set(arcs)) or any(not 1 <= k <= of for k in arcs):
+        return None
+    return Permit(arcs, of, tuple(re.findall(r"`([^`]+)`", lines.group(1))) if lines else ())
+
+
+def code_of(line: str) -> str:
+    """A source line without its comments."""
+    return re.sub(r"/\*.*?\*/", "", line).split("//", 1)[0].rstrip()
+
+
+def statement_end(text: list[str], first: int, last: int) -> int | None:
+    """The last line of the statement that starts on line `first`: the first
+    line from it on, up to the function's `last`, where its parentheses close
+    and its code ends a statement, opens a block or closes a control header.
+    `text` is the whole file, numbered from 1."""
+    depth = 0
+    for n in range(first, last + 1):
+        code = code_of(text[n - 1])
+        depth += code.count("(") - code.count(")")
+        if depth <= 0 and code.endswith((";", "{", ")")):
+            return n
+    return None
+
+
+def uncovered_in(source: Source, span: tuple[int, int]) -> tuple[set[tuple[int, int]], set[int]]:
+    """The uncovered arcs, as (line, index on the line), and the unexecuted
+    lines of a function's line range."""
+    arcs = {(n, k) for n, ln in source.lines.items() if span[0] <= n <= span[1]
+            for k, a in enumerate(ln.arcs) if a == 0}
+    return arcs, {n for n, ln in source.lines.items() if span[0] <= n <= span[1] and ln.count == 0}
+
+
+def permitted(source: Source, text: list[str], span: tuple[int, int], row: Exclusion,
+              permit: Permit) -> tuple[set[tuple[int, int]], set[int], list[str]]:
+    """The arcs and lines one row names, located in the measurement, and
+    what about them disagrees with it."""
+    what = f"exclusion {row.file} {row.function}(): `{row.statement}`"
+    starts = [n for n in range(span[0], span[1] + 1) if row.statement in text[n - 1]]
+    hits = sum(text[n - 1].count(row.statement) for n in starts)
+    if hits != 1:
+        return set(), set(), [f"{what}: the statement occurs {hits} times in the function, not once"]
+    first = starts[0]
+    last = statement_end(text, first, span[1])
+    if last is None:
+        return set(), set(), [f"{what}: the statement does not end inside the function"]
+    found: list[str] = []
+    order = [(n, k, a) for n in range(first, last + 1) if n in source.lines
+             for k, a in enumerate(source.lines[n].arcs)]
+    arcs: set[tuple[int, int]] = set()
+    if len(order) != permit.of:
+        found.append(f"{what}: the statement (lines {first}-{last}) has {len(order)} arcs, the row says {permit.of}")
+    else:
+        open_at = tuple(p for p, (_n, _k, a) in enumerate(order, 1) if a == 0)
+        if open_at != permit.arcs:
+            found.append(f"{what}: arcs {list(open_at)} of the statement's {len(order)} are uncovered, "
+                         f"the row names {list(permit.arcs)}")
+        arcs = {(n, k) for p, (n, k, _a) in enumerate(order, 1) if p in permit.arcs}
+    lines: set[int] = set()
+    for frag in permit.lines:
+        at = next((n for n in range(first, span[1] + 1) if frag in text[n - 1]), None)
+        if at is None:
+            found.append(f"{what}: no line from the statement's on holds `{frag}`")
+        elif at not in source.lines:
+            found.append(f"{what}: line {at} `{frag}` is not a line gcov measures")
+        elif source.lines[at].count != 0:
+            found.append(f"{what}: line {at} `{frag}` runs now")
         else:
-            lines += int(m.group(1))
-    return arcs, lines
-
-
-def uncovered_in(source: Source, span: tuple[int, int]) -> tuple[int, int]:
-    """(uncovered arcs, unexecuted lines) of a function's line range."""
-    lines = [ln for n, ln in source.lines.items() if span[0] <= n <= span[1]]
-    return (sum(1 for ln in lines for a in ln.arcs if a == 0), sum(1 for ln in lines if ln.count == 0))
+            lines.add(at)
+    return arcs, lines, found
 
 
 def apply_exclusions(merged: dict[str, Source], rows: list[Exclusion],
                      root: Path = ROOT) -> tuple[dict[str, Source], list[str]]:
-    """Remove what the rows accept, function by function; (what is left, the findings)."""
+    """Take out exactly the items the rows name; (what is left, the findings)."""
     found: list[str] = []
-    stated: dict[tuple[str, str], list[int]] = {}
+    named: dict[tuple[str, str], tuple[set[tuple[int, int]], set[int]]] = {}
     for row in rows:
         what = f"exclusion {row.file} {row.function}(): `{row.statement}`"
         span = merged.get(row.file, Source()).functions.get(row.function)
-        counts = parse_uncovered(row.uncovered)
+        permit = parse_uncovered(row.uncovered)
         if not row.reason:
             found.append(f"{what}: no reason given")
-        elif counts is None:
+        elif permit is None:
             found.append(f"{what}: cannot read {row.uncovered!r}")
         elif span is None:
             found.append(f"{what}: no such function in the measurement")
         else:
-            text = (root / row.file).read_text(encoding="utf-8").splitlines()[span[0] - 1:span[1]]
-            hits = sum(ln.count(row.statement) for ln in text)
-            if hits != 1:
-                found.append(f"{what}: the statement occurs {hits} times in the function, not once")
-            else:
-                total = stated.setdefault((row.file, row.function), [0, 0])
-                total[0] += counts[0]
-                total[1] += counts[1]
-    for (rel, function), (arcs, lines) in stated.items():
+            text = (root / row.file).read_text(encoding="utf-8").splitlines()
+            arcs, lines, wrong = permitted(merged[row.file], text, span, row, permit)
+            found += wrong
+            have = named.setdefault((row.file, row.function), (set(), set()))
+            if arcs & have[0] or lines & have[1]:
+                found.append(f"{what}: names an arc or a line another row of the function names")
+            have[0].update(arcs)
+            have[1].update(lines)
+    for (rel, function), (arcs, lines) in named.items():
         source = merged[rel]
-        span = source.functions[function]
-        got = uncovered_in(source, span)
-        if got != (arcs, lines):
-            found.append(f"exclusion {rel} {function}(): the rows say {arcs} arcs and {lines} lines uncovered, "
-                         f"the measurement {got[0]} and {got[1]}")
-            continue
+        open_arcs, open_lines = uncovered_in(source, source.functions[function])
+        for n, k in sorted(open_arcs - arcs):
+            found.append(f"exclusion {rel} {function}(): line {n} arc {k + 1} is uncovered, and no row names it")
+        for n in sorted(open_lines - lines):
+            found.append(f"exclusion {rel} {function}(): line {n} is unexecuted, and no row names it")
         for n, ln in list(source.lines.items()):
-            if span[0] <= n <= span[1]:
-                ln.arcs = [a for a in ln.arcs if a != 0]
-                if ln.count == 0:
-                    del source.lines[n]
+            ln.arcs = [a for k, a in enumerate(ln.arcs) if (n, k) not in arcs or a != 0]
+            if n in lines and ln.count == 0:
+                del source.lines[n]
     return merged, found
 
 
@@ -353,6 +446,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel builds")
     ap.add_argument("--keep", type=Path, help="keep the coverage builds here")
     args = ap.parse_args(argv)
+    # the arc counts and their order are the compiler's: every mode says which
+    print(f"toolchain: {fw_gtest.toolchain()}")
     if args.selftest:
         from fw_coverage_selftest import run_cases
         return run_cases()

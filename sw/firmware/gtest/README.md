@@ -163,9 +163,10 @@ uninstrumented, and runs every binary that executes the firmware: every arm of
 same without it), and every shipped shape of the store with the unit
 binaries. The reader is gcc's own `gcov` in its JSON
 intermediate format (`gcov --json-format --branch-probabilities`, gcc 9 and
-later), read by about a hundred lines of Python here. No other coverage tool
-is involved, so there is nothing else to pin: the coverage is gcc's, and the
-gate prints the gcc and gcov it ran with. A source built into several objects
+later), read by the small reader in `fw_coverage.py`. No other coverage
+tool is involved, so there is nothing else to pin: the coverage is gcc's, and
+the gate's first line, `toolchain:`, names the gcc, gcov and GoogleTest it
+ran with. A source built into several objects
 (each arm, each shape) is merged line by line: a line is covered when any run
 executed it, an arc when any run took it. Where builds of one line differ in
 their arcs (a shape constant folds a condition), the build with the most arcs
@@ -179,35 +180,80 @@ measured. `--write` records the measurement and refuses to record a drop.
 
 **The target** is 100 % branch coverage of the protocol and saved-state code,
 and every file here is at 100 % of its lines and branches once the exclusions
-below are taken out. Each exclusion is a branch the firmware's own
-construction keeps any input from reaching; none is a gap a test could close.
+below are taken out. Each exclusion is a branch no sequence of calls through
+the module's public header reaches, with the ports keeping the contract their
+header states; a static function is judged through the public functions that
+call it. A row's proof does not rest on what today's callers happen to pass.
+Where it rests on a generated constant of the contract, the row says so, and
+the row stops matching (so the gate fails) when the constant changes.
 
 ### Coverage exclusions
 
-Each row names its file, its function and a fragment of the statement that
-occurs once in the function, and what is left uncovered there. The gate
-matches the rows of a function against the whole function, as gcov's own
-function ranges bound it: gcc at `-O0` files the arcs of a condition that
-spans lines under one of them, and the counts must match exactly. A row that
-stops matching (its branch became reachable, or something else in the
-function went uncovered) fails the gate.
+Each row names its file, its function, a fragment of the statement's first
+line that occurs once in the function, the items it leaves uncovered, and
+why no input reaches them. The statement runs from that line to the line
+where its parentheses close and it ends with `;`, opens a block with `{`, or
+closes a control header with `)`. The Uncovered cell names its items
+exactly:
+
+- `arcs 2, 4 of 4`: the statement has four arcs, counted in gcov's order
+  line by line through the statement, and the second and the fourth are
+  uncovered. The count runs over the whole statement because gcc at `-O0`
+  files the arcs of a condition that spans lines under one line of it, and
+  not always the operand's own (the `ls_in_journal` row).
+- ``line `a->stray_expiries++;` ``: the first line from the statement's on
+  that holds the fragment is unexecuted.
+
+**What the gate enforces**, row by row and function by function:
+
+- the row has a reason, and its function is in the measurement;
+- its fragment occurs exactly once in the function, and its statement ends
+  inside the function;
+- the statement has exactly the number of arcs the row states, and the
+  uncovered ones are exactly those it names, no more and no fewer;
+- every line it names is a line gcov measures, and is unexecuted;
+- no arc or line is named by two rows;
+- every uncovered arc and every unexecuted line of a function that has rows
+  is named by one of them.
+
+Only the named items are taken out of the measurement; anything else
+uncovered stays in its file's tally, where the ratchet refuses it. So a row
+fails when what it names becomes covered, when anything else in its
+function goes uncovered, and when an uncovered item moves, to another arc
+of the same statement, another statement or another line, even with the
+function's totals unchanged. An arc is identified by its position in gcov's
+order, which is the compiler's: both versions in [the version
+table](#ci) number every row's arcs the same, and a compiler that numbered
+them differently would fail the gate, not pass it. `fw_coverage.py
+--selftest` plants each of these refusals, two of them on gcc's own output
+(a compensating swap and a condition over two lines).
+
+The ADP rows also assume two things of the ports. `adp.h` states the
+first: the timer port calls `adp_timer_expired` once, `delay_ms` after
+`timer_start`, which the rows read as after `timer_start` has returned.
+`adp.h` does not state the second: no port calls into the core while the
+core is calling it. The adapter (`adp_mbx.c`) keeps both: an expiry
+reaches the core from the mailbox's event stream, never from inside
+`timer_start`. A timer port that expired a timer from inside `timer_start`
+would reach the third and fourth ADP rows, and would leave the machine in
+DELAY with no timer running.
 
 | File | Function | Statement | Uncovered | Why no input reaches it |
 |---|---|---|---|---|
-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | 1 arc | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | 1 arc | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | 1 arc | DELAY with TMR_ADVERTISE held. `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | 2 arcs, 1 line | The final `else` and its stray count: a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. |
-| `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | 2 arcs, 1 line | An owed ENTITY_AVAILABLE outside an enabled DELAY. `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. |
-| `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | 1 arc | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the contract, so the operand is read once, while still false. |
-| `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | 1 arc | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
-| `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | 2 arcs, 1 line | The adapter refusing the app. `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
-| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | 3 arcs, 1 line | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX`. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
-| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | 1 arc | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant. |
-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | 1 arc | The first-dirty window open with nothing dirty. `nvm_store_changed` opens the window only with the bit it sets. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | 5 arcs | A staged record span that starts with the magic but is not a frame of its record. The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote. Only the first byte of an erased span can differ. |
-| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_erase_start` | `nvm.target == nvm.st.auth` | 1 arc | Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1. |
-| `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `ls_in_journal` | `len <= MILAN_FLASH_JOURNAL_SIZE` | 1 arc | A length longer than the journal. `ls_program` passes at most `LS_PAGE`, checked just before the call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this arc under the expression's first line. |
+| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2 | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. |
+| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2 | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. |
+| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4 | DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. |
+| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;` | The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. |
+| `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. |
+| `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4 | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching. |
+| `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6 | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
+| `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;` | The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
+| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;` | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
+| `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | arc 2 of 4 | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant. |
+| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | arc 4 of 6 | The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
+| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_framed_as` | `return rec[0] == (uint8_t)(NVM_REC_MAGIC >> 8)` | arcs 2, 4, 6, 10, 12 of 12 | A staged record span that starts with the magic but is not a frame of its record (each compare after the first false). The stage holds only the blank container (`nvm_klj2_blank`, every span erased), a container the boot proved (`nvm_klj2_record` checked each framed span's magic, layout, id and length against the shape; an erased span is all `0xff`), or frames `nvm_rec_frame` wrote; `nvm_store.h` hands the stage out read-only. Only the first byte of an erased span can differ. |
+| `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_erase_start` | `nvm.target == nvm.st.auth` | arc 2 of 4 | Erasing the authoritative slot. `nvm_target_slot` returns `!auth` while a slot is authoritative, and 0 or 1 while `auth` is -1. |
+| `sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c` | `ls_in_journal` | `return addr >= MILAN_FLASH_JOURNAL_OFFSET &&` | arc 2 of 6 | A length longer than the journal (`len <= MILAN_FLASH_JOURNAL_SIZE` false). The port's public entry points are the `struct nvm_flash` calls: `ls_program` refuses a length past `LS_PAGE` before this call, and `ls_erase` passes `LS_BLOCK`. The journal is two 64 KiB slots (`nvm_shape.h` asserts the slot size). gcov files this operand's arcs under the statement's first line, as arcs 1 and 2, and the first operand's under its second. |
 
 The two rows a public caller reaches were tested and taken out:
 `ctrl_pool_alloc`'s `bin->free_head != NULL`, a client writing into a block
