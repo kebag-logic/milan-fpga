@@ -1,0 +1,11 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+endstation_arty_4x4 37 tests, 0 failures
+endstation_arty_8ch 37 tests, 0 failures
+endstation_arty_current 37 tests, 0 failures
+endstation_ax7101_1x1_tdm8 37 tests, 0 failures
+endstation_ax7101_8x8 37 tests, 0 failures
+CAUGHT header_guard_late [FAIL] NvmCodec.codec_loaded_prefix: one byte short of record 0's header, the guard refuses it VD_REC
+CAUGHT header_guard_early [FAIL] NvmCodec.codec_loaded_prefix: at record 0's header's exact end, the guard passes and the header is VD_LEN
+CAUGHT payload_guard_late [FAIL] NvmCodec.codec_loaded_prefix: a prefix one byte short of the last record's payload is refused VD_REC
+CAUGHT payload_guard_early [FAIL] NvmCodec.codec_loaded_prefix: a prefix that ends at the last record's payload's exact end is accepted
+codec: five shape controls green; four boundary defects caught

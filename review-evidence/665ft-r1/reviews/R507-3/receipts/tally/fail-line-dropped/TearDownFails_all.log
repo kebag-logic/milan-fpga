@@ -1,0 +1,24 @@
+Note: Google Test filter = TearDownFails.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TearDownFails
+[ RUN      ] TearDownFails.Body
+[       OK ] TearDownFails.Body (0 ms)
+$REVIEWS/r507-3-665ft/sw/firmware/gtest/tally_cases.cpp:106: Failure
+Failed
+a planted failure in a suite's tear-down
+
+[----------] 1 test from TearDownFails (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 0 tests, listed below:
+
+ 0 FAILED TESTS
+[  FAILED  ] TearDownFails: SetUpTestSuite or TearDownTestSuite
+
+ 1 FAILED TEST SUITE
+  [FAIL] TearDownFails: a failure in its set-up or tear-down
+== firmware tally listener (planted cases): checks: 1   failures: 1 ==
+RESULT: FAIL

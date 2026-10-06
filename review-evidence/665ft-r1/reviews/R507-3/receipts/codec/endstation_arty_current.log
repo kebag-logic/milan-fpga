@@ -1,0 +1,91 @@
+[==========] Running 37 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from NvmModel
+[ RUN      ] NvmModel.read_flip_at_stage
+[       OK ] NvmModel.read_flip_at_stage (6 ms)
+[ RUN      ] NvmModel.read_flip_boot
+[       OK ] NvmModel.read_flip_boot (23 ms)
+[ RUN      ] NvmModel.read_alias_at_stage
+[       OK ] NvmModel.read_alias_at_stage (2 ms)
+[ RUN      ] NvmModel.read_fail_boot
+[       OK ] NvmModel.read_fail_boot (3 ms)
+[ RUN      ] NvmModel.fallback_restage
+[       OK ] NvmModel.fallback_restage (1 ms)
+[----------] 5 tests from NvmModel (38 ms total)
+
+[----------] 4 tests from NvmCodec
+[ RUN      ] NvmCodec.codec_parity
+[       OK ] NvmCodec.codec_parity (0 ms)
+[ RUN      ] NvmCodec.codec_room
+[       OK ] NvmCodec.codec_room (0 ms)
+[ RUN      ] NvmCodec.codec_loaded_prefix
+[       OK ] NvmCodec.codec_loaded_prefix (2 ms)
+[ RUN      ] NvmCodec.codec_lookups
+[       OK ] NvmCodec.codec_lookups (0 ms)
+[----------] 4 tests from NvmCodec (3 ms total)
+
+[----------] 28 tests from Ports/NvmBoth
+[ RUN      ] Ports/NvmBoth.blank_boot/model
+[       OK ] Ports/NvmBoth.blank_boot/model (1 ms)
+[ RUN      ] Ports/NvmBoth.blank_boot/litespi
+[       OK ] Ports/NvmBoth.blank_boot/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.golden_restore/model
+[       OK ] Ports/NvmBoth.golden_restore/model (0 ms)
+[ RUN      ] Ports/NvmBoth.golden_restore/litespi
+[       OK ] Ports/NvmBoth.golden_restore/litespi (0 ms)
+[ RUN      ] Ports/NvmBoth.erased_records/model
+[       OK ] Ports/NvmBoth.erased_records/model (0 ms)
+[ RUN      ] Ports/NvmBoth.erased_records/litespi
+[       OK ] Ports/NvmBoth.erased_records/litespi (0 ms)
+[ RUN      ] Ports/NvmBoth.newer_wins/model
+[       OK ] Ports/NvmBoth.newer_wins/model (5 ms)
+[ RUN      ] Ports/NvmBoth.newer_wins/litespi
+[       OK ] Ports/NvmBoth.newer_wins/litespi (5 ms)
+[ RUN      ] Ports/NvmBoth.torn_falls_back/model
+[       OK ] Ports/NvmBoth.torn_falls_back/model (0 ms)
+[ RUN      ] Ports/NvmBoth.torn_falls_back/litespi
+[       OK ] Ports/NvmBoth.torn_falls_back/litespi (0 ms)
+[ RUN      ] Ports/NvmBoth.both_torn_blank/model
+[       OK ] Ports/NvmBoth.both_torn_blank/model (1 ms)
+[ RUN      ] Ports/NvmBoth.both_torn_blank/litespi
+[       OK ] Ports/NvmBoth.both_torn_blank/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.verdict_parity/model
+[       OK ] Ports/NvmBoth.verdict_parity/model (19 ms)
+[ RUN      ] Ports/NvmBoth.verdict_parity/litespi
+[       OK ] Ports/NvmBoth.verdict_parity/litespi (19 ms)
+[ RUN      ] Ports/NvmBoth.wrong_version_falls_back/model
+[       OK ] Ports/NvmBoth.wrong_version_falls_back/model (1 ms)
+[ RUN      ] Ports/NvmBoth.wrong_version_falls_back/litespi
+[       OK ] Ports/NvmBoth.wrong_version_falls_back/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.apply_fault_rolls_back/model
+[       OK ] Ports/NvmBoth.apply_fault_rolls_back/model (1 ms)
+[ RUN      ] Ports/NvmBoth.apply_fault_rolls_back/litespi
+[       OK ] Ports/NvmBoth.apply_fault_rolls_back/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.settle_fault_rolls_back/model
+[       OK ] Ports/NvmBoth.settle_fault_rolls_back/model (1 ms)
+[ RUN      ] Ports/NvmBoth.settle_fault_rolls_back/litespi
+[       OK ] Ports/NvmBoth.settle_fault_rolls_back/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.binding_walk/model
+[       OK ] Ports/NvmBoth.binding_walk/model (1 ms)
+[ RUN      ] Ports/NvmBoth.binding_walk/litespi
+[       OK ] Ports/NvmBoth.binding_walk/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.rollback_fault_closes/model
+[       OK ] Ports/NvmBoth.rollback_fault_closes/model (1 ms)
+[ RUN      ] Ports/NvmBoth.rollback_fault_closes/litespi
+[       OK ] Ports/NvmBoth.rollback_fault_closes/litespi (1 ms)
+[ RUN      ] Ports/NvmBoth.model_unproven_closes/model
+[       OK ] Ports/NvmBoth.model_unproven_closes/model (2 ms)
+[ RUN      ] Ports/NvmBoth.model_unproven_closes/litespi
+[       OK ] Ports/NvmBoth.model_unproven_closes/litespi (2 ms)
+[ RUN      ] Ports/NvmBoth.refused_keeps_default/model
+[       OK ] Ports/NvmBoth.refused_keeps_default/model (0 ms)
+[ RUN      ] Ports/NvmBoth.refused_keeps_default/litespi
+[       OK ] Ports/NvmBoth.refused_keeps_default/litespi (0 ms)
+[----------] 28 tests from Ports/NvmBoth (83 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+[==========] 37 tests from 3 test suites ran. (125 ms total)
+[  PASSED  ] 37 tests.
+== ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 37   failures: 0 ==
+RESULT: PASS

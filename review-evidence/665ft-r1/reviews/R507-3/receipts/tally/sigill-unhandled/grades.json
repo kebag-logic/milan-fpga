@@ -1,0 +1,25 @@
+{
+  "Pass.*": [],
+  "Fail.*": [],
+  "Crash.Segv": [],
+  "Crash.Abort": [],
+  "Crash.Bus": [],
+  "Crash.Fpe": [],
+  "Crash.Ill": [
+    "not one listener tally line: []",
+    "RESULT lines [], want ['FAIL']",
+    "no [FAIL] line names Crash.Ill",
+    "NOCOUNT expected False, the grade says: NOCOUNT: no tally, or a tally of nothing (the run did not finish)",
+    "scripts/suite_tally.py --verdict disagrees"
+  ],
+  "Exit.Zero": [],
+  "Skip.*": [],
+  "Throw.*": [],
+  "Disabled.*": [],
+  "DISABLED_Suite.*": [],
+  "SetUpFails.*": [],
+  "TearDownFails.*": [],
+  "ProgramFails.*": [],
+  "Exit.Immediate": [],
+  "NoSuchSuite.*": []
+}

@@ -1,0 +1,438 @@
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index aa96555a7..2012a5aa8 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -440,8 +440,8 @@ GoogleMock's command master and `timer0`.
+     capture's window edges (DR2a);
+   - [`test/test_nvm_codec.cpp`](test/test_nvm_codec.cpp): the codec asked
+     directly, every refusal of the parity table, the room a container is
+-    held in, a loaded prefix that ends before a record header, and the
+-    record lookups;
++    held in, a loaded prefix that ends before a record header or its
++    payload (each guard pinned at its exact end), and the record lookups;
+   - [`test/test_nvm_flashmock.cpp`](test/test_nvm_flashmock.cpp): two
+     refusals of different verdicts, and two alike in verdict and CRC-32
+     digest over different byte counts (a collision the test forges), are a
+@@ -463,7 +463,7 @@ GoogleMock's command master and `timer0`.
+ 
+ `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
+ one per copy, and requires each check it names to fail; every check is named
+-by at least one (102 defects). They are graded at the 1x1 shape, except a defect that only
++by at least one (106 defects). They are graded at the 1x1 shape, except a defect that only
+ shows at a clock that is not a whole number of MHz. That one,
+ `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
+ 
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_mutants.py b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+index 94bbe33bb..673be31f3 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_mutants.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+@@ -146,6 +146,16 @@ MUTANTS = (
+        "codec_loaded_prefix"),
+     _m("short_prefix_as_len", CODEC, "\t\tif (pos + NVM_REC_HDR > loaded)\n\t\t\treturn NVM_VD_REC;\n",
+        "\t\tif (pos + NVM_REC_HDR > loaded)\n\t\t\treturn NVM_VD_LEN;\n", "codec_loaded_prefix"),
++    # R506-2-F1: the header's guard one byte off its exact end, either way,
++    # and the payload's guard the same
++    _m("header_guard_early", CODEC, "\t\tif (pos + NVM_REC_HDR > loaded)\n",
++       "\t\tif (pos + NVM_REC_HDR >= loaded)\n", "codec_loaded_prefix"),
++    _m("header_guard_late", CODEC, "\t\tif (pos + NVM_REC_HDR > loaded)\n",
++       "\t\tif (pos + NVM_REC_HDR > loaded + 1u)\n", "codec_loaded_prefix"),
++    _m("payload_guard_early", CODEC, "\tif (pos + NVM_REC_HDR + plen > loaded)\n",
++       "\tif (pos + NVM_REC_HDR + plen >= loaded)\n", "codec_loaded_prefix"),
++    _m("payload_guard_late", CODEC, "\tif (pos + NVM_REC_HDR + plen > loaded)\n",
++       "\tif (pos + NVM_REC_HDR + plen > loaded + 1u)\n", "codec_loaded_prefix"),
+     _m("lookup_index_unbounded", CODEC,
+        "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn r;",
+        "\tif (group >= NVM_G_COUNT)\n\t\treturn r;", "codec_lookups"),
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+index 7218496f6..c378de779 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+@@ -74,6 +74,19 @@ TEST(NvmCodec, codec_room) {
+ // whole with its payload not loaded. Each buffer holds the whole container,
+ // so a walk that read past the prefix would find valid bytes there, and the
+ // blank one's erased records would be accepted (#665 FT, R507-1-F1).
++//
++// Each guard is pinned at its exact end (R506-2-F1). For every record, the
++// container of frames is resealed with that record's header claiming a
++// payload one byte past the container's end: one byte short of the header's
++// end the guard refuses it VD_REC, and at the header's exact end the walk
++// reads the header and refuses it VD_LEN, its own verdict, which only a
++// guard that passes there can reach. On the last record, the payload's
++// guard: one byte short of the payload's end VD_REC, at its exact end VD_OK.
++//
++// Left out: an erased record whose header ends exactly at `loaded`. Its
++// verdict is right, but nvm_klj2_record reads its erased payload past
++// `loaded` to reach it, which a buffer holding the whole container cannot
++// show; the fix and its test are #677's.
+ TEST(NvmCodec, codec_loaded_prefix) {
+     std::vector<std::uint8_t> blank(NVM_IMG_LEN);
+     nvm_klj2_blank(blank.data());
+@@ -84,7 +97,9 @@ TEST(NvmCodec, codec_loaded_prefix) {
+         << "a prefix one byte short of the first record header is refused VD_REC";
+     const Bytes& frames = fx().blob("golden@5");
+     const auto len = static_cast<std::uint32_t>(frames.size());
++    const std::uint32_t end = len - NVM_KLJ2_TRAILER;
+     ASSERT_EQ(nvm_klj2_check(frames.data(), len), NVM_VD_OK) << "the container of frames is CRC-closed";
++    std::uint32_t payload_end = 0;
+     for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
+         const std::uint32_t header = NVM_KLJ2_HDR + r.off;
+         EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
+@@ -93,7 +108,24 @@ TEST(NvmCodec, codec_loaded_prefix) {
+             EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, header + NVM_REC_HDR), NVM_VD_REC)
+                 << "a prefix holding record " << unsigned{r.id} << "'s header but not its payload is refused VD_REC";
+         }
++        Bytes overrun = frames;
++        const std::uint32_t claim = end + 1u - header - NVM_REC_HDR;
++        ASSERT_LE(claim, 0xFFFFu) << "a payload length one byte past the end fits the header's 16 bits";
++        overrun[header + 4u] = static_cast<std::uint8_t>(claim >> 8);
++        overrun[header + 5u] = static_cast<std::uint8_t>(claim);
++        nvm_wr32le(overrun.data() + end, ~nvm_crc32_update(0xFFFFFFFFu, overrun.data(), end));
++        ASSERT_EQ(nvm_klj2_check(overrun.data(), len), NVM_VD_LEN)
++            << "resealed, record " << unsigned{r.id} << "'s header claiming a payload past the end: CRC-closed, VD_LEN";
++        EXPECT_EQ(nvm_klj2_check_body(overrun.data(), len, header + NVM_REC_HDR - 1u), NVM_VD_REC)
++            << "one byte short of record " << unsigned{r.id} << "'s header, the guard refuses it VD_REC";
++        EXPECT_EQ(nvm_klj2_check_body(overrun.data(), len, header + NVM_REC_HDR), NVM_VD_LEN)
++            << "at record " << unsigned{r.id} << "'s header's exact end, the guard passes and the header is VD_LEN";
++        payload_end = header + NVM_REC_HDR + r.plen;
+     }
++    EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, payload_end - 1u), NVM_VD_REC)
++        << "a prefix one byte short of the last record's payload is refused VD_REC";
++    EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, payload_end), NVM_VD_OK)
++        << "a prefix that ends at the last record's payload's exact end is accepted";
+     EXPECT_EQ(nvm_klj2_check_body(frames.data(), len, len), NVM_VD_OK) << "and the whole container is accepted";
+ }
+ 
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index cb26ec17c..747bbea7b 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -48,8 +48,9 @@ RESULT: PASS
+ ```
+ 
+ `checks` is the tests run and `failures` the tests that failed, were skipped,
+-or crashed. One more is added for each failure outside any test (a test
+-suite's set-up or tear-down) and for each disabled test, which runs nothing.
++or crashed. One more is added for each test suite whose set-up or tear-down
++failed, one for a failure outside every test (a global environment's), and
++one for each disabled test, alone or in a disabled suite, which runs nothing.
+ Every failed assertion also prints `[FAIL] <Suite.Test>: <its last line>`,
+ which is the marker `suite_tally.py --verdict` reads and the line the
+ planted-defect campaigns match a test by. An assertion's last line is the
+@@ -65,7 +66,8 @@ log reads as a pass: one tally, no `NOCOUNT`, no failure in it, no `[FAIL]`
+ line (`fw_gtest.grade`).
+ 
+ `tally_selftest.py` proves each of those with a planted case run through the
+-same grade, and through `suite_tally.py` itself. Each case proves two things
++same grade, and through `suite_tally.py` itself: every count above, every
++fatal signal the handler is installed for, the `atexit` path and `NOCOUNT`. Each case proves two things
+ apart. Its tally line, read with `suite_tally.scan`, the sweep's own
+ scanner, must carry exactly the `checks` and `failures` below, with
+ `RESULT: FAIL` under it whenever `failures` is not 0: so the tally line
+@@ -79,22 +81,32 @@ verdict must be the one below, through `fw_gtest.grade` and through
+ | a failing assertion | 1 | 1, 1 | fails, `[FAIL] Fail.Expect` |
+ | SIGSEGV inside a test | -11 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Segv` |
+ | `abort()` inside a test | -6 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Abort` |
++| SIGBUS inside a test | -7 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Bus` |
++| SIGFPE inside a test | -8 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Fpe` |
++| SIGILL inside a test | -4 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Ill` |
+ | `exit(0)` inside a test | 0 | 1, 1, from the `atexit` handler | fails, `[FAIL] Exit.Zero` |
+ | a skipped test | 0 | 1, 1 | fails, `[FAIL] Skip.Silent: skipped: ...` |
+ | an uncaught exception | 1 | 1, 1 | fails, GoogleTest's own catch, `[FAIL] Throw.Uncaught` |
+ | a disabled test | 0 | 0, 1 | fails, `[FAIL] Disabled.DISABLED_NeverRuns` |
++| a disabled suite | 0 | 0, 1 | fails, `[FAIL] DISABLED_Suite.NeverRuns` |
+ | a failure in a suite's set-up | 1 | 1, 2: the suite's test and its set-up | fails, `[FAIL] SetUpFails` |
++| a failure in a suite's tear-down | 1 | 1, 1: the tear-down, its test passed | fails, `[FAIL] TearDownFails` |
++| a failure in the global environment's set-up | 1 | 1, 1: the program's, its test passed | fails, `[FAIL] (program)` |
+ | `_exit(0)` inside a test | 0 | none | `NOCOUNT` |
+ | no test selected | 0 | 0, 0 | `NOCOUNT` |
+ | a disabled test, `GTEST_ALSO_RUN_DISABLED_TESTS=1` in the environment | 0 | 0, 1 | fails, as above: the gates drop `GTEST_*` from each binary's environment, so a shell's GoogleTest controls cannot narrow or reshape a gate's run |
+ 
+-`tally_selftest.py --mutants` plants eleven defects into copies of the
++`tally_selftest.py --mutants` plants eighteen defects into copies of the
+ listener and requires each to turn the cases it names red, through the
+ tally line wherever the defect falsifies it: a skipped test, a suite's
+-set-up failure, a crashed test or an early exit left out of the failures; a
+-crashed test left out of the checks; a disabled test not counted; `RESULT:
+-PASS` printed whatever the failures; no test counted; no `[FAIL]` line; no
+-`atexit` handler; no signal handler. A copy that does not build, or a case
++set-up or tear-down failure, a crashed test or an early exit left out of
++the failures; a crashed test left out of the checks; disabled tests left
++out of the failures; a test disabled by its suite's name not seen as
++disabled; a failure outside every test not counted; `RESULT: PASS` printed whatever the
++failures; no test counted; no `[FAIL]` line; no `atexit` handler; no
++signal handler; and each of the five signals left out of the handler's
++list. A suite's tear-down failure or the program's, left out, prints
++`RESULT: PASS` on the tally line. A copy that does not build, or a case
+ that still reads as planted, is an escape.
+ 
+ A binary still running after `fw_gtest.RUN_TIMEOUT_S` (600 s) is killed and
+@@ -201,7 +213,10 @@ the module's public header reaches, with the ports keeping the contract their
+ header states; a static function is judged through the public functions that
+ call it. A row's proof does not rest on what today's callers happen to pass.
+ Where it rests on a generated constant of the contract, the row says so, and
+-the row stops matching (so the gate fails) when the constant changes.
++the row stops matching (so the gate fails) when the constant changes. Nine
++rows meet that standard through their headers as they stand. The five
++`adp.c` rows do not yet: they rest on a port rule that `adp.h` does not
++state, which #678 has ruled and will add to it (see below the gate's rules).
+ 
+ ### Coverage exclusions
+ 
+@@ -244,16 +259,41 @@ them differently would fail the gate, not pass it. `fw_coverage.py
+ --selftest` plants each of these refusals, two of them on gcc's own output
+ (a compensating swap and a condition over two lines).
+ 
+-The ADP rows also assume two things of the ports. `adp.h` states the
+-first: the timer port calls `adp_timer_expired` once, `delay_ms` after
++**The five `adp.c` rows rest on #678's rule, not on `adp.h` as it
++stands.** They assume two things of the ports. `adp.h` states the first:
++the timer port calls `adp_timer_expired` once, `delay_ms` after
+ `timer_start`, which the rows read as after `timer_start` has returned.
+ `adp.h` does not state the second: no port calls into the core while the
+-core is calling it. The adapter (`adp_mbx.c`) keeps both: an expiry
+-reaches the core from the mailbox's event stream, never from inside
+-`timer_start`. A timer port that expired a timer from inside `timer_start`
+-would reach the third and fourth ADP rows: expiring TMR_ADVERTISE that way
+-leaves the machine in WAITING with no timer running, and expiring TMR_DELAY
+-leaves it in DELAY with none.
++core is calling it. [#678](https://github.com/kebag-logic/milan-fpga/issues/678)
++rules that ports never call back into the core synchronously, and its
++follow-up to the F0 code states the rule in `adp.h` and the port headers
++and guards it in the core. Until that lands, the rows rest on the ruling.
++The adapter (`adp_mbx.c`) keeps the rule today: its ports call no core
++function, and the core is called only from the loop's handlers. A port
++that breaks the rule reaches every item the five rows name. Each of these
++was measured alone with gcov:
++
++- **Rows 1 and 2** (`adp_link_change`, arc 2 of 2 each): a send port that
++  reports the link down (`adp_link_change(false)`) from inside a send.
++  From inside the ENTITY_AVAILABLE send, it leaves the machine in WAITING
++  with the link recorded down and TMR_ADVERTISE running. The next link-up
++  then reaches row 1 and enters no DELAY. From inside SHUTDOWN's
++  ENTITY_DEPARTING send, the nested call reaches row 2.
++- **Rows 3 and 4** (`adp_timer_expired`: row 3's arc 4 of 4, row 4's arcs
++  2 and 4 of 4 and its stray-count line): a timer port that expires a
++  timer from inside `timer_start`. Expiring TMR_ADVERTISE that way reaches
++  row 3's arc and row 4's arc 2, and leaves the machine in WAITING with no
++  timer running. Expiring TMR_DELAY on a grandmaster change reaches row 4's
++  arc 4, and leaves it in DELAY with none. Each counts one stray.
++- **Row 5** (`adp_poll`, arcs 2 and 4 of 4 and its line): a link port that
++  calls back twice from inside `adp_set_enable(true)`. It reports the link
++  up, expires the TMR_DELAY that starts while the send port has no room,
++  then answers down. The machine is left in DOWN with an ENTITY_AVAILABLE
++  owed. The next `adp_poll` reaches arc 4, or arc 2 after
++  `adp_set_enable(false)`.
++
++So `adp.c`'s 100 % holds for ports that keep #678's rule, and not for a
++port that breaks it.
+ 
+ | File | Function | Statement | Uncovered | Why no input reaches it |
+ |---|---|---|---|---|
+@@ -275,7 +315,8 @@ leaves it in DELAY with none.
+ The two rows a public caller reaches were tested and taken out:
+ `ctrl_pool_alloc`'s `bin->free_head != NULL`, a client writing into a block
+ after freeing it (`Pool.P9`), and `nvm_klj2_check_body`'s refusal of a loaded
+-prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`).
++prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`,
++which pins that guard and the payload's at their exact ends).
+ Each has a planted defect that removes it.
+ 
+ ## Run
+diff --git a/sw/firmware/gtest/tally_cases.cpp b/sw/firmware/gtest/tally_cases.cpp
+index bdc7b3f4a..257e830a4 100644
+--- a/sw/firmware/gtest/tally_cases.cpp
++++ b/sw/firmware/gtest/tally_cases.cpp
+@@ -4,7 +4,8 @@
+ // tally_cases.cpp - the planted cases of the tally listener's self-test
+ // (tally_selftest.py). One binary; each run selects one case with
+ // --gtest_filter, and every case but Pass must leave a log that
+-// scripts/suite_tally.py reads as a failure.
++// scripts/suite_tally.py reads as a failure. The global environment's
++// failure is planted only in the run that selects ProgramFails.
+ 
+ #include <gtest/gtest.h>
+ #include <unistd.h>
+@@ -23,6 +24,20 @@ namespace {
+ // folded away.
+ volatile int planted_one = 1;
+ 
++// A failure outside every test: the global environment's set-up fails in the
++// run whose filter selects ProgramFails, and in no other.
++class ProgramEnvironment final : public ::testing::Environment {
++ public:
++    void SetUp() override {
++        if (GTEST_FLAG_GET(filter) == "ProgramFails.*") {
++            ADD_FAILURE() << "a planted failure in the global environment's set-up";
++        }
++    }
++};
++
++// GoogleTest takes ownership of a registered environment (its documented API).
++::testing::Environment* const program_environment = ::testing::AddGlobalTestEnvironment(new ProgramEnvironment);
++
+ }  // namespace
+ 
+ TEST(Pass, One) {
+@@ -41,6 +56,18 @@ TEST(Crash, Abort) {
+     std::abort();
+ }
+ 
++TEST(Crash, Bus) {
++    static_cast<void>(std::raise(SIGBUS));
++}
++
++TEST(Crash, Fpe) {
++    static_cast<void>(std::raise(SIGFPE));
++}
++
++TEST(Crash, Ill) {
++    static_cast<void>(std::raise(SIGILL));
++}
++
+ TEST(Exit, Zero) {
+     std::exit(0);
+ }
+@@ -61,6 +88,10 @@ TEST(Disabled, DISABLED_NeverRuns) {
+     EXPECT_EQ(planted_one, 1);
+ }
+ 
++TEST(DISABLED_Suite, NeverRuns) {
++    EXPECT_EQ(planted_one, 1);
++}
++
+ class SetUpFails : public ::testing::Test {
+  protected:
+     static void SetUpTestSuite() { ADD_FAILURE() << "a planted failure in a suite's set-up"; }
+@@ -69,3 +100,16 @@ class SetUpFails : public ::testing::Test {
+ TEST_F(SetUpFails, Body) {
+     EXPECT_EQ(planted_one, 1);
+ }
++
++class TearDownFails : public ::testing::Test {
++ protected:
++    static void TearDownTestSuite() { ADD_FAILURE() << "a planted failure in a suite's tear-down"; }
++};
++
++TEST_F(TearDownFails, Body) {
++    EXPECT_EQ(planted_one, 1);
++}
++
++TEST(ProgramFails, Body) {
++    EXPECT_EQ(planted_one, 1);
++}
+diff --git a/sw/firmware/gtest/tally_selftest.py b/sw/firmware/gtest/tally_selftest.py
+index ba871e1fd..0736e9ac9 100644
+--- a/sw/firmware/gtest/tally_selftest.py
++++ b/sw/firmware/gtest/tally_selftest.py
+@@ -11,11 +11,14 @@ once per case with --gtest_filter, and requires each log to read as planted:
+     says PASS when there are no failures and FAIL otherwise. A run that
+     leaves no tally (an _exit(0) inside a test) must print none;
+   * the control (one passing test) passes;
+-  * a failing assertion, a crash (SIGSEGV), an abort, an exit(0) inside a
+-    test, a skipped test, an uncaught exception, a disabled test and a
+-    failure in a suite's set-up each fail: the run is refused, a [FAIL] line
+-    names the test, and scripts/suite_tally.py --verdict, the sweep's own
+-    reader, exits 1 on the log;
++  * a failing assertion, each fatal signal the listener handles (SIGSEGV,
++    SIGBUS, SIGFPE, SIGILL, and SIGABRT from an abort), an exit(0) inside a
++    test, a skipped test, an uncaught exception, a disabled test, a disabled
++    suite, a failure in a suite's set-up, one in a suite's tear-down and one
++    in the global environment (outside every test) each fail: the run is
++    refused, a [FAIL] line names the test, the suite or the program, and
++    scripts/suite_tally.py --verdict, the sweep's own reader, exits 1 on the
++    log;
+   * an _exit(0) inside a test and a run that selects no test leave no tally,
+     or a tally of nothing, and the sweep's tally refuses both as NOCOUNT;
+   * a GoogleTest control in the environment (GTEST_ALSO_RUN_DISABLED_TESTS)
+@@ -81,12 +84,20 @@ CASES = (
+     Case("a failing assertion", "Fail.*", False, (1, 1), "Fail.Expect"),
+     Case("a crash on SIGSEGV", "Crash.Segv", False, (1, 1), "Crash.Segv"),
+     Case("an abort", "Crash.Abort", False, (1, 1), "Crash.Abort"),
++    Case("a crash on SIGBUS", "Crash.Bus", False, (1, 1), "Crash.Bus"),
++    Case("a crash on SIGFPE", "Crash.Fpe", False, (1, 1), "Crash.Fpe"),
++    Case("a crash on SIGILL", "Crash.Ill", False, (1, 1), "Crash.Ill"),
+     Case("exit(0) inside a test", "Exit.Zero", False, (1, 1), "Exit.Zero"),
+     Case("a skipped test", "Skip.*", False, (1, 1), "Skip.Silent"),
+     Case("an uncaught exception", "Throw.*", False, (1, 1), "Throw.Uncaught"),
+     Case("a disabled test", "Disabled.*", False, (0, 1), "Disabled.DISABLED_NeverRuns"),
++    Case("a disabled suite", "DISABLED_Suite.*", False, (0, 1), "DISABLED_Suite.NeverRuns"),
+     # GoogleTest fails the suite's test too, and the listener adds the set-up
+     Case("a failure in a suite's set-up", "SetUpFails.*", False, (1, 2), "SetUpFails"),
++    # the test passed, so the listener's count of the tear-down is the only failure
++    Case("a failure in a suite's tear-down", "TearDownFails.*", False, (1, 1), "TearDownFails"),
++    # likewise the program's: the global environment's set-up fails, its test passes
++    Case("a failure in the global environment", "ProgramFails.*", False, (1, 1), "(program)"),
+     Case("_exit(0) inside a test", "Exit.Immediate", False, None, nocount=True),
+     Case("no test selected", "NoSuchSuite.*", False, (0, 0), nocount=True),
+     Case("a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment", "Disabled.*", False, (0, 1),
+@@ -106,35 +117,62 @@ class Defect:
+     cases: tuple[str, ...]
+ 
+ 
++#: Every crash case, one per fatal signal the listener handles.
++CRASHES = ("Crash.Segv", "Crash.Abort", "Crash.Bus", "Crash.Fpe", "Crash.Ill")
++#: The signal list the listener installs its handler for.
++SIGNALS = "{SIGSEGV, SIGBUS, SIGFPE, SIGILL, SIGABRT}"
++
++
++def unhandled(sig: str, case: str) -> Defect:
++    """One fatal signal dropped from the handler's list."""
++    return Defect(f"{sig.lower()}-unhandled", SIGNALS, SIGNALS.replace(f"{sig}, ", "").replace(f", {sig}", ""),
++                  (case,))
++
++
+ #: The listener's defects. The first three are R506-1-F2's: each falsified
+-#: the tally line while the [FAIL] marker alone kept the run refused.
++#: the tally line while the [FAIL] marker alone kept the run refused. The
++#: per-signal ones and the last two are R506-2-F3's; a program failure not
++#: counted, like a suite tear-down's, leaves the tally line at RESULT: PASS.
+ DEFECTS = (
+     Defect("skip-not-counted", "if (info.result()->Failed() || info.result()->Skipped()) {",
+            "if (info.result()->Failed()) {", ("Skip.*",)),
+-    Defect("setup-failure-not-counted",
++    Defect("suite-failure-not-counted",
+            '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());\n                failures++;',
+-           '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());', ("SetUpFails.*",)),
++           '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());',
++           ("SetUpFails.*", "TearDownFails.*")),
+     Defect("crash-tally-passes",
+            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
+            "        put_tally(state.checks + 1u, state.failures + 1u);",
+            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
+-           "        put_tally(state.checks + 1u, state.failures);", ("Crash.Segv", "Crash.Abort")),
++           "        put_tally(state.checks + 1u, state.failures);", CRASHES),
+     Defect("crashed-test-not-counted",
+            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
+            "        put_tally(state.checks + 1u, state.failures + 1u);",
+            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
+-           "        put_tally(state.checks, state.failures + 1u);", ("Crash.Segv", "Crash.Abort")),
++           "        put_tally(state.checks, state.failures + 1u);", CRASHES),
+     Defect("early-exit-tally-passes", "    put(how);\n    put_tally(state.checks + 1u, state.failures + 1u);",
+            "    put(how);\n    put_tally(state.checks + 1u, state.failures);", ("Exit.Zero",)),
+     Defect("disabled-not-counted", "failures += report_disabled(unit);",
+-           "static_cast<void>(report_disabled(unit));", ("Disabled.*",)),
++           "static_cast<void>(report_disabled(unit));", ("Disabled.*", "DISABLED_Suite.*")),
+     Defect("result-always-pass", 'put(failures == 0u ? "RESULT: PASS\\n" : "RESULT: FAIL\\n");',
+-           'put("RESULT: PASS\\n");', ("Fail.*", "Crash.Segv", "Exit.Zero", "Skip.*", "Disabled.*")),
++           'put("RESULT: PASS\\n");', ("Fail.*", "Crash.Segv", "Exit.Zero", "Skip.*", "Disabled.*",
++                                        "TearDownFails.*", "ProgramFails.*")),
+     Defect("tests-not-counted", "        state.checks++;\n", "", ("Pass.*", "Fail.*")),
+     Defect("fail-line-dropped", "if (part.passed()) {", "if (part.passed() || part.failed()) {", ("Fail.*",)),
+     Defect("no-atexit", "    static_cast<void>(std::atexit(on_exit_early));\n", "", ("Exit.Zero",)),
+     Defect("no-signal-handler", "static_cast<void>(std::signal(sig, on_fatal_signal));",
+-           "static_cast<void>(sig);", ("Crash.Segv", "Crash.Abort")),
++           "static_cast<void>(sig);", CRASHES),
++    unhandled("SIGSEGV", "Crash.Segv"),
++    unhandled("SIGBUS", "Crash.Bus"),
++    unhandled("SIGFPE", "Crash.Fpe"),
++    unhandled("SIGILL", "Crash.Ill"),
++    unhandled("SIGABRT", "Crash.Abort"),
++    Defect("program-failure-not-counted",
++           '"  [FAIL] (program): a failure outside every test\\n");\n            failures++;',
++           '"  [FAIL] (program): a failure outside every test\\n");', ("ProgramFails.*",)),
++    Defect("disabled-suite-not-counted",
++           'std::strncmp(suite->name(), "DISABLED_", 9) == 0 || std::strncmp(info->name(), "DISABLED_", 9) == 0',
++           'std::strncmp(info->name(), "DISABLED_", 9) == 0', ("DISABLED_Suite.*",)),
+ )
+ 
+ 

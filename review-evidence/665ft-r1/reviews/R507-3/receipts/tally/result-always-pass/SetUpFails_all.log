@@ -1,0 +1,30 @@
+Note: Google Test filter = SetUpFails.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SetUpFails
+$REVIEWS/r507-3-665ft/sw/firmware/gtest/tally_cases.cpp:97: Failure
+Failed
+a planted failure in a suite's set-up
+
+  [FAIL] (program): a planted failure in a suite's set-up
+[ RUN      ] SetUpFails.Body
+$REVIEWS/r507-3-665ft/sw/firmware/gtest/tally_cases.cpp:100: Skipped
+
+  [FAIL] SetUpFails.Body: skipped: 
+[  SKIPPED ] SetUpFails.Body (0 ms)
+[----------] 1 test from SetUpFails (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] SetUpFails.Body
+[  FAILED  ] 0 tests, listed below:
+
+ 0 FAILED TESTS
+[  FAILED  ] SetUpFails: SetUpTestSuite or TearDownTestSuite
+
+ 1 FAILED TEST SUITE
+  [FAIL] SetUpFails: a failure in its set-up or tear-down
+== firmware tally listener (planted cases): checks: 1   failures: 2 ==
+RESULT: PASS

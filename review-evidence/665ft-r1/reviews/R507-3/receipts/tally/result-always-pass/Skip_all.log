@@ -1,0 +1,19 @@
+Note: Google Test filter = Skip.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Skip
+[ RUN      ] Skip.Silent
+$REVIEWS/r507-3-665ft/sw/firmware/gtest/tally_cases.cpp:80: Skipped
+a planted skip
+
+  [FAIL] Skip.Silent: skipped: a planted skip
+[  SKIPPED ] Skip.Silent (0 ms)
+[----------] 1 test from Skip (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] Skip.Silent
+== firmware tally listener (planted cases): checks: 1   failures: 1 ==
+RESULT: PASS

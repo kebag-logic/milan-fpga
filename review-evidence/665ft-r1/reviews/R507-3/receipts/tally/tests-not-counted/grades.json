@@ -1,0 +1,35 @@
+{
+  "Pass.*": [
+    "tally checks 0 failures 0, want checks 1 failures 0",
+    "graded FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish))",
+    "NOCOUNT expected False, the grade says: NOCOUNT: no tally, or a tally of nothing (the run did not finish)"
+  ],
+  "Fail.*": [
+    "tally checks 0 failures 1, want checks 1 failures 1"
+  ],
+  "Crash.Segv": [],
+  "Crash.Abort": [],
+  "Crash.Bus": [],
+  "Crash.Fpe": [],
+  "Crash.Ill": [],
+  "Exit.Zero": [],
+  "Skip.*": [
+    "tally checks 0 failures 1, want checks 1 failures 1"
+  ],
+  "Throw.*": [
+    "tally checks 0 failures 1, want checks 1 failures 1"
+  ],
+  "Disabled.*": [],
+  "DISABLED_Suite.*": [],
+  "SetUpFails.*": [
+    "tally checks 0 failures 2, want checks 1 failures 2"
+  ],
+  "TearDownFails.*": [
+    "tally checks 0 failures 1, want checks 1 failures 1"
+  ],
+  "ProgramFails.*": [
+    "tally checks 0 failures 1, want checks 1 failures 1"
+  ],
+  "Exit.Immediate": [],
+  "NoSuchSuite.*": []
+}

@@ -1,0 +1,15 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6012062072
+[A10] **Round 2 for PR #675 (FT).** R506-1 (6011948437) and R507-1 (6012056114) are NEGATIVE.
+
+1. **Reachable public error (R507-1 F1, MAJOR).** `nvm_klj2_check_body` refuses a CRC-closed image whose loaded prefix is shorter than the next record header. That refusal is reachable through the public API. Add the direct test at the boundary and at the adjacent header boundary, plus a planted defect that the test catches. Remove the exclusion, and update the ratchet and the claims. Keep the public contract.
+2. **Exclusions bound to their items (R507-1 F2, MAJOR; R506-1 S1).** Each exclusion names its statement or condition and the exact uncovered arcs and lines it permits. The gate refuses any change in their identity, even when the function's totals are unchanged.
+   - Add a real-gcov compensating-swap case: the control passes and the swap is refused.
+   - Keep the existing multiline-condition, shorter-arc-vector, stale-row, missing-file and per-file-drop checks on both compiler families.
+   - The README states exactly the guarantee the gate enforces.
+3. **The other reachable exclusion (R506-1 F1).** Do the same for `ctrl_pool.c:114`: test it and remove the exclusion, or prove it unreachable under the public contract. Then re-examine every remaining exclusion against its module's public header, not against today's callers.
+4. **Tally self-test (R506-1 F2).** The self-test asserts the printed tally line: its counts and the red/green outcome for every planted case. Plant a listener defect that falsifies the line, and show the self-test catches it.
+5. **Version printing (R506-1 F3).** Either the coverage gate and the ctrl gate print the toolchain versions, or the README says exactly where the versions are recorded.
+
+Re-run both firmware suites, both mutation campaigns, the coverage gate and its self-test, the builder bank and the docs gates. Post REVIEW READY with the head. Do not push.
+
+Do not edit or delete any existing comment.

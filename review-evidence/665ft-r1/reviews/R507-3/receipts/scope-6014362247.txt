@@ -1,0 +1,10 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6014362247
+[A10] **Round 3 for PR #675 (FT).** R507-2 is POSITIVE (6014209924). R506-2 is NEGATIVE on three MINORs (6014356451).
+
+1. **The exact header end (F1).** The loaded-prefix test must pin the guard at the exact boundary: refused one byte before the next record header ends, accepted at its exact end. Add a planted off-by-one guard, in both directions, that the suite kills.
+2. **The ADP premise (F2).** #678 now rules it: ports never call back into the core synchronously, enforced by a guard in the F0 code follow-up. In the README, mark the ADP exclusion rows as resting on that rule, cite #678, and state exactly which rows and arcs it reaches. Do not claim the standard is met unconditionally. No firmware code change in this lane.
+3. **The tally self-test (F3).** Plant the four listener behaviours the README says it proves, and show that each, including the one that falsifies the tally line, turns the run red. Or narrow the README claim to what is planted. Planting them is preferred.
+
+Re-run both firmware suites, both mutation campaigns, the coverage gate and its self-test, the tally self-test, the builder bank and the docs gates. Post REVIEW READY with the head. Do not push.
+
+Do not edit or delete any existing comment.

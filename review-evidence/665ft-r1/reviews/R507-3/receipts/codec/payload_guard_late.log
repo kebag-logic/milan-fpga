@@ -1,0 +1,27 @@
+Note: Google Test filter = NvmCodec.codec_loaded_prefix
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_loaded_prefix
+$REVIEWS/r507-3-665ft/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp:125: Failure
+Expected equality of these values:
+  nvm_klj2_check_body(frames.data(), len, payload_end - 1u)
+    Which is: 0
+  NVM_VD_REC
+    Which is: 7
+a prefix one byte short of the last record's payload is refused VD_REC
+
+  [FAIL] NvmCodec.codec_loaded_prefix: a prefix one byte short of the last record's payload is refused VD_REC
+[  FAILED  ] NvmCodec.codec_loaded_prefix (6 ms)
+[----------] 1 test from NvmCodec (6 ms total)
+
+[----------] Global test environment tear-down
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+[==========] 1 test from 1 test suite ran. (6 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] NvmCodec.codec_loaded_prefix
+
+ 1 FAILED TEST
+== ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 1   failures: 1 ==
+RESULT: FAIL

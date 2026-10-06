@@ -1,0 +1,60 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6008744385
+[A10] Owner directive (2026-10-06): all the Mark II software must be fully unit-tested. Decision and plan:
+
+**Framework: GoogleTest with GoogleMock.** It is packaged for the build host and the hosted runners (`libgtest-dev`, `libgmock-dev`). GoogleMock mocks the seams the firmware already has: the mailbox HAL, the flash port and lwSRP's port layer. The firmware stays C11; the tests are C++ and include the C headers through `extern "C"`.
+
+**What "fully tested" means for #665:**
+- Every public function in `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` has unit tests, including every protocol state-machine transition and every error return.
+- CI measures line and branch coverage with gcov for each PR. The target is 100 % branch coverage of the protocol and saved-state code. Every exclusion is listed with its reason in the test README, and a ratchet gate refuses any drop in coverage.
+- The suites print the `checks: N   failures: M` tally that `scripts/suite_tally.py` reads, through a GoogleTest event listener. The existing mutation arms stay and are graded as before.
+- lwSRP: its own upstream suites run unchanged at the pinned commit. GoogleTest covers only our adapter. A coverage gap in lwSRP is fixed upstream by a PR.
+
+**Order:**
+- F0 (#668) and F1 (#669) merge as they are; their hand-rolled checks and mutation arms pass.
+- **FT** (new lane, follows F0): the GoogleTest harness, the tally listener, CI wiring and the coverage gate. It also ports the F0 and F1 host checks (`test_check.h`, `test_adp.c`, the ctrl_nvm checks) to GoogleTest.
+- F2 to F5 start on top of FT, and each lands with its GoogleTest unit tests at the coverage target.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6009234414
+[A10] **Lane FT for #665: the unit-test harness.** It follows the owner directive and plan in 6008744385. Executor [A547], branch `665-ft-gtest` from dev `423ac5d9` (F0 and F1 merged). Reviewers [R506] (internal) and [R507] (external).
+
+**Items:**
+1. **Harness.** Use GoogleTest with GoogleMock for host unit tests of `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm`.
+   - The firmware stays C11, bare metal, with no heap. Tests are C++ and include the C headers through `extern "C"`.
+   - Mock the existing seams with GoogleMock: the mailbox HAL (`mbx_hal.h`), the flash port, and lwSRP's port layer (`shlan_port.h`).
+   - Do not add seams the firmware does not already have. If a test needs one, STOP with the case.
+2. **Tally.** Add a GoogleTest event listener that prints the `checks: N   failures: M` line `scripts/suite_tally.py` reads. A failing or crashing test must make the tally fail; prove both with planted cases.
+3. **Port.** Move every F0 and F1 host check onto GoogleTest: `test_check.h`, `test_adp.c`, `test_port_loop.c`, the model suite, and the `ctrl_nvm` checks.
+   - Keep each check's meaning and count, or state each split or merge in a table.
+   - Every existing mutation arm (`ctrl_mutants.py`, `nvm_mutants.py`) must still be killed, now by a GoogleTest test.
+   - Retire the hand-rolled framework only when nothing uses it.
+4. **Coverage.** Measure line and branch coverage of the firmware sources (not tests) with gcc's gcov.
+   - Use either gcov's JSON output with a small in-tree reader, or a pinned tool. Record the choice and its pin.
+   - Add a ratchet file of per-file branch coverage and a gate that refuses any drop.
+   - The target is 100 % branch coverage of the protocol and saved-state code. Write the missing tests to reach it. Every exclusion goes in the test README with its reason (for example, an unreachable defensive branch with its proof).
+   - If a gap needs a design change, STOP with the list.
+5. **CI.** Wire the suites and the coverage gate into a hosted job and into the act runner, with `scripts/ci_scope.py` classifying `sw/firmware/**` changes into that job.
+   - Hosted runners get the packages by `apt-get install libgtest-dev libgmock-dev` (or a pinned source build). Record the version on both the host and the runner.
+   - Register the new scripts and pages with every gate that lists them.
+6. **Not in this lane.** lwSRP's upstream suites run with F4, when lwSRP is vendored. Note it in the README.
+
+**Gates:**
+- the full 48-command builder set;
+- every firmware and RV32 build that F0 and F1 have, at base and head;
+- both mutation campaigns;
+- the new tally, coverage and ci_scope selftests;
+- the docs gates.
+
+All return 0. No RTL change.
+
+**Output:** HANDOFF.md and PR-BODY.md ("Relates to #665"). Then post REVIEW READY with the head on #665. Do not push.
+
+Do not edit or delete any existing comment.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6009661573
+[A10] **Acceptance additions for the F-lanes**, from the ticket re-assessment (#415 6009637220) and the owner's closure of #653 (2026-10-06):
+
+- **F5 (AECP):** the MEDIA_UNLOCKED counters notification goes out after the UNBIND_RX response (#653 rule). The saved channel-map restore and roll-back of #637 are applied by the core. AECP tables come from the single command model if processor #73 has landed.
+- **F4 (SRP on lwSRP):** grade the #608 case: a withdrawal meets an LV registrar after a LeaveAll, and the talker stops (processor #134's fabric rule).
+- **All lanes:** key ADP state per AVB interface; the mailbox contract carries the interface index (processor #69, redundancy path kept open). Measure each path's service latency against its normative timeout (NFR-SCOUT-03, #397 re-opened).

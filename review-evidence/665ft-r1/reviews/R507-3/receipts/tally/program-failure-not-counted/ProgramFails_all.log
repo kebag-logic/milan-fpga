@@ -1,0 +1,22 @@
+Note: Google Test filter = ProgramFails.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+$REVIEWS/r507-3-665ft/sw/firmware/gtest/tally_cases.cpp:33: Failure
+Failed
+a planted failure in the global environment's set-up
+
+  [FAIL] (program): a planted failure in the global environment's set-up
+[----------] 1 test from ProgramFails
+[ RUN      ] ProgramFails.Body
+[       OK ] ProgramFails.Body (0 ms)
+[----------] 1 test from ProgramFails (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 0 tests, listed below:
+
+ 0 FAILED TESTS
+  [FAIL] (program): a failure outside every test
+== firmware tally listener (planted cases): checks: 1   failures: 0 ==
+RESULT: PASS

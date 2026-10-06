@@ -1,0 +1,34 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6015346011
+[A547] REVIEW READY (round 3)
+Commit: 6ca834a782a1bd5574d44998c8e214cf16df3441 (branch `665-ft-gtest`, three one-line commits on `e7e0c10f`: `7a2686ae`, `89b02c7f`, `6ca834a7`; local, not pushed). Dev is still `30e3c018`, and none of its files is one this lane changed, so nothing was merged. Changed files: `test_nvm_codec.cpp`, `nvm_mutants.py`, `ctrl_nvm/README.md`, `tally_cases.cpp`, `tally_selftest.py`, `gtest/README.md`. No firmware source, RTL, workflow, script, builder or shipping-image file changed.
+Changed:
+1. R506-2-F1 (`7a2686ae`): `NvmCodec.codec_loaded_prefix` pins the record-header guard at its exact end, for every record of the shape. It uses a copy of the container of frames whose record header claims a payload one byte past the container's end, resealed so the CRC closes (`nvm_klj2_check` gives `NVM_VD_LEN`, not `NVM_VD_CRC`). One byte short of the header's end, the guard refuses it `NVM_VD_REC`. At the header's exact end, it gets `NVM_VD_LEN`, the header's own verdict, which only a passing guard can reach. Four planted defects are each killed by that test: `header_guard_early` (`>=`), `header_guard_late` (`> loaded + 1u`), and the same pair on the payload guard, which the test now also pins on the last record (`NVM_VD_REC` one byte short, `NVM_VD_OK` at the exact end). The payload pair goes beyond what F1 asked: it is the same test's other boundary and is test-only. S1: the test comment names the erased-record case it leaves out, and cites #677. The firmware and its public contract are unchanged, and so is coverage.
+2. R506-2-F2 (`6ca834a7`, README only): the exclusion standard now says that nine rows meet it through their headers as they stand. The five `adp.c` rows do not yet; they rest on the rule #678 rules, which `adp.h` does not state. The premise paragraph cites #678 and says the adapter keeps the rule today. It also says, as measured, which rule-breaking port reaches which row's items:
+   - a send port calling `adp_link_change(false)` from inside a send reaches rows 1 and 2 (arc 2 of 2 each);
+   - a timer port expiring a timer from inside `timer_start` reaches row 3 (arc 4 of 4) and row 4 (arcs 2 and 4 of 4 and its stray line);
+   - a link port calling back twice from inside `adp_set_enable(true)` reaches row 5 (arcs 2 and 4 of 4 and its line).
+   The paragraph closes: `adp.c`'s 100 % holds for ports that keep the rule, not for one that breaks it. Row 5's reach is new; neither earlier probe had reached it. No firmware change.
+3. R506-2-F3 (`89b02c7f`): six planted cases added, each held to its tally line: SIGBUS, SIGFPE and SIGILL inside a test (1/1 each); a suite's tear-down failure (1/1); a global environment failing outside every test (1/1, selected by its own filter); a disabled suite (0/1). Listener defects go from 11 to 18:
+   - each of the five signals dropped from the handler's list;
+   - `program-failure-not-counted` and `disabled-suite-not-counted`;
+   - `setup-failure-not-counted` renamed `suite-failure-not-counted`, now also naming the tear-down case.
+   For the tear-down and program cases, a listener that drops the count prints `RESULT: PASS` on the tally line, and the self-test catches that. The README's table and defect list match.
+R1 (both reviewers): PR-BODY.md's Status and Known limitations now carry the dated hosted result at `e7e0c10f`, which is `rtl-fast` 37445962183 passed with `firmware-unit` 112210865722. They also say the round-3 head has no hosted run. This lane does not edit the PR.
+Validation, all at `6ca834a7` from a clean tree. Each check ran with its own log and rc file, none piped:
+- `test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <pin>`: `mutants: 76 of 76 caught`, both pin arms refusing, PASS. The rv32 arm ran on the local ilp32 SDK.
+- `test_ctrl_nvm.py --require-rv32 --self-test --jobs 8`: 434 tests, `all 106 planted defects reddened`. Each new defect is killed by its intended assertion.
+- `fw_coverage.py --check` PASS (14 files), with and without lwSRP, with identical tables. `--selftest`: 28 of 28.
+- `tally_selftest.py --mutants`: 18 of 18 cases and 18 of 18 defects. The gcc 13.3.0 / GoogleTest 1.14.0 image gives the same.
+- The 48-command builder set, docs gates included: 48 of 48 rc 0. Command 48 reports its calibration gate NOT RUN, as before, because there is no Arty build tree on this host.
+- `firmware-unit`'s run steps replayed verbatim in `ubuntu:24.04`: PASS, with the same coverage table as gcc 16. This is a replay, not act and not hosted evidence.
+R506-2's probes, run unchanged from copies:
+- `guard_ge_probe.sh` now exits 1: each of the 5 shapes fails `codec_loaded_prefix`.
+- `tally_extra_plants.py`: each of its 4 defects reddens the head's own cases.
+- `adp_reentry_probe.py` reproduces rows 1 to 4.
+Acceptance criteria (round 3, 6014362247): items 1 to 3 are met, with the evidence above, and the public contract is kept.
+Open risks/questions:
+(1) #677, the erased-record read past `loaded`, is not fixed here; the test comment names it.
+(2) #678 is ruled but not yet in `adp.h`. Once its F0 follow-up lands, the README's premise paragraph should point at the header instead of the ruling.
+(3) #679 (the ctrl `rv32` arm against the CI-pinned SDK) and #673 (shard 2's `milan_dp_mclk` timeout, which passed at `e7e0c10f`) are pre-existing.
+(4) Hosted `rtl-full` at `e7e0c10f` still had `Verilator shard 1/5` running at the 11:07:55 UTC snapshot; every other shard passed.
+Handoff, PR body and receipt digests: HANDOFF.md, PR-BODY.md and RECEIPTS.sha256 in the lane's output directory.
