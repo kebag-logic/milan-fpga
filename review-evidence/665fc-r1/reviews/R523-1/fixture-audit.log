@@ -1,0 +1,333 @@
+BASE
+RTL rx-msg-type-ignored plants once
+RTL rx-eq-own-is-eq-zero plants once
+RTL rx-field-length-unchecked plants once
+RTL rx-writes-past-free-space plants once
+RTL rx-bucket-never-drains plants once
+RTL rx-lanes-big-endian plants once
+RTL rx-subtype-ignored plants once
+RTL tx-reserved-word-unchecked plants once
+RTL tx-refusal-no-flush plants once
+RTL tx-round-robin plants once
+RTL tx-seq-wrap-unsigned plants once
+RTL tx-ties-fixed-priority plants once
+RTL evt-rearm-keeps-tag plants once
+RTL evt-cancel-arms plants once
+RTL evt-tick-count-lost plants once
+RTL top-tick-always-enabled plants once
+RTL top-gm-hi-live plants once
+RTL top-partial-strobe-accepted plants once
+RTL top-irq-ignores-enable plants once
+RTL rx-maap-empty-count-overlaps plants once
+RTL rx-drop-uncounted plants once
+RTL rx-refill-slow plants once
+RTL tx-lanes-reversed plants once
+RTL evt-link-never-posts plants once
+RTL evt-gm-domain-dropped plants once
+RTL evt-expires-late plants once
+RTL top-irq-enable-unmasked plants once
+RTL rx-closed-channel-stores plants once
+RTL rx-second-ethertype-ignored plants once
+RTL rx-tail-unguarded plants once
+RTL tx-head-unguarded plants once
+RTL evt-tail-unguarded plants once
+RTL evt-only-exact-deadline plants once
+RTL wb-address-shifted plants once
+RTL axil-read-uses-write-address plants once
+RTL axil-arready-follows-awvalid plants once
+RTL axil-awready-waits-for-wvalid plants once
+RTL axil-write-without-w plants once
+RTL axil-write-ignores-b-slot plants once
+RTL axil-b-dropped-without-bready plants once
+RTL axil-r-dropped-without-rready plants once
+RTL axil-rdata-follows-port plants once
+RTL axil-read-before-write plants once
+RTL axil-wready-while-issuing plants once
+RTL axil-awready-while-issuing plants once
+RTL axil-reset-keeps-aw plants once
+firmware departing-keeps-index plants once
+firmware departing-sends-zero plants once
+firmware available-replaces-owed-departing plants once
+firmware available-passes-owed-departing plants once
+firmware second-departing-dropped plants once
+firmware second-shutdown-overwrites-index plants once
+firmware link-loss-drops-owed-departing plants once
+firmware gm-change-drops-owed-available plants once
+firmware discover-drops-owed-available plants once
+firmware stray-expiry-drops-owed-available plants once
+firmware link-loss-keeps-owed-available plants once
+firmware departing-queue-unbounded plants once
+firmware coalesced-departing-uncounted plants once
+firmware coalesce-drops-queued-departing plants once
+firmware coalesce-overwrites-oldest-index plants once
+firmware own-discover-discarded plants once
+firmware down-answers-discover plants once
+firmware link-down-departs plants once
+firmware gm-change-ignored plants once
+firmware delay-ignores-link-down plants once
+firmware shutdown-in-down-departs plants once
+firmware advertise-expiry-skips-delay plants once
+firmware advertise-period-wrong plants once
+firmware link-up-draws-startup-kind plants once
+firmware draw-kinds-merged plants once
+firmware foreign-discover-answered plants once
+firmware frame-misses-config-index plants once
+firmware stale-tag-accepted plants once
+firmware latency-extra-read plants once
+firmware pool-free-leaks plants once
+firmware calloc-overflow-unchecked plants once
+firmware pool-double-free-accepted plants once
+firmware debug-truncation-uncounted plants once
+firmware tick-count-ignored plants once
+firmware rx-pass-unbounded plants once
+firmware poll-owes-nothing plants once
+firmware events-halved plants once
+firmware rx-before-events plants once
+firmware carried-ticks-overwritten plants once
+firmware tick-slice-unbounded plants once
+firmware owed-ticks-let-it-sleep plants once
+firmware filter-opened-before-eid plants once
+firmware rx-no-resync plants once
+firmware tx-overfills plants once
+firmware lanes-big-endian plants once
+firmware frame-sources-from-sinks plants once
+firmware pool-falls-back-to-heap plants once
+firmware model-rate-unlimited plants once
+firmware seq-not-stamped plants once
+firmware model-round-robin plants once
+firmware model-gm-hi-live plants once
+firmware zero-byte-class-accepted plants once
+firmware zero-size-refusal-uncounted plants once
+firmware foreign-free-uncounted plants once
+firmware port-pool-unreported plants once
+firmware pool-follows-a-cut-free-list plants once
+firmware pool-cut-list-refuses-outright plants once
+firmware encoding-failure-swallowed plants once
+firmware rx-binds-no-function plants once
+firmware seed-left-at-zero plants once
+firmware enable-not-idempotent plants once
+firmware other-subtype-accepted plants once
+firmware app-binds-pool-after-the-mailbox plants once
+firmware app-starts-on-an-uncarved-pool plants once
+firmware major-unchecked plants once
+firmware evt-words-unchecked plants once
+firmware step-waits-twice plants once
+firmware maap-base-shifted plants once
+firmware tx-negative-fill plants once
+firmware unknown-event-decoded-as-tick plants once
+firmware whole-field-loses-its-top-bit plants once
+firmware slots-past-the-bank plants once
+firmware foreign-frame-uncounted plants once
+firmware attach-ignores-poll-room plants once
+firmware mmio-offset-as-index plants once
+firmware wait-without-wfi plants once
+contract overlapping field plants once
+contract ring not a power of two plants once
+contract rings overlap plants once
+contract two channels, one EtherType plants once
+contract register outside its block plants once
+contract register with no fabric source plants once
+contract term past the frame plants once
+output C header field width plants and is detected
+output C header field moved plants and is detected
+output SV package ring base plants and is detected
+output SV package field lsb plants and is detected
+output reference page value plants and is detected
+output C header constant dropped plants and is detected
+output C header table order plants and is detected
+output skeleton register dropped plants and is detected
+TOTAL 137
+HEAD
+RTL rx-msg-type-ignored plants once
+RTL rx-eq-own-is-eq-zero plants once
+RTL rx-field-length-unchecked plants once
+RTL rx-writes-past-free-space plants once
+RTL rx-bucket-never-drains plants once
+RTL rx-lanes-big-endian plants once
+RTL rx-subtype-ignored plants once
+RTL tx-reserved-word-unchecked plants once
+RTL tx-refusal-no-flush plants once
+RTL tx-round-robin plants once
+RTL tx-seq-wrap-unsigned plants once
+RTL tx-ties-fixed-priority plants once
+RTL evt-rearm-keeps-tag plants once
+RTL evt-cancel-arms plants once
+RTL evt-tick-count-lost plants once
+RTL top-tick-always-enabled plants once
+RTL top-gm-hi-live plants once
+RTL top-partial-strobe-accepted plants once
+RTL top-irq-ignores-enable plants once
+RTL rx-maap-empty-count-overlaps plants once
+RTL rx-drop-uncounted plants once
+RTL rx-refill-slow plants once
+RTL tx-lanes-reversed plants once
+RTL evt-link-never-posts plants once
+RTL evt-gm-domain-dropped plants once
+RTL evt-expires-late plants once
+RTL top-irq-enable-unmasked plants once
+RTL rx-closed-channel-stores plants once
+RTL rx-second-ethertype-ignored plants once
+RTL rx-tail-unguarded plants once
+RTL tx-head-unguarded plants once
+RTL evt-tail-unguarded plants once
+RTL evt-only-exact-deadline plants once
+RTL wb-address-shifted plants once
+RTL axil-read-uses-write-address plants once
+RTL axil-arready-follows-awvalid plants once
+RTL axil-awready-waits-for-wvalid plants once
+RTL axil-write-without-w plants once
+RTL axil-write-ignores-b-slot plants once
+RTL axil-b-dropped-without-bready plants once
+RTL axil-r-dropped-without-rready plants once
+RTL axil-rdata-follows-port plants once
+RTL axil-read-before-write plants once
+RTL axil-wready-while-issuing plants once
+RTL axil-awready-while-issuing plants once
+RTL axil-reset-keeps-aw plants once
+RTL rx-tpid-matches-a-tuple plants once
+RTL rx-dst-ignored plants once
+RTL rx-multicast-dst-ignored plants once
+RTL rx-ethertype-ignored plants once
+RTL rx-own-any-unicast plants once
+RTL rx-own-mac-of-interface-0 plants once
+RTL rx-own-mac-low-word-only plants once
+RTL top-own-mac-halves-swapped plants once
+RTL top-own-mac-hi-read-from-lo plants once
+RTL pkg-aecp-command-only plants once
+RTL pkg-aecp-target-term-any-type plants once
+RTL pkg-aecp-controller-term-any-type plants once
+RTL rx-mismatch-never-counted plants once
+RTL rx-mismatch-counts-valid plants once
+RTL rx-mismatch-counts-any-ethertype plants once
+RTL rx-mismatch-counts-identity-refusals plants once
+RTL rx-mismatch-counted-twice plants once
+RTL rx-mismatch-needs-an-open-channel plants once
+RTL rx-short-frame-counted plants once
+RTL rx-mismatch-sets-no-err plants once
+RTL rx-refusal-takes-a-token plants once
+firmware departing-keeps-index plants once
+firmware departing-sends-zero plants once
+firmware available-replaces-owed-departing plants once
+firmware available-passes-owed-departing plants once
+firmware second-departing-dropped plants once
+firmware second-shutdown-overwrites-index plants once
+firmware link-loss-drops-owed-departing plants once
+firmware gm-change-drops-owed-available plants once
+firmware discover-drops-owed-available plants once
+firmware stray-expiry-drops-owed-available plants once
+firmware link-loss-keeps-owed-available plants once
+firmware departing-queue-unbounded plants once
+firmware coalesced-departing-uncounted plants once
+firmware coalesce-drops-queued-departing plants once
+firmware coalesce-overwrites-oldest-index plants once
+firmware own-discover-discarded plants once
+firmware down-answers-discover plants once
+firmware link-down-departs plants once
+firmware gm-change-ignored plants once
+firmware delay-ignores-link-down plants once
+firmware shutdown-in-down-departs plants once
+firmware advertise-expiry-skips-delay plants once
+firmware advertise-period-wrong plants once
+firmware link-up-draws-startup-kind plants once
+firmware draw-kinds-merged plants once
+firmware foreign-discover-answered plants once
+firmware frame-misses-config-index plants once
+firmware stale-tag-accepted plants once
+firmware latency-extra-read plants once
+firmware pool-free-leaks plants once
+firmware calloc-overflow-unchecked plants once
+firmware pool-double-free-accepted plants once
+firmware debug-truncation-uncounted plants once
+firmware tick-count-ignored plants once
+firmware rx-pass-unbounded plants once
+firmware poll-owes-nothing plants once
+firmware events-halved plants once
+firmware rx-before-events plants once
+firmware carried-ticks-overwritten plants once
+firmware tick-slice-unbounded plants once
+firmware owed-ticks-let-it-sleep plants once
+firmware filter-opened-before-eid plants once
+firmware rx-no-resync plants once
+firmware tx-overfills plants once
+firmware lanes-big-endian plants once
+firmware frame-sources-from-sinks plants once
+firmware pool-falls-back-to-heap plants once
+firmware model-rate-unlimited plants once
+firmware seq-not-stamped plants once
+firmware model-round-robin plants once
+firmware model-gm-hi-live plants once
+firmware zero-byte-class-accepted plants once
+firmware zero-size-refusal-uncounted plants once
+firmware foreign-free-uncounted plants once
+firmware port-pool-unreported plants once
+firmware pool-follows-a-cut-free-list plants once
+firmware pool-cut-list-refuses-outright plants once
+firmware encoding-failure-swallowed plants once
+firmware rx-binds-no-function plants once
+firmware seed-left-at-zero plants once
+firmware enable-not-idempotent plants once
+firmware other-subtype-accepted plants once
+firmware app-binds-pool-after-the-mailbox plants once
+firmware app-starts-on-an-uncarved-pool plants once
+firmware major-unchecked plants once
+firmware evt-words-unchecked plants once
+firmware step-waits-twice plants once
+firmware maap-base-shifted plants once
+firmware tx-negative-fill plants once
+firmware unknown-event-decoded-as-tick plants once
+firmware whole-field-loses-its-top-bit plants once
+firmware slots-past-the-bank plants once
+firmware foreign-frame-uncounted plants once
+firmware attach-ignores-poll-room plants once
+firmware mmio-offset-as-index plants once
+firmware wait-without-wfi plants once
+firmware model-tag-stripped plants once
+firmware model-tpid-matches-a-tuple plants once
+firmware model-multicast-dst-ignored plants once
+firmware model-ethertype-ignored plants once
+firmware model-subtype-ignored plants once
+firmware model-own-any-unicast plants once
+firmware model-own-mac-of-interface-0 plants once
+firmware model-own-mac-hi-dropped plants once
+firmware model-aecp-command-only plants once
+firmware model-mismatch-never-counted plants once
+firmware model-mismatch-counts-identity-refusals plants once
+firmware model-mismatch-sets-no-err plants once
+firmware own-mac-unguarded plants once
+firmware own-mac-halves-swapped plants once
+firmware mismatch-read-from-bus-err plants once
+firmware own-mac-after-the-channels-open plants once
+firmware app-own-mac-not-the-entity-mac plants once
+contract overlapping field plants once
+contract ring not a power of two plants once
+contract rings overlap plants once
+contract two channels, one EtherType plants once
+contract register outside its block plants once
+contract register with no fabric source plants once
+contract term past the frame plants once
+contract a tuple names the C-VLAN TPID plants once
+contract a tuple names the S-VLAN TPID plants once
+contract a tuple with no destination plants once
+contract own MAC spills its stride plants once
+contract own MAC over the channel registers plants once
+output C header field width plants and is detected
+output C header field moved plants and is detected
+output SV package ring base plants and is detected
+output SV package field lsb plants and is detected
+output reference page value plants and is detected
+output C header constant dropped plants and is detected
+output C header table order plants and is detected
+output skeleton register dropped plants and is detected
+output C header tuple destination plants and is detected
+output SV package tuple address plants and is detected
+output C header response term plants and is detected
+output reference page counter plants and is detected
+output C header tuple table order plants and is detected
+output skeleton own MAC dropped plants and is detected
+TOTAL 186
+sw/firmware/gtest/fw_coverage.py unchanged
+patch audit root rc 1
+patch audit protocol-processor rc 1
+patch audit gptp-processor rc 1
+patch audit third_party/verilog-axis rc 1
+PASS current base/head applicability and patch census

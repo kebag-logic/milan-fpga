@@ -1,0 +1,22 @@
+{
+  "cwd": "$REVIEWS/665fc-r523-1-packet/scratch/source",
+  "argv": [
+    "env",
+    "VERIFIED_SIMULATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/mbx",
+    "VERILATOR=$REVIEWS/665fc-r523-1-packet/simulator.py",
+    "run-wb",
+    "run-axil",
+    "run-cosim",
+    "run-if2"
+  ],
+  "environment": {
+    "TMPDIR": "$REVIEWS/665fc-r523-1-packet/scratch",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHON_CPU_COUNT": "4"
+  }
+}

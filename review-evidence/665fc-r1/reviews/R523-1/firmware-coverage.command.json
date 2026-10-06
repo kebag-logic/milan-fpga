@@ -1,0 +1,19 @@
+{
+  "cwd": ".",
+  "argv": [
+    "python3",
+    "-B",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--check",
+    "--jobs",
+    "4",
+    "--keep",
+    "$REVIEWS/665fc-r523-1-packet/scratch/coverage"
+  ],
+  "environment": {
+    "TMPDIR": "$REVIEWS/665fc-r523-1-packet/scratch",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHON_CPU_COUNT": "4"
+  }
+}

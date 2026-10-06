@@ -1,0 +1,38 @@
+Selected: model-tag-stripped, model-tpid-matches-a-tuple, model-multicast-dst-ignored, model-ethertype-ignored, model-subtype-ignored, model-own-any-unicast, model-own-mac-of-interface-0, model-own-mac-hi-dropped, model-aecp-command-only, model-mismatch-never-counted, model-mismatch-counts-identity-refusals, model-mismatch-sets-no-err, own-mac-unguarded, own-mac-halves-swapped, mismatch-read-from-bus-err, own-mac-after-the-channels-open, app-own-mac-not-the-entity-mac, app-binds-pool-after-the-mailbox
+[ok] mutant model-tag-stripped (model): 11 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+[ok] mutant model-tpid-matches-a-tuple (model): 12 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q1 tagged, it (adp): FILTER_MISMATCH does not count it
+[ok] mutant model-multicast-dst-ignored (model): 36 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): no RX record, no delivery
+[ok] mutant model-ethertype-ignored (model): 31 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (adp): no RX record, no delivery
+[ok] mutant model-subtype-ignored (model): 28 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C0 ACMP to this talker or this listener passes; to neither does not
+[ok] mutant model-own-any-unicast (model): 14 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery
+[ok] mutant model-own-mac-of-interface-0 (model): 2 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 another interface's own MAC, or one on an index with no interface, reaches no ring
+[ok] mutant model-own-mac-hi-dropped (model): 25 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+[ok] mutant model-aecp-command-only (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, response)
+[ok] mutant model-mismatch-never-counted (model): 39 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+[ok] mutant model-mismatch-counts-identity-refusals (model): 10 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+[ok] mutant model-mismatch-sets-no-err (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 a mismatch sets IRQ_STATUS.ERR
+[ok] mutant own-mac-unguarded (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 an interface past the contract's is refused
+[ok] mutant own-mac-halves-swapped (unit, port): 7 check(s) failed
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+[ok] mutant mismatch-read-from-bus-err (unit, port): 2 check(s) failed
+    first: [FAIL] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount: D11 FILTER_MISMATCH is read as its COUNT field
+[ok] mutant own-mac-after-the-channels-open (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L1OpenOrder: L1 every interface's OWN_MAC is written before any channel opens
+[ok] mutant app-own-mac-not-the-entity-mac (unit): 1 check(s) failed
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+[ok] mutant app-binds-pool-after-the-mailbox (unit): 1 check(s) failed
+    first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+mutants: 18 of 18 caught

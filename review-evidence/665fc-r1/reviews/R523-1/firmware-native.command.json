@@ -1,0 +1,16 @@
+{
+  "cwd": ".",
+  "argv": [
+    "python3",
+    "-B",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--build-dir",
+    "$REVIEWS/665fc-r523-1-packet/scratch/firmware-native"
+  ],
+  "environment": {
+    "TMPDIR": "$REVIEWS/665fc-r523-1-packet/scratch",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHON_CPU_COUNT": "4"
+  }
+}

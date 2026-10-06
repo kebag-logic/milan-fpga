@@ -1,0 +1,21 @@
+{
+  "cwd": "$REVIEWS/665fc-r523-1-packet/scratch/source",
+  "argv": [
+    "env",
+    "VERIFIED_SIMULATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "VERILATOR=$REVIEWS/665fc-r523-1-packet/simulator.py",
+    "python3",
+    "-B",
+    "tb/verilator/mbx/mutants.py",
+    "--jobs",
+    "4",
+    "--keep",
+    "$REVIEWS/665fc-r523-1-packet/scratch/rtl-mutants"
+  ],
+  "environment": {
+    "TMPDIR": "$REVIEWS/665fc-r523-1-packet/scratch",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PYTHON_CPU_COUNT": "4"
+  }
+}
