@@ -85,10 +85,13 @@ class Build:
 def run(argv: Sequence[str], cwd: Path | None = None, timeout: int | None = None,
         env: Mapping[str, str] | None = None) -> subprocess.CompletedProcess[str]:
     """One subprocess, its output captured; a timeout, or a program that is not
-    there, is a failed run."""
+    there, is a failed run. GoogleTest's own controls (GTEST_*) are dropped
+    from its environment, so a shell's GTEST_FILTER or the like cannot narrow
+    or reshape what a gate's binaries run (R506-1-S2)."""
+    clean = {k: v for k, v in (os.environ if env is None else env).items() if not k.startswith("GTEST_")}
     try:
         return subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True, check=False,
-                              timeout=timeout, env=None if env is None else dict(env))
+                              timeout=timeout, env=clean)
     except subprocess.TimeoutExpired as exc:
         # what the child printed before the kill, which the exception holds as bytes
         out = exc.stdout.decode(errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")

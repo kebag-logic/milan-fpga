@@ -60,6 +60,9 @@ pull-request update and on every push to `dev`. It produces one stable
     without that arm.
   - both gates' planted-defect campaigns (`--self-test`).
 
+  The tally listener's planted defects (`tally_selftest.py --mutants`) are a
+  local campaign too; the job runs its planted cases.
+
 A change containing only documentation skips the Verilator and Yosys setup
 jobs and `firmware-unit`. Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
@@ -2250,10 +2253,11 @@ syn/yosys/run.sh --mode elaborate --no-structural \
 
 The bare-metal firmware's host suites run locally as `firmware-unit` runs
 them, and their planted-defect campaigns, which no hosted job runs, are added
-with `--self-test` ([the harness page](../../sw/firmware/gtest/README.md#run)):
+with `--self-test`, and the tally listener's with `--mutants`
+([the harness page](../../sw/firmware/gtest/README.md#run)):
 
 ```sh
-python3 sw/firmware/gtest/tally_selftest.py
+python3 sw/firmware/gtest/tally_selftest.py --mutants
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
 python3 sw/firmware/gtest/fw_coverage.py --selftest

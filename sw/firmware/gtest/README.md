@@ -65,21 +65,37 @@ log reads as a pass: one tally, no `NOCOUNT`, no failure in it, no `[FAIL]`
 line (`fw_gtest.grade`).
 
 `tally_selftest.py` proves each of those with a planted case run through the
-same grade, and through `suite_tally.py` itself:
+same grade, and through `suite_tally.py` itself. Each case proves two things
+apart. Its tally line, read with `suite_tally.scan`, the sweep's own
+scanner, must carry exactly the `checks` and `failures` below, with
+`RESULT: FAIL` under it whenever `failures` is not 0: so the tally line
+itself fails, not only the `[FAIL]` marker or the exit status. And its
+verdict must be the one below, through `fw_gtest.grade` and through
+`suite_tally.py --verdict` or the sweep's `NOCOUNT`:
 
-| Planted case | Exit | What reads it |
-|---|---|---|
-| one passing test (the control) | 0 | passes, a tally of one test |
-| a failing assertion | 1 | fails: a tally failure and a `[FAIL]` line naming `Fail.Expect` |
-| SIGSEGV inside a test | -11 | fails: the crash tally and `[FAIL] Crash.Segv` |
-| `abort()` inside a test | -6 | fails: the crash tally and `[FAIL] Crash.Abort` |
-| `exit(0)` inside a test | 0 | fails: the early-exit tally and `[FAIL] Exit.Zero` |
-| a skipped test | 0 | fails: `[FAIL] Skip.Silent: skipped: ...` |
-| an uncaught exception | 1 | fails: GoogleTest's own catch, `[FAIL] Throw.Uncaught` |
-| a disabled test | 0 | fails: `[FAIL] Disabled.DISABLED_NeverRuns` |
-| a failure in a suite's set-up | 1 | fails: `[FAIL] SetUpFails` |
-| `_exit(0)` inside a test | 0 | fails: no tally, `NOCOUNT` from `suite_tally.py` |
-| no test selected | 0 | fails: a tally of nothing, `NOCOUNT` |
+| Planted case | Exit | Tally line: checks, failures | Verdict |
+|---|---|---|---|
+| one passing test (the control) | 0 | 1, 0 (`RESULT: PASS`) | passes |
+| a failing assertion | 1 | 1, 1 | fails, `[FAIL] Fail.Expect` |
+| SIGSEGV inside a test | -11 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Segv` |
+| `abort()` inside a test | -6 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Abort` |
+| `exit(0)` inside a test | 0 | 1, 1, from the `atexit` handler | fails, `[FAIL] Exit.Zero` |
+| a skipped test | 0 | 1, 1 | fails, `[FAIL] Skip.Silent: skipped: ...` |
+| an uncaught exception | 1 | 1, 1 | fails, GoogleTest's own catch, `[FAIL] Throw.Uncaught` |
+| a disabled test | 0 | 0, 1 | fails, `[FAIL] Disabled.DISABLED_NeverRuns` |
+| a failure in a suite's set-up | 1 | 1, 2: the suite's test and its set-up | fails, `[FAIL] SetUpFails` |
+| `_exit(0)` inside a test | 0 | none | `NOCOUNT` |
+| no test selected | 0 | 0, 0 | `NOCOUNT` |
+| a disabled test, `GTEST_ALSO_RUN_DISABLED_TESTS=1` in the environment | 0 | 0, 1 | fails, as above: the gates drop `GTEST_*` from each binary's environment, so a shell's GoogleTest controls cannot narrow or reshape a gate's run |
+
+`tally_selftest.py --mutants` plants eleven defects into copies of the
+listener and requires each to turn the cases it names red, through the
+tally line wherever the defect falsifies it: a skipped test, a suite's
+set-up failure, a crashed test or an early exit left out of the failures; a
+crashed test left out of the checks; a disabled test not counted; `RESULT:
+PASS` printed whatever the failures; no test counted; no `[FAIL]` line; no
+`atexit` handler; no signal handler. A copy that does not build, or a case
+that still reads as planted, is an escape.
 
 A binary still running after `fw_gtest.RUN_TIMEOUT_S` (600 s) is killed and
 graded `NOCOUNT`, with what it printed before the kill.
@@ -264,7 +280,7 @@ Each has a planted defect that removes it.
 ## Run
 
 ```sh
-python3 sw/firmware/gtest/tally_selftest.py
+python3 sw/firmware/gtest/tally_selftest.py --mutants
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
 python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
 python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
@@ -278,8 +294,11 @@ compiler. The store's arm builds with the pinned SDK
 (`scripts/ci_rv32_sdk.py`). The ctrl arm compiles against the SDK's C
 headers for `-mabi=ilp32`, and that SDK is `ilp32d` with no
 `gnu/stubs-ilp32.h`, so the ctrl arm needs an `ilp32` SDK at
-`~/br-milan-rv32/host` or a bare-metal compiler. Each gate prints the
-compiler, gcov and GoogleTest versions it ran with.
+`~/br-milan-rv32/host` or a bare-metal compiler. The ctrl gate, the store's
+gate, the coverage gate and the tally's self-test each print a `toolchain:`
+line first: the C and C++ compilers, gcov and GoogleTest and GoogleMock
+they ran with. A gate's coverage mode does not; the coverage gate that
+drives it prints the line for the run.
 
 ## CI
 
@@ -301,7 +320,8 @@ Three arms stay with the local gates, and the job names each:
 - the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
   token cannot read. The coverage ratchet reads the same with and without
   it;
-- both gates' planted-defect campaigns (`--self-test`).
+- both gates' planted-defect campaigns (`--self-test`) and the tally
+  listener's (`tally_selftest.py --mutants`).
 
 The versions this harness was built and measured with:
 

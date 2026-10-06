@@ -103,6 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     if args.coverage is not None:
         return coverage(args.coverage.resolve(), args.lwsrp)
+    print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
