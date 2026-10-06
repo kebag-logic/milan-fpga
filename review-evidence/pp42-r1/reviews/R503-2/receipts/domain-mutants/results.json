@@ -1,0 +1,184 @@
+[
+ {
+  "mutant": "golden-pp_top-domain-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "avb_domain_term_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN1b:",
+   "DN1c:",
+   "DN2b:",
+   "DN2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_link_term_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4b:",
+   "DN4c:",
+   "DN4d:",
+   "DN4e:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN4d: link up: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "asp_takes_domain",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN1b:",
+   "DN2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 2 frames: 1 GET_AVB_INFO, 1 GET_AS_PATH)",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 2 frames: 1 GET_AVB_INFO, 1 GET_AS_PATH)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_notify_not_interface",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4c:",
+   "DN4e:",
+   "DN1c:",
+   "DN2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 1, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 2, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 3, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "domain_same_readopted",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN3:",
+   "DN3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN3: the bridge declares the operating {3, 5} again: no DOMAIN_CHANGE (saw 1) and nothing reaches A (got 1 frames)",
+   "DN3b: the bridge declares the operating {3, 2} again: no DOMAIN_CHANGE (saw 1) and nothing reaches A (got 1 frames)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "adoption_no_strobe",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "<bench-switch-model>:",
+   "DN2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "<bench-switch-model>: the bridge's {3, 5} is adopted with one DOMAIN_CHANGE (premise), saw 0, class-D {3, 5, adopted 1}",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2: the declared default {3, 2} is in force with one DOMAIN_CHANGE (premise), saw 0, class-D {3, 2}"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_never_claims",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN0:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN0: controller A registered (premise)",
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN4d: link up: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "revert_strobes_at_defaults",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link term alone notifies), saw 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "restore_never_done",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "notify bench: blank NVM"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "notify bench: blank NVM, both restore walks reach done"
+  ],
+  "verdict": "KILLED"
+ }
+]

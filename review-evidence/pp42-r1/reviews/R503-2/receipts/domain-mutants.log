@@ -1,0 +1,12 @@
+COMMAND ["/usr/bin/python3", "tb/pp_top/notify_mutants.py", "--output", "$REVIEWS/pp42-r503-2-packet/receipts/domain-mutants", "--verilator", "$REVIEWS/pp42-r503-2-packet/scripts/bounded-verilator.py", "--jobs", "2", "--only", "avb_domain_term_dropped", "avb_link_term_dropped", "asp_takes_domain", "avb_notify_not_interface", "domain_same_readopted", "adoption_no_strobe", "revert_strobes_at_defaults", "registry_never_claims", "restore_never_done"]
+{"mutant": "golden-pp_top-domain-notify-only", "verdict": "PASS"}
+{"mutant": "avb_domain_term_dropped", "verdict": "KILLED", "missing": []}
+{"mutant": "avb_link_term_dropped", "verdict": "KILLED", "missing": []}
+{"mutant": "asp_takes_domain", "verdict": "KILLED", "missing": []}
+{"mutant": "avb_notify_not_interface", "verdict": "KILLED", "missing": []}
+{"mutant": "domain_same_readopted", "verdict": "KILLED", "missing": []}
+{"mutant": "adoption_no_strobe", "verdict": "KILLED", "missing": []}
+{"mutant": "registry_never_claims", "verdict": "KILLED", "missing": []}
+{"mutant": "revert_strobes_at_defaults", "verdict": "KILLED", "missing": []}
+{"mutant": "restore_never_done", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 9 of 9 KILLED by their named checks; goldens PASS

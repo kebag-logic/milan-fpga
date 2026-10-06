@@ -1,0 +1,7 @@
+COMMAND ["/usr/bin/python3", "tb/pp_top/notify_mutants.py", "--output", "$REVIEWS/pp42-r503-2-packet/receipts/originator-controls", "--verilator", "$REVIEWS/pp42-r503-2-packet/scripts/bounded-verilator.py", "--jobs", "2", "--only", "inflight_highest_free_id", "inflight_match_ignores_seq", "inflight_cancel_keeps_timer", "inflight_shared_seq"]
+{"mutant": "golden-originator-run", "verdict": "PASS"}
+{"mutant": "inflight_highest_free_id", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_cancel_keeps_timer", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_shared_seq", "verdict": "KILLED", "missing": []}
+{"mutant": "inflight_match_ignores_seq", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 4 of 4 KILLED by their named checks; goldens PASS

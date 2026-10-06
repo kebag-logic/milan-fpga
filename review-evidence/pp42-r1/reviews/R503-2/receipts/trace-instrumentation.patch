@@ -1,0 +1,38 @@
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -69,6 +69,9 @@
+       edge_t = io.t;
+     }
+     while (!io.q_aecp.empty()) {
++      printf("TRACE_TX t=%llu bytes=", (unsigned long long)io.t);
++      for (auto b : io.q_aecp.front()) printf("%02x", b);
++      printf("\n");
+       seen.push_back({io.q_aecp.front(), io.t});
+       io.q_aecp.pop_front();
+     }
+@@ -87,10 +90,12 @@
+       io.d->rx_data_i = f[i];
+       io.d->rx_last_i = (i + 1 == f.size()) ? 1 : 0;
+       tick();
++      if (i + 1 == f.size()) printf("TRACE_RX_LAST t=%llu ethertype=%02x%02x\n", (unsigned long long)io.t, f[12], f[13]);
+     }
+     io.d->rx_valid_i = 0;
+     io.d->rx_last_i = 0;
+     for (int i = 0; i < 4; ++i) tick();
++    printf("TRACE_FEED_RETURN t=%llu ethertype=%02x%02x\n", (unsigned long long)io.t, f[12], f[13]);
+   }
+ 
+   void boot_to_idle(bool restore) {
+@@ -1741,10 +1746,12 @@
+     const int ch0 = io.domain_changes;
+     space_out();
+     size_t from = seen.size();
++    printf("TRACE_LINK_DOWN t=%llu\n", (unsigned long long)io.t);
+     io.d->link_up_i = 0;
+     one_notification("DN4b", "DN4c", "link down", from, io.t);
+     space_out();
+     from = seen.size();
++    printf("TRACE_LINK_UP t=%llu\n", (unsigned long long)io.t);
+     io.d->link_up_i = 1;
+     one_notification("DN4d", "DN4e", "link up", from, io.t);
+     CHECK(io.domain_changes == ch0,

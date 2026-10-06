@@ -1,0 +1,9 @@
+COMMAND ["/usr/bin/python3", "tb/srp_top/mutants.py", "--output", "$REVIEWS/pp42-r503-2-packet/receipts/srp-controls", "--jobs", "2", "--only", "lv-expiry-masked,lv-expiry-last,lv-expiry-dropped,lv-sweep-misses-collision"]
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+lv-expiry-last: rc=2 failures=48 KILLED tags=SC1
+lv-expiry-dropped: rc=2 failures=86 KILLED tags=K leavetimer! -> MT,K one LISTENER_REG_CHANGE, got 0,K source 3 no longer ACTIVE,L expiry -> MT + unregistered,SC1,T reg
+lv-sweep-misses-collision: rc=2 failures=16 KILLED tags=SC3
+7 checks: 7 PASS, 0 FAIL
