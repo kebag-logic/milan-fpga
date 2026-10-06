@@ -1,0 +1,9 @@
+Reproduce from a detached clone at 75c4eee4589e9317aca3d07b91f94a38b4cc86af. Supply --source PATH and --packet PATH to run-focused.py and run-extra.py. The latter's --count1-only switch reruns the retained baseline-gap diagnostic. Run count1-stat.py --packet PATH after run-extra.py. Run plant-check.py and storage-shape.py with --source and --packet. Run verify-checkout.py --source PATH --output PATH/receipts/checkout-integrity.json last.
+
+limited-simulator.py defaults to the assigned pinned executable. SCOPED_SIMULATOR can override its location for reproduction, but identity must be verified first. It changes only the generated compilation job count to 2. Campaign drivers receive explicit --jobs values, make receives -j16, and all workers are joined by foreground coordinators. The focused run has at most ten compiler workers. Disposable sources, builds and temporary directories stay under scratch. No production file is patched.
+
+The ordinary suites and campaign goldens must pass. The ten registry controls and two top controls must build successfully, finish with a tally, return nonzero, and fail every named check. The count-one diagnostic deliberately checks that issue #167 is present identically at source base and head; its passing receipt is not a claim that this old defect is fixed. Its initial setup error is retained in the *-setup-initial receipts and explained in probe-setup-note.txt.
+
+The count-one statistics check is only KL_aecp_notify, with the default shape and the repository's hierarchy/proc/opt_clean recipe. It does not run the full synthesis bank or measure physical resources. storage-shape.py captures the source and generated array dimensions supporting the documentation finding. Rendering used rsvg-convert on docs/diagrams/21-integration-faces.svg; its temporary raster is excluded from publication.
+
+Only REPORT.md and files listed in MANIFEST.sha256 are publication material. scratch is never published.

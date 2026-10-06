@@ -1,0 +1,45 @@
+[
+ {
+  "mutant": "golden-pp_top-obj_if2_Vpp_top_if2",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "rgy_port_from_latest_frame",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3:",
+   "IF3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+   "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_matches_other_port",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (2 and 1 push(es))"
+  ],
+  "verdict": "KILLED"
+ }
+]

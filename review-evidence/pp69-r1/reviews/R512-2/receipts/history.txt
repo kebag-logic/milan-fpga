@@ -1,0 +1,225 @@
+commit 75c4eee4589e9317aca3d07b91f94a38b4cc86af
+parents fc9bc43fd6ca14bc9adab5703e5e5cbe6bcfaa41
+committed 2026-10-06T15:55:25+02:00
+Plant a failing control for every round-2 check: ten PD and CA arms, the reviewer's P1 and P2 at the top, and the suite READMEs' records
+
+ docs/architecture/09_verification.md |  7 +++-
+ tb/aecp_notify/README.md             | 21 ++++++++---
+ tb/pp_top/README.md                  | 29 +++++++++++++---
+ tb/pp_top/notify_mutants.py          | 67 ++++++++++++++++++++++++++++++++++--
+ 4 files changed, 110 insertions(+), 14 deletions(-)
+commit fc9bc43fd6ca14bc9adab5703e5e5cbe6bcfaa41
+parents 3323904f2043d6ebd2124794740f5c17d95720b3
+committed 2026-10-06T15:07:44+02:00
+Grade the registry port's source at the top: REGISTER and DEREGISTER held until a frame on the other interface arrives, entries told apart by sequence_id (IF3, IF3b)
+
+ docs/architecture/09_verification.md |  2 +-
+ tb/pp_top/README.md                  | 17 +++++--
+ tb/pp_top/interface_phases.hpp       | 99 ++++++++++++++++++++++++++++--------
+ 3 files changed, 92 insertions(+), 26 deletions(-)
+commit 3323904f2043d6ebd2124794740f5c17d95720b3
+parents cb730a2f9dd7e4f60a03a38d4b47b569e68da8df
+committed 2026-10-06T15:06:55+02:00
+Key the registry depth per AVB interface and cancel every superseded probe at two interfaces: rows {index, port}, owner turns, sections PD and CA
+
+ docs/00_MILAN_COMPLIANCE_REVIEW.md          |   4 +-
+ docs/architecture/01_overview.md            |   4 +-
+ docs/architecture/06_aecp_engine.md         |  23 +-
+ docs/architecture/09_verification.md        |   2 +
+ docs/guides/integrator.md                   |   2 +-
+ hdl/aecp/KL_aecp_notify.sv                  | 270 +++++++++++++++-----
+ hdl/top/protocol_processor_top.sv           |   5 +-
+ tb/aecp_notify/README.md                    |  57 ++++-
+ tb/aecp_notify/port_tuple.hpp               | 382 +++++++++++++++++++++++++++-
+ tb/pp_top/mutations/fanout-never-ends.patch |   2 +-
+ tb/pp_top/notify_mutants.py                 |   4 +-
+ 11 files changed, 649 insertions(+), 106 deletions(-)
+commit cb730a2f9dd7e4f60a03a38d4b47b569e68da8df
+parents d723574a2b760f9dd2b866081135d5e0bd9c68cd 86a7b0c57831c15e9cd8b42d64cc4a9843f4e726
+committed 2026-10-06T13:58:30+02:00
+Merge main 86a7b0c5 (#134, #22) into pp69-if-seam
+commit 86a7b0c57831c15e9cd8b42d64cc4a9843f4e726
+parents 7e5415e069cae46b63cafcc9e6ac9f68e058d9d0 d52bd7f277c6339b13fe7c8ebe849b25f3e14638
+committed 2026-10-06T11:31:11+02:00
+Merge pull request #162 from Mister-M-alt/pp22-decl-order
+commit d723574a2b760f9dd2b866081135d5e0bd9c68cd
+parents c3cac3a4d37440d5db3612d927dfe2f28edbe7a4
+committed 2026-10-06T11:20:05+02:00
+Plant a failing control for every new check: seven more if- arms, two AVB_INTERFACE counter arms, PT1 folded into PT2, and the READMEs' records
+
+ tb/adp_engine/README.md                                   | 12 ++++++++++--
+ tb/adp_engine/mutants.py                                  | 10 ++++++++++
+ tb/adp_engine/mutations/if-aidx-reset-by-index.patch      | 11 +++++++++++
+ tb/adp_engine/mutations/if-gm-slice-reversed.patch        | 11 +++++++++++
+ tb/adp_engine/mutations/if-ingress-forced-one.patch       | 11 +++++++++++
+ tb/adp_engine/mutations/if-link-collapsed.patch           | 11 +++++++++++
+ tb/adp_engine/mutations/if-link-fall-collapsed.patch      | 11 +++++++++++
+ tb/adp_engine/mutations/if-top-range-floor-dropped.patch  | 11 +++++++++++
+ .../mutations/if-top-range-floor-off-by-one.patch         | 11 +++++++++++
+ tb/aecp_notify/README.md                                  | 10 ++++++----
+ tb/aecp_notify/port_tuple.hpp                             | 13 ++++++-------
+ tb/pp_top/README.md                                       | 15 +++++++++------
+ tb/pp_top/notify_mutants.py                               |  9 +++++++++
+ 13 files changed, 127 insertions(+), 19 deletions(-)
+commit c3cac3a4d37440d5db3612d927dfe2f28edbe7a4
+parents a8f79838e459ee1b9942c81a9d8c8d5ae539b52e
+committed 2026-10-06T11:10:51+02:00
+Record the seam in the suite READMEs: adp_engine section IF, aecp_notify sections PT and CK, pp_top section IF, and the new controls
+
+ tb/adp_engine/README.md  | 61 +++++++++++++++++++++++++++++++++++++++++++++---
+ tb/aecp_notify/README.md | 53 +++++++++++++++++++++++++++++++++++++----
+ tb/pp_top/README.md      | 55 +++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 158 insertions(+), 11 deletions(-)
+commit a8f79838e459ee1b9942c81a9d8c8d5ae539b52e
+parents 3b6a25b682c5846c452c11bfc5ccf7f22aceac79
+committed 2026-10-06T09:01:29+02:00
+Plant the seam's controls: nine if- arms in the ADP campaign, the registry port and AVB_INTERFACE counter-row arms in notify_mutants.py
+
+ tb/adp_engine/mutants.py                           | 16 ++++++++
+ tb/adp_engine/mutations/if-egress-collapsed.patch  | 11 ++++++
+ .../mutations/if-gm-sample-collapsed.patch         | 11 ++++++
+ tb/adp_engine/mutations/if-ingress-collapsed.patch | 11 ++++++
+ .../mutations/if-pdu-index-collapsed.patch         | 11 ++++++
+ .../mutations/if-top-count-collapsed.patch         | 11 ++++++
+ .../mutations/if-top-ingress-collapsed.patch       | 11 ++++++
+ tb/adp_engine/mutations/if-top-ingress-live.patch  | 11 ++++++
+ .../mutations/if-top-range-unguarded.patch         | 11 ++++++
+ tb/pp_top/notify_mutants.py                        | 45 ++++++++++++++++++++--
+ 10 files changed, 146 insertions(+), 3 deletions(-)
+commit 3b6a25b682c5846c452c11bfc5ccf7f22aceac79
+parents 1673e56454a4d874387076492c3e4a55415dd9b2
+committed 2026-10-06T09:01:26+02:00
+Build the seam at two AVB interfaces: adp_engine section IF, aecp_notify sections PT and CK, pp_top section IF and if-guards
+
+ docs/architecture/09_verification.md |  18 ++
+ tb/adp_engine/Makefile               |  23 +-
+ tb/adp_engine/sim_if2.cpp            | 512 +++++++++++++++++++++++++++++++++++
+ tb/adp_engine/sim_main.cpp           |  13 +-
+ tb/aecp_notify/Makefile              |  26 +-
+ tb/aecp_notify/port_tuple.hpp        | 278 +++++++++++++++++++
+ tb/aecp_notify/sim_main.cpp          |  21 +-
+ tb/pp_top/Makefile                   |  31 ++-
+ tb/pp_top/if_guards.py               |  69 +++++
+ tb/pp_top/interface_phases.hpp       | 203 ++++++++++++++
+ tb/pp_top/pp_top_wrap.sv             |  19 +-
+ tb/pp_top/sim_main.cpp               |  15 +-
+ 12 files changed, 1201 insertions(+), 27 deletions(-)
+commit 1673e56454a4d874387076492c3e4a55415dd9b2
+parents e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8
+committed 2026-10-06T09:01:21+02:00
+Thread P-N-AVB-INTERFACES through the top: N_AVB_IF_P to ADP, rx_if_index_i to the transaction, the registry port and per-interface AVB_INTERFACE counter slots
+
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |  2 +-
+ docs/architecture/01_overview.md                   |  2 +-
+ docs/architecture/02_interfaces.md                 |  5 +-
+ docs/architecture/06_aecp_engine.md                | 19 ++++-
+ docs/diagrams/21-integration-faces.svg             |  7 +-
+ docs/guides/integrator.md                          |  3 +-
+ hdl/aecp/KL_aecp_notify.sv                         | 74 ++++++++++++++--
+ hdl/top/protocol_processor_top.sv                  | 98 +++++++++++++++++++---
+ .../mutations/cfg-nonzero-for-valid.patch          |  2 +-
+ tb/adp_engine/mutations/cfg-overlay-only.patch     |  2 +-
+ 10 files changed, 180 insertions(+), 34 deletions(-)
+commit d52bd7f277c6339b13fe7c8ebe849b25f3e14638
+parents 2139f3dc10161b456dfbd51d2f73a63f9164e041 7e5415e069cae46b63cafcc9e6ac9f68e058d9d0
+committed 2026-10-06T08:24:28+02:00
+Merge main 7e5415e0 (#134) into pp22-decl-order
+commit 7e5415e069cae46b63cafcc9e6ac9f68e058d9d0
+parents e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8 ffc3a8e5733202384e55ea9094569cca86b78261
+committed 2026-10-06T08:23:54+02:00
+Merge pull request #160 from Mister-M-alt/pp134-lv-leave
+commit 2139f3dc10161b456dfbd51d2f73a63f9164e041
+parents e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8
+committed 2026-10-06T05:38:29+02:00
+Move packet-engine declarations above their first use
+
+ hdl/packet_engine/KL_pp_originator.sv   | 6 +++---
+ hdl/packet_engine/KL_pp_rx_validator.sv | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+commit ffc3a8e5733202384e55ea9094569cca86b78261
+parents a596c7626864ae10026994ca777a8ccfdb53a9f6 e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8
+committed 2026-10-06T05:24:59+02:00
+Merge main e6a759de (#158) into pp134-lv-leave
+commit a596c7626864ae10026994ca777a8ccfdb53a9f6
+parents 9050c4bbd25556929a0f24fb98258bc98e3bcfbe
+committed 2026-10-05T21:27:34+02:00
+Correct full-suite LV mutation records (#134)
+
+ tb/srp_top/README.md | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+commit 9050c4bbd25556929a0f24fb98258bc98e3bcfbe
+parents 9d2659884a6a8e000364b1a39b9bb9514cf04bd6 21c6f7096ac80007f723de59c6f717f55bd34cfc
+committed 2026-10-05T14:57:41+02:00
+Merge processor main 21c6f709 into the LV leave lane (#134)
+commit 9d2659884a6a8e000364b1a39b9bb9514cf04bd6
+parents ed727d4d3fef5d24fe8053f72495fc2197fd3288
+committed 2026-10-05T14:57:41+02:00
+Supply the record count in D3 restore failure diagnostics (#134)
+
+ tb/pp_top/d3_phases.hpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+commit ed727d4d3fef5d24fe8053f72495fc2197fd3288
+parents ab3c1687f867e205ffbf5e41bd3a4bc89c759744
+committed 2026-10-05T11:19:59+02:00
+Preserve renewal indications while prioritizing leave expiry (#134)
+
+ docs/architecture/10_srp_engine.md                 |  6 +-
+ hdl/srp/KL_srp_listener_fsm.sv                     | 28 +++----
+ hdl/srp/KL_srp_talker_fsm.sv                       | 13 ++--
+ tb/srp_stream_fsms/README.md                       |  9 ++-
+ tb/srp_stream_fsms/sim_main.cpp                    |  3 +-
+ tb/srp_top/README.md                               | 13 ++--
+ tb/srp_top/mutations/listener-no-renewal.patch     |  4 +-
+ tb/srp_top/mutations/listener-strict-lv.patch      |  4 +-
+ tb/srp_top/mutations/lv-expiry-dropped.patch       | 26 +++----
+ tb/srp_top/mutations/lv-expiry-last.patch          | 58 ++++++---------
+ tb/srp_top/mutations/lv-expiry-masked.patch        | 85 ++++++++--------------
+ tb/srp_top/mutations/lv-second-lv-ends.patch       |  2 +-
+ tb/srp_top/mutations/my-la-outranks-leave.patch    |  8 +-
+ .../mutations/r-sink-receive-priority-lost.patch   | 10 +--
+ tb/srp_top/mutations/receive-priority-lost.patch   |  8 +-
+ tb/srp_top/mutations/renewal-congestion.patch      |  6 +-
+ tb/srp_top/mutations/talker-no-renewal.patch       |  6 +-
+ tb/srp_top/mutations/talker-strict-lv.patch        |  6 +-
+ 18 files changed, 128 insertions(+), 167 deletions(-)
+commit ab3c1687f867e205ffbf5e41bd3a4bc89c759744
+parents 5ab43bd98209ef3cde206b325c06f0e7405e1e86
+committed 2026-10-05T10:30:07+02:00
+Consume registrar leave expiry before simultaneous received events (#134)
+
+ docs/architecture/10_srp_engine.md                 |  17 +++-
+ hdl/srp/KL_srp_listener_fsm.sv                     |  25 +++--
+ hdl/srp/KL_srp_talker_fsm.sv                       |  10 +-
+ tb/srp_stream_fsms/README.md                       |  17 +++-
+ tb/srp_stream_fsms/sim_main.cpp                    |  41 ++++++++
+ tb/srp_top/Makefile                                |   2 +-
+ tb/srp_top/README.md                               |  50 ++++++++-
+ tb/srp_top/mutants.py                              |   7 +-
+ tb/srp_top/mutations/listener-no-renewal.patch     |   4 +-
+ tb/srp_top/mutations/lv-expiry-dropped.patch       |  22 ++++
+ tb/srp_top/mutations/lv-expiry-last.patch          |  64 ++++++++++++
+ tb/srp_top/mutations/lv-expiry-masked.patch        |  87 ++++++++++++++++
+ tb/srp_top/mutations/lv-second-lv-ends.patch       |   8 +-
+ .../mutations/lv-sweep-misses-collision.patch      |  10 ++
+ .../mutations/r-sink-receive-priority-lost.patch   |  10 +-
+ tb/srp_top/mutations/receive-priority-lost.patch   |   8 +-
+ tb/srp_top/sim_main.cpp                            | 112 ++++++++++++++++++++-
+ 17 files changed, 456 insertions(+), 38 deletions(-)
+commit 5ab43bd98209ef3cde206b325c06f0e7405e1e86
+parents 68b0e615d9af2b2564ba3baa4513847bedb9e0fe
+committed 2026-10-05T07:36:41+02:00
+State the LV-case withdrawal behaviour in 10 section 6.5 (#134)
+
+ docs/architecture/10_srp_engine.md | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+commit 68b0e615d9af2b2564ba3baa4513847bedb9e0fe
+parents ead8036035affd53ef4b29979190f2f4f67084c0
+committed 2026-10-05T07:36:41+02:00
+Grade a withdrawal that meets an LV Listener registrar after a LeaveAll (#134)
+
+ tb/srp_top/README.md                         |  58 ++++++++++++-
+ tb/srp_top/mutants.py                        |   5 +-
+ tb/srp_top/mutations/lv-never-ends.patch     |  10 +++
+ tb/srp_top/mutations/lv-second-lv-ends.patch |  25 ++++++
+ tb/srp_top/sim_main.cpp                      | 122 ++++++++++++++++++++++++++-
+ 5 files changed, 216 insertions(+), 4 deletions(-)

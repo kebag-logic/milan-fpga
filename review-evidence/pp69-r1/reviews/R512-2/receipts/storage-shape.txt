@@ -1,0 +1,7 @@
+docs/architecture/06_aecp_engine.md:931: | GET_COUNTERS stamps `ctr_last_r` | (streams in + out + 2) × 32 bits | flops, no reset | `ctr_sent_r` is each stamp's valid bit; the one-second window reads every stamp against `now_ms_i` in every cycle |
+hdl/aecp/KL_aecp_notify.sv:435:   localparam int unsigned N_CTR_DESC_C = N_STREAM_IN_P + N_STREAM_OUT_P + 1 + N_IF_P;
+hdl/aecp/KL_aecp_notify.sv:446:   logic [31:0] ctr_last_r [0:N_CTR_DESC_C-1];
+Generated two-interface, 1-in/1-out model: VlUnpacked<IData/*31:0*/, 5> KL_aecp_notify__DOT__ctr_last_r;
+Documented expression at 1-in/1-out: (1 + 1 + 2) * 32 = 128 bits.
+Elaborated expression at 1-in/1-out and two interfaces: (1 + 1 + 1 + 2) * 32 = 160 bits.
+At 8-in/8-out and two interfaces: documented 18 stamps, actual 19 stamps; difference 32 bits.

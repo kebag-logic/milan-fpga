@@ -1,0 +1,6 @@
+{"command": ["make", "-j16", "if-guards", "VERILATOR=$REVIEWS/pp69-r512-2-packet/scripts/limited-simulator.py"], "cwd": "$REVIEWS/pp69-r512-2-packet/scratch/head/tb/pp_top", "head": "75c4eee4589e9317aca3d07b91f94a38b4cc86af"}
+if guard 1: lints clean
+if guard 2: lints clean
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 0 failing

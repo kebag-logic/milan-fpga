@@ -1,0 +1,184 @@
+[
+ {
+  "mutant": "golden-aecp_notify-interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cancel_one_per_command",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA1:",
+   "CA1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA1: E holds an entry on each port and both probes are out (owners 0x3); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_fail_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:",
+   "CA3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_rsp_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), no job, and 3 draw(s), the two E's command asked"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owner_turns_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA3:",
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA3: the rows of one index take turns: A's probe goes out alone (2 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "settle_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_shared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 0 0 1 1, 4 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000004), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_not_keyed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (1 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x0); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 0 entries)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (0 probe(s)), its failure removes A (DEREGISTER to 000000000000, 2 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "monitor_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "expiry_port_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ }
+]

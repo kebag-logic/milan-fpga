@@ -1,0 +1,5 @@
+{"command": ["python3", "tb/pp_top/notify_mutants.py", "--output", "$REVIEWS/pp69-r512-2-packet/receipts/top-controls", "--verilator", "$REVIEWS/pp69-r512-2-packet/scripts/limited-simulator.py", "--jobs", "1", "--only", "rgy_port_from_latest_frame", "dereg_matches_other_port"], "cwd": "$REVIEWS/pp69-r512-2-packet/scratch/head", "head": "75c4eee4589e9317aca3d07b91f94a38b4cc86af"}
+{"mutant": "golden-pp_top-obj_if2_Vpp_top_if2", "verdict": "PASS"}
+{"mutant": "rgy_port_from_latest_frame", "verdict": "KILLED", "missing": []}
+{"mutant": "dereg_matches_other_port", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 2 of 2 KILLED by their named checks; goldens PASS
