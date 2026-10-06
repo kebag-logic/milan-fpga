@@ -55,6 +55,7 @@
 #include <array>
 #include <deque>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <vector>
 #include <map>
@@ -202,6 +203,73 @@ class NxnDatapathHarness {
             rm_wdata = dut->o_resp_mem_wr_data;
             rm_wstrb = dut->o_resp_mem_wr_strb;
             rm_wpend = true;
+        }
+    }
+
+    // ---- SAVED-STATE WINDOW: KL_nvm_backend's memory face ---------------------
+    // The record area of a KLJ2 window, served the way the response memory
+    // above is served (the same handshake, which the backend's face shares by
+    // contract). It answers only once a section loads a window
+    // (load_the_saved_state_window below); until then the four ready/valid
+    // inputs stay low, which the backend reads as "no memory to offer", so a
+    // leg that configures no image sees exactly what it always saw.
+    static constexpr uint32_t NVM_AREA_BASE = 0x20200028u;  // window + 40-byte header
+    std::vector<uint8_t> nmem;                 // the record area, byte for byte
+    bool     nm_answering = false;
+    bool     nm_busy  = false;
+    uint32_t nm_cur   = 0;
+    int      nm_left  = 0;
+    bool     nm_wpend = false;
+    uint32_t nm_waddr = 0;
+    uint64_t nm_wdata = 0;
+    uint32_t nm_wstrb = 0;
+
+    uint64_t nmem_beat(uint32_t byte_addr) {
+        uint64_t v = 0;
+        for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
+            const uint32_t off = byte_addr - NVM_AREA_BASE + static_cast<uint32_t>(i);
+            v = (v << 8) | static_cast<uint64_t>((off < nmem.size()) ? nmem[off] : 0xFF);
+        }
+        return v;
+    }
+
+    void nmem_drive() {
+        if (!nm_answering) return;
+        dut->i_nvm_mem_req_ready = nm_busy ? 0 : 1;
+        dut->i_nvm_mem_rsp_valid = nm_busy ? 1 : 0;
+        dut->i_nvm_mem_rsp_data  = nm_busy ? nmem_beat(nm_cur) : 0;
+        dut->i_nvm_mem_rsp_last  = (nm_busy && nm_left == 1) ? 1 : 0;
+        dut->i_nvm_mem_rsp_err   = 0;
+        dut->i_nvm_mem_wr_ready  = nm_wpend ? 0 : 1;   // low while a commit is owed
+        dut->i_nvm_mem_wr_done   = nm_wpend ? 1 : 0;
+        dut->i_nvm_mem_wr_err    = 0;
+    }
+
+    void nmem_edge() {
+        if (!nm_answering) return;
+        if (!nm_busy) {
+            if (dut->o_nvm_mem_req_valid && dut->i_nvm_mem_req_ready) {
+                nm_cur  = dut->o_nvm_mem_req_addr;
+                nm_left = static_cast<int>(dut->o_nvm_mem_req_beats);
+                nm_busy = (nm_left > 0);
+            }
+        } else if (dut->o_nvm_mem_rsp_ready) {         // real backpressure
+            nm_cur += 8;
+            if (--nm_left <= 0) nm_busy = false;
+        }
+        if (nm_wpend) {
+            for (int i = 0; i < 8; i++) {
+                if (nm_wstrb & (1u << i)) {             // zero-strobe byte untouched
+                    const uint32_t k = nm_waddr - NVM_AREA_BASE + static_cast<uint32_t>(i);
+                    if (k < nmem.size()) nmem[k] = static_cast<uint8_t>(nm_wdata >> (56 - 8 * i));
+                }
+            }
+            nm_wpend = false;
+        } else if (dut->o_nvm_mem_wr_valid && dut->i_nvm_mem_wr_ready) {
+            nm_waddr = dut->o_nvm_mem_wr_addr;
+            nm_wdata = dut->o_nvm_mem_wr_data;
+            nm_wstrb = dut->o_nvm_mem_wr_strb;
+            nm_wpend = true;
         }
     }
 
@@ -557,8 +625,8 @@ class NxnDatapathHarness {
     //! toggles it 1:1 with axis_clk
     bool audio_held = false;
     void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
-                       rmem_drive(); dmem_drive(); dut->eval();
-                       rmem_edge(); dmem_edge(); }
+                       rmem_drive(); dmem_drive(); nmem_drive(); dut->eval();
+                       rmem_edge(); dmem_edge(); nmem_edge(); }
     void hi() { dut->axis_clk = 1; dut->gtx_clk = 1;
                 dut->clk_audio_i = audio_held ? 0 : 1; dut->eval(); }
     unsigned long tkd_dirty_seen = 0;
@@ -859,12 +927,16 @@ class NxnDatapathHarness {
         uns_log.swap(moved);
         uns_log_when.push_back(-1);
     }   // `moved` owns the old buffer now, and frees it here
-    std::vector<uint8_t> await_aecp(int cyc = 200000) {
+    //! `each`, when given, runs ahead of every clock with its index: the
+    //! [DYNMAP] section holds a sweep open with it while an answer is owed
+    std::vector<uint8_t> await_aecp(int cyc = 200000,
+                                    const std::function<void(int)>& each = nullptr) {
         std::vector<uint8_t> cur, resp;
         cur.reserve(1514);                  // one Ethernet frame off the TX trunk
         dut->m_axis_mac_tx_tready = 1;
         force_uns_log_realloc();
         for (int c = 0; c < cyc && resp.empty(); c++) {
+            if (each) each(c);
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
                 for (int l = 0; l < 8; l++)
@@ -2676,6 +2748,107 @@ class NxnDatapathHarness {
            st & (kDone | kClosed), kDone);
     }
 
+    //! THE FIRMWARE'S WINDOW LOAD, for a saved state worth restoring: what
+    //! nvm_boot() does through nvm_load_window() and nvm_publish()
+    //! (sw/firmware/milan_baremetal/milan_baremetal.c). Re-base the backend
+    //! (the record area's base and length, then each port's channel-map table
+    //! word), fill the window, RELOAD it, and publish the sequence and the
+    //! VD_OK verdict with the valid bit. The window is the one
+    //! gen_nvm_window.py frames for `cfg` with `records` ("ID=HEXPAYLOAD")
+    //! written and every other record erased, so its layout is the
+    //! repository's codec's and not this file's. Run it after a reset and
+    //! before start_the_boot_restore_walk(), the firmware's order. False, with
+    //! the reason, when the window cannot be generated or read.
+    bool load_the_saved_state_window(const char* cfg,
+                                     const std::vector<std::string>& records,
+                                     std::string* why) {
+        constexpr uint16_t A_PP_NVM_SEL = 0x934;
+        constexpr uint16_t A_PP_NVM_DATA = 0x938;
+        constexpr uint16_t A_PP_NVM_STAT = 0x93C;
+        const char* scratch = getenv("TMPDIR");
+        if (!scratch || !*scratch) scratch = "/tmp";
+        std::string temp_template = std::string(scratch) + "/milan_nvm_XXXXXX";
+        std::vector<char> temp_buf(temp_template.begin(), temp_template.end());
+        temp_buf.push_back('\0');
+        char* made = mkdtemp(temp_buf.data());
+        if (!made) {
+            *why = std::string("cannot create window scratch under ") + scratch;
+            return false;
+        }
+        const std::string temp_dir(made);
+        const std::string out = temp_dir + "/window.txt";
+        std::string cmd = "python3 gen_nvm_window.py "
+            + shell_quote(std::string("../../../configs/") + cfg + ".yaml")
+            + " " + shell_quote(out);
+        for (const std::string& r : records) cmd += " --record " + shell_quote(r);
+        cmd += " > " + shell_quote(temp_dir + "/gen.log") + " 2>&1";
+        if (system(cmd.c_str()) != 0) {
+            *why = "gen_nvm_window.py failed; its output is in " + temp_dir + "/gen.log";
+            return false;
+        }
+        std::string doc;
+        FILE* fh = fopen(out.c_str(), "rb");
+        if (!fh) { *why = "gen_nvm_window.py wrote no window"; return false; }
+        char buf[4096];
+        size_t n;
+        while ((n = fread(buf, 1, sizeof buf, fh)) > 0) doc.append(buf, n);
+        fclose(fh);
+        uint32_t img_len = 0;
+        std::vector<std::pair<uint32_t, uint32_t> > tables;   // {PP_NVM word, value}
+        nmem.clear();
+        size_t at = 0;
+        while (at < doc.size()) {
+            size_t end = doc.find('\n', at);
+            if (end == std::string::npos) end = doc.size();
+            const std::string line = doc.substr(at, end - at);
+            at = end + 1;
+            const char* s = line.c_str();
+            if (line.rfind("img_len ", 0) == 0) {
+                img_len = static_cast<uint32_t>(strtoul(s + 8, nullptr, 0));
+            } else if (line.rfind("map_in ", 0) == 0 || line.rfind("map_out ", 0) == 0) {
+                const bool is_out = line[4] == 'o';
+                char* rest = nullptr;
+                const unsigned long port = strtoul(s + (is_out ? 8 : 7), &rest, 0);
+                tables.emplace_back((is_out ? 0x30u : 0x20u) | static_cast<uint32_t>(port),
+                                    static_cast<uint32_t>(strtoul(rest, nullptr, 0)));
+            } else if (line.rfind("area ", 0) == 0) {
+                for (size_t i = 5; i + 1 < line.size(); i += 2)
+                    nmem.push_back(static_cast<uint8_t>(
+                        strtoul(line.substr(i, 2).c_str(), nullptr, 16)));
+            }
+        }
+        std::error_code cleanup_error;
+        std::filesystem::remove_all(temp_dir, cleanup_error);
+        if (img_len == 0 || nmem.size() != img_len || tables.empty()) {
+            *why = "the window description has no record area, length or table";
+            return false;
+        }
+        //! the re-base: base and length, then the channel-map tables
+        axi_write(A_PP_NVM_SEL, 0);
+        axi_write(A_PP_NVM_DATA, NVM_AREA_BASE);
+        axi_write(A_PP_NVM_SEL, 1);
+        axi_write(A_PP_NVM_DATA, img_len);
+        for (const std::pair<uint32_t, uint32_t>& t : tables) {
+            axi_write(A_PP_NVM_SEL, t.first);
+            axi_write(A_PP_NVM_DATA, t.second);
+        }
+        //! the window is filled (nmem above) and starts answering, then the
+        //! RELOAD strobe (word 4 bit 6) claims it
+        nm_answering = true;
+        axi_write(A_PP_NVM_STAT, 0x40u);
+        const uint32_t loaded = axi_read(A_PP_NVM_STAT);
+        ck("[NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, "
+           "[11] 0)", (loaded >> 2) & 0x201u, 1);
+        //! the publish: the sequence, then VD_OK with the valid bit
+        axi_write(A_PP_NVM_SEL, 2);
+        axi_write(A_PP_NVM_DATA, 1);
+        axi_write(A_PP_NVM_SEL, 3);
+        axi_write(A_PP_NVM_DATA, 0x10u);
+        ck("[NVM] ...and holds it valid (PP_NVM_STAT[7])",
+           (axi_read(A_PP_NVM_STAT) >> 7) & 1u, 1);
+        return true;
+    }
+
     void prove_the_identity_and_provision_the_entity_id() {
         ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
         ck("VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work",
@@ -2825,6 +2998,16 @@ class NxnDatapathHarness {
         //! here, after the restore proved the image, in every leg and before
         //! the timed leg's return
         prove_a_wedged_response_memory_reports_and_heals();
+        #ifdef DYNMAP_DEFAULT_TB
+        //! THE #658 LEG ENDS HERE: the image is served and AECP is
+        //! released, and nothing before this point has touched a map, so
+        //! the first GET_AUDIO_MAP below reads the power-on maps.
+        dynmap_power_on_and_adaptation_section();
+        printf("--------------------------------------------------------------\n");
+        printf("checks: %ld   failures: %ld\n", checks, fails);
+        printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
+        return true;
+        #endif
         #ifdef NOTIFY_TIMED_TB
         //! THE TIMED LEG ENDS HERE: the image is served, so the
         //! notification section has names to set, and nothing after it
@@ -3714,26 +3897,18 @@ class NxnDatapathHarness {
 
     void prove_the_dynamic_map_store_starts_empty() {
         #ifdef AX8X8_TB
-        // ---- task #26: RESET STARTS FROM AN EMPTY DYNAMIC-MAP STORE ------------
-        //      This check used to prove the AECP builder had walked the declared
-        //      identity image into the capture map RAM during its post-reset IDLE
-        //      cycles, so key 0 read the now-retired reserved-source template with
-        //      0x900[0] never written - the "in-circuit by construction" law.
-        //      The boot seeder remains absent, so the RAM starts empty. The AECP
-        //      transaction writer is now live and [T66] below proves that accepted
-        //      commands populate and clear it after reset.
+        // ---- #658: RESET STARTS FROM THE POWER-ON MAP, AND IT IS IN THE RAM ----
+        //      Until #658 this proved the opposite: no seeder wrote the capture
+        //      map RAM, so key 0 read EMPTY, and its comment said this block
+        //      must change the day a seeder returned. It has: the parent's boot
+        //      writer projects the power-on map (stream channel c on cluster c)
+        //      into the RAM, so key 0 - output port 0's stream channel 0 - holds
+        //      cluster 0's capture word, the Pilot {en, src 4 TONE}. On this
+        //      shape the dynamic output map puts the crossbar in circuit from
+        //      reset, so no CHMAP_CTRL arm is involved.
         //
-        //      The RTL treats this as its documented STATIC-shape arm rather than
-        //      as breakage (milan_datapath.sv:1238-1252): with the crossbar
-        //      bypassed the DECLARED front-end routing stays wired straight to the
-        //      packetizer, so talkers do NOT wake streaming an empty map's
-        //      silence - the loopback/fabric sections below frame real audio
-        //      through that path.
-        //
-        //      So the two checks become the two halves of the new structural
-        //      truth, and neither is vacuous: the READ mux is still live (bit 26
-        //      valid) and the RAM is EMPTY. The day a seeder returns, the second
-        //      one fails and this block must be restored.
+        //      The READ mux is still live (bit 26 valid), and the RAM holds the
+        //      power-on map rather than whatever a CSR write left there.
         {
             axi_write(0x904, 0x100);             // capture side, key 0
             axi_write(0x910, 1);
@@ -3745,14 +3920,616 @@ class NxnDatapathHarness {
             uint32_t seed0 = axi_read(0x914);
             ck("0x002C: the capture-map READ mux is still live (bit 26)",
                (seed0 >> 26) & 1, 1);
-            ck("0x002C: key 0 is EMPTY - no AEM seeder writes it any more",
-               seed0 & 0x1FFF, 0x0);
-            ck("0x002C: ...and CHMAP_CTRL[0] is 0, so the crossbar is BYPASSED "
-               "and the declared front end is the power-on path",
+            ck("0x002C: key 0 holds the power-on map's Pilot word (#658)",
+               seed0 & 0x1FFF, 0x1400);
+            ck("0x002C: ...with CHMAP_CTRL[0] still 0: no CSR arm wrote it",
                axi_read(0x900) & 1, 0);
+        }
+        {
+            //! ...and every port's: GET_AUDIO_MAP reads stream channel c on
+            //! cluster c, and capture key p*8 + c holds that cluster's word -
+            //! the Pilot at cluster 0, then port p's loopback channels, whose
+            //! words carry the port in their idxh field
+            long off = 0;
+            long ram_off = 0;
+            for (int p = 0; p < kNstreamsTb; p++) {
+                off += power_on_page_off(0x000F, static_cast<uint16_t>(p),
+                                         static_cast<uint16_t>(p), 8);
+                for (int c = 0; c < 8; c++) {
+                    const uint32_t want = (c == 0) ? 0x1400u
+                        : ((((c - 1) & 1) ? 0x0800u : 0u) | 0x0500u
+                           | (static_cast<uint32_t>(p) << 4)
+                           | (static_cast<uint32_t>(c - 1) >> 1));
+                    axi_write(0x904, 0x100u | static_cast<uint32_t>(p * 8 + c));
+                    axi_write(0x910, 1);
+                    for (int g = 0; g < 64; g++)
+                        if ((axi_read(0x910) & 1) == 0) break;
+                    if ((axi_read(0x914) & 0x1FFF) != want) ram_off++;
+                }
+            }
+            ck("#658: every output port powers up with the identity map", off, 0);
+            ck("#658: ...and the capture RAM holds every port's", ram_off, 0);
         }
         #endif
     }
+
+    // ==================================================================
+    //  [DYNMAP] issue #658: THE POWER-ON AUDIO MAPS, A FORMAT CHANGE UNDER
+    //  MILAN 5.4.2.7, AND THE MAPS A RESTORED FORMAT LEAVES, on the
+    //  shipping AX7101 1x1 TDM8 geometry (#658 rulings 5988293154 and
+    //  5988843004).
+    //
+    //  THE POWER-ON MAP. On both stream ports, stream channel c maps to
+    //  cluster c for every c below the smaller of the stream's channel count
+    //  and the port's cluster count. It is read where a controller reads it,
+    //  GET_AUDIO_MAP, and where the media path reads it, the two crossbar
+    //  RAMs through the CSR readback.
+    //
+    //  A FORMAT CHANGE. Milan v1.2 5.4.2.7 governs: a SET_STREAM_FORMAT that
+    //  drops a channel an existing mapping references is refused with
+    //  BAD_ARGUMENTS, the format and the maps unchanged. A controller that
+    //  narrows a stream REMOVEs the higher mappings first, and nothing adds
+    //  a mapping back when the stream widens again.
+    //
+    //  A RESTORE. A saved 4-channel input format (record 0x30, framed by
+    //  gen_nvm_window.py with every other record erased) is restored at the
+    //  next boot beside the power-on map clipped to it before AECP is
+    //  released: GET reads 4 channels and 4 identity mappings, and a SET of
+    //  8 channels succeeds because no mapping is orphaned.
+    //
+    //  Every count the expectation uses is READ, not restated: the channel
+    //  counts come from GET_STREAM_FORMAT, the cluster counts from the
+    //  shipped image's STREAM_PORT descriptors (number_of_clusters,
+    //  1722.1-2021 7.2.13, offset 12). Only the scenario's 8 -> 4 -> 8 and
+    //  the saved 4 are literals, because they are the scenario.
+    // ==================================================================
+
+    //! ONE GET_AUDIO_MAP page as a controller reads it (1722.1-2021
+    //! 7.4.44.2): number_of_maps @44, number_of_mappings @46, the records
+    //! from @50 as {stream_index, stream_channel, cluster_offset,
+    //! cluster_channel}
+    struct AmapPage {
+        long status = -1;
+        long cdl = -1;
+        long nmaps = -1;
+        long nmappings = -1;
+        std::vector<std::array<uint16_t, 4> > rec;
+    };
+    uint16_t dynmap_sq = 0x6580;
+
+    AmapPage get_audio_map_page0(uint16_t ty, uint16_t ix) {
+        //! the full 7.4.44.1 command: the key, map_index 0, reserved 0
+        std::vector<uint8_t> pl = desc_key(ty, ix);
+        pl.resize(8, 0);
+        const std::vector<uint8_t> r = aecp_xact(0x002B, dynmap_sq++, pl);
+        AmapPage p;
+        p.status = aecp_status(r);
+        p.cdl = cdl_of(r);
+        if (r.size() < 50) return p;
+        p.nmaps = (r[44] << 8) | r[45];
+        p.nmappings = (r[46] << 8) | r[47];
+        for (size_t at = 50; at + 8 <= r.size()
+                 && p.rec.size() < static_cast<size_t>(p.nmappings); at += 8) {
+            std::array<uint16_t, 4> m{};
+            for (size_t f = 0; f < 4; f++)
+                m[f] = static_cast<uint16_t>((r[at + 2*f] << 8) | r[at + 2*f + 1]);
+            p.rec.push_back(m);
+        }
+        return p;
+    }
+
+    //! a stream's CURRENT channel count (GET_STREAM_FORMAT @42, the AAF
+    //! channels_per_frame field at [31:22]), and the format itself
+    long current_channels(uint16_t ty, uint16_t ix, uint64_t* fmt) {
+        const std::vector<uint8_t> r =
+            aecp_xact(0x0009, dynmap_sq++, desc_key(ty, ix));
+        if (aecp_status(r) != 0 || r.size() < 50) return -1;
+        *fmt = be64_at(r, 42);
+        return static_cast<long>((*fmt >> 22) & 0x3FF);
+    }
+
+    //! a Stream Port's number_of_clusters, out of the image this leg serves
+    long port_clusters(uint16_t ty, uint16_t ix) {
+        const std::vector<uint8_t>* d = desc_of(ty, ix);
+        if (d == nullptr || d->size() < 14) return -1;
+        return ((*d)[12] << 8) | (*d)[13];
+    }
+
+    //! One page against the identity {stream, c, c, 0} for c < n.
+    long identity_pages = 0;
+    void grade_identity_page(const char* tag, uint16_t ty, uint16_t stream,
+                             long n) {
+        const AmapPage p = get_audio_map_page0(ty, 0);
+        printf("  [i]    %s: status %ld, number_of_maps %ld, %ld mapping(s)",
+               tag, p.status, p.nmaps, p.nmappings);
+        for (const std::array<uint16_t, 4>& m : p.rec)
+            printf(" s%u.c%u->o%u.c%u", static_cast<unsigned>(m[0]),
+                   static_cast<unsigned>(m[1]), static_cast<unsigned>(m[2]),
+                   static_cast<unsigned>(m[3]));
+        printf("\n");
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: GET_AUDIO_MAP SUCCESS", tag);
+        ck(w, static_cast<unsigned long>(p.status), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_maps 1", tag);
+        ck(w, static_cast<unsigned long>(p.nmaps), 1);
+        snprintf(w, sizeof w, "[DYNMAP] %s: cdl carries every counted record",
+                 tag);
+        ck(w, static_cast<unsigned long>(p.cdl),
+           static_cast<unsigned long>(24 + 8 * p.nmappings));
+        snprintf(w, sizeof w, "[DYNMAP] %s: number_of_mappings", tag);
+        ck(w, static_cast<unsigned long>(p.nmappings),
+           static_cast<unsigned long>(n));
+        long off = std::labs(static_cast<long>(p.rec.size()) - n);
+        for (size_t i = 0; i < p.rec.size() && static_cast<long>(i) < n; i++) {
+            const uint16_t c = static_cast<uint16_t>(i);
+            const std::array<uint16_t, 4> want = {stream, c, c, 0};
+            if (p.rec[i] != want) off++;
+        }
+        snprintf(w, sizeof w, "[DYNMAP] %s: records off the identity", tag);
+        ck(w, static_cast<unsigned long>(off), 0);
+        identity_pages++;
+    }
+
+    //! THE MEDIA PATH'S COPY: the two crossbar RAMs through the CSR readback
+    //! (0x904 selects, 0x910 snaps, 0x914 reads). On this shape the input
+    //! port's cluster c projects onto physical render key 2 + c (the TDM8
+    //! lane; keys 0 and 1 are the I2S pair), holding {en, AVB source, stream
+    //! 0, channel c}. Output stream channel c is capture key c, holding TDM
+    //! capture slot c: {en, half c&1, source 2 TDM, pair c>>1}, the TDM8
+    //! front end's pair convention (pair k carries slots 2k and 2k+1).
+    uint32_t dynmap_ram_rd(uint32_t sel) {
+        axi_write(0x904, sel);
+        axi_write(0x910, 1);
+        for (int g = 0; g < 256; g++)
+            if ((axi_read(0x910) & 1) == 0) break;
+        return axi_read(0x914);
+    }
+
+    static uint32_t dynmap_slot_word(uint32_t c) {
+        return 0x1000u | ((c & 1u) << 11) | 0x200u | (c >> 1);
+    }
+
+    void grade_the_crossbar_rams(const char* tag, long in_n, long out_n) {
+        long render_off = 0;
+        long capture_off = 0;
+        for (uint32_t c = 0; c < 8; c++) {
+            const uint32_t r = dynmap_ram_rd(2 + c) & 0xFFu;
+            const uint32_t want_r = (static_cast<long>(c) < in_n) ? (0x80u | c) : 0u;
+            if (r != want_r) render_off++;
+            const uint32_t k = dynmap_ram_rd(0x100u | c) & 0x1FFFu;
+            const uint32_t want_k = (static_cast<long>(c) < out_n)
+                ? dynmap_slot_word(c) : 0u;
+            if (k != want_k) capture_off++;
+        }
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: render RAM keys 2..9 hold the input "
+                 "map", tag);
+        ck(w, static_cast<unsigned long>(render_off), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: capture RAM keys 0..7 hold the "
+                 "output map", tag);
+        ck(w, static_cast<unsigned long>(capture_off), 0);
+    }
+
+    //! One SET_STREAM_FORMAT on STREAM_INPUT 0 to `ch` channels of `base`,
+    //! with the status Milan 5.4.2.7 owes and the format it must leave
+    void dynmap_set_input_channels(uint64_t base, long ch, long status,
+                                   const char* tag) {
+        uint64_t before = 0;
+        current_channels(0x0005, 0, &before);
+        const uint64_t want = (base & ~(0x3FFull << 22))
+                            | (static_cast<uint64_t>(ch) << 22);
+        const std::vector<uint8_t> r =
+            aecp_xact(0x0008, dynmap_sq++, sf_pl(0x0005, 0, want));
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: SET_STREAM_FORMAT %s", tag,
+                 status == 0 ? "SUCCESS" : "BAD_ARGUMENTS (Milan 5.4.2.7)");
+        ck(w, static_cast<unsigned long>(aecp_status(r)),
+           static_cast<unsigned long>(status));
+        uint64_t now = 0;
+        current_channels(0x0005, 0, &now);
+        snprintf(w, sizeof w, "[DYNMAP] %s: GET_STREAM_FORMAT reads the %s format",
+                 tag, status == 0 ? "new" : "unchanged");
+        ck(w, static_cast<unsigned long>(now == (status == 0 ? want : before)), 1);
+        printf("  [i]    %s: STREAM_INPUT 0 format %016llx\n", tag,
+               static_cast<unsigned long long>(now));
+    }
+
+    //! ADD (0x002C, 1722.1-2021 7.4.45) or REMOVE (0x002D, 7.4.46) of the
+    //! #658 power-on map's own records {stream, c, c, 0}, c in [first, last],
+    //! on Stream Port `ty` index `port`; the answer's status
+    long identity_edit(uint16_t cmd, uint16_t ty, uint16_t port,
+                       uint16_t stream, unsigned first, unsigned last) {
+        std::vector<uint8_t> pl = {
+            static_cast<uint8_t>(ty >> 8), static_cast<uint8_t>(ty),
+            static_cast<uint8_t>(port >> 8), static_cast<uint8_t>(port),
+            0x00, static_cast<uint8_t>(last - first + 1), 0x00, 0x00};
+        for (unsigned c = first; c <= last; c++) {
+            const uint8_t row[8] = {
+                static_cast<uint8_t>(stream >> 8), static_cast<uint8_t>(stream),
+                0, static_cast<uint8_t>(c), 0, static_cast<uint8_t>(c), 0, 0};
+            pl.insert(pl.end(), row, row + 8);
+        }
+        return aecp_status(aecp_xact(cmd, dynmap_sq++, pl));
+    }
+
+    //! one port's page against the power-on map {stream, c, c, 0}, c < n:
+    //! the number of records that are not it (0 when the page IS the map)
+    long power_on_page_off(uint16_t ty, uint16_t port, uint16_t stream, long n) {
+        const AmapPage p = get_audio_map_page0(ty, port);
+        if (p.status != 0) return -1;
+        long off = std::labs(static_cast<long>(p.rec.size()) - n)
+                 + std::labs(p.nmappings - n);
+        for (size_t i = 0; i < p.rec.size() && static_cast<long>(i) < n; i++) {
+            const uint16_t c = static_cast<uint16_t>(i);
+            const std::array<uint16_t, 4> want = {stream, c, c, 0};
+            if (p.rec[i] != want) off++;
+        }
+        return off;
+    }
+
+    void dynmap_power_on_and_adaptation_section() {
+        printf("-- [DYNMAP] #658: the power-on maps, a format change under "
+               "Milan 5.4.2.7, and a restored format --\n");
+        uint64_t fin = 0;
+        uint64_t fout = 0;
+        const long in_ch = current_channels(0x0005, 0, &fin);
+        const long out_ch = current_channels(0x0006, 0, &fout);
+        const long in_cl = port_clusters(0x000E, 0);
+        const long out_cl = port_clusters(0x000F, 0);
+        printf("  [i]    STREAM_INPUT 0 %016llx (%ld ch), STREAM_OUTPUT 0 "
+               "%016llx (%ld ch); clusters SPI 0 %ld, SPO 0 %ld\n",
+               static_cast<unsigned long long>(fin), in_ch,
+               static_cast<unsigned long long>(fout), out_ch, in_cl, out_cl);
+        //! the scenario's precondition and the image's own geometry, so a
+        //! missing descriptor or format cannot make an expectation of zero
+        ck("[DYNMAP] the reset input format is 8 channels",
+           static_cast<unsigned long>(in_ch), 8);
+        ck("[DYNMAP] the image declares both ports' clusters",
+           static_cast<unsigned long>(in_cl > 0 && out_cl > 0 && out_ch > 0), 1);
+        const long in_n = std::min(in_ch, in_cl);
+        const long out_n = std::min(out_ch, out_cl);
+        grade_identity_page("power-on SPI 0", 0x000E, 0, in_n);
+        grade_identity_page("power-on SPO 0", 0x000F, 0, out_n);
+        grade_the_crossbar_rams("power-on", in_n, out_n);
+
+        //! Milan 5.4.2.7: channels 4..7 are mapped, so 8 -> 4 is refused and
+        //! nothing moves
+        dynmap_set_input_channels(fin, 4, 7, "8->4 while 4..7 are mapped");
+        grade_identity_page("refused 8->4 SPI 0", 0x000E, 0, in_n);
+        grade_identity_page("refused 8->4 SPO 0", 0x000F, 0, out_n);
+        //! ...so the controller removes them first
+        ck("[DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS",
+           static_cast<unsigned long>(identity_edit(0x002D, 0x000E, 0, 0, 4, 7)), 0);
+        grade_identity_page("after REMOVE 4..7 SPI 0", 0x000E, 0, 4);
+        grade_the_crossbar_rams("after REMOVE 4..7", 4, out_n);
+        dynmap_set_input_channels(fin, 4, 0, "8->4");
+        grade_identity_page("8->4 SPI 0", 0x000E, 0, 4);
+        grade_identity_page("8->4 SPO 0", 0x000F, 0, out_n);
+        //! ...and widening adds nothing back
+        dynmap_set_input_channels(fin, 8, 0, "4->8");
+        grade_identity_page("4->8 SPI 0", 0x000E, 0, 4);
+        grade_identity_page("4->8 SPO 0", 0x000F, 0, out_n);
+        grade_the_crossbar_rams("4->8", 4, out_n);
+
+        dynmap_restored_format_section(fin, fout, in_n, out_n);
+        #ifdef DYNMAP_DEFAULT_TB
+        //! the boot writer's sweep walks the larger key space: the input
+        //! store keys one word per cluster of the dynamic input port, the
+        //! output store one per stream channel, 8 per STREAM_OUTPUT
+        dynmap_boot_window_guards_section(fin, fout, in_n, out_n,
+                                          std::max(in_cl, 8L));
+        #endif
+        //! every page above and below ran: a GET that never answered would
+        //! otherwise leave its identity checks unrun rather than failed
+        ck("[DYNMAP] every identity page ran (vacuity guard)",
+           static_cast<unsigned long>(identity_pages), 12);
+    }
+
+    //! THE OUTPUT CLIP AND THE ROLL-BACK TARGET, in the boot window of a
+    //! fresh boot (AECP still held, the restore not started). No command
+    //! reaches the output clip: the format verdict admits only the declared
+    //! channel count on a Stream Output, so a narrower output format can be
+    //! neither set nor restored. So the processor's published row is staged
+    //! directly (dynmap_probes.vlt). At 4 channels the capture RAM must drop
+    //! output channels 4..7. Once the row is invalid again, which is what a
+    //! D3 roll-back leaves, the whole image must come back: the window holds
+    //! the clipped default, not whatever it once clipped.
+    void dynmap_stage_an_output_row_in_the_window(uint64_t fout, long in_n,
+                                                  long out_n) {
+        auto& row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
+        auto& valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
+        row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
+        valid = static_cast<uint8_t>(valid | 1u);
+        for (int c = 0; c < 64; c++) step();
+        grade_the_crossbar_rams("window, output row staged at 4 ch", in_n, 4);
+        valid = static_cast<uint8_t>(valid & ~1u);
+        for (int c = 0; c < 64; c++) step();
+        grade_the_crossbar_rams("window, output row invalid again", in_n, out_n);
+    }
+
+    //! THE RESTORE (ruling item 3): a saved 4-channel input format and a
+    //! fresh boot. The restore applies the format before AECP is released
+    //! and the power-on map is clipped to it by then, so the first commands
+    //! a controller can send read 4 channels and 4 identity mappings, the
+    //! output map untouched. Widening to 8 is then allowed, because no
+    //! mapping is orphaned; it adds nothing.
+    void dynmap_restored_format_section(uint64_t fin, uint64_t fout, long in_n,
+                                        long out_n) {
+        constexpr uint32_t kFail = 1u << 3;
+        constexpr uint32_t kBlank = 1u << 7;
+        const uint64_t saved = (fin & ~(0x3FFull << 22)) | (4ull << 22);
+        char rec[40];
+        snprintf(rec, sizeof rec, "0x30=%016llx",
+                 static_cast<unsigned long long>(saved));
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        dynmap_stage_an_output_row_in_the_window(fout, in_n, out_n);
+        std::string why;
+        const bool loaded = load_the_saved_state_window(AEMI_CFG_C, {rec}, &why);
+        ck("[DYNMAP] restore: the saved-state window holds a 4 ch input format",
+           static_cast<unsigned long>(loaded), 1);
+        if (!loaded) {
+            printf("  [i]    %s\n", why.c_str());
+            return;
+        }
+        start_the_boot_restore_walk();
+        const uint32_t st = axi_read(A_PP_STAT);
+        ck("[DYNMAP] restore: the walk applied a record (fail 0, blank 0)",
+           st & (kFail | kBlank), 0);
+        uint64_t now = 0;
+        const long ch = current_channels(0x0005, 0, &now);
+        printf("  [i]    restored STREAM_INPUT 0 format %016llx (%ld ch)\n",
+               static_cast<unsigned long long>(now), ch);
+        ck("[DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format",
+           static_cast<unsigned long>(now == saved), 1);
+        grade_identity_page("restored SPI 0", 0x000E, 0, 4);
+        grade_identity_page("restored SPO 0", 0x000F, 0, out_n);
+        grade_the_crossbar_rams("restored", 4, out_n);
+        dynmap_set_input_channels(fin, 8, 0, "restored 4->8");
+        grade_identity_page("restored 4->8 SPI 0", 0x000E, 0, 4);
+    }
+
+    //! the guard arms reach state only dynmap_probes.vlt opens, and they
+    //! read the stores at the shipping shape's widths: the dynmap leg alone
+    #ifdef DYNMAP_DEFAULT_TB
+    // ==================================================================
+    //  THE BOOT WINDOW'S GUARD ARMS (#658 review R490-1 F1). Four arms keep
+    //  the stores and the crossbar RAMs one map across the window's end:
+    //  the CSR writer's hold, the CLOSED terminal, the sweep after the
+    //  terminal with its drain clock, and the edit face's wait. None of them
+    //  moves a GET or a RAM word in the scenario above. Its terminal is
+    //  COMPLETE, no CSR write comes near it, and AECP's first edit arrives
+    //  long after the sweep. So each arm is staged on the clock it guards:
+    //
+    //   - THE CSR HOLD AND CLOSED. A CSR map write commits on each clock
+    //     from inside the window to past the sweep, against a restore ended
+    //     CLOSED on a chosen clock (dynmap_probes.vlt). Each write lands in
+    //     the store and the RAM or in neither. Every write refused until one
+    //     sweep after the terminal (REGISTER_MAP.md, CHMAP), and every later
+    //     one lands.
+    //   - THE SWEEP. A D3 roll-back invalidates both format rows on the
+    //     clock CLOSED ends the window, so only the sweep after the terminal
+    //     can carry the store's last value into the RAMs.
+    //   - THE EDIT FACE'S WAIT. An output ADD meets a post-terminal sweep
+    //     held open, as a longer key space or a restore that edits would
+    //     make it. It is answered only once the sweep has ended, and the
+    //     capture RAM keeps the word it committed.
+    // ==================================================================
+    static constexpr uint16_t kChmapCtrl = 0x900;
+    static constexpr uint16_t kChmapSel = 0x904;
+    static constexpr uint16_t kChmapWord = 0x908;
+
+    //! the D3 writer's CLOSED flag: from the next clock on the restore has
+    //! ended CLOSED, as an unprovable image or a failed roll-back ends it
+    void dynmap_close_the_restore() {
+        dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_d3__DOT__closed_r = 1;
+    }
+
+    //! One CSR map write of `word` at CHMAP_SEL `sel` in a fresh boot, whose
+    //! window has run a few laps. CLOSED is set ahead of clock `close_at` of
+    //! a fixed run in which the AXI write starts at clock 32. Returns the
+    //! clock that takes the write's one-cycle commit, counted on the same
+    //! run, or -1 when none came.
+    long dynmap_csr_write_in_a_run(uint32_t sel, uint32_t word, int close_at) {
+        constexpr int kAxiAt = 32;
+        constexpr int kRun = 96;
+        bring_the_datapath_out_of_reset();
+        for (int c = 0; c < 64; c++) step();
+        axi_write(kChmapCtrl, 1);
+        axi_write(kChmapSel, sel);
+        long commit = -1;
+        for (int n = 0; n < kRun; n++) {
+            if (n == close_at) dynmap_close_the_restore();
+            if (n == kAxiAt) {
+                dut->s_axi_awaddr = kChmapWord; dut->s_axi_awvalid = 1;
+                dut->s_axi_wdata = word;  dut->s_axi_wvalid = 1;
+                dut->s_axi_wstrb = 0xF;   dut->s_axi_bready = 1;
+            }
+            dut->eval();
+            const bool acc = dut->s_axi_awvalid && dut->s_axi_awready
+                          && dut->s_axi_wready;
+            step();
+            if (acc) { dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; }
+            //! a commit seen after clock n is taken by clock n + 1
+            if (dut->rootp->milan_datapath__DOT__cfg_chmap_wr_en) commit = n + 1;
+        }
+        dut->s_axi_bready = 0;
+        return commit;
+    }
+
+    //! The store's word at input key `k` ({en, AVB, stream, channel}), and
+    //! at output key `k` its owner flag over its cluster
+    uint32_t dynmap_in_store(uint32_t k) {
+        return static_cast<uint32_t>(
+            (dut->rootp->milan_datapath__DOT__amap_in_store_r >> (8 * k)) & 0xFFu);
+    }
+    uint32_t dynmap_out_store(uint32_t k) {
+        const uint32_t v = (dut->rootp->milan_datapath__DOT__amap_out_owner_v_r >> k) & 1u;
+        const uint32_t w = dut->rootp->milan_datapath__DOT__amap_out_cluster_r[(16 * k) / 32];
+        return (v << 16) | ((w >> ((16 * k) % 32)) & 0xFFFFu);
+    }
+
+    //! One side's CSR hold across a CLOSED terminal. Key `key` holds its
+    //! power-on word in the store (`boot_store`) and the RAM (`boot_ram`);
+    //! the CSR write of `word` would make them `csr_store` and `csr_ram`.
+    //! Every commit is placed at offset d from the first clock that sees
+    //! CLOSED, d from inside the window to past the sweep.
+    void dynmap_csr_hold_across_closed(const char* side, bool capture,
+                                       uint32_t key, uint32_t word,
+                                       uint32_t boot_store, uint32_t boot_ram,
+                                       uint32_t csr_store, uint32_t csr_ram,
+                                       long sweep) {
+        const uint32_t sel = (capture ? 0x100u : 0u) | key;
+        const uint32_t ram_sel = capture ? (0x100u | key) : (2u + key);
+        const uint32_t ram_mask = capture ? 0x1FFFu : 0xFFu;
+        //! the commit's clock in a run with no CLOSED in it
+        const long at = dynmap_csr_write_in_a_run(sel, word, 1 << 20);
+        long split = 0;
+        long early = 0;
+        long late = 0;
+        long first = 1L << 20;
+        long last = -(1L << 20);
+        long seen = 0;
+        for (long d = -2; d <= sweep + 4; d++) {
+            const int close_at = static_cast<int>(at - d);
+            if (close_at < 0) continue;     //! a run cannot close before it starts
+            const long commit = dynmap_csr_write_in_a_run(sel, word, close_at);
+            if (commit < 0) continue;
+            const long off = commit - close_at;
+            seen++;
+            first = std::min(first, off);
+            last = std::max(last, off);
+            const uint32_t st = capture ? dynmap_out_store(key) : dynmap_in_store(key);
+            const uint32_t ram = dynmap_ram_rd(ram_sel) & ram_mask;
+            const bool refused = (st == boot_store) && (ram == boot_ram);
+            const bool landed = (st == csr_store) && (ram == csr_ram);
+            printf("  [i]    %s: CSR commit at CLOSED%+ld: store 0x%05x, RAM 0x%04x (%s)\n",
+                   side, off, st, ram,
+                   refused ? "refused" : landed ? "landed" : "SPLIT");
+            if (!refused && !landed) split++;
+            if (off <= sweep + 1 && !refused) early++;
+            if (off >= sweep + 2 && !landed) late++;
+        }
+        char w[160];
+        snprintf(w, sizeof w, "[DYNMAP] %s: the CSR commits ran from the window to past "
+                 "the sweep (vacuity guard)", side);
+        ck(w, static_cast<unsigned long>(seen == sweep + 7 && first == -2
+                                         && last == sweep + 4), 1);
+        snprintf(w, sizeof w, "[DYNMAP] %s: no CSR write splits the store from the RAM",
+                 side);
+        ck(w, static_cast<unsigned long>(split), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: CSR refused in the window and for one sweep "
+                 "after CLOSED", side);
+        ck(w, static_cast<unsigned long>(early), 0);
+        snprintf(w, sizeof w, "[DYNMAP] %s: CSR lands in both once the sweep after "
+                 "CLOSED has ended", side);
+        ck(w, static_cast<unsigned long>(late), 0);
+    }
+
+    //! A D3 roll-back resets the dynamic-state store, which invalidates every
+    //! format row, and a failed re-LOCATE ends the restore CLOSED. Both rows
+    //! hold 4 channels in the window first, so keys 4..7 are empty in both
+    //! RAMs. Then both rows are invalidated on the clock CLOSED ends the
+    //! window: the stores take the whole image on the window's last clock,
+    //! and only the sweep after the terminal can write it into the RAMs.
+    void dynmap_roll_back_to_closed(uint64_t fin, uint64_t fout, long in_n,
+                                    long out_n) {
+        auto& in_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_r;
+        auto& in_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtin_v_r;
+        auto& out_row = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_r;
+        auto& out_valid = dut->rootp->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__fmtout_v_r;
+        bring_the_datapath_out_of_reset();
+        in_row[0] = (fin & ~(0x3FFull << 22)) | (4ull << 22);
+        out_row[0] = (fout & ~(0x3FFull << 22)) | (4ull << 22);
+        in_valid = static_cast<uint8_t>(in_valid | 1u);
+        out_valid = static_cast<uint8_t>(out_valid | 1u);
+        for (int c = 0; c < 64; c++) step();
+        grade_the_crossbar_rams("window, both rows staged at 4 ch", 4, 4);
+        in_valid = static_cast<uint8_t>(in_valid & ~1u);
+        out_valid = static_cast<uint8_t>(out_valid & ~1u);
+        dynmap_close_the_restore();
+        for (int c = 0; c < 64; c++) step();
+        long store_off = 0;
+        for (uint32_t c = 0; c < 8; c++) {
+            if (dynmap_in_store(c) != ((static_cast<long>(c) < in_n) ? (0x80u | c) : 0u))
+                store_off++;
+            if (dynmap_out_store(c) != ((static_cast<long>(c) < out_n) ? (0x10000u | c) : 0u))
+                store_off++;
+        }
+        ck("[DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image",
+           static_cast<unsigned long>(store_off), 0);
+        grade_the_crossbar_rams("CLOSED on the roll-back's clock", in_n, out_n);
+    }
+
+    //! An output ADD meeting the sweep after the terminal. After a COMPLETE
+    //! restore, stream channels n-2 and n-1 are removed, and stream channel
+    //! n-1 is ADDed back on cluster n-2. The sweep is held open from the
+    //! frame's arrival for kHeld clocks, well inside the processor's 4096
+    //! clock bound on a held edit phase. The edit must wait for the sweep,
+    //! and the sweep must not overwrite the word the edit commits: the boot
+    //! writer writes the power-on word of every owned key.
+    void dynmap_edit_meets_the_sweep(long out_n) {
+        constexpr int kHeld = 1000;
+        auto& last = dut->rootp->milan_datapath__DOT__amap_boot_last_r;
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
+        const uint16_t moved = static_cast<uint16_t>(out_n - 1);
+        const uint16_t onto = static_cast<uint16_t>(out_n - 2);
+        ck("[DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS",
+           static_cast<unsigned long>(identity_edit(0x002D, 0x000F, 0, 0, onto, moved)), 0);
+        const std::vector<uint8_t> pl = {
+            0x00, 0x0F, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+            0x00, 0x00, 0x00, static_cast<uint8_t>(moved),
+            0x00, static_cast<uint8_t>(onto), 0x00, 0x00};
+        const std::vector<uint8_t> f = aecp_request(0x002C, dynmap_sq++, pl);
+        last = 1;
+        inject(f.data(), f.size(), 40);
+        long answered = -1;
+        const std::vector<uint8_t> r = await_aecp(200000, [&](int c) {
+            if (c < kHeld) last = 1;
+            answered = c;
+        });
+        printf("  [i]    edit meets the sweep: ADD answered %ld clocks into the wait, "
+               "the sweep held for %d\n", answered, kHeld);
+        ck("[DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS",
+           static_cast<unsigned long>(aecp_status(r)), 0);
+        ck("[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends",
+           static_cast<unsigned long>(answered >= kHeld), 1);
+        for (int c = 0; c < 64; c++) step();
+        const AmapPage p = get_audio_map_page0(0x000F, 0);
+        std::vector<std::array<uint16_t, 4> > want;
+        for (uint16_t c = 0; c < onto; c++) want.push_back({0, c, c, 0});
+        want.push_back({0, moved, onto, 0});
+        ck("[DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster",
+           static_cast<unsigned long>(p.status == 0 && p.rec == want), 1);
+        ck("[DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word",
+           dynmap_ram_rd(0x100u | moved) & 0x1FFFu, dynmap_slot_word(onto));
+        ck("[DYNMAP] edit meets the sweep: the removed channel's capture key stays empty",
+           dynmap_ram_rd(0x100u | onto) & 0x1FFFu, 0);
+    }
+
+    void dynmap_boot_window_guards_section(uint64_t fin, uint64_t fout,
+                                           long in_n, long out_n, long sweep) {
+        //! input key n-1 moved to stream channel 3, {en, AVB, stream 0, ch 3}
+        const uint32_t ik = static_cast<uint32_t>(in_n - 1);
+        dynmap_csr_hold_across_closed("CSR hold, input", false, ik, 0x8003,
+                                      0x80u | ik, 0x80u | ik, 0x83, 0x83, sweep);
+        //! output key n-1 moved to TDM capture slot n-2: the CSR word carries
+        //! {en, source, half, pair} as {[15], [14:12], [8], [7:0]}
+        const uint32_t ok = static_cast<uint32_t>(out_n - 1);
+        const uint32_t slot = dynmap_slot_word(ok - 1);
+        const uint32_t word = (((slot >> 12) & 1u) << 15) | (((slot >> 8) & 7u) << 12)
+                            | (((slot >> 11) & 1u) << 8) | (slot & 0xFFu);
+        dynmap_csr_hold_across_closed("CSR hold, output", true, ok, word,
+                                      0x10000u | ok, dynmap_slot_word(ok),
+                                      0x10000u | (ok - 1), slot, sweep);
+        dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
+        dynmap_edit_meets_the_sweep(out_n);
+    }
+    #endif
 
     // ==================================================================
     //  DELETED 2026-08-13: the 5.5.2.7 SRP-only licence at t>0 straight from reset.
@@ -4874,6 +5651,19 @@ class NxnDatapathHarness {
         constexpr uint16_t A_CHMAP_CTRL = 0x900;
         constexpr uint16_t A_CHMAP_SEL = 0x904;
         constexpr uint16_t A_CHMAP_WORD = 0x908;
+        #ifndef AX8X8_TB
+        // #658: SPI 0 powers up with the identity map. The records below are
+        // graded exactly, so the section clears the port's four clusters
+        // first and puts the power-on map back when it is done.
+        ck("[AMAP] SPI 0 powers up with the identity map (#658)",
+           power_on_page_off(0x000E, 0, 0, 4), 0);
+        axi_write(A_CHMAP_CTRL, 0x1);
+        for (uint32_t k = 0; k < 4; k++) {
+            axi_write(A_CHMAP_SEL, k);
+            axi_write(A_CHMAP_WORD, 0x0000);
+        }
+        axi_write(A_CHMAP_CTRL, 0x0);
+        #endif
         // provision: cluster 0 <- AVB {stream 1, ch 1}, cluster 2 <- AVB
         // {stream 0, ch 3}, cluster 1 <- a retired/reserved source encoding
         // that must NOT appear as a 7.4.44.2.1 record, cluster 3 unmapped
@@ -4889,12 +5679,23 @@ class NxnDatapathHarness {
         grade_the_get_audio_map_page_rule(pl);
         prove_an_undeclared_stream_port_input_has_no_map(pl);
         grade_the_output_side_of_the_same_face(pl);
-        // leave the map as this section found it: unmapped
+        // leave the map as this section found it
         axi_write(A_CHMAP_CTRL, 0x1);
+        #ifdef AX8X8_TB
         axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x0000);
         axi_write(A_CHMAP_SEL, 1);  axi_write(A_CHMAP_WORD, 0x0000);
         axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x0000);
+        #else
+        for (uint32_t k = 0; k < 4; k++) {          // {en, AVB, stream 0, ch k}
+            axi_write(A_CHMAP_SEL, k);
+            axi_write(A_CHMAP_WORD, 0x8000u | k);
+        }
+        #endif
         axi_write(A_CHMAP_CTRL, 0x0);
+        #ifndef AX8X8_TB
+        ck("[AMAP] ...and the power-on map is back on SPI 0",
+           power_on_page_off(0x000E, 0, 0, 4), 0);
+        #endif
     }
 
     //! one RMAP-side entry, read back through the 0x904/0x910/0x914 window
@@ -5039,20 +5840,22 @@ class NxnDatapathHarness {
     //! The capture-side map RAM answers through the same face, routed by
     //! descriptor_type. Milan 5.4.2.26 requires NOT_SUPPORTED when the
     //! output has static AUDIO_MAP descriptors. Only the AX7101 8x8 leg
-    //! declares dynamic output mappings and therefore returns one empty
-    //! runtime page here.
+    //! declares dynamic output mappings and therefore returns one runtime
+    //! page here: the #658 power-on map, stream channel c on cluster c.
     void grade_the_output_side_of_the_same_face(std::vector<uint8_t>& pl) {
         pl[1] = 0x0F; pl[3] = 0x00;
         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
         #ifdef AX8X8_TB
         ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
            aecp_status(ro), 0);
-        ck("[AMAP] ...number_of_maps 1, empty page, cdl 24",
+        ck("[AMAP] ...number_of_maps 1, eight records, cdl 24 + 8*8",
            static_cast<long>(ro.size() >= 50
                   ? static_cast<long>((((static_cast<unsigned>(ro[16]) & 7) << 8) | ro[17]) << 16
                            | ((static_cast<unsigned>(ro[44]) << 8) | ro[45]) << 8
                            | ((static_cast<unsigned>(ro[46]) << 8) | ro[47]))
-                  : -1), (24 << 16) | (1 << 8) | 0);
+                  : -1), (88 << 16) | (1 << 8) | 8);
+        ck("[AMAP] ...and the eight are the power-on map (#658)",
+           power_on_page_off(0x000F, 0, 0, 8), 0);
         #else
         ck("[AMAP] static STREAM_PORT_OUTPUT returns NOT_SUPPORTED(11)",
            aecp_status(ro), 11);
@@ -6068,6 +6871,21 @@ class NxnDatapathHarness {
         const uint64_t fmt_base = be64_at(r2, 42);
         const uint64_t fmt_2ch =
             (fmt_base & ~(0x3FFull << 22)) | (2ull << 22);
+        #ifndef AX8X8_TB
+        // #658: the high input powers up mapped (stream channel c on its own
+        // port's cluster c), and a 2ch or 1ch format would orphan its
+        // channels 2..3 (Milan 5.4.2.7). The setters below grade the format
+        // faces on an unmapped stream, and the probe below maps SPI 0's
+        // cluster 0, so both power-on mappings are removed first and put back
+        // at the end.
+        const unsigned hi_n = static_cast<unsigned>(
+            std::min(static_cast<long>((fmt_base >> 22) & 0x3FF),
+                     port_clusters(0x000E, hi_in)));
+        ck("#67 pre: the high input's power-on mappings are removed (#658)",
+           identity_edit(0x002D, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
+        ck("#67 pre: SPI 0's cluster 0 is freed for the probe mapping",
+           identity_edit(0x002D, 0x000E, 0, 0, 0, 0), 0);
+        #endif
         // the leg's DECLARED channel count: the 4x4 legs declare a 4ch
         // base, the 8x8 leg 8ch - reading the format octet at [47:38]
         // instead of channels at [31:22] returns 8 on EVERY leg, so
@@ -6096,6 +6914,12 @@ class NxnDatapathHarness {
         prove_the_divergent_rows_serve_their_own_base();
         grade_all_output_offset_rows();
         grade_set_stream_info_presentation_offset();
+        #ifndef AX8X8_TB
+        ck("#67 cleanup: SPI 0's power-on cluster 0 mapping is back",
+           identity_edit(0x002C, 0x000E, 0, 0, 0, 0), 0);
+        ck("#67 cleanup: the high input's power-on mappings are back",
+           identity_edit(0x002C, 0x000E, hi_in, hi_in, 0, hi_n - 1), 0);
+        #endif
     }
 
     // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
@@ -6236,6 +7060,15 @@ class NxnDatapathHarness {
         r2 = aecp_xact(0x0009, setter_sq++, desc_key(0x0005, 0));
         ck("#67dv row 0's reset GET serves row 0's base",
            static_cast<long>(be64_at(r2, 42) == static_cast<uint64_t>(DV_ROW0_FMT)), 1);
+        // #658: row 1 powers up mapped on its own port's clusters, and a
+        // 2ch member would orphan its channels 2..3 (Milan 5.4.2.7). The
+        // family arm is graded on an unmapped stream, so its power-on
+        // mappings are removed first and put back after the restore below.
+        const unsigned dv_n = static_cast<unsigned>(
+            std::min(static_cast<long>((static_cast<uint64_t>(DV_ROW1_FMT) >> 22) & 0x3FF),
+                     port_clusters(0x000E, 1)));
+        ck("#67dv pre: row 1's power-on mappings are removed (#658)",
+           identity_edit(0x002D, 0x000E, 1, 1, 0, dv_n - 1), 0);
         // row 1 accepts its OWN family's 2ch member...
         const uint64_t dv_2ch =
             (static_cast<uint64_t>(DV_ROW1_FMT) & ~(0x3FFull << 22)) | (2ull << 22);
@@ -6254,6 +7087,8 @@ class NxnDatapathHarness {
                        sf_pl(0x0005, 1, static_cast<uint64_t>(DV_ROW1_FMT)));
         ck("#67dv restore: row 1's declared base is accepted back",
            aecp_status(r2), 0);
+        ck("#67dv cleanup: row 1's power-on mappings are back",
+           identity_edit(0x002C, 0x000E, 1, 1, 0, dv_n - 1), 0);
         #endif
     }
 
@@ -7178,6 +8013,7 @@ class NxnDatapathHarness {
         // Stop every talker, then prove four independent writes.
         axi_write(A_AAF_CTRL, 0x00020002);
         for (int c = 0; c < 32; c++) step();
+        clear_the_output_maps();
         prove_a_state_only_edit_commits_its_ownership_sideband();
         prove_every_generated_output_cluster_round_trips();
         prove_the_output_edit_reservation_masks_a_local_start();
@@ -7287,6 +8123,30 @@ class NxnDatapathHarness {
         snprintf(w, sizeof w, "T66 %s: the command payload is ECHOED", tag);
         ck(w, bad, 0);
         return aecp_status(r);
+    }
+
+    //! #658: the output ports power up mapped (the 0x002C block after boot
+    //! grades all eight), and the loopback-lane section before this one edits
+    //! capture keys through the CSR window. The edits below grade a port from
+    //! EMPTY, so every capture key is cleared through that window first: an
+    //! EN = 0 word also drops the key's protocol ownership. The precondition
+    //! is read back on both observations.
+    void clear_the_output_maps() {
+        const uint32_t ctrl_before = axi_read(A_CHMAP_CTRL2);
+        axi_write(A_CHMAP_CTRL2, ctrl_before | 1u);
+        for (int k = 0; k < kNstreamsTb * 8; k++) {
+            axi_write(A_CHMAP_SEL2, 0x100u | static_cast<uint32_t>(k));
+            axi_write(A_CHMAP_WORD2, 0);
+        }
+        axi_write(A_CHMAP_CTRL2, ctrl_before);
+        long left = 0;
+        for (int k = 0; k < kNstreamsTb * 8; k++)
+            if (cap_ram(k) != 0) left++;
+        ck("T66 pre: every capture key is empty", left, 0);
+        long owned = 0;
+        for (int p = 0; p < kNstreamsTb; p++)
+            owned += get_audio_map_page0(DT_SPO, static_cast<uint16_t>(p)).nmappings;
+        ck("T66 pre: ...and no output port owns a mapping", owned, 0);
     }
 
     // Port 0's generated CMAP templates, {valid, half, src[2:0],
