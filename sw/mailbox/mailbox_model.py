@@ -5,7 +5,7 @@
 One reading for every output. ``load()`` turns the YAML into a ``Contract``
 and refuses a contract that could not be built (an overlapping field, a ring
 that is not a power of two, a channel two EtherType rules both claim, a
-match tuple naming a VLAN tag's TPID).
+match tuple naming a VLAN tag's TPID, or message types with no subtype).
 ``constants()`` flattens it into the one named list every emitter writes, so
 the SystemVerilog package, the C header and the reference page carry the same
 names with the same values, and ``gen_mailbox.py --selftest`` can compare the
@@ -80,12 +80,13 @@ class Term:
 
 @dataclass(frozen=True)
 class Match:
-    """One match tuple of a channel: destination, EtherType and AVTP subtype."""
+    """One match tuple of a channel: destination, EtherType, AVTP subtype and message types."""
 
     dst: str                # `mac` (the address below) or `own` (the arrival interface's OWN_MAC)
     mac: int                # the 48-bit destination of a `mac` tuple, 0 for `own`
     ethertype: int
     subtype: int | None     # None: the tuple reads no subtype (MSRP, MVRP)
+    msg_mask: int           # bit t: message_type t holds; 0xFFFF when the tuple names none
     doc: str
 
 
@@ -253,6 +254,21 @@ def _terms(raw: list[dict[str, Any]], where: str, tests: dict[str, int], max_byt
     return tuple(out)
 
 
+def _msg_mask(item: dict[str, Any], subtype: int | None, where: str) -> int:
+    """A tuple's message types as a mask, 0xFFFF when it names none. A message
+    type is the low nibble of the byte after an AVTP subtype, so a tuple names
+    some only beside a subtype."""
+    msg_types = item.get("msg_types")
+    if msg_types is None:
+        return 0xFFFF
+    if subtype is None:
+        raise ContractError(f"{where}: a tuple names message types but no AVTP subtype to read them after")
+    if not isinstance(msg_types, list) or not msg_types or len(set(msg_types)) != len(msg_types) \
+            or not all(isinstance(m, int) and 0 <= m <= 15 for m in msg_types):
+        raise ContractError(f"{where}: a tuple's msg_types is a list of distinct message types 0 to 15")
+    return sum(1 << m for m in msg_types)
+
+
 def _tuples(raw: list[dict[str, Any]], where: str, max_tuples: int) -> tuple[Match, ...]:
     """A channel's match tuples, refused when one lacks a destination, repeats or does not fit."""
     if not isinstance(raw, list) or not 1 <= len(raw) <= max_tuples:
@@ -261,17 +277,18 @@ def _tuples(raw: list[dict[str, Any]], where: str, max_tuples: int) -> tuple[Mat
     for item in raw:
         dst = _need(item, "dst", f"{where}.match")
         ethertype = int(_need(item, "ethertype", f"{where}.match"))
-        subtype = item.get("subtype")
+        subtype = None if item.get("subtype") is None else int(item["subtype"])
+        mask = _msg_mask(item, subtype, f"{where}.match")
         if dst == "own":
-            match = Match("own", 0, ethertype, None if subtype is None else int(subtype), str(item.get("doc", "")))
+            match = Match("own", 0, ethertype, subtype, mask, str(item.get("doc", "")))
         elif isinstance(dst, int) and 0 < dst < 1 << 48:
-            match = Match("mac", dst, ethertype, None if subtype is None else int(subtype), str(item.get("doc", "")))
+            match = Match("mac", dst, ethertype, subtype, mask, str(item.get("doc", "")))
         else:
             raise ContractError(f"{where}: a tuple's dst is `own` or a 48-bit MAC, got {dst!r}")
         if not 0 < ethertype <= 0xFFFF or (match.subtype is not None and not 0 <= match.subtype <= 0xFF):
             raise ContractError(f"{where}: EtherType {ethertype:#x} or subtype {match.subtype} out of range")
-        if any((m.dst, m.mac, m.ethertype, m.subtype) == (match.dst, match.mac, match.ethertype, match.subtype)
-               for m in out):
+        if any((m.dst, m.mac, m.ethertype, m.subtype, m.msg_mask)
+               == (match.dst, match.mac, match.ethertype, match.subtype, match.msg_mask) for m in out):
             raise ContractError(f"{where}: a match tuple is given twice")
         out.append(match)
     return tuple(out)
@@ -444,6 +461,8 @@ def _check_contract(contract: Contract) -> None:
         raise ContractError("filter dsts are none 0 (the padding of an unused tuple), mac 1 and own 2")
     if contract.dst_byte + 6 > contract.ethertype_byte or contract.ethertype_byte + 2 > contract.subtype_byte:
         raise ContractError("the destination MAC, the EtherType and the subtype are read in that order")
+    if contract.msg_type_byte != contract.subtype_byte + 1:
+        raise ContractError("a tuple's message_type is read from the byte after the subtype")
     _check_rings(contract)
     _check_channels(contract)
     _check_blocks(contract)
@@ -520,7 +539,7 @@ def _channel_constants(contract: Contract) -> list[Constant]:
                 Constant(f"CH_{up}_RATE_BURST", ch.burst, f"{ch.name} token bucket depth", False),
                 Constant(f"CH_{up}_RATE_REFILL_MS", ch.refill_ms, f"{ch.name} ms per refilled token", False)]
         for k in range(contract.max_tuples):
-            m = ch.tuples[k] if k < len(ch.tuples) else Match("none", 0, 0, None, "unused")
+            m = ch.tuples[k] if k < len(ch.tuples) else Match("none", 0, 0, None, 0, "unused")
             out += [Constant(f"CH_{up}_M{k}_DST", dsts[m.dst], f"{ch.name} tuple {k}: {m.doc}", False),
                     Constant(f"CH_{up}_M{k}_DST_HI", m.mac >> 32, f"{ch.name} tuple {k} destination [47:32]", True),
                     Constant(f"CH_{up}_M{k}_DST_LO", m.mac & 0xFFFFFFFF, f"{ch.name} tuple {k} destination [31:0]",
@@ -528,7 +547,8 @@ def _channel_constants(contract: Contract) -> list[Constant]:
                     Constant(f"CH_{up}_M{k}_ETHERTYPE", m.ethertype, f"{ch.name} tuple {k} EtherType", True),
                     Constant(f"CH_{up}_M{k}_HAS_SUBTYPE", int(m.subtype is not None),
                              f"{ch.name} tuple {k} matches a subtype", False),
-                    Constant(f"CH_{up}_M{k}_SUBTYPE", m.subtype or 0, f"{ch.name} tuple {k} AVTP subtype", True)]
+                    Constant(f"CH_{up}_M{k}_SUBTYPE", m.subtype or 0, f"{ch.name} tuple {k} AVTP subtype", True),
+                    Constant(f"CH_{up}_M{k}_MSG_MASK", m.msg_mask, f"{ch.name} tuple {k} message types", True)]
         tests = {name: value for name, value, _doc in contract.tests}
         for k in range(contract.max_terms):
             term = ch.terms[k] if k < len(ch.terms) else Term("none", 0, 0, "", "unused")

@@ -40,7 +40,9 @@
 # subtype) before its identity term, the destination may be the receiving
 # interface's own MAC (OWN_MAC_LO/HI, per interface), the AECP channel also
 # takes a response for this controller, and FILTER_MISMATCH counts what fails
-# every tuple.
+# every tuple. A tuple may also name AVTP message types: the MAAP channel takes
+# a DEFEND to the receiving interface's own MAC (IEEE 1722-2016 B.2.1; #665,
+# comment 6026839422).
 
 version:
   major: 2
@@ -414,13 +416,16 @@ event_types:
 
 # The ingress filter (the owner decision on #664, comment 6014311316;
 # REQUIREMENTS.md section 1 and NFR-SCOUT-08). A frame is classified when its
-# byte 14 arrives, by its full tuple: a channel's match tuple holds when the
-# destination MAC (wire bytes 0 to 5) is the tuple's address, or for an `own`
-# tuple the OWN_MAC of the interface the frame arrived on, the EtherType (wire
-# bytes 12 and 13) is the tuple's, and the AVTP subtype (wire byte 14) is the
-# tuple's where it names one. The frame then passes when its channel is open,
-# one of its accept terms (the identity term) holds, it fits max_frame_bytes
-# and the ring, and the channel's token bucket holds a token.
+# byte 15 arrives, or at its last byte when it ends at byte 14, by its full
+# tuple: a channel's match tuple holds when the destination MAC (wire bytes 0
+# to 5) is the tuple's address, or for an `own` tuple the OWN_MAC of the
+# interface the frame arrived on, the EtherType (wire bytes 12 and 13) is the
+# tuple's, the AVTP subtype (wire byte 14) is the tuple's where it names one,
+# and the message_type (the low nibble of wire byte 15, 0 for a frame that ends
+# at byte 14, as for the accept terms) is one of the tuple's where it names
+# some. The frame then passes when its channel is open, one of its accept terms
+# (the identity term) holds, it fits max_frame_bytes and the ring, and the
+# channel's token bucket holds a token.
 #
 # Untagged frames only, by construction: an 802.1Q tag puts its TPID (`tpids`,
 # IEEE 802.1Q-2018 Table 9-1) where the EtherType is read, no tuple may name a
@@ -512,9 +517,11 @@ channels:
     max_frame_bytes: 64
     match:
       - {dst: 0x91E0F000FF00, ethertype: 0x22F0, subtype: 0xFE,
-         doc: "the MAAP multicast address (IEEE 1722-2016 Table B.10)"}
+         doc: "the MAAP multicast address (IEEE 1722-2016 Table B.10; B.2.1 sends PROBE and ANNOUNCE to it)"}
+      - {dst: own, ethertype: 0x22F0, subtype: 0xFE, msg_types: [2],
+         doc: "a DEFEND to this interface's own unicast MAC (IEEE 1722-2016 B.2.1: the PROBE's source MAC)"}
     rate: {burst: 8, refill_ms: 20}
-    cite: IEEE 1722-2016 B.2.5, B.2.6 and note b of Table B.7
+    cite: IEEE 1722-2016 B.2.1, B.2.5, B.2.6 and note b of Table B.7
     accept:
       - {test: range_overlap, offset: 26, msg_types: [1, 2, 3], field: requested_start_address,
          doc: "a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range"}

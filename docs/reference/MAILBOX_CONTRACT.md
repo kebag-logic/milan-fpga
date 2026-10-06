@@ -326,10 +326,13 @@ An RX or TX record is the header words, then ceil(LEN/4) payload words.
 
 ## Channels and the ingress filter
 
-A frame is classified when its byte 14 arrives, by its full tuple.
+A frame is classified when its byte 15 arrives, by its full tuple,
+or at its last byte when it ends at byte 14.
 A channel's tuple holds when the destination MAC is the tuple's address,
 or, for an `own` tuple, `OWN_MAC` of the interface the frame arrived on;
-the EtherType is the tuple's; and the AVTP subtype is the tuple's where it names one.
+the EtherType is the tuple's; the AVTP subtype is the tuple's where it names one;
+and the message_type (the low nibble of byte 15, 0 when the frame ends
+at byte 14) is one of the tuple's where it names some.
 The frame passes when its channel is open and one accept term (the identity term) holds.
 It must also fit max_frame_bytes and the free ring space.
 Then the channel's token bucket must hold a token.
@@ -348,15 +351,16 @@ A frame that ends before byte 14 is classified into nothing and counted nowhere.
 | `maap` | 3 | `0x3000`, 128 words | `0x3200`, 128 words | 64 | burst 8, one token per 20 ms |
 | `srp` | 4 | `0x4000`, 1024 words | `0x5000`, 512 words | 1514 | burst 32, one token per 2 ms |
 
-| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | Why |
-|---|---:|---|---|---|---|---|
-| `adp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1) |
-| `acmp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFC` | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1; 8.2.1 sends every ACMPDU to it) |
-| `acmp` | 1 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFC` | this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission |
-| `aecp` | 0 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFB` | this interface's own unicast MAC (IEEE 1722.1-2021 9.2.2: commands and responses travel unicast) |
-| `maap` | 0 | absent | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | the MAAP multicast address (IEEE 1722-2016 Table B.10) |
-| `srp` | 0 | absent | `01:80:C2:00:00:0E` | `0x22EA` | not read | MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2) |
-| `srp` | 1 | absent | `01:80:C2:00:00:21` | `0x88F5` | not read | MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) |
+| Channel | Tuple | VLAN tag | Destination MAC | EtherType | AVTP subtype | message_type | Why |
+|---|---:|---|---|---|---|---|---|
+| `adp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | any | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1) |
+| `acmp` | 0 | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFC` | any | the ADP and ACMP multicast address (IEEE 1722.1-2021 Table B.1; 8.2.1 sends every ACMPDU to it) |
+| `acmp` | 1 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFC` | any | this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission |
+| `aecp` | 0 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFB` | any | this interface's own unicast MAC (IEEE 1722.1-2021 9.2.2: commands and responses travel unicast) |
+| `maap` | 0 | absent | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | any | the MAAP multicast address (IEEE 1722-2016 Table B.10; B.2.1 sends PROBE and ANNOUNCE to it) |
+| `maap` | 1 | absent | own MAC of the arrival interface (`OWN_MAC`) | `0x22F0` | `0xFE` | 2 | a DEFEND to this interface's own unicast MAC (IEEE 1722-2016 B.2.1: the PROBE's source MAC) |
+| `srp` | 0 | absent | `01:80:C2:00:00:0E` | `0x22EA` | not read | any | MSRP: the Nearest Bridge group address and the MSRP EtherType (IEEE 802.1Q-2018 35.2.2.1, 35.2.2.2) |
+| `srp` | 1 | absent | `01:80:C2:00:00:21` | `0x88F5` | not read | any | MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2) |
 
 `adp` accepts a frame when one term holds (IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1):
 
@@ -379,7 +383,7 @@ A frame that ends before byte 14 is classified into nothing and counted nowhere.
 | 0 | `eq_own` | 18 | 0, 2, 4, 6, 8, 10, 12, 14 | `target_entity_id` | a command addressed to this entity |
 | 1 | `eq_own` | 26 | 1, 3, 5, 7, 9, 11, 13, 15 | `controller_entity_id` | a response to a command this entity sent as a controller, such as CONTROLLER_AVAILABLE (Milan v1.2 5.4.5.3) |
 
-`maap` accepts a frame when one term holds (IEEE 1722-2016 B.2.5, B.2.6 and note b of Table B.7):
+`maap` accepts a frame when one term holds (IEEE 1722-2016 B.2.1, B.2.5, B.2.6 and note b of Table B.7):
 
 | Term | Test | Wire byte | message_type | Field | Why |
 |---|---|---:|---|---|---|
@@ -634,12 +638,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ADP_M0_ETHERTYPE` | `0x22f0` |
 | `MBX_CH_ADP_M0_HAS_SUBTYPE` | `0x1` |
 | `MBX_CH_ADP_M0_SUBTYPE` | `0xfa` |
+| `MBX_CH_ADP_M0_MSG_MASK` | `0xffff` |
 | `MBX_CH_ADP_M1_DST` | `0x0` |
 | `MBX_CH_ADP_M1_DST_HI` | `0x0` |
 | `MBX_CH_ADP_M1_DST_LO` | `0x0` |
 | `MBX_CH_ADP_M1_ETHERTYPE` | `0x0` |
 | `MBX_CH_ADP_M1_HAS_SUBTYPE` | `0x0` |
 | `MBX_CH_ADP_M1_SUBTYPE` | `0x0` |
+| `MBX_CH_ADP_M1_MSG_MASK` | `0x0` |
 | `MBX_CH_ADP_T0_TEST` | `0x3` |
 | `MBX_CH_ADP_T0_OFFSET` | `0x12` |
 | `MBX_CH_ADP_T0_MSG_MASK` | `0x4` |
@@ -660,12 +666,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_ACMP_M0_ETHERTYPE` | `0x22f0` |
 | `MBX_CH_ACMP_M0_HAS_SUBTYPE` | `0x1` |
 | `MBX_CH_ACMP_M0_SUBTYPE` | `0xfc` |
+| `MBX_CH_ACMP_M0_MSG_MASK` | `0xffff` |
 | `MBX_CH_ACMP_M1_DST` | `0x2` |
 | `MBX_CH_ACMP_M1_DST_HI` | `0x0` |
 | `MBX_CH_ACMP_M1_DST_LO` | `0x0` |
 | `MBX_CH_ACMP_M1_ETHERTYPE` | `0x22f0` |
 | `MBX_CH_ACMP_M1_HAS_SUBTYPE` | `0x1` |
 | `MBX_CH_ACMP_M1_SUBTYPE` | `0xfc` |
+| `MBX_CH_ACMP_M1_MSG_MASK` | `0xffff` |
 | `MBX_CH_ACMP_T0_TEST` | `0x2` |
 | `MBX_CH_ACMP_T0_OFFSET` | `0x22` |
 | `MBX_CH_ACMP_T0_MSG_MASK` | `0xffff` |
@@ -686,12 +694,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_AECP_M0_ETHERTYPE` | `0x22f0` |
 | `MBX_CH_AECP_M0_HAS_SUBTYPE` | `0x1` |
 | `MBX_CH_AECP_M0_SUBTYPE` | `0xfb` |
+| `MBX_CH_AECP_M0_MSG_MASK` | `0xffff` |
 | `MBX_CH_AECP_M1_DST` | `0x0` |
 | `MBX_CH_AECP_M1_DST_HI` | `0x0` |
 | `MBX_CH_AECP_M1_DST_LO` | `0x0` |
 | `MBX_CH_AECP_M1_ETHERTYPE` | `0x0` |
 | `MBX_CH_AECP_M1_HAS_SUBTYPE` | `0x0` |
 | `MBX_CH_AECP_M1_SUBTYPE` | `0x0` |
+| `MBX_CH_AECP_M1_MSG_MASK` | `0x0` |
 | `MBX_CH_AECP_T0_TEST` | `0x2` |
 | `MBX_CH_AECP_T0_OFFSET` | `0x12` |
 | `MBX_CH_AECP_T0_MSG_MASK` | `0x5555` |
@@ -712,12 +722,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_MAAP_M0_ETHERTYPE` | `0x22f0` |
 | `MBX_CH_MAAP_M0_HAS_SUBTYPE` | `0x1` |
 | `MBX_CH_MAAP_M0_SUBTYPE` | `0xfe` |
-| `MBX_CH_MAAP_M1_DST` | `0x0` |
+| `MBX_CH_MAAP_M0_MSG_MASK` | `0xffff` |
+| `MBX_CH_MAAP_M1_DST` | `0x2` |
 | `MBX_CH_MAAP_M1_DST_HI` | `0x0` |
 | `MBX_CH_MAAP_M1_DST_LO` | `0x0` |
-| `MBX_CH_MAAP_M1_ETHERTYPE` | `0x0` |
-| `MBX_CH_MAAP_M1_HAS_SUBTYPE` | `0x0` |
-| `MBX_CH_MAAP_M1_SUBTYPE` | `0x0` |
+| `MBX_CH_MAAP_M1_ETHERTYPE` | `0x22f0` |
+| `MBX_CH_MAAP_M1_HAS_SUBTYPE` | `0x1` |
+| `MBX_CH_MAAP_M1_SUBTYPE` | `0xfe` |
+| `MBX_CH_MAAP_M1_MSG_MASK` | `0x4` |
 | `MBX_CH_MAAP_T0_TEST` | `0x4` |
 | `MBX_CH_MAAP_T0_OFFSET` | `0x1a` |
 | `MBX_CH_MAAP_T0_MSG_MASK` | `0xe` |
@@ -738,12 +750,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_CH_SRP_M0_ETHERTYPE` | `0x22ea` |
 | `MBX_CH_SRP_M0_HAS_SUBTYPE` | `0x0` |
 | `MBX_CH_SRP_M0_SUBTYPE` | `0x0` |
+| `MBX_CH_SRP_M0_MSG_MASK` | `0xffff` |
 | `MBX_CH_SRP_M1_DST` | `0x1` |
 | `MBX_CH_SRP_M1_DST_HI` | `0x180` |
 | `MBX_CH_SRP_M1_DST_LO` | `0xc2000021` |
 | `MBX_CH_SRP_M1_ETHERTYPE` | `0x88f5` |
 | `MBX_CH_SRP_M1_HAS_SUBTYPE` | `0x0` |
 | `MBX_CH_SRP_M1_SUBTYPE` | `0x0` |
+| `MBX_CH_SRP_M1_MSG_MASK` | `0xffff` |
 | `MBX_CH_SRP_T0_TEST` | `0x1` |
 | `MBX_CH_SRP_T0_OFFSET` | `0x0` |
 | `MBX_CH_SRP_T0_MSG_MASK` | `0xffff` |

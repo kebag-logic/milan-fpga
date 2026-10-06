@@ -458,6 +458,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ADP_M0_HAS_SUBTYPE_C = 32'd1;
   //! adp tuple 0 AVTP subtype
   localparam int unsigned MBX_CH_ADP_M0_SUBTYPE_C = 32'h000000FA;
+  //! adp tuple 0 message types
+  localparam int unsigned MBX_CH_ADP_M0_MSG_MASK_C = 32'h0000FFFF;
   //! adp tuple 1: unused
   localparam int unsigned MBX_CH_ADP_M1_DST_C = 32'd0;
   //! adp tuple 1 destination [47:32]
@@ -470,6 +472,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ADP_M1_HAS_SUBTYPE_C = 32'd0;
   //! adp tuple 1 AVTP subtype
   localparam int unsigned MBX_CH_ADP_M1_SUBTYPE_C = 32'h00000000;
+  //! adp tuple 1 message types
+  localparam int unsigned MBX_CH_ADP_M1_MSG_MASK_C = 32'h00000000;
   //! adp term 0: ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2)
   localparam int unsigned MBX_CH_ADP_T0_TEST_C = 32'd3;
   //! adp term 0 field byte
@@ -510,6 +514,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ACMP_M0_HAS_SUBTYPE_C = 32'd1;
   //! acmp tuple 0 AVTP subtype
   localparam int unsigned MBX_CH_ACMP_M0_SUBTYPE_C = 32'h000000FC;
+  //! acmp tuple 0 message types
+  localparam int unsigned MBX_CH_ACMP_M0_MSG_MASK_C = 32'h0000FFFF;
   //! acmp tuple 1: this interface's own unicast MAC, a receive tolerance the owner decision grants, not a normative transmission
   localparam int unsigned MBX_CH_ACMP_M1_DST_C = 32'd2;
   //! acmp tuple 1 destination [47:32]
@@ -522,6 +528,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ACMP_M1_HAS_SUBTYPE_C = 32'd1;
   //! acmp tuple 1 AVTP subtype
   localparam int unsigned MBX_CH_ACMP_M1_SUBTYPE_C = 32'h000000FC;
+  //! acmp tuple 1 message types
+  localparam int unsigned MBX_CH_ACMP_M1_MSG_MASK_C = 32'h0000FFFF;
   //! acmp term 0: a command or response addressed to this entity's talker
   localparam int unsigned MBX_CH_ACMP_T0_TEST_C = 32'd2;
   //! acmp term 0 field byte
@@ -562,6 +570,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_AECP_M0_HAS_SUBTYPE_C = 32'd1;
   //! aecp tuple 0 AVTP subtype
   localparam int unsigned MBX_CH_AECP_M0_SUBTYPE_C = 32'h000000FB;
+  //! aecp tuple 0 message types
+  localparam int unsigned MBX_CH_AECP_M0_MSG_MASK_C = 32'h0000FFFF;
   //! aecp tuple 1: unused
   localparam int unsigned MBX_CH_AECP_M1_DST_C = 32'd0;
   //! aecp tuple 1 destination [47:32]
@@ -574,6 +584,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_AECP_M1_HAS_SUBTYPE_C = 32'd0;
   //! aecp tuple 1 AVTP subtype
   localparam int unsigned MBX_CH_AECP_M1_SUBTYPE_C = 32'h00000000;
+  //! aecp tuple 1 message types
+  localparam int unsigned MBX_CH_AECP_M1_MSG_MASK_C = 32'h00000000;
   //! aecp term 0: a command addressed to this entity
   localparam int unsigned MBX_CH_AECP_T0_TEST_C = 32'd2;
   //! aecp term 0 field byte
@@ -602,7 +614,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_MAAP_RATE_BURST_C = 32'd8;
   //! maap ms per refilled token
   localparam int unsigned MBX_CH_MAAP_RATE_REFILL_MS_C = 32'd20;
-  //! maap tuple 0: the MAAP multicast address (IEEE 1722-2016 Table B.10)
+  //! maap tuple 0: the MAAP multicast address (IEEE 1722-2016 Table B.10; B.2.1 sends PROBE and ANNOUNCE to it)
   localparam int unsigned MBX_CH_MAAP_M0_DST_C = 32'd1;
   //! maap tuple 0 destination [47:32]
   localparam int unsigned MBX_CH_MAAP_M0_DST_HI_C = 32'h000091E0;
@@ -614,18 +626,22 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_MAAP_M0_HAS_SUBTYPE_C = 32'd1;
   //! maap tuple 0 AVTP subtype
   localparam int unsigned MBX_CH_MAAP_M0_SUBTYPE_C = 32'h000000FE;
-  //! maap tuple 1: unused
-  localparam int unsigned MBX_CH_MAAP_M1_DST_C = 32'd0;
+  //! maap tuple 0 message types
+  localparam int unsigned MBX_CH_MAAP_M0_MSG_MASK_C = 32'h0000FFFF;
+  //! maap tuple 1: a DEFEND to this interface's own unicast MAC (IEEE 1722-2016 B.2.1: the PROBE's source MAC)
+  localparam int unsigned MBX_CH_MAAP_M1_DST_C = 32'd2;
   //! maap tuple 1 destination [47:32]
   localparam int unsigned MBX_CH_MAAP_M1_DST_HI_C = 32'h00000000;
   //! maap tuple 1 destination [31:0]
   localparam int unsigned MBX_CH_MAAP_M1_DST_LO_C = 32'h00000000;
   //! maap tuple 1 EtherType
-  localparam int unsigned MBX_CH_MAAP_M1_ETHERTYPE_C = 32'h00000000;
+  localparam int unsigned MBX_CH_MAAP_M1_ETHERTYPE_C = 32'h000022F0;
   //! maap tuple 1 matches a subtype
-  localparam int unsigned MBX_CH_MAAP_M1_HAS_SUBTYPE_C = 32'd0;
+  localparam int unsigned MBX_CH_MAAP_M1_HAS_SUBTYPE_C = 32'd1;
   //! maap tuple 1 AVTP subtype
-  localparam int unsigned MBX_CH_MAAP_M1_SUBTYPE_C = 32'h00000000;
+  localparam int unsigned MBX_CH_MAAP_M1_SUBTYPE_C = 32'h000000FE;
+  //! maap tuple 1 message types
+  localparam int unsigned MBX_CH_MAAP_M1_MSG_MASK_C = 32'h00000004;
   //! maap term 0: a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range
   localparam int unsigned MBX_CH_MAAP_T0_TEST_C = 32'd4;
   //! maap term 0 field byte
@@ -666,6 +682,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_SRP_M0_HAS_SUBTYPE_C = 32'd0;
   //! srp tuple 0 AVTP subtype
   localparam int unsigned MBX_CH_SRP_M0_SUBTYPE_C = 32'h00000000;
+  //! srp tuple 0 message types
+  localparam int unsigned MBX_CH_SRP_M0_MSG_MASK_C = 32'h0000FFFF;
   //! srp tuple 1: MVRP: the Customer Bridge MVRP address and EtherType (IEEE 802.1Q-2018 11.2.3.1.3, Tables 10-1 and 10-2)
   localparam int unsigned MBX_CH_SRP_M1_DST_C = 32'd1;
   //! srp tuple 1 destination [47:32]
@@ -678,6 +696,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_SRP_M1_HAS_SUBTYPE_C = 32'd0;
   //! srp tuple 1 AVTP subtype
   localparam int unsigned MBX_CH_SRP_M1_SUBTYPE_C = 32'h00000000;
+  //! srp tuple 1 message types
+  localparam int unsigned MBX_CH_SRP_M1_MSG_MASK_C = 32'h0000FFFF;
   //! srp term 0: every MSRP and MVRP PDU; both are link-local to this port
   localparam int unsigned MBX_CH_SRP_T0_TEST_C = 32'd1;
   //! srp term 0 field byte
@@ -727,6 +747,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TUPLE_HAS_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_HAS_SUBTYPE_C, MBX_CH_ADP_M1_HAS_SUBTYPE_C, MBX_CH_ACMP_M0_HAS_SUBTYPE_C, MBX_CH_ACMP_M1_HAS_SUBTYPE_C, MBX_CH_AECP_M0_HAS_SUBTYPE_C, MBX_CH_AECP_M1_HAS_SUBTYPE_C, MBX_CH_MAAP_M0_HAS_SUBTYPE_C, MBX_CH_MAAP_M1_HAS_SUBTYPE_C, MBX_CH_SRP_M0_HAS_SUBTYPE_C, MBX_CH_SRP_M1_HAS_SUBTYPE_C};
   //! by channel id * MAX_TUPLES + tuple
   localparam int unsigned MBX_TUPLE_SUBTYPE_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_SUBTYPE_C, MBX_CH_ADP_M1_SUBTYPE_C, MBX_CH_ACMP_M0_SUBTYPE_C, MBX_CH_ACMP_M1_SUBTYPE_C, MBX_CH_AECP_M0_SUBTYPE_C, MBX_CH_AECP_M1_SUBTYPE_C, MBX_CH_MAAP_M0_SUBTYPE_C, MBX_CH_MAAP_M1_SUBTYPE_C, MBX_CH_SRP_M0_SUBTYPE_C, MBX_CH_SRP_M1_SUBTYPE_C};
+  //! by channel id * MAX_TUPLES + tuple
+  localparam int unsigned MBX_TUPLE_MSG_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_MSG_MASK_C, MBX_CH_ADP_M1_MSG_MASK_C, MBX_CH_ACMP_M0_MSG_MASK_C, MBX_CH_ACMP_M1_MSG_MASK_C, MBX_CH_AECP_M0_MSG_MASK_C, MBX_CH_AECP_M1_MSG_MASK_C, MBX_CH_MAAP_M0_MSG_MASK_C, MBX_CH_MAAP_M1_MSG_MASK_C, MBX_CH_SRP_M0_MSG_MASK_C, MBX_CH_SRP_M1_MSG_MASK_C};
   //! by channel id * MAX_TERMS + term
   localparam int unsigned MBX_TERM_TEST_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_TEST_C, MBX_CH_ADP_T1_TEST_C, MBX_CH_ACMP_T0_TEST_C, MBX_CH_ACMP_T1_TEST_C, MBX_CH_AECP_T0_TEST_C, MBX_CH_AECP_T1_TEST_C, MBX_CH_MAAP_T0_TEST_C, MBX_CH_MAAP_T1_TEST_C, MBX_CH_SRP_T0_TEST_C, MBX_CH_SRP_T1_TEST_C};
   //! by channel id * MAX_TERMS + term

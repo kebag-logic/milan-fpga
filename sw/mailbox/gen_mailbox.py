@@ -29,8 +29,9 @@ each output and requires the cross-check to name the planted constant, and it
 plants contract defects into copies of the YAML (an overlapping field, a ring
 that is not a power of two, two channels claiming one EtherType, a register
 with no fabric source, a match tuple naming a VLAN tag's TPID or no
-destination, an own-MAC block that spills or collides) and requires each to
-be refused. A clean run of the tracked outputs is the positive control.
+destination, an own-MAC block that spills or collides, message types named
+with no subtype or wider than four bits, a message_type byte not the one after
+the subtype) and requires each to be refused. A clean run of the tracked outputs is the positive control.
 
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
@@ -234,6 +235,12 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
          "TUPLE_ETHERTYPE_TBL"),
         ("skeleton own MAC dropped", _plant_all(base, top, "MBX_IFF_REG_OWN_MAC_HI_C", "MBX_IFF_REG_OWN_MAC_LO_C"),
          "OWN_MAC_HI"),
+        # lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1)
+        ("C header DEFEND tuple's message types", _plant(base, hdr, "#define MBX_CH_MAAP_M1_MSG_MASK 0x4u",
+                                                         "#define MBX_CH_MAAP_M1_MSG_MASK 0xFFFFu"),
+         "MBX_CH_MAAP_M1_MSG_MASK"),
+        ("SV package DEFEND tuple dropped", _plant(base, pkg, "MBX_CH_MAAP_M1_DST_C = 32'd2;",
+                                                   "MBX_CH_MAAP_M1_DST_C = 32'd0;"), "MBX_CH_MAAP_M1_DST"),
     ]
 
 
@@ -260,6 +267,11 @@ def _contract_arms() -> list[tuple[str, str, str]]:
         ("own MAC spills its stride", "  stride: 0x08\n", "  stride: 0x04\n"),
         ("own MAC over the channel registers", "interface_filter_registers:\n  base: 0x080",
          "interface_filter_registers:\n  base: 0x100"),
+        # lane FC round 2: a tuple's message types sit in the byte after its subtype
+        ("message types with no subtype", "{dst: 0x0180C2000021, ethertype: 0x88F5,",
+         "{dst: 0x0180C2000021, ethertype: 0x88F5, msg_types: [2],"),
+        ("a message type wider than four bits", "subtype: 0xFE, msg_types: [2],", "subtype: 0xFE, msg_types: [16],"),
+        ("message_type not the byte after the subtype", "msg_type_byte: 15", "msg_type_byte: 16"),
     ]
 
 
