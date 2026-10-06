@@ -1194,21 +1194,22 @@ declared as part of the source switch, as #629's fabric item allows: the
 at-switch #386 render recentre, the servo's pull-in walk in both rings, and
 loopback slips within this bound. Measured in `tb/verilator/follow_ring` at
 the bench's 5.92 ppm between the DUT's INTERNAL clock and the followed
-talker, across 16 set phases over one INTERNAL beat and three arrival
-lateness models (none, 0 to 5 us uniform, and 2 us plus a rare 0 to 24 us
-tail): at most 3 frames slipped from an INTERNAL-to-AAF set to its settle
-recentre, at most 2 without the tail. The walk accounts for 2 (about 0.24
-tick per ppm of offset, so the bound grows with it); the third is the tail
-meeting the ring near its empty edge during the walk. A stream-to-stream
-switch moves the ring's phase by hundredths of a tick and slipped nothing
-before its settle recentre, with arrivals on time or within 5 us. A slip
+talker, with the talker slow or fast, across 16 set phases over one
+INTERNAL beat and four arrival lateness models (none, 0 to 5 us uniform,
+2 us plus a rare 0 to 24 us tail, and 0 to 60 us uniform): at most 3 frames
+slipped from an INTERNAL-to-AAF set to its settle recentre, at most 2
+without the tail. The walk accounts for 2 (about 0.24 tick per ppm of
+offset, so the bound grows with it); the third is the tail meeting the ring
+near its empty edge during the walk. A stream-to-stream switch moves the
+ring's phase by hundredths of a tick and slipped nothing before its settle
+recentre under any of those arrival models. A slip
 counts as before the settle recentre only up to the end of the PDU the
 loopback ring decides on; one after that is the recentre's own.
 
 An aligner pull-in at INTERNAL is the same kind of transient, from the hold
 to its settle recentre: a pull toward the loopback ring's empty edge slips
 it once where the pull is larger than its margin. Measured over 16 feed
-phases: none at a 52 us hold (a +0.53-tick pull), and 3 phases slipped once
+phases: none at a 52 us hold (a +0.53-tick pull), and 4 phases slipped once
 at a 56 us hold (-0.33 tick). Every phase got exactly one settle recentre,
 0.85 s and 0.19 s after the two holds at follow_ring's 6.25 MHz axis clock.
 At `milan_dp_render`'s 100 MHz, the integration check waits for the settle
