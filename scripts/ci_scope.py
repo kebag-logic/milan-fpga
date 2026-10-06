@@ -52,10 +52,12 @@ TOP_LEVEL_SUFFIXES = [".md"]
 #: asserts on the register map and audit; the trace catalogue compares its
 #: event page, and the clock-contract test checks the latency-tap table. The
 #: resource gate's check-baseline (yosys-elaboration) holds its baseline's
-#: policy to the area budget's table.
+#: policy to the area budget's table. The mailbox contract generator's
+#: --check compares its reference page with what it emits (#665 F0).
 GATE_READ_DOCS = [
     "docs/AAF_LATENCY_TAPS.md",
     "docs/design/AREA_BUDGET.md",
+    "docs/reference/MAILBOX_CONTRACT.md",
     "docs/reference/REGISTER_MAP.md",
     "docs/reference/TRACE_EVENTS.md",
     "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
@@ -271,6 +273,8 @@ def _cases() -> list[Case]:
         (["docs/reference/TRACE_EVENTS.md"], True),
         # The area budget whose policy table check-baseline reads (#234).
         (["docs/design/AREA_BUDGET.md"], True),
+        # The page the mailbox contract generator's --check compares (#665).
+        (["docs/reference/MAILBOX_CONTRACT.md"], True),
         # Under docs/, a generator, a manifest, a budget or other non-prose.
         (["docs/traceability/gen_module_matrix.py"], True),
         (["docs/diagrams/PNG_MANIFEST.json"], True),

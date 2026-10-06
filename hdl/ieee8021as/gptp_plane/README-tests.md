@@ -14,4 +14,3 @@ hand-edit. Part of the IEEE 802.1AS family; rolled up in
 | ✅ `KL_gptp_shadow` | `KL_gptp_shadow.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.4.3 |
 | ✅ `KL_gptp_txret` | `KL_gptp_txret.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 8.4.3 |
 | ✅ `KL_gptp_txticket` | `KL_gptp_txticket.sv` | `gptp_shadow` · `gptp_txts` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-

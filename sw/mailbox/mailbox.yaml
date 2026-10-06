@@ -1,0 +1,457 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# mailbox.yaml - the packet-mailbox and ingress-filter contract between the
+# fabric and the control-plane firmware (#665 lane F0; the #640 owner
+# decisions of 2026-10-05).
+#
+# THIS FILE IS THE CONTRACT. sw/mailbox/gen_mailbox.py turns it into four
+# outputs and nothing else may restate a number it holds:
+#
+#   hdl/milan/mailbox/KL_mbx_pkg.sv    the SystemVerilog constants
+#   hdl/milan/mailbox/KL_mbx.sv        the fabric skeleton (ports, register
+#                                      decode, one ring per direction)
+#   sw/firmware/ctrl/mbx/mbx_contract.h  the C header
+#   docs/reference/MAILBOX_CONTRACT.md the reference page
+#
+# `gen_mailbox.py --check` fails when a tracked output differs from what this
+# file generates, and `--selftest` plants a field mismatch into each output
+# and requires the cross-output check to name it.
+#
+# BYTE ORDER, stated once. Every register, header word and event word is a
+# 32-bit value; a field sits at the bit positions given here, so its meaning
+# never depends on the host's byte order. Frame bytes travel four to a ring
+# word in little-endian lanes: frame byte k sits in ring word k/4 at bits
+# [8*(k%4)+7 : 8*(k%4)]. Wire fields inside a frame keep their network (big
+# endian) order; the firmware's wire layer reads them byte by byte.
+#
+# RULES FOR CHANGING IT:
+#   * a change that moves or resizes a field, register or ring raises `major`;
+#     a change that only adds raises `minor`. The fabric publishes both in ID,
+#     and the firmware refuses a major it was not built against.
+#   * every ring is a power of two in words and aligned to its own size.
+#   * a channel's filter rule cites the clause that makes the frames it passes
+#     the ones this entity must act on.
+
+version:
+  major: 1
+  minor: 0
+magic: 0x4D42          # "MB"
+window_bytes: 0x8000   # host-visible window
+interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
+timers: 16             # fabric timer slots
+tick_ms: 10            # the TICK event period: one centisecond, lwSRP's timer unit
+index_bits: 16         # ring head and tail counters, in words, modulo 2^16
+
+registers:
+  - name: ID
+    offset: 0x000
+    access: ro
+    doc: Contract identity. Firmware checks MAGIC and MAJOR before it opens a channel.
+    fields:
+      - {name: MINOR, lsb: 0, width: 8, doc: contract minor version}
+      - {name: MAJOR, lsb: 8, width: 8, doc: contract major version}
+      - {name: MAGIC, lsb: 16, width: 16, doc: "0x4D42"}
+  - name: CAPS
+    offset: 0x004
+    access: ro
+    doc: What this build elaborated.
+    fields:
+      - {name: N_CH, lsb: 0, width: 4, doc: channel count}
+      - {name: N_IF, lsb: 4, width: 4, doc: interface count}
+      - {name: N_TIMERS, lsb: 8, width: 8, doc: timer slots}
+      - {name: EVT_WORDS_LOG2, lsb: 16, width: 4, doc: event ring size, log2 words}
+  - name: IRQ_STATUS
+    offset: 0x008
+    access: rw1c
+    doc: >-
+      The interrupt causes. RX and EVT are levels: they stay set while the ring
+      holds an unconsumed record and clear when the core advances its tail. ERR
+      is sticky and cleared by writing 1.
+    fields:
+      - {name: RX, lsb: 0, width: 8, doc: "bit c: channel c's receive ring is not empty (level)"}
+      - {name: EVT, lsb: 8, width: 1, doc: the event ring is not empty (level)}
+      - {name: ERR, lsb: 31, width: 1, doc: a drop or error counter moved (sticky, write 1 to clear)}
+  - name: IRQ_ENABLE
+    offset: 0x00C
+    access: rw
+    doc: The interrupt line is the OR of IRQ_STATUS AND IRQ_ENABLE. Reset 0.
+    fields:
+      - {name: RX, lsb: 0, width: 8, doc: per-channel enable}
+      - {name: EVT, lsb: 8, width: 1, doc: event ring enable}
+      - {name: ERR, lsb: 31, width: 1, doc: error enable}
+  - name: NOW_MS
+    offset: 0x010
+    access: ro
+    doc: Free-running fabric millisecond counter, the time base of every timer deadline.
+    fields:
+      - {name: MS, lsb: 0, width: 32, doc: milliseconds since reset, modulo 2^32}
+  - name: LINK
+    offset: 0x014
+    access: ro
+    doc: Current link level per interface.
+    fields:
+      - {name: UP, lsb: 0, width: 4, doc: "bit i: interface i link up"}
+  - name: TICK_CTL
+    offset: 0x018
+    access: rw
+    doc: >-
+      The centisecond tick. Reset 0. While EN is set the fabric counts one tick
+      every tick_ms milliseconds of NOW_MS and posts TICK events carrying the
+      ticks elapsed since the previous TICK record, so the firmware calls its
+      centisecond timer port (lwSRP's shlan_timer_tick) once per tick counted
+      and loses none when it is late. Clearing EN drops the unposted count.
+    fields:
+      - {name: EN, lsb: 0, width: 1, doc: post TICK events}
+  - name: OWN_EID_LO
+    offset: 0x020
+    access: rw
+    doc: The filter's entity_id, low word. Reset 0; firmware writes it before it opens a channel.
+    fields:
+      - {name: EID, lsb: 0, width: 32, doc: "entity_id[31:0]"}
+  - name: OWN_EID_HI
+    offset: 0x024
+    access: rw
+    doc: The filter's entity_id, high word.
+    fields:
+      - {name: EID, lsb: 0, width: 32, doc: "entity_id[63:32]"}
+  - name: FILTER_EN
+    offset: 0x028
+    access: rw
+    doc: >-
+      Bit c opens channel c. Reset 0: every channel is closed and its frames are
+      dropped uncounted until the firmware has written OWN_EID and opened it.
+    fields:
+      - {name: OPEN, lsb: 0, width: 8, doc: per-channel open}
+  - name: MAAP_BASE_LO
+    offset: 0x02C
+    access: rw
+    doc: The MAAP range this entity probes or holds, low 32 bits of the first address.
+    fields:
+      - {name: ADDR, lsb: 0, width: 32, doc: "first address[31:0]"}
+  - name: MAAP_BASE_HI
+    offset: 0x030
+    access: rw
+    doc: The MAAP range, high 16 bits of the first address.
+    fields:
+      - {name: ADDR, lsb: 0, width: 16, doc: "first address[47:32]"}
+  - name: MAAP_COUNT
+    offset: 0x034
+    access: rw
+    doc: Addresses in the MAAP range. 0 means no range, and no MAAP frame passes.
+    fields:
+      - {name: COUNT, lsb: 0, width: 16, doc: address count}
+  - name: TMR_DEADLINE
+    offset: 0x038
+    access: rw
+    doc: The deadline the next TMR_CMD arm uses, in NOW_MS units.
+    fields:
+      - {name: MS, lsb: 0, width: 32, doc: absolute deadline}
+  - name: TMR_CMD
+    offset: 0x03C
+    access: wo
+    doc: >-
+      A write arms or cancels one timer slot. An arm replaces whatever the slot
+      held and drops its unposted expiry; a cancel disarms it and drops its
+      unposted expiry. An expiry already in the event ring stays there and
+      carries the tag of the arm it belongs to. Any other OP is refused and
+      counted in BUS_ERR.
+    fields:
+      - {name: SLOT, lsb: 0, width: 8, doc: timer slot}
+      - {name: TAG, lsb: 8, width: 16, doc: firmware tag, echoed by the expiry event}
+      - {name: OP, lsb: 30, width: 2, doc: "1 arm, 2 cancel"}
+  - name: EVT_HEAD
+    offset: 0x060
+    access: ro
+    doc: Words the fabric has written into the event ring, modulo 2^16.
+    fields:
+      - {name: WORDS, lsb: 0, width: 16, doc: producer count}
+  - name: EVT_TAIL
+    offset: 0x064
+    access: rw
+    doc: >-
+      Words the core has consumed from the event ring. Writing it releases the space.
+      A value more than the ring behind EVT_HEAD, or ahead of it, leaves no free word:
+      nothing posts until it is back in range.
+    fields:
+      - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
+  - name: BUS_ERR
+    offset: 0x070
+    access: ro
+    doc: Host accesses refused, saturating. A write with a partial byte strobe and a bad TMR_CMD are refused.
+    fields:
+      - {name: COUNT, lsb: 0, width: 16, doc: refusals}
+
+interface_registers:
+  base: 0x040
+  stride: 0x10
+  registers:
+    - name: GM_LO
+      offset: 0x0
+      access: ro
+      doc: >-
+        Grandmaster identity, low word. Reading it snapshots GM_HI and DOMAIN, so
+        the next two reads are coherent with it (the CSR window's convention).
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[31:0]"}
+    - name: GM_HI
+      offset: 0x4
+      access: ro
+      doc: Grandmaster identity, high word, from the snapshot.
+      fields:
+        - {name: ID, lsb: 0, width: 32, doc: "gptp_grandmaster_id[63:32]"}
+    - name: DOMAIN
+      offset: 0x8
+      access: ro
+      doc: gPTP domain number, from the snapshot.
+      fields:
+        - {name: NUMBER, lsb: 0, width: 8, doc: gptp_domain_number}
+
+channel_registers:
+  base: 0x100
+  stride: 0x20
+  registers:
+    - name: RX_HEAD
+      offset: 0x00
+      access: ro
+      doc: Words the fabric has committed into the receive ring, modulo 2^16.
+      fields:
+        - {name: WORDS, lsb: 0, width: 16, doc: producer count}
+    - name: RX_TAIL
+      offset: 0x04
+      access: rw
+      doc: >-
+        Words the core has consumed. Writing it releases the space (the RX doorbell).
+        A value more than the ring behind RX_HEAD, or ahead of it, leaves no free word:
+        every frame counts in RX_DROP until it is back in range.
+      fields:
+        - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
+    - name: TX_HEAD
+      offset: 0x08
+      access: rw
+      doc: >-
+        Words the core has committed into the transmit ring. Writing it is the TX doorbell.
+        A value more than the ring ahead of TX_TAIL is refused like a malformed record.
+      fields:
+        - {name: WORDS, lsb: 0, width: 16, doc: producer count}
+    - name: TX_TAIL
+      offset: 0x0C
+      access: ro
+      doc: Words the fabric has consumed from the transmit ring.
+      fields:
+        - {name: WORDS, lsb: 0, width: 16, doc: consumer count}
+    - name: RX_DROP
+      offset: 0x10
+      access: ro
+      doc: Frames the channel accepted but could not store (ring full or over max_frame_bytes), saturating.
+      fields:
+        - {name: COUNT, lsb: 0, width: 16, doc: frames}
+    - name: RATE_DROP
+      offset: 0x14
+      access: ro
+      doc: Frames the channel's rate limiter refused, saturating.
+      fields:
+        - {name: COUNT, lsb: 0, width: 16, doc: frames}
+    - name: TX_ERR
+      offset: 0x18
+      access: ro
+      doc: TX records the fabric refused, saturating. A refused record flushes the ring to TX_HEAD.
+      fields:
+        - {name: COUNT, lsb: 0, width: 16, doc: records}
+    - name: RX_PASS
+      offset: 0x1C
+      access: ro
+      doc: Frames committed into the receive ring, modulo 2^16.
+      fields:
+        - {name: COUNT, lsb: 0, width: 16, doc: frames}
+
+event_ring:
+  base: 0x0400
+  words: 64
+
+records:
+  rx_frame:
+    kind: 1
+    doc: >-
+      One received frame, Ethernet header first, FCS stripped. The fabric writes
+      the payload words, then the two header words, then advances RX_HEAD past
+      the whole record, so the core never sees a partial record.
+    header:
+      - index: 0
+        fields:
+          - {name: LEN, lsb: 0, width: 16, doc: frame bytes}
+          - {name: IF, lsb: 16, width: 4, doc: interface the frame arrived on}
+          - {name: KIND, lsb: 28, width: 4, doc: "1"}
+      - index: 1
+        fields:
+          - {name: ARRIVAL_MS, lsb: 0, width: 32, doc: NOW_MS when the frame's last byte arrived}
+  tx_frame:
+    kind: 2
+    doc: >-
+      One frame to transmit, Ethernet header first, without FCS or padding. The
+      core writes the whole record, then advances TX_HEAD past it. Records leave
+      in commit order across every channel: of the records committed and not yet
+      sent, the merge sends the one whose SEQ comes first modulo 2^16, so a
+      response committed before the notification it causes leaves before it.
+      Records with equal SEQ leave round-robin by channel.
+    header:
+      - index: 0
+        fields:
+          - {name: LEN, lsb: 0, width: 16, doc: frame bytes, 14 to the channel's max_frame_bytes}
+          - {name: IF, lsb: 16, width: 4, doc: interface to send on}
+          - {name: KIND, lsb: 28, width: 4, doc: "2"}
+      - index: 1
+        fields:
+          - {name: SEQ, lsb: 0, width: 16, doc: "commit sequence: the core's count of TX records committed on every channel, modulo 2^16"}
+          - {name: RSVD, lsb: 16, width: 16, doc: must be 0; any other value refuses the record}
+  event:
+    words: 4
+    doc: >-
+      One fabric event, four words. Sources are coalesced: a source that fires
+      again before its record is posted posts once, with its state at posting
+      time, so the ring never overflows and no current state is lost.
+    header:
+      - index: 0
+        fields:
+          - {name: TYPE, lsb: 0, width: 8, doc: event type}
+          - {name: IF, lsb: 8, width: 4, doc: interface}
+          - {name: SEQ, lsb: 16, width: 16, doc: posting sequence, modulo 2^16}
+
+event_types:
+  - name: TIMER
+    value: 1
+    doc: A timer slot's deadline passed.
+    words:
+      - index: 1
+        fields:
+          - {name: TAG, lsb: 0, width: 16, doc: the tag of the arm that expired}
+          - {name: SLOT, lsb: 16, width: 8, doc: timer slot}
+      - index: 2
+        fields:
+          - {name: DEADLINE_MS, lsb: 0, width: 32, doc: the armed deadline}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: LINK
+    value: 2
+    doc: The interface's link level changed.
+    words:
+      - index: 1
+        fields:
+          - {name: UP, lsb: 0, width: 1, doc: link level at posting}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: GM
+    value: 3
+    doc: The gPTP plane published a grandmaster change on the interface.
+    words:
+      - index: 1
+        fields:
+          - {name: ID_LO, lsb: 0, width: 32, doc: "gptp_grandmaster_id[31:0] at posting"}
+      - index: 2
+        fields:
+          - {name: ID_HI, lsb: 0, width: 32, doc: "gptp_grandmaster_id[63:32] at posting"}
+      - index: 3
+        fields:
+          - {name: DOMAIN, lsb: 0, width: 8, doc: gptp_domain_number at posting}
+  - name: TICK
+    value: 4
+    doc: >-
+      Centiseconds elapsed (TICK_CTL.EN set). COUNT is the ticks counted since
+      the previous TICK record, at least 1 and saturating; the firmware calls
+      its centisecond timer port COUNT times.
+    words:
+      - index: 1
+        fields:
+          - {name: COUNT, lsb: 0, width: 16, doc: ticks since the previous TICK record}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+
+# The ingress filter. A frame is classified by EtherType (and AVTP subtype at
+# wire byte 14) into at most one channel. It passes when the channel is open,
+# one of its accept terms holds, it fits max_frame_bytes and the ring, and the
+# channel's token bucket holds a token. Untagged frames only: an 802.1Q-tagged
+# frame classifies into no channel.
+filter:
+  msg_type_byte: 15          # AVTP control header: message_type is the low nibble
+  subtype_byte: 14
+  ethertype_byte: 12
+  max_terms: 2               # accept terms per channel; unused terms are `none`
+  tests:
+    - {name: none, value: 0, doc: never (an unused term)}
+    - {name: any, value: 1, doc: always}
+    - {name: eq_own, value: 2, doc: the 8-byte big-endian field equals OWN_EID}
+    - {name: eq_zero, value: 3, doc: the 8-byte field is 0}
+    - {name: range_overlap, value: 4,
+       doc: "the 6-byte start and 2-byte count overlap [MAAP_BASE, MAAP_BASE + MAAP_COUNT - 1]"}
+  tmr_ops:
+    - {name: arm, value: 1}
+    - {name: cancel, value: 2}
+
+channels:
+  - name: adp
+    id: 0
+    rx: {base: 0x1000, words: 256}
+    tx: {base: 0x1400, words: 128}
+    max_frame_bytes: 128
+    match: {ethertypes: [0x22F0], subtype: 0xFA}
+    rate: {burst: 8, refill_ms: 10}
+    cite: IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1
+    accept:
+      - {test: eq_zero, offset: 18, msg_types: [2], field: entity_id,
+         doc: "ENTITY_DISCOVER for every entity (Milan v1.2 5.6.3.1 step 2)"}
+      - {test: eq_own, offset: 18, msg_types: [2], field: entity_id,
+         doc: "ENTITY_DISCOVER for this entity (Milan v1.2 5.6.3.1 step 2)"}
+  - name: acmp
+    id: 1
+    rx: {base: 0x1800, words: 256}
+    tx: {base: 0x1C00, words: 256}
+    max_frame_bytes: 128
+    match: {ethertypes: [0x22F0], subtype: 0xFC}
+    rate: {burst: 16, refill_ms: 5}
+    cite: IEEE 1722.1-2021 8.2.1.9 and 8.2.1.10
+    accept:
+      - {test: eq_own, offset: 34, field: talker_entity_id,
+         doc: a command or response addressed to this entity's talker}
+      - {test: eq_own, offset: 42, field: listener_entity_id,
+         doc: a command or response addressed to this entity's listener}
+  - name: aecp
+    id: 2
+    rx: {base: 0x2000, words: 512}
+    tx: {base: 0x2800, words: 512}
+    max_frame_bytes: 1514
+    match: {ethertypes: [0x22F0], subtype: 0xFB}
+    rate: {burst: 16, refill_ms: 5}
+    cite: IEEE 1722.1-2021 9.2.2.7 (target_entity_id)
+    accept:
+      - {test: eq_own, offset: 18, field: target_entity_id,
+         doc: a command addressed to this entity}
+  - name: maap
+    id: 3
+    rx: {base: 0x3000, words: 128}
+    tx: {base: 0x3200, words: 128}
+    max_frame_bytes: 64
+    match: {ethertypes: [0x22F0], subtype: 0xFE}
+    rate: {burst: 8, refill_ms: 20}
+    cite: IEEE 1722-2016 B.2.5, B.2.6 and note b of Table B.7
+    accept:
+      - {test: range_overlap, offset: 26, msg_types: [1, 2, 3], field: requested_start_address,
+         doc: "a PROBE, DEFEND or ANNOUNCE whose requested range conflicts with this entity's range"}
+  - name: srp
+    id: 4
+    rx: {base: 0x4000, words: 1024}
+    tx: {base: 0x5000, words: 512}
+    max_frame_bytes: 1514
+    match: {ethertypes: [0x22EA, 0x88F5]}
+    rate: {burst: 32, refill_ms: 2}
+    cite: IEEE 802.1Q-2018 35.2.2 (MSRP address and EtherType) and 11.2 (MVRP)
+    # The record carries the whole frame, so the MRPDU (802.1Q 10.8.1.2,
+    # ProtocolVersion first) is frame bytes 14 to LEN-1: the contiguous byte
+    # buffer lwSRP's mrp_rx() and mrpdu_parse() take, with the record's IF as
+    # their port_id. A TX record is the 14-byte header and an MRPDU its
+    # mrpdu_encode_* functions wrote.
+    accept:
+      - {test: any, field: MRPDU,
+         doc: every MSRP and MVRP PDU; both are link-local to this port}

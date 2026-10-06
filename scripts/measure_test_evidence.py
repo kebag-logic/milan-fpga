@@ -700,6 +700,10 @@ DUT_READER_DISPOSITIONS = {
         "a copy or runs a leg-side defect arm, and requires the named check to fail. "
         "The suite's default target runs its --leg-defects arms; the gateware and "
         "shape mutants are the explicit tdm8render-mutants target",
+    "tb/verilator/mbx/mutants.py":
+        "mutation campaign; it plants one packet-mailbox defect from its own table into a scratch "
+        "copy of hdl/milan/mailbox, builds the suite with the Makefile's own recipe and requires the "
+        "named check to fail; no expected value is read from RTL",
     "tb/verilator/nvm_backend/mutate.py":
         "mutation campaign; it plants one of four backend defects into a copy and requires failure",
     "tb/verilator/nvm_cosim/run_cases.py":

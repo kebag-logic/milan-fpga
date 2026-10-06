@@ -16,4 +16,3 @@ hand-edit. Part of the IEEE 802.1Q family; rolled up in
 | ✅ `traffic_controller_802_1q` | `traffic_controller_802_1q.sv` | `controller_rate` · `datapath` | -- |
 | ✅ `traffic_queues` | `traffic_queues.sv` | `controller_rate` · `datapath` · `queues` | -- |
 | ✅ `traffic_shaping_core` | `traffic_shaping_core.sv` | `controller_rate` · `datapath` · `shaper_core` | -- |
-

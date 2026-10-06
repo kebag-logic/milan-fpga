@@ -13,4 +13,3 @@ hand-edit. Part of the Common / integration family; rolled up in
 | ✅ `KL_mac_rmon_events` | `KL_mac_rmon_events.sv` | `mac_rmon` | -- |
 | ✅ `ethernet_events` | `ethernet_events.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `event_counter` | `event_counter.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-

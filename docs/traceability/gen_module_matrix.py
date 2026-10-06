@@ -431,7 +431,7 @@ def render_leaf(fam: str, leaf: str, frows: list[MatrixRow]) -> str:
         out.append("| %s `%s` | `%s` | %s | %s |"
                    % (STATUS_GLYPH[r["status"]], r["name"],
                       Path(r["rel"]).name, _test_cell(r), cl))
-    out.append("")
+    # no trailing blank line: `git diff --check` refuses a new one at EOF
     return "\n".join(out) + "\n"
 
 
