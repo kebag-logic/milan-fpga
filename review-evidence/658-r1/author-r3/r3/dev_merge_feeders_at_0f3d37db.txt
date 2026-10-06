@@ -1,0 +1,31 @@
+# #669 feeders and the elaborate-form builder at 0f3d37dbffc4ca3f0e0f69499de80fc256a7db57
+## sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test (rc 0):
+endstation_arty_4x4          clock=83333000 Hz records= 88 image= 4808 B checks=42 failed=0 runs=411
+  rv32 at 83333000 Hz: text=12360 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_arty_8ch          clock=83333000 Hz records=120 image= 7368 B checks=42 failed=0 runs=411
+  rv32 at 83333000 Hz: text=12360 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_arty_current      clock=83333000 Hz records= 42 image= 2516 B checks=42 failed=0 runs=411
+  rv32 at 83333000 Hz: text=12352 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz records= 54 image= 3336 B checks=42 failed=0 runs=415
+  rv32 at 100000000 Hz: text=12368 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+endstation_ax7101_8x8        clock=100000000 Hz records=164 image=13256 B checks=42 failed=0 runs=415
+  rv32 at 100000000 Hz: text=12372 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+saved-state store gate (#665 F1): OK across 5 shape(s), 42 checks, and all 82 planted defects reddened
+## scripts/check_nvm_capture.py (rc 0):
+PASS: capture census, clocks, both timing arms and receipt agree
+## scripts/check_nvm_record_space.py --self-test (rc 0):
+0 finding(s) across 5 config(s): the inventory's (group, index) key set is exactly the set the shape requires with no key claimed twice, every persisted record has a unique id inside record_id[7:0], e
+## sw/builder/test_builder.py --require-elaboration --require-rv32 (rc 0):
+ALL GATES PASS EXCEPT 1 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+## measure_test_evidence.py, pre-move tree (c79c178e with 423ac5d9 merged, uncommitted) vs 0f3d37db: cmp identical
+29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589  mte2_base_plain.txt
+29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589  mte2_head_plain.txt
+4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a  mte2_base_check.txt
+4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a  mte2_head_check.txt
+3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba  mte2_base_selftest.txt
+3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba  mte2_head_selftest.txt
+## check_py_idiom.py on the pre-move tree with 423ac5d9 (rc 1):
+FAIL: long module 11 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+## F0 feeders (dev_merge_feeders_at_e8f7d247.txt) carry over: 423ac5d9 changes only sw/firmware/ctrl_nvm/, docs/design/SAVED_STATE_FASTCONNECT.md and docs/README.md, and nothing under sw/firmware/ctrl, tb/verilator/mbx, sw/mailbox, syn/yosys, sw/litex, scripts, sw/builder or hdl names ctrl_nvm (git grep)
+## OOC ship point: none of its sources or HDL under its include dirs changed in 5747a8cb..0f3d37db (120 files)

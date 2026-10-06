@@ -1,0 +1,194 @@
+[
+ {
+  "id": "P1-no-csr-hold",
+  "desc": "CSR 0x900 writer not held while the boot writer is busy",
+  "rc": 1,
+  "tally": [
+   162,
+   4
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x2 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0"
+  ],
+  "n_fail_lines": 4,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P2-no-edit-wait",
+  "desc": "edit face never waits for the boot writer",
+  "rc": 1,
+  "tally": [
+   162,
+   2
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends got=0x0 exp=0x1",
+   "[FAIL] [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word got=0x1a03 exp=0x1203"
+  ],
+  "n_fail_lines": 2,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P3-no-final-sweep",
+  "desc": "no sweep after the restore terminal",
+  "rc": 1,
+  "tally": [
+   162,
+   6
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 6,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P5-no-closed-terminal",
+  "desc": "boot window ignores the CLOSED terminal",
+  "rc": 1,
+  "tally": [
+   162,
+   2
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0"
+  ],
+  "n_fail_lines": 2,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P9-no-drain",
+  "desc": "busy drops the cycle the last boot write is still in flight",
+  "rc": 1,
+  "tally": [
+   162,
+   4
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0"
+  ],
+  "n_fail_lines": 4,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P4-clip-off-by-one",
+  "desc": "input clip keeps stream channel == channel count",
+  "rc": 1,
+  "tally": [
+   162,
+   6
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] restored SPI 0: number_of_mappings    got=0x5 exp=0x4",
+   "[FAIL] [DYNMAP] restored SPI 0: records off the identity got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] restored 4->8 SPI 0: number_of_mappings got=0x5 exp=0x4",
+   "[FAIL] [DYNMAP] restored 4->8 SPI 0: records off the identity got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x1 exp=0x0"
+  ],
+  "n_fail_lines": 6,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P6-window-ends-at-busy",
+  "desc": "boot window ends when the restore starts, before formats apply",
+  "rc": 1,
+  "tally": [
+   162,
+   5
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] restored SPI 0: number_of_mappings    got=0x8 exp=0x4",
+   "[FAIL] [DYNMAP] restored SPI 0: records off the identity got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] restored 4->8 SPI 0: number_of_mappings got=0x8 exp=0x4",
+   "[FAIL] [DYNMAP] restored 4->8 SPI 0: records off the identity got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 5,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P7-writer-writes-image",
+  "desc": "render RAM written from the unclipped image, not the store",
+  "rc": 1,
+  "tally": [
+   162,
+   2
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] restored: render RAM keys 2..9 hold the input map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 2,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P8-out-cluster-zero",
+  "desc": "output cluster registers reset to 0 instead of k%8",
+  "rc": 1,
+  "tally": [
+   162,
+   13
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] power-on SPO 0: records off the identity got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] refused 8->4 SPO 0: records off the identity got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] 8->4 SPO 0: records off the identity  got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] 4->8 SPO 0: records off the identity  got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] restored SPO 0: records off the identity got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0xc exp=0x0"
+  ],
+  "n_fail_lines": 13,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P10-writer-final-sweep-only",
+  "desc": "crossbar RAMs written only in the final sweep, not in the window",
+  "rc": 1,
+  "tally": [
+   162,
+   6
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map got=0x8 exp=0x0",
+   "[FAIL] [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map got=0x8 exp=0x0",
+   "[FAIL] [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map got=0x8 exp=0x0",
+   "[FAIL] [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 6,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P12-clip-forever",
+  "desc": "store clip keeps running after the terminal (run-time re-add)",
+  "rc": 1,
+  "tally": [
+   162,
+   18
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings got=0x8 exp=0x4",
+   "[FAIL] [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       got=0x7 exp=0x0",
+   "[FAIL] [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format got=0x0 exp=0x1",
+   "[FAIL] [DYNMAP] 8->4 SPI 0: number_of_mappings        got=0x8 exp=0x4",
+   "[FAIL] [DYNMAP] 8->4 SPI 0: records off the identity  got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 18,
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,54 @@
+# dev-merge feeders at e8f7d2470159d28a235a44ffd070e38fb57db182, clean worktrees, pinned Verilator 5.050
+## gen_mailbox --check --crosscheck (rc 0):
+gen_mailbox: 0 finding(s)
+## gen_mailbox --selftest (rc 0):
+selftest: 0 arm(s) failed
+## make -C tb/verilator/mbx (rc 0):
+== mbx (Wishbone host): checks: 134   failures: 0 ==
+== mbx (AXI4-Lite host): checks: 179   failures: 0 ==
+== mbx cosim (firmware on the RTL and on the model): checks: 13   failures: 0 ==
+mbx mutants: 4 of 4 caught
+## make -C tb/verilator/mbx mutants (rc 0):
+[ok] positive control, host 0: == mbx (Wishbone host): checks: 134   failures: 0 ==
+[ok] positive control, host 1: == mbx (AXI4-Lite host): checks: 179   failures: 0 ==
+mbx mutants: 46 of 46 caught
+## test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP 19f5796b63652eb1151906de73cb827d4980a53f> (rc 0):
+mutants: 51 of 51 caught
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 19f5796b: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at f8db42ae7a420468625a79257edfd05ba8ee0f1d is not the pinned 19f5796b63652eb1151906de73cb827d4980a53f (fetc
+test_ctrl_firmware: PASS
+## syn/yosys/run.sh (rc 0):
+  [PASS] KL_mbx                 cells=395531
+  [PASS] KL_mbx_wb              cells=5
+  [PASS] KL_mbx_axil            cells=136
+tops: 58   pass: 58   fail: 0
+RESULT: PASS
+TAP-PURITY RESULT: PASS
+## scripts/run_litex_sims.sh --selftest (rc 0):
+run_litex_sims selftest: 10 checks: 10 PASS, 0 FAIL
+RESULT: PASS
+## scripts/run_litex_sims.sh, first run (rc 90, every member a declared skip: no interpreter found):
+simulations: 4   passed: 0   failed: 0   skipped: 4   timed out: 0
+INCOMPLETE: 4 declared skip(s) - this green is not the full aggregate.
+## scripts/run_litex_sims.sh with MILAN_LITEX_PYTHON=<the sweep.sh venv> (rc 0):
+PASS     test_cpu_memory_port_cdc
+PASS     test_gptp_tx_timestamp
+PASS     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge
+simulations: 4   passed: 4   failed: 0   skipped: 0   timed out: 0
+## sw/builder/test_builder.py --require-elaboration --require-rv32 (rc 0):
+ALL GATES PASS EXCEPT 1 NOT RUN
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+## measure_test_evidence.py outputs, base c79c178e vs head (cmp identical):
+29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589  mte_base_plain.txt
+29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589  mte_head_plain.txt
+4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a  mte_base_check.txt
+4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a  mte_head_check.txt
+3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba  mte_base_selftest.txt
+3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba  mte_head_selftest.txt
+## check_py_idiom.py at c79c178e (rc 1):
+FAIL: long module 11 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+## check_py_idiom.py at head (rc 0):
+py idiom: 328 first-party modules, 202580 lines
+  long module: 10 <= 10
+## OOC ship point at head: sha256 2c5da7544badeb3a39c7934de6656caa1793277c4025bb15d87dc75c7b8da168; 113 tree sources + the staged milan_datapath.sv copy, 7 incdirs; none changed in 5747a8cb..e8f7d247; ROMs validated against the ledger at ead80360/5dce647a

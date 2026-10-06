@@ -1,0 +1,80 @@
+# 48-command builder bank at 0f3d37dbffc4ca3f0e0f69499de80fc256a7db57 (base 423ac5d910d09ab189b3acc39ae3ae1d10d50b19), clean worktree, pinned Verilator 5.050
+# pass 1 (42 commands):
+01 rc=0     0.1s python3 avdecc/gen_aem_store.py --self-test
+02 rc=0     0.3s python3 scripts/pp_srcs.py --check --selftest
+03 rc=0     9.8s python3 scripts/lint_rtl.py --check --self-test
+04 rc=0     0.1s python3 scripts/suite_shards.py --selftest
+05 rc=0     0.2s python3 scripts/ci_events.py --check
+06 rc=0     5.2s python3 scripts/ci_scope.py --selftest
+07 rc=0    16.8s python3 scripts/ci_events.py --selftest
+08 rc=0     1.2s python3 docs/traceability/gen_module_matrix.py --check
+09 rc=0     1.0s python3 scripts/check_feature_status.py
+10 rc=0     0.5s python3 scripts/check_submodule_docs.py
+11 rc=0     1.6s python3 scripts/check_cpp_idiom.py
+12 rc=0     4.7s python3 scripts/check_py_idiom.py
+13 rc=0     5.8s python3 scripts/docs_check.py
+14 rc=0     0.1s python3 scripts/check_doc_style.py
+15 rc=0     0.0s python3 scripts/check_doc_style.py --selftest
+16 rc=0     0.1s python3 scripts/check_solution_docs.py
+17 rc=0     0.1s python3 scripts/check_doc_paths.py
+18 rc=0     0.4s python3 scripts/check_archive.py
+21 rc=0     0.4s python3 scripts/check_hygiene.py --check
+22 rc=0     1.7s python3 scripts/check_todo_ownership.py
+23 rc=0     0.5s python3 scripts/check_sv_idiom.py
+24 rc=0     0.3s python3 scripts/check_sh_idiom.py
+25 rc=0     1.8s python3 scripts/check_rtl_source_lists.py
+26 rc=0     0.2s python3 scripts/check_soc_sources.py
+27 rc=0     2.8s python3 scripts/check_port_contracts.py
+28 rc=0     2.4s python3 scripts/check_nvm_record_space.py
+29 rc=0    18.6s python3 scripts/check_baremetal_only.py --check
+30 rc=0     6.3s python3 scripts/check_baremetal_only.py --selftest
+31 rc=0    85.9s python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+32 rc=0    16.0s python3 scripts/check_sweep_shape.py --self-test
+34 rc=0     0.2s python3 scripts/measure_control_flow.py --selftest
+35 rc=0     0.1s python3 scripts/measure_cohesion.py --selftest
+37 rc=0     1.7s python3 scripts/measure_fail_fast.py --check
+38 rc=0     6.6s python3 scripts/measure_test_evidence.py --check
+39 rc=0     0.5s python3 scripts/measure_naming.py --check
+40 rc=0     7.1s python3 scripts/measure_test_evidence.py --selftest
+43 rc=0     0.2s python3 scripts/docs_check.py --selftest
+44 rc=0     0.0s git diff --check 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 0f3d37dbffc4ca3f0e0f69499de80fc256a7db57
+45 rc=0     0.2s python3 scripts/check_wire_accountability.py --self-test
+46 rc=0    63.2s python3 scripts/check_entity_shape.py --self-test
+47 rc=0     0.4s python3 scripts/check_deploy_shape.py --self-test
+48 rc=0  1246.0s python3 sw/builder/test_builder.py
+TOTAL 42 run, 0 nonzero
+# pass 2: the five renderer commands with a venv of tools/markdown/requirements.txt first on PATH (the system interpreter lacks html5lib):
+19 rc=0     2.9s python3 scripts/gen_toc.py --verify-anchors
+20 rc=0     4.8s python3 scripts/gen_toc.py --check
+36 rc=0     3.6s python3 scripts/check_em_dash.py --base 423ac5d910d09ab189b3acc39ae3ae1d10d50b19
+41 rc=0     1.0s python3 scripts/gen_toc.py --selftest
+42 rc=0     3.6s python3 scripts/check_em_dash.py --selftest
+TOTAL 5 run, 0 nonzero
+# pass 3: xvlog under flock $VIVADO_LOCK:
+33 rc=0   162.7s python3 scripts/xvlog_gate.py --check
+TOTAL 1 run, 0 nonzero
+# final: 48 of 48 commands rc 0
+## 12 tail:
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+## 38 tail:
+TEST-EVIDENCE RATCHET: PASS (72 <= 77 suite(s) without a mutation arm, 10 <= 10 unseeded draw site(s), 0 <= 0 unexplained DUT-source reader(s), 3 <= 3 wall-clock-dependent suite file(s))
+  the mutation ratchet can be lowered to 72
+## 40 tail:
+
+101 checks: 101 PASS, 0 FAIL
+## 48 tail:
+  - [gate 11] real report not on disk ($WORKSPACE_HOME/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+## 19 tail:
+anchor check: 344 existing cross-page fragment links reproduced
+## 20 tail:
+TOC gate: OK (135 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+## 36 tail:
+check_em_dash: 0 finding(s) over 196 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [423ac5d9..HEAD]
+## 41 tail:
+TOC selftest: PASS (1501/1501 arm(s))
+## 42 tail:
+check_em_dash selftest: PASS (339 arm(s))
+## 33 tail:
+xvlog gate: PASS (2 finding(s) == ratchet; 0 hdl/, 2 pinned processors)
