@@ -1,0 +1,29 @@
+PASS: approved text and dev merge reproduces exact merge tree 3243e5dd67cc64bd122d4bb96d230dc4ed999644
+PASS: authored round-3 delta contains exactly three Markdown files
+PASS: pre-filter bytes equal approved head: REQUIREMENTS.md 5b5b5f57f58e135aa0c410bf9de6b8f7cfb21a679c1efe1441b8baac5b202fb8
+PASS: pre-filter bytes equal approved head: docs/design/MAILBOX_SPLIT.md 0cbd8f4c9debfd717bccb48d424e84dd96499de2b4960b93fce5cb7f9f28a832
+PASS: pre-filter bytes equal approved head: docs/reference/FR_NFR.md 3a0f4bf26ceb52e4b32fe131d0eaac50d2e101997f860a8220b39763bc332921
+full requested base delta bytes 286633 sha256 d4788e9ff33643d16a4d0ea83332bcfa6540660f59f3ad3f37271d80dbbf2fe5
+approved-to-head delta bytes 204311 sha256 05d367a39c87c0837feea562e14a487cb9b9654604493f208d60f44cda6f336b
+authored filter delta bytes 18181 sha256 04d75c8b6859960f0783acfdc894204030bb7c587382768bcf4388e516218241
+PASS: mailbox contract, RTL, firmware, executable suite, and split architecture unchanged
+PASS: approval old/new text matches source: REQUIREMENTS section 1: fabric ownership bullet
+PASS: approval old/new text matches source: REQUIREMENTS section 1: filter table scope
+PASS: approval old/new text matches source: Ingress tuple: `adp`
+PASS: approval old/new text matches source: Ingress tuple: `acmp`
+PASS: approval old/new text matches source: Ingress tuple: `aecp`
+PASS: approval old/new text matches source: Ingress tuple: `maap`
+PASS: approval old/new text matches source: Ingress tuple: `srp` MSRP
+PASS: approval old/new text matches source: Ingress tuple: `srp` MVRP
+PASS: approval old/new text matches source: REQUIREMENTS section 1: filter rules and clause authority
+PASS: approval old/new text matches source: NFR-SCOUT-02
+PASS: approval old/new text matches source: NFR-SCOUT-08
+PASS: approval old/new text matches source: H-ADP
+PASS: approval old/new text matches source: H-ACMP
+PASS: approval old/new text matches source: H-AECP
+PASS: approval old/new text matches source: H-MAAP
+PASS: approval old/new text matches source: H-SRP
+PASS: approval old/new text matches source: Section 3.4.2: common filter observations
+PASS: approval old/new text matches source: Trace summary: Mailbox ingress filter
+PASS: approval old/new text matches source: MAILBOX_SPLIT: current F0 filter scope
+PASS: public owner-approval section has 19 filter-only rows
