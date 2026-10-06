@@ -1,0 +1,37 @@
+[
+  {
+    "name": "docs-check",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6714181d"
+    ],
+    "rc": 2
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2
+  }
+]

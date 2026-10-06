@@ -1,0 +1,78 @@
+[
+  {
+    "name": "rv32-controls",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "cpu_count": 2,
+    "returncode": 0,
+    "elapsed_seconds": 4.595
+  },
+  {
+    "name": "ci-events-check",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "cpu_count": 1,
+    "returncode": 0,
+    "elapsed_seconds": 0.278
+  },
+  {
+    "name": "ci-events-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "cpu_count": 1,
+    "returncode": 0,
+    "elapsed_seconds": 17.927
+  },
+  {
+    "name": "ci-scope-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "cpu_count": 1,
+    "returncode": 0,
+    "elapsed_seconds": 5.495
+  },
+  {
+    "name": "coverage-selftest",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "cpu_count": 1,
+    "returncode": 0,
+    "elapsed_seconds": 0.635
+  },
+  {
+    "name": "sdk-selftest",
+    "argv": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "cpu_count": 1,
+    "returncode": 0,
+    "elapsed_seconds": 1.682
+  },
+  {
+    "name": "tally-selftest",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py",
+      "--mutants"
+    ],
+    "cpu_count": 2,
+    "returncode": 0,
+    "elapsed_seconds": 65.689
+  }
+]

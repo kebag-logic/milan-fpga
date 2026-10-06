@@ -1,0 +1,41 @@
+[
+  {
+    "name": "ctrl-suite-mutants",
+    "argv": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--build-dir",
+      "$REVIEWS/679-r527-1-packet/scratch/ctrl"
+    ],
+    "cpu_count": 4,
+    "returncode": 0,
+    "elapsed_seconds": 559.88
+  },
+  {
+    "name": "nvm-suite-mutants",
+    "argv": [
+      "python3",
+      "$REVIEWS/679-r527-1-packet/public-evidence/author/nvm_foreground.py"
+    ],
+    "cpu_count": 4,
+    "returncode": 0,
+    "elapsed_seconds": 396.235
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$REVIEWS/679-r527-1-packet/scratch/coverage"
+    ],
+    "cpu_count": 4,
+    "returncode": 0,
+    "elapsed_seconds": 135.719
+  }
+]

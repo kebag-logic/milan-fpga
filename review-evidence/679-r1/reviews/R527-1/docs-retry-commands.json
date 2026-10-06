@@ -1,0 +1,44 @@
+[
+  {
+    "name": "docs-venv",
+    "argv": [
+      "python3",
+      "-m",
+      "venv",
+      "$REVIEWS/679-r527-1-packet/scratch/docs-venv"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "docs-install",
+    "argv": [
+      "$REVIEWS/679-r527-1-packet/scratch/docs-venv/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "--require-hashes",
+      "-r",
+      "tools/markdown/requirements.txt"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "em-dash-complete",
+    "argv": [
+      "$REVIEWS/679-r527-1-packet/scratch/docs-venv/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6714181d"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "toc-complete",
+    "argv": [
+      "$REVIEWS/679-r527-1-packet/scratch/docs-venv/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  }
+]

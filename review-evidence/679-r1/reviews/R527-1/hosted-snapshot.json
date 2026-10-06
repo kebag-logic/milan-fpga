@@ -1,0 +1,2557 @@
+[
+  {
+    "id": 37508325335,
+    "name": "elaborate",
+    "head_sha": "0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe",
+    "event": "pull_request",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37508325335",
+    "jobs": [
+      {
+        "id": 112422589781,
+        "name": "elaborate",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:24Z",
+            "completed_at": "2026-10-06T18:03:25Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:25Z",
+            "completed_at": "2026-10-06T18:03:40Z"
+          },
+          {
+            "name": "Decide whether this head needs an elaboration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:40Z",
+            "completed_at": "2026-10-06T18:03:50Z"
+          },
+          {
+            "name": "Fetch the source dependencies the elaboration reads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:03:50Z",
+            "completed_at": "2026-10-06T18:03:54Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:03:54Z",
+            "completed_at": "2026-10-06T18:03:54Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:03:54Z",
+            "completed_at": "2026-10-06T18:03:55Z"
+          },
+          {
+            "name": "Cache the pinned pip downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:03:55Z",
+            "completed_at": "2026-10-06T18:03:56Z"
+          },
+          {
+            "name": "Install LiteX at the pinned revisions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:04:27Z"
+          },
+          {
+            "name": "Cache the Scala toolchain",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:27Z",
+            "completed_at": "2026-10-06T18:04:29Z"
+          },
+          {
+            "name": "Cache the generated CPU metadata",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:29Z",
+            "completed_at": "2026-10-06T18:04:30Z"
+          },
+          {
+            "name": "Install sbt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:30Z",
+            "completed_at": "2026-10-06T18:04:31Z"
+          },
+          {
+            "name": "Place the VexiiRiscv source at the revision LiteX pins",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:31Z",
+            "completed_at": "2026-10-06T18:04:41Z"
+          },
+          {
+            "name": "Apply the toolchain patch series",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:41Z",
+            "completed_at": "2026-10-06T18:04:41Z"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-06T18:04:41Z",
+            "completed_at": "2026-10-06T18:04:44Z"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-06T18:04:44Z",
+            "completed_at": "2026-10-06T18:04:46Z"
+          },
+          {
+            "name": "Elaboration gates",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 16,
+            "started_at": "2026-10-06T18:04:46Z",
+            "completed_at": null
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 17,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "pending",
+            "conclusion": null,
+            "number": 18,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "pending",
+            "conclusion": null,
+            "number": 19,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Standalone LiteX simulation aggregate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 20,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Keep the generated CPU netlist arguments for the next run",
+            "status": "pending",
+            "conclusion": null,
+            "number": 21,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "status": "pending",
+            "conclusion": null,
+            "number": 37,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the generated CPU metadata",
+            "status": "pending",
+            "conclusion": null,
+            "number": 38,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the Scala toolchain",
+            "status": "pending",
+            "conclusion": null,
+            "number": 39,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned pip downloads",
+            "status": "pending",
+            "conclusion": null,
+            "number": 40,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "pending",
+            "conclusion": null,
+            "number": 41,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 42,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 37508325308,
+    "name": "docs",
+    "head_sha": "0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe",
+    "event": "pull_request",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37508325308",
+    "jobs": [
+      {
+        "id": 112422584240,
+        "name": "docs-check",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:23Z",
+            "completed_at": "2026-10-06T18:03:23Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:23Z",
+            "completed_at": "2026-10-06T18:03:35Z"
+          },
+          {
+            "name": "Build the validated HDL reference",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:35Z",
+            "completed_at": "2026-10-06T18:03:39Z"
+          },
+          {
+            "name": "Upload the HDL reference HTML",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:03:39Z",
+            "completed_at": "2026-10-06T18:03:40Z"
+          },
+          {
+            "name": "Install the python gate dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:03:40Z",
+            "completed_at": "2026-10-06T18:03:41Z"
+          },
+          {
+            "name": "Cache the pinned Markdown renderer downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:03:41Z",
+            "completed_at": "2026-10-06T18:03:42Z"
+          },
+          {
+            "name": "Install the pinned Markdown renderer",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:03:42Z",
+            "completed_at": "2026-10-06T18:03:43Z"
+          },
+          {
+            "name": "Install diagram gate dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:03:43Z",
+            "completed_at": "2026-10-06T18:04:02Z"
+          },
+          {
+            "name": "Link health, wording, dead-reference and local-info gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:02Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Added-line em-dash gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:08Z"
+          },
+          {
+            "name": "Concise audience documentation gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:08Z",
+            "completed_at": "2026-10-06T18:04:08Z"
+          },
+          {
+            "name": "Audience diagram no-drift gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:08Z",
+            "completed_at": "2026-10-06T18:04:10Z"
+          },
+          {
+            "name": "Product solution source-fact gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:10Z",
+            "completed_at": "2026-10-06T18:04:12Z"
+          },
+          {
+            "name": "Verified submodule documentation gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-06T18:04:12Z",
+            "completed_at": "2026-10-06T18:04:12Z"
+          },
+          {
+            "name": "HDL timing diagram no-drift gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-06T18:04:12Z",
+            "completed_at": "2026-10-06T18:04:13Z"
+          },
+          {
+            "name": "Published diagram PNG gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-10-06T18:04:13Z",
+            "completed_at": "2026-10-06T18:04:20Z"
+          },
+          {
+            "name": "Milan feature-status consistency gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-10-06T18:04:20Z",
+            "completed_at": "2026-10-06T18:04:20Z"
+          },
+          {
+            "name": "Traceability matrix no-drift gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18,
+            "started_at": "2026-10-06T18:04:20Z",
+            "completed_at": "2026-10-06T18:04:21Z"
+          },
+          {
+            "name": "Fetch the builder source dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-10-06T18:04:21Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Imported gPTP documentation gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Code-quality measurement self-tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Bare-metal scope gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:42Z"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24,
+            "started_at": "2026-10-06T18:04:42Z",
+            "completed_at": "2026-10-06T18:04:45Z"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25,
+            "started_at": "2026-10-06T18:04:45Z",
+            "completed_at": "2026-10-06T18:04:46Z"
+          },
+          {
+            "name": "Compiler-absent firmware controls",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26,
+            "started_at": "2026-10-06T18:04:46Z",
+            "completed_at": "2026-10-06T18:08:16Z"
+          },
+          {
+            "name": "End-station builder gates",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 27,
+            "started_at": "2026-10-06T18:08:16Z",
+            "completed_at": null
+          },
+          {
+            "name": "NVM record-space gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 28,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Capture measurement census and clock gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Saved-state writer gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+            "status": "pending",
+            "conclusion": null,
+            "number": 31,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "RTL source-list drift gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 32,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Boundary-unit naming ratchet",
+            "status": "pending",
+            "conclusion": null,
+            "number": 33,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Port contract gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 34,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Fail-fast ratchet",
+            "status": "pending",
+            "conclusion": null,
+            "number": 35,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "TODO ownership gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 36,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Test-evidence ratchet",
+            "status": "pending",
+            "conclusion": null,
+            "number": 37,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Mechanical hygiene ratchet",
+            "status": "pending",
+            "conclusion": null,
+            "number": 38,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "SystemVerilog idiom gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 39,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "C and C++ idiom gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 40,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Python idiom gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 41,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Shell idiom gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 42,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "CI event and SHA contract gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 43,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Local act runner contract gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 44,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Doc cited-path gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 45,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Archive integrity gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 46,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Per-page contents gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 47,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "AEM store generator self-test",
+            "status": "pending",
+            "conclusion": null,
+            "number": 48,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Sweep/build shape gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 49,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Deploy shape gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 50,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Entity shape gate",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "status": "pending",
+            "conclusion": null,
+            "number": 100,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Markdown renderer downloads",
+            "status": "pending",
+            "conclusion": null,
+            "number": 101,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 102,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422584654,
+        "name": "docs-check-no-git",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:32Z",
+            "completed_at": "2026-10-06T18:03:32Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:33Z",
+            "completed_at": "2026-10-06T18:03:36Z"
+          },
+          {
+            "name": "Strip git metadata, then run the docs gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:36Z",
+            "completed_at": "2026-10-06T18:03:44Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:03:44Z",
+            "completed_at": "2026-10-06T18:03:44Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:03:44Z",
+            "completed_at": "2026-10-06T18:03:44Z"
+          }
+        ]
+      },
+      {
+        "id": 112422584841,
+        "name": "wire-accountability",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:22Z",
+            "completed_at": "2026-10-06T18:03:23Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:23Z",
+            "completed_at": "2026-10-06T18:03:25Z"
+          },
+          {
+            "name": "Fetch the engine authority the builder derives from",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:25Z",
+            "completed_at": "2026-10-06T18:03:27Z"
+          },
+          {
+            "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:03:27Z",
+            "completed_at": "2026-10-06T18:03:31Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:03:31Z",
+            "completed_at": "2026-10-06T18:03:32Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:03:32Z",
+            "completed_at": "2026-10-06T18:03:32Z"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 37508325617,
+    "name": "rtl-fast",
+    "head_sha": "0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe",
+    "event": "pull_request",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37508325617",
+    "jobs": [
+      {
+        "id": 112422587055,
+        "name": "changes",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:28Z",
+            "completed_at": "2026-10-06T18:03:28Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:28Z",
+            "completed_at": "2026-10-06T18:03:42Z"
+          },
+          {
+            "name": "Classify the change conservatively",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:42Z",
+            "completed_at": "2026-10-06T18:03:51Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:03:51Z",
+            "completed_at": "2026-10-06T18:03:52Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:03:52Z",
+            "completed_at": "2026-10-06T18:03:52Z"
+          }
+        ]
+      },
+      {
+        "id": 112422587136,
+        "name": "bdd-conformance",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:25Z",
+            "completed_at": "2026-10-06T18:03:26Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:26Z",
+            "completed_at": "2026-10-06T18:03:28Z"
+          },
+          {
+            "name": "Fetch the processor model inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:28Z",
+            "completed_at": "2026-10-06T18:03:32Z"
+          },
+          {
+            "name": "Install behave",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:03:32Z",
+            "completed_at": "2026-10-06T18:03:35Z"
+          },
+          {
+            "name": "Run the specification-facing suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:03:35Z",
+            "completed_at": "2026-10-06T18:03:37Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:03:37Z",
+            "completed_at": "2026-10-06T18:03:37Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:03:37Z",
+            "completed_at": "2026-10-06T18:03:37Z"
+          }
+        ]
+      },
+      {
+        "id": 112422842835,
+        "name": "yosys-elaboration",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:58Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:58Z",
+            "completed_at": "2026-10-06T18:04:01Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:01Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:08Z"
+          },
+          {
+            "name": "Elaborate the integration-heavy tops",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:08Z",
+            "completed_at": "2026-10-06T18:07:04Z"
+          },
+          {
+            "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 9,
+            "started_at": "2026-10-06T18:07:04Z",
+            "completed_at": null
+          },
+          {
+            "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+            "status": "pending",
+            "conclusion": null,
+            "number": 10,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Prove the result cache refuses a planted entry",
+            "status": "pending",
+            "conclusion": null,
+            "number": 11,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 21,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 22,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422842862,
+        "name": "firmware-unit",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Install GoogleTest and GoogleMock and print the versions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:28Z"
+          },
+          {
+            "name": "Prove the tally reads a failing and a crashing test as failures",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:28Z",
+            "completed_at": "2026-10-06T18:04:30Z"
+          },
+          {
+            "name": "Cache the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:30Z",
+            "completed_at": "2026-10-06T18:04:33Z"
+          },
+          {
+            "name": "Install and verify the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:33Z",
+            "completed_at": "2026-10-06T18:04:34Z"
+          },
+          {
+            "name": "Run the control-plane firmware suites and its RV32 build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:34Z",
+            "completed_at": "2026-10-06T18:05:02Z"
+          },
+          {
+            "name": "Run the saved-state store suites and its RV32 build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:05:02Z",
+            "completed_at": "2026-10-06T18:06:14Z"
+          },
+          {
+            "name": "Hold the firmware coverage ratchet",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:06:14Z",
+            "completed_at": "2026-10-06T18:07:45Z"
+          },
+          {
+            "name": "Post Cache the pinned RV32 SDK",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-10-06T18:07:45Z",
+            "completed_at": "2026-10-06T18:07:45Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:07:45Z",
+            "completed_at": "2026-10-06T18:07:45Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:07:45Z",
+            "completed_at": "2026-10-06T18:07:45Z"
+          }
+        ]
+      },
+      {
+        "id": 112422842923,
+        "name": "verilator-lint",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:58Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:01Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:01Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:07Z"
+          },
+          {
+            "name": "Run the ratcheted whole-tree lint gate",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:07Z",
+            "completed_at": "2026-10-06T18:04:32Z"
+          },
+          {
+            "name": "Prove protocol-processor source lists are derived",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:32Z",
+            "completed_at": "2026-10-06T18:04:32Z"
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:32Z",
+            "completed_at": "2026-10-06T18:04:32Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-06T18:04:32Z",
+            "completed_at": "2026-10-06T18:04:33Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-06T18:04:33Z",
+            "completed_at": "2026-10-06T18:04:33Z"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 37508325435,
+    "name": "rtl-full",
+    "head_sha": "0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe",
+    "event": "pull_request",
+    "status": "in_progress",
+    "conclusion": null,
+    "html_url": "https://github.com/kebag-logic/milan-fpga/actions/runs/37508325435",
+    "jobs": [
+      {
+        "id": 112422586016,
+        "name": "full-ci-gate",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:23Z",
+            "completed_at": "2026-10-06T18:03:24Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:24Z",
+            "completed_at": "2026-10-06T18:03:38Z"
+          },
+          {
+            "name": "Print the event and pin the one SHA this run validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:38Z",
+            "completed_at": "2026-10-06T18:03:38Z"
+          },
+          {
+            "name": "Assert the repository default branch is dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:03:38Z",
+            "completed_at": "2026-10-06T18:03:39Z"
+          },
+          {
+            "name": "Hold every workflow file to its contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:03:39Z",
+            "completed_at": "2026-10-06T18:03:41Z"
+          },
+          {
+            "name": "Decide whether this exact head needs the exhaustive gates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-06T18:03:41Z",
+            "completed_at": "2026-10-06T18:03:50Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-06T18:03:50Z",
+            "completed_at": "2026-10-06T18:03:51Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-06T18:03:51Z",
+            "completed_at": "2026-10-06T18:03:51Z"
+          }
+        ]
+      },
+      {
+        "id": 112422837119,
+        "name": "Verilator shard 0/5",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:56Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:02Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:02Z",
+            "completed_at": "2026-10-06T18:04:02Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:02Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 14,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": null
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422837154,
+        "name": "Yosys shard 0/4",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:04:00Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:00Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:15Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:15Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:24Z"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:24Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          }
+        ]
+      },
+      {
+        "id": 112422837234,
+        "name": "Verilator shard 2/5",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:58Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:58Z",
+            "completed_at": "2026-10-06T18:04:00Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:00Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 14,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": null
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422837242,
+        "name": "Verilator shard 3/5",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 14,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": null
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "pending",
+            "conclusion": null,
+            "number": 28,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422837245,
+        "name": "Verilator shard 1/5",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:04:00Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:00Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:35Z"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 14,
+            "started_at": "2026-10-06T18:04:35Z",
+            "completed_at": null
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422837272,
+        "name": "Yosys shard 3/4",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:04:00Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:00Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:05Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:05Z",
+            "completed_at": "2026-10-06T18:04:17Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:17Z",
+            "completed_at": "2026-10-06T18:04:17Z"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:17Z",
+            "completed_at": "2026-10-06T18:04:18Z"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:18Z",
+            "completed_at": "2026-10-06T18:04:24Z"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:24Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-06T18:04:26Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          }
+        ]
+      },
+      {
+        "id": 112422837296,
+        "name": "Yosys shard 2/4",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:03Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:03Z",
+            "completed_at": "2026-10-06T18:04:14Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:14Z",
+            "completed_at": "2026-10-06T18:04:14Z"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:14Z",
+            "completed_at": "2026-10-06T18:04:15Z"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:15Z",
+            "completed_at": "2026-10-06T18:04:20Z"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:20Z",
+            "completed_at": "2026-10-06T18:04:21Z"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:04:21Z",
+            "completed_at": "2026-10-06T18:04:22Z"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:04:22Z",
+            "completed_at": "2026-10-06T18:04:22Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-06T18:04:22Z",
+            "completed_at": "2026-10-06T18:04:22Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-06T18:04:22Z",
+            "completed_at": "2026-10-06T18:04:22Z"
+          }
+        ]
+      },
+      {
+        "id": 112422837318,
+        "name": "Yosys shard 1/4",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:03:57Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:57Z",
+            "completed_at": "2026-10-06T18:04:01Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:04:01Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Install the pinned sv2v release",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:16Z"
+          },
+          {
+            "name": "Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:16Z",
+            "completed_at": "2026-10-06T18:04:17Z"
+          },
+          {
+            "name": "Run this weighted portability shard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:17Z",
+            "completed_at": "2026-10-06T18:04:23Z"
+          },
+          {
+            "name": "Upload per-top and structural evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:23Z",
+            "completed_at": "2026-10-06T18:04:24Z"
+          },
+          {
+            "name": "Post Restore the portability result cache seeded from dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-06T18:04:24Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:25Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23,
+            "started_at": "2026-10-06T18:04:25Z",
+            "completed_at": "2026-10-06T18:04:26Z"
+          }
+        ]
+      },
+      {
+        "id": 112422837455,
+        "name": "Verilator shard 4/5",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-06T18:03:56Z",
+            "completed_at": "2026-10-06T18:03:58Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-06T18:03:58Z",
+            "completed_at": "2026-10-06T18:03:59Z"
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-06T18:03:59Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:04Z"
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-06T18:04:04Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 11,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": "2026-10-06T18:04:06Z"
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 14,
+            "started_at": "2026-10-06T18:04:06Z",
+            "completed_at": null
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 29,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 30,
+            "started_at": null,
+            "completed_at": null
+          }
+        ]
+      },
+      {
+        "id": 112422839103,
+        "name": "Physical gPTP (nightly and manual)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "steps": []
+      }
+    ]
+  }
+]

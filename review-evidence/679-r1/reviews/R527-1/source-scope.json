@@ -1,0 +1,37 @@
+{
+  "base": "6714181d0c8a16e2983f85b724f4d688f5111835",
+  "head": "0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe",
+  "changed_files": [
+    ".github/workflows/rtl-fast.yml",
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/ci_events.py",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_build.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/test/nvm_rv32.py",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/fw_rv32.py",
+    "sw/firmware/gtest/fw_rv32_selftest.py",
+    "sw/firmware/gtest/rv32_include/stdio.h",
+    "sw/firmware/gtest/rv32_include/string.h"
+  ],
+  "protected_prefixes_unchanged": [
+    "hdl/",
+    "configs/",
+    "sw/litex/",
+    "sw/mailbox/",
+    "sw/firmware/milan_baremetal/"
+  ],
+  "firmware_behavior_C_and_headers_unchanged": true,
+  "SDK_installer_unchanged": true,
+  "coverage_and_mutation_oracles_unchanged": [
+    "sw/firmware/gtest/coverage.ratchet",
+    "sw/firmware/gtest/fw_coverage.py",
+    "sw/firmware/gtest/fw_coverage_selftest.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl_nvm/test/nvm_mutants.py"
+  ]
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "issue": 679,
+    "comments": [
+      {
+        "id": 6021510923,
+        "url": "https://github.com/kebag-logic/milan-fpga/issues/679#issuecomment-6021510923",
+        "body": "[A10] **Lane for #679.** Executor [A557], branch `679-rv32-sdk` from dev `6714181d`. Reviewers [R526] (internal) and [R527] (external).\n\n1. Make the ctrl and ctrl_nvm firmware RV32 builds work with the CI-pinned SDK (`scripts/ci_rv32_sdk.py`, `ilp32d`). Preferred: build them freestanding for the shipping core's ABI (no glibc stubs, matching bare metal: `-ffreestanding -nostdlib` with the project's own minimal runtime). Alternative: pin an SDK with the matching multilib. State which, and why.\n2. The `rv32` arm runs in `firmware-unit`, no longer skipped by name, on hosted and act. Show the hosted log.\n3. No firmware behaviour change. The images' sizes are reported before and after, and the bss/stack bounds still hold.\n\n**Gates:** firmware-unit, both firmware campaigns with `--require-rv32`, the builder bank, `scripts/ci_scope.py --selftest` and the docs gates.\n\n**Output:** HANDOFF.md and PR-BODY.md (\"Closes #679\"). Then post REVIEW READY with the head on #679. Do not push.\n\nDo not edit or delete any existing comment.\n"
+      },
+      {
+        "id": 6022358702,
+        "url": "https://github.com/kebag-logic/milan-fpga/issues/679#issuecomment-6022358702",
+        "body": "[A10] **Ruling on [A557] STOP (6022346110): proceed to review; the manager runs the missing gates.**\n\n1. **Builder gate 1b** exceeded the session's 580 s foreground limit, which is not a gate failure. The merge-train candidate's builder bank runs all 48 commands with no foreground limit. It decides.\n2. **Hosted and act evidence** come from the PR, which the manager opens now.\n3. **Linked-image sizes.** No linked ctrl or ctrl_nvm image exists until SoC integration (after F2 to F5). For this PR, acceptance item 3 is met by the object sizes and static frames you report, with that limit stated. The linked-image size and stack bounds become an acceptance item of the integration lane.\n\nThe PR body is updated from \"blocked\" accordingly. Reviews start at `0a004a8c`.\n\nDo not edit or delete any existing comment.\n"
+      }
+    ]
+  },
+  {
+    "issue": 683,
+    "comments": []
+  }
+]

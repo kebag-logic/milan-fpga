@@ -1,0 +1,22 @@
+PASS: both real object arms build before fault injection
+PASS: real ctrl arm rejects rv32im
+PASS: real ctrl arm rejects ilp32d
+PASS: real store arm rejects rv32im
+PASS: real store arm rejects ilp32d
+PASS: real ctrl arm rejects compiler-reported dynamic frame
+PASS: real store arm rejects compiler-reported dynamic frame
+PASS: store required compiler refuses an explicit absent selector
+PASS: missing frame file cannot pass (raises FileNotFoundError)
+PASS: size/stack/buffer comparison {"after": {"bss": 5452, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 4816, "stack_frame": 128, "text": 12120}, "before": {"bss": 5452, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 4816, "stack_frame": 128, "text": 12360}, "clock_hz": 83333000, "shape": "endstation_arty_4x4"}
+PASS: size/stack/buffer comparison {"after": {"bss": 8012, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 7376, "stack_frame": 128, "text": 12120}, "before": {"bss": 8012, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 7376, "stack_frame": 128, "text": 12360}, "clock_hz": 83333000, "shape": "endstation_arty_8ch"}
+PASS: size/stack/buffer comparison {"after": {"bss": 3160, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 2524, "stack_frame": 128, "text": 12112}, "before": {"bss": 3160, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 66, "nvm_stage": 2524, "stack_frame": 128, "text": 12352}, "clock_hz": 83333000, "shape": "endstation_arty_current"}
+PASS: size/stack/buffer comparison {"after": {"bss": 4048, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 136, "nvm_stage": 3344, "stack_frame": 128, "text": 12128}, "before": {"bss": 4048, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 136, "nvm_stage": 3344, "stack_frame": 128, "text": 12368}, "clock_hz": 100000000, "shape": "endstation_ax7101_1x1_tdm8"}
+PASS: size/stack/buffer comparison {"after": {"bss": 14408, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 576, "nvm_stage": 13264, "stack_frame": 128, "text": 12132}, "before": {"bss": 14408, "data": 24, "ls_call_start": 4, "ls_tick_last": 4, "ls_ticks": 8, "ls_waited": 4, "nvm": 288, "nvm_chunk": 256, "nvm_payload": 576, "nvm_stage": 13264, "stack_frame": 128, "text": 12372}, "clock_hz": 100000000, "shape": "endstation_ax7101_8x8"}
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 11520 0 170 11690
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: original ctrl command reproduces missing gnu/stubs-ilp32.h with this pinned SDK
+Independent RV32 probes PASS
