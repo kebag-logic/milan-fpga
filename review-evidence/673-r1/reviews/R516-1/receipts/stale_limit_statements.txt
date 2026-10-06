@@ -1,0 +1,13 @@
+# Statements of per-suite limits outside the diff, at 26bd6334a7b8b2a8582b36ae4729a71620546c14
+== docs/testing/TESTING.md:169 (blob 5932ffd2535a667e688b4d9a5bb47ba54fa0b8c3)
+The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+== docs/testing/RUNNING_TESTS.md:83-85 (blob 7e2d3d469653c38e7562cf7bdb7646b4c95eda7d)
+check count cannot be read. The default selection contains 54 suites, each
+with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
+== tb/verilator/milan_dp/README.md:309 (blob bff4c7a49c840bb3867c04cc9ab7d89568b65355)
+Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
+== tb/verilator/milan_dp_gptp/README.md:31 (blob c15b5f188ceccf501fdb6cf20311570da7572ab0)
+The historical `milan_dp` suite has its own 3600-second budget.
+== same lines unchanged since base:
+(empty stat = untouched by the PR)

@@ -1,0 +1,21 @@
+== live suite_timeout at 26bd6334a7b8b2a8582b36ae4729a71620546c14
+capture_coherence  unset=2400 empty=2400 override77=77
+milan_dp_mclk      unset=3600 empty=3600 override77=77
+milan_dp           unset=4800 empty=4800 override77=77
+milan_dp_gptp      unset=5400 empty=5400 override77=77
+milan_dp_render    unset=1800 empty=1800 override77=77
+mmcm_servo         unset=1800 empty=1800 override77=77
+pp_shadow          unset=1800 empty=1800 override77=77
+aaf                unset=1800 empty=1800 override77=77
+milan_dp_mclk_x    unset=1800 empty=1800 override77=77
+== runner_contract verdicts
+OK  head runner: accepted
+OK  base runner (pre-#673 limits): rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  mclk 3600->3000: rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  capture 2400->2399: rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  milan_dp 4800->5400: rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  mclk arm deleted: rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  override syntax := : rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+OK  arms reordered: rejected: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+8/8 probe expectations met
+rc=0
