@@ -400,7 +400,8 @@ MUTANTS = (
     # a PROBE or ANNOUNCE to it is rejected and counted: the tuple's message
     # types ignored; a message-type refusal taken as an identity refusal, uncounted
     Mutant("model-tuple-msg-type-ignored", "host/mbx_model.c",
-           " &&\n\t\t    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {", ") {", "model",
+           "((tuple_msg_mask[j] >> msg) & 1u) != 0u) {", "(((tuple_msg_mask[j] | 0xFFFFu) >> msg) & 1u) != 0u) {",
+           "model",
            MODEL_GROUP + "MaapDefendToOwnUnicast", "Q11 a PROBE to this interface's own MAC: no RX record"),
     Mutant("model-msg-type-refusal-uncounted", "host/mbx_model.c",
            " &&\n\t\t    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {\n\t\t\treturn (int)(j / MBX_MAX_TUPLES);",
