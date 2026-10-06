@@ -1,0 +1,30 @@
+{
+  "report_verdict": "NEGATIVE",
+  "all_five_lenses_applied": true,
+  "open_findings": {
+    "MAJOR": [
+      "F1"
+    ],
+    "MINOR": [
+      "F2",
+      "F3"
+    ]
+  },
+  "parsed_scripts": [
+    "scripts/prepare_publication.py",
+    "scripts/probe_output_span.py",
+    "scripts/probe_settle.py",
+    "scripts/probe_traceability.py",
+    "scripts/run_campaigns.py",
+    "scripts/run_focused.py",
+    "scripts/run_mutants.py",
+    "scripts/verify_area.py",
+    "scripts/verify_checkout.py"
+  ],
+  "disposable_capture_harness_restored": true,
+  "detached_head": true,
+  "active_packet_job_pids": [],
+  "private_home_paths_in_published_receipts": [],
+  "source_identity_receipt": "receipts/checkout-final.json",
+  "pass": true
+}
