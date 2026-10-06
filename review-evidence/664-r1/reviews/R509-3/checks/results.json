@@ -1,0 +1,100 @@
+[
+  {
+    "name": "traceability",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.269
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.116
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "doc-toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.238
+  },
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.032
+  },
+  {
+    "name": "feature-status",
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "seconds": 0.969
+  },
+  {
+    "name": "wire-accountability",
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.315
+  },
+  {
+    "name": "mailbox-contract",
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck"
+    ],
+    "rc": 0,
+    "seconds": 0.167
+  },
+  {
+    "name": "mailbox-generator-controls",
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.415
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "30e3c018b9add0cb182d8f1229eeec062218130d"
+    ],
+    "rc": 0,
+    "seconds": 3.837
+  }
+]
