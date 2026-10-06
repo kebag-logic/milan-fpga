@@ -113,8 +113,9 @@ Every F0 and F1 host check now runs on GoogleTest. Each check's meaning is
 kept: it is an assertion carrying the check's own words, inside a test named
 after its labelled step or scenario. What changed is the count unit: the
 hand-rolled tally counted assertions, the listener counts tests, so the
-numbers below are not the same kind of number. HANDOFF.md carries the table
-of every check by name.
+numbers below are not the same kind of number. The lane FT pull request on
+#665 maps every hand-rolled check, by its words, to the test that now holds
+it.
 
 | Arm | Hand-rolled source | Checks before | GoogleTest source | Tests now |
 |---|---|---:|---|---:|
