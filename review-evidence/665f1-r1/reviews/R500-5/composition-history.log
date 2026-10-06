@@ -1,0 +1,383 @@
+fa1294279c42f181b6f43c6e6bd812039798705c 9e05246c5455b2a1df26038345709437e13c6f18 d763fce6f3e48fa9c468aaa835653befb8382d06 Validate issue 665f1 merge-train candidate
+9e05246c5455b2a1df26038345709437e13c6f18 28f9666feab2b2ba287643c63ed3a16b1e0bb863 e6420c0ff2cc51059bbe9cd58f9d101e1cb54a8d Validate issue 665f0 merge-train candidate
+d763fce6f3e48fa9c468aaa835653befb8382d06 c2e33963d3804251451e5fa5b6c5865955099538 State in the module page that a slot which never reads cleanly holds the writer on every boot (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+c2e33963d3804251451e5fa5b6c5865955099538 f1cf5c083e2346bc63d7f2ea27d0fdc848eb44be State the read agreement by digest, the per-shape clock, the 42 checks and the round-4 sizes in the saved-state store's module page (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+f1cf5c083e2346bc63d7f2ea27d0fdc848eb44be 9412006bd58c002835bb06d46045c53098cc59a5 Stand a boot refusal only on two reads of the same bytes, and convert timer0 clocks exactly at each shape's own clock, the Arty shapes built and graded at 83,333,000 Hz (#665 F1)
+
+M	sw/firmware/ctrl_nvm/host/litespi_model.c
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+D	sw/firmware/ctrl_nvm/host/stubs/generated/soc.h
+M	sw/firmware/ctrl_nvm/nvm_store.c
+M	sw/firmware/ctrl_nvm/nvm_store.h
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+M	sw/firmware/ctrl_nvm/test/nvm_bench.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+M	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+M	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+M	sw/firmware/ctrl_nvm/test/nvm_test.c
+D	sw/firmware/ctrl_nvm/test/rv32/generated/soc.h
+M	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+e6420c0ff2cc51059bbe9cd58f9d101e1cb54a8d a440f737fadb27c8b821c485154b68ec6b77b3ec Say plainly when an owed ENTITY_AVAILABLE's pass is set by its expiry rather than the room, on the design page (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+a440f737fadb27c8b821c485154b68ec6b77b3ec 9820538265230e35f23babdaccf120188c2edaa1 Describe the bound of two owed ENTITY_DEPARTINGs, the owed ENTITY_AVAILABLE's pass and the rule's other legs on the design page and the firmware index (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	sw/firmware/ctrl/README.md
+9820538265230e35f23babdaccf120188c2edaa1 c11735c637ff05f605faf0be027e92037c84e273 Check the owed-frame rule across a link loss and its return, a GM change, a DISCOVER and a stray expiry, and a link loss with no poll between (A18 to A20), with five defects (#665 F0)
+
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_adp.c
+c11735c637ff05f605faf0be027e92037c84e273 3ebd6ca30106a006c20fd2879dcad9c79bf51dca Owe at most two ENTITY_DEPARTINGs, coalescing a later SHUTDOWN into the queued one and counting it (A21), and state and check the pass an owed ENTITY_AVAILABLE leaves in (A3, E5), with five defects (#665 F0)
+
+M	sw/firmware/ctrl/adp/adp.c
+M	sw/firmware/ctrl/adp/adp.h
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/loop/ctrl_loop.h
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_adp.c
+9412006bd58c002835bb06d46045c53098cc59a5 e2000ef9e5fe023d1893f9164392396dca8ebbca Bound a LiteSPI call that finishes past its deadline at the ready pace, 2,213 us, and grade it with twelve slowed waits (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+M	sw/firmware/ctrl_nvm/test/nvm_checks.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+e2000ef9e5fe023d1893f9164392396dca8ebbca 716d32136ae1b170dd37e54ed17ea28b4c856973 28f9666feab2b2ba287643c63ed3a16b1e0bb863 Merge dev 28f9666f (PR #666) into the #665 F1 lane
+716d32136ae1b170dd37e54ed17ea28b4c856973 ce78be4a2581ac9c46923ae36e97fc9e49bf8101 State the saved-state store's read bound, held writer, model check after the binding walk and per-call deadline with their measured figures in its module page (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+ce78be4a2581ac9c46923ae36e97fc9e49bf8101 da35570a6b9d8c0ed4200d600c6695c686764178 Read the section 7 slot pick as >= 0, slot A on a tie, citing the #665 tie decision (#665 F1)
+
+M	docs/design/SAVED_STATE_FASTCONNECT.md
+da35570a6b9d8c0ed4200d600c6695c686764178 7f8dc1b10c80c9e9631b8d6c6f5f37a039bc2e11 Hold the saved-state store's writer while a boot read fault leaves a slot unread, stand a refusal only on two agreeing reads, run the binding walk before the model check, heal stale on DR2b and end each LiteSPI call at a timer0 deadline, graded by 80 planted defects (#665 F1)
+
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+M	sw/firmware/ctrl_nvm/nvm_flash.h
+M	sw/firmware/ctrl_nvm/nvm_state.h
+M	sw/firmware/ctrl_nvm/nvm_store.c
+M	sw/firmware/ctrl_nvm/nvm_store.h
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+M	sw/firmware/ctrl_nvm/test/nvm_bench.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+M	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+M	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+M	sw/firmware/ctrl_nvm/test/nvm_test.c
+M	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+3ebd6ca30106a006c20fd2879dcad9c79bf51dca 5f4fe8b34a560ca43653117070b3657314c76ab7 28f9666feab2b2ba287643c63ed3a16b1e0bb863 Merge dev 28f9666f into the F0 mailbox lane (#665 F0)
+5f4fe8b34a560ca43653117070b3657314c76ab7 f67f055eb9fe70510cfbfc4cafcb7315883dc2d1 Describe owed frames, the tick carry and the A7 stream on the design page, and reference the defect inventories instead of counting them (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	tb/verilator/README.md
+f67f055eb9fe70510cfbfc4cafcb7315883dc2d1 7c2df592ea6b7bedc535ae1dc3d346ed8927bbfa Pair each AXI4-Lite W with its own AW under back-to-back writes, read back (A7), with the two drain-cycle READY defects (#665 F0)
+
+M	tb/verilator/mbx/README.md
+M	tb/verilator/mbx/axil_checks.hpp
+M	tb/verilator/mbx/mutants.py
+7c2df592ea6b7bedc535ae1dc3d346ed8927bbfa 592f09cbc94a41a8cfded49358bf58ec9115daf0 Keep every owed ENTITY_DEPARTING across a restart and send it before the restart's ENTITY_AVAILABLE, with A15 to A17, E4 and three defects (#665 F0)
+
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/adp/adp.c
+M	sw/firmware/ctrl/adp/adp.h
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_adp.c
+592f09cbc94a41a8cfded49358bf58ec9115daf0 a3ea8ffe16585270911705ffabd68ca5e17fc9e0 Check that a TICK record taken while centiseconds are carried adds to them (L8), with the overwrite defect (#665 F0)
+
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_port_loop.c
+a3ea8ffe16585270911705ffabd68ca5e17fc9e0 9daf95ac2ee2e8d797d26972b3ecb1a7dbd0f07e 510fae60b26bef1db138de5cf2ac72b17b5011a5 Merge dev 510fae60 into the F0 mailbox lane (#665 F0)
+7f8dc1b10c80c9e9631b8d6c6f5f37a039bc2e11 7725bcfa0dff380966f7846ebfff10c3e21349ee 510fae60b26bef1db138de5cf2ac72b17b5011a5 Merge dev 510fae60 (PR #663) into the #665 F1 lane
+9daf95ac2ee2e8d797d26972b3ecb1a7dbd0f07e ab6806cb62876dbaf60c606b04810c596ce363a0 Record the switch-on mailbox skeleton's routed area at the round-2 RTL: 2,641 LUT, 2,737 FF, WNS +0.240 ns (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+7725bcfa0dff380966f7846ebfff10c3e21349ee c1fb42a5a0b8014bca7db9c5b5efdfa73e8d0c8d State the saved-state store's time base, bounded waits, two restore walks, exhaustion record and derived service bound in its module page (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+c1fb42a5a0b8014bca7db9c5b5efdfa73e8d0c8d 215c3c0be5d8db6d9a1ba5aca3827dfe969c042e Run the saved-state store on timer0 with bounded LiteSPI waits, one-read slot judgment, a binding walk of its own and DR2a and DR2c per captured work set, graded by 69 planted defects (#665 F1)
+
+M	sw/firmware/ctrl_nvm/host/litespi_model.c
+M	sw/firmware/ctrl_nvm/host/litespi_model.h
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+M	sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+M	sw/firmware/ctrl_nvm/host/nvm_smodel.c
+M	sw/firmware/ctrl_nvm/host/nvm_smodel.h
+M	sw/firmware/ctrl_nvm/host/stubs/generated/csr.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/soc.h
+D	sw/firmware/ctrl_nvm/host/stubs/hw/common.h
+D	sw/firmware/ctrl_nvm/nvm_flash.c
+M	sw/firmware/ctrl_nvm/nvm_flash.h
+M	sw/firmware/ctrl_nvm/nvm_state.h
+M	sw/firmware/ctrl_nvm/nvm_store.c
+M	sw/firmware/ctrl_nvm/nvm_store.h
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+M	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+M	sw/firmware/ctrl_nvm/test/nvm_bench.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks.py
+M	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+M	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+M	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+M	sw/firmware/ctrl_nvm/test/nvm_test.c
+M	sw/firmware/ctrl_nvm/test/rv32/generated/csr.h
+A	sw/firmware/ctrl_nvm/test/rv32/generated/soc.h
+D	sw/firmware/ctrl_nvm/test/rv32/hw/common.h
+M	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+ab6806cb62876dbaf60c606b04810c596ce363a0 7dc76bb54bab893d51872ed1d2f234fa93743b48 Sink the unused low bits of the TX merge's SEQ difference, and name the CPU generator's region argument on the design page (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	hdl/milan/mailbox/KL_mbx_tx.sv
+7dc76bb54bab893d51872ed1d2f234fa93743b48 bf8bc6614f09ef2df5e87b67e8827fcc629fbcba Document commit order, the registered AXI4-Lite adapter, the loop's order and bound, DEPARTING's index and the switch-on CPU netlist (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	tb/verilator/mbx/README.md
+bf8bc6614f09ef2df5e87b67e8827fcc629fbcba 7e7c90bd5c30c82e2921e5db69b534b3b099b45e Keep the loop awake while output or ticks are owed, bound it under full backlogs, assert DEPARTING's index on the wire, pin lwSRP, plant the own-DISCOVER defect (#665 F0)
+
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/adp/adp.c
+M	sw/firmware/ctrl/adp/adp.h
+M	sw/firmware/ctrl/adp/adp_mbx.c
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/loop/ctrl_loop.c
+M	sw/firmware/ctrl/loop/ctrl_loop.h
+M	sw/firmware/ctrl/plat/mbx_plat_mmio.c
+M	sw/firmware/ctrl/test/ctrl_arms.py
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/test_adp.c
+M	sw/firmware/ctrl/test/test_ctrl_firmware.py
+M	sw/firmware/ctrl/test/test_port_loop.c
+7e7c90bd5c30c82e2921e5db69b534b3b099b45e e7c0294fdba0f9bea9fad63a35847d647143f41f Guard the event ring against an out-of-range EVT_TAIL and pin all three host-counter guards with checks and planted defects (#665 F0)
+
+M	docs/reference/MAILBOX_CONTRACT.md
+M	hdl/milan/mailbox/KL_mbx_evt.sv
+M	hdl/milan/mailbox/KL_mbx_pkg.sv
+M	sw/firmware/ctrl/host/mbx_model.c
+M	sw/firmware/ctrl/mbx/mbx_contract.h
+M	sw/mailbox/mailbox.yaml
+M	tb/verilator/mbx/mutants.py
+M	tb/verilator/mbx/suite.hpp
+e7c0294fdba0f9bea9fad63a35847d647143f41f 4a79ab4ed0b494f24ce271a97a4705dbb7bef9f7 Send TX records in commit order across channels: a SEQ in record word 1, scanned per record, with the stalled-sink ACMP-ACMP-AECP check and a round-robin mutant (#665 F0)
+
+M	docs/reference/MAILBOX_CONTRACT.md
+M	hdl/milan/mailbox/KL_mbx_pkg.sv
+M	hdl/milan/mailbox/KL_mbx_tx.sv
+M	sw/firmware/ctrl/host/mbx_model.c
+M	sw/firmware/ctrl/mbx/mbx.c
+M	sw/firmware/ctrl/mbx/mbx.h
+M	sw/firmware/ctrl/mbx/mbx_contract.h
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	sw/firmware/ctrl/test/model_bench.hpp
+M	sw/firmware/ctrl/test/test_port_loop.c
+M	sw/mailbox/mailbox.yaml
+M	tb/verilator/mbx/cosim_main.cpp
+M	tb/verilator/mbx/mutants.py
+M	tb/verilator/mbx/suite.hpp
+215c3c0be5d8db6d9a1ba5aca3827dfe969c042e 448df7846d094e0087e2298034558b428972b20d State the saved-state store's attempt limit and step bound as the code enforces them (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+M	sw/firmware/ctrl_nvm/nvm_store.c
+448df7846d094e0087e2298034558b428972b20d 0e4a4244a8447ad0de835e60a70a3539972346ae Count the saved-state store's checks that run on both flash ports correctly in its module page (#665 F1)
+
+M	sw/firmware/ctrl_nvm/README.md
+4a79ab4ed0b494f24ce271a97a4705dbb7bef9f7 7c6067a83a4b6905565880b3c1c2097c598b44c6 Register every AXI4-Lite READY and check split, competing, backpressured and reset transfers with a per-clock input-to-output probe (#665 F0)
+
+M	hdl/milan/mailbox/KL_mbx_axil.sv
+A	tb/verilator/mbx/axil_checks.hpp
+M	tb/verilator/mbx/bench.hpp
+M	tb/verilator/mbx/mutants.py
+M	tb/verilator/mbx/sim_main.cpp
+7c6067a83a4b6905565880b3c1c2097c598b44c6 528b96fe1c97105a28f97f080fb37688a40e2144 End each generated per-leaf test index without a blank line at EOF (#665 F0)
+
+M	docs/traceability/gen_module_matrix.py
+M	hdl/common/README-tests.md
+M	hdl/common/csr/README-tests.md
+M	hdl/common/eth_event_counter/README-tests.md
+M	hdl/ieee1722/aaf/README-tests.md
+M	hdl/ieee1722/avtp/README-tests.md
+M	hdl/ieee1722/crf/README-tests.md
+M	hdl/ieee1722/maap/README-tests.md
+M	hdl/ieee17221/adp/README-tests.md
+M	hdl/ieee8021as/gptp_plane/README-tests.md
+M	hdl/ieee8021as/ptp_timestamp/README-tests.md
+M	hdl/ieee8021q/filtering/README-tests.md
+M	hdl/ieee8021q/ts/README-tests.md
+M	hdl/milan/README-tests.md
+M	hdl/milan/mailbox/README-tests.md
+528b96fe1c97105a28f97f080fb37688a40e2144 0bfef4987eede4b022b17c7b2f56d079ff84893b File the mailbox contract page as gate-read: gen_mailbox.py --check compares it (#665 F0)
+
+M	docs/testing/CI_WORKFLOWS.md
+M	scripts/ci_scope.py
+0e4a4244a8447ad0de835e60a70a3539972346ae 5f629d3ed81f79edfa0c153f49ed733ab870717d Publish the saved-state store's step bound as a store constant and state its tie rule (#665 F1)
+
+M	sw/firmware/ctrl_nvm/nvm_store.c
+M	sw/firmware/ctrl_nvm/nvm_store.h
+M	sw/firmware/ctrl_nvm/test/nvm_test.c
+5f629d3ed81f79edfa0c153f49ed733ab870717d d3a2f133a5afca140d09bfe4002bc040a7f7fd69 Drop the blank line at the end of the saved-state store's boot checks (#665 F1)
+
+M	sw/firmware/ctrl_nvm/test/nvm_checks.py
+d3a2f133a5afca140d09bfe4002bc040a7f7fd69 ccb239b6a577f964e515b89dd4cef9b8107c962b Document the saved-state store of #665 F1 and map it from the documentation index
+
+M	docs/README.md
+A	sw/firmware/ctrl_nvm/README.md
+ccb239b6a577f964e515b89dd4cef9b8107c962b 724c30f4020459687762fe5899a33d2f3f956d18 Add the saved-state store's host suite: 26 checks per shipped shape on both flash ports, the power-cut sweep, the recorded-vector round trip, 46 planted defects and the RV32 arm (#665 F1)
+
+A	sw/firmware/ctrl_nvm/host/nvm_smodel.c
+A	sw/firmware/ctrl_nvm/host/nvm_smodel.h
+A	sw/firmware/ctrl_nvm/test/nvm_bench.py
+A	sw/firmware/ctrl_nvm/test/nvm_checks.py
+A	sw/firmware/ctrl_nvm/test/nvm_checks_write.py
+A	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+A	sw/firmware/ctrl_nvm/test/nvm_rv32.py
+A	sw/firmware/ctrl_nvm/test/nvm_test.c
+A	sw/firmware/ctrl_nvm/test/rv32/generated/csr.h
+A	sw/firmware/ctrl_nvm/test/rv32/generated/mem.h
+A	sw/firmware/ctrl_nvm/test/rv32/hw/common.h
+A	sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+724c30f4020459687762fe5899a33d2f3f956d18 96c78891b9bdaa31d2d159ea618e06930fe1430a Add the saved-state store's two flash ports, the LiteSPI command master and a host flash model with power-cut, media and read faults (#665 F1)
+
+A	sw/firmware/ctrl_nvm/host/litespi_model.c
+A	sw/firmware/ctrl_nvm/host/litespi_model.h
+A	sw/firmware/ctrl_nvm/host/nvm_fmodel.c
+A	sw/firmware/ctrl_nvm/host/nvm_fmodel.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/csr.h
+A	sw/firmware/ctrl_nvm/host/stubs/generated/mem.h
+A	sw/firmware/ctrl_nvm/host/stubs/hw/common.h
+A	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c
+A	sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+A	sw/firmware/ctrl_nvm/plat/nvm_shape_gen.h
+96c78891b9bdaa31d2d159ea618e06930fe1430a fa450d301805881ad713b67521477bf042ddadfd Add the bare-metal saved-state store of #665 F1: the KLJ2 codec, the boot restore and the write-back behind a flash port and a state port
+
+A	sw/firmware/ctrl_nvm/nvm_flash.c
+A	sw/firmware/ctrl_nvm/nvm_flash.h
+A	sw/firmware/ctrl_nvm/nvm_klj2.c
+A	sw/firmware/ctrl_nvm/nvm_klj2.h
+A	sw/firmware/ctrl_nvm/nvm_shape.h
+A	sw/firmware/ctrl_nvm/nvm_state.h
+A	sw/firmware/ctrl_nvm/nvm_store.c
+A	sw/firmware/ctrl_nvm/nvm_store.h
+0bfef4987eede4b022b17c7b2f56d079ff84893b f9a99f5133aad5653c90020d6a6a705b498489ad Plant one firmware defect per remaining walked Table 5.51 row: TMR_ADVERTISE, TMR_DELAY and LINK_UP (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	sw/firmware/ctrl/README.md
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+f9a99f5133aad5653c90020d6a6a705b498489ad f21876336b9116c7395f7f7b155eb30f8b5bdc4d Plant three more mailbox RTL defects: a closed channel that stores, a second EtherType that never classifies, a past deadline that never expires (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	tb/verilator/README.md
+M	tb/verilator/mbx/README.md
+M	tb/verilator/mbx/mutants.py
+f21876336b9116c7395f7f7b155eb30f8b5bdc4d 397e2d3bd5880c736a53c4cd8f8376e13d9a5175 Name the mailbox rings receive and transmit rings, the wording the bare-metal scope gate allows (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	docs/reference/MAILBOX_CONTRACT.md
+M	hdl/milan/mailbox/KL_mbx.sv
+M	hdl/milan/mailbox/KL_mbx_pkg.sv
+M	hdl/milan/mailbox/KL_mbx_ring.sv
+M	hdl/milan/mailbox/KL_mbx_rx.sv
+M	hdl/milan/mailbox/KL_mbx_tx.sv
+M	sw/firmware/ctrl/adp/adp_mbx.h
+M	sw/firmware/ctrl/host/mbx_model.c
+M	sw/firmware/ctrl/host/mbx_model.h
+M	sw/firmware/ctrl/mbx/mbx.h
+M	sw/firmware/ctrl/mbx/mbx_contract.h
+M	sw/mailbox/mailbox.yaml
+M	sw/mailbox/mailbox_emit.py
+M	sw/mailbox/mailbox_model.py
+M	sw/mailbox/mailbox_skeleton.py
+397e2d3bd5880c736a53c4cd8f8376e13d9a5175 5ebc19982c22df0a394969d63510992f1e971780 Bring the mailbox suite, firmware and design pages to the 27 RTL and 25 firmware planted defects (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	sw/firmware/ctrl/README.md
+M	tb/verilator/README.md
+M	tb/verilator/mbx/README.md
+5ebc19982c22df0a394969d63510992f1e971780 763e88ca932f05d7b2c0cd44318109c4e7276118 Record the switch-on mailbox skeleton's routed area and plant eight more RTL and two more firmware defects (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+M	sw/firmware/ctrl/test/ctrl_mutants.py
+M	tb/verilator/mbx/mutants.py
+763e88ca932f05d7b2c0cd44318109c4e7276118 ae6d7138d595ac2574c0ed3121268b313aae9a5d Record lwSRP's tick registration rule in the packet-mailbox design page (#665 F0)
+
+M	docs/design/MAILBOX_SPLIT.md
+ae6d7138d595ac2574c0ed3121268b313aae9a5d 7ab3cd727225839ac17b26bdc9ae85b5d1b65b24 Add the default-off --ctrl-mailbox SoC switch and the packet-mailbox split design page of #665 F0
+
+M	docs/README.md
+A	docs/design/MAILBOX_SPLIT.md
+M	sw/litex/milan_soc.py
+7ab3cd727225839ac17b26bdc9ae85b5d1b65b24 d4cbb27bae51a4466e381eadd4eab06e18a11545 Add the bare-metal control-plane firmware of #665 F0 (mailbox driver, lwSRP port layer, event loop, ADP slice) and the mailbox suite through both adapters, its host model, co-simulation and planted defects
+
+M	scripts/measure_test_evidence.py
+A	sw/firmware/ctrl/README.md
+A	sw/firmware/ctrl/adp/adp.c
+A	sw/firmware/ctrl/adp/adp.h
+A	sw/firmware/ctrl/adp/adp_entity.py
+A	sw/firmware/ctrl/adp/adp_mbx.c
+A	sw/firmware/ctrl/adp/adp_mbx.h
+A	sw/firmware/ctrl/app/ctrl_app.c
+A	sw/firmware/ctrl/app/ctrl_app.h
+A	sw/firmware/ctrl/host/mbx_model.c
+A	sw/firmware/ctrl/host/mbx_model.h
+A	sw/firmware/ctrl/host/mbx_plat_host.c
+A	sw/firmware/ctrl/loop/ctrl_loop.c
+A	sw/firmware/ctrl/loop/ctrl_loop.h
+A	sw/firmware/ctrl/mbx/mbx.c
+A	sw/firmware/ctrl/mbx/mbx.h
+A	sw/firmware/ctrl/mbx/mbx_hal.h
+A	sw/firmware/ctrl/mbx/mbx_wire.h
+A	sw/firmware/ctrl/plat/mbx_plat_mmio.c
+A	sw/firmware/ctrl/port/ctrl_debug.c
+A	sw/firmware/ctrl/port/ctrl_debug.h
+A	sw/firmware/ctrl/port/ctrl_pool.c
+A	sw/firmware/ctrl/port/ctrl_pool.h
+A	sw/firmware/ctrl/port/shlan_port.c
+A	sw/firmware/ctrl/port/shlan_port.h
+A	sw/firmware/ctrl/test/adp_walk.cpp
+A	sw/firmware/ctrl/test/ctrl_arms.py
+A	sw/firmware/ctrl/test/ctrl_build.py
+A	sw/firmware/ctrl/test/ctrl_mutants.py
+A	sw/firmware/ctrl/test/ctrl_reuse.py
+A	sw/firmware/ctrl/test/entity_probe.c
+A	sw/firmware/ctrl/test/lwsrp_port.c
+A	sw/firmware/ctrl/test/model_bench.hpp
+A	sw/firmware/ctrl/test/model_suite.cpp
+A	sw/firmware/ctrl/test/test_adp.c
+A	sw/firmware/ctrl/test/test_check.c
+A	sw/firmware/ctrl/test/test_check.h
+A	sw/firmware/ctrl/test/test_ctrl_firmware.py
+A	sw/firmware/ctrl/test/test_port_loop.c
+A	sw/firmware/ctrl/wire/wire.h
+M	tb/verilator/README.md
+A	tb/verilator/mbx/Makefile
+A	tb/verilator/mbx/README.md
+A	tb/verilator/mbx/bench.hpp
+A	tb/verilator/mbx/cosim_main.cpp
+A	tb/verilator/mbx/frames.hpp
+A	tb/verilator/mbx/mutants.py
+A	tb/verilator/mbx/sim_main.cpp
+A	tb/verilator/mbx/suite.hpp
+A	tb/verilator/mbx/tb_mbx_top.sv
+d4cbb27bae51a4466e381eadd4eab06e18a11545 fa450d301805881ad713b67521477bf042ddadfd Add the packet-mailbox contract of #665 F0: one YAML, its generator and self-test, the fabric skeleton and leaves behind Wishbone and AXI4-Lite, the C header and the reference page
+
+A	docs/reference/MAILBOX_CONTRACT.md
+M	docs/traceability/MODULE_MATRIX.md
+A	hdl/milan/mailbox/KL_mbx.sv
+A	hdl/milan/mailbox/KL_mbx_axil.sv
+A	hdl/milan/mailbox/KL_mbx_evt.sv
+A	hdl/milan/mailbox/KL_mbx_pkg.sv
+A	hdl/milan/mailbox/KL_mbx_ring.sv
+A	hdl/milan/mailbox/KL_mbx_rx.sv
+A	hdl/milan/mailbox/KL_mbx_tx.sv
+A	hdl/milan/mailbox/KL_mbx_wb.sv
+A	hdl/milan/mailbox/README-tests.md
+A	sw/firmware/ctrl/mbx/mbx_contract.h
+A	sw/mailbox/gen_mailbox.py
+A	sw/mailbox/mailbox.yaml
+A	sw/mailbox/mailbox_emit.py
+A	sw/mailbox/mailbox_model.py
+A	sw/mailbox/mailbox_skeleton.py
+M	syn/yosys/run.sh

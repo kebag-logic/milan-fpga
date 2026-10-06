@@ -1,0 +1,41 @@
+{
+  "head": "fa1294279c42f181b6f43c6e6bd812039798705c",
+  "source": "d763fce6f3e48fa9c468aaa835653befb8382d06",
+  "unchanged_shared_input_entries": {
+    "scripts/nvm_contract.py": "100644 blob bba42b998ca52630038db60d1bb3fe14084fe6d3\tscripts/nvm_contract.py",
+    "scripts/nvm_klj2.py": "100644 blob 89887fb0a96f368207395b7c3bdf7b1f9b23dbc5\tscripts/nvm_klj2.py",
+    "scripts/nvm_shape.py": "100644 blob 41d5f969b7ce7fa63e6cc51fa2d20010028acb35\tscripts/nvm_shape.py",
+    "scripts/check_nvm_record_space.py": "100755 blob c2b794a339a08ef8f64d3627d26ac3aefb68d2b9\tscripts/check_nvm_record_space.py",
+    "sw/litex/flash_map.py": "100644 blob d5ce73c78218d1fda58e098f9b7e11b11a76e1f5\tsw/litex/flash_map.py",
+    "sw/builder": "040000 tree f96474e0170d6eb42de2574c084516e5235653b3\tsw/builder",
+    "configs": "040000 tree 46399440800854473d3277e68feff3fd054eee06\tconfigs",
+    "tb/verilator/nvm_backend": "040000 tree 9d259f9dbd895a4bb125eaba782284ce6997b1b4\ttb/verilator/nvm_backend",
+    "tb/verilator/nvm_capture_cpu": "040000 tree a2a53a282268b95918a31ab1fcc6a16c42dca570\ttb/verilator/nvm_capture_cpu",
+    ".github/workflows": "040000 tree 92add8ea22e28bbf0e5ba36ee2f03f9e067bdbc4\t.github/workflows",
+    "scripts/run_all_suites.sh": "100755 blob 997bea9fb76baf384a60ff0ddae544b5edfb9fe9\tscripts/run_all_suites.sh",
+    "sw/firmware/milan_baremetal": "040000 tree 1017734b26b4389c9b2b0d449502d45088ca4620\tsw/firmware/milan_baremetal"
+  },
+  "soc_flash_map_ast_identical": true,
+  "soc_nvm_constants_to_end_of_file_identical": true,
+  "soc_nvm_suffix_sha256": "a093370b3fe587a7f50e1449bf4e7a6e406f0676a745dd5fe228a4c0c5d6faef",
+  "production_registration_search": {
+    "command": [
+      "rg",
+      "-n",
+      "ctrl_nvm",
+      ".github/workflows",
+      "scripts/run_all_suites.sh",
+      "sw/builder",
+      "sw/litex",
+      "sw/firmware/ctrl",
+      "docs/traceability/gen_module_matrix.py",
+      "scripts/ci_scope.py"
+    ],
+    "rc": 1,
+    "stdout": "",
+    "stderr": "",
+    "meaning": "no production link, loop hook or workflow registration"
+  },
+  "git_diff_check": "PASS",
+  "result": "PASS"
+}

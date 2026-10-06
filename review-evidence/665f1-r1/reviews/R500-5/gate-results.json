@@ -1,0 +1,130 @@
+[
+  {
+    "name": "docs",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.707
+  },
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 4.876
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 2.822
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "9e05246c5455b2a1df26038345709437e13c6f18"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 3.774
+  },
+  {
+    "name": "ci-events",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.215
+  },
+  {
+    "name": "ci-events-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 16.741
+  },
+  {
+    "name": "record-space",
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 47.737
+  },
+  {
+    "name": "capture-record",
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 1.068
+  },
+  {
+    "name": "module-matrix",
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 1.267
+  },
+  {
+    "name": "mailbox-records",
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.164
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.114
+  },
+  {
+    "name": "submodule-docs",
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.565
+  },
+  {
+    "name": "ci-scope-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 5.227
+  }
+]
