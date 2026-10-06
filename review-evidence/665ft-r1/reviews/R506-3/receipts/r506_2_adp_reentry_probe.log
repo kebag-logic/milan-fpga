@@ -1,0 +1,10 @@
+S1 after advertise with nested link-down: state=WAITING timer=ADVERTISE link_up=0
+S1 link up again: state=WAITING draws+0 (row 1 arc 2: no DELAY entered)
+S2 shutdown with nested link-down: state=DOWN enabled=0 (row 2 arc 2 reached inside)
+S3 advertise, ADVERTISE expired inside timer_start: state=WAITING timer=NONE stray=1
+S4 gm change, DELAY expired inside timer_start: state=DELAY timer=NONE stray=1
+row adp_link_change `if (a->state == ADP_STATE_DOWN) {` names arcs [2] of 2: reached by the probe [2]
+row adp_link_change `if (a->state != ADP_STATE_DOWN) {` names arcs [2] of 2: reached by the probe [2]
+row adp_timer_expired `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` names arcs [4] of 4: reached by the probe [4]
+row adp_timer_expired `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` names arcs [2, 4] of 4: reached by the probe [2, 4]
+row adp_poll `if (a->enabled && a->state == ADP_STATE_DELAY) {` names arcs [2, 4] of 4: reached by the probe none

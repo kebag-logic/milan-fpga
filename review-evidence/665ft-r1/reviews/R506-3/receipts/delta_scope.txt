@@ -1,0 +1,14 @@
+# git diff --name-status e7e0c10f..6ca834a7
+M	sw/firmware/ctrl_nvm/README.md
+M	sw/firmware/ctrl_nvm/test/nvm_mutants.py
+M	sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+M	sw/firmware/gtest/README.md
+M	sw/firmware/gtest/tally_cases.cpp
+M	sw/firmware/gtest/tally_selftest.py
+# RTL/bench/config/builder/workflow/scripts/firmware-source paths in the delta:
+(end)
+# commits
+6ca834a782a1bd5574d44998c8e214cf16df3441 hackerman-kl Say that the five ADP coverage exclusions rest on the no-callback rule #678 rules, not on adp.h as it stands, and which port call reaches each row's items (#665 FT)
+89b02c7f4795b4cbde7f409100e6ef34e5c6e618 hackerman-kl Plant SIGBUS, SIGFPE and SIGILL, a suite's tear-down, the global environment and a disabled suite in the tally self-test, each held to its tally line, and a listener defect for each path (#665 FT)
+7a2686aee15de32e16e875486c87cfbcbc4c661b hackerman-kl Pin the loaded-prefix guards at their exact ends: a record header claiming a payload past the container gets its own VD_LEN only once the header guard passes, with both guards planted one byte off either way (#665 FT)
+0

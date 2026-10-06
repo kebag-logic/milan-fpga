@@ -1,0 +1,11 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] unmutated listener, extra case SIGFPE inside a test: reads as planted
+[ok] unmutated listener, extra case SIGBUS inside a test: reads as planted
+[ok] unmutated listener, extra case SIGILL inside a test: reads as planted
+[ok] unmutated listener, extra case a failure in a suite's tear-down: reads as planted
+[ok] unmutated listener, extra case a failure in a global environment: reads as planted
+[ok] unmutated listener, extra case a disabled suite: reads as planted
+[defect] sigfpe-unhandled: clone's planted cases reddened: ['a crash on SIGFPE']; extra cases reddened: ['SIGFPE inside a test'] (not one listener tally line: [])
+[defect] sigbus-unhandled: clone's planted cases reddened: ['a crash on SIGBUS']; extra cases reddened: ['SIGBUS inside a test'] (not one listener tally line: [])
+[defect] program-failure-not-counted: clone's planted cases reddened: ['a failure in the global environment']; extra cases reddened: ['a failure in a global environment'] (tally checks 1 failures 0, want checks 1 failures 1)
+[defect] disabled-suite-not-counted: clone's planted cases reddened: ['a disabled suite']; extra cases reddened: ['a disabled suite'] (tally checks 0 failures 0, want checks 0 failures 1)
