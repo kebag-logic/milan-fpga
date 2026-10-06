@@ -1,13 +1,23 @@
+#!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Why each inventoried test may read DUT source without deriving its oracle.
+"""The DUT-source reader dispositions of `measure_test_evidence.py`.
 
-The evidence gate owns detection and stale-entry checking. This module owns
-only the public dispositions, so extending the inventory does not lengthen
-the gate implementation.
+This is the table behind the third inventory of the Rule 8 measurement
+(docs/development/CODE_QUALITY.md): every test program under a `tb/` tree that
+reads production HDL text, keyed by its path, with the recorded reason that the
+read is not an implementation-derived oracle. It is data, not machinery -
+nothing here reads a file or decides what a reader is - which is why it lives
+in its own module: the measurement stays under rule 12's long-module ratchet,
+and a reviewer weighing one disposition never has to read the scan.
+
+`measure_test_evidence.py` imports the table and requires it to match the live
+readers exactly. A reader with no entry is UNEXPLAINED, which the ratchet
+refuses, and an entry whose reader has gone is stale, which `--check` refuses.
+A new reader is debt until review classifies it here.
 """
 
-DUT_READER_DISPOSITIONS: dict[str, str] = {
+DUT_READER_DISPOSITIONS = {
     "protocol-processor/tb/pp_top/acmp_mutants.py":
         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
         "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
@@ -98,6 +108,11 @@ DUT_READER_DISPOSITIONS: dict[str, str] = {
         "the push, a CRF unbind that misses, doubles or mislabels its unlock, or arms no push) "
         "into a copy of the processor tree or of the CRF engine and requires named failures "
         "beside named passes. It is the explicit unb-mutants target, outside the default sweep",
+    "tb/verilator/milan_dp/dynmap_mutants.py":
+        "mutation campaign; it plants one of four #658 power-on map defects (an empty image, no clip "
+        "of a restored input format or of an output format row, no crossbar writer) into a copy of "
+        "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
+        "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/gmstep_mutants.py":
         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
         "named failure on the gmstep leg or, for two, the option-off leg. The default sweep plants "

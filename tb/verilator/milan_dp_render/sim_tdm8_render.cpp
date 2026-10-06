@@ -18,8 +18,10 @@
 //     ordinal e on stream wire channel s. The AAF feeder transmits FROM that
 //     table and never writes back to it.
 //   * The ROUTE RECORD is built only from the ADD and REMOVE records this leg
-//     issued and the SUCCESS status each returned. GET_AUDIO_MAP and the CSR
-//     render-RAM readback are GRADED against it; they do not define it.
+//     issued and the SUCCESS status each returned, starting from the #658
+//     power-on map (stream channel c on cluster c) once the leg has read that
+//     map back. GET_AUDIO_MAP and the CSR render-RAM readback are GRADED
+//     against it; they do not define it.
 //   * The PIN DECODER reads exactly three signals - tdm_bclk_o, tdm_fsync_o
 //     and tdm_dout_o - sampled after each half step. It reads no DUT internal,
 //     and specifically not the exported frame position or bit-clock enables.
@@ -1147,6 +1149,18 @@ class TdmRenderHarness {
         inject(f, 64);
     }
 
+    //! #658's power-on proofs insert commands into this leg's timeline. A law
+    //! window is graded only where no PDU end meets a pop (#643), and where
+    //! they meet depends on the ABSOLUTE timeline: the CRF timestamps are PHC
+    //! time while every phase starts its feeds relative to its own start. So
+    //! an inserted segment is padded to a whole CRF PDU period (2 ms, which is
+    //! 32 x 3 media frames), and every later phase meets the CRF and media
+    //! grids where it met them before (the physical TDM grid, 96 frames to
+    //! 200 002.1 cycles, moves by 2.1 cycles per period).
+    void pad_to_a_whole_crf_period(long since) {
+        while ((axis_cycle - since) % kCrfPduPeriodCycles != 0) step();
+    }
+
     void run_fed(long n) {
         const long stop = axis_cycle + n;
         while (axis_cycle < stop) {
@@ -1172,13 +1186,28 @@ class TdmRenderHarness {
     //! route[co] = the stream wire channel feeding global cluster key co, and
     //! route_stream[co] = the STREAM INDEX it names; -1 for a cluster with no
     //! mapping. Written only from an ADD/REMOVE this leg issued that returned
-    //! SUCCESS. The stream is a separate dimension from the channel because a
+    //! SUCCESS, or set to the #658 power-on map by route_power_on() once
+    //! prove_the_power_on_map() has read that map back. The stream is a
+    //! separate dimension from the channel because a
     //! mapping carries both, and on a multi-stream shape a lane key may name
     //! a stream whose ordinals the stream-0 injection record does not hold.
     std::array<int, kSlots> route{};
     std::array<int, kSlots> route_stream{};
 
     void route_reset() { route.fill(-1); route_stream.fill(-1); }
+    //! #658: the power-on map routes serial slot c from stream 0 channel c
+    void route_power_on() {
+        for (int k = 0; k < kSlots; k++) {
+            route[static_cast<size_t>(k)] = k;
+            route_stream[static_cast<size_t>(k)] = 0;
+        }
+    }
+    //! ...as ADD/REMOVE rows {stream_channel c, cluster_offset c}
+    static std::vector<std::pair<int, int>> power_on_rows() {
+        std::vector<std::pair<int, int>> rows;
+        for (int c = 0; c < kSlots; c++) rows.emplace_back(c, c);
+        return rows;
+    }
     //! serial slot k is fed by the cluster whose key is k (PBASE 0), so its
     //! source channel is route[k]
     int src_of_slot(int k) const { return route[static_cast<size_t>(k)]; }
@@ -1450,6 +1479,8 @@ class TdmRenderHarness {
     void boot_the_entity();
     void start_the_boot_restore_walk();
     void bind_listener_zero();
+    void prove_the_power_on_map(const char* tag);
+    void clear_the_power_on_map(const char* tag);
     void run_the_bind_ladder(int listener, int talker, uint16_t seq,
                              const char* tag);
     void phase_map();
@@ -1840,10 +1871,68 @@ TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
 //  Phases                                                                //
 // ====================================================================== //
 
+//! #658: the power-on map, read back before anything is mapped. Every cluster
+//! c of STREAM_PORT_INPUT 0 holds stream 0 channel c, in the AECP store
+//! (GET_AUDIO_MAP) and on physical render key kTdmBase + c, and the pruned DAC
+//! keys hold nothing. On the multi-stream shape port 1's virtual clusters hold
+//! stream 1's channels, in the store alone.
+void TdmRenderHarness::prove_the_power_on_map(const char* tag) {
+    char what[200];
+    long nmaps = -1;
+    const auto page = get_audio_map(0, 0, &nmaps);
+    long ident = 0;
+    for (const auto& r : page)
+        if (r[0] == 0 && r[1] == r[2] && r[2] >= 0 && r[2] < kSlots) ++ident;
+    std::snprintf(what, sizeof what, "%s: GET_AUDIO_MAP reads port 0's eight "
+                  "identity mappings and nothing else", tag);
+    check.dec(what, static_cast<uint64_t>(static_cast<long>(page.size()) == kSlots ? ident : -1),
+              kSlots);
+    long projected = 0;
+    for (int k = 0; k < kSlots; k++)
+        if (render_ram(kTdmBase + k) == (0x80u | static_cast<uint32_t>(k))) ++projected;
+    std::snprintf(what, sizeof what, "%s: physical keys 2..9 hold stream 0 "
+                  "channel c", tag);
+    check.dec(what, static_cast<uint64_t>(projected), kSlots);
+    long dac_clear = 0;
+    for (int k = 0; k < kI2sN; k++)
+        if (render_ram(kI2sBase + k) == 0) ++dac_clear;
+    std::snprintf(what, sizeof what, "%s: nothing on the pruned DAC lane keys",
+                  tag);
+    check.dec(what, static_cast<uint64_t>(dac_clear), kI2sN);
+    if (kMultiShape) {
+        const auto page1 = get_audio_map(1, 0);
+        long ident1 = 0;
+        for (const auto& r : page1)
+            if (r[0] == 1 && r[1] == r[2] && r[2] >= 0 && r[2] < kSlots) ++ident1;
+        std::snprintf(what, sizeof what, "%s: port 1 reads stream 1's eight "
+                      "identity mappings", tag);
+        check.dec(what, static_cast<uint64_t>(static_cast<long>(page1.size()) == kSlots ? ident1 : -1),
+                  kSlots);
+    }
+}
+
+//! #658: the entity powers up mapped, and a permutation needs every cluster
+//! of port 0 free. So the power-on map is read back, then port 0's mappings
+//! are REMOVEd and the route record follows the REMOVE back to empty. The
+//! segment costs whole CRF periods (pad_to_a_whole_crf_period).
+void TdmRenderHarness::clear_the_power_on_map(const char* tag) {
+    char what[200];
+    const long t_power_on = axis_cycle;
+    prove_the_power_on_map(tag);
+    route_power_on();
+    std::snprintf(what, sizeof what, "%s: port 0's power-on mappings are "
+                  "REMOVEd before the routes below", tag);
+    check.dec(what, static_cast<uint64_t>(map_cmd(kCmdRemoveMappings,
+                                                  power_on_rows(), 0, 0)), 0);
+    std::snprintf(what, sizeof what, "%s: ...so no serial slot is routed", tag);
+    check.dec(what, static_cast<uint64_t>(routed_slots()), 0);
+    pad_to_a_whole_crf_period(t_power_on);
+}
+
 void TdmRenderHarness::phase_map() {
     std::printf("\n[MAP] the dynamic AUDIO_MAP command path and its projection\n");
     bind_listener_zero();
-    route_reset();
+    clear_the_power_on_map("T1 POWER-ON");
     // The AECP store must actually have READ the entity image, or a refusal
     // below would be a stalled model rather than a verdict.
     check.that("the AECP descriptor store fetched the entity image",
@@ -2740,14 +2829,41 @@ void TdmRenderHarness::prove_a_reset_inside_an_outstanding_round_trip() {
                 static_cast<unsigned long long>(lane_epochs()));
 }
 
-//! ...and the lane comes back: rebind, remap, and the first nonzero frame is a
-//! POST-reset injected event.
+//! ...and the lane comes back: rebind, and with NO map command since the reset
+//! it renders the #658 power-on map, stream channel c at serial slot c. Then
+//! remap, and the first nonzero frame is a POST-reset injected event.
 void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
-    // ...and the lane comes back: rebind, remap, and the first nonzero frame
-    // is a post-reset injected event.
     const uint64_t epochs_before = lane_epochs();
     bind_listener_zero();
-    route_reset();
+    const long t_power_on = axis_cycle;
+    prove_the_power_on_map("T18 POWER-ON");
+    route_power_on();
+    check.dec("T18 POWER-ON: the power-on map routes every serial slot, so no "
+              "frame can match trivially", static_cast<uint64_t>(routed_slots()),
+              kSlots);
+    build_injection_record(200);
+    feed_on = true;
+    next_pdu_at = axis_cycle + 64;
+    run_fed(60 * kPduPeriodCycles);
+    decoder_reset();
+    collect = true;
+    run_fed(40 * kPduPeriodCycles);
+    collect = false;
+    feed_on = false;
+    const long start = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
+    check.that("T18 POWER-ON: with no map command since the reset, the lane "
+               "renders injected events", start >= 0);
+    if (start >= 0) {
+        const Grade g = grade_frames(start, "T18i");
+        check.dec("T18 POWER-ON: stream channel c is at serial slot c in every "
+                  "decoded frame", static_cast<uint64_t>(g.identity_failures), 0);
+        check.dec("T18 POWER-ON: each slot's channel field is its own channel",
+                  static_cast<uint64_t>(g.channel_field_failures), 0);
+    }
+    check.dec("T18 POWER-ON: the power-on mappings are REMOVEd before the remap",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, power_on_rows())),
+              0);
+    pad_to_a_whole_crf_period(t_power_on);
     std::vector<std::pair<int, int>> rows;
     for (int co = 0; co < kSlots; co++)
         rows.emplace_back(kPerm[static_cast<size_t>(co)], co);
@@ -4125,7 +4241,8 @@ void TdmRenderHarness::phase_multistream() {
     check.that("M1: the AECP descriptor store fetched this shape's entity "
                "image", desc_requests > 0);
 
-    route_reset();
+    // #658: port 1's power-on mappings stay; its clusters reach no pin
+    clear_the_power_on_map("M1 POWER-ON");
     std::vector<std::pair<int, int>> rows;
     for (int co = 0; co < kSlots; co++)
         rows.emplace_back(kPerm[static_cast<size_t>(co)], co);

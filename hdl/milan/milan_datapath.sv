@@ -1149,6 +1149,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [5:0] amap_edit_owr_slot_r;
   logic [12:0] amap_edit_owr_word_r;
   logic       amap_edit_txn_active_r;
+  //! #658: the boot map writer owns both crossbar write legs while this is
+  //! set (block amap_boot_walk below), so the CSR 0x900 writer is held out;
+  //! declared ahead of its first reader, the capture write mux (#193).
+  logic       amap_boot_busy_w;
   //! task #26 shape truth from the AECP builder (the one module that
   //! compiles the generated ROM): 1 = this build carries the dynamic-map
   //! writers + boot seeder for that side. Elaboration constants.
@@ -1257,7 +1261,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
                     (!aecp_odmap_wr_p_w && !amap_edit_txn_active_r
-                     && !aecp_locked
+                     && !amap_boot_busy_w && !aecp_locked
                      && cfg_chmap_wr_en &&
                      cfg_chmap_wr_side &&
                      32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
@@ -1367,11 +1371,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .fill_cnt_o ()
   );
 
-  //! task #26 (USER: the ATDECC map IS the model): on a shape that
-  //! compiled the capture-map machinery the crossbar is IN-CIRCUIT BY
-  //! CURRENT CONSTRUCTION: the map RAM resets to silence and has no AECP
-  //! writer or boot seeder. The declared front-end routing stays selected
-  //! after reset. Software writes the map through the CSR window and then
+  //! task #26 (USER: the ATDECC map IS the model): on a shape with dynamic
+  //! output maps the crossbar is in circuit from reset, and its map RAM
+  //! holds the #658 identity image from the boot writer (amap_boot_walk)
+  //! on, so talker channel c carries cluster c until a controller remaps
+  //! it. On a static-output shape the declared front-end routing stays
+  //! selected: software writes the map through the CSR window and then
   //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
   //! cfg_chmap_enable (CHMAP_CTRL[0], documented with the chmap 0x900 fabric
   //! below) is declared here ahead of its first reader (#193).
@@ -4105,8 +4110,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! This freezes the live baseline between the validation and commit passes,
   //! so a concurrent CSR write cannot create a time-of-check/time-of-use partial edit.
   //! Phase 1 rechecks that baseline and reserves the complete commit. This
-  //! root never asserts wait, so phases 5 and 2 complete without a timeout
-  //! point between live writes.
+  //! root asserts wait only while the #658 boot map writer is busy, which
+  //! ends for good one sweep after the restore's terminal, so a transaction
+  //! meets it at phase 0 at the latest and phases 5 and 2 still complete
+  //! without a timeout point between live writes.
   logic        amap_edit_seen_r;
   logic  [2:0] amap_edit_seen_phase_r;
   logic  [7:0] amap_edit_seen_rec_r;
@@ -4356,7 +4363,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     endcase
   end : amap_edit_validate
 
-  assign pp_amap_edit_wait_w = 1'b0;
+  assign pp_amap_edit_wait_w = amap_boot_busy_w;
 
   // Preserve the store's input-change priority. The same comparisons feed
   // the shadow's pending input on this axis_clk edge.
@@ -4394,6 +4401,220 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [16:0] cfg_cmap_cluster_w = amap_out_cluster(cfg_cmap_entry_w,
                                                     cfg_cmap_port_w);
 
+  //! ==== #658: the power-on map image and its boot clip ===================
+  //! THE IMAGE (#658 ruling): on every dynamic Stream Port, stream channel c
+  //! maps to cluster c for each c below the smaller of the stream's channel
+  //! count and the port's cluster count. Port p is STREAM_INPUT p's or
+  //! STREAM_OUTPUT p's own, so input mapping c sits at global cluster key
+  //! PBASE[p] + c and output mapping c at stream-channel key p*8 + c. The
+  //! image applies the bounds amap_edit_validate applies to an ADD (the
+  //! generated wire shape SCH, the port's clusters, the stream format), so
+  //! each of its mappings is one a controller could have added. It is the
+  //! stores' reset value, which costs no logic.
+  //!
+  //! THE BOOT CLIP (#658 ruling, item 3). From reset until the restore's
+  //! terminal (the boot window), the stores hold the image without the
+  //! mappings each stream's CURRENT format does not carry: the processor's
+  //! row once valid, else the declared default the GET serves, which carries
+  //! the whole image. The clip only ever removes. The terminal is
+  //! pp_restore_done_w, the D3 walk's COMPLETE or DEFAULTS, which is the
+  //! cycle AECP starts to dispatch, or pp_restore_closed_w, after which AECP
+  //! stays held and nothing changes a format again. So a restored narrower
+  //! format keeps no mapping it orphans (the Milan 5.4.2.7 invariant) and the
+  //! persisted format survives, and no controller can be registered yet, so
+  //! nothing is notified. A roll-back to the default formats brings the whole
+  //! image back. None of this is a live map write, so amap_edit_live_wr_p
+  //! stays the map plane's persistence trigger. After the terminal only
+  //! ADD/REMOVE and the CSR window change a map, and a SET_STREAM_FORMAT that
+  //! would orphan a mapping is still refused (Milan 5.4.2.7, the format
+  //! verdict's bit 1). A boot that never starts the restore keeps the window,
+  //! as it keeps AECP and the ACMP listener held, until reset.
+  //!
+  //! THE CROSSBAR RAMS hold the same image through amap_boot_walk: one key
+  //! per cycle through the AECP write legs phase 5 uses, continuously while
+  //! the window is open and once more after its terminal, from the stores as
+  //! they stand then. Until that last sweep ends (amap_boot_busy_w) the edit
+  //! face waits and the CSR window is held out, so the RAMs and the stores
+  //! agree before any edit validates against them. A writer through the
+  //! existing legs is smaller than reset images in the two leaves, which
+  //! would still need it for the clip. #70 stage 3, whose map restore drives
+  //! the edit face inside the window, takes the window over for the ports it
+  //! restores.
+
+  //! a stream's declared default channel count, the one its
+  //! GET_STREAM_FORMAT serves while no format is set; 0 past the rows
+  function automatic logic [9:0] amap_decl_ch(input logic out_i,
+                                              input int s_i);
+    logic [9:0] r;
+    r = 10'd0;
+    for (int k = 0; k < ADP_STRIN_NFMT_C; k++)
+      if (!out_i && (k == s_i)) r = ADP_STRIN_FMT_C[k][31:22];
+    for (int k = 0; k < ADP_STROUT_NFMT_C; k++)
+      if (out_i && (k == s_i)) r = ADP_STROUT_FMT_C[k][31:22];
+    return r;
+  endfunction
+
+  //! the input identity: the generated shape bounded by the declared
+  //! default format
+  function automatic logic [AMAP_IN_KEYS_C*8-1:0] amap_in_image();
+    logic [AMAP_IN_KEYS_C*8-1:0] r;
+    r = '0;
+    for (int p = 0; p < AMAP_IN_PORTS_C; p++)
+      for (int c = 0; c < 8; c++)
+        if (ADP_DMAP_IN_MASK_C[p] && (p < 8) && (p < ADP_DMAP_IN_NSTRIN_C)
+            && ADP_DMAP_IN_SAAF_C[p]
+            && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
+            && (c < 32'(ADP_DMAP_IN_SCH_C[p]))
+            && (c < 32'(amap_decl_ch(1'b0, p)))
+            && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
+          r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8] = {2'b10, 3'(p), 3'(c)};
+    return r;
+  endfunction
+
+  //! the output identity's owned keys, bounded the same way
+  function automatic logic [AMAP_OUT_KEYS_C-1:0] amap_out_image();
+    logic [AMAP_OUT_KEYS_C-1:0] r;
+    r = '0;
+    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
+      for (int c = 0; c < 8; c++)
+        if (ADP_DMAP_OUT_MASK_C[p] && (p < N_STREAMS)
+            && (c < 32'(ADP_DMAP_OUT_PCLS_C[p]))
+            && (c < 32'(ADP_DMAP_OUT_SCH_C[p]))
+            && (c < 32'(amap_decl_ch(1'b1, p)))
+            && ((32'(ADP_DMAP_OUT_PCBASE_C[p]) + c) < ADP_DMAP_OUT_NSRC_C))
+          r[p*8 + c] = 1'b1;
+    return r;
+  endfunction
+
+  //! the capture word of each output identity key: the CSRC word an ADD of
+  //! cluster c on port p writes (amap_edit_out_encode)
+  function automatic logic [AMAP_OUT_KEYS_C*13-1:0] amap_out_words();
+    logic [AMAP_OUT_KEYS_C*13-1:0] r;
+    r = '0;
+    for (int p = 0; p < AMAP_OUT_PORTS_C; p++)
+      for (int c = 0; c < 8; c++)
+        if ((p < N_STREAMS)
+            && ((32'(ADP_DMAP_OUT_PCBASE_C[p]) + c) < ADP_DMAP_OUT_NSRC_C))
+          r[(p*8 + c)*13 +: 13] =
+              ADP_DMAP_OUT_CSRC_C[32'(ADP_DMAP_OUT_PCBASE_C[p]) + c];
+    return r;
+  endfunction
+
+  localparam logic [AMAP_IN_KEYS_C*8-1:0] AMAP_IN_IMAGE_C = amap_in_image();
+  localparam logic [AMAP_OUT_KEYS_C-1:0] AMAP_OUT_IMAGE_C = amap_out_image();
+  localparam logic [AMAP_OUT_KEYS_C*13-1:0] AMAP_OUT_WORDS_C = amap_out_words();
+
+  //! the output owner and cluster registers of an owned-key vector: port
+  //! k/8, cluster k%8 where owned, zero (what a REMOVE leaves) elsewhere
+  function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_owner_of(
+      input logic [AMAP_OUT_KEYS_C-1:0] v_i);
+    logic [AMAP_OUT_KEYS_C*16-1:0] r;
+    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+      r[k*16 +: 16] = v_i[k] ? 16'(k / 8) : 16'd0;
+    return r;
+  endfunction
+  function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_cluster_of(
+      input logic [AMAP_OUT_KEYS_C-1:0] v_i);
+    logic [AMAP_OUT_KEYS_C*16-1:0] r;
+    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+      r[k*16 +: 16] = v_i[k] ? 16'(k % 8) : 16'd0;
+    return r;
+  endfunction
+
+  //! each stream's current channel count, as the clip reads it
+  logic [9:0] amap_in_ch_w  [AMAP_IN_PORTS_C];
+  logic [9:0] amap_out_ch_w [N_STREAMS];
+  always_comb begin : amap_boot_channels
+    for (int s = 0; s < AMAP_IN_PORTS_C; s++) begin
+      amap_in_ch_w[s] = amap_decl_ch(1'b0, s);
+      if ((s < ACMP_SINKS_C) && pp_aecp_fmt_in_v_w[s])
+        amap_in_ch_w[s] = pp_aecp_fmt_in_w[64*s + 22 +: 10];
+    end
+    for (int s = 0; s < N_STREAMS; s++) begin
+      amap_out_ch_w[s] = amap_decl_ch(1'b1, s);
+      if ((s < ACMP_SRC_C) && pp_aecp_fmt_out_v_w[s])
+        amap_out_ch_w[s] = pp_aecp_fmt_out_w[64*s + 22 +: 10];
+    end
+  end : amap_boot_channels
+
+  //! the clipped image the stores hold while the window is open
+  logic [AMAP_IN_KEYS_C*8-1:0] amap_in_boot_w;
+  logic [AMAP_OUT_KEYS_C-1:0]  amap_out_boot_w;
+  always_comb begin : amap_boot_clip
+    amap_in_boot_w = '0;
+    for (int k = 0; k < AMAP_IN_KEYS_C; k++)
+      for (int s = 0; s < AMAP_IN_PORTS_C; s++)
+        if (AMAP_IN_IMAGE_C[k*8 + 7]
+            && (32'(AMAP_IN_IMAGE_C[k*8 + 3 +: 3]) == s)
+            && (32'(AMAP_IN_IMAGE_C[k*8 +: 3]) < 32'(amap_in_ch_w[s])))
+          amap_in_boot_w[k*8 +: 8] = AMAP_IN_IMAGE_C[k*8 +: 8];
+    amap_out_boot_w = '0;
+    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+      if (AMAP_OUT_IMAGE_C[k] && ((k % 8) < 32'(amap_out_ch_w[k / 8])))
+        amap_out_boot_w[k] = 1'b1;
+  end : amap_boot_clip
+
+  //! THE BOOT WRITER's cursor. amap_boot_r is the window (reset to the
+  //! restore's terminal), amap_boot_last_r the one sweep after it, from key
+  //! 0, and amap_boot_drain_r the cycle its last write lands in the RAM.
+  localparam int AMAP_BOOT_KEYS_C = (AMAP_IN_KEYS_C > AMAP_OUT_KEYS_C)
+                                  ? AMAP_IN_KEYS_C : AMAP_OUT_KEYS_C;
+  localparam int AMAP_BOOT_KW_C = (AMAP_BOOT_KEYS_C <= 2)
+                                ? 1 : $clog2(AMAP_BOOT_KEYS_C);
+  logic                      amap_boot_r, amap_boot_last_r, amap_boot_drain_r;
+  logic [AMAP_BOOT_KW_C-1:0] amap_boot_k_r;
+  wire amap_boot_wrap_w = (32'(amap_boot_k_r) == AMAP_BOOT_KEYS_C - 1);
+  wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;
+  assign amap_boot_busy_w = amap_boot_wr_w || amap_boot_drain_r;
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_boot_walk
+    if (!axis_resetn) begin
+      amap_boot_r       <= 1'b1;
+      amap_boot_last_r  <= 1'b0;
+      amap_boot_drain_r <= 1'b0;
+      amap_boot_k_r     <= '0;
+    end else begin
+      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;
+      if (amap_boot_r && (pp_restore_done_w || pp_restore_closed_w)) begin
+        amap_boot_r      <= 1'b0;
+        amap_boot_last_r <= 1'b1;
+        amap_boot_k_r    <= '0;
+      end else if (amap_boot_wr_w) begin
+        amap_boot_k_r <= amap_boot_wrap_w ? '0
+                                          : amap_boot_k_r + AMAP_BOOT_KW_C'(1);
+        if (amap_boot_wrap_w) amap_boot_last_r <= 1'b0;
+      end
+    end
+  end : amap_boot_walk
+
+  //! the cursor's key, projected as phase 5 projects it: an input key onto
+  //! its physical render key (RPHYS), an output key onto its capture word.
+  //! A key outside the image projects its reset value, zero.
+  logic        amap_boot_iwr_w, amap_boot_owr_w;
+  logic  [5:0] amap_boot_iaddr_w;
+  logic  [7:0] amap_boot_iword_w;
+  logic [12:0] amap_boot_oword_w;
+  always_comb begin : amap_boot_slot
+    amap_boot_iwr_w = 1'b0;
+    amap_boot_iaddr_w = 6'd0;
+    amap_boot_iword_w = 8'd0;
+    amap_boot_owr_w = 1'b0;
+    amap_boot_oword_w = 13'd0;
+    for (int k = 0; k < AMAP_IN_KEYS_C; k++)
+      if ((32'(amap_boot_k_r) == k) && aecp_dmap_dyn_w
+          && ADP_DMAP_IN_RPHYS_C[k][6]) begin
+        amap_boot_iwr_w = 1'b1;
+        amap_boot_iaddr_w = ADP_DMAP_IN_RPHYS_C[k][5:0];
+        amap_boot_iword_w = amap_in_store_r[k*8 +: 8];
+      end
+    for (int k = 0; k < AMAP_OUT_KEYS_C; k++)
+      if ((32'(amap_boot_k_r) == k) && aecp_odmap_dyn_w) begin
+        amap_boot_owr_w = 1'b1;
+        amap_boot_oword_w = amap_out_owner_v_r[k]
+                          ? AMAP_OUT_WORDS_C[k*13 +: 13] : 13'd0;
+      end
+  end : amap_boot_slot
+
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
     if (!axis_resetn) begin
       amap_edit_seen_r <= 1'b0;
@@ -4413,10 +4634,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       amap_edit_oclaim_expect_r <= '0;
       amap_edit_oclaim_cluster_r <= '0;
       amap_edit_out_resv_r <= '0;
-      amap_in_store_r <= '0;
-      amap_out_owner_v_r <= '0;
-      amap_out_owner_r <= '0;
-      amap_out_cluster_r <= '0;
+      amap_in_store_r <= AMAP_IN_IMAGE_C;
+      amap_out_owner_v_r <= AMAP_OUT_IMAGE_C;
+      amap_out_owner_r <= amap_out_owner_of(AMAP_OUT_IMAGE_C);
+      amap_out_cluster_r <= amap_out_cluster_of(AMAP_OUT_IMAGE_C);
       amap_edit_iwr_p_r <= 1'b0;
       amap_edit_iwr_addr_r <= 6'd0;
       amap_edit_iwr_word_r <= 8'd0;
@@ -4426,6 +4647,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end else begin
       amap_edit_iwr_p_r <= 1'b0;
       amap_edit_owr_p_r <= 1'b0;
+      //! #658 boot writer: never beside a phase-5 write, which cannot run
+      //! while the edit face waits; phase 5 below would win the legs anyway
+      if (amap_boot_wr_w && amap_boot_iwr_w) begin
+        amap_edit_iwr_p_r <= 1'b1;
+        amap_edit_iwr_addr_r <= amap_boot_iaddr_w;
+        amap_edit_iwr_word_r <= amap_boot_iword_w;
+      end
+      if (amap_boot_wr_w && amap_boot_owr_w) begin
+        amap_edit_owr_p_r <= 1'b1;
+        amap_edit_owr_slot_r <= 6'(amap_boot_k_r);
+        amap_edit_owr_word_r <= amap_boot_oword_w;
+      end
       if (!pp_amap_edit_req_w) begin
         amap_edit_seen_r <= 1'b0;
       end else if (amap_edit_beat_w) begin
@@ -4514,7 +4747,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         endcase
       end
       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
-          && !aecp_locked
+          && !amap_boot_busy_w && !aecp_locked
           && cfg_chmap_wr_en && cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
         amap_out_owner_v_r[
@@ -4526,12 +4759,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           <= cfg_cmap_cluster_w[15:0];
       end
       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
-          && !aecp_locked
+          && !amap_boot_busy_w && !aecp_locked
           && cfg_chmap_wr_en && !cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
           <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
+      end
+      //! #658 boot clip: the window holds the stores at the clipped image
+      if (amap_boot_r) begin
+        amap_in_store_r <= amap_in_boot_w;
+        amap_out_owner_v_r <= amap_out_boot_w;
+        amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);
+        amap_out_cluster_r <= amap_out_cluster_of(amap_out_boot_w);
       end
     end
   end : amap_edit_commit
@@ -6646,7 +6886,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .map_wr_en_i   ((aecp_dmap_wr_p_w &&
                      32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
                     (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
-                     && !aecp_locked
+                     && !amap_boot_busy_w && !aecp_locked
                      && cfg_chmap_wr_en &&
                      !cfg_chmap_wr_side &&
                      cfg_chmap_rphys_w[6]
@@ -6677,8 +6917,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //      which mapped fabric playback reaches the line-out). -------------
   KL_i2s_feed_mux i2s_feed_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! The crossbar has no current boot seeder. The bring-up tap passes
-    //! through unless CHMAP_CTRL[0] selects the CSR-programmed crossbar.
+    //! A dynamic-input shape renders through the crossbar, which the #658
+    //! boot writer fills with the identity image. Otherwise the bring-up
+    //! tap passes through unless CHMAP_CTRL[0] selects the CSR crossbar.
     .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
     .tap_tdata_i  (rend_pcm_tdata_w),
     .tap_tvalid_i (rend_pcm_tvalid_w),

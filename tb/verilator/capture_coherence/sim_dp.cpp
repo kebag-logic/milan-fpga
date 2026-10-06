@@ -17,12 +17,15 @@
 // THE STIMULUS. The same bench as the junction leg (coherence_bench.hpp): the
 // SoC shifts the #451 pattern into tdm_data_i off tdm_bclk_o/tdm_fsync_o, and
 // the oscillator runs the TDM clock (clk_tdm_i, which is clk_audio_i on this
-// shape) on a chosen plan against the 50 MHz axis clock. The talker is set up
-// the way the #451 bench set it up, through the CSR face: eight identity
-// mappings on the capture map (CHMAP_SEL/CHMAP_WORD with CHMAP_CTRL armed;
-// the shape's dynamic STREAM_PORT_OUTPUT map already puts the crossbar in
-// circuit) and AAF_CTRL's enable with the diagnostic bypass, so no ACMP or
-// SRP exchange is needed to see the frames.
+// shape) on a chosen plan against the 50 MHz axis clock. The talker carries
+// the #658 power-on map with NO map command: the shape's dynamic
+// STREAM_PORT_OUTPUT map puts the crossbar in circuit, and its identity image
+// maps stream channel c to TDM capture slot c (this leg never starts the
+// restore walk, so the boot window stays open and the boot writer holds the
+// capture RAM at that image). So every column graded below is also the
+// end-to-end proof that capture slot c reaches stream channel c by default.
+// The only CSR write is AAF_CTRL's enable with the diagnostic bypass, so no
+// ACMP or SRP exchange is needed to see the frames.
 //
 // INTERNAL AND CRF. INTERNAL is the power-on selection. CRF is selected by
 // poking the processor's stored CLOCK_SOURCE row, the documented
@@ -66,9 +69,6 @@ constexpr int kAxiGuardCycles = 2048;
 //! CSR byte offsets (docs/reference/REGISTER_MAP.md), plain integers because
 //! each is handed straight to the BFM as an address
 constexpr std::uint16_t kAafCtrl = 0x654;
-constexpr std::uint16_t kChmapCtrl = 0x900;
-constexpr std::uint16_t kChmapSel = 0x904;
-constexpr std::uint16_t kChmapWord = 0x908;
 //! AAF_CTRL: [0] enable, [1] diagnostic bypass, [27:16] VID 2
 constexpr std::uint32_t kAafCtrlRun = 0x0002'0003;
 //! the AX 1x1 shape's CRF CLOCK_SOURCE index (INTERNAL is 0)
@@ -254,13 +254,8 @@ void DatapathHarness::axi_write(std::uint16_t addr, std::uint32_t data) {
 
 //! The #451 routed DIN setup through the CSR face: stream channel c takes
 //! TDM slot c ({EN, SRC=TDM, HALF=c&1, IDX_LO=c/2}), then the talker runs.
+//! The talker's enable alone: its channels are the power-on map's (#658).
 void DatapathHarness::program_the_talker() {
-    axi_write(kChmapCtrl, 1);
-    for (int c = 0; c < kChans; c++) {
-        axi_write(kChmapSel, (1u << 8) | static_cast<std::uint32_t>(c));
-        axi_write(kChmapWord, (1u << 15) | (2u << 12) | (static_cast<std::uint32_t>(c & 1) << 8) |
-                                  static_cast<std::uint32_t>(c >> 1));
-    }
     axi_write(kAafCtrl, kAafCtrlRun);
 }
 

@@ -102,8 +102,8 @@ BUDGET = Path(__file__).resolve().parent / "test_evidence.budget"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from code_quality_scope import tracked  # noqa: E402
+from measure_test_evidence_readers import DUT_READER_DISPOSITIONS  # noqa: E402
 import suite_tally  # noqa: E402
-from test_evidence_readers import DUT_READER_DISPOSITIONS  # noqa: E402
 
 #: Every suite tree, and the files whose `make` invocations are its entry. A
 #: target is executed only if one of these runs it: the superproject sweep and
@@ -587,14 +587,14 @@ def seed_population() -> list[str]:
 # DUT and structural contract checks must inspect it. It is, however, the
 # smallest useful static population for an implementation-derived-oracle
 # review. Every present reader has a narrow recorded reason; a new one is debt
-# until it is classified.
+# until it is classified. The reasons are DUT_READER_DISPOSITIONS, data kept in
+# measure_test_evidence_readers.py and imported above.
 DUT_READ_PY = re.compile(r"\bread_text\s*\(|\bread_bytes\s*\(|\bopen\s*\(|\.read\s*\(|\.readlines\s*\(")
 DUT_READ_C = re.compile(r"\bifstream\b|\bfopen\s*\(|\bstd::filesystem\b")
 DUT_READ_SV = re.compile(r"`include\s+\"[^\"\n]*hdl/|\$fopen\s*\(|\$readmem[hb]\s*\(")
 DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\n]*"
                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
 DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
-
 
 
 def reads_dut_source(text: str, suffix: str = ".py") -> bool:
