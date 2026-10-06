@@ -1,0 +1,30 @@
+PASS: all 21 changed paths are documentation
+README.md
+REQUIREMENTS.md
+docs/ARCHITECTURE_HW_SW_SPLIT.md
+docs/ENDSTATION_BUILDER.md
+docs/GLOSSARY.md
+docs/README.md
+docs/design/MAAP_FABRIC.md
+docs/design/MAILBOX_SPLIT.md
+docs/fpga/DATAPLANE_WALKTHROUGH.md
+docs/fpga/FPGA_DESIGN.md
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md
+docs/integration/INTEGRATION_GUIDE.md
+docs/litex/LITEX_SOC.md
+docs/overview/ARCHITECTURE.md
+docs/overview/FULL_FPGA_SOLUTION.md
+docs/overview/SYSTEM_DOMAIN_MAP.md
+docs/reference/FR_NFR.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/traceability/ieee8021q.md
+sw/firmware/ctrl/README.md
+sw/firmware/ctrl_nvm/README.md
+PASS unchanged hdl/common/csr/milan_csr.sv:200: parameter logic [31:0] VERSION = 32'h0002_0060
+PASS unchanged tb/verilator/csr/sim_main.cpp:355: ck("VERSION",       axi_read(A_VERSION), 0x00020060);
+PASS unchanged tb/verilator/milan_dp/sim_main.cpp:280: ck("VERSION",       axi_read(A_VERSION), 0x00020060);
+PASS unchanged tb/verilator/milan_dp/sim_nxn.cpp:2682: axi_read(A_VERSION), 0x00020060);
+PASS unchanged tb/verilator/milan_dp/sim_gptp.cpp:816: expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
+PASS unchanged tb/verilator/milan_dp/sim_prune.cpp:334: ck("VERSION unchanged by the prunes", axi_read(A_VERSION), 0x00020060);
+PASS retired hostplane directory absent; replacement assertion is a future landing obligation
+PASS diff whitespace check

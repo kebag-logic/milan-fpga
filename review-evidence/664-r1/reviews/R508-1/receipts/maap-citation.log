@@ -1,0 +1,8 @@
+IEEE 1722-2016 source SHA-256: ba20762d444e6f7795ffc000bcaf6144e9618eff81cadd867863ed58000f8a8c
+Source heading: B.3.2 State machine
+Source heading: B.3.3 MAAP constants
+Independent reading: Table B.7 under B.3.2 supplies conflict-state actions and restart transitions.
+Independent reading: B.3.3 points to the constants of Table B.8, not those transitions.
+docs/reference/FR_NFR.md:366: | MAAP PROBE and conflict DEFEND | IEEE 1722-2016 B.3.4.2, Table B.8: strictly 500 ms < probe interval < 600 ms; `MAAP_PROBE_RETRANSMITS=3`. B.3.3, B.3.5.5 and B.3.6.6 define conflict handling | 500 ms x 10% = 50 ms; service <= 10 ms. Three retransmissions do not multiply the per-action budget | DEFEND on the applicable conflicting PROBE transition. The probe interval is not a normative received-PROBE response timeout |
+docs/reference/FR_NFR.md:367: | MAAP ANNOUNCE and reallocation | IEEE 1722-2016 B.3.4.1, Table B.8: strictly 30 s < announcement interval < 32 s; B.3.3 governs loss and retry | Announcement gives 3 s; the shared 500 ms probe interval tightens this to 50 ms | Preserve randomization, strict bounds and address-loss handling; service time cannot push a timer beyond its upper bound |
+Finding reproduced: the loss/retry claim and conflict-handling attribution cite the constants clause.
