@@ -119,10 +119,14 @@ class Tally:
 
 
 def merge_line(into: Line, count: int, arcs: list[int]) -> None:
-    """Fold one build's view of a line into the merged one."""
+    """Fold one build's view of a line into the merged one: the line counts as
+    run when any build ran it, and its arcs are those of the builds with the
+    most arcs, merged arc by arc. A build reporting fewer arcs (a shape
+    constant folded a condition away) reports other arcs, so it neither adds
+    to nor replaces the longer builds' measure."""
     into.count = max(into.count, count)
     if len(arcs) > len(into.arcs):
-        into.arcs = [max(a, b) for a, b in zip(arcs, into.arcs + [0] * (len(arcs) - len(into.arcs)))]
+        into.arcs = list(arcs)
     elif len(arcs) == len(into.arcs):
         into.arcs = [max(a, b) for a, b in zip(arcs, into.arcs)]
 
