@@ -1,0 +1,573 @@
+[
+ {
+  "mutant": "golden-aecp_notify-interfaces",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-domain-notify-only",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top-obj_if2_Vpp_top_if2",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "avb_link_term_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4b:",
+   "DN4c:",
+   "DN4d:",
+   "DN4e:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN4d: link up: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_domain_term_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN1b:",
+   "DN1c:",
+   "DN2b:",
+   "DN2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "asp_takes_domain",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN1b:",
+   "DN2b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 2 frames: 1 GET_AVB_INFO, 1 GET_AS_PATH)",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 2 frames: 1 GET_AVB_INFO, 1 GET_AS_PATH)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_notify_not_interface",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4c:",
+   "DN4e:",
+   "DN1c:",
+   "DN2c:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 1, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 2, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 3, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "domain_same_readopted",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN3:",
+   "DN3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN3: the bridge declares the operating {3, 5} again: no DOMAIN_CHANGE (saw 1) and nothing reaches A (got 1 frames)",
+   "DN3b: the bridge declares the operating {3, 2} again: no DOMAIN_CHANGE (saw 1) and nothing reaches A (got 1 frames)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "adoption_no_strobe",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "<bench-switch-model>:",
+   "DN2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "<bench-switch-model>: the bridge's {3, 5} is adopted with one DOMAIN_CHANGE (premise), saw 0, class-D {3, 5, adopted 1}",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2: the declared default {3, 2} is in force with one DOMAIN_CHANGE (premise), saw 0, class-D {3, 2}"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "revert_strobes_at_defaults",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN4: neither link edge raises DOMAIN_CHANGE at DEFAULTS (premise: the link term alone notifies), saw 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_never_claims",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "DN0:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "DN0: controller A registered (premise)",
+   "DN4b: link down: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN4d: link up: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN4e: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN1b: the bridge's {3, 5} adopted: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN1c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame",
+   "DN2b: the default {3, 2} declared back: exactly one frame reaches A, a u = 1 GET_AVB_INFO, and no GET_AS_PATH (got 0 frames: 0 GET_AVB_INFO, 0 GET_AS_PATH)",
+   "DN2c: it is byte-exact: u = 1 GET_AVB_INFO SUCCESS to A's DA and entity_id at its sequence_id 0, AVB_INTERFACE 0, the face's words (IEEE 7.4.40.2); no frame"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_compared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_latched",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on port 1 is a second (results 0 and 0, 1 then 1 entries)",
+   "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)",
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 1 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 0 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (0 notification(s))",
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (2 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 1 entries (want 3), a job presented, and 1 draw(s), the two E's command asked",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "port_not_stored",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PT3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PT3: a repeated REGISTER on port 1 refreshes port 1's entry: still two entries (result 0, 3 entries)",
+   "PT5: DEREGISTER from E on port 1 removes one entry (result 0, 3 entries)",
+   "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E once, at port 0's Sequence ID 2 (3 notification(s))",
+   "PT7: DEREGISTER from E on port 0 removes the last entry (result 0, 2 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "restore_never_done",
+  "suite": "./obj_dir/Vpp_top_sim --domain-notify-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "notify bench: blank NVM"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "notify bench: blank NVM, both restore walks reach done"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 0, 0000:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 0 on index 0, want 1000 to 1008 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_row_collapsed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 0, 0000:0, 4294964291 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_named_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0024:0)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_any_index",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 (kind 6, 0009:0)",
+   "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its window is its own (kind 6, 0009:1, 8 ms after interface 1's)",
+   "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from interface 1's send: presented at ms 4009 on index 0, want 4005 to 4013 on index 1",
+   "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no GET_COUNTERS in two seconds (one presented on 0009:1)",
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "avb_counter_name_overlaps_clock",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CK5:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind 6, 0009:0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cancel_one_per_command",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA1:",
+   "CA1b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA1: E holds an entry on each port and both probes are out (owners 0x3); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_fail_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:",
+   "CA3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "report_rsp_ignores_probe",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 3 entries (want 3), no job, and 3 draw(s), the two E's command asked"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "owner_turns_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA3:",
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA3: the rows of one index take turns: A's probe goes out alone (2 probe(s)), its failure removes A (DEREGISTER to 02000000000a, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rgy_port_tied_zero",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+   "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "settle_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "CA4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken 1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (2 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_shared",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 0 0 1 1, 4 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (3 entries, DEREGISTER to 020000000004), and row 1's monitor deadline probes row 1's controller, CA owner 0 (1 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), a job presented, and 2 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (1 cancel(s), owners 0x1, 1 entries)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "depth_not_keyed",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD1:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD1: each interface holds P-N-CONTROLLERS (2) entries of its own: two REGISTERs on port 0 succeed and a third is refused NO_RESOURCES, then port 1 takes two and refuses its third (results 0 0 1 1 1 1, 2 entries)",
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (2 draws, 4 arms)",
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (1 entries, DEREGISTER to 020000000001), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x0); one command from E cancels both exchanges (0 cancel(s), owners 0x0)",
+   "CA2: the cancelled exchanges' late failures and responses touch nothing: 2 entries (want 3), no job, and 1 draw(s), the two E's command asked",
+   "CA1b: row 0's TIME_LIMITED drain cancels its probe, and F's command in the drain's cycle cancels F's too (0 cancel(s), owners 0x0, 0 entries)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (0 probe(s)), its failure removes A (DEREGISTER to 000000000000, 2 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "registry_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "monitor_tag_port_bits",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD2:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD2: row r = {index, port} arms TIME_LIMITED slot 25 + r with owner 0xa0 + index, and its monitor slot 29 + r with 0xd0 + index (4 draws, 8 arms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "expiry_port_dropped",
+  "suite": "make interfaces",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "PD3:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "PD3: an expiry is decoded to its row from tag and slot: row 3's TIME_LIMITED deadline removes row 3 alone (4 entries, DEREGISTER to 000000000000), and row 1's monitor deadline probes row 1's controller, CA owner 0 (0 probe(s))",
+   "CA1: E holds an entry on each port and both probes are out (owners 0x1); one command from E cancels both exchanges (1 cancel(s), owners 0x1)",
+   "CA3: the rows of one index take turns: A's probe goes out alone (1 probe(s)), its failure removes A (DEREGISTER to 020000000009, 1 entries), and B's probe follows (0)",
+   "CA4: after X's cancel, Y's probe of the same owner waits out the settle (taken -1 cycle(s) after the cancel, want 4 or more), so the cancelled exchange's response two cycles after it asks no draw (1 draw(s), want X's 1) and Y's own failure removes Y (2 entries, DEREGISTER to 000000000000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rgy_port_from_latest_frame",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3:",
+   "IF3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3: C's REGISTER on interface 1, run after a frame received on interface 0, makes interface 1's entry: the next lock reaches C at sequence_id 0 and 2, the unlock at 1 and 3 (REGISTER SUCCESS, after the held push yes)",
+   "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (1 and 0 push(es))"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "dereg_matches_other_port",
+  "suite": "./obj_if2/Vpp_top_if2",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "IF3b:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "IF3b: C's DEREGISTER on interface 1, run after a frame received on interface 0, removes interface 1's entry: the held lock reaches both entries, at 2 and 4, and the unlock then reaches C once, at interface 0's 5 (2 and 1 push(es))"
+  ],
+  "verdict": "KILLED"
+ }
+]

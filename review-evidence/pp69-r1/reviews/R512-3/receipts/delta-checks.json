@@ -1,0 +1,180 @@
+{
+  "head": "669ded57b1fabc2bbf274b8ad05493c7593e0a0a",
+  "checks": [
+    {
+      "check": "exact head",
+      "pass": true,
+      "evidence": "669ded57b1fabc2bbf274b8ad05493c7593e0a0a"
+    },
+    {
+      "check": "exact tree",
+      "pass": true,
+      "evidence": "4bce83358cf24f551909ab46aeb19c5f93787106"
+    },
+    {
+      "check": "hdl unchanged since round 2",
+      "pass": true,
+      "evidence": {
+        "75c4eee4589e9317aca3d07b91f94a38b4cc86af": "9678afce94c9b2b8ae553234b76bc54d8f41ec93",
+        "669ded57b1fabc2bbf274b8ad05493c7593e0a0a": "9678afce94c9b2b8ae553234b76bc54d8f41ec93"
+      }
+    },
+    {
+      "check": "hdl baseline main unchanged by issue 42",
+      "pass": true,
+      "evidence": {
+        "86a7b0c57831c15e9cd8b42d64cc4a9843f4e726": "a7ae92433f5526930a94c06aafb1d498023e93f4",
+        "2ad2f845dd583f8310075fa2380cb60a04fd091a": "a7ae92433f5526930a94c06aafb1d498023e93f4"
+      }
+    },
+    {
+      "check": "syn unchanged since round 2",
+      "pass": true,
+      "evidence": {
+        "75c4eee4589e9317aca3d07b91f94a38b4cc86af": "a5e560a610a05d27d0c184285253d1763a1ec3de",
+        "669ded57b1fabc2bbf274b8ad05493c7593e0a0a": "a5e560a610a05d27d0c184285253d1763a1ec3de"
+      }
+    },
+    {
+      "check": "syn baseline main unchanged by issue 42",
+      "pass": true,
+      "evidence": {
+        "86a7b0c57831c15e9cd8b42d64cc4a9843f4e726": "a5e560a610a05d27d0c184285253d1763a1ec3de",
+        "2ad2f845dd583f8310075fa2380cb60a04fd091a": "a5e560a610a05d27d0c184285253d1763a1ec3de"
+      }
+    },
+    {
+      "check": "non-fast-forward merge parents",
+      "pass": true,
+      "evidence": [
+        "75c4eee4589e9317aca3d07b91f94a38b4cc86af",
+        "2ad2f845dd583f8310075fa2380cb60a04fd091a"
+      ]
+    },
+    {
+      "check": "campaign union",
+      "pass": true,
+      "evidence": {
+        "round2": 77,
+        "main": 65,
+        "head": 86
+      }
+    },
+    {
+      "check": "round2 exact mutation definitions preserved",
+      "pass": true,
+      "evidence": []
+    },
+    {
+      "check": "main mutation definitions preserved with existing row-depth anchor refresh",
+      "pass": true,
+      "evidence": {
+        "unchanged": 64,
+        "refreshed": [
+          "dereg_lost_at_round_end"
+        ],
+        "only_difference": "N_CTRL_P - 1 becomes N_ROW_C - 1; identical at count 1"
+      }
+    },
+    {
+      "check": "tb/pp_top/interface_phases.hpp preserved from round2",
+      "pass": true,
+      "evidence": "2ed7c1273c10be9ac51777a13220a6581cca7ae1"
+    },
+    {
+      "check": "tb/aecp_notify/port_tuple.hpp preserved from round2",
+      "pass": true,
+      "evidence": "0812ef47d1c2bb15da8788f274e23b78aa792352"
+    },
+    {
+      "check": "tb/pp_top/if_guards.py preserved from round2",
+      "pass": true,
+      "evidence": "59dada4cf74b85b9ff22d058245084fbd971bdc4"
+    },
+    {
+      "check": "tb/adp_engine/sim_if2.cpp preserved from round2",
+      "pass": true,
+      "evidence": "aecd22a99582f864c467bca1fd96d7fe0994a069"
+    },
+    {
+      "check": "tb/pp_top/pp_top_wrap.sv preserved from round2",
+      "pass": true,
+      "evidence": "c0493157f333c7b3be1acfd289f83e556402c22f"
+    },
+    {
+      "check": "tb/aecp_notify/sim_main.cpp preserved from round2",
+      "pass": true,
+      "evidence": "a4bf3e97a3011c0a29cb9127cb77f314931b8ea8"
+    },
+    {
+      "check": "tb/pp_top/Makefile preserved from round2",
+      "pass": true,
+      "evidence": "9302360bd226321c7c83e8bbd41d35e0a8cc80ba"
+    },
+    {
+      "check": "tb/aecp_notify/Makefile preserved from round2",
+      "pass": true,
+      "evidence": "cee37564d42df8dc186ff4c01e1e54ea5d50e5f5"
+    },
+    {
+      "check": "DN implementation identical to main",
+      "pass": true,
+      "evidence": "b6a41863d529719acd773e87002c1f0d29fd65ec"
+    },
+    {
+      "check": "main length at most 100 lines",
+      "pass": true,
+      "evidence": 100
+    },
+    {
+      "check": "both test dispatches retained",
+      "pass": true,
+      "evidence": [
+        "run_domain_notify(h);",
+        "run_interfaces(h);"
+      ]
+    },
+    {
+      "check": "storage formula matches RTL",
+      "pass": true,
+      "evidence": {
+        "small_shape": {
+          "1 interface": {
+            "stamps": 4,
+            "bits": 128
+          },
+          "2 interfaces": {
+            "stamps": 5,
+            "bits": 160
+          }
+        },
+        "default_8x8": {
+          "1 interface": {
+            "stamps": 18,
+            "bits": 576
+          },
+          "2 interfaces": {
+            "stamps": 19,
+            "bits": 608
+          }
+        }
+      }
+    },
+    {
+      "check": "all 86 exact-text mutation anchors match once",
+      "pass": true,
+      "evidence": {
+        "mutants": 86,
+        "edits": 89
+      }
+    },
+    {
+      "check": "processor repository gitlinks",
+      "pass": true,
+      "evidence": {
+        "gitlinks": [],
+        "note": "No nested submodule gitlinks in this repository."
+      }
+    }
+  ]
+}
