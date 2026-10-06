@@ -1,0 +1,57 @@
+git grep -n -F -- '  logic       started_r [N_TALKERS_P]; //! first pair accepted since enable' tb/**/*.patch tb/**/*mutant*.py
+rc=1
+No exact-text consumer.
+
+git grep -n -F -- "                   (started_r[pown_t_w] || pown_o_w == '0) &&" tb/**/*.patch tb/**/*mutant*.py
+rc=1
+No exact-text consumer.
+
+git grep -n -F -- "        started_r[t] <= 1'b0;" tb/**/*.patch tb/**/*mutant*.py
+rc=1
+No exact-text consumer.
+
+git grep -n -F -- "        started_r[pown_t_w] <= 1'b1;" tb/**/*.patch tb/**/*mutant*.py
+rc=1
+No exact-text consumer.
+
+git grep -n -F -- "          started_r[t] <= 1'b0;" tb/**/*.patch tb/**/*mutant*.py
+rc=1
+No exact-text consumer.
+
+milan_dp/render_mutants: loaded mutation table
+
+milan_dp/crflic_mutants: loaded mutation table
+
+milan_dp/gsi_mutants: loaded mutation table
+
+milan_dp/unb_mutants: loaded mutation table
+
+milan_dp/gmstep_mutants: loaded mutation table
+
+milan_dp_render/tdm8_render_mutants: loaded mutation table
+
+milan_dp_mclk/mclk_mutants: loaded mutation table
+git grep -n -F -- '  //! After enable, wait for pair zero before collecting a sample frame.' tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- '  //! Otherwise its last pair advances nsamp without capturing TCTX w4.' tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- "  //! IEEE 1722-2016 7.5 requires the first sample's presentation time." tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- '  logic       started_r [N_TALKERS_P]; //! first pair accepted since enable' tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- "                   (started_r[pown_t_w] || pown_o_w == '0) &&" tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- "        started_r[t] <= 1'b0;" tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- "        started_r[pown_t_w] <= 1'b1;" tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.
+git grep -n -F -- "          started_r[t] <= 1'b0;" tb/**/*.patch tb/**/*.py
+rc=1
+No tracked exact-text consumer.

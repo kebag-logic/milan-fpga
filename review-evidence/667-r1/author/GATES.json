@@ -1,0 +1,169 @@
+{
+  "head": "5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2",
+  "status": "Local validation complete; ready for independent review",
+  "pending": [],
+  "unexpected_failures": [],
+  "gates": [
+    {
+      "check": "Default datapath shard",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/default-heavy-logs\" --shard 1/2",
+      "receipt": "resume/default-heavy.rc",
+      "rc": 0,
+      "note": "11877 checks, zero failures; complete milan_dp suite with SIM_JOBS=2"
+    },
+    {
+      "check": "Default remainder 0",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/rest-0-logs\" --shard 0/5",
+      "receipt": "resume/rest-0.rc",
+      "rc": 0,
+      "note": "11 selected suites; SIM_JOBS=2"
+    },
+    {
+      "check": "Default remainder 1",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/rest-1-logs\" --shard 1/5",
+      "receipt": "resume/rest-1.rc",
+      "rc": 0,
+      "note": "23 selected suites; SIM_JOBS=2"
+    },
+    {
+      "check": "Default remainder 2",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/rest-2-logs\" --shard 2/5",
+      "receipt": "resume/rest-2.rc",
+      "rc": 0,
+      "note": "13 selected suites; SIM_JOBS=2"
+    },
+    {
+      "check": "Default remainder 3",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/rest-3-logs\" --shard 3/5",
+      "receipt": "resume/rest-3.rc",
+      "rc": 0,
+      "note": "12 selected suites; SIM_JOBS=2"
+    },
+    {
+      "check": "60-suite aggregate",
+      "command": "python3 scripts/suite_tally.py \"$SCRATCH/default-heavy-logs\" \"$SCRATCH/rest-0-logs\" \"$SCRATCH/rest-1-logs\" \"$SCRATCH/rest-2-logs\" \"$SCRATCH/rest-3-logs\" --quiet --expect-suite-root tb/verilator",
+      "receipt": "resume/suites-complete-aggregate.rc",
+      "rc": 0,
+      "note": "60 distinct suites; 2184191 checks; zero failures, skips or timeouts"
+    },
+    {
+      "check": "Portability sweep",
+      "command": "bash syn/yosys/run.sh --results \"$SCRATCH/portability-results\"",
+      "receipt": "resume/portability.rc",
+      "rc": 0,
+      "note": "58 tops; tied-input and observer-purity checks pass"
+    },
+    {
+      "check": "Portability aggregate",
+      "command": "python3 scripts/yosys_tally.py \"$SCRATCH/portability-results\" --expected \"$SCRATCH/expected-tops.txt\" --require-structural",
+      "receipt": "resume/portability-aggregate.rc",
+      "rc": 0,
+      "note": "58 expected, 58 observed, zero errors"
+    },
+    {
+      "check": "Builder bank",
+      "command": "python3 sw/builder/test_builder.py --require-elaboration --require-rv32",
+      "receipt": "resume/builder-isolated.rc",
+      "rc": 0,
+      "note": "Required arms ran; optional gate 11 calibration NOT RUN, missing historical placement report"
+    },
+    {
+      "check": "Full render at base",
+      "command": "python3 tdm8_render_mutants.py",
+      "receipt": "resume/render-base.rc",
+      "rc": 1,
+      "note": "Original campaign judgments; known #657 results retained"
+    },
+    {
+      "check": "Full render at head",
+      "command": "python3 tdm8_render_mutants.py",
+      "receipt": "resume/render-head.rc",
+      "rc": 1,
+      "note": "Original campaign judgments; known #657 results retained"
+    },
+    {
+      "check": "Render comparison",
+      "command": "Compare stdout, return codes and verdicts for all 32 runs",
+      "receipt": "resume/render-comparison.rc",
+      "rc": 0,
+      "note": "Ruling 6012843714 acceptance"
+    },
+    {
+      "check": "Full GM-step campaign",
+      "command": "python3 gmstep_mutants.py --all",
+      "receipt": "resume/gmstep-all.rc",
+      "rc": 0,
+      "note": "22/22 checks pass"
+    },
+    {
+      "check": "Unbind campaign",
+      "command": "python3 unb_mutants.py",
+      "receipt": "resume/unb-all.rc",
+      "rc": 0,
+      "note": "6/6 checks pass; all five mutants caught"
+    },
+    {
+      "check": "Stream-info campaign",
+      "command": "python3 gsi_mutants.py",
+      "receipt": "resume/gsi-all.rc",
+      "rc": 0,
+      "note": "9/9 checks pass; all eight mutants caught"
+    },
+    {
+      "check": "CRF licence campaign",
+      "command": "python3 crflic_mutants.py",
+      "receipt": "resume/crflic-all.rc",
+      "rc": 0,
+      "note": "7/7 checks pass; all six mutants caught"
+    },
+    {
+      "check": "Physical timing integration",
+      "command": "bash scripts/run_all_suites.sh \"$SCRATCH/physical-logs\" --physical-gptp",
+      "receipt": "resume/physical-gptp.rc",
+      "rc": 0,
+      "note": "139 physical checks and 40 failure-path accounting checks pass"
+    },
+    {
+      "check": "Render boundary campaign",
+      "command": "make -j16 tdm8render-law-boundary LAW_BOUNDARY_JOBS=16",
+      "receipt": "resume/render-boundary.rc",
+      "rc": 0,
+      "note": "81/81 diagnostic rounds; both setpoint mutants fail every gradable window; near-boundary windows remain explicitly NOT GRADABLE"
+    },
+    {
+      "check": "Native control-processor bank",
+      "command": "bash scripts/run_suites.sh",
+      "receipt": "resume/native-control.rc",
+      "rc": 0,
+      "note": "1021627 checks, zero failures"
+    },
+    {
+      "check": "Native timing-processor bank",
+      "command": "make -j16 contract tb",
+      "receipt": "resume/native-time.rc",
+      "rc": 0,
+      "note": ""
+    },
+    {
+      "check": "Pinned timing wire-field repeat",
+      "command": "make -j16 -C tb/tsngen",
+      "receipt": "resume/native-time-oracle.rc",
+      "rc": 0,
+      "note": "290 clean checks and 4 campaign checks pass"
+    },
+    {
+      "check": "Standalone runner self-test",
+      "command": "bash scripts/run_litex_sims.sh --selftest",
+      "receipt": "resume/standalone-selftest.rc",
+      "rc": 0,
+      "note": ""
+    },
+    {
+      "check": "Standalone simulations",
+      "command": "bash scripts/run_litex_sims.sh \"$SCRATCH/standalone-logs\"",
+      "receipt": "resume/standalone.rc",
+      "rc": 0,
+      "note": "4/4 pass, no skips or timeouts"
+    }
+  ]
+}

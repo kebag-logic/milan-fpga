@@ -1,0 +1,66 @@
+campaign	arm	sites	result
+milan_dp/render_mutants	prefill target three events high	1	PLANTS
+milan_dp/render_mutants	recentre pulse ignored	1	PLANTS
+milan_dp/render_mutants	recentre counted and cleared but not snapped	1	PLANTS
+milan_dp/render_mutants	clock-source trigger dropped from the recentre set	1	PLANTS
+milan_dp/crflic_mutants	every gate reads the raw verdict	1	PLANTS
+milan_dp/crflic_mutants	the CRF licence alone reads the raw verdict	1	PLANTS
+milan_dp/crflic_mutants	the AAF source 0 gate alone reads the raw verdict	1	PLANTS
+milan_dp/crflic_mutants	every gate drops the real grant	1	PLANTS
+milan_dp/crflic_mutants	the CRF licence alone drops the real grant	1	PLANTS
+milan_dp/crflic_mutants	the AAF source 0 gate alone drops the real grant	1	PLANTS
+milan_dp/gsi_mutants	the processor ties a sink's failure bridge id to zero	1	PLANTS
+milan_dp/gsi_mutants	selector 5 goes back to the parent, whose input answer is zero	2	PLANTS
+milan_dp/gsi_mutants	the processor ties a sink's failure code to zero	1	PLANTS
+milan_dp/gsi_mutants	the failure-code byte is left to the parent, which no longer supplies it	1	PLANTS
+milan_dp/gsi_mutants	the processor ties probing/ACMP status to zero	1	PLANTS
+milan_dp/gsi_mutants	the processor reads the other sink's owners	1	PLANTS
+milan_dp/gsi_mutants	the parent's bound/settled approximation answers selector 7 again	3	PLANTS
+milan_dp/gsi_mutants	the processor duplicates the withdrawal push after 4096 cycles	2	PLANTS
+milan_dp/unb_mutants	the processor holds every ACMP frame 6000 cycles, so the push overtakes the response	1	PLANTS
+milan_dp/unb_mutants	the CRF unbind does not count its unlock (the engine before #653)	1	PLANTS
+milan_dp/unb_mutants	the CRF unbind keeps the lock, so the silence timeout counts the unlock again	1	PLANTS
+milan_dp/unb_mutants	the CRF unbind also counts a STREAM_INTERRUPTED	1	PLANTS
+milan_dp/unb_mutants	the CRF unbind counts its unlock but arms no push	1	PLANTS
+milan_dp/gmstep_mutants	the policy level is tied low at the servo	1	PLANTS
+milan_dp/gmstep_mutants	the policy level omits the applied-rate tail	1	PLANTS
+milan_dp/gmstep_mutants	the policy level misses an extra addend stage	1	PLANTS
+milan_dp/gmstep_mutants	the PHC re-base restart term is restored	1	PLANTS
+milan_dp/gmstep_mutants	the source-change term is removed	1	PLANTS
+milan_dp/gmstep_mutants	selected CRF mr propagation is removed	1	PLANTS
+milan_dp/gmstep_mutants	the grandmaster identity re-bases the render stage as well as the step	1	PLANTS
+milan_dp/gmstep_mutants	the step does not re-centre the render stage	1	PLANTS
+milan_dp/gmstep_mutants	the render re-base is keyed to the identity, not the step	1	PLANTS
+milan_dp/gmstep_mutants	tu reaches the talkers four cycles late	1	PLANTS
+milan_dp/gmstep_mutants	the plane's step does not re-arm the holdover	1	PLANTS
+milan_dp/gmstep_mutants	tu stops the talker	1	PLANTS
+milan_dp/gmstep_mutants	the grandmaster change stops the talker for good	1	PLANTS
+milan_dp/gmstep_mutants	the step's re-centre snaps one event off the setpoint	1	PLANTS
+milan_dp/gmstep_mutants	software settime is restored as an mr cause	1	PLANTS
+milan_dp/gmstep_mutants	PHC adjtime is restored as an mr cause	1	PLANTS
+milan_dp/gmstep_mutants	both PHC restart causes are restored	1	PLANTS
+milan_dp/gmstep_mutants	PHC adjtime becomes an mr cause 16 cycles later	1	PLANTS
+milan_dp/gmstep_mutants	PHC adjtime becomes an mr cause 256 cycles later	1	PLANTS
+milan_dp/gmstep_mutants	a PHC step suppresses a coincident CRF restart	1	PLANTS
+milan_dp_render/tdm8_render_mutants	wrong physical base: the identity projection	1	PLANTS
+milan_dp_render/tdm8_render_mutants	wrong slot order: the bank walk runs backwards	1	PLANTS
+milan_dp_render/tdm8_render_mutants	shared identity corruption: one pdu bit of EVERY channel	1	PLANTS
+milan_dp_render/tdm8_render_mutants	one-bit phase slip: the bit for position p, not p + 1	1	PLANTS
+milan_dp_render/tdm8_render_mutants	uncounted repeat: the underrun counter never increments	1	PLANTS
+milan_dp_render/tdm8_render_mutants	drop NEWEST: the prefetch keeps the have-next guard	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the epoch request does not RETAIN across a reset	2	PLANTS
+milan_dp_render/tdm8_render_mutants	ungated commit: a closed epoch admits frames anyway	2	PLANTS
+milan_dp_render/tdm8_render_mutants	the serial reset rebuilt from two reconverged levels, with arrival skew	4	PLANTS
+milan_dp_render/tdm8_render_mutants	the epoch request races the acknowledgement instead of waiting	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the epoch gate reaches the FIFO but not the adapter	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the graceful flush tears the frame in flight	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the preserved prefill snap keeps a different fill	1	PLANTS
+milan_dp_render/tdm8_render_mutants	modelled bit-arrival skew, raw binary transport	5	PLANTS
+milan_dp_render/tdm8_render_mutants	the clock-source trigger dropped from the recentre set	1	PLANTS
+milan_dp_render/tdm8_render_mutants	A2-a removed: the aligner is not engaged at INTERNAL	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the render setpoint one event low	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the render setpoint one event high	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the bind-fall mask is not stream qualified	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the lane's stream set ignores the mapping's stream field	1	PLANTS
+milan_dp_render/tdm8_render_mutants	the CSR protocol-store mirror gated on the physical projection	1	PLANTS
+milan_dp_mclk/mclk_mutants	all schemata	19	PLANTS
