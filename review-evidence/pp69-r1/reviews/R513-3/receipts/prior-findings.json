@@ -1,0 +1,91 @@
+{
+  "read_after_independent_verdict": true,
+  "reconciled_utc": "2026-10-06T22:43:03.404221+00:00",
+  "prior_report_comment_ids": [
+    6016101360,
+    6016189510,
+    6024562233,
+    6024563661
+  ],
+  "formal_review_submissions": 0,
+  "inline_review_comments": 0,
+  "findings": [
+    {
+      "id": "R512-1-F1",
+      "severity": "MINOR",
+      "lenses": [
+        "RTL",
+        "Robustness",
+        "Tests"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "hdl/aecp/KL_aecp_notify.sv:714",
+        "tb/aecp_notify/port_tuple.hpp:463",
+        "receipts/notify/results.json"
+      ],
+      "verification": "CA1, CA1b, CA2, CA3, CA4 pass; cancel_one_per_command, report_fail_ignores_probe, report_rsp_ignores_probe, owner_turns_dropped and settle_dropped killed."
+    },
+    {
+      "id": "R512-1-F2",
+      "severity": "MINOR",
+      "lenses": [
+        "Tests",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "tb/pp_top/interface_phases.hpp:127",
+        "tb/pp_top/interface_phases.hpp:224",
+        "docs/architecture/09_verification.md:432",
+        "receipts/notify/results.json"
+      ],
+      "verification": "IF3 and IF3b pass; rgy_port_from_latest_frame fails both; dereg_matches_other_port fails IF3b."
+    },
+    {
+      "id": "R512-1-F3",
+      "severity": "MINOR",
+      "lenses": [
+        "Conformance",
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "hdl/aecp/KL_aecp_notify.sv:364",
+        "docs/architecture/01_overview.md:159",
+        "docs/00_MILAN_COMPLIANCE_REVIEW.md:428",
+        "tb/aecp_notify/port_tuple.hpp:400"
+      ],
+      "verification": "PD1-PD3 pass; depth_shared, depth_not_keyed, registry_tag_port_bits, monitor_tag_port_bits, expiry_port_dropped killed; prior production-depth verdict stands on unchanged bytes."
+    },
+    {
+      "id": "R512-1-S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "PR 165 body, section 5"
+      ],
+      "verification": "Public enumeration explicitly gives 94 arms and two BFM observation anchors."
+    },
+    {
+      "id": "R512-2-F4 = R513-2-F1",
+      "severity": "MINOR",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "RESOLVED",
+      "evidence": [
+        "docs/architecture/06_aecp_engine.md:931",
+        "hdl/aecp/KL_aecp_notify.sv:435",
+        "hdl/aecp/KL_aecp_notify.sv:446",
+        "receipts/delta-check.json"
+      ],
+      "verification": "Correct formula and elaborated 4/5 and 18/19 32-bit stamp arrays; documentation gates pass."
+    }
+  ],
+  "open_findings": [],
+  "unchanged_external_issue": "Processor issue 167: known count-one same-cycle cancellation defect is separate work, explicitly unchanged."
+}

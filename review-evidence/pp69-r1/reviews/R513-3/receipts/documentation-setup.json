@@ -1,0 +1,7 @@
+{
+  "classification": "review harness setup, not source defect",
+  "archive_attempt": "Git-dependent documentation enumeration refused an archive without repository metadata.",
+  "environment_attempt": "Supplying the review repository through GIT_DIR/GIT_WORK_TREE contaminated nested temporary-repository selftests; those selftests failed. Their git init also wrote core.worktree to the scratch extraction.",
+  "repair": "Removed the added core.worktree setting; no tracked source or index content was changed. Reran documentation with the ordinary checkout and TMPDIR only.",
+  "verification": "Final integrity script asserts the repository top-level equals the actual clone, HEAD is detached, every tracked blob/mode/index matches the prescribed commit, and the gitlink inventory is exact."
+}

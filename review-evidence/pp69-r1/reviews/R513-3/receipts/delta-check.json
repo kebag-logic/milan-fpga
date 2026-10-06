@@ -1,0 +1,53 @@
+{
+  "head": "669ded57b1fabc2bbf274b8ad05493c7593e0a0a",
+  "old": "75c4eee4589e9317aca3d07b91f94a38b4cc86af",
+  "main": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+  "main_physical_lines": 100,
+  "campaign_count": 86,
+  "prior_controls_unchanged": 77,
+  "DN_controls_unchanged": 9,
+  "all_readme_rows_present": true,
+  "round2_paths_byte_identical": [
+    "hdl",
+    "tb/aecp_notify",
+    "tb/adp_engine",
+    "tb/pp_top/interface_phases.hpp",
+    "tb/pp_top/if_guards.py",
+    "tb/pp_top/Makefile",
+    "tb/pp_top/pp_top_wrap.sv"
+  ],
+  "DN_file_byte_identical_to_main": true,
+  "merge_parents_verified": true,
+  "final_commit_docs_only": true,
+  "storage_row": "| GET_COUNTERS stamps `ctr_last_r` | (streams in + out + 1 + P-N-AVB-INTERFACES) \u00d7 32 bits | flops, no reset | `ctr_sent_r` is each stamp's valid bit; the one-second window reads every stamp against `now_ms_i` in every cycle |",
+  "elaborated_shapes": [
+    {
+      "streams_in": 1,
+      "streams_out": 1,
+      "interfaces": 1,
+      "N_CTR_DESC_C": 4,
+      "stamp_bits": 128
+    },
+    {
+      "streams_in": 1,
+      "streams_out": 1,
+      "interfaces": 2,
+      "N_CTR_DESC_C": 5,
+      "stamp_bits": 160
+    },
+    {
+      "streams_in": 8,
+      "streams_out": 8,
+      "interfaces": 1,
+      "N_CTR_DESC_C": 18,
+      "stamp_bits": 576
+    },
+    {
+      "streams_in": 8,
+      "streams_out": 8,
+      "interfaces": 2,
+      "N_CTR_DESC_C": 19,
+      "stamp_bits": 608
+    }
+  ]
+}

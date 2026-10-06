@@ -1,0 +1,272 @@
+{
+  "goldens_passed": 10,
+  "controls_killed": 86,
+  "controls_total": 86,
+  "build_failures": 0,
+  "incomplete_runs": 0,
+  "missing_named_failures": 0,
+  "merge_groups": {
+    "DN": [
+      {
+        "name": "avb_domain_term_dropped",
+        "failing_checks": 4,
+        "documented_checks": 4,
+        "named_checks": [
+          "DN1b:",
+          "DN1c:",
+          "DN2b:",
+          "DN2c:"
+        ]
+      },
+      {
+        "name": "avb_link_term_dropped",
+        "failing_checks": 4,
+        "documented_checks": 4,
+        "named_checks": [
+          "DN4b:",
+          "DN4c:",
+          "DN4d:",
+          "DN4e:"
+        ]
+      },
+      {
+        "name": "asp_takes_domain",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "DN1b:",
+          "DN2b:"
+        ]
+      },
+      {
+        "name": "avb_notify_not_interface",
+        "failing_checks": 4,
+        "documented_checks": 4,
+        "named_checks": [
+          "DN4c:",
+          "DN4e:",
+          "DN1c:",
+          "DN2c:"
+        ]
+      },
+      {
+        "name": "domain_same_readopted",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "DN3:",
+          "DN3b:"
+        ]
+      },
+      {
+        "name": "adoption_no_strobe",
+        "failing_checks": 6,
+        "documented_checks": 6,
+        "named_checks": [
+          "<bench-switch-model>:",
+          "DN2:"
+        ]
+      },
+      {
+        "name": "revert_strobes_at_defaults",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "DN4:"
+        ]
+      },
+      {
+        "name": "registry_never_claims",
+        "failing_checks": 9,
+        "documented_checks": 9,
+        "named_checks": [
+          "DN0:"
+        ]
+      },
+      {
+        "name": "restore_never_done",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "notify bench: blank NVM"
+        ]
+      }
+    ],
+    "interface_rows": [
+      {
+        "name": "port_not_compared",
+        "failing_checks": 7,
+        "documented_checks": 7,
+        "named_checks": [
+          "PT2:"
+        ]
+      },
+      {
+        "name": "port_not_latched",
+        "failing_checks": 12,
+        "documented_checks": 12,
+        "named_checks": [
+          "PT2:"
+        ]
+      },
+      {
+        "name": "port_not_stored",
+        "failing_checks": 4,
+        "documented_checks": 4,
+        "named_checks": [
+          "PT3:"
+        ]
+      },
+      {
+        "name": "avb_counter_row_dropped",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "CK1:"
+        ]
+      },
+      {
+        "name": "avb_counter_row_collapsed",
+        "failing_checks": 3,
+        "documented_checks": 3,
+        "named_checks": [
+          "CK1:"
+        ]
+      },
+      {
+        "name": "avb_counter_named_clock",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "CK1:"
+        ]
+      },
+      {
+        "name": "avb_counter_any_index",
+        "failing_checks": 5,
+        "documented_checks": 5,
+        "named_checks": [
+          "CK4:"
+        ]
+      },
+      {
+        "name": "avb_counter_name_overlaps_clock",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "CK5:"
+        ]
+      },
+      {
+        "name": "rgy_port_tied_zero",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "IF3:"
+        ]
+      }
+    ],
+    "depth_and_probes": [
+      {
+        "name": "cancel_one_per_command",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "CA1:",
+          "CA1b:"
+        ]
+      },
+      {
+        "name": "report_fail_ignores_probe",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "CA2:",
+          "CA3:"
+        ]
+      },
+      {
+        "name": "report_rsp_ignores_probe",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "CA2:"
+        ]
+      },
+      {
+        "name": "owner_turns_dropped",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "CA3:",
+          "CA4:"
+        ]
+      },
+      {
+        "name": "settle_dropped",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "CA4:"
+        ]
+      },
+      {
+        "name": "depth_shared",
+        "failing_checks": 6,
+        "documented_checks": 6,
+        "named_checks": [
+          "PD1:"
+        ]
+      },
+      {
+        "name": "depth_not_keyed",
+        "failing_checks": 8,
+        "documented_checks": 8,
+        "named_checks": [
+          "PD1:"
+        ]
+      },
+      {
+        "name": "registry_tag_port_bits",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "PD2:"
+        ]
+      },
+      {
+        "name": "monitor_tag_port_bits",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "PD2:"
+        ]
+      },
+      {
+        "name": "expiry_port_dropped",
+        "failing_checks": 4,
+        "documented_checks": 4,
+        "named_checks": [
+          "PD3:"
+        ]
+      },
+      {
+        "name": "rgy_port_from_latest_frame",
+        "failing_checks": 2,
+        "documented_checks": 2,
+        "named_checks": [
+          "IF3:",
+          "IF3b:"
+        ]
+      },
+      {
+        "name": "dereg_matches_other_port",
+        "failing_checks": 1,
+        "documented_checks": 1,
+        "named_checks": [
+          "IF3b:"
+        ]
+      }
+    ]
+  }
+}

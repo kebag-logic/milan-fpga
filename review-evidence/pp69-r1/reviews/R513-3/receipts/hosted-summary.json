@@ -1,0 +1,135 @@
+{
+  "fetched_utc": "2026-10-06T22:42:19.436024+00:00",
+  "runs": [
+    {
+      "run": 37540577805,
+      "event": "pull_request",
+      "head_sha": "669ded57b1fabc2bbf274b8ad05493c7593e0a0a",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37540577805",
+      "jobs": [
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Cache the pinned Verilator build"
+          ],
+          "skipped_steps": [
+            "Build Verilator v5.050"
+          ],
+          "unfinished_steps": [
+            "Lint (zero tolerance) + every suite",
+            "SRP LeaveAll mutation campaign",
+            "MAAP mutation campaign",
+            "ADP mutation campaign",
+            "AECP deadline and hazard-class mutation campaign",
+            "AECP dispatch mutation campaign",
+            "Traceability matrix no-drift + untested budget 0",
+            "nvm_port README figures agree with the tree",
+            "Post Cache the pinned Verilator build",
+            "Post Run actions/checkout@v4"
+          ]
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Install the WaveDrom renderer and the Mermaid CLI",
+            "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+            "Post Run actions/checkout@v4",
+            "Complete job"
+          ],
+          "skipped_steps": [],
+          "unfinished_steps": []
+        },
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Install yosys + sv2v",
+            "Elaborate every top off-vendor",
+            "Post Run actions/checkout@v4",
+            "Complete job"
+          ],
+          "skipped_steps": [],
+          "unfinished_steps": []
+        }
+      ]
+    },
+    {
+      "run": 37540570371,
+      "event": "push",
+      "head_sha": "669ded57b1fabc2bbf274b8ad05493c7593e0a0a",
+      "status": "in_progress",
+      "conclusion": null,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37540570371",
+      "jobs": [
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Cache the pinned Verilator build"
+          ],
+          "skipped_steps": [
+            "Build Verilator v5.050"
+          ],
+          "unfinished_steps": [
+            "Lint (zero tolerance) + every suite",
+            "SRP LeaveAll mutation campaign",
+            "MAAP mutation campaign",
+            "ADP mutation campaign",
+            "AECP deadline and hazard-class mutation campaign",
+            "AECP dispatch mutation campaign",
+            "Traceability matrix no-drift + untested budget 0",
+            "nvm_port README figures agree with the tree",
+            "Post Cache the pinned Verilator build",
+            "Post Run actions/checkout@v4"
+          ]
+        },
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Install yosys + sv2v",
+            "Elaborate every top off-vendor",
+            "Post Run actions/checkout@v4",
+            "Complete job"
+          ],
+          "skipped_steps": [],
+          "unfinished_steps": []
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "executed_successful_steps": [
+            "Set up job",
+            "Run actions/checkout@v4",
+            "Install the WaveDrom renderer and the Mermaid CLI",
+            "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+            "Post Run actions/checkout@v4",
+            "Complete job"
+          ],
+          "skipped_steps": [],
+          "unfinished_steps": []
+        }
+      ]
+    }
+  ]
+}
