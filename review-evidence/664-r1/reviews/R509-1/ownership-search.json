@@ -1,0 +1,5060 @@
+{
+  "queries": {
+    "Q1": "NFR-SCOUT-0[123]",
+    "Q2": "never on firmware|fabric-only|fabric.only|no firmware round trip|never becomes a packet|all per-frame protocol",
+    "Q3": "(?i)(ADP|ACMP|AECP|MAAP|SRP|protocol control).{0,70}(fabric|processor)|(fabric|processor).{0,70}(ADP|ACMP|AECP|MAAP|SRP|protocol control)",
+    "Q4": "NFR-LAT-02|NFR-SCUP-0[24]|NFR-REL-02|FR-CTRL-04"
+  },
+  "revisions": {
+    "423ac5d910d09ab189b3acc39ae3ae1d10d50b19": {
+      "count": 617,
+      "hits": [
+        {
+          "query": "Q3",
+          "artifact": "CHANGELOG.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "CHANGELOG.md:474"
+        },
+        {
+          "query": "Q3",
+          "artifact": "QUICKSTART.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "QUICKSTART.md:266"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:42"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:56"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:364"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:381"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:423"
+        },
+        {
+          "query": "Q3",
+          "artifact": "REQUIREMENTS.md:162"
+        },
+        {
+          "query": "Q3",
+          "artifact": "THIRD_PARTY.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/AAF_LATENCY_TAPS.md:64"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/AAF_LATENCY_TAPS.md:182"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:37"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:38"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:5"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:42"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:135"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:221"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:222"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:568"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:989"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1005"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1029"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1031"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1039"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1044"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1046"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1123"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/GLOSSARY.md:29"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/GLOSSARY.md:30"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/GLOSSARY.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/MILAN_V12_ROADMAP.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/MILAN_V12_ROADMAP.md:467"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:1"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:16"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:24"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:30"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:72"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:122"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:160"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAILBOX_SPLIT.md:328"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAILBOX_SPLIT.md:419"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:102"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:150"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:213"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:278"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1266"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1295"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:121"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:1393"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:309"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:379"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:475"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:475"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1558"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1797"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1882"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2394"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2395"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2407"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2410"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2412"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2413"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2414"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2415"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2419"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2424"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2617"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:883"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1389"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1397"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1847"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:372"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:380"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:601"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/234_PP_SHADOW_AREA_BASELINE.md:18"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/234_PP_SHADOW_AREA_BASELINE.md:76"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/397_SERVICE_BUDGET.md:190"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/606_FIRST_BIND_MEASUREMENT.md:108"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/606_FIRST_BIND_MEASUREMENT.md:109"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/608_75_WITHDRAWAL_AND_RESTART.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:554"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:737"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:738"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:740"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:741"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:746"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:747"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:750"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:751"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:752"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:753"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:757"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:758"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:812"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:813"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:814"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:815"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:816"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:817"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:818"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:819"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:820"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:821"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:822"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:823"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:824"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:825"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:826"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:828"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:829"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:832"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:833"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:834"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:835"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:836"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:837"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:839"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:840"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:971"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:980"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md:65"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:195"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:20"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:21"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:27"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:29"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:110"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:151"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:305"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:342"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:353"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:354"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/MVP_TALKER.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/MVP_TALKER.md:58"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:31"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:36"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:84"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:135"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:411"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:462"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:494"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:496"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:630"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:711"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:772"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:56"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:108"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:112"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:246"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:286"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:287"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:289"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:325"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:354"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:358"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:438"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:444"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:524"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:531"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/GPTP_PLANE.md:99"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:33"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:82"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:83"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:130"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:152"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:160"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:181"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:222"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:229"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:233"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/TIME_SYNC.md:553"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:27"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:64"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:72"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:287"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:351"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:369"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:471"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:20"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:40"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:126"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:129"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:177"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:178"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:205"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:228"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:229"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:255"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:274"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:276"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:304"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:33"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:40"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:49"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:189"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:191"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:192"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:199"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:213"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:214"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:217"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:221"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:223"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:224"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:225"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:230"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:239"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:244"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:268"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:270"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:284"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:357"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:363"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:370"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:371"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:373"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:375"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:378"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:380"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:390"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:391"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:395"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:417"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:195"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:206"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:77"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:78"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:87"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:88"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:110"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:220"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:252"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:268"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:270"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:271"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:273"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:332"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:342"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:343"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:344"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:345"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:346"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:351"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:355"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:359"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:360"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:361"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:374"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:387"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:24"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:35"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:112"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:113"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:118"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:262"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:57"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:59"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:68"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:107"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:133"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:53"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:58"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:87"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:104"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:115"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:116"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:118"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:121"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:122"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:123"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:124"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:125"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:126"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:127"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:128"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:129"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:130"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:157"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:158"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:159"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:160"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:161"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:162"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:163"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:164"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:168"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:169"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:179"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:184"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:241"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:242"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:243"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:244"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:245"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:246"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:249"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:255"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:283"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:289"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:290"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:157"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:158"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:159"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:172"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:173"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:175"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:176"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:177"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:179"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:183"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:194"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:195"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:202"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:203"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:204"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:205"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:206"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:207"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:208"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:210"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:216"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:217"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:225"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:271"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:8"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:221"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:2030"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:2163"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BUILDING.md:144"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/QSPI_FLASHBOOT.md:52"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/RECURRING_DEFECT_PATTERNS.md:334"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/RECURRING_DEFECT_PATTERNS.md:338"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:94"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:151"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:816"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:914"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:978"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/overview/ARCHITECTURE.md:30"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:52"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:59"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:62"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/FULL_FPGA_SOLUTION.md:48"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/FULL_FPGA_SOLUTION.md:49"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:9"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:127"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:13"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:47"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/reference/FR_NFR.md:71"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:102"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:145"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:148"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:151"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:153"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:154"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:160"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:162"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:165"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:187"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:286"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:300"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:302"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:307"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:308"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:308"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:309"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/reference/FR_NFR.md:309"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:320"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:342"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/reference/FR_NFR.md:349"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:359"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:410"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:447"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:448"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:451"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:62"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:144"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:260"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:261"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:96"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:249"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:18"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:20"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:124"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:191"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:192"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:224"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:363"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:789"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:790"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:950"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:960"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:975"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:994"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:996"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1008"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1013"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1017"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1018"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1020"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1025"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1027"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1029"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1051"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1054"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1067"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1082"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1083"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1084"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1092"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1188"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1189"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1190"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1248"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1252"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1277"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1525"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1544"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1553"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1554"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1648"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1668"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1698"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:2373"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:12"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:55"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:84"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:85"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:35"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:99"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:132"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:67"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:171"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:175"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:243"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/SIMULATION.md:38"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:273"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:445"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:517"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:532"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:1173"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:1227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/MODULE_MATRIX.md:52"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/MODULE_MATRIX.md:106"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:29"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:33"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:48"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:81"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:82"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:96"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:99"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:121"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:122"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:123"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:124"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:125"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:132"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:133"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:135"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:136"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:137"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:139"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:149"
+        },
+        {
+          "query": "Q3",
+          "artifact": "hdl/ieee1722/maap/doc/KL_maap/KL_maap.md:3"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/builder/README-parameters.md:210"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:18"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:46"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:49"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/nvm_hosttest/README.md:101"
+        },
+        {
+          "query": "Q3",
+          "artifact": "syn/yosys/README.md:312"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/README.md:105"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/avtp_parser/README.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:75"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:76"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:428"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:630"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:632"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:634"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:647"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:653"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:907"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:938"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:944"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:954"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:964"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:81"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:144"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:145"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:146"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:171"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:332"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:371"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:10"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:53"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:151"
+        }
+      ]
+    },
+    "a27808375427859dc357f6bfd0a88842062b20ed": {
+      "count": 643,
+      "hits": [
+        {
+          "query": "Q3",
+          "artifact": "CHANGELOG.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "CHANGELOG.md:474"
+        },
+        {
+          "query": "Q3",
+          "artifact": "QUICKSTART.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "QUICKSTART.md:266"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:42"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:56"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:372"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:389"
+        },
+        {
+          "query": "Q3",
+          "artifact": "README.md:431"
+        },
+        {
+          "query": "Q1",
+          "artifact": "REQUIREMENTS.md:44"
+        },
+        {
+          "query": "Q3",
+          "artifact": "REQUIREMENTS.md:184"
+        },
+        {
+          "query": "Q3",
+          "artifact": "THIRD_PARTY.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/AAF_LATENCY_TAPS.md:64"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/AAF_LATENCY_TAPS.md:182"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:42"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:43"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:44"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:45"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:54"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:60"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/ARCHITECTURE_HW_SW_SPLIT.md:214"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:10"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:22"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:140"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:143"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:573"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:994"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1010"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1034"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1036"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1044"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1049"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1051"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/ENDSTATION_BUILDER.md:1128"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/GLOSSARY.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/MILAN_V12_ROADMAP.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/MILAN_V12_ROADMAP.md:467"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:1"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:24"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:31"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:37"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:86"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:100"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:126"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:129"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAAP_FABRIC.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAILBOX_SPLIT.md:332"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/design/MAILBOX_SPLIT.md:348"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MAILBOX_SPLIT.md:429"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:102"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:150"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:213"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:278"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1266"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/MEDIA_CLOCK_FOLLOWING.md:1295"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:121"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_FASTCONNECT.md:1393"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:309"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:379"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:475"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:475"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1558"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1797"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:1882"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2394"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2395"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2407"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2410"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2412"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2413"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2414"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2415"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2419"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2424"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_MATERIALIZATION.md:2617"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:883"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1389"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1397"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1847"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:372"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:380"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/development/CODE_QUALITY.md:601"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/234_PP_SHADOW_AREA_BASELINE.md:18"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/234_PP_SHADOW_AREA_BASELINE.md:76"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/397_SERVICE_BUDGET.md:190"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/606_FIRST_BIND_MEASUREMENT.md:108"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/606_FIRST_BIND_MEASUREMENT.md:109"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/608_75_WITHDRAWAL_AND_RESTART.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:554"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:737"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:738"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:740"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:741"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:746"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:747"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:750"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:751"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:752"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:753"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:757"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:758"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:812"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:813"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:814"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:815"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:816"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:817"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:818"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:819"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:820"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:821"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:822"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:823"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:824"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:825"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:826"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:828"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:829"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:832"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:833"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:834"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:835"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:836"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:837"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:839"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:840"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:971"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:980"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md:65"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:48"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:86"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:96"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/DATAPLANE_WALKTHROUGH.md:202"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:24"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:27"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:34"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:36"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:158"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:312"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:349"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:360"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/fpga/FPGA_DESIGN.md:361"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/MVP_TALKER.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/MVP_TALKER.md:58"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:31"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:36"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:84"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:135"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:411"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:462"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:494"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:496"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:630"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:711"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/NXN_ARCHITECTURE.md:772"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:56"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:108"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:112"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:246"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:286"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:287"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:289"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:325"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:354"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:358"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:438"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:444"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:524"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/SPEC_TRACEABILITY.md:531"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/GPTP_PLANE.md:99"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:33"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:82"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:83"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:130"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:152"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:160"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:181"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:222"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:229"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/MILAN_TALKER_SM.md:233"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/design/TIME_SYNC.md:553"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:27"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:64"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:72"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:287"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:351"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:369"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/findings/PP_SHADOW_AREA_0812.md:471"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:20"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:26"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:40"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:126"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:129"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:177"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:178"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:205"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:228"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:229"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:255"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:274"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:276"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md:304"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:33"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:40"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:41"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:49"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:189"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:191"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:192"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:199"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:213"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:214"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:217"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:221"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:223"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:224"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:225"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:230"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:239"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:244"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:268"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:270"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:284"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:357"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:363"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:370"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:371"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:373"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:375"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:378"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:380"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:390"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:391"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:395"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:416"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:417"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:195"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:206"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:19"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:77"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:78"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:87"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:88"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:110"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:220"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:252"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:268"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:269"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:270"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:271"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:273"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:332"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:342"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:343"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:344"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:345"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:346"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:351"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:355"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:359"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:360"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:361"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:374"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:387"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:24"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:35"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:112"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:113"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:118"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md:262"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:57"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:59"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:68"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:107"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722-2016.md:133"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:53"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:58"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:87"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:104"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:115"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:116"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:118"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:121"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:122"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:123"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:124"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:125"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:126"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:127"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:128"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:129"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:130"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:141"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:157"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:158"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:159"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:160"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:161"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:162"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:163"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:164"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:168"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:169"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:179"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:184"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:241"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:242"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:243"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:244"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:245"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:246"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:249"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:255"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:275"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:279"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:283"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:289"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/ieee1722_1-2021.md:290"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:79"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:156"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:157"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:158"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:159"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:172"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:173"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:175"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:176"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:177"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:179"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:183"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:194"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:195"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:201"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:202"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:203"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:204"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:205"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:206"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:207"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:208"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:210"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:216"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:217"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:218"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:225"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/history/v1/traceability/milan-v12.md:271"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:8"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:36"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:221"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:2030"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BAREMETAL_FIRMWARE.md:2163"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/BUILDING.md:144"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/integration/QSPI_FLASHBOOT.md:52"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/RECURRING_DEFECT_PATTERNS.md:334"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/RECURRING_DEFECT_PATTERNS.md:338"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:94"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:151"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:816"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:914"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/limitations/TROUBLESHOOTING.md:978"
+        },
+        {
+          "query": "Q2",
+          "artifact": "docs/overview/ARCHITECTURE.md:37"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:59"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:66"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/ARCHITECTURE.md:69"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/FULL_FPGA_SOLUTION.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/overview/FULL_FPGA_SOLUTION.md:55"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/overview/FULL_FPGA_SOLUTION.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:9"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/EGRESS_QUEUE_MAP.md:127"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:28"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:47"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:112"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:116"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:159"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:162"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:165"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:168"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:174"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:176"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:179"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:201"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:300"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:300"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:314"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:314"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:316"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:316"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:321"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:322"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:322"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:323"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:401"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:402"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:402"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:403"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:404"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:405"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:405"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:406"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:407"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:407"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:415"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:429"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:520"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:557"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:557"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:558"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:558"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:558"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:560"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:560"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:560"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/reference/FR_NFR.md:561"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/FR_NFR.md:561"
+        },
+        {
+          "query": "Q4",
+          "artifact": "docs/reference/FR_NFR.md:566"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:67"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:94"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:122"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:149"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:266"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/MILAN_COMPLIANCE_MATRIX.md:270"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:96"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md:249"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:18"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:20"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:124"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:174"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:191"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:192"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:224"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:226"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:363"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:789"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:790"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:950"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:960"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:975"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:994"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:996"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1008"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1013"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1017"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1018"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1020"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1025"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1027"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1029"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1051"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1054"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1067"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1082"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1083"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1084"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1092"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1117"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1188"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1189"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1190"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1193"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1248"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1252"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1265"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1277"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1525"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1544"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1553"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1554"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1648"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1668"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:1698"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP.md:2373"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:12"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:55"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:84"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:85"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:89"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:90"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:91"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:93"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/REGISTER_MAP_CLASSES.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:35"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:97"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:98"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:99"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:132"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/reference/SUBMODULES.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:67"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:171"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:175"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/MILAN_V12_AUDIT_2026-08-16.md:243"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/SIMULATION.md:38"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:273"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:445"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:517"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:532"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:1173"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/testing/TESTING.md:1227"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/MODULE_MATRIX.md:52"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/MODULE_MATRIX.md:106"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:35"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:39"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:85"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:87"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:88"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:102"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:103"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:104"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:105"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/traceability/ieee8021q.md:119"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:133"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:134"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:135"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:136"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:137"
+        },
+        {
+          "query": "Q1",
+          "artifact": "docs/traceability/ieee8021q.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:139"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:146"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:147"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:148"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:149"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:150"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:151"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:152"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:153"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:155"
+        },
+        {
+          "query": "Q3",
+          "artifact": "docs/traceability/ieee8021q.md:163"
+        },
+        {
+          "query": "Q3",
+          "artifact": "hdl/ieee1722/maap/doc/KL_maap/KL_maap.md:3"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/builder/README-parameters.md:210"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:25"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:53"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:56"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/ctrl/README.md:61"
+        },
+        {
+          "query": "Q3",
+          "artifact": "sw/firmware/nvm_hosttest/README.md:101"
+        },
+        {
+          "query": "Q3",
+          "artifact": "syn/yosys/README.md:312"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/README.md:105"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/avtp_parser/README.md:17"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:75"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:76"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:428"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:630"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:632"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:634"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:647"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:653"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:907"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:938"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:944"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:954"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/milan_dp/README.md:964"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:14"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:81"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:120"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:138"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:144"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:145"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:146"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:167"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:171"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:332"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tb/verilator/pp_shadow/README.md:371"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:10"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:23"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:53"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:54"
+        },
+        {
+          "query": "Q3",
+          "artifact": "tests/README.md:151"
+        }
+      ]
+    }
+  }
+}

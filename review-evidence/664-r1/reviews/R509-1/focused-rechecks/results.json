@@ -1,0 +1,30 @@
+[
+  {
+    "name": "toc",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "423ac5d910d09ab189b3acc39ae3ae1d10d50b19"
+    ],
+    "rc": 0
+  }
+]
