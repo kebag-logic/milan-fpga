@@ -1,0 +1,18 @@
+  info: INTERNAL: 0 slips in 54.839 s (beat 3.519 s); margin at the set +10.675..+10.752 ticks
+  info: t=54.839000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 7.681 s after the set; trim +5.688 ppm at the end
+  info: slip (skip) at 1.1588 s after the set, -6.5225 s from LOCKED
+  info: slip (skip) at 4.7324 s after the set, -2.9489 s from LOCKED
+  info: render recentre at 0.0427 s after the set, -7.6387 s from LOCKED
+  info: render recentre at 11.7774 s after the set, +4.0961 s from LOCKED
+  info: INTERNAL, last second      [  53.839,   54.839) s: ring slips 0+0, margin +10.460..+10.752 ticks; render n 8000 fill 15..15 (off-law 8000), delay 9.370..9.661 (out of band 8000), end-to-pop clearance 0.339 ticks
+  info: set to LOCKED              [  54.839,   62.520) s: ring slips 0+2, margin +10.076..+11.082 ticks; render n 61451 fill 14..16 (off-law 52443), delay 8.663..10.099 (out of band 52212), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  62.520,   66.616) s: ring slips 0+0, margin +9.201..+10.207 ticks; render n 32769 fill 14..16 (off-law 32768), delay 8.110..10.115 (out of band 32768), end-to-pop clearance 0.092 ticks
+  info: settle to the hold's end   [  66.616,   74.839) s: ring slips 0+0, margin +9.193..+9.208 ticks; render n 65779 fill 14..14 (off-law 0), delay 8.102..8.118 (out of band 0), end-to-pop clearance 0.102 ticks
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 2, after it 0; after it the loopback margin +9.193..+9.208 ticks, render fill 14..14 delay 8.102..8.118, on the law
+MARGINS: [B8] empty 9.192960 full 1.866240 ticks
+  info: [B8]: settle recentre 11.7773 s after the start, 4.0960 s after LOCKED
+RESULT-645: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-settle 2 (declared bound 3), after the settle 0, margin at LOCKED +10.184..+10.199, after the settle +9.193..+9.208 ticks, LOCKED 7.68 s, settle +4.096 s after LOCKED, render after the settle fill 14..14 delay 8.102..8.118 (on the law)
+  [FAIL] [B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)
+== follow_ring: checks: 10   failures: 1 ==
+RESULT: FAIL

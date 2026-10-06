@@ -1,0 +1,9 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +0.714..+0.722 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.617..8.625 (out of band 0), end-to-pop clearance 0.375 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +0.384..+5.391 ticks; render n 1600 fill 14..14 (off-law 0), delay 8.287..8.625 (out of band 0), end-to-pop clearance 0.287 ticks
+  info: after the settle           [   4.790,    6.600) s: ring slips 0+0, margin +5.361..+5.407 ticks; render n 14477 fill 14..14 (off-law 0), delay 8.264..8.317 (out of band 0), end-to-pop clearance 0.264 ticks
+  info: [PULLIN]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.361..+5.407 ticks, render fill 14..14 delay 8.264..8.317, on the law
+MARGINS: [PULLIN] empty 5.360640 full 5.667840 ticks
+  info: [PULLIN]: settle recentre 0.1902 s after the start
+RESULT-647: latency 213.02 us hold 56.0 us: delay 8.617..8.625 -> 8.264..8.317 ticks (shift -0.330), fill 14..14 -> 14..14, clearance 0.375 -> 0.264 ticks, settle +0.190 s after the hold, recentres 1, loopback slips 0 before the settle and 0 after: ON THE LAW
+== follow_ring: checks: 8   failures: 0 ==
+RESULT: PASS

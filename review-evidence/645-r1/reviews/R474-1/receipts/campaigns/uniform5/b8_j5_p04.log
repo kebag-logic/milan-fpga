@@ -1,0 +1,33 @@
+  info: INTERNAL: 2 slips in 5.339 s (beat 3.519 s); margin at the set +0.753..+1.060 ticks
+  info: t=5.338534 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.658 s after the set; trim -5.812 ppm at the end
+  info: slip (dup) at 2.6400 s after the set, -4.0176 s from LOCKED
+  info: render recentre at 0.0427 s after the set, -6.6148 s from LOCKED
+  info: render recentre at 10.7537 s after the set, +4.0962 s from LOCKED
+  info: INTERNAL, last second      [   4.339,    5.339) s: ring slips 1+0, margin +0.008..+1.244 ticks; render n 8000 fill 12..13 (off-law 8000), delay 6.666..7.181 (out of band 8000), end-to-pop clearance 0.004 ticks NOT GRADABLE
+  info: set to LOCKED              [   5.339,   11.996) s: ring slips 1+0, margin +0.008..+1.244 ticks; render n 53258 fill 12..14 (off-law 31238), delay 6.659..8.886 (out of band 31527), end-to-pop clearance 0.003 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  11.996,   16.092) s: ring slips 0+0, margin +0.292..+5.537 ticks; render n 32767 fill 13..13 (off-law 32767), delay 7.204..7.473 (out of band 32767), end-to-pop clearance 0.204 ticks
+  info: settle to the hold's end   [  16.092,   45.339) s: ring slips 0+0, margin +5.292..+5.545 ticks; render n 233966 fill 14..14 (off-law 0), delay 8.202..8.448 (out of band 0), end-to-pop clearance 0.202 ticks
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 1, after it 0; after it the loopback margin +5.292..+5.545 ticks, render fill 14..14 delay 8.202..8.448, on the law
+MARGINS: [B8] empty 5.291520 full 5.529600 ticks
+  info: [B8]: settle recentre 10.7536 s after the start, 4.0960 s after LOCKED
+RESULT-645: phase 0.2500 jitter 5.0 us tail 0.0 us p 0e+00: slips set-to-settle 1 (declared bound 3), after the settle 0, margin at LOCKED +0.315..+0.568, after the settle +5.292..+5.545 ticks, LOCKED 6.66 s, settle +4.096 s after LOCKED, render after the settle fill 14..14 delay 8.202..8.448 (on the law)
+  info: [B8] render law not graded: the run's arrivals are late by up to 5.0 us
+  info: t=45.338534 s  CLOCK_SOURCE <- 1
+  info: [SW] AAF to CRF:: LOCKED 3.010 s after; ring slips 0; margin +5.537 before the switch, +5.530 before its settle recentre
+  info: [SW] AAF to CRF:           [  45.339,   65.339) s: ring slips 0+0, margin +5.276..+5.537 ticks; render n 159997 fill 14..14 (off-law 0), delay 8.187..8.448 (out of band 0), end-to-pop clearance 0.187 ticks
+  info: [SW] AAF to CRF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.276..+5.530 ticks, render fill 14..14 delay 8.187..8.440, on the law
+MARGINS: [SW] AAF to CRF: empty 5.276160 full 5.544960 ticks
+  info: [SW] AAF to CRF:: settle recentre 7.1060 s after the start, 4.0960 s after LOCKED
+RESULT-645-SW: [SW] AAF to CRF: phase 0.2500 jitter 5.0 us tail 0.0 us p 0e+00: LOCKED 3.01 s, slips 0, drift -0.008 ticks, settle +4.096 s after LOCKED, margin after +5.276..+5.530, render on the law
+  info: [SW] AAF to CRF: render law not graded: the run's arrivals are late by up to 5.0 us
+  info: t=65.338534 s  CLOCK_SOURCE <- 2
+  info: [SW] CRF to AAF:: LOCKED 6.050 s after; ring slips 0; margin +5.530 before the switch, +5.545 before its settle recentre
+  info: [SW] CRF to AAF:           [  65.339,   85.339) s: ring slips 0+0, margin +5.284..+5.545 ticks; render n 159997 fill 14..14 (off-law 0), delay 8.187..8.456 (out of band 0), end-to-pop clearance 0.187 ticks
+  info: [SW] CRF to AAF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +5.292..+5.545 ticks, render fill 14..14 delay 8.202..8.456, on the law
+MARGINS: [SW] CRF to AAF: empty 5.291520 full 5.529600 ticks
+  info: [SW] CRF to AAF:: settle recentre 10.1463 s after the start, 4.0960 s after LOCKED
+RESULT-645-SW: [SW] CRF to AAF: phase 0.2500 jitter 5.0 us tail 0.0 us p 0e+00: LOCKED 6.05 s, slips 0, drift +0.015 ticks, settle +4.096 s after LOCKED, margin after +5.292..+5.545, render on the law
+  info: [SW] CRF to AAF: render law not graded: the run's arrivals are late by up to 5.0 us
+== follow_ring: checks: 29   failures: 0 ==
+RESULT: PASS

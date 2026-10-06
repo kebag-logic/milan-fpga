@@ -1,0 +1,17 @@
+  info: INTERNAL: 0 slips in 53.959 s (beat 3.519 s); margin at the set +10.422..+10.499 ticks
+  info: t=53.959000 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 7.681 s after the set; trim +6.000 ppm at the end
+  info: slip (skip) at 2.0388 s after the set, -5.6425 s from LOCKED
+  info: render recentre at 0.0428 s after the set, -7.6385 s from LOCKED
+  info: render recentre at 11.7774 s after the set, +4.0961 s from LOCKED
+  info: INTERNAL, last second      [  52.959,   53.959) s: ring slips 0+0, margin +10.214..+10.499 ticks; render n 8000 fill 15..15 (off-law 8000), delay 9.124..9.408 (out of band 8000), end-to-pop clearance 0.124 ticks
+  info: set to LOCKED              [  53.959,   61.640) s: ring slips 0+1, margin +10.076..+11.082 ticks; render n 61451 fill 14..15 (off-law 45404), delay 8.417..9.853 (out of band 45173), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  61.640,   65.736) s: ring slips 0+0, margin +9.946..+10.952 ticks; render n 32769 fill 14..15 (off-law 32768), delay 8.855..9.861 (out of band 32768), end-to-pop clearance 0.139 ticks
+  info: settle to the hold's end   [  65.736,   73.959) s: ring slips 0+0, margin +9.946..+9.953 ticks; render n 65779 fill 14..14 (off-law 0), delay 8.855..8.863 (out of band 0), end-to-pop clearance 0.137 ticks
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 1, after it 0; after it the loopback margin +9.946..+9.953 ticks, render fill 14..14 delay 8.855..8.863, on the law
+MARGINS: [B8] empty 9.945600 full 1.121280 ticks
+  info: [B8]: settle recentre 11.7773 s after the start, 4.0960 s after LOCKED
+RESULT-645: phase 0.0000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-settle 1 (declared bound 3), after the settle 0, margin at LOCKED +10.936..+10.944, after the settle +9.946..+9.953 ticks, LOCKED 7.68 s, settle +4.096 s after LOCKED, render after the settle fill 14..14 delay 8.855..8.863 (on the law)
+  [FAIL] [B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)
+== follow_ring: checks: 10   failures: 1 ==
+RESULT: FAIL

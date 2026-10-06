@@ -1,0 +1,11 @@
+--- <CAND>/tb/verilator/follow_ring/sim_main.cpp	2026-10-06 05:38:37.913202859 +0200
++++ <WORK>/ptree/tb/verilator/follow_ring/sim_main.cpp	2026-10-06 05:55:17.203000000 +0200
+@@ -73,7 +73,7 @@
+ 
+ constexpr double kClkHz = CLK_HZ_TB;
+ constexpr double kHalfClk = 0.5e15 / kClkHz;
+-constexpr double kAudioHz = 24.576e6 / 32.0;
++constexpr double kAudioHz = 24.576e6 / 8.0;  // PROBE: 1/64-sample hold quantum
+ constexpr double kHalfPs = 0.5e15 / 1e6;
+ constexpr double kTickFs = 1e15 / 48000.0;        //! one nominal media tick
+ constexpr double kPduNs = 125'000.0;              //! 6 samples at 48 kHz
