@@ -1,0 +1,9 @@
+make: Entering directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-m1s8vikf/tb/pp_top'
+FAIL: if guard 1: must lint clean (verilator rc 1)
+    %Warning-USERERROR: ../../hdl/top/protocol_processor_top.sv:875:5: F01.5: N_AVB_IF_P=1 is outside 1 to 2 (P-N-AVB-INTERFACES)
+if guard 2: lints clean
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 1 failing
+make: *** [Makefile:227: if-guards] Error 1
+make: Leaving directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-m1s8vikf/tb/pp_top'

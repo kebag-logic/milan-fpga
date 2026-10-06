@@ -1,0 +1,14 @@
+make: Entering directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-c7fcb0k8/tb/pp_top'
+if guard 1: lints clean
+if guard 2: lints clean
+FAIL: if guard 0: must be refused: N_AVB_IF_P=0 is outside 1 to 2 (verilator rc 1)
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:103:18: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:107:18: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:110:18: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:111:18: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:185:18: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/adp/KL_adp_engine.sv:186:18: Ascending bit range vector: left < right of bit range: [-1:0]
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 1 failing
+make: *** [Makefile:227: if-guards] Error 1
+make: Leaving directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-c7fcb0k8/tb/pp_top'

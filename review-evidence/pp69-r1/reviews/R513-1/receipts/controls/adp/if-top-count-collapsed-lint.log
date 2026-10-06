@@ -1,0 +1,14 @@
+make: Entering directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-ld47rfll/tb/pp_top'
+if guard 1: lints clean
+FAIL: if guard 2: must lint clean (verilator rc 1)
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:1991:8: Input port connection 'link_up_i' expects 1 bits on the pin connection, but pin connection's REPLICATE generates 2 bits.
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:1992:8: Input port connection 'gm_change_i' expects 1 bits on the pin connection, but pin connection's REPLICATE generates 2 bits.
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:1993:8: Input port connection 'gm_id_i' expects 64 bits on the pin connection, but pin connection's REPLICATE generates 128 bits.
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:1994:8: Input port connection 'gptp_domain_i' expects 8 bits on the pin connection, but pin connection's REPLICATE generates 16 bits.
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:2045:8: Output port connection 'dbg_adv_state_o' expects 2 bits on the pin connection, but pin connection's VARREF 'adp_dbg_adv_state_w' generates 4 bits.
+    %Warning-WIDTHTRUNC: ../../hdl/top/protocol_processor_top.sv:2046:8: Output port connection 'dbg_avail_index_o' expects 32 bits on the pin connection, but pin connection's VARREF 'adp_dbg_aidx_nc_w' generates 64 bits.
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 1 failing
+make: *** [Makefile:227: if-guards] Error 1
+make: Leaving directory '$REVIEWS/pp69-r513-1-packet/scratch/tmp/adp-mutants-ld47rfll/tb/pp_top'

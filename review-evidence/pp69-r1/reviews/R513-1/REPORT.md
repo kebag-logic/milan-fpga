@@ -1,0 +1,68 @@
+[R513] POSITIVE - exact head cb730a2f9dd7e4f60a03a38d4b47b569e68da8df
+
+Issue [#69](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/69), PR [#165](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/165), round R513-1. Tree `f18d266c67b8b0f79341168ecdac8b4655b50b06`. No open BLOCKER, MAJOR or MINOR finding. All five lenses are CLEAN for this source review.
+
+The reviewed change keeps the redundancy extension path open within the frozen, non-redundant shipping scope. It does not establish a complete redundant product or hardware conformance.
+
+**Reconstruction and independence.** The supplied workspace instruction was read first. No repository or applicable ancestor AGENTS.md or CONTRIBUTING.md was present. Next came docs/README, the issue body and public scope decisions, the linked architecture/interface authorities, the complete base-to-head diff and history, and the published evidence. The source base was `e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8`. This head has the author's `d723574a2b760f9dd2b866081135d5e0bd9c68cd` and main `86a7b0c57831c15e9cd8b42d64cc4a9843f4e726` as parents. The latter brings #134 and #22. The two issue-69 production files, the top and notification module, are byte-identical between the author head and reviewed head; the inherited SRP and declaration-order changes were examined separately.
+
+No private author material, management checkout, other review report, or sub-agent was used. The [independent verdict and ledger](receipts/independent-verdict.md) were written before reading the public review inventory.
+
+**Acceptance decisions.** The controlling [assignment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/69#issuecomment-6010216843) disallows closing the seam by decision. The implementation satisfies that direction:
+
+| Requirement | Exact-head evidence and judgment |
+|---|---|
+| Top count, default one, threaded to ADP | `hdl/top/protocol_processor_top.sv:102,235,874,1973`: `N_AVB_IF_P`, timer geometry, legal range, and ADP binding agree. The real top accepts 1/2 and refuses 0/3 by name. |
+| Received frame's interface | Top `:313,1553,1720`: sampled on the accepted final byte, held with the corresponding header, then carried in the normalized transaction. Top IF tests and the independent byte-stream probe pass. |
+| Registry tuple and no count-one storage | `hdl/aecp/KL_aecp_notify.sv:521`: `g_port` exists only above one; REGISTER/DEREGISTER compare EID, MAC and stored port. Refresh, independent sequence IDs, removal, full-table refusal and reset were exercised. |
+| Per-interface AVB_INTERFACE counters | Notify `:415,733,1148`: one notification slot/window per interface; index zero and CLOCK_DOMAIN zero retain their original positions. CK1–CK5 and all five new counter controls pass. The actual counter banks remain the integrator's, as GAP-05 and the `ctr_*` contract specify; descriptor-indexed reads already identify the interface. |
+| Two-interface execution and collapsing mutant | ADP IF: 11 checks; notify PT/CK: 11 checks; top IF: 6 checks; four elaboration guards. All 16 new ADP controls and nine notification controls fail their required checks, with passing controls. |
+| Named keyed/unkeyed scope | Notify banner `:16–30,148–150`, `docs/architecture/01_overview.md:159`, and `docs/00_MILAN_COMPLIANCE_REVIEW.md:523` agree with the RTL and the interface documentation. |
+
+**The added internal port is necessary and acceptable.** The notify command face previously carried EID/MAC but no interface. Top `:4011` captures the command's interface on the same handshake used by the AECP engine, then supplies `rgy_port_i` at `:4052`. This preserves the existing engine interface and supplies the required tuple information to its actual owner. I interpret “interface-index input port only at the top” as the restriction on the integration boundary, not a prohibition on the internal connection necessary to implement item 2. No extra integration input beyond `rx_if_index_i` is added. At count one the internal input is tied to zero and its storage/comparison is absent.
+
+The statistics exception is accepted explicitly, not described as literal byte identity. It is **not only a change of names**: my count-one notification comparison finds identical counts for every cell type, 25,731 cells total, but six port/wire counters increase: ports 84→85, port bits 1227→1229, wires 6029→6030, wire bits 56478→56480, public wires 541→542, public wire bits 13721→13723. These are precisely the unused input's declarations. See [comparison](receipts/notify-stats/comparison.json), raw base/head statistics and logs beside it. The public author report additionally identifies derived module-name changes at the top; those are not cell changes.
+
+The count-two limitations are explicit and acceptable for this seam: shared MAC trunks with no egress index; shared link/GM/domain levels; one SRP participant set; 16 registry rows total; availability monitoring by EID/MAC across interfaces; AVB-info/path pushes for interface zero; interface-zero snapshot/available-index exports. In particular, this does **not** claim the full redundant product's ≥16 registrations per interface or interface-specific egress. The stored tuple, per-interface advertising state and counter-notification windows remain usable extension points.
+
+**Independent execution.** Builds, suites and campaigns were run concurrently by foreground coordinators, with separate logs/status files, explicit campaign job limits and bounded compiler fanout (at most 12 compiler workers during the two campaigns). Disposable trees were confined to this packet's scratch directory. The required pinned simulator identity was verified before use. No full bank or physical build was run.
+
+| Check | Result | Receipt |
+|---|---|---|
+| ADP suite | 1,359/1,359; shipping build 1,348, new IF build 11 | [log](receipts/focus/adp.log) |
+| Notification suite | 56/56; existing builds 41+4, new PT/CK build 11 | [log](receipts/focus/notify.log) |
+| Top count-two suite | 6/6 | [log](receipts/focus/top-if2.log) |
+| Top elaboration guards | 1/2 clean, 0/3 refused by name | [log](receipts/focus/if-guards.log) |
+| Inherited SRP stream FSM suite | 1,347/1,347, including simultaneous expiry/reception cases | [log](receipts/focus/srp-stream.log) |
+| New ADP controls | 16/16 killed; three controls pass | [log](receipts/controls/adp.log) |
+| New notify controls | 9/9 killed; two controls pass | [results](receipts/controls/notify/results.json) |
+| Independent tuple model | 1,024 operations, eight intervening resets, 94 notification rounds; 2,153 total checks including PT/CK, no failures | [log](receipts/probes/aecp_notify.log) |
+| Independent top traffic probe | Interface correct only on final byte, idle cycles within frames, no added interframe delay, four registrations issued without waiting for responses; 10/10 including existing IF checks | [log](receipts/probes/pp_top.log) |
+| Frozen-base shipping suites | ADP 1,348; notify 41+4; unchanged existing-build counts at head | [results](receipts/base-suites/results.json) |
+| Documentation checks | Parameters, IDs, figures, links and both matrices pass; diagram 21 rendered and visually inspected | [log](receipts/docs-exact.log) |
+
+The planting audit independently checks all **298 patch files plus 208 plant-function arms = 506/506** at this head. That reconciles with the published author-head 500/500: main adds six SRP patch files. The refreshed ADP patch contexts still apply. A further 94 named exact-text table entries pass, and the descriptor-memory hold-removal probe has its required two anchor sites. The [audit](receipts/plant-audit.json) names every inspected arm and distinguishes entries from sites. The author's “96/96 other exact-text arms” remains an attributed historical inventory count; I do not relabel the local 94 entries plus one two-site mutation as 96 distinct mutations. No refused anchor was found. Plantability is separate from a demonstrated behavioral kill.
+
+**Public evidence and limits.** The [published packet](https://github.com/kebag-logic/milan-fpga/tree/83221a43e3d1f5922143becbaba0661fef2c201b/review-evidence/pp69-r1) was fetched from the fixed commit and all three published file hashes verified. Its report covers the author head: 40/42 identical statistics files, identical cell counts in the other two, existing suite records unchanged except added builds, 500/500 planting and reported 96/96 text arms, and OOC 1x1 23,211 LUT / 19,777 FF at both endpoints, **delta 0 LUT / 0 FF**. The packet publishes summaries and hashes; the underlying full statistics and physical reports are not included. I did not access the private paths named by historical evidence or reproduce that area measurement.
+
+The assignment states that the manager's complete source static/builder and native banks passed at the reviewed head. That statement is distinct from this reviewer's executions and from the author's earlier measurements. In the retrieved public issue/PR comment snapshots, there was no additional bank-results comment: the issue had the assignment and readiness comments, and the PR had the two review-start comments. The manager should publish/link the exact-head source receipts with completion evidence.
+
+The exact-head hosted snapshot shows completed, successful docs-gates and portability jobs for both the [PR run](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37460006382) and [push run](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/actions/runs/37459999951). Their substantive steps executed. The suites jobs were still in progress; later campaign steps were pending. A cached simulator build step was skipped, not the test job. Neither entire workflow is counted as passed. See [job/step snapshot](receipts/public/hosted-jobs.json).
+
+An initial documentation invocation in an archive could not enumerate tracked files because the archive had no Git metadata; the exact-checkout rerun passed. Both receipts are retained. No finding is inferred from that setup failure. Independent testing was focused, not exhaustive: no full parent/processor/time-sync/static/builder banks, container acceptance, physical calibration, field execution or hardware proof. Physical calibration remains **NOT RUN**; field skips establish no hardware behavior.
+
+**Findings and prior-review disposition.** No BLOCKER, MAJOR, MINOR, RESIDUE or SUGGESTION is raised. After writing the independent verdict/ledger, I checked PR conversation comments, review submissions and inline review comments. There were two review-start comments, zero submitted reviews and zero inline comments; no prior public FINDINGS existed to resolve or retain at this head. [Inventory](receipts/public/prior-findings.json).
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Frozen issue/assignment; REQ-SCP-003, F01.5; RX and counter interface authorities; top count and registry tuple; explicit non-redundant limits | R513-1 | cb730a2f9dd7e4f60a03a38d4b47b569e68da8df |
+| RTL | CLEAN | Top ingress/header and command latches, ADP binding/timer geometry; notify generated port RAM, matching and counter slots; inherited packet declaration moves and SRP priority; count-one statistics | R513-1 | cb730a2f9dd7e4f60a03a38d4b47b569e68da8df |
+| Robustness | CLEAN | Range guards; overflow/reset/refresh/removal; 25 seam controls; independent tuple model and queued, final-byte-index traffic probe | R513-1 | cb730a2f9dd7e4f60a03a38d4b47b569e68da8df |
+| Tests | CLEAN | ADP/notify suites, top IF, inherited SRP suite; base comparisons; independent probes; planting audit; explicit separation of local, author and hosted evidence | R513-1 | cb730a2f9dd7e4f60a03a38d4b47b569e68da8df |
+| Docs | CLEAN | docs/README, notify banner, 01 §7, REQ-SCP-003 Arch cell, 02/06/09, inherited SRP text, integrator guide/diagram 21, suite READMEs and document gates | R513-1 | cb730a2f9dd7e4f60a03a38d4b47b569e68da8df |
+
+**Pending manager duties.** Publish the source-bank receipts; complete hosted/container acceptance under the manager's rules; obtain the other independent verdict; build and validate the final current-dev candidate at the merge turn. Source base `e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8` and live dev `bd884631684ccf5060339efa92263d5c3e5c262c` are different review contexts. This positive source verdict does not certify that future candidate, authorize publication/merge, or replace post-merge containment checks.
+
+**Checkout and packet integrity.** All 581 tracked blob bytes, executable/symlink modes and index entries match the exact head; worktree status is clean. This repository has no submodule gitlinks, so the required-gitlink inventory is empty. [Integrity receipt](receipts/checkout-integrity.json). No source fixes, commits, pushes, merges, external writes or author contact occurred. Only REPORT.md and the relative paths listed in MANIFEST.sha256 are designated for publication; scratch is excluded. [Reproduction instructions](scripts/README.md).
+
+R513-1 FINISHED

@@ -1,0 +1,3741 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 67b7872..6574f29 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -520,7 +520,7 @@ verification).
+ |---|---|---|---|---|---|---|---|---|
+ | REQ-SCP-001 | Milan §4.2.5, §8.1 | Redundancy optional; non-redundant PAAD excludes all of ch. 8 | may | A | [GAP-12](#gap-12) | scoping stmt | 01 §1 | DIR |
+ | REQ-SCP-002 | Milan Table 5.20 | GET_MILAN_INFO REDUNDANCY flag = 0 | shall | A | [GAP-12](#gap-12) | F06.11 | 06 §6.9 | DIR |
+-| REQ-SCP-003 | Milan §5.3.4.2, §8 | Keep per-interface keying (registry, ADP, counters) parameterized as the redundancy seam | design | A | [GAP-12](#gap-12) | P-N-AVB-INTERFACES | 01 §7 | DIR |
++| REQ-SCP-003 | Milan §5.3.4.2, §8 | Keep per-interface keying (registry, ADP, counters) parameterized as the redundancy seam | design | A | [GAP-12](#gap-12) | P-N-AVB-INTERFACES, `N_AVB_IF_P` on the top (1 or 2; #69). **Keyed** at 2: an ADP advertise machine per interface (`KL_adp_engine` `N_IF_P`); the received frame's interface, `rx_if_index_i` read with its last byte, as every transaction's `interface_index`; the registry row's port, so REGISTER and DEREGISTER match {Entity ID, MAC, port} (`KL_aecp_notify` `N_IF_P`); the Table 5.22 GET_COUNTERS slots, one per AVB_INTERFACE; GET_COUNTERS, GET_AVB_INFO and GET_AS_PATH reads, by descriptor_index through the integrator's `ctr_*` and `gsi_*` faces. **Not keyed**, each one per top: the MAC trunks (no frame carries an egress interface out); the class-D levels `link_up_i`, `gm_change_i`, `gm_id_i`, `gptp_domain_i`, read by every advertise machine; the SRP engine (one participant set); the registry depth, P-N-CONTROLLERS in all (16 owner tags); the availability monitor, which matches {Entity ID, MAC} on any interface; the GET_AVB_INFO and GET_AS_PATH pushes (AVB_INTERFACE 0); the side-port snapshot and `adp_next_avail_index_o` (interface 0). The processor's own counters (snapshot words 4 to 9, 24 to 29, 32 to 37) count the shared trunk and engines; the Milan Table 5.1 AVB_INTERFACE counters are the integrator's (GAP-05) | 01 §7 | DIR |
+ 
+ ### 6.11 Reusability, verification and process requirements
+ 
+diff --git a/docs/architecture/01_overview.md b/docs/architecture/01_overview.md
+index 1fda4ec..ef8416e 100644
+--- a/docs/architecture/01_overview.md
++++ b/docs/architecture/01_overview.md
+@@ -156,7 +156,7 @@ values; other documents reference `P-…` IDs.
+ 
+ | P-ID | Default | Range / constraint | Affects |
+ |---|---|---|---|
+-| P-N-AVB-INTERFACES | 1 | ≥1 (redundancy seam: keys registry/ADP/counter-notification slots/records) | all per-interface state |
++| P-N-AVB-INTERFACES | 1 | 1 or 2 (`N_AVB_IF_P` on `protocol_processor_top`; 2 is Milan's redundant pair, and the top refuses any other value at elaboration). The redundancy seam, threaded through rather than closed: at 1 no cell changes, and the only difference is two new 2-bit inputs, read only at 2. At 2 it keys the ADP advertise machines, the received frame's interface (`rx_if_index_i`) on every transaction, the registry row's port and the AVB_INTERFACE counter-notification slots. Not keyed, by design: the MAC trunks (no egress index), the class-D levels, the SRP engine, the registry depth, the availability monitor and the side-port snapshot ([REQ-SCP-003](../00_MILAN_COMPLIANCE_REVIEW.md#fig-00-matrix)) | all per-interface state; the F08.4 timer map |
+ | P-N-STREAM-IN | product | ≥1 with a Base format if listener (Milan §6.4) | sink records, discovery SMs, counter-notification slots |
+ | P-N-STREAM-OUT | product | ≥1 with a Base format if talker (Milan §6.3) | source records, DA timers, counter-notification slots |
+ | P-N-CONTROLLERS | 16 | ≥16 per interface (Milan §5.3.4.2) | registry, monitor timers, fan-out |
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 5cc2de3..dc79b2a 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -54,7 +54,7 @@ flowchart LR
+ 
+ | Instance | Class | Dir | Clock domain | Consumers | Notes |
+ |---|---|---|---|---|---|
+-| `mac_rx` | A | in | core; the integrator's dual-clock FIFO crosses from MAC RX (§2) | packet engine | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i`, no ready (§3); one trunk at the landed top (P-N-AVB-INTERFACES) |
++| `mac_rx` | A | in | core; the integrator's dual-clock FIFO crosses from MAC RX (§2) | packet engine | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i`, no ready (§3); one trunk at the landed top, whose frames name their AVB interface on `rx_if_index_i` when P-N-AVB-INTERFACES is 2 |
+ | `mac_tx` | A | out | core; the integrator's dual-clock FIFO crosses to MAC TX (§2) | TX arbiter | `tx_valid_o`, `tx_sof_o`, `tx_data_o[7:0]`, `tx_eof_o`, `tx_ready_i` (§3); one trunk |
+ | `srp` | B+C+D | both | core | ACMP, AECP gather, NOTIF | talker/listener attribute ops; served by the internal SRP engine ([10](10_srp_engine.md)) or an external stack (`P-EN-SRP-ENGINE`) |
+ | `maap` | B+C | both | core | talker DA management | allocation + conflict events; served internally by [11](11_maap_engine.md) when `cfg_maap_internal_i` = 1 |
+@@ -145,6 +145,7 @@ gives the wiring obligations.
+ | `rx_valid_i` | in | 1 | a frame byte is on `rx_data_i` this cycle, and the processor takes it |
+ | `rx_data_i` | in | 8 | the byte |
+ | `rx_last_i` | in | 1 | with `rx_valid_i`: the final byte of the frame |
++| `rx_if_index_i` | in | 2 | the AVB interface the frame arrived on, read with its final byte (`rx_valid_i ∧ rx_last_i`) and only when `N_AVB_IF_P` (P-N-AVB-INTERFACES) is 2. It defaults to 0, so a one-interface integration leaves it unconnected |
+ | `tx_valid_o` | out | 1 | a frame byte is on `tx_data_o` |
+ | `tx_sof_o` | out | 1 | with `tx_valid_o`: the first byte of a frame |
+ | `tx_data_o` | out | 8 | the byte |
+@@ -360,7 +361,7 @@ ever be owed.
+ 
+ ### 4.3 `gptp` — time-sync data
+ 
+-**Landed shape on `protocol_processor_top`** (interface 0; `P-N-AVB-INTERFACES` is 1).
++**Landed shape on `protocol_processor_top`**: one gPTP pair per top. With `P-N-AVB-INTERFACES` at 2 every interface's advertise machine reads it ([REQ-SCP-003](../00_MILAN_COMPLIANCE_REVIEW.md#fig-00-matrix) lists what is not keyed).
+ No request reaches a gPTP stack: the integrator publishes the gPTP pair as levels,
+ strobes its changes, and answers the GET_AVB_INFO and GET_AS_PATH words on the `gsi_*`
+ read face.
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index e604bd5..9b48732 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -635,12 +635,16 @@ v1.2 §5.4.2.25 Tables 5.13 to 5.17; IEEE 1722.1-2021 Tables 7-152 to 7-159)
+ `ctr_change_desc_type_i` and `ctr_change_desc_index_i`, one served descriptor per cycle)
+ is wired from `protocol_processor_top` to the notification block's `ev_ctr_*`
+ (`KL_aecp_notify`): one pending bit per descriptor it keeps a slot for (every Stream
+-Input and Stream Output index of the shape, AVB_INTERFACE 0 and CLOCK_DOMAIN 0),
++Input and Stream Output index of the shape, AVB_INTERFACE 0 and CLOCK_DOMAIN 0, and
++with `P-N-AVB-INTERFACES` at 2 AVB_INTERFACE 1 as well: the AVB_INTERFACE counters are
++keyed per interface),
+ repeats coalesced, and at most one unsolicited GET_COUNTERS per descriptor per
+ `T-CTR-NOTIF` (Milan Table 5.22), throttled per descriptor and gathered through the face
+ when it is emitted, so it carries the counts of that moment. A strobe without a slot is
+ ignored. Graded in `tb/pp_top` U9 and K13 to K17 (K17: a strobe for AVB_INTERFACE 1,
+-CLOCK_DOMAIN 1 or a stream index past the shape pushes nothing), under load in ST (§7).
++CLOCK_DOMAIN 1 or a stream index past the shape pushes nothing), under load in ST (§7);
++at two interfaces in `tb/aecp_notify` CK (AVB_INTERFACE 1 has a window of its own, and
++AVB_INTERFACE 2 pushes nothing).
+ 
+ **Who decides the mask.** The masks above are what a *complete* PAAD-AE owes;
+ what a given build may claim is what its fabric measures, and the engine carries
+@@ -898,7 +902,12 @@ kind and requester exclusion in a bounded queue. GET_COUNTERS changes are coales
+ per served descriptor, and a descriptor's next round begins no sooner than one second
+ after its previous round's last send (issue #148): the stamp follows the clock while a
+ job waits for the engine and the TX slot, so each controller's notifications of one
+-descriptor are a second apart.
++descriptor are a second apart. With `P-N-AVB-INTERFACES` at 2 (issue #69) each row also
++stores the port, the AVB interface its REGISTER arrived on (the command's ingress
++interface, which the top latches where the engine takes the command), and REGISTER and
++DEREGISTER walk for the whole {EID, MAC, port} tuple; at 1 the field is not generated.
++The depth stays `P-N-CONTROLLERS` in all, and the availability monitor matches {EID, MAC}
++on any interface ([REQ-SCP-003](../00_MILAN_COMPLIANCE_REVIEW.md#fig-00-matrix)).
+ 
+ **Storage (issue #232, 2026-10-03).** Each array of `KL_aecp_notify` and the
+ primitive it is built for. The measured mapping, before and after, is recorded on
+@@ -907,6 +916,7 @@ milan-fpga #232.
+ | Structure | Shape | Built for | Why |
+ |---|---|---|---|
+ | Row table `rows_r` {EID, MAC, seq} | `P-N-CONTROLLERS` × 128 bits | distributed RAM, read at the walk (or drain), the probe's pick and the write index | no reader sees every row at once |
++| Port `g_port.port_r`, at two interfaces only | `P-N-CONTROLLERS` × 1 bit | distributed RAM | written with the row a REGISTER claims or refreshes, read by the walk's compare alone |
+ | Identity index | `P-N-CONTROLLERS` rows × 19 six-bit chunks, one 64 × 1 memory each | distributed RAM | the monitor's "any valid AECP cmd from this controller" (F06.5) matches every row in the command's own cycle without a comparator per row; a REGISTER rewrites its row's index over the row write's own cycle and the cycle after it, while that row is matched by one comparator against the write port's read. The index's correctness relies on its configuration-time zero content (an explicit `initial`), as the ROM images rely on `$readmemh`; `rst_n` leaves both the index and `rows_r` as they are |
+ | valid, TIME_LIMITED, parked expiry, monitor and probe flags | 1 bit per row each | flops | the expiry intake, the monitor and the walk read and write them in one cycle |
+ | Command-notification queue `cmdq_*` | `P-NOTIF-QUEUE-DEPTH` (16) × 132 bits | distributed RAM | one write pointer, one read pointer; the pointers and count are the reset state |
+@@ -957,7 +967,8 @@ load) and NP (a byte-exact push at a second controller for every command class o
+ Registry entry ([F07.7](07_memory_maps.md#fig-07-regrec)): {controller EID, MAC, port,
+ next unsolicited `sequence_id` (init 0), TIME_LIMITED deadline, monitor deadline,
+ probe state}. **No duplicate {EID, MAC, port} tuples; ≥ 16 entries per AVB interface;
+-volatile** (cleared by power cycle), Δ12.
++volatile** (cleared by power cycle), Δ12. The landed table holds `P-N-CONTROLLERS` (16)
++entries in all: at two interfaces they are shared, which REQ-SCP-003 names as not keyed.
+ 
+ <a id="fig-06-regsm"></a>**F06.5 — Registry-entry lifecycle**
+ 
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index fd90c9c..2a8f78c 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -415,6 +415,24 @@ each grades behaviour the change kept:
+ 
+ The mutation records are in the two suites' READMEs.
+ 
++### 8.9 The redundancy seam at two AVB interfaces (issue #69)
++
++`P-N-AVB-INTERFACES` is 1 in every shipping build, so the seam would rot unseen.
++Three suites build it at 2, each in a build of its own, and the pp_top suite lints the
++real top at 1 and 2 on every run:
++
++| Category | Section | What it proves |
++|---|---|---|
++| DIR | `tb/adp_engine` IF (second build, `N_IF_P` = 2) | one advertise machine per interface: each leaves DOWN on its own link and advertises byte-exact with its own interface_index, available_index, grandmaster and domain; ENTITY_DISCOVER and GM_CHANGE restart the receiving interface's machine alone; LINK_DOWN on one interface leaves the other advertising; the discovery guard reads the ingress interface's pair; disabling the entity sends one ENTITY_DEPARTING per interface |
++| DIR | `tb/aecp_notify` PT (third build, `N_IF_P` = 2) | the registry row's port: a controller registered on two interfaces holds two entries with Sequence IDs of their own, a repeated REGISTER refreshes its own port's entry, and DEREGISTER removes the entry of its port |
++| DIR | `tb/aecp_notify` CK (third build) | the AVB_INTERFACE counter rows: AVB_INTERFACE 1's GET_COUNTERS window is its own beside AVB_INTERFACE 0's, an index past the interfaces pushes nothing, and CLOCK_DOMAIN 0 keeps its slot |
++| DIR | `tb/pp_top` IF (seventh build, `N_AVB_IF_P` = 2) | through the top's glue: both interfaces advertise byte-exact; a frame's interface, `rx_if_index_i` read with its last byte and changed right after it, reaches ADP; the registry port comes from the command's interface, so a lock change reaches a controller registered on both interfaces twice, and once after DEREGISTER on interface 1 |
++| lint | `tb/pp_top` `if-guards` | the real top lints clean, no warning, at `N_AVB_IF_P` 1 and 2, and 0 and 3 are refused with the top's message naming `N_AVB_IF_P` |
++
++The controls collapse the interface count, index or sample: arms in
++`tb/adp_engine/mutants.py` (`if-*`) and in `tb/pp_top/notify_mutants.py` (`port_*`,
++`avb_counter_*`, `rgy_port_tied_zero`). The records are in the three suites' READMEs.
++
+ To add once the generated environment exists: REQ-ID ↔ test-tag coverage (§2), and a
+ single-source scan (no timing values outside F08.1, no parameter values outside F01.5)
+ per the scope rules in [docs/README §2](../README.md).
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index 5b31a22..9520a57 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -545,6 +545,36 @@ sequenceDiagram
+ > latency; `EVT_TK_UNREGISTERED` therefore fires on the *frame* that withdraws a
+ > talker attribute, not a timer later.
+ 
++<a id="sec-10-lv-withdrawal"></a>*A withdrawal that meets LV (issue
++[#134](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/134)).*
++Δ13 replaces one cell of 802.1Q-2014 Table 10-4, IN / rLv!. The LV column stays the
++standard's. Table 10-4 puts rLv!, rLA!, txLA! and Re-declare! in one row: in IN it starts
++the leavetimer and enters LV, and in LV it is `-x-`. So a LeaveAll (the own `sLA` action,
++or a received LeaveAll on the registrar's lane) moves an IN registrar to LV and starts its
++T-MRP-LEAVE slot. An `Lv` that then arrives, such as a peer's withdrawal just after the
++LeaveAll, changes nothing, however often it repeats. The registration stays published
++(`lstn_reg_state[src]`; `tk_reg_state[sink]` on the listener side) and the talker's ACTIVE
++stays high until leavetimer!, which is Lv and MT in LV. That is T-MRP-LEAVE after the
++LeaveAll ([F08.1](08_timing.md#fig-08-constants), Milan v1.2 Table 4.3 LeaveTime). The registration then ends, `LISTENER_REG_CHANGE`
++fires, and ACTIVE falls once: one STREAM_STOP. A registering event (New, JoinIn, JoinMt)
++before the expiry returns the registrar to IN and stops the timer instead. A talker whose
++listener withdraws just after a LeaveAll therefore streams on for up to T-MRP-LEAVE. The
++bench met this case (milan-fpga #608: a 2 s hold, shorter than T-MRP-LEAVE), and
++[`tb/srp_top`](../../tb/srp_top/README.md) group S grades it after an own and after a peer
++LeaveAll. Group SC also sweeps the decoded `Lv` across the expiry clock on both planes.
++
++**Same-clock expiry and reception.** A registrar consumes its one-clock leavetimer!
++before applying a received event. Table 10-4 first takes LV to MT with Lv; applying
++rLv!, rLA! or txLA! at MT leaves MT. Received In and Mt do not register and likewise
++leave MT. Applying rNew!, rJoinIn! or rJoinMt! instead ends IN with the received
++value, stops the obsolete timer, and keeps the published registration and ACTIVE
++continuous. The registrar publishes the final result of the composed transitions:
++a same-clock renewal does not emit an intermediate withdrawal. Existing type-change,
++latency and FailureInformation notifications still apply to the received value.
++No pending expiry or timer-service handshake is added: the one-clock strobe is
++consumed on its arrival. The pending-ARM guard still excludes an obsolete expiry
++while a replacement leave timer is being issued.
++
+ **The LeaveAll timer is per MRP application; the LeaveAll message is per
+ Attribute Type, on transmit and on receive.** 802.1Q-2014 §10.7.5.20 NOTE: "The
+ LeaveAll state machine operates on a per-application (not per-Attribute Type)
+diff --git a/docs/diagrams/21-integration-faces.svg b/docs/diagrams/21-integration-faces.svg
+index cc82cfe..412cf86 100644
+--- a/docs/diagrams/21-integration-faces.svg
++++ b/docs/diagrams/21-integration-faces.svg
+@@ -30,7 +30,7 @@
+ 
+   <text x="464" y="342" font-size="12.5" font-weight="bold" fill="#16181d">Complete parameter inventory — fixed at elaboration</text>
+   <g id="integration-parameters" font-size="11.5" fill="#4a5058">
+-    <text x="464" y="362">N_STREAM_IN_P · N_STREAM_OUT_P</text>
++    <text x="464" y="362">N_AVB_IF_P · N_STREAM_IN_P · N_STREAM_OUT_P</text>
+     <text x="464" y="380">N_AUDIO_UNIT_P · N_CLK_DOMAIN_P · N_CONTROL_P</text>
+     <text x="464" y="398">RX_SLOTS_P · RX_SLOT_BYTES_P</text>
+     <text x="464" y="416">TX_STD_SLOTS_P · TX_OVERSIZE_BYTES_P</text>
+@@ -58,8 +58,9 @@
+   <text x="42" y="152" font-size="12.5" font-weight="bold" fill="#16181d">MAC trunk RX  →  in</text>
+   <text x="42" y="172" font-size="11.5" fill="#4a5058">rx_valid_i · rx_data_i[7:0] · rx_last_i</text>
+   <text x="42" y="192" font-size="11.5" fill="#4a5058">A BYTE stream. Byte 0 is the first DA octet;</text>
+-  <text x="42" y="209" font-size="11.5" fill="#4a5058">rx_last_i delimits the frame.</text>
+-  <text x="42" y="232" font-size="11.5" fill="#a03030">There is NO rx_ready. The RX side cannot be stalled.</text>
++  <text x="42" y="209" font-size="11.5" fill="#4a5058">rx_last_i ends it; rx_if_index_i[1:0] names its</text>
++  <text x="42" y="224" font-size="11.5" fill="#4a5058">interface (read only with N_AVB_IF_P = 2).</text>
++  <text x="42" y="240" font-size="11.5" fill="#a03030">There is NO rx_ready. The RX side cannot be stalled.</text>
+ 
+   <rect x="24" y="278" width="390" height="132" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+   <text x="42" y="300" font-size="12.5" font-weight="bold" fill="#16181d">identity and level controls  →  in</text>
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index a1a8ccc..d4cd17f 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -75,6 +75,7 @@ stream counts in F01.5 are product choices; the top supplies implementation defa
+ 
+ | Parameter | Authoritative home / documented owner | What it sets |
+ |---|---|---|
++| `N_AVB_IF_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-AVB-INTERFACES` | AVB interfaces, the redundancy seam: 1 (the default, and every shipping build) or 2. At 2 each interface has its own advertise machine, every received frame names its interface on `rx_if_index_i` (section 3), and a controller's registration is kept per interface. The trunks, the class-D levels, the SRP engine and the side-port snapshot stay one per top; [REQ-SCP-003](../00_MILAN_COMPLIANCE_REVIEW.md#fig-00-matrix) lists everything that is and is not keyed |
+ | `N_STREAM_IN_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-STREAM-IN` | Stream Inputs: sinks, listener machines, per-sink records |
+ | `N_STREAM_OUT_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-STREAM-OUT` | Stream Outputs: sources, talker gates, SRP declarations |
+ | `N_AUDIO_UNIT_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-N-AUDIO-UNITS` | Audio Unit rows in the AECP dynamic-state store, including sampling-rate settings; match the entity model |
+@@ -129,7 +130,7 @@ domain. Byte 0 of each frame is the first destination-address octet.
+ 
+ | Direction | Ports | Backpressure |
+ |---|---|---|
+-| RX | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i` | **none.** There is no `rx_ready`. The RX side cannot be stalled — feed it from a FIFO that can absorb a frame. |
++| RX | `rx_valid_i`, `rx_data_i[7:0]`, `rx_last_i`; `rx_if_index_i[1:0]`, the frame's AVB interface, read with its last byte and only when `N_AVB_IF_P` is 2 (leave it unconnected at 1: it defaults to 0) | **none.** There is no `rx_ready`. The RX side cannot be stalled — feed it from a FIFO that can absorb a frame. |
+ | TX | `tx_valid_o`, `tx_sof_o`, `tx_data_o[7:0]`, `tx_eof_o`, `tx_ready_i` | `tx_ready_i` is real. A granted frame streams from `tx_sof_o` to `tx_eof_o` with no preemption, so holding `tx_ready_i` low stalls that frame in place; it never truncates. |
+ 
+ <a id="rx-frame-atomic"></a>**Your RX FIFO must deliver only complete, FCS-good frames.** The
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 507d21c..bbe9897 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -15,9 +15,19 @@
+ //                three things that must agree live behind one wall:
+ //                  - Milan SS5.3.4.2's list ("at least 16 controllers per AVB
+ //                    Interface", entry = {Entity ID, MAC address, port,
+-//                    Sequence ID of the next unsolicited notification}) -
+-//                    P-N-AVB-INTERFACES is 1 here, so the port field is
+-//                    constant and not stored;
++//                    Sequence ID of the next unsolicited notification}). The
++//                    port is the AVB interface a REGISTER arrived on. With
++//                    P-N-AVB-INTERFACES (N_IF_P) above 1 each row stores it,
++//                    and REGISTER and DEREGISTER match the whole {Entity ID,
++//                    MAC, port} tuple, so a controller registered on two
++//                    interfaces holds two rows and two Sequence IDs. At 1 the
++//                    port is constant and the field is not generated. NOT
++//                    keyed by port, on purpose: the depth is P-N-CONTROLLERS
++//                    in all, not per interface (the owner tags hold 16 rows);
++//                    the availability monitor matches {Entity ID, MAC} on any
++//                    interface, since a command on either proves the
++//                    controller alive; and a job carries no port, because the
++//                    top has one TX trunk and no egress index;
+ //                  - Milan SS5.3.4.1's locked state ("At a given time, a
+ //                    PAAD-AE may be either locked by a controller or not";
+ //                    the one thing kept is "The Entity ID of the locking
+@@ -135,6 +145,9 @@
+ //                requester is excluded from the table walk. GET_COUNTERS
+ //                changes use one dirty and pending bit per served descriptor;
+ //                their one-second limit runs from a round's last send.
++//                The served set is every stream, AVB_INTERFACE 0 to
++//                N_IF_P - 1 (the AVB_INTERFACE counters are keyed per
++//                interface) and CLOCK_DOMAIN 0.
+ //
+ //                DEADLOCK IS BROKEN BY WITHDRAWAL: while a presented job
+ //                waits for the engine, a rising rgy_req_i proves the engine
+@@ -200,6 +213,10 @@ module KL_aecp_notify
+ #(
+     //! P-N-CONTROLLERS (Milan SS5.3.4.2: at least 16 per AVB Interface)
+     parameter int unsigned N_CTRL_P          = 16,
++    //! P-N-AVB-INTERFACES (F01.5): above 1, each row stores the port its
++    //! REGISTER arrived on and the AVB_INTERFACE counter changes are served
++    //! per interface; 1 generates neither (see the banner)
++    parameter int unsigned N_IF_P            = 1,
+     //! P-N-STREAM-IN / P-N-STREAM-OUT - width of the stream-info event sets
+     parameter int unsigned N_STREAM_IN_P     = 8,
+     parameter int unsigned N_STREAM_OUT_P    = 8,
+@@ -232,6 +249,7 @@ module KL_aecp_notify
+     input  wire  [1:0]  rgy_op_i,            //! 0 REG / 1 DEREG / 2 LOCK / 3 UNLOCK
+     input  wire  [63:0] rgy_eid_i,           //! requesting controller entity_id
+     input  wire  [47:0] rgy_mac_i,           //! its source MAC (the registry tuple)
++    input  wire  [1:0]  rgy_port_i,          //! its AVB interface, the tuple's port (N_IF_P > 1)
+     input  wire         rgy_tl_i,            //! REGISTER: TIME_LIMITED flag
+     output logic [63:0] rgy_data_o,          //! result word (see banner)
+     output logic        rgy_wait_o,          //! HOLD the gather beat (not a ready)
+@@ -390,8 +408,11 @@ module KL_aecp_notify
+ 
+   // Counter notifications have one independent one-second throttle per
+   // descriptor. This build serves every stream row plus AVB_INTERFACE[0]
+-  // and CLOCK_DOMAIN[0], the same set accepted by GET_COUNTERS.
+-  localparam int unsigned N_CTR_DESC_C = N_STREAM_IN_P + N_STREAM_OUT_P + 2;
++  // and CLOCK_DOMAIN[0], the same set accepted by GET_COUNTERS, and with
++  // more than one interface AVB_INTERFACE[1] to [N_IF_P - 1] after them:
++  // the AVB_INTERFACE counters are keyed per interface, and the first two
++  // keep the slots they hold at one interface.
++  localparam int unsigned N_CTR_DESC_C = N_STREAM_IN_P + N_STREAM_OUT_P + 1 + N_IF_P;
+   localparam int unsigned CTX_W_C = (N_CTR_DESC_C > 1) ? $clog2(N_CTR_DESC_C) : 1;
+   localparam logic [15:0] DT_STREAM_INPUT_C  = 16'h0005;
+   localparam logic [15:0] DT_STREAM_OUTPUT_C = 16'h0006;
+@@ -493,8 +514,29 @@ module KL_aecp_notify
+ 
+   //! walk-row comparisons (one comparator each; the walk is serial)
+   logic wk_hit_w;
+-  assign wk_hit_w = valid_r[wk_ix_r] && (row_eid_w == hold_eid_r)
+-                    && (row_mac_w == hold_mac_r);
++  //! Milan SS5.3.4.2's port, generated only with more than one interface
++  //! (see the banner): latched with a REGISTER or DEREGISTER's {eid, mac},
++  //! written with the row N_APPLY claims or refreshes, and compared by the
++  //! walk, so the op finds its {eid, mac, port} row. Nothing else reads it.
++  if (N_IF_P > 1) begin : g_port
++    localparam int unsigned PORT_W_C = $clog2(N_IF_P);
++    (* ram_style = "distributed" *) logic [PORT_W_C-1:0] port_r [0:N_CTRL_P-1];
++    logic [PORT_W_C-1:0] hold_port_r;
++    always_ff @(posedge clk_i) begin : port_latch
++      if ((n_st_r == N_IDLE) && rgy_new_w && !rgy_state_i && !rgy_op_i[1])
++        hold_port_r <= PORT_W_C'(rgy_port_i);
++    end
++    always_ff @(posedge clk_i) begin : port_write
++      if ((n_st_r == N_APPLY) && !op_dereg_r && (wk_match_r || wk_free_r))
++        port_r[wk_match_r ? wk_match_ix_r : wk_free_ix_r] <= hold_port_r;
++    end
++    assign wk_hit_w = valid_r[wk_ix_r] && (row_eid_w == hold_eid_r)
++                      && (row_mac_w == hold_mac_r)
++                      && (port_r[wk_ix_r] == hold_port_r);
++  end else begin : g_no_port
++    assign wk_hit_w = valid_r[wk_ix_r] && (row_eid_w == hold_eid_r)
++                      && (row_mac_w == hold_mac_r);
++  end
+   logic em_skip_w;
+   assign em_skip_w = !valid_r[wk_ix_r]
+                      || (em_excl_v_r && (row_eid_w == em_excl_r));
+@@ -691,6 +733,16 @@ module KL_aecp_notify
+           end
+         end
+       end
++      //! AVB_INTERFACE[1] and up (N_IF_P > 1): the slots after CLOCK_DOMAIN[0]
++      if (N_IF_P > 1) begin
++        for (int unsigned i = 1; i < N_IF_P; i++) begin
++          if (pick_any_w
++              && (32'(pick_ctr_ix_w) == (N_STREAM_IN_P + N_STREAM_OUT_P + 1 + i))) begin
++            pick_dt_w = DT_AVB_INTERFACE_C;
++            pick_di_w = 16'(i);
++          end
++        end
++      end
+       for (int unsigned s = 0; s < N_STREAM_IN_P; s++) begin
+         if (!pick_any_w && pe_sin_r[s]) begin
+           pick_any_w  = 1'b1;
+@@ -1096,6 +1148,14 @@ module KL_aecp_notify
+       end
+ 
+       if (ev_ctr_i && ctr_ev_ok_w) ctr_dirty_r[ctr_ev_ix_w] <= 1'b1;
++      //! AVB_INTERFACE[1] and up (N_IF_P > 1): the slots after CLOCK_DOMAIN[0]
++      if (N_IF_P > 1) begin
++        for (int unsigned i = 1; i < N_IF_P; i++) begin
++          if (ev_ctr_i && (ev_ctr_type_i == DT_AVB_INTERFACE_C)
++              && (32'(ev_ctr_index_i) == i))
++            ctr_dirty_r[N_STREAM_IN_P + N_STREAM_OUT_P + 1 + i] <= 1'b1;
++        end
++      end
+       for (int unsigned c = 0; c < N_CTR_DESC_C; c++) begin
+         if (ctr_dirty_r[c] && !ctr_pend_r[c]
+             && (!ctr_sent_r[c]
+diff --git a/hdl/packet_engine/KL_pp_originator.sv b/hdl/packet_engine/KL_pp_originator.sv
+index 058b10c..0aaeb6e 100644
+--- a/hdl/packet_engine/KL_pp_originator.sv
++++ b/hdl/packet_engine/KL_pp_originator.sv
+@@ -185,6 +185,9 @@ module KL_pp_originator #(
+     end
+   end
+ 
++  logic                cancel_hit_w;
++  logic [IFL_AW_C-1:0] cancel_ix_w;
++
+   logic [IFL_N_C-1:0]  cancel_work_w;
+   logic                cancel_pend_ok_w;
+   logic [IFL_AW_C-1:0] cancel_pend_ix_w;
+@@ -233,9 +236,6 @@ module KL_pp_originator #(
+     end
+   end
+ 
+-  logic                cancel_hit_w;
+-  logic [IFL_AW_C-1:0] cancel_ix_w;
+-
+   always_comb begin : cancel_pick
+     cancel_hit_w = 1'b0;
+     cancel_ix_w  = '0;
+diff --git a/hdl/packet_engine/KL_pp_rx_validator.sv b/hdl/packet_engine/KL_pp_rx_validator.sv
+index 4e1e93e..158f0b1 100644
+--- a/hdl/packet_engine/KL_pp_rx_validator.sv
++++ b/hdl/packet_engine/KL_pp_rx_validator.sv
+@@ -229,6 +229,8 @@ module KL_pp_rx_validator
+   logic [11:0] pcnt_end_w;
+   logic        v1_pass_w;
+   logic        ev_da_w, ev_et_w, ev_len_w;
++  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
++  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign acc_w  = rx_valid_i;
+   assign end_w  = rx_valid_i && rx_last_i;
+@@ -618,9 +620,7 @@ module KL_pp_rx_validator
+   logic [7:0] od_data_r;
+   logic       out_valid_r, out_emit_r;
+ 
+-  logic       fifo_ne_w, fifo_full_w, vq_ne_w, vq_full_w;
+   logic       vq_head_w;
+-  logic       push_w, vd_push_w, vd_val_w, rd_fire_w, retire_w;
+ 
+   assign fifo_ne_w   = (wptr_r != rptr_r);
+   assign fifo_full_w = (wptr_r == (rptr_r ^ 7'h40));
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index 78014b4..20df3af 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -744,6 +744,9 @@ module KL_srp_listener_fsm
+         tpend_r[tsel_ix_w] <= T_NOP_C;
+       end
+ 
++      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++      // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-sink registrar events ------------------------------------
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+         if (reg_rx_hit_w[s] && rx_registering_w) begin
+@@ -763,6 +766,10 @@ module KL_srp_listener_fsm
+           end
+           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
+           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++        end else if (exp_hit_w && (exp_idx_w == s)
++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++          evt_tk_unregistered_o[s] <= 1'b1;
+         end else if (reg_rx_hit_w[s]
+                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+           if (reg_r[s] == R_IN_C) begin
+@@ -773,10 +780,6 @@ module KL_srp_listener_fsm
+         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
+-        end else if (exp_hit_w && (exp_idx_w == s)
+-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+-          evt_tk_unregistered_o[s] <= 1'b1;
+         end
+         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
+         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/hdl/srp/KL_srp_talker_fsm.sv b/hdl/srp/KL_srp_talker_fsm.sv
+index 433d080..f716e2a 100644
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -717,6 +717,9 @@ module KL_srp_talker_fsm
+         tpend_r[tsel_ix_w] <= T_NOP_C;
+       end
+ 
++      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++      // Test expiry before rLv so its one-clock strobe cannot be masked.
+       // ---- per-source registrar events ----------------------------------
+       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+@@ -726,6 +729,9 @@ module KL_srp_talker_fsm
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+           reg_r[s]      <= R_IN_C;
+           lstn_val_r[s] <= evt_fourpacked_i;
++        end else if (exp_hit_w && (exp_idx_w == s)
++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+           if (reg_r[s] == R_IN_C) begin
+             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
+@@ -734,9 +740,6 @@ module KL_srp_talker_fsm
+         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
+           reg_r[s]   <= R_LV_C;
+           tpend_r[s] <= T_ARM_C;
+-        end else if (exp_hit_w && (exp_idx_w == s)
+-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+         end
+         // gate re-open arms a fresh tracker for the (possibly new) stream
+         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 098c538..237c0bc 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -73,12 +73,33 @@
+ //                their occupancy state is lock-step by construction and
+ //                reads never mutate — divergence is structurally impossible,
+ //                at the price of three extra small RAMs.
++//
++//                P-N-AVB-INTERFACES (N_AVB_IF_P, default 1) is the
++//                redundancy seam, threaded through rather than closed
++//                (issue #69). At 1 no cell changes anywhere: the only
++//                difference is two new 2-bit inputs, rx_if_index_i here and
++//                KL_aecp_notify's rgy_port_i, both read only above 1. Above
++//                1 it is keyed in three places: KL_adp_engine runs one
++//                advertise machine per interface; the RX frame's interface
++//                (rx_if_index_i, read with the frame's last byte) rides the
++//                header beat into every transaction's interface_index; and
++//                KL_aecp_notify stores each registration's port and serves
++//                the AVB_INTERFACE counter changes per interface. One per top
++//                whatever the count, so not keyed: the MAC trunks (no frame
++//                carries an egress interface out); the class-D levels
++//                link_up_i, gm_change_i, gm_id_i and gptp_domain_i, which
++//                every advertise machine reads; the SRP engine; and the
++//                side-port snapshot and adp_next_avail_index_o, which show
++//                interface 0.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+ module protocol_processor_top
+   import pp_pkg::*;
+ #(
++    //! P-N-AVB-INTERFACES (F01.5): AVB interfaces, the redundancy seam (see
++    //! the banner); 1 or 2, refused otherwise at elaboration
++    parameter int unsigned N_AVB_IF_P          = 1,
+     //! P-N-STREAM-IN (F01.5): sinks / listener SMs
+     parameter int unsigned N_STREAM_IN_P       = 8,
+     //! P-N-STREAM-OUT (F01.5): sources / talker gates
+@@ -211,7 +232,7 @@ module protocol_processor_top
+     //! place that arithmetic exists), so the map is correct at any
+     //! P-N-STREAM-IN / P-N-STREAM-OUT — see the banner at the bases.
+     localparam pp_timer_map_t TMR_MAP_C =
+-        pp_timer_map(PP_N_IF_C, N_STREAM_IN_P, N_STREAM_OUT_P,
++        pp_timer_map(N_AVB_IF_P, N_STREAM_IN_P, N_STREAM_OUT_P,
+                      PP_N_CTRL_C, PP_CA_POOL_C),
+     //! P-TIMER-SLOTS for this shape (= pp_timer_slots(..., en_srp = 1)).
+     //! At the F01.5 default shape this is exactly PP_TIMER_SLOTS_C = 89.
+@@ -286,6 +307,10 @@ module protocol_processor_top
+     input  wire         rx_valid_i,            //! byte strobe from the RX async FIFO
+     input  wire  [7:0]  rx_data_i,             //! frame byte (byte 0 = first DA octet)
+     input  wire         rx_last_i,             //! final byte of the frame
++    //! the AVB interface the frame arrived on, read with its final byte
++    //! (rx_valid_i && rx_last_i) and only when N_AVB_IF_P > 1. It defaults
++    //! to 0, so a one-interface integration leaves it unconnected
++    input  wire  [1:0]  rx_if_index_i = 2'd0,
+ 
+     //! ---- MAC TX (merged byte stream, 02 §2 class A) ----
+     output logic        tx_valid_o,            //! stream byte valid
+@@ -843,6 +868,13 @@ module protocol_processor_top
+   localparam int unsigned OWN_SRPCAD_END_C = 32'(PP_OWN_SRP_CAD_C) + PP_SRP_CAD_SLOTS_C;
+   localparam int unsigned OWN_MAAP_END_C   = 32'(PP_OWN_MAAP_C) + PP_MAAP_SLOTS_C;
+ 
++  //! P-N-AVB-INTERFACES: one interface, or Milan's redundant pair. The
++  //! transaction's interface_index and rx_if_index_i are two bits wide, but
++  //! only 1 and 2 are elaborated and graded (issue #69)
++  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
++    $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++           N_AVB_IF_P);
++  end
+   if (TMR_SLOTS_C > (32'd1 << TMR_AW_C)) begin : gen_g_tmr_aw
+     $error("F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d",
+            TMR_AW_C, TMR_SLOTS_C);
+@@ -851,7 +883,7 @@ module protocol_processor_top
+     $error("F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d",
+            TMR_MAP_C.srp_ls + N_STREAM_IN_P, TMR_SLOTS_C);
+   end
+-  if ((TMR_ADP_NOADP_BASE_C < TMR_ADP_ADV_BASE_C + PP_N_IF_C)
++  if ((TMR_ADP_NOADP_BASE_C < TMR_ADP_ADV_BASE_C + N_AVB_IF_P)
+       || (TMR_LSTN_BASE_C    < TMR_ADP_NOADP_BASE_C + N_STREAM_IN_P)
+       || (TMR_TKR_BASE_C     < TMR_LSTN_BASE_C      + N_STREAM_IN_P)
+       || (TMR_MAP_C.regmon   < TMR_TKR_BASE_C       + N_STREAM_OUT_P)
+@@ -1007,11 +1039,13 @@ module protocol_processor_top
+   assign acmp_bound_vlan_o = bound_vlan_r;
+ 
+   //! not "nc" any more: this is the live available_index, published below.
+-  logic [31:0] adp_dbg_aidx_nc_w;
++  //! One 32-bit index per AVB interface, interface 0 in the low word.
++  logic [N_AVB_IF_P*32-1:0] adp_dbg_aidx_nc_w;
+   //! The ADP engine's dbg_avail_index is the PRE-INCREMENT value — the index
+   //! the next ENTITY_AVAILABLE will actually carry, which is what a consumer
+-  //! wants to publish. Full width: see the port comment.
+-  assign adp_next_avail_index_o = adp_dbg_aidx_nc_w;
++  //! wants to publish. Full width: see the port comment. The port carries
++  //! interface 0's whatever P-N-AVB-INTERFACES is (see the banner).
++  assign adp_next_avail_index_o = adp_dbg_aidx_nc_w[31:0];
+ 
+   logic        prng_req_w;
+   logic [2:0]  prng_kind_w;
+@@ -1509,6 +1543,26 @@ module protocol_processor_top
+     end
+   end
+ 
++  //! P-N-AVB-INTERFACES above 1: the frame's interface (rx_if_index_i), taken
++  //! with its last byte and moved into the header latch with the beat the
++  //! validator emits three clocks later (its wr_commit_o / hdr_valid_o at
++  //! t_end + 3), so it names the same frame as the rest of the beat. At one
++  //! interface the body is empty and the normalizer's index is 0.
++  logic [1:0]  rx_if_end_r;    // the last frame's interface, from its final byte
++  logic [1:0]  hdr_if_r;       // ... held with the header beat
++  always_ff @(posedge clk_i) begin : hdr_if_latch
++    if (N_AVB_IF_P > 1) begin
++      if (!rst_n) begin
++        rx_if_end_r <= 2'd0;
++        hdr_if_r    <= 2'd0;
++      end else begin
++        if (rx_valid_i && rx_last_i) rx_if_end_r <= rx_if_index_i;
++        if (v_hdr_valid_w && !(hdr_vld_r && !nrm_rx_ready_w))
++          hdr_if_r <= rx_if_end_r;
++      end
++    end
++  end
++
+   // ---- the F03.7 classifier (03 §6): hazard class and key per transaction --
+   //! Answered on the normalizer's dispatch-ROM seam in the cycle the beat is
+   //! presented, from the seam's protocol and opcode and the header latch's
+@@ -1663,7 +1717,7 @@ module protocol_processor_top
+       .budget_aecp_ms_i    (BUDGET_AECP_MS_C),
+       .rx_valid_i          (hdr_vld_r),
+       .rx_ready_o          (nrm_rx_ready_w),
+-      .rx_if_index_i       (2'd0),
++      .rx_if_index_i       ((N_AVB_IF_P > 1) ? hdr_if_r : 2'd0),  // the frame's interface (above)
+       .rx_protocol_i       (hdr_protocol_r),
+       .rx_msg_type_i       (hdr_msg_type_r),
+       .rx_status_i         (hdr_status_r),
+@@ -1895,7 +1949,7 @@ module protocol_processor_top
+   logic [0:0]  adp_txreq_if_nc_w;
+   logic        adp_evt_valid_w, adp_evt_departed_w;
+   logic [SINK_IDX_W_C-1:0] adp_evt_sink_w;  //! CLAMPED (KL_adp_engine SNK_W_C)
+-  logic [1:0]  adp_dbg_adv_state_w;
++  logic [N_AVB_IF_P*2-1:0] adp_dbg_adv_state_w;  //! per interface, interface 0 low
+   logic [N_STREAM_IN_P-1:0] adp_dbg_tkdisc_nc_w;
+   //! the effective ADP enable: requested AND released by the restore
+   logic        adp_enable_w;
+@@ -1916,7 +1970,7 @@ module protocol_processor_top
+   assign adp_cur_cfg_w = aecp_cur_cfg_v_w ? aecp_cur_config_o : current_cfg_i;
+ 
+   KL_adp_engine #(
+-      .N_IF_P                (1),
++      .N_IF_P                (N_AVB_IF_P),  // one advertise machine per interface
+       .N_SINK_P              (N_STREAM_IN_P),
+       .TMR_SLOTS_P           (TMR_SLOTS_C),
+       .TMR_SLOT_ADV_BASE_P   (TMR_ADP_ADV_BASE_C),
+@@ -1932,10 +1986,12 @@ module protocol_processor_top
+       //! ended (restore_done_o): no advertisement precedes a restore write.
+       //! The side port's image-window lock keeps the requested level.
+       .entity_enable_i       (adp_enable_w),
+-      .link_up_i             (link_up_i),
+-      .gm_change_i           (gm_change_i),
+-      .gm_id_i               (gm_id_i),
+-      .gptp_domain_i         (gptp_domain_i),
++      //! one class-D face per top: every interface's advertise machine reads
++      //! the same link, GM_CHANGE and gPTP pair (see the banner)
++      .link_up_i             ({N_AVB_IF_P{link_up_i}}),
++      .gm_change_i           ({N_AVB_IF_P{gm_change_i}}),
++      .gm_id_i               ({N_AVB_IF_P{gm_id_i}}),
++      .gptp_domain_i         ({N_AVB_IF_P{gptp_domain_i}}),
+       .entity_id_i           (entity_id_i),
+       .entity_model_id_i     (entity_model_id_i),
+       .own_mac_i             (own_mac_i),
+@@ -3946,6 +4002,20 @@ module protocol_processor_top
+ 
+   assign aecp_rxs_free_slot_w = aecp_eng_free_slot_w;
+ 
++  //! The registry tuple's port (Milan §5.3.4.2) with more than one interface:
++  //! the ingress interface of the command KL_aecp_engine is running, latched
++  //! on the handshake that loads its cmd_r (txn_valid_i && txn_ready_o), the
++  //! record its rgy_eid_o and rgy_mac_o come from. At one interface the body
++  //! is empty and u_notify's port is 0.
++  logic [1:0]  aecp_cmd_if_r;
++  always_ff @(posedge clk_i) begin : aecp_cmd_if_latch
++    if (N_AVB_IF_P > 1) begin
++      if (!rst_n) aecp_cmd_if_r <= 2'd0;
++      else if (aecp_txn_valid_w && aecp_sb_grant_w && aecp_eng_ready_w)
++        aecp_cmd_if_r <= aecp_head_w.interface_index;
++    end
++  end
++
+   // =========================================================================
+   // AECP notifications: the registered-controller list + ENTITY lock (06)
+   // =========================================================================
+@@ -3956,6 +4026,7 @@ module protocol_processor_top
+   //! (the engine's no-send arm), but the tie says so at the seam.
+   KL_aecp_notify #(
+       .N_CTRL_P          (PP_N_CTRL_C),
++      .N_IF_P            (N_AVB_IF_P),
+       .N_STREAM_IN_P     (N_STREAM_IN_P),
+       .N_STREAM_OUT_P    (N_STREAM_OUT_P),
+       .TL_TIMEOUT_MS_P   (REG_TL_TIMEOUT_MS_P),
+@@ -3978,6 +4049,7 @@ module protocol_processor_top
+       .rgy_op_i              (aecp_rgy_op_w),
+       .rgy_eid_i             (aecp_rgy_eid_w),
+       .rgy_mac_i             (aecp_rgy_mac_w),
++      .rgy_port_i            ((N_AVB_IF_P > 1) ? aecp_cmd_if_r : 2'd0),  // the command's interface (above)
+       .rgy_tl_i              (aecp_rgy_tl_w),
+       .rgy_data_o            (aecp_rgy_data_w),
+       .rgy_wait_o            (aecp_rgy_wait_w),
+@@ -4782,7 +4854,7 @@ module protocol_processor_top
+         6'd29: sp_snap_rdata_r <= {rxf_drop_r, 8'd0,
+                                    srp_snk_fail_code_w[0]};
+         6'd30: sp_snap_rdata_r <= srp_granted_slope_w[0];
+-        6'd31: sp_snap_rdata_r <= {30'd0, adp_dbg_adv_state_w};
++        6'd31: sp_snap_rdata_r <= {30'd0, adp_dbg_adv_state_w[1:0]};  // interface 0
+         //! AECP engine + descriptor store (06, 07 §3.3)
+         6'd32: sp_snap_rdata_r <= {aecp_dbg_cmd_w, aecp_dbg_resp_w};
+         6'd33: sp_snap_rdata_r <= {aecp_dbg_drop_w, aecp_dbg_miss_w};
+diff --git a/tb/adp_engine/Makefile b/tb/adp_engine/Makefile
+index 3b70d2c..624f124 100644
+--- a/tb/adp_engine/Makefile
++++ b/tb/adp_engine/Makefile
+@@ -1,10 +1,17 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ # KL_adp_engine suite — exit 0 = PASS.
++#
++# Two builds of one top. The first overrides nothing and runs the shipping
++# shape (one interface, eight sinks, sim_main.cpp); the second sets
++# P-N-AVB-INTERFACES to 2 and runs section IF, per-interface advertising
++# (sim_if2.cpp, README). Each binary prints its own build's count; the last
++# line is the one canonical tally, summed over both builds.
+ VERILATOR ?= verilator
+ MUTANT_OUTPUT ?= /tmp/adp-mutants
+ JOBS       ?= 4
+ HDL        = ../../hdl
+ TOP        = tb_adp_top
++.DEFAULT_GOAL := run
+ 
+ VFLAGS = --cc --exe --build -j 0 \
+          --top-module $(TOP) \
+@@ -16,15 +23,27 @@ SRCS = $(HDL)/common/pp_pkg.sv $(HDL)/adp/pp_adp_pkg.sv \
+        $(HDL)/common/KL_pp_prng.sv $(HDL)/adp/KL_adp_engine.sv \
+        tb_adp_top.sv
+ CPP  = sim_main.cpp
++IF2_VFLAGS = -GN_IF_P=2 --Mdir obj_if2
++
++# the second build alone (section IF), for the ADP mutation campaign
++interfaces:
++	@mkdir -p obj_dir
++	$(VERILATOR) $(VFLAGS) $(IF2_VFLAGS) $(SRCS) sim_if2.cpp -o Vadp_if2
++	./obj_if2/Vadp_if2
+ 
+ run:
++	@rm -f obj_dir/build_tally.txt
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vadp_sim
+ 	./obj_dir/Vadp_sim
++	$(VERILATOR) $(VFLAGS) $(IF2_VFLAGS) $(SRCS) sim_if2.cpp -o Vadp_if2
++	./obj_if2/Vadp_if2
++	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
++	    obj_dir/build_tally.txt
+ 
+ mutants:
+ 	python3 mutants.py --output "$(MUTANT_OUTPUT)" --jobs $(JOBS)
+ 
+ clean:
+-	rm -rf obj_dir
++	rm -rf obj_dir obj_if2
+ 
+-.PHONY: run mutants clean
++.PHONY: run interfaces mutants clean
+diff --git a/tb/adp_engine/README.md b/tb/adp_engine/README.md
+index 3d0f38d..06edab1 100644
+--- a/tb/adp_engine/README.md
++++ b/tb/adp_engine/README.md
+@@ -3,7 +3,10 @@
+ 
+ Proves the ADP engine (`hdl/adp/KL_adp_engine.sv`) against
+ [04](../../docs/architecture/04_adp_engine.md) in full: `make` = build + run,
+-exit 0 = PASS, 1348 checks. `make mutants` runs the checked-in mutation
++exit 0 = PASS, 1359 checks in two builds: 1348 at the shipping shape
++(`sim_main.cpp`) and 11 at two AVB interfaces (`sim_if2.cpp`, section IF below).
++Each binary prints its own build's count, and the Makefile prints the one
++canonical tally, summed over both. `make mutants` runs the checked-in mutation
+ campaign below.
+ 
+ The top (`tb_adp_top.sv`) is pure wiring: the engine plus the **real
+@@ -232,6 +235,42 @@ Mutation-proven 2026-08-11 (backup/sed/run/restore):
+ 4. talker-restart detector deleted (stale index treated as fresh) —
+    **1 fail** (P9e restart pair).
+ 
++## Two AVB interfaces (section IF, issue #69)
++
++The second build sets `N_IF_P` to 2 (P-N-AVB-INTERFACES, the redundancy seam)
++and runs section IF alone, from `sim_if2.cpp`: the same entity, the same real
++PRNG and the same service models as the first build, cut to what the section
++reads. Each interface has its own grandmaster and domain, so a frame or a guard
++that reads the wrong interface's pair shows on the wire. `make interfaces`
++builds and runs it alone (the campaign's target). Milan v1.2 5.6.3 runs one
++advertise machine per AVB interface:
++
++- **IF0** both machines reset to DOWN, available_index 0.
++- **IF1** enabled with interface 0's link alone up, interface 0 advertises
++  inside T-ADP-DELAY-START and interface 1 stays DOWN and silent.
++- **IF2** interface 0's ENTITY_AVAILABLE is byte-exact: interface_index 0
++  (IEEE 1722.1-2021 6.2.2.18), its own grandmaster and domain, available_index 0,
++  and its TX request names interface 0.
++- **IF3** interface 1's link comes up: interface 1 advertises inside T-ADP-DELAY,
++  byte-exact with interface_index 1, interface 1's grandmaster and domain and
++  available_index 0, on a TX request naming interface 1.
++- **IF4** over 20 s each interface's frames count their own available_index
++  (6.2.2.15, 04 section 5), and the engine's per-interface index agrees.
++- **IF5** (twice, interface 1 then 0) with both machines WAITING, an
++  ENTITY_DISCOVER received on one interface restarts that interface's machine
++  alone (Milan Table 5.51), and it advertises inside T-ADP-DELAY.
++- **IF6** GM_CHANGE on interface 0 alone re-advertises interface 0 with its new
++  grandmaster; interface 1 stays WAITING and keeps its own.
++- **IF7** interface 1's LINK_DOWN takes it to DOWN with no frame at all
++  (Milan 5.6.3.5.6), while interface 0 keeps advertising.
++- **IF8** the discovery guard reads the ingress interface's pair (Milan
++  5.6.4.5.1): a bound talker's ENTITY_AVAILABLE carrying interface 1's
++  grandmaster and domain is not matched on interface 0 and discovers the sink
++  on interface 1.
++- **IF9** disabling the entity sends one ENTITY_DEPARTING per interface, each
++  byte-exact with its own interface_index and pre-reset available_index, and
++  both indices return to 0.
++
+ ## Mutation campaign (`make mutants`)
+ 
+ `mutants.py` applies each reviewed patch in `mutations/` to a scratch copy of
+@@ -268,6 +307,13 @@ the noted index from both sides, in the restart cell too, and adds
+ `disc-not-discovered-checks-index` 14 to 17, `disc-restart-not-rediscovered`
+ 7 to 8), and `arc-restart-detector-off-by-one` keeps 13 with the restart cell's
+ repeat in place of its event check; every other arm kept its count.
++Re-run 2026-10-06 with Verilator 5.050 at the head of issue #69's lane, which adds the
++second build (section IF), `tb/pp_top`'s seventh build and `if-guards`, and sixteen
++`if-` arms, one or more failing each new check: all five controls PASS and all 57 arms
++are KILLED. Every earlier arm kept
++its failing checks: an arm that fails the first build stops `make` before the second,
++so its record changed only in the first build's tally line, now
++`[build default] N checks, F failures`.
+ 
+ | Arm | Suite, target | What is broken | Failing checks |
+ |---|---|---|---|
+@@ -312,9 +358,26 @@ repeat in place of its event check; every other arm kept its count.
+ | `arc-restart-skips-guard` | adp_engine | a stale index restarts the talker whatever its grandmaster and domain (the §5.6.4.5.2 step 2b guard) | 12: arc 6 and the arc count, the GM and domain mismatch cells x DISCOVERED (event pair, state, timer), P9f three times, P9f2 |
+ | `arc-departing-silent` | adp_engine | an ENTITY_DEPARTING departs without EVT_TK_DEPARTED (§5.6.4.5.3 step 3) | 4: arc 7 and the arc count, DEPARTING x DISCOVERED, P9h |
+ | `arc-noadp-expiry-silent` | adp_engine | a T-ADP-NOADP expiry departs without EVT_TK_DEPARTED (§5.6.4.5.4) | 4: arc 8 and the arc count, TMR_NO_ADP x DISCOVERED, P9i |
++| `if-ingress-collapsed` | adp_engine `interfaces` | the ingress interface collapsed to 0 (`rxq_if_r <= '0`) | 3: IF5 (DISCOVER on interface 1 restarts interface 0), IF6, IF8 (the guard reads interface 0's pair) |
++| `if-egress-collapsed` | adp_engine `interfaces` | every TX request names interface 0 (`txreq_if_o = '0`) | 5: IF3 (no frame on interface 1), IF4, IF5, IF6, IF9 |
++| `if-pdu-index-collapsed` | adp_engine `interfaces` | the ADPDU's interface_index field (wire bytes 68 and 69) is always 0 | 2: IF3, IF9 |
++| `if-gm-sample-collapsed` | adp_engine `interfaces` | the builder samples interface 0's grandmaster for every interface | 2: IF3, IF9 |
++| `if-top-count-collapsed` | pp_top `interfaces` | the top binds ADP's `N_IF_P` to the literal 1 again | 3: IF1 (one ADPDU), IF2 twice |
++| `if-top-count-collapsed-lint` | pp_top `if-guards` | the same patch | 1: `if guard 2` (the count-2 lint warns) |
++| `if-top-ingress-collapsed` | pp_top `interfaces` | the normalizer's `rx_if_index_i` tied to `2'd0` again | 3: IF2 (interface 1), IF3, IF3b |
++| `if-top-ingress-live` | pp_top `interfaces` | the header latch takes `rx_if_index_i` live at the beat instead of from the frame's last byte | 2: IF2 twice (the port names the other interface by then) |
++| `if-top-range-unguarded` | pp_top `if-guards` | the top's range guard admits 3 | 1: `if guard 3` |
++| `if-link-collapsed` | adp_engine `interfaces` | every interface's startup reads interface 0's link | 2: IF1 (interface 1 leaves DOWN on interface 0's link), IF6 |
++| `if-gm-slice-reversed` | adp_engine `interfaces` | each interface reads the other's grandmaster | 5: IF2, IF3, IF6, IF8, IF9 |
++| `if-link-fall-collapsed` | adp_engine `interfaces` | every interface's LINK_DOWN reads interface 0's link | 1: IF7 |
++| `if-aidx-reset-by-index` | adp_engine `interfaces` | interface i's available_index resets to i | 3: IF0, IF3, IF4 |
++| `if-ingress-forced-one` | adp_engine `interfaces` | the ingress interface forced to 1 | 2: IF5 (interface 0), IF8 |
++| `if-top-range-floor-off-by-one` | pp_top `if-guards` | the top's range guard refuses 1 | 1: `if guard 1` |
++| `if-top-range-floor-dropped` | pp_top `if-guards` | the top's range guard admits 0 | 1: `if guard 0` (no refusal names `N_AVB_IF_P`) |
+ 
+-Known limits (honestly): the suite runs the shipping shape (1 interface,
+-8 sinks) only; the timer service and slot pools are modeled, not
++Known limits (honestly): the first build runs the shipping shape (1
++interface, 8 sinks) and the second two interfaces with section IF alone, so the
++MTXW walk is not repeated per interface; the timer service and slot pools are modeled, not
+ instantiated (their own suites own those RTL contracts); event-port
+ ordering between a NOADP expiry and a same-sink iteration in flight is
+ not exercised (rare, ACMP re-probes either way); the walk takes one event
+diff --git a/tb/adp_engine/mutants.py b/tb/adp_engine/mutants.py
+index 05987a7..5531b3f 100644
+--- a/tb/adp_engine/mutants.py
++++ b/tb/adp_engine/mutants.py
+@@ -102,6 +102,32 @@ MUTANTS = [
+      "P13 F04.3 arc DISCOVERED -> NOT (DEPARTING, interface matches)"),
+     ("arc-noadp-expiry-silent", "arc-noadp-expiry-silent", "adp_engine", "run",
+      "P13 F04.3 arc DISCOVERED -> NOT (T-ADP-NOADP expiry)"),
++    # issue #69: the redundancy seam at two AVB interfaces, each arm collapsing the
++    # interface count, index or sample; graded by this suite's second build (section
++    # IF) and by tb/pp_top's seventh build (section IF) and its if-guards lint
++    ("if-ingress-collapsed", "if-ingress-collapsed", "adp_engine", "interfaces",
++     "IF5: ENTITY_DISCOVER on interface 1"),
++    ("if-egress-collapsed", "if-egress-collapsed", "adp_engine", "interfaces", "IF3"),
++    ("if-pdu-index-collapsed", "if-pdu-index-collapsed", "adp_engine", "interfaces", "IF3"),
++    ("if-gm-sample-collapsed", "if-gm-sample-collapsed", "adp_engine", "interfaces", "IF3"),
++    ("if-top-count-collapsed", "if-top-count-collapsed", "pp_top", "interfaces", "IF1"),
++    ("if-top-count-collapsed-lint", "if-top-count-collapsed", "pp_top", "if-guards",
++     "if guard 2"),
++    ("if-top-ingress-collapsed", "if-top-ingress-collapsed", "pp_top", "interfaces",
++     "IF2: ENTITY_DISCOVER received on interface 1"),
++    ("if-top-ingress-live", "if-top-ingress-live", "pp_top", "interfaces",
++     "IF2: ENTITY_DISCOVER received on interface 1"),
++    ("if-top-range-unguarded", "if-top-range-unguarded", "pp_top", "if-guards", "if guard 3"),
++    ("if-link-collapsed", "if-link-collapsed", "adp_engine", "interfaces", "IF1"),
++    ("if-gm-slice-reversed", "if-gm-slice-reversed", "adp_engine", "interfaces", "IF2"),
++    ("if-link-fall-collapsed", "if-link-fall-collapsed", "adp_engine", "interfaces", "IF7"),
++    ("if-aidx-reset-by-index", "if-aidx-reset-by-index", "adp_engine", "interfaces", "IF0"),
++    ("if-ingress-forced-one", "if-ingress-forced-one", "adp_engine", "interfaces",
++     "IF5: ENTITY_DISCOVER on interface 0"),
++    ("if-top-range-floor-off-by-one", "if-top-range-floor-off-by-one", "pp_top", "if-guards",
++     "if guard 1"),
++    ("if-top-range-floor-dropped", "if-top-range-floor-dropped", "pp_top", "if-guards",
++     "if guard 0"),
+ ]
+ 
+ SUITES = ("common", "adp_engine", "pp_top")
+diff --git a/tb/adp_engine/mutations/cfg-nonzero-for-valid.patch b/tb/adp_engine/mutations/cfg-nonzero-for-valid.patch
+index c3f56dc..d2636f4 100644
+--- a/tb/adp_engine/mutations/cfg-nonzero-for-valid.patch
++++ b/tb/adp_engine/mutations/cfg-nonzero-for-valid.patch
+@@ -8,4 +8,4 @@
+ +  assign adp_cur_cfg_w = (aecp_cur_config_o != 16'd0) ? aecp_cur_config_o : current_cfg_i;
+  
+    KL_adp_engine #(
+-       .N_IF_P                (1),
++       .N_IF_P                (N_AVB_IF_P),  // one advertise machine per interface
+diff --git a/tb/adp_engine/mutations/cfg-overlay-only.patch b/tb/adp_engine/mutations/cfg-overlay-only.patch
+index aada63b..a45ecac 100644
+--- a/tb/adp_engine/mutations/cfg-overlay-only.patch
++++ b/tb/adp_engine/mutations/cfg-overlay-only.patch
+@@ -8,4 +8,4 @@
+ +  assign adp_cur_cfg_w = aecp_cur_config_o;
+  
+    KL_adp_engine #(
+-       .N_IF_P                (1),
++       .N_IF_P                (N_AVB_IF_P),  // one advertise machine per interface
+diff --git a/tb/adp_engine/mutations/if-aidx-reset-by-index.patch b/tb/adp_engine/mutations/if-aidx-reset-by-index.patch
+new file mode 100644
+index 0000000..2ff3a40
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-aidx-reset-by-index.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -709,7 +709,7 @@
++ 
++   always_ff @(posedge clk_i) begin : avail_index_mgr
++     if (!rst_n) begin
++-      for (int unsigned i = 0; i < N_IF_P; i++) aidx_r[i] <= 32'd0;
+++      for (int unsigned i = 0; i < N_IF_P; i++) aidx_r[i] <= 32'(i);
++     end else begin
++       if (bld_done_avail_w) begin
++         aidx_r[bld_done_if_w] <= aidx_r[bld_done_if_w] + 32'd1;
+diff --git a/tb/adp_engine/mutations/if-egress-collapsed.patch b/tb/adp_engine/mutations/if-egress-collapsed.patch
+new file mode 100644
+index 0000000..2eeb8eb
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-egress-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -949,7 +949,7 @@
++ 
++   assign txreq_valid_o = (bld_st_r == B_REQ);
++   assign txreq_slot_o  = bld_slot_r;
++-  assign txreq_if_o    = bld_if_r;
+++  assign txreq_if_o    = '0;
++ 
++   assign bld_done_avail_w = (bld_st_r == B_REQ) && !bld_dep_r;
++   assign bld_done_dep_w   = (bld_st_r == B_REQ) && bld_dep_r;
+diff --git a/tb/adp_engine/mutations/if-gm-sample-collapsed.patch b/tb/adp_engine/mutations/if-gm-sample-collapsed.patch
+new file mode 100644
+index 0000000..99c4753
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-gm-sample-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -900,7 +900,7 @@
++           end
++         end
++         B_SAMPLE: begin
++-          bld_gm_r   <= gm_slice_f(bld_if_r);       // sampled at PDU build
+++          bld_gm_r   <= gm_slice_f('0);             // sampled at PDU build
++           bld_dom_r  <= dom_slice_f(bld_if_r);
++           bld_aidx_r <= aidx_r[bld_if_r];           // pre-increment value
++           bld_cfg_r  <= current_cfg_i;              // sampled at PDU build
+diff --git a/tb/adp_engine/mutations/if-gm-slice-reversed.patch b/tb/adp_engine/mutations/if-gm-slice-reversed.patch
+new file mode 100644
+index 0000000..9c1f6e9
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-gm-slice-reversed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -221,7 +221,7 @@
++   function automatic logic [63:0] gm_slice_f(input logic [IF_W_C-1:0] ifx);
++     int unsigned i;
++     i = (32'(ifx) < N_IF_P) ? 32'(ifx) : 32'd0;
++-    return gm_id_i[64*i +: 64];
+++    return gm_id_i[64*(N_IF_P - 1 - i) +: 64];
++   endfunction
++ 
++   function automatic logic [7:0] dom_slice_f(input logic [IF_W_C-1:0] ifx);
+diff --git a/tb/adp_engine/mutations/if-ingress-collapsed.patch b/tb/adp_engine/mutations/if-ingress-collapsed.patch
+new file mode 100644
+index 0000000..119b9a9
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-ingress-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -460,7 +460,7 @@
++             rxq_msg_r        <= txn_in_w.msg_type;
++             rxq_eid_r        <= txn_in_w.target_eid;
++             rxq_vt_r         <= txn_in_w.status_in;
++-            rxq_if_r         <= IF_W_C'(txn_in_w.interface_index);
+++            rxq_if_r         <= '0;
++             rxq_slot_r       <= txn_in_w.rx_slot;
++             txn_in_valid_q_r <= (txn_in_w.protocol == PP_PROTO_ADP);
++             rx_st_r          <= RX_CLASSIFY;
+diff --git a/tb/adp_engine/mutations/if-ingress-forced-one.patch b/tb/adp_engine/mutations/if-ingress-forced-one.patch
+new file mode 100644
+index 0000000..a4a5e6a
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-ingress-forced-one.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -460,7 +460,7 @@
++             rxq_msg_r        <= txn_in_w.msg_type;
++             rxq_eid_r        <= txn_in_w.target_eid;
++             rxq_vt_r         <= txn_in_w.status_in;
++-            rxq_if_r         <= IF_W_C'(txn_in_w.interface_index);
+++            rxq_if_r         <= IF_W_C'(1);
++             rxq_slot_r       <= txn_in_w.rx_slot;
++             txn_in_valid_q_r <= (txn_in_w.protocol == PP_PROTO_ADP);
++             rx_st_r          <= RX_CLASSIFY;
+diff --git a/tb/adp_engine/mutations/if-link-collapsed.patch b/tb/adp_engine/mutations/if-link-collapsed.patch
+new file mode 100644
+index 0000000..99a720a
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-link-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -654,7 +654,7 @@
++         //    LINK_UP while enabled -> DELAY via T-ADP-DELAY (F04.2 arcs)
++         if (entity_enable_i && !enable_fall_w
++             && (adv_st_r[i] == ADP_ADV_DOWN)) begin
++-          if (enable_rise_w && link_up_i[i]) begin
+++          if (enable_rise_w && link_up_i[0]) begin
++             adv_st_r[i]      <= ADP_ADV_DRAW;
++             adv_startup_r[i] <= 1'b1;
++           end else if (link_rise_w[i] && !enable_rise_w) begin
+diff --git a/tb/adp_engine/mutations/if-link-fall-collapsed.patch b/tb/adp_engine/mutations/if-link-fall-collapsed.patch
+new file mode 100644
+index 0000000..2a8f47f
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-link-fall-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -638,7 +638,7 @@
++         end
++ 
++         // 6) LINK_DOWN: -> DOWN, stop timers, NO departing (Milan §5.6.3.5.6)
++-        if (link_fall_w[i] && (adv_st_r[i] != ADP_ADV_DOWN)) begin
+++        if (link_fall_w[0] && (adv_st_r[i] != ADP_ADV_DOWN)) begin
++           adv_st_r[i] <= ADP_ADV_DOWN;
++           tpend_r[i]  <= TPEND_CANCEL;
++         end
+diff --git a/tb/adp_engine/mutations/if-pdu-index-collapsed.patch b/tb/adp_engine/mutations/if-pdu-index-collapsed.patch
+new file mode 100644
+index 0000000..4110382
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-pdu-index-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/adp/KL_adp_engine.sv
+++++ b/hdl/adp/KL_adp_engine.sv
++@@ -874,7 +874,7 @@
++     else if (i == 63) b = 8'h00;                                  // reserved
++     else if (i < 66)  b = byte16_f(cfg, i - 64);                  // cur cfg @64
++     else if (i < 68)  b = byte16_f(identify_index_i, i - 66);
++-    else if (i < 70)  b = byte16_f({{(16-IF_W_C){1'b0}}, ifx}, i - 68);
+++    else if (i < 70)  b = 8'h00;
++     else              b = 8'h00;               // association_id + reserved
++     return b;
++   endfunction
+diff --git a/tb/adp_engine/mutations/if-top-count-collapsed.patch b/tb/adp_engine/mutations/if-top-count-collapsed.patch
+new file mode 100644
+index 0000000..fa8b27d
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-count-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -1970,7 +1970,7 @@
++   assign adp_cur_cfg_w = aecp_cur_cfg_v_w ? aecp_cur_config_o : current_cfg_i;
++ 
++   KL_adp_engine #(
++-      .N_IF_P                (N_AVB_IF_P),  // one advertise machine per interface
+++      .N_IF_P                (1),
++       .N_SINK_P              (N_STREAM_IN_P),
++       .TMR_SLOTS_P           (TMR_SLOTS_C),
++       .TMR_SLOT_ADV_BASE_P   (TMR_ADP_ADV_BASE_C),
+diff --git a/tb/adp_engine/mutations/if-top-ingress-collapsed.patch b/tb/adp_engine/mutations/if-top-ingress-collapsed.patch
+new file mode 100644
+index 0000000..aea5b49
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-ingress-collapsed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -1717,7 +1717,7 @@
++       .budget_aecp_ms_i    (BUDGET_AECP_MS_C),
++       .rx_valid_i          (hdr_vld_r),
++       .rx_ready_o          (nrm_rx_ready_w),
++-      .rx_if_index_i       ((N_AVB_IF_P > 1) ? hdr_if_r : 2'd0),  // the frame's interface (above)
+++      .rx_if_index_i       (2'd0),
++       .rx_protocol_i       (hdr_protocol_r),
++       .rx_msg_type_i       (hdr_msg_type_r),
++       .rx_status_i         (hdr_status_r),
+diff --git a/tb/adp_engine/mutations/if-top-ingress-live.patch b/tb/adp_engine/mutations/if-top-ingress-live.patch
+new file mode 100644
+index 0000000..d0191a3
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-ingress-live.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -1558,7 +1558,7 @@
++       end else begin
++         if (rx_valid_i && rx_last_i) rx_if_end_r <= rx_if_index_i;
++         if (v_hdr_valid_w && !(hdr_vld_r && !nrm_rx_ready_w))
++-          hdr_if_r <= rx_if_end_r;
+++          hdr_if_r <= rx_if_index_i;
++       end
++     end
++   end
+diff --git a/tb/adp_engine/mutations/if-top-range-floor-dropped.patch b/tb/adp_engine/mutations/if-top-range-floor-dropped.patch
+new file mode 100644
+index 0000000..d0b04bd
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-range-floor-dropped.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -871,7 +871,7 @@
++   //! P-N-AVB-INTERFACES: one interface, or Milan's redundant pair. The
++   //! transaction's interface_index and rx_if_index_i are two bits wide, but
++   //! only 1 and 2 are elaborated and graded (issue #69)
++-  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+++  if (N_AVB_IF_P > 32'd2) begin : gen_g_avb_if
++     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++            N_AVB_IF_P);
++   end
+diff --git a/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch b/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch
+new file mode 100644
+index 0000000..82051fd
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -871,7 +871,7 @@
++   //! P-N-AVB-INTERFACES: one interface, or Milan's redundant pair. The
++   //! transaction's interface_index and rx_if_index_i are two bits wide, but
++   //! only 1 and 2 are elaborated and graded (issue #69)
++-  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+++  if ((N_AVB_IF_P < 32'd2) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
++     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++            N_AVB_IF_P);
++   end
+diff --git a/tb/adp_engine/mutations/if-top-range-unguarded.patch b/tb/adp_engine/mutations/if-top-range-unguarded.patch
+new file mode 100644
+index 0000000..b31fb57
+--- /dev/null
++++ b/tb/adp_engine/mutations/if-top-range-unguarded.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/top/protocol_processor_top.sv
+++++ b/hdl/top/protocol_processor_top.sv
++@@ -871,7 +871,7 @@
++   //! P-N-AVB-INTERFACES: one interface, or Milan's redundant pair. The
++   //! transaction's interface_index and rx_if_index_i are two bits wide, but
++   //! only 1 and 2 are elaborated and graded (issue #69)
++-  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd2)) begin : gen_g_avb_if
+++  if ((N_AVB_IF_P < 32'd1) || (N_AVB_IF_P > 32'd3)) begin : gen_g_avb_if
++     $error("F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES)",
++            N_AVB_IF_P);
++   end
+diff --git a/tb/adp_engine/sim_if2.cpp b/tb/adp_engine/sim_if2.cpp
+new file mode 100644
+index 0000000..aecd22a
+--- /dev/null
++++ b/tb/adp_engine/sim_if2.cpp
+@@ -0,0 +1,512 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// KL_adp_engine suite, the second build: two AVB interfaces (N_IF_P = 2,
++// P-N-AVB-INTERFACES, issue #69), section IF.
++//
++// Milan v1.2 5.6.3 runs one advertise state machine per AVB interface, so each
++// interface leaves DOWN on its own link, draws and delays on its own, answers
++// the ENTITY_DISCOVER and GM_CHANGE of its own interface, and advertises with
++// its own interface_index (IEEE 1722.1-2021 6.2.2.18), available_index
++// (6.2.2.15, 04 section 5) and gPTP grandmaster and domain (Milan 5.6.2.6,
++// 5.6.2.7). The discovery machine's grandmaster and domain guard reads the
++// ingress interface's pair (Milan 5.6.4.5.1).
++//
++// The services are modeled as in sim_main.cpp's harness, cut to what this
++// section reads: the timer service (an armed slot fires once `now` passes its
++// deadline, one expiry per clock), the TX pool (a grant the cycle after each
++// request), the RX pool's sync read and the dispatch pop. Every expected byte
++// is built here from the F04.5 offsets, never read back from the DUT.
++#include <array>
++#include <cstdint>
++#include <cstdio>
++#include <cstring>
++#include <vector>
++#include "Vtb_adp_top.h"
++#include "verilated.h"
++#include "../common/verilator_harness.hpp"
++
++#define CHECK(cond, ...) do { \
++  ++checks; \
++  if (!(cond)) { ++fails; printf("FAIL: " __VA_ARGS__); printf("\n"); } \
++} while (0)
++
++namespace {
++
++// ---- fixed configuration (sim_main.cpp's entity) ------------------------
++constexpr uint64_t EID   = 0x1122334455667788ull;
++constexpr uint64_t EMID  = 0x99AABBCCDDEEFF01ull;
++constexpr uint64_t MAC   = 0x001B921122AAull;
++constexpr uint16_t TKSRC = 0x0008;
++constexpr uint16_t TKCAP = 0x4801;
++constexpr uint16_t LSNK  = 0x0008;
++constexpr uint16_t LSCAP = 0x4801;
++constexpr uint16_t CFGIX = 0x0002;
++constexpr uint16_t IDIX  = 0x0005;
++//! each interface's gPTP pair; different, so a frame or a guard that reads
++//! the wrong interface's pair shows on the wire
++constexpr uint64_t GM_A  = 0xA1A2A3A4A5A6A7A8ull;
++constexpr uint64_t GM_A2 = 0xA9A9A9A9A9A9A9A9ull;     // interface 0 after its GM_CHANGE
++constexpr uint64_t GM_B  = 0xB1B2B3B4B5B6B7B8ull;
++constexpr uint8_t  DOM_A = 0x00;
++constexpr uint8_t  DOM_B = 0x07;
++constexpr uint64_t T1    = 0xAAAA00000000AAA1ull;     // a remote talker
++
++constexpr unsigned N_IF = 2;
++constexpr unsigned SLOT_NOADP0 = N_IF;                 // the engine's default: ADV base 0 + N_IF_P
++constexpr int kAdpduBytes = 82;
++constexpr unsigned kSlotBytes = 576;
++constexpr unsigned SLOT_NULL = 7;
++constexpr unsigned ST_DOWN = 0;
++constexpr unsigned ST_DRAW = 1;
++constexpr unsigned ST_WAIT = 3;
++constexpr uint8_t MSG_AVAIL = 0;
++constexpr uint8_t MSG_DISCOVER = 2;
++//! ENTITY_AVAILABLE's valid_time field 10: 20 s of T-ADP-NOADP
++constexpr uint8_t VT_20S = 10;
++
++// ---- the 393-bit pp_txn_t (03 section 4 struct order), the fields read --
++constexpr int REC_WORDS = 13;
++constexpr int F_TX_SLOT    = 34;
++constexpr int F_RX_SLOT    = 57;
++constexpr int F_OPCODE     = 124;
++constexpr int F_TARGET_EID = 158;
++constexpr int F_STATUS     = 345;
++constexpr int F_MSG_TYPE   = 350;
++constexpr int F_PROTOCOL   = 354;
++constexpr int F_IF_INDEX   = 389;
++
++struct Rec {
++  std::array<uint32_t, REC_WORDS> w{};
++  void set(int lsb, int width, uint64_t v) {
++    for (int i = 0; i < width; ++i) {
++      const int b = lsb + i;
++      if ((v >> i) & 1ull) w[b >> 5] |= (1u << (b & 31));
++      else                 w[b >> 5] &= ~(1u << (b & 31));
++    }
++  }
++};
++
++//! an ADP transaction as dispatch presents it, on interface `ifx`
++Rec adp_txn(uint8_t msg, uint64_t eid, uint8_t vt, unsigned rx_slot, unsigned ifx) {
++  Rec r;
++  r.set(F_IF_INDEX, 2, ifx);
++  r.set(F_PROTOCOL, 3, 0);                     // ADP
++  r.set(F_MSG_TYPE, 4, msg);
++  r.set(F_STATUS, 5, vt);
++  r.set(F_TARGET_EID, 64, eid);
++  r.set(F_OPCODE, 16, msg);
++  r.set(F_RX_SLOT, 3, rx_slot);
++  r.set(F_TX_SLOT, 3, SLOT_NULL);
++  return r;
++}
++
++void putbe(uint8_t* p, uint64_t v, int n) {
++  for (int i = 0; i < n; ++i) p[i] = uint8_t(v >> (8 * (n - 1 - i)));
++}
++uint32_t getbe32(const std::vector<uint8_t>& f, int at) {
++  return (uint32_t(f[at]) << 24) | (uint32_t(f[at + 1]) << 16)
++       | (uint32_t(f[at + 2]) << 8) | uint32_t(f[at + 3]);
++}
++
++//! the F04.5 wire frame of interface `ifx`
++std::vector<uint8_t> model_frame(bool departing, uint64_t gm, uint8_t dom, uint32_t aidx,
++                                 unsigned ifx) {
++  std::vector<uint8_t> f(kAdpduBytes, 0);
++  putbe(&f[0], 0x91E0F0010000ull, 6);
++  putbe(&f[6], MAC, 6);
++  putbe(&f[12], 0x22F0, 2);
++  f[14] = 0xFA;
++  f[15] = departing ? 0x01 : 0x00;
++  f[16] = uint8_t((departing ? 0 : 10) << 3);
++  f[17] = 56;
++  putbe(&f[18], EID, 8);
++  putbe(&f[26], EMID, 8);
++  putbe(&f[34], 0x0000C588ull, 4);
++  putbe(&f[38], TKSRC, 2);
++  putbe(&f[40], TKCAP, 2);
++  putbe(&f[42], LSNK, 2);
++  putbe(&f[44], LSCAP, 2);
++  putbe(&f[50], aidx, 4);
++  putbe(&f[54], gm, 8);
++  f[62] = dom;
++  putbe(&f[64], CFGIX, 2);
++  putbe(&f[66], IDIX, 2);
++  putbe(&f[68], ifx, 2);                       // interface_index
++  return f;
++}
++
++struct Frame {
++  std::vector<uint8_t> b;
++  unsigned ifx;                                // the TX request's interface
++  uint32_t ms;
++};
++
++struct IfHarness {
++  const milan::tb::Model<Vtb_adp_top> model;
++  Vtb_adp_top* const d = model.get();
++  uint32_t now = 10000;
++  int checks = 0;
++  int fails = 0;
++  // timer service
++  std::array<bool, 128> armed{};
++  std::array<uint32_t, 128> deadline{};
++  bool exp_pulse = false;
++  unsigned exp_slot = 0;
++  // TX pool: 0 free, 1 allocated, 2 committed
++  std::array<int, 5> slot_st{};
++  std::array<std::vector<uint8_t>, 5> slot_buf;
++  bool gnt_sched = false;
++  unsigned gnt_slot = 0;
++  std::vector<Frame> frames;                   // one per TX request, in order
++  // RX pool
++  std::array<std::array<uint8_t, kSlotBytes>, 4> rx_pdu{};
++  uint8_t rd_next = 0;
++  // class-C events: {departed, sink}
++  std::vector<std::pair<bool, unsigned>> evts;
++  std::array<uint64_t, N_IF> gm{GM_A, GM_B};
++
++  IfHarness() {
++    for (auto& s : slot_buf) s.assign(kSlotBytes, 0);
++  }
++  unsigned state(unsigned ifx) const { return (d->dbg_adv_state_o >> (2 * ifx)) & 3u; }
++  uint32_t aidx(unsigned ifx) const { return uint32_t(d->dbg_avail_index_o >> (32 * ifx)); }
++  void publish_gm() {
++    for (unsigned i = 0; i < N_IF; ++i) {
++      d->gm_id_i[2 * i] = uint32_t(gm[i]);
++      d->gm_id_i[2 * i + 1] = uint32_t(gm[i] >> 32);
++    }
++    d->gptp_domain_i = uint16_t((DOM_B << 8) | DOM_A);
++  }
++  void observe();
++  void tick() {
++    d->now_ms_i = now;
++    d->rxs_rd_data_i = rd_next;
++    d->tmr_exp_valid_i = exp_pulse;
++    d->tmr_exp_slot_i = exp_slot;
++    d->tmr_exp_owner_i = exp_slot;
++    exp_pulse = false;
++    d->txs_alloc_gnt_i = gnt_sched;
++    d->txs_alloc_slot_i = gnt_slot;
++    gnt_sched = false;
++    d->clk_i = 0;
++    d->eval();
++    observe();
++    d->clk_i = 1;
++    d->eval();
++  }
++  void idle(int n) {
++    for (int i = 0; i < n; ++i) tick();
++  }
++  //! `ms` of modeled time, four clocks per ms, the timer service live
++  void run_ms(unsigned ms) {
++    for (unsigned t = 0; t < ms; ++t) {
++      ++now;
++      for (unsigned s = 0; s < armed.size(); ++s) {
++        if (armed[s] && int32_t(now - deadline[s]) >= 0) {
++          armed[s] = false;
++          exp_pulse = true;
++          exp_slot = s;
++          break;
++        }
++      }
++      idle(4);
++    }
++  }
++  //! modeled time until interface `ifx` sends a frame, up to `ms`
++  bool run_until_frame(unsigned ifx, unsigned ms) {
++    const size_t from = frames.size();
++    for (unsigned t = 0; t < ms; ++t) {
++      run_ms(1);
++      for (size_t i = from; i < frames.size(); ++i)
++        if (frames[i].ifx == ifx) return true;
++    }
++    return false;
++  }
++  bool send_txn(const Rec& r) {
++    for (int i = 0; i < REC_WORDS; ++i) d->txn_i[i] = r.w[i];
++    d->txn_valid_i = 1;
++    int i = 0;
++    for (; i < 200 && !d->txn_ready_o; ++i) tick();
++    tick();
++    d->txn_valid_i = 0;
++    for (i = 0; i < 400; ++i) {
++      tick();
++      if (d->txn_ready_o) return true;
++    }
++    return false;
++  }
++  //! a remote ADPDU in RX slot `slot` (PDU offsets, subtype at byte 0)
++  void load_remote(unsigned slot, uint64_t eid, uint32_t aidx_v, uint64_t gm_v, uint8_t dom) {
++    std::array<uint8_t, kSlotBytes>& p = rx_pdu[slot];
++    p.fill(0);
++    p[0] = 0xFA;
++    p[1] = MSG_AVAIL;
++    p[2] = uint8_t(VT_20S << 3);
++    p[3] = 56;
++    putbe(&p[4], eid, 8);
++    putbe(&p[36], aidx_v, 4);
++    putbe(&p[40], gm_v, 8);
++    p[48] = dom;
++  }
++  std::vector<Frame> frames_of(unsigned ifx, size_t from) const {
++    std::vector<Frame> v;
++    for (size_t i = from; i < frames.size(); ++i)
++      if (frames[i].ifx == ifx) v.push_back(frames[i]);
++    return v;
++  }
++  void configure_and_reset();
++  void start_on_interface_zero();
++  void start_on_interface_one();
++  void indices_are_per_interface();
++  void discover_reaches_its_interface();
++  void gm_change_reaches_its_interface();
++  void link_down_on_one_interface();
++  void guard_reads_the_ingress_pair();
++  void shutdown_departs_per_interface();
++  int run();
++};
++
++void IfHarness::observe() {
++  if (d->tmr_arm_valid_o) {
++    const unsigned s = d->tmr_arm_slot_o;
++    armed[s] = !d->tmr_arm_cancel_o;
++    deadline[s] = d->tmr_arm_deadline_ms_o;
++  }
++  if (d->txs_alloc_req_o) {
++    for (unsigned s = 0; s < 4; ++s) {
++      if (slot_st[s] == 0) {
++        slot_st[s] = 1;
++        gnt_sched = true;
++        gnt_slot = s;
++        break;
++      }
++    }
++  }
++  if (d->txs_wr_valid_o && d->txs_wr_slot_o < 5 && d->txs_wr_addr_o < kSlotBytes)
++    slot_buf[d->txs_wr_slot_o][d->txs_wr_addr_o] = d->txs_wr_data_o;
++  if (d->txs_wr_commit_o && d->txs_wr_slot_o < 5) slot_st[d->txs_wr_slot_o] = 2;
++  if (d->txreq_valid_o && d->txreq_slot_o < 5) {
++    const unsigned s = d->txreq_slot_o;
++    frames.push_back({std::vector<uint8_t>(slot_buf[s].begin(),
++                                           slot_buf[s].begin() + kAdpduBytes),
++                      unsigned(d->txreq_if_o), now});
++    slot_st[s] = 0;
++  }
++  if (d->rxs_rd_en_o) rd_next = rx_pdu[d->rxs_rd_slot_o & 3][d->rxs_rd_addr_o % kSlotBytes];
++  if (d->evt_valid_o) evts.emplace_back(d->evt_departed_o != 0, unsigned(d->evt_sink_o));
++}
++
++void IfHarness::configure_and_reset() {
++  d->entity_id_i = EID;
++  d->entity_model_id_i = EMID;
++  d->own_mac_i = MAC;
++  d->talker_sources_i = TKSRC;
++  d->talker_caps_i = TKCAP;
++  d->listener_sinks_i = LSNK;
++  d->listener_caps_i = LSCAP;
++  d->current_cfg_i = CFGIX;
++  d->identify_index_i = IDIX;
++  publish_gm();
++  d->entity_enable_i = 0;
++  d->link_up_i = 0;
++  d->gm_change_i = 0;
++  d->txn_valid_i = 0;
++  d->bound_i = 0;
++  for (int i = 0; i < 16; ++i) d->bound_talker_eid_i[i] = 0;
++  d->rst_n = 0;
++  idle(5);
++  d->rst_n = 1;
++  idle(3);
++}
++
++// IF1, IF2: enabled with interface 0's link alone up, interface 0 advertises
++// and interface 1 stays DOWN and silent.
++void IfHarness::start_on_interface_zero() {
++  d->link_up_i = 1;                            // interface 0; seeds the PRNG
++  d->entity_enable_i = 1;
++  const bool sent = run_until_frame(0, 2100);
++  CHECK(sent && state(1) == ST_DOWN && frames_of(1, 0).empty() && state(0) == ST_WAIT,
++        "IF1: enabled with interface 0's link alone up, interface 0 advertises within "
++        "T-ADP-DELAY-START and interface 1 stays DOWN and silent (states %u/%u, %zu frame(s) "
++        "on interface 1)", state(0), state(1), frames_of(1, 0).size());
++  const std::vector<Frame> f0 = frames_of(0, 0);
++  CHECK(f0.size() == 1 && f0[0].b == model_frame(false, GM_A, DOM_A, 0, 0),
++        "IF2: interface 0's ENTITY_AVAILABLE is byte-exact: interface_index 0, interface 0's "
++        "grandmaster and domain, available_index 0, and its TX request names interface 0");
++}
++
++// IF3: interface 1's link comes up; it advertises with its own interface_index,
++// grandmaster, domain and available_index 0, on a TX request naming interface 1.
++void IfHarness::start_on_interface_one() {
++  const size_t from = frames.size();
++  d->link_up_i = 3;
++  const bool sent = run_until_frame(1, 4100);
++  const std::vector<Frame> f1 = frames_of(1, from);
++  CHECK(sent && f1.size() == 1 && f1[0].b == model_frame(false, GM_B, DOM_B, 0, 1),
++        "IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, "
++        "byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index "
++        "0, and its TX request names interface 1 (%zu frame(s))", f1.size());
++  if (!f1.empty() && f1[0].b != model_frame(false, GM_B, DOM_B, 0, 1)) {
++    printf("  [i] IF3: interface_index %02x%02x, gm %016llx, domain %02x, available_index %u\n",
++           f1[0].b[68], f1[0].b[69],
++           static_cast<unsigned long long>((uint64_t(getbe32(f1[0].b, 54)) << 32)
++                                           | getbe32(f1[0].b, 58)),
++           f1[0].b[62], getbe32(f1[0].b, 50));
++  }
++}
++
++// IF4: over 20 s (each interface advertises every 5 to 9 s: T-ADP-ADV, then
++// T-ADP-DELAY) each interface's frames count their own available_index,
++// 0, 1, 2 ..., and the engine's per-interface index agrees.
++void IfHarness::indices_are_per_interface() {
++  run_ms(20000);
++  bool ok = true;
++  std::array<size_t, N_IF> n{};
++  for (unsigned i = 0; i < N_IF; ++i) {
++    const std::vector<Frame> f = frames_of(i, 0);
++    n[i] = f.size();
++    for (size_t k = 0; k < f.size(); ++k) ok = ok && getbe32(f[k].b, 50) == uint32_t(k);
++    ok = ok && aidx(i) == uint32_t(f.size());
++  }
++  CHECK(ok && n[0] >= 3 && n[1] >= 3,
++        "IF4: each interface's frames carry its own available_index, 0 then +1 per frame of "
++        "that interface (%zu and %zu frames; next indices %u and %u)", n[0], n[1], aidx(0),
++        aidx(1));
++}
++
++// IF5: with both machines WAITING, ENTITY_DISCOVER (entity_id 0) arriving on
++// interface 1 restarts interface 1's machine alone (Milan Table 5.51,
++// RCV_ADP_DISCOVER in WAITING): interface 1 leaves WAITING for a delay and
++// advertises inside T-ADP-DELAY, and interface 0 stays WAITING. Then the same
++// on interface 0.
++void IfHarness::discover_reaches_its_interface() {
++  for (unsigned ifx = N_IF; ifx-- > 0;) {
++    const unsigned other = 1 - ifx;
++    for (unsigned t = 0; t < 10000 && !(state(0) == ST_WAIT && state(1) == ST_WAIT); ++t)
++      run_ms(1);
++    const uint32_t t0 = now;
++    const bool consumed = send_txn(adp_txn(MSG_DISCOVER, 0, 0, 2, ifx));
++    const unsigned s_this = state(ifx);
++    const unsigned s_other = state(other);
++    const bool early = run_until_frame(ifx, 4100);
++    const uint32_t dt = now - t0;
++    CHECK(consumed && s_this != ST_WAIT && s_other == ST_WAIT && early && dt <= 4100,
++          "IF5: ENTITY_DISCOVER on interface %u, both machines WAITING, restarts interface "
++          "%u's advertise machine alone: it leaves WAITING (state %u) and advertises %u ms "
++          "later, inside T-ADP-DELAY; interface %u stays WAITING (state %u)",
++          ifx, ifx, s_this, dt, other, s_other);
++  }
++}
++
++int IfHarness::run() {
++  configure_and_reset();
++  CHECK(state(0) == ST_DOWN && state(1) == ST_DOWN && aidx(0) == 0 && aidx(1) == 0,
++        "IF0: both advertise machines reset to DOWN with available_index 0");
++  start_on_interface_zero();
++  start_on_interface_one();
++  indices_are_per_interface();
++  discover_reaches_its_interface();
++  gm_change_reaches_its_interface();
++  link_down_on_one_interface();
++  guard_reads_the_ingress_pair();
++  shutdown_departs_per_interface();
++  return fails ? 1 : 0;
++}
++
++// IF6: interface 0 publishes a new grandmaster and strobes its GM_CHANGE alone:
++// interface 0 re-advertises with the new grandmaster, interface 1 stays
++// WAITING and keeps its own.
++void IfHarness::gm_change_reaches_its_interface() {
++  (void)run_until_frame(1, 6000);
++  gm[0] = GM_A2;
++  publish_gm();
++  d->gm_change_i = 1;                          // interface 0 alone
++  tick();
++  d->gm_change_i = 0;
++  const unsigned s0 = state(0);
++  const unsigned s1 = state(1);
++  const size_t from = frames.size();
++  const bool sent = run_until_frame(0, 4100);
++  const std::vector<Frame> f0 = frames_of(0, from);
++  const std::vector<Frame> f1 = frames_of(1, from);
++  const bool gm0 = !f0.empty() && f0[0].b == model_frame(false, GM_A2, DOM_A, getbe32(f0[0].b, 50), 0);
++  const bool gm1 = f1.empty() || f1[0].b == model_frame(false, GM_B, DOM_B, getbe32(f1[0].b, 50), 1);
++  CHECK(s0 == ST_DRAW && s1 == ST_WAIT && sent && gm0 && gm1,
++        "IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new "
++        "grandmaster; interface 1 stays WAITING and keeps its own (states %u/%u)", s0, s1);
++}
++
++// IF7: interface 1's link goes down: interface 1 returns to DOWN without an
++// ENTITY_DEPARTING (Milan 5.6.3.5.6); interface 0 keeps advertising.
++void IfHarness::link_down_on_one_interface() {
++  const size_t from = frames.size();
++  d->link_up_i = 1;
++  run_ms(10000);                               // longer than one 5 to 9 s cadence
++  const std::vector<Frame> f1 = frames_of(1, from);
++  const std::vector<Frame> f0 = frames_of(0, from);
++  CHECK(state(1) == ST_DOWN && f1.empty() && state(0) != ST_DOWN && !f0.empty(),
++        "IF7: interface 1's LINK_DOWN takes interface 1 to DOWN with no frame at all, while "
++        "interface 0 keeps advertising (states %u/%u; %zu and %zu frames)", state(0), state(1),
++        f0.size(), f1.size());
++}
++
++// IF8: sink 0 bound to T1, whose grandmaster and domain are interface 1's.
++// T1's ENTITY_AVAILABLE received on interface 0, whose pair differs, does not
++// discover it; the same ADPDU received on interface 1 does (Milan 5.6.4.5.1).
++void IfHarness::guard_reads_the_ingress_pair() {
++  d->bound_talker_eid_i[0] = uint32_t(T1);
++  d->bound_talker_eid_i[1] = uint32_t(T1 >> 32);
++  d->bound_i = 1;
++  idle(4);
++  const size_t e0 = evts.size();
++  load_remote(1, T1, 5, GM_B, DOM_B);
++  const bool c0 = send_txn(adp_txn(MSG_AVAIL, T1, VT_20S, 1, 0));
++  const size_t after0 = evts.size() - e0;
++  const bool c1 = send_txn(adp_txn(MSG_AVAIL, T1, VT_20S, 1, 1));
++  idle(4);
++  const bool discovered = evts.size() == e0 + 1 && !evts.back().first && evts.back().second == 0;
++  CHECK(c0 && c1 && after0 == 0 && discovered && armed[SLOT_NOADP0],
++        "IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not "
++        "matched when received on interface 0, and discovers sink 0 when received on "
++        "interface 1 (%zu event(s) after interface 0, %zu in all)", after0, evts.size() - e0);
++}
++
++// IF9: both links up, then the entity is disabled: each interface sends its own
++// ENTITY_DEPARTING, carrying its own interface_index and pre-reset
++// available_index, and both indices return to 0 (04 section 5).
++void IfHarness::shutdown_departs_per_interface() {
++  d->link_up_i = 3;
++  (void)run_until_frame(1, 4100);
++  run_ms(10);
++  const uint32_t a0 = aidx(0);
++  const uint32_t a1 = aidx(1);
++  const size_t from = frames.size();
++  d->entity_enable_i = 0;
++  run_ms(100);                                 // two 82-byte builds, one after the other
++  const std::vector<Frame> f0 = frames_of(0, from);
++  const std::vector<Frame> f1 = frames_of(1, from);
++  const bool ok0 = f0.size() == 1 && f0[0].b == model_frame(true, GM_A2, DOM_A, a0, 0);
++  const bool ok1 = f1.size() == 1 && f1[0].b == model_frame(true, GM_B, DOM_B, a1, 1);
++  CHECK(ok0 && ok1 && aidx(0) == 0 && aidx(1) == 0,
++        "IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact "
++        "with its own interface_index and pre-reset available_index (%u and %u), and both "
++        "indices return to 0 (%zu and %zu frames)", a0, a1, f0.size(), f1.size());
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++  Verilated::commandArgs(argc, argv);
++  IfHarness h;
++  const int rc = h.run();
++  //! NOT the canonical tally shape: this binary is the suite's second build,
++  //! and the Makefile sums both builds into the one canonical line
++  printf("[build interfaces] %d checks, %d failures\n", h.checks, h.fails);
++  FILE* acc = fopen("obj_dir/build_tally.txt", "a");
++  if (acc == nullptr) {
++    printf("FAIL: this build's tally cannot be recorded for the Makefile\n");
++    return 1;
++  }
++  fprintf(acc, "%d %d\n", h.checks, h.fails);
++  fclose(acc);
++  return rc;
++}
+diff --git a/tb/adp_engine/sim_main.cpp b/tb/adp_engine/sim_main.cpp
+index be6d49a..2b98f34 100644
+--- a/tb/adp_engine/sim_main.cpp
++++ b/tb/adp_engine/sim_main.cpp
+@@ -1714,7 +1714,18 @@ void Harness::check_pool_protocol_invariants() {
+ 
+ 
+ int Harness::report() {
+-  printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
++  //! NOT the canonical tally shape: this binary is the suite's first build,
++  //! and run_suites.sh reads only the LAST matching line, so a canonical line
++  //! here would drop the second build's checks (sim_if2.cpp) from the total.
++  //! The Makefile sums both builds and prints the one canonical line.
++  printf("[build default] %d checks, %d failures\n", checks, fails);
++  FILE* acc = fopen("obj_dir/build_tally.txt", "a");
++  if (acc == nullptr) {
++    printf("FAIL: this build's tally cannot be recorded for the Makefile\n");
++    return 1;
++  }
++  fprintf(acc, "%d %d\n", checks, fails);
++  fclose(acc);
+   return fails ? 1 : 0;
+ }
+ 
+diff --git a/tb/aecp_notify/Makefile b/tb/aecp_notify/Makefile
+index 294d4f7..cee3756 100644
+--- a/tb/aecp_notify/Makefile
++++ b/tb/aecp_notify/Makefile
+@@ -1,11 +1,12 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ # AECP registry monitor lifecycle suite, exit 0 = PASS.
+ #
+-# Two builds of one bench. The first overrides nothing and runs the registry
++# Three builds of one bench. The first overrides nothing and runs the registry
+ # monitor lifecycle; the second sets P-EN-IDENTIFY-NOTIFICATION to 1 and runs
+-# section FT, the identify schedule at the full timebase (README). Each binary
+-# prints its own build's count; the last line is the one canonical tally,
+-# summed over both builds.
++# section FT, the identify schedule at the full timebase; the third sets
++# P-N-AVB-INTERFACES to 2 and runs sections PT and CK, the registry port and
++# the per-interface counter rows (README). Each binary prints its own build's
++# count; the last line is the one canonical tally, summed over the three builds.
+ VERILATOR ?= verilator
+ HDL        = ../../hdl
+ TOP        = KL_aecp_notify
+@@ -20,6 +21,7 @@ VFLAGS = --cc --exe --build -j 0 \
+ 
+ SRCS = $(HDL)/common/pp_pkg.sv $(HDL)/aecp/KL_aecp_notify.sv
+ CPP  = sim_main.cpp
++IF2_VFLAGS = -GN_IF_P=2 -CFLAGS "-DAECP_NOTIFY_IF2 -Wall -Wextra" --Mdir obj_if2
+ 
+ # the second build alone (section FT), for the identify mutation campaign
+ identify-build:
+@@ -31,6 +33,14 @@ identify-build:
+ identify: identify-build
+ 	./obj_idn/Vaecp_notify_idn
+ 
++# the third build alone (sections PT and CK), for the notify mutation campaign
++interfaces-build:
++	@mkdir -p obj_dir
++	$(VERILATOR) $(VFLAGS) $(IF2_VFLAGS) $(SRCS) $(CPP) -o Vaecp_notify_if2
++
++interfaces: interfaces-build
++	./obj_if2/Vaecp_notify_if2
++
+ run:
+ 	@rm -f obj_dir/build_tally.txt
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vaecp_notify_sim
+@@ -39,10 +49,12 @@ run:
+ 	    -CFLAGS "-DAECP_NOTIFY_IDENT -Wall -Wextra" \
+ 	    --Mdir obj_idn $(SRCS) $(CPP) -o Vaecp_notify_idn
+ 	./obj_idn/Vaecp_notify_idn
+-	@awk '{c += $$1; f += $$2} END {if (NR != 2) {print "FAIL: " NR " build tallies, expected 2"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
++	$(VERILATOR) $(VFLAGS) $(IF2_VFLAGS) $(SRCS) $(CPP) -o Vaecp_notify_if2
++	./obj_if2/Vaecp_notify_if2
++	@awk '{c += $$1; f += $$2} END {if (NR != 3) {print "FAIL: " NR " build tallies, expected 3"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+ 	    obj_dir/build_tally.txt
+ 
+ clean:
+-	rm -rf obj_dir obj_idn
++	rm -rf obj_dir obj_idn obj_if2
+ 
+-.PHONY: run identify-build identify clean
++.PHONY: run identify-build identify interfaces-build interfaces clean
+diff --git a/tb/aecp_notify/README.md b/tb/aecp_notify/README.md
+index cdc903e..442311c 100644
+--- a/tb/aecp_notify/README.md
++++ b/tb/aecp_notify/README.md
+@@ -11,20 +11,67 @@ different controller and verifies that the next probe carries only the new
+ Entity ID and MAC tuple. Section IX then grades the registry's identity index,
+ section TS the counter throttle stamps' valid bit, section TW a counter round
+ that waits for the TX slot, and section DR a DEREGISTER drained between two jobs
+-of a round.
++of a round. A third build, at two AVB interfaces, runs sections PT and CK: the
++registry row's port and the per-interface counter rows.
+ 
+ Run `make`. Exit status zero and the printed check tally are required.
+ 
+-## Two builds
++## Three builds
+ 
+ | Build | Override | Runs |
+ |---|---|---|
+ | `obj_dir/Vaecp_notify_sim` | none: `EN_IDENTIFY_NOTIF_P` = 0, the default | the registry monitor lifecycle above (10 checks), then section IX (11 checks), section TS (5 checks), section TW (4 checks) and section DR (11 checks) |
+ | `obj_idn/Vaecp_notify_idn` | `EN_IDENTIFY_NOTIF_P` = 1 (`AECP_NOTIFY_IDENT`) | section FT alone |
++| `obj_if2/Vaecp_notify_if2` | `N_IF_P` = 2, P-N-AVB-INTERFACES (`AECP_NOTIFY_IF2`) | sections PT (6 checks) and CK (5 checks) alone, from `port_tuple.hpp` |
+ 
+ Each binary prints its own build's count, and the Makefile prints the one
+-canonical tally, summed over both. `make identify` builds and runs the second
+-build alone (the identify mutation campaign's arm).
++canonical tally, summed over the three. `make identify` builds and runs the
++second build alone (the identify mutation campaign's arm), and `make interfaces`
++the third (the notify campaign's arms for issue #69).
++
++## Sections PT and CK: two AVB interfaces (issue #69)
++
++Milan v1.2 5.3.4.2 makes a registry entry {Entity ID, MAC address, port,
++Sequence ID of the next unsolicited notification}. With `N_IF_P` at 2 each row
++stores the port, the interface the REGISTER arrived on (`rgy_port_i`). The bench
++is the engine: it retires each job when the section says, and the clock advances
++one ms per cycle while a section watches the job face.
++
++- **PT2** REGISTER from E on port 0 holds one entry, and the same Entity ID and
++  MAC on port 1 is a second.
++- **PT4** one notification per entry, each at its own Sequence ID: a round before
++  the second REGISTER reaches E once at 0, the round after it twice, at 1 (port
++  0's entry) and 0 (port 1's).
++- **PT3** a repeated REGISTER on port 1 refreshes port 1's entry, and with both
++  rows held a third tuple is refused NO_RESOURCES.
++- **PT5** DEREGISTER from E on port 1 removes one entry; **PT6** it was port 1's:
++  the next round reaches E once, at port 0's Sequence ID 2; **PT7** DEREGISTER on
++  port 0 removes the last.
++
++Section CK grades the AVB_INTERFACE counter rows (Milan Table 5.22: at most one
++GET_COUNTERS a second per descriptor), with one controller registered:
++
++- **CK1** a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on
++  0009:1; **CK2** AVB_INTERFACE 0's, in the same second, goes out at once on
++  0009:0, its window its own; **CK3** a second change of interface 1 inside its
++  second waits a second from interface 1's send; **CK4** AVB_INTERFACE 2 names no
++  interface of a two-interface build and pushes nothing; **CK5** CLOCK_DOMAIN 0
++  keeps its slot beside the new row.
++
++Mutation record (planted by `tb/pp_top/notify_mutants.py`, which runs `make
++interfaces` here; all eight KILLED; the ninth #69 control, `rgy_port_tied_zero`, is
++graded by `tb/pp_top` section IF):
++
++| Mutant | Planted | Failing checks |
++|---|---|---|
++| `port_not_compared` | the walk matches {eid, mac} without the port | 5: PT2 (a refresh, one entry), PT3, PT4, PT6, PT7 |
++| `port_not_latched` | the op's port is latched as 0 whatever `rgy_port_i` says | 5: PT2, PT3, PT4, PT6, PT7 |
++| `port_not_stored` | a claimed or refreshed row stores port 0 | 4: PT3 (the refresh finds no row and the full table refuses), PT5, PT6, PT7 |
++| `avb_counter_row_dropped` | AVB_INTERFACE 1's change sets no slot | 2: CK1, CK3 |
++| `avb_counter_row_collapsed` | AVB_INTERFACE 1's change sets AVB_INTERFACE 0's slot | 3: CK1, CK2, CK3 |
++| `avb_counter_named_clock` | AVB_INTERFACE 1's slot is named CLOCK_DOMAIN 0 | 2: CK1, CK3 |
++| `avb_counter_any_index` | the map takes any AVB_INTERFACE index into index 0's slot (C7's `ctr-notify-avb-any-index` edit) | 5: CK1, CK2, CK3, CK4, CK5 |
++| `avb_counter_name_overlaps_clock` | the slot naming starts at interface 0, so CLOCK_DOMAIN 0's slot is named AVB_INTERFACE 0 | 1: CK5 |
+ 
+ ## Section FT: the identify schedule at the full timebase
+ 
+diff --git a/tb/aecp_notify/port_tuple.hpp b/tb/aecp_notify/port_tuple.hpp
+new file mode 100644
+index 0000000..ba30f16
+--- /dev/null
++++ b/tb/aecp_notify/port_tuple.hpp
+@@ -0,0 +1,277 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// tb/aecp_notify, the third build (AECP_NOTIFY_IF2): KL_aecp_notify with two
++// AVB interfaces, P-N-AVB-INTERFACES = 2 (N_IF_P, issue #69). Included by
++// sim_main.cpp in that build alone.
++//   PT  the registry row's port. Milan v1.2 5.3.4.2: an entry is {Entity ID,
++//       MAC address, port, Sequence ID of the next unsolicited notification}.
++//       One controller registered on both interfaces holds two entries with
++//       two Sequence IDs, and REGISTER and DEREGISTER find the entry of their
++//       own port (IEEE 1722.1-2021 7.4.37, 7.4.38; Milan 5.4.2.21, 5.4.2.22).
++//   CK  the AVB_INTERFACE counter changes keyed per interface: Milan Table 5.22
++//       sends GET_COUNTERS at most once a second per descriptor, so
++//       AVB_INTERFACE 1 has a window of its own beside AVB_INTERFACE 0's, and
++//       an index past the interfaces is not served.
++// The bench is the engine: it retires each job when the section says, and the
++// clock advances one ms per cycle while a section watches the job face. Every
++// expectation is the clause's, never read back from the DUT.
++#include <algorithm>
++
++struct PortHarness {
++  static constexpr uint64_t EID_E = 0x5555000000000005ull;
++  static constexpr uint64_t MAC_E = 0x020000000005ull;
++  static constexpr uint64_t EID_F = 0x6666000000000006ull;
++  static constexpr uint64_t MAC_F = 0x020000000006ull;
++  //! the requester a command notification excludes: nobody registered
++  static constexpr uint64_t EID_X = 0x7777000000000007ull;
++  static constexpr uint8_t OP_REGISTER = 0;
++  static constexpr uint8_t OP_DEREGISTER = 1;
++  static constexpr uint64_t NO_RESOURCES = 1;     //! the rgy result word's refusal
++  static constexpr uint64_t UNANSWERED = ~0ull;
++  static constexpr uint8_t CLASS_NAME = 7;        //! ev_cmd class: SET_NAME
++  static constexpr uint16_t DT_AUDIO_UNIT = 0x0002;
++  static constexpr uint16_t DT_CLOCK_DOMAIN = 0x0024;
++  VKL_aecp_notify* d = nullptr;
++  uint32_t now = 1000;
++  int checks = 0;
++  int fails = 0;
++
++  struct Job {
++    uint32_t ms = 0;                        // first seen in this ms; 0 = none
++    uint8_t kind = 0;
++    uint16_t dt = 0;
++    uint16_t di = 0;
++    uint16_t seq = 0;
++    uint64_t mac = 0;
++  };
++
++  void tick() {
++    d->now_ms_i = now;
++    d->clk_i = 0;
++    d->eval();
++    d->clk_i = 1;
++    d->eval();
++  }
++  void idle(int n) {
++    for (int i = 0; i < n; ++i) tick();
++  }
++  void warm_reset() {
++    d->rst_n = 0;
++    idle(2);
++    d->rst_n = 1;
++    idle(2);
++  }
++
++  //! one registry op from {eid, mac} on `port`: the result word, or UNANSWERED
++  uint64_t op(uint8_t code, uint64_t eid, uint64_t mac, uint8_t port) {
++    d->rgy_state_i = 0;
++    d->rgy_op_i = code;
++    d->rgy_eid_i = eid;
++    d->rgy_mac_i = mac;
++    d->rgy_port_i = port;
++    d->rgy_tl_i = 0;
++    d->rgy_req_i = 1;
++    uint64_t result = UNANSWERED;
++    for (int i = 0; i < REGISTRY_ACCEPT_CYCLES; ++i) {
++      d->clk_i = 0;
++      d->eval();
++      if (!d->rgy_wait_o) {
++        result = d->rgy_data_o;
++        break;
++      }
++      tick();
++    }
++    tick();
++    d->rgy_req_i = 0;
++    idle(2);
++    return result;
++  }
++  unsigned rows() const { return d->dbg_reg_cnt_o; }
++
++  //! cycles at one ms each until a job is presented, up to ms `last`
++  Job presented(uint32_t last) {
++    while (now <= last) {
++      d->clk_i = 0;
++      d->eval();
++      if (d->uns_valid_o) {
++        return {now, d->uns_kind_o, d->uns_desc_type_o, d->uns_desc_index_o, d->uns_seq_o,
++                d->uns_mac_o};
++      }
++      tick();
++      ++now;
++    }
++    return {};
++  }
++  //! the presented job's frame is granted now
++  void retire() {
++    d->uns_done_i = 1;
++    tick();
++    d->uns_done_i = 0;
++    ++now;
++  }
++  //! every job presented up to ms `last`, each retired as soon as it shows
++  std::vector<Job> round(uint32_t last) {
++    std::vector<Job> jobs;
++    for (Job j = presented(last); j.ms != 0; j = presented(last)) {
++      jobs.push_back(j);
++      retire();
++    }
++    return jobs;
++  }
++  //! a successful SET_NAME on AUDIO_UNIT 0 from a requester nobody registered
++  void name_changed() {
++    d->ev_cmd_class_i = CLASS_NAME;
++    d->ev_cmd_type_i = DT_AUDIO_UNIT;
++    d->ev_cmd_index_i = 0;
++    d->ev_cmd_excl_eid_i = EID_X;
++    d->ev_cmd_i = 1;
++    tick();
++    d->ev_cmd_i = 0;
++    ++now;
++  }
++  void counter_changed(uint16_t dt, uint16_t di) {
++    d->ev_ctr_type_i = dt;
++    d->ev_ctr_index_i = di;
++    d->ev_ctr_i = 1;
++    tick();
++    d->ev_ctr_i = 0;
++    ++now;
++  }
++  static std::vector<uint16_t> seqs_to(const std::vector<Job>& jobs, uint64_t mac) {
++    std::vector<uint16_t> s;
++    for (const Job& j : jobs) {
++      if (j.mac == mac) s.push_back(j.seq);
++    }
++    std::sort(s.begin(), s.end());
++    return s;
++  }
++  void quiet_inputs();
++  void port_tuple();
++  void keyed_counters();
++  int run();
++};
++
++void PortHarness::quiet_inputs() {
++  d->rgy_req_i = 0;
++  d->rgy_state_i = 0;
++  d->rgy_port_i = 0;
++  d->ev_stri_in_i = 0;
++  d->ev_stri_out_i = 0;
++  d->ev_avb_i = 0;
++  d->ev_asp_i = 0;
++  d->ev_amap_i = 0;
++  d->ev_ctr_i = 0;
++  d->ev_cmd_i = 0;
++  d->rx_cmd_valid_i = 0;
++  d->prng_draw_busy_i = 1;
++  d->prng_draw_valid_i = 0;
++  d->ca_ready_i = 1;
++  d->ca_rsp_valid_i = 0;
++  d->ca_fail_valid_i = 0;
++  d->uns_done_i = 0;
++  d->uns_tx_busy_i = 0;
++  d->tmr_exp_valid_i = 0;
++  d->identify_button_i = 0;
++}
++
++// PT: E registers on port 0, a round reaches it, then E registers on port 1 as
++// well (PT2). Two entries with Sequence IDs of their own: the next round reaches E
++// twice, at 1 (port 0's entry) and at 0 (port 1's). A repeated REGISTER on
++// port 1 refreshes that entry; with both rows held a third tuple finds none.
++// DEREGISTER on port 1 leaves port 0's entry: the next round reaches E once,
++// at 2. A mutant that drops the port from the match makes port 1's REGISTER a
++// refresh of port 0's entry (PT2); one that stores no port makes the refresh a
++// new claim the full table refuses (PT3).
++void PortHarness::port_tuple() {
++  const uint64_t r0 = op(OP_REGISTER, EID_E, MAC_E, 0);
++  const unsigned n0 = rows();
++  name_changed();
++  const std::vector<Job> first = round(now + 4 * WALK_MS);
++  const uint64_t r1 = op(OP_REGISTER, EID_E, MAC_E, 1);
++  CHECK(r0 == 0 && n0 == 1 && r1 == 0 && rows() == 2,
++        "PT2: REGISTER from E on port 0 holds one entry, and the same Entity ID and MAC on "
++        "port 1 is a second (results %llu and %llu, %u then %u entries)",
++        static_cast<unsigned long long>(r0), static_cast<unsigned long long>(r1), n0, rows());
++  name_changed();
++  const std::vector<Job> second = round(now + 4 * WALK_MS);
++  const std::vector<uint16_t> s1 = seqs_to(first, MAC_E);
++  const std::vector<uint16_t> s2 = seqs_to(second, MAC_E);
++  printf("  [i] PT4: round 1 reached E %zu time(s), round 2 %zu time(s)\n", s1.size(),
++         s2.size());
++  CHECK(s1 == std::vector<uint16_t>{0} && s2 == std::vector<uint16_t>({0, 1}),
++        "PT4: one notification per entry, each with its own Sequence ID: round 1 reaches E "
++        "once at 0, round 2 twice, at 1 (port 0's entry) and 0 (port 1's)");
++  const uint64_t r2 = op(OP_REGISTER, EID_E, MAC_E, 1);
++  const uint64_t r3 = op(OP_REGISTER, EID_F, MAC_F, 0);
++  CHECK(r2 == 0 && r3 == NO_RESOURCES && rows() == 2,
++        "PT3: a repeated REGISTER on port 1 refreshes port 1's entry, and with both rows held "
++        "a third tuple is refused NO_RESOURCES (results %llu and %llu, %u entries)",
++        static_cast<unsigned long long>(r2), static_cast<unsigned long long>(r3), rows());
++  const uint64_t r4 = op(OP_DEREGISTER, EID_E, MAC_E, 1);
++  CHECK(r4 == 0 && rows() == 1,
++        "PT5: DEREGISTER from E on port 1 removes one entry (result %llu, %u entries)",
++        static_cast<unsigned long long>(r4), rows());
++  name_changed();
++  const std::vector<uint16_t> s3 = seqs_to(round(now + 4 * WALK_MS), MAC_E);
++  CHECK(s3 == std::vector<uint16_t>{2},
++        "PT6: the entry DEREGISTER on port 1 removed was port 1's: the next round reaches E "
++        "once, at port 0's Sequence ID 2 (%zu notification(s))", s3.size());
++  const uint64_t r5 = op(OP_DEREGISTER, EID_E, MAC_E, 0);
++  CHECK(r5 == 0 && rows() == 0,
++        "PT7: DEREGISTER from E on port 0 removes the last entry (result %llu, %u entries)",
++        static_cast<unsigned long long>(r5), rows());
++}
++
++// CK: one registered controller. AVB_INTERFACE 1's change goes out as its own
++// GET_COUNTERS (0009:1), and AVB_INTERFACE 0's, in the same second, is not held
++// by it; a second change of interface 1 inside its second waits a second from
++// interface 1's send. AVB_INTERFACE 2 names no interface of this build and goes
++// nowhere, and CLOCK_DOMAIN 0 keeps its slot beside the new one.
++void PortHarness::keyed_counters() {
++  warm_reset();
++  now = 3000;
++  (void)op(OP_REGISTER, EID_F, MAC_F, 1);
++  counter_changed(DT_AVB_INTERFACE, 1);
++  const Job a1 = presented(now + WALK_MS);
++  retire();
++  CHECK(a1.kind == KIND_CTRS && a1.dt == DT_AVB_INTERFACE && a1.di == 1 && a1.mac == MAC_F,
++        "CK1: a change of AVB_INTERFACE 1's counters goes out as GET_COUNTERS on 0009:1 "
++        "(kind %u, %04x:%u)", unsigned(a1.kind), unsigned(a1.dt), unsigned(a1.di));
++  counter_changed(DT_AVB_INTERFACE, 0);
++  const Job a0 = presented(now + WALK_MS);
++  retire();
++  CHECK(a0.kind == KIND_CTRS && a0.dt == DT_AVB_INTERFACE && a0.di == 0,
++        "CK2: AVB_INTERFACE 0's change in the same second goes out at once, on 0009:0: its "
++        "window is its own (kind %u, %04x:%u, %u ms after interface 1's)", unsigned(a0.kind),
++        unsigned(a0.dt), unsigned(a0.di), a0.ms - a1.ms);
++  counter_changed(DT_AVB_INTERFACE, 1);
++  const Job held = presented(a1.ms + 1000 + WALK_MS);
++  retire();
++  CHECK(held.di == 1 && held.ms >= a1.ms + 1000 && held.ms <= a1.ms + 1000 + WALK_MS,
++        "CK3: a second change of AVB_INTERFACE 1 inside its second waits a second from "
++        "interface 1's send: presented at ms %u on index %u, want %u to %u on index 1", held.ms,
++        unsigned(held.di), a1.ms + 1000, a1.ms + 1000 + WALK_MS);
++  counter_changed(DT_AVB_INTERFACE, 2);
++  const Job none = presented(now + 2000);
++  CHECK(none.ms == 0, "CK4: AVB_INTERFACE 2 names no interface of a two-interface build: no "
++        "GET_COUNTERS in two seconds (one presented on %04x:%u)", unsigned(none.dt),
++        unsigned(none.di));
++  counter_changed(DT_CLOCK_DOMAIN, 0);
++  const Job cd = presented(now + WALK_MS);
++  retire();
++  CHECK(cd.kind == KIND_CTRS && cd.dt == DT_CLOCK_DOMAIN && cd.di == 0,
++        "CK5: CLOCK_DOMAIN 0 keeps its own slot beside the interfaces' (kind %u, %04x:%u)",
++        unsigned(cd.kind), unsigned(cd.dt), unsigned(cd.di));
++}
++
++int PortHarness::run() {
++  const milan::tb::Model<VKL_aecp_notify> model;
++  d = model.get();
++  quiet_inputs();
++  d->rst_n = 0;
++  idle(4);
++  d->rst_n = 1;
++  idle(2);
++  port_tuple();
++  keyed_counters();
++  return fails ? 1 : 0;
++}
+diff --git a/tb/aecp_notify/sim_main.cpp b/tb/aecp_notify/sim_main.cpp
+index 9d5621c..a4bf3e9 100644
+--- a/tb/aecp_notify/sim_main.cpp
++++ b/tb/aecp_notify/sim_main.cpp
+@@ -1,7 +1,9 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ // AECP registry monitor lifecycle, including TIME_LIMITED row reuse; with
+ // AECP_NOTIFY_IDENT (the second build, P-EN-IDENTIFY-NOTIFICATION = 1), the
+-// identify schedule at the full timebase instead (identify_timebase.hpp).
++// identify schedule at the full timebase instead (identify_timebase.hpp); with
++// AECP_NOTIFY_IF2 (the third build, P-N-AVB-INTERFACES = 2), the registry port
++// and the per-interface counter rows instead (port_tuple.hpp).
+ #include <array>
+ #include <cstdint>
+ #include <cstdio>
+@@ -37,7 +39,7 @@ static constexpr uint32_t WALK_MS = 8;
+ 
+ namespace {
+ 
+-#ifndef AECP_NOTIFY_IDENT
++#if !defined(AECP_NOTIFY_IDENT) && !defined(AECP_NOTIFY_IF2)
+ // The tally the CHECK macro keeps was a pair of file-scope statics, and so was
+ // nothing else here; both are the state of one run of this harness, so they
+ // belong to the object that performs it.
+@@ -701,7 +703,7 @@ void Harness::dereg_round_waits() {
+   d->uns_done_i = 1;
+ }
+ 
+-#else
++#elif defined(AECP_NOTIFY_IDENT)
+ // ---- FT: the identify schedule at the full timebase -------------------------
+ // tb/pp_top grades the burst on the wire with 1 ms compressed to 100 clocks,
+ // where one tick is no longer than a frame's own build and serialization, so
+@@ -886,15 +888,22 @@ int IdentHarness::run() {
+ 
+ }  // namespace
+ 
++#ifdef AECP_NOTIFY_IF2
++#include "port_tuple.hpp"
++#endif
++
+ int main(int argc, char** argv) {
+   Verilated::commandArgs(argc, argv);
+-  //! NOT the canonical tally shape: this binary is ONE of the suite's two
++  //! NOT the canonical tally shape: this binary is ONE of the suite's three
+   //! builds, and run_suites.sh reads only the LAST matching line, so a
+-  //! canonical line here would drop the other build's checks from the total.
+-  //! The Makefile sums both builds and prints the one canonical line.
++  //! canonical line here would drop the other builds' checks from the total.
++  //! The Makefile sums the three builds and prints the one canonical line.
+ #ifdef AECP_NOTIFY_IDENT
+   IdentHarness harness;
+   const char* const build = "identify";
++#elif defined(AECP_NOTIFY_IF2)
++  PortHarness harness;
++  const char* const build = "interfaces";
+ #else
+   Harness harness;
+   const char* const build = "default";
+diff --git a/tb/pp_top/Makefile b/tb/pp_top/Makefile
+index 725dc93..9302360 100644
+--- a/tb/pp_top/Makefile
++++ b/tb/pp_top/Makefile
+@@ -11,8 +11,9 @@
+ # alone, so its response writes are bounded by a reservation that is not the
+ # default's. The fifth runs the timebase at the nominal clock's rate and
+ # section TB alone. The sixth keeps the top's registration and lock timeouts
+-# and runs section TD alone. Each binary prints its own build's count; the
+-# last line is the one canonical tally, summed over the six builds.
++# and runs section TD alone. The seventh sets P-N-AVB-INTERFACES to 2 and
++# runs section IF alone. Each binary prints its own build's count; the last
++# line is the one canonical tally, summed over the seven builds.
+ VERILATOR ?= verilator
+ HDL        = ../../hdl
+ TOP        = pp_top_wrap
+@@ -67,6 +68,7 @@ SRCS = $(HDL)/common/pp_pkg.sv $(HDL)/srp/srp_pkg.sv \
+        $(HDL)/top/KL_mrp_strip.sv $(HDL)/top/protocol_processor_top.sv \
+        pp_top_wrap.sv
+ CPP  = sim_main.cpp
++IF2_VFLAGS = "+define+PP_TOP_IF2" -CFLAGS "-DPP_TOP_IF2 -Wall -Wextra" --Mdir obj_if2
+ LINE_VFLAGS = "+define+PP_TOP_DESC_LINE_BYTES=$(LINE_FIXTURE)" \
+               -CFLAGS "-DPP_TOP_DESC_LINE_BYTES=$(LINE_FIXTURE) -Wall -Wextra" \
+               --Mdir obj_line
+@@ -151,7 +153,7 @@ ctr-mutants:
+ aecp-mutants:
+ 	python3 aecp_mutants.py --output "$(MUTANT_OUTPUT)"
+ 
+-run: fixture-guards line-guards ltn_rom.hex ucode.hex
++run: fixture-guards line-guards if-guards ltn_rom.hex ucode.hex
+ 	@rm -f obj_dir/build_tally.txt
+ 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vpp_top_sim
+ 	./obj_dir/Vpp_top_sim
+@@ -167,7 +169,8 @@ run: fixture-guards line-guards ltn_rom.hex ucode.hex
+ 	./obj_line/Vpp_top_line
+ 	$(MAKE) budget
+ 	$(MAKE) timer-defaults
+-	@awk '{c += $$1; f += $$2} END {if (NR != 6) {print "FAIL: " NR " build tallies, expected 6"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
++	$(MAKE) interfaces
++	@awk '{c += $$1; f += $$2} END {if (NR != 7) {print "FAIL: " NR " build tallies, expected 7"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f}' \
+ 	    obj_dir/build_tally.txt
+ 
+ # The fifth build (section TB): the wrap's timebase at the nominal clock's
+@@ -195,6 +198,15 @@ timer-defaults: timer-defaults-build
+ 	@mkdir -p obj_dir
+ 	./obj_tdf/Vpp_top_tdf
+ 
++# The seventh build (section IF): two AVB interfaces, rx_if_index_i driven by
++# the bench. Its tally lands beside the other six.
++interfaces-build: ltn_rom.hex ucode.hex
++	@mkdir -p obj_dir
++	$(VERILATOR) $(VFLAGS) $(IF2_VFLAGS) $(SRCS) $(CPP) -o Vpp_top_if2
++
++interfaces: interfaces-build
++	./obj_if2/Vpp_top_if2
++
+ # Compile the actual bench with four fixture settings in a temporary model dir.
+ # No simulation or source mutation; bad fixtures must fail for the named guards.
+ fixture-guards: fixture-guards-test
+@@ -209,6 +221,11 @@ fixture-guards-test:
+ line-guards:
+ 	@python3 line_guards.py --verilator "$(VERILATOR)" -- $(filter-out pp_top_wrap.sv,$(SRCS))
+ 
++# Lint the real top at one and two AVB interfaces, clean, and one step outside
++# each, refused by name (README section IF): the seam elaborates at 2 every run
++if-guards:
++	@python3 if_guards.py --verilator "$(VERILATOR)" -- $(filter-out pp_top_wrap.sv,$(SRCS))
++
+ ltn_rom.hex: $(HDL)/acmp/rom/gen_ltn_rom.py
+ 	python3 $< -o $@
+ 
+@@ -216,10 +233,10 @@ ucode.hex: $(HDL)/aecp/ucode/gen_ucode.py
+ 	python3 $< -o $@
+ 
+ clean:
+-	rm -rf obj_dir obj_vid obj_idn obj_line obj_tim obj_tdf ltn_rom.hex ucode.hex
++	rm -rf obj_dir obj_vid obj_idn obj_line obj_tim obj_tdf obj_if2 ltn_rom.hex ucode.hex
+ 
+ .PHONY: name-writes run gsi-build gsi-internal maap-internal adp-config aecp-dispatch \
+         line-build aecp-line aecp-dispatch-mutants identify-build identify \
+         deadline d3 volatile cuts hazards counters budget budget-build \
+-        timer-defaults timer-defaults-build \
+-        aecp-mutants ctr-mutants fixture-guards fixture-guards-test line-guards clean
++        timer-defaults timer-defaults-build interfaces interfaces-build \
++        aecp-mutants ctr-mutants fixture-guards fixture-guards-test line-guards if-guards clean
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 88f1113..a069b31 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -17,9 +17,9 @@ Expectations are independent C++ builders/parsers from the doc byte
+ offsets — F04.5 ADPDU, F05.13 Milan ACMPDU, 802.1Q §10.8/§35.2.2 MRPDU BNF,
+ Milan §4.3.3.2 Σ-slope — never DUT logic.
+ 
+-`make`: exit 0 = PASS. It builds the bench six times (sections DV, ID, AX, TB
+-and TD): each executable prints its own build's tally, and the last line sums
+-the six into the one canonical tally.
++`make`: exit 0 = PASS. It builds the bench seven times (sections DV, ID, AX, TB,
++TD and IF): each executable prints its own build's tally, and the last line sums
++the seven into the one canonical tally.
+ 
+ ## What it proves
+ 
+@@ -2482,7 +2482,12 @@ the one record #148 moves, and its named check is now ST2b alone (its row). Issu
+ adds three controls, graded by `tb/aecp_notify` section DR, for 56 of 56. Re-run
+ 2026-10-05 at `main` `054d01c7` (53 of 53) and at the #158 head (56 of 56): the
+ goldens PASS, and 50 of the 53 earlier controls fail the same checks at both. The
+-three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows):
++three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows). Issue #69
++adds nine controls, eight graded by `tb/aecp_notify`'s third build (sections PT and CK)
++and one by this suite's seventh (section IF), for 65 of 65. Re-run 2026-10-06 at
++`main` `e6a759de` (56 of 56) and at the #69 head (65 of 65): the goldens PASS, and all
++56 earlier controls fail the same checks at both (a control that fails the first
++`tb/aecp_notify` build stops `make` before the third):
+ 
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+@@ -2542,6 +2547,15 @@ three `tb/aecp_notify` TW controls also fail DR3 since #158 (their rows):
+ | `dereg_mid_round_no_hold` | a DEREGISTER drained between two jobs of a round no longer waits for the round's boundary (`main`'s rule) | 3: `tb/aecp_notify` DR1, DR2, DR3 |
+ | `dereg_pending_stops_follow` | the counter stamp stops following while a DEREGISTER is pending (review R477-1 S2 on PR #159) | 1: `tb/aecp_notify` DR3 |
+ | `dereg_lost_at_round_end` | the round's end drops the held DEREGISTER | 2: `tb/aecp_notify` DR1b, DR2b |
++| `port_not_compared` | the registry walk matches {eid, mac} without the port (#69) | 5: `tb/aecp_notify` PT2, PT3, PT4, PT6, PT7 |
++| `port_not_latched` | the op's port latched as 0 | 5: `tb/aecp_notify` PT2, PT3, PT4, PT6, PT7 |
++| `port_not_stored` | a claimed or refreshed row stores port 0 | 4: `tb/aecp_notify` PT3, PT5, PT6, PT7 |
++| `avb_counter_row_dropped` | AVB_INTERFACE 1's change sets no slot | 2: `tb/aecp_notify` CK1, CK3 |
++| `avb_counter_row_collapsed` | AVB_INTERFACE 1's change sets AVB_INTERFACE 0's slot | 3: `tb/aecp_notify` CK1, CK2, CK3 |
++| `avb_counter_named_clock` | AVB_INTERFACE 1's slot named CLOCK_DOMAIN 0 | 2: `tb/aecp_notify` CK1, CK3 |
++| `avb_counter_any_index` | the map takes any AVB_INTERFACE index into index 0's slot | 5: `tb/aecp_notify` CK1 to CK5 |
++| `avb_counter_name_overlaps_clock` | the slot naming starts at interface 0 | 1: `tb/aecp_notify` CK5 |
++| `rgy_port_tied_zero` | the top ties `u_notify`'s `rgy_port_i` to 0 | 2: IF3, IF3b (seventh build) |
+ 
+ RN and `tb/originator` R are the suites whose mutation records #80 and #86 ask for:
+ every RND control is killed by the divergence check alone.
+@@ -2555,3 +2569,39 @@ passing). They are kept as defensive structure and are not graded:
+ | `x_ident_arm_ignores_core_arm` | the identify arm stops yielding to the registry machine's arm sites (`&& !core_arm_w` dropped) | a collision needs a registry op to arm (N_APPLY, or N_IDLE with a new op) in the very cycle the identify arm is owed, the one after a frame's departure; a directed check would have to sweep a command's arrival cycle by cycle |
+ | `x_ident_rearm_single_generation` | the REARM generation never flips | a stale REARM can only fire in the cycles between a first frame's departure and the new REARM arm landing (a few cycles), and the departure itself clears `fired_r` |
+ | `x_ident_no_sync_second_flop` | the synchroniser loses its second flop | CDC hygiene: metastability is invisible to a two-state simulation |
++
++## Section IF: two AVB interfaces (issue #69)
++
++The seventh build (`make interfaces` alone, `obj_if2`) defines `PP_TOP_IF2`: the wrap
++sets the top's `N_AVB_IF_P` to 2 and connects `rx_if_index_i`, which every other
++build leaves unconnected, as a one-interface integration does. `interface_phases.hpp`
++runs section IF alone on a NotifyBench processor (its own model, the suite's image,
++erased NVM, both restore walks, link up and enable), and reads each interface's
++advertise state through the wrap's `dbg_adp_adv_state_o`. A frame's interface is
++driven with its bytes alone: from the clock after its last byte the port names the
++other interface, which the contract allows, so a top that read it any later takes the
++wrong one.
++
++- **IF1** each advertise machine sends its own ENTITY_AVAILABLE inside
++  T-ADP-DELAY-START, byte-exact with interface_index 0 and 1 and available_index 0.
++- **IF2** (twice, interface 1 then 0) with both machines WAITING, ENTITY_DISCOVER
++  received on one interface restarts that interface's machine alone, which
++  advertises inside T-ADP-DELAY: the frame's interface rides the header beat to ADP.
++- **IF3** REGISTER from C on interface 0 and again on interface 1 makes two entries:
++  D's lock change reaches C twice, at sequence_id 0 and 0, and the unlock at 1 and 1.
++  **IF3b** after DEREGISTER on interface 1 the next lock and unlock reach C once
++  each, at interface 0's 2 and 3: the registry port comes from the command's
++  interface.
++
++`make if-guards` (run by `make`, like `line-guards`) lints the real top with
++`scripts/lint_hdl.sh`'s flags at `N_AVB_IF_P` 1 and 2, which must lint clean with no
++warning at all, and at 0 and 3, which the top must refuse by name
++(`N_AVB_IF_P=0 is outside 1 to 2`, `...=3 is outside 1 to 2`). It is the seam's
++lint-only elaboration at two interfaces, on every run of the suite.
++
++The controls that collapse the top's interface count, index or latch, or move its
++range guard (`if-top-count-collapsed`, `if-top-count-collapsed-lint`,
++`if-top-ingress-collapsed`, `if-top-ingress-live`, `if-top-range-unguarded`,
++`if-top-range-floor-off-by-one`, `if-top-range-floor-dropped`) are arms of `tb/adp_engine`'s
++campaign, whose README carries their record; `rgy_port_tied_zero` is in
++`notify_mutants.py`, recorded in the table above.
+diff --git a/tb/pp_top/d3_phases.hpp b/tb/pp_top/d3_phases.hpp
+index c0ca2c5..3ad7c84 100644
+--- a/tb/pp_top/d3_phases.hpp
++++ b/tb/pp_top/d3_phases.hpp
+@@ -2961,7 +2961,7 @@ struct D3ClockSourcePhase : D3RestorePhase {
+               && d->dbg_d3_blank_o == D3_RECORDS - 1,
+           "D3C3 restore: COMPLETE from cleared rows with the saved record applied "
+           "(applied %u refused %u blank %u of %d)", unsigned(d->dbg_d3_applied_o),
+-          unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o));
++          unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o), D3_RECORDS);
+     const uint16_t g = seq++;
+     const auto get = get_clock_source(g);
+     CHECK(get.size() == 1 && get[0] == answer(AECP_SUCCESS, g, AEM_GET_CLOCK_SOURCE, LAST_AAF)
+@@ -2991,7 +2991,7 @@ struct D3ClockSourcePhase : D3RestorePhase {
+                 && d->dbg_d3_refused_o == 1 && d->dbg_d3_blank_o == D3_RECORDS - 1,
+             "D3C4 %s: the saved 9 over %u sources is refused, COMPLETE (applied %u "
+             "refused %u blank %u of %d)", a.what, a.count, unsigned(d->dbg_d3_applied_o),
+-            unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o));
++            unsigned(d->dbg_d3_refused_o), unsigned(d->dbg_d3_blank_o), D3_RECORDS);
+       const uint16_t g = seq++;
+       const auto get = get_clock_source(g);
+       CHECK(get.size() == 1 && get[0] == answer(AECP_SUCCESS, g, AEM_GET_CLOCK_SOURCE, 0)
+diff --git a/tb/pp_top/if_guards.py b/tb/pp_top/if_guards.py
+new file mode 100644
+index 0000000..59dada4
+--- /dev/null
++++ b/tb/pp_top/if_guards.py
+@@ -0,0 +1,69 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Elaborate the real top across N_AVB_IF_P and require the legal range.
++
++P-N-AVB-INTERFACES is the redundancy seam (issue #69): the shipping build has
++one interface, so nothing else would notice the two-interface elaboration rot.
++Each case lints protocol_processor_top, from the sources the Makefile passes
++after `--`, with the flags of scripts/lint_hdl.sh and one count override: a
++legal count, one interface or Milan's redundant pair, must lint clean with no
++warning at all, and a refused one must fail with the top's own message naming
++N_AVB_IF_P. Verilator reports an elaboration $error as a USERERROR warning,
++which a -Wno-fatal simulation build carries past, so the verdict is taken from
++a lint that tolerates no warning.
++"""
++import argparse
++import subprocess
++
++#: the count, then the refusal it must print (None: it must lint clean)
++CASES = (
++    (1, None),                                          # the default, one interface
++    (2, None),                                          # Milan's redundant pair
++    (0, "N_AVB_IF_P=0 is outside 1 to 2"),              # one under the floor
++    (3, "N_AVB_IF_P=3 is outside 1 to 2"),              # one over the ceiling
++)
++LINT = ("--lint-only", "-Wall", "-Wno-DECLFILENAME", "-Wno-UNUSEDSIGNAL",
++        "-Wno-UNUSEDPARAM", "--top-module", "protocol_processor_top")
++
++
++def findings_of(output: str) -> list[str]:
++    """Verilator's warning and error lines, without its closing summary."""
++    return [line for line in output.splitlines()
++            if line.startswith(("%Warning", "%Error")) and "Exiting due to" not in line]
++
++
++def main() -> int:
++    """Lint each case; 0 = every legal count clean and every other refused by name."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--verilator", default="verilator")
++    parser.add_argument("sources", nargs=argparse.REMAINDER)
++    args = parser.parse_args()
++    sources = args.sources[1:] if args.sources[:1] == ["--"] else args.sources
++    failing = 0
++    for count, refusal in CASES:
++        result = subprocess.run(
++            [args.verilator, *LINT, f"-GN_AVB_IF_P={count}", *sources],
++            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=False)
++        findings = findings_of(result.stdout)
++        if refusal is None:
++            ok = result.returncode == 0 and not findings
++            outcome = "lints clean" if ok else "must lint clean"
++        else:
++            named = [f for f in findings if "USERERROR" in f and refusal in f]
++            ok = result.returncode != 0 and bool(named)
++            outcome = f"refused: {refusal}" if ok else f"must be refused: {refusal}"
++        if ok:
++            print(f"if guard {count}: {outcome}")
++        else:
++            failing += 1
++            print(f"FAIL: if guard {count}: {outcome} (verilator rc {result.returncode})")
++            for finding in findings[:6]:
++                print(f"    {finding}")
++    #: "checks", as the ADP campaign reads a completed run by it; not the canonical
++    #: tally shape, so run_suites.sh still reads the Makefile's summed line
++    print(f"if guards: {len(CASES)} checks, {failing} failing")
++    return int(failing != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/pp_top/interface_phases.hpp b/tb/pp_top/interface_phases.hpp
+new file mode 100644
+index 0000000..ac0e9ab
+--- /dev/null
++++ b/tb/pp_top/interface_phases.hpp
+@@ -0,0 +1,203 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// pp_top suite, section IF (issue #69): the seventh build, whose top has
++// P-N-AVB-INTERFACES = 2 and whose wrap drives rx_if_index_i. Included by
++// sim_main.cpp in that build alone, after the notification sections whose
++// bench (NotifyBench) it boots. It grades the redundancy seam end to end,
++// through the top's own glue rather than a module's ports:
++//   IF1  both advertise machines run: one ENTITY_AVAILABLE per interface,
++//        byte-exact but for its interface_index (IEEE 1722.1-2021 6.2.2.18);
++//   IF2  the RX frame's interface reaches ADP: ENTITY_DISCOVER received on one
++//        interface, both machines WAITING, restarts that interface's machine
++//        alone (Milan v1.2 Table 5.51, RCV_ADP_DISCOVER in WAITING);
++//   IF3  the registry tuple's port comes from the command's interface (Milan
++//        5.3.4.2): a controller registered on both interfaces holds two
++//        entries, so a lock change reaches it twice, each at its entry's own
++//        sequence_id (5.4.5.1); DEREGISTER on interface 1 leaves interface 0's.
++// Every expectation is built here from the clause byte offsets, never read
++// back from the DUT.
++
++struct InterfacePhase : NotifyBench {
++  //! the lock taker: never registered, so every lock change reaches C alone
++  static constexpr uint64_t D_MAC = 0x0202D0D0D0D0ull;
++  static constexpr uint64_t D_EID = 0x7777000000000044ull;
++  static constexpr unsigned ST_WAIT = 3;
++  static constexpr uint16_t OP_LOCK = 0x0001;
++  struct Adv {
++    std::vector<uint8_t> f;
++    uint32_t ms;
++  };
++  std::vector<Adv> adp;                        // every ADPDU on the wire, in order
++  uint16_t seq = 0x6900;
++
++  using NotifyBench::NotifyBench;
++
++  unsigned adv_state(unsigned ifx) const {
++    return (unsigned(io.d->dbg_adp_adv_state_o) >> (2 * ifx)) & 3u;
++  }
++  static unsigned if_of(const std::vector<uint8_t>& f) {
++    return f.size() >= 70 ? ((unsigned(f[68]) << 8) | f[69]) : 0xFFFFu;
++  }
++  //! the expected ENTITY_AVAILABLE of interface `ifx`: own_avail with its
++  //! interface_index (wire bytes 68 and 69, F04.5)
++  static std::vector<uint8_t> avail_on(unsigned ifx, uint32_t aidx) {
++    std::vector<uint8_t> f = own_avail(aidx);
++    putbe(&f[68], ifx, 2);
++    return f;
++  }
++  //! one frame on interface `ifx`, the port naming it for the frame's bytes
++  //! alone: from the clock after the last byte it names the other interface,
++  //! which rx_if_index_i's contract allows (it is read with the last byte), so
++  //! a top that read it any later would take the wrong one
++  void feed_on(unsigned ifx, const std::vector<uint8_t>& f) {
++    for (size_t i = 0; i < f.size(); ++i) {
++      io.d->rx_valid_i = 1;
++      io.d->rx_data_i = f[i];
++      io.d->rx_last_i = (i + 1 == f.size()) ? 1 : 0;
++      io.d->rx_if_index_i = ifx;
++      tick();
++    }
++    io.d->rx_valid_i = 0;
++    io.d->rx_last_i = 0;
++    io.d->rx_if_index_i = 1 - ifx;
++    for (int i = 0; i < 4; ++i) tick();
++  }
++  //! NotifyBench::ask through feed_on: one command from {mac, eid} on
++  //! interface `ifx`, and its solicited response
++  std::vector<uint8_t> ask_on(unsigned ifx, uint64_t mac, uint64_t eid, uint16_t op,
++                              const std::vector<uint8_t>& pl) {
++    const uint16_t s = seq++;
++    const size_t from = seen.size();
++    feed_on(ifx, aecp_frame(OWN_MAC, mac, 0, 0, EID, eid, s, op, pl));
++    for (long c = 0; c <= 800L * MS_CYC; ++c) {
++      for (size_t i = from; i < seen.size(); ++i) {
++        const std::vector<uint8_t>& f = seen[i].f;
++        if (da_of(f) == mac && !unsolicited(f) && seq_of(f) == s) return f;
++      }
++      tick();
++    }
++    return {};
++  }
++  bool succeeds(const std::vector<uint8_t>& r) const {
++    return !r.empty() && status_of(r) == AECP_SUCCESS;
++  }
++  //! `ms` of time, every ADPDU the wire carries logged with its ms
++  void step_ms(long ms) {
++    for (long c = 0; c < ms * MS_CYC; ++c) {
++      tick();
++      while (!io.q_adp.empty()) {
++        adp.push_back({io.q_adp.front(), uint32_t(io.d->dbg_now_ms_o)});
++        io.q_adp.pop_front();
++      }
++    }
++  }
++  //! the first ADPDU of interface `ifx` logged at or after `from`, if any
++  const Adv* first_on(unsigned ifx, size_t from) const {
++    for (size_t i = from; i < adp.size(); ++i)
++      if (if_of(adp[i].f) == ifx) return &adp[i];
++    return nullptr;
++  }
++  //! the unsolicited LOCK_ENTITY responses at `mac` since log index `from`,
++  //! as their sorted sequence_ids
++  std::vector<unsigned> lock_pushes(uint64_t mac, size_t from) const {
++    std::vector<unsigned> v;
++    for (size_t i = from; i < seen.size(); ++i)
++      if (da_of(seen[i].f) == mac && unsolicited(seen[i].f) && ct_of(seen[i].f) == OP_LOCK)
++        v.push_back(seq_of(seen[i].f));
++    std::sort(v.begin(), v.end());
++    return v;
++  }
++  //! D takes (flags 0) or releases (flags 1, UNLOCK) the ENTITY lock; the
++  //! sorted sequence_ids of the pushes C then receives
++  std::vector<unsigned> lock_change(uint32_t flags) {
++    const size_t from = seen.size();
++    const std::vector<uint8_t> r = ask_on(0, D_MAC, D_EID, OP_LOCK,
++                                          LockPhase::lockpld(flags, 0, 0));
++    run_ms(60);                                // the notification walk, well inside 400 ms
++    return succeeds(r) ? lock_pushes(CTLR_MAC, from) : std::vector<unsigned>{99};
++  }
++  void both_interfaces_advertise();
++  void discover_reaches_its_interface();
++  void registry_port_from_the_command();
++};
++
++// IF1: booted, enabled with the link up: each interface's machine draws its
++// T-ADP-DELAY-START and advertises, interface_index 0 and 1, available_index 0.
++void InterfacePhase::both_interfaces_advertise() {
++  boot_to_idle(true);
++  io.d->rx_if_index_i = 0;
++  step_ms(2600);
++  const Adv* a0 = first_on(0, 0);
++  const Adv* a1 = first_on(1, 0);
++  CHECK(a0 != nullptr && a1 != nullptr && a0->f == avail_on(0, 0) && a1->f == avail_on(1, 0),
++        "IF1: with two interfaces each advertise machine sends its own ENTITY_AVAILABLE "
++        "inside T-ADP-DELAY-START, byte-exact with interface_index 0 and 1 and "
++        "available_index 0 (%zu ADPDU(s))", adp.size());
++  if (a1 != nullptr && a1->f != avail_on(1, 0)) {
++    dump("got", a1->f);
++    dump("exp", avail_on(1, 0));
++  }
++}
++
++// IF2: ENTITY_DISCOVER (entity_id 0) received on interface 1, then on interface
++// 0, each while both machines are WAITING: the frame's interface rides the
++// header beat to ADP, so the receiving interface's machine leaves WAITING and
++// advertises inside T-ADP-DELAY, and the other stays WAITING.
++void InterfacePhase::discover_reaches_its_interface() {
++  const std::vector<uint8_t> disc = adp_frame(2, CTLR_MAC, 0, 0, 0, 0, 0, 0,
++                                              0, 0, 0, 0, 0, 0, 0);
++  for (unsigned ifx = 2; ifx-- > 0;) {
++    const unsigned other = 1 - ifx;
++    for (long t = 0; t < 10000 && !(adv_state(0) == ST_WAIT && adv_state(1) == ST_WAIT); ++t)
++      step_ms(1);
++    const size_t from = adp.size();
++    const uint32_t t0 = uint32_t(io.d->dbg_now_ms_o);
++    feed_on(ifx, disc);
++    step_ms(2);                                // validator, normalizer, dispatch, ADP
++    const unsigned s_this = adv_state(ifx);
++    const unsigned s_other = adv_state(other);
++    const Adv* sent = nullptr;
++    for (long t = 0; t < 4200 && sent == nullptr; ++t) {
++      step_ms(1);
++      sent = first_on(ifx, from);
++    }
++    CHECK(s_this != ST_WAIT && s_other == ST_WAIT && sent != nullptr && sent->ms - t0 <= 4100,
++          "IF2: ENTITY_DISCOVER received on interface %u restarts interface %u's advertise "
++          "machine alone: it leaves WAITING (state %u) and advertises %u ms later, inside "
++          "T-ADP-DELAY; interface %u stays WAITING (state %u)", ifx, ifx, s_this,
++          sent != nullptr ? sent->ms - t0 : 0u, other, s_other);
++  }
++}
++
++// IF3: C registers from interface 0 and again from interface 1, then D takes and
++// releases the lock: C hears each change twice, once per entry, at sequence_id
++// 0 and then 1 in both. C deregisters from interface 1, and the next lock and
++// unlock reach C once each, at 2 and 3: the entry left is interface 0's.
++void InterfacePhase::registry_port_from_the_command() {
++  const std::vector<uint8_t> none(4, 0);       // REGISTER's flags: not TIME_LIMITED
++  const bool r0 = succeeds(ask_on(0, CTLR_MAC, CTLR_EID, 0x0024, none));
++  const bool r1 = succeeds(ask_on(1, CTLR_MAC, CTLR_EID, 0x0024, none));
++  const std::vector<unsigned> l1 = lock_change(0);
++  const std::vector<unsigned> u1 = lock_change(1);
++  printf("  [i] IF3: two registrations; the lock reached C %zu time(s), the unlock %zu\n",
++         l1.size(), u1.size());
++  CHECK(r0 && r1 && l1 == std::vector<unsigned>({0, 0}) && u1 == std::vector<unsigned>({1, 1}),
++        "IF3: REGISTER from C on interface 0 and again on interface 1 makes two entries: D's "
++        "lock change reaches C twice, at sequence_id 0 and 0, and the unlock twice at 1 and 1");
++  const bool dr = succeeds(ask_on(1, CTLR_MAC, CTLR_EID, 0x0025, {}));
++  const std::vector<unsigned> l2 = lock_change(0);
++  const std::vector<unsigned> u2 = lock_change(1);
++  CHECK(dr && l2 == std::vector<unsigned>{2} && u2 == std::vector<unsigned>{3},
++        "IF3b: DEREGISTER from C on interface 1 removes interface 1's entry: the next lock "
++        "and unlock reach C once each, at interface 0's sequence_id 2 and 3 (%zu and %zu)",
++        l2.size(), u2.size());
++}
++
++[[maybe_unused]] static void run_interfaces(H& h) {
++  const int checks0 = h.checks;
++  const int fails0 = h.fails;
++  InterfacePhase p{h};
++  p.both_interfaces_advertise();
++  p.discover_reaches_its_interface();
++  p.registry_port_from_the_command();
++  printf("IF: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++}
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index d5a5062..d62a812 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -18,8 +18,10 @@ the STORM and RND sections (ST, RN), the originator's seeded inflight session
+ (tb/originator section R), and the registry's identity index and the counter
+ throttle stamps' valid bit in the first build of tb/aecp_notify (sections IX and TS,
+ issue #232), and the counter rounds' spacing from the previous round's send (issue
+-#148: tb/pp_top section CS and tb/aecp_notify section TW), and a DEREGISTER drained
+-between two jobs of a round (issue #158: tb/aecp_notify section DR). The suite READMEs
++#148: tb/pp_top section CS and tb/aecp_notify section TW), a DEREGISTER drained
++between two jobs of a round (issue #158: tb/aecp_notify section DR), and the registry
++port and AVB_INTERFACE counter rows at two AVB interfaces (issue #69: tb/aecp_notify's
++third build, sections PT and CK, and tb/pp_top's seventh, section IF). The suite READMEs
+ carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+@@ -349,8 +351,54 @@ DEREG_MID_ROUND = (
+         ("DR1b:", "DR2b:")),
+ )
+ 
++# the registry port and the AVB_INTERFACE counter rows with two AVB interfaces
++# (issue #69), graded by tb/aecp_notify's third build (sections PT and CK) and on
++# the wire by tb/pp_top's seventh build (section IF)
++INTERFACES = Suite("tb/aecp_notify", (), ("make", "interfaces"))
++IF_TOP = Suite("tb/pp_top", ("make", "interfaces-build"), ("./obj_if2/Vpp_top_if2",))
++PORT_MATCH = ("                      && (row_mac_w == hold_mac_r)\n"
++              "                      && (port_r[wk_ix_r] == hold_port_r);\n")
++PORT_WRITE = "        port_r[wk_match_r ? wk_match_ix_r : wk_free_ix_r] <= hold_port_r;\n"
++AVB_ROW = "            ctr_dirty_r[N_STREAM_IN_P + N_STREAM_OUT_P + 1 + i] <= 1'b1;\n"
++AVB_NAME = "            pick_dt_w = DT_AVB_INTERFACE_C;\n            pick_di_w = 16'(i);\n"
++AVB_PICK = "        for (int unsigned i = 1; i < N_IF_P; i++) begin\n          if (pick_any_w\n"
++AVB_MAP = ("    end else if ((ev_ctr_type_i == DT_AVB_INTERFACE_C)\n"
++           "                 && (ev_ctr_index_i == 16'd0)) begin\n")
++RGY_PORT = ("      .rgy_port_i            ((N_AVB_IF_P > 1) ? aecp_cmd_if_r : 2'd0),"
++            "  // the command's interface (above)\n")
++
++INTERFACE_ROWS = (
++    Mutant("port_not_compared", INTERFACES, (
++        (NTFY, PORT_MATCH, "                      && (row_mac_w == hold_mac_r);\n"),),
++        ("PT2:",)),
++    Mutant("port_not_latched", INTERFACES, (
++        (NTFY, "        hold_port_r <= PORT_W_C'(rgy_port_i);\n", "        hold_port_r <= '0;\n"),),
++        ("PT2:",)),
++    Mutant("port_not_stored", INTERFACES, (
++        (NTFY, PORT_WRITE, PORT_WRITE.replace("<= hold_port_r", "<= '0")),),
++        ("PT3:",)),
++    Mutant("avb_counter_row_dropped", INTERFACES, (
++        (NTFY, AVB_ROW, "            ;\n"),),
++        ("CK1:",)),
++    Mutant("avb_counter_row_collapsed", INTERFACES, (
++        (NTFY, AVB_ROW, AVB_ROW.replace(" + 1 + i]", "]")),),
++        ("CK1:",)),
++    Mutant("avb_counter_named_clock", INTERFACES, (
++        (NTFY, AVB_NAME, "            pick_dt_w = DT_CLOCK_DOMAIN_C;\n            pick_di_w = 16'd0;\n"),),
++        ("CK1:",)),
++    Mutant("avb_counter_any_index", INTERFACES, (
++        (NTFY, AVB_MAP, "    end else if (ev_ctr_type_i == DT_AVB_INTERFACE_C) begin\n"),),
++        ("CK4:",)),
++    Mutant("avb_counter_name_overlaps_clock", INTERFACES, (
++        (NTFY, AVB_PICK, AVB_PICK.replace("int unsigned i = 1;", "int unsigned i = 0;")),),
++        ("CK5:",)),
++    Mutant("rgy_port_tied_zero", IF_TOP, (
++        (TOP, RGY_PORT, "      .rgy_port_i            (2'd0),\n"),),
++        ("IF3:",)),
++)
++
+ MUTANTS = (IDENTIFY + PUSHES + STORM_RND + INFLIGHT + IDENTITY_INDEX + COUNTER_SPACING
+-           + DEREG_MID_ROUND)
++           + DEREG_MID_ROUND + INTERFACE_ROWS)
+ TALLY = re.compile(r"^(\[build \w+, SRP_DOM_DEF_VID_P 0x[0-9a-f]+, DESC_LINE_BYTES_P \d+\]"
+                    r" \d+ checks, \d+ failures"
+                    r"|\[build \w+\] \d+ checks, \d+ failures"
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index 02a9d1a..c049315 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -39,6 +39,10 @@
+ //                PP_TOP_TIM_DEFAULTS and drops the two 400 ms timeout
+ //                overrides below, so section TD grades the top's own
+ //                T-NOTIF-TIMELIMITED and T-LOCK-UNLOCK on this timebase.
++//                The seventh defines PP_TOP_IF2: P-N-AVB-INTERFACES = 2, with
++//                rx_if_index_i connected, for section IF. Every other build
++//                leaves the top's interface port unconnected, as a
++//                one-interface integration does, so it reads its default.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -78,6 +82,8 @@ module pp_top_wrap (
+     input  wire         rx_valid_i,
+     input  wire  [7:0]  rx_data_i,
+     input  wire         rx_last_i,
++    //! the frame's AVB interface, connected in the seventh build alone
++    input  wire  [1:0]  rx_if_index_i,
+ 
+     // MAC TX
+     output logic        tx_valid_o,
+@@ -511,7 +517,10 @@ module pp_top_wrap (
+     //! section AX: the DESC_LINE_BYTES_P the top elaborated, in bytes, so the
+     //! bench bounds response writes by the reservation (16 + it) the top
+     //! really has, the default in the first build and the line build's own
+-    output logic [15:0] dbg_desc_line_bytes_o
++    output logic [15:0] dbg_desc_line_bytes_o,
++    //! section IF: each interface's advertise machine, interface 0 in bits
++    //! 1:0 (the top's adp_dbg_adv_state_w, 2 bits wide but in the seventh build)
++    output logic  [3:0] dbg_adp_adv_state_o
+ );
+ 
+ `ifdef PP_TOP_TIM_REAL
+@@ -554,6 +563,10 @@ module pp_top_wrap (
+   logic [9:0]                    aecp_slot_len_nc_w;
+ 
+   protocol_processor_top #(
++`ifdef PP_TOP_IF2
++      //! the seventh build: two AVB interfaces (see the banner)
++      .N_AVB_IF_P        (2),
++`endif
+ `ifdef PP_TOP_SRP_DOM_DEF_VID
+       //! the second build's verification-only fixture (see the banner)
+       .SRP_DOM_DEF_VID_P (`PP_TOP_SRP_DOM_DEF_VID),
+@@ -614,6 +627,9 @@ module pp_top_wrap (
+       .rx_valid_i            (rx_valid_i),
+       .rx_data_i             (rx_data_i),
+       .rx_last_i             (rx_last_i),
++`ifdef PP_TOP_IF2
++      .rx_if_index_i         (rx_if_index_i),
++`endif
+       .tx_valid_o            (tx_valid_o),
+       .tx_sof_o              (tx_sof_o),
+       .tx_data_o             (tx_data_o),
+@@ -894,6 +910,7 @@ module pp_top_wrap (
+   assign dbg_ser_slot_o      = 3'(u_dut.ser_slot_w);
+   assign dbg_txs_slot4_free_o = (u_dut.u_tx_slots.st_r[4] == 2'd0);
+   assign dbg_desc_line_bytes_o = 16'(u_dut.DESC_LINE_BYTES_P);
++  assign dbg_adp_adv_state_o   = 4'(u_dut.adp_dbg_adv_state_w);
+   assign dbg_aq_vld_o = {u_dut.ntfy_mon_arm_valid_w, u_dut.ntfy_arm_valid_w,
+                          u_dut.maapeng_arm_valid_w, u_dut.org_arm_valid_w,
+                          u_dut.srp_arm_valid_w, u_dut.adp_arm_valid_w,
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 6cc2600..35524f3 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -24,7 +24,9 @@
+ // DESC_LINE_BYTES_P with a verification-only fixture and runs section AX
+ // alone; the fifth runs the timebase at the nominal clock's rate and runs
+ // section TB alone; the sixth leaves the registration and lock timeouts at
+-// the top's defaults and runs section TD alone (notify_phases.hpp).
++// the top's defaults and runs section TD alone (notify_phases.hpp); the
++// seventh sets P-N-AVB-INTERFACES to 2 and runs section IF alone
++// (interface_phases.hpp).
+ #include <algorithm>
+ #include <array>
+ #include <cstdint>
+@@ -14000,6 +14002,9 @@ struct HazardPhase {
+ 
+ #include "notify_phases.hpp"
+ #include "counters_phases.hpp"
++#ifdef PP_TOP_IF2
++#include "interface_phases.hpp"
++#endif
+ 
+ int main(int argc, char** argv) {
+   Verilated::commandArgs(argc, argv);
+@@ -14031,6 +14036,10 @@ int main(int argc, char** argv) {
+   //! timers at the top's own defaults
+   run_timer_defaults(h);
+   const char* const build = "defaults";
++#elif defined(PP_TOP_IF2)
++  //! the seventh build sets P-N-AVB-INTERFACES to 2 and runs section IF alone
++  run_interfaces(h);
++  const char* const build = "interfaces";
+ #else
+   const bool gsi_only = argc == 2 && std::strcmp(argv[1], "--gsi-internal-only") == 0;
+   const bool name_only = argc == 2 && std::strcmp(argv[1], "--name-writes-only") == 0;
+@@ -14080,10 +14089,10 @@ int main(int argc, char** argv) {
+   if (!one_section || aq_only) run_arm_queue(h);
+   const char* const build = "default";
+ #endif
+-  //! NOT the canonical tally shape: this binary is ONE of the suite's six
++  //! NOT the canonical tally shape: this binary is ONE of the suite's seven
+   //! builds, and run_suites.sh reads only the LAST matching line, so a
+   //! canonical line here would drop the other builds' checks from the total.
+-  //! The Makefile sums all six builds and prints the one canonical line.
++  //! The Makefile sums all seven builds and prints the one canonical line.
+   printf("[build %s, SRP_DOM_DEF_VID_P 0x%04x, DESC_LINE_BYTES_P %u] %d checks, %d failures\n",
+          build, unsigned(SRP_DEF_VID), unsigned(DESC_LINE_BYTES), h.checks, h.fails);
+   FILE* acc = fopen("obj_dir/build_tally.txt", "a");
+diff --git a/tb/srp_stream_fsms/README.md b/tb/srp_stream_fsms/README.md
+index 9a9e4b4..b958a91 100644
+--- a/tb/srp_stream_fsms/README.md
++++ b/tb/srp_stream_fsms/README.md
+@@ -5,7 +5,7 @@ Proves the per-stream SRP FSMs (`hdl/srp/KL_srp_talker_fsm.sv`, M = 8
+ sources, and `hdl/srp/KL_srp_listener_fsm.sv`, N = 8 sinks) against
+ [10 §4/§5/§6.3/§6.4/§6.5](../../docs/architecture/10_srp_engine.md) with the
+ 802.1Q-2018 §10.7 tables as the normative core: `make` = build + run,
+-exit 0 = PASS, 1219 checks. `make` first runs the walk-record arms at four
++exit 0 = PASS, 1347 checks. `make` first runs the walk-record arms at four
+ shapes ([below](#walk-records-at-both-elaboration-arms-issue-230)), then this
+ suite, whose tally is the last line.
+ 
+@@ -214,3 +214,19 @@ at 1/1, 2/2, 3/5 and 9/9, all PASS. The probes of both #230 reviews and the
+ lane's own controls of these copies are killed controls of
+ [the campaign](../srp_top/mutants.py); the table, with each control's shapes,
+ is in [the srp_top README](../srp_top/README.md#issue-230-storage-controls).
++
++## Same-clock leave expiry (issue #134)
++
++SC1 composes Table 10-4's LV / leavetimer! row with each received event at MT,
++through the real input strobes on both planes: own/peer LeaveAll, both attribute
++variants, indices 0/7, and New, JoinIn, In, JoinMt, Mt, Lv, received LeaveAll and
++own LeaveAll. These 128 cases check state, published registration, ACTIVE where
++present, timer cancellation and registration indications. New/Join end IN;
++the other events end MT. New/Join preserve the final published registration,
++without an intermediate UNREGISTERED/REGISTERED pair. Existing type-change,
++latency and failure-change notifications continue to describe the received value.
++
++The [SRP campaign](../srp_top/mutants.py) plants `lv-expiry-masked` (16 SC1 failures),
++`lv-expiry-last` (48) and `lv-expiry-dropped` (80 SC1, plus six older failures).
++The [integrated sweep](../srp_top/README.md#same-clock-leave-expiry-round-2) drives
++actual MRPDUs and the timer service across all 401 offsets on both planes.
+diff --git a/tb/srp_stream_fsms/sim_main.cpp b/tb/srp_stream_fsms/sim_main.cpp
+index 7895b83..0e36cb2 100644
+--- a/tb/srp_stream_fsms/sim_main.cpp
++++ b/tb/srp_stream_fsms/sim_main.cpp
+@@ -412,6 +412,7 @@ class SrpStreamFsmsSuite {
+   int run();
+ 
+  private:
++  void expiry_and_received_event_follow_table_10_4();
+   void rx_events_match_table_10_3();
+   void talker_tx_rows_send_the_table_10_3_message();
+   void listener_tx_rows_send_the_table_10_3_message();
+@@ -1064,7 +1065,48 @@ void SrpStreamFsmsSuite::listener_failure_change_notifies_registered_sinks_on_a_
+         "once (fchg %d/%d/%d)", h.l_fchg[0], h.l_fchg[1], h.l_fchg[2]);
+ }
+ 
++
++// SC1: independently compose Table 10-4's LV/leavetimer row with each
++// received event at MT. New/JoinIn/JoinMt end IN; Lv/LA/In/Mt end MT.
++// Exercise the real input strobes together, after the leave ARM has issued.
++void SrpStreamFsmsSuite::expiry_and_received_event_follow_table_10_4() {
++  for (bool listener : {false, true}) for (bool own : {false, true})
++    for (int variant : {0, 1}) for (int slot : {0, 7}) for (int ev = 0; ev < 8; ++ev) {
++      h.reset();
++      const int type = listener ? 1 + variant : 3;
++      const int fp = 2 + variant;
++      if (listener) h.ctl(true, slot, SID0, DA0, VID0);
++      else h.gate(true, slot, SID0, DA0, VID0);
++      h.inject(true, type, SID0, DA0, VID0, 0, fp, 500, 0x1234, 1);
++      if (own) h.la_own(); else h.la_rx();
++      const bool aged = (listener ? h.l_regst(slot) : h.t_reg(slot)) == 2;
++      h.clear_logs();
++      d->exp_valid_i = 1;
++      d->exp_slot_i = (listener ? 24 : 16) + slot;
++      if (ev < 6) h.inject(true, type, SID0, DA0, VID0, ev, fp, 501, 0x5678, 2);
++      else if (ev == 6) h.la_rx(); else h.la_own();
++      const bool registering = ev == 0 || ev == 1 || ev == 3;
++      const int want = registering ? 1 : 0;
++      const int reg = listener ? h.l_regst(slot) : h.t_reg(slot);
++      const auto& arms = listener ? h.l_arm : h.t_arm;
++      const bool timer = registering ? arms.size() == 1 && arms[0].cancel : arms.empty();
++      const bool indications = listener
++        ? h.l_unreg[slot] == int(!registering) && h.l_reg[slot] == 0
++          && h.l_fchg[slot] == int(registering && variant == 1)
++        : h.t_chg[slot] == int(!registering);
++      const bool published = listener ? h.l_tkreg(slot) == (registering ? type : 0)
++        : h.t_lstn(slot) == (registering ? fp : 0)
++          && bool((d->t_active_o >> slot) & 1) == registering;
++      CHECK(aged && reg == want && timer && indications && published,
++            "SC1: plane=%s cause=%s variant=%d slot=%d event=%d expiry then event: "
++            "reg=%d want=%d timer=%d indications=%d published=%d",
++            listener ? "listener" : "talker", own ? "own" : "peer", variant, slot,
++            ev, reg, want, timer, indications, published);
++    }
++}
++
+ int SrpStreamFsmsSuite::run() {
++  expiry_and_received_event_follow_table_10_4();
+   rx_events_match_table_10_3();
+   talker_tx_rows_send_the_table_10_3_message();
+   listener_tx_rows_send_the_table_10_3_message();
+diff --git a/tb/srp_top/Makefile b/tb/srp_top/Makefile
+index 554d8ee..efbb3d5 100644
+--- a/tb/srp_top/Makefile
++++ b/tb/srp_top/Makefile
+@@ -5,7 +5,7 @@ MUTANT_OUTPUT ?= /tmp/srp-leaveall-mutants
+ HDL        = ../../hdl
+ TOP        = srp_top_wrap
+ 
+-VFLAGS = --cc --exe --build -j 0 \
++VFLAGS = --cc --exe --build -j 0 --savable \
+          --top-module $(TOP) \
+          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM \
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index 8dbfc20..e056a5a 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,7 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-`make` = build + run, exit 0 = PASS, **2200 checks**. `make` first runs the
++`make` = build + run, exit 0 = PASS, **8656 checks**. `make` first runs the
+ timer-arm FIFO arms at four shapes
+ ([below](#timer-arm-fifos-at-four-shapes-issue-230)), then this suite, whose
+ tally is the last line.
+@@ -244,7 +244,7 @@ when the P8 arm-delay sweep brought the complete run to 185,012,669); the
+ encoder and stream-FSM
+ walks use finite cycle bounds. Budget exits and missing tallies are unproven,
+ not kills. `RUN_ARGS=phases`, `edge`, `peer`, `congestion`, `guards`,
+-`armdelay`, `restart`, `timers` or `join` selects one group for a focused run,
++`armdelay`, `restart`, `timers`, `join` or `lvleave` selects one group for a focused run,
+ `RUN_ARGS=storage` the timer-arm FIFO arms; plain `make` runs every existing and
+ new check. The stream-FSM suite independently walks every
+ applicant state with same-edge sLA/join acceptance.
+@@ -494,6 +494,109 @@ Mutation-proven 2026-09-29 through `mutants.py` (checked-in patches):
+ | `tx-strobe-any-app` (the transmission strobe also fires for MSRP) | srp_encoder | 1 | W1 |
+ | `listener-lane-cut` (`vu_sel_ls_w` forced 0, the #65 acceptance arm) | srp_top join | 3 | R4 |
+ 
++## A withdrawal that meets an LV registrar (issue #134)
++
++The bench case of milan-fpga #608 (cycle 22): the DUT's own LeaveAll crossed the wire
++1.390 ms before the bridge's `Lv` for a stream whose listener had withdrawn. The Listener
++registrar for that stream was already LV, so the talker streamed on through the 2 s hold.
++802.1Q-2014 Table 10-4 puts rLv!, rLA! and txLA! in one row: in IN it starts the leavetimer
++and enters LV, and in LV it is `-x-`. leavetimer! in LV is Lv and MT. Milan v1.2 4.2.7.2.2
++(Δ13) replaces only the IN cell. So the `Lv` changes nothing, and the registration and
++ACTIVE end when the leave timer expires, including a decoded `Lv` on that same clock.
++The expiry is applied first; a same-clock New or Join instead finishes IN with the
++new registration, as Table 10-4 at MT requires
++([10 section 6.5](../../docs/architecture/10_srp_engine.md#sec-10-lv-withdrawal)).
++`RUN_ARGS=lvleave` runs the group.
++
++Each case starts from `leaveall_setup`: sources 0, 3 and 7 declared, each registering a
++Listener Ready (or ReadyFailed) and ACTIVE, and sinks 0 and 7 registered. Eight cases: an
++own and a peer LeaveAll, Ready and ReadyFailed, target source 0 and 7.
++
++- **Own LeaveAll.** The real leavealltimer expires and the accepted `sLA` ages every
++  registrar. 1.390 ms (56 clocks) after the LeaveAll MRPDU's last byte, the bridge answers
++  with one MRPDU: JoinIn for every other registration, and `Lv` for the target.
++- **Peer LeaveAll.** The bridge's LeaveAll on every MSRP type, Listener first, re-joining
++  every registration but the target's. 1.390 ms later, its `Lv` for the target.
++
++In both, the bridge repeats the target's `Lv` 2.5 s after the LeaveAll. The harness counts
++every edge of ACTIVE, as the integrator's STREAM_START and STREAM_STOP counters do
++([02 section 4.6](../../docs/architecture/02_interfaces.md)), and every `LISTENER_REG_CHANGE`
++strobe, on every clock. No DUT state is forced; `dbg_t_reg_o` is read only.
++
++| Check | Stimulus and required behavior |
++|---|---|
++| S1 | The LeaveAll (one `sLA`, or the peer's Listener lane with no own action) has put the target's registrar in LV, and both `Lv`s find it LV and leave it LV. Up to the last ms before the leave timer can expire, the registration is published (Ready or ReadyFailed), ACTIVE is high, and the case has seen no ACTIVE edge and no `LISTENER_REG_CHANGE` |
++| S2 | The leave timer's expiry closes them: ACTIVE falls and `LISTENER_REG_CHANGE` strobes 5000 or 5001 ms after the LeaveAll, and the registrar is MT with `lstn_reg_state` 0. The 1 ms of slack is the arm's deadline, T-MRP-LEAVE from the clock the arm issues, which can fall in the next ms |
++| S3 | 2 s after that: exactly one STREAM_STOP and no STREAM_START over the case, and one `LISTENER_REG_CHANGE` |
++
++The leave timer is `KL_srp_top`'s `LEAVE_MS_P`, 5000 ms (F08.1 T-MRP-LEAVE, unchanged by the
++processor top). Milan v1.2 Table 4.3 LeaveTime: default 5000 ms, tolerance +50 %/-10 %, so
++4500 to 7500 ms. Each case prints one `LV_LEAVE` line. Measured at the head: the own
++LeaveAll at 14200 ms, the first `Lv` decoded by 14216 ms, the second by 16700 ms, the close at
++19200 ms; the peer LeaveAll at 705 ms, the `Lv`s by 711 and 3205 ms, the close at 5705 ms. The
++leave time is 5000 ms in all eight cases, one STREAM_STOP and no STREAM_START in each.
++
++Mutation-proven 2026-10-05 with the checked-in patches, each planted separately and
++run through the complete default `make -C tb/srp_top` (8656 checks). `lv-second-lv-ends`
++fails only the 16 S1/S2 checks. `lv-never-ends` fails the 16 S2/S3 checks plus 3016 SC2
++checks in `lvcoll`, for 3032 failures:
++
++| Deliberate breakage | Group | Failing checks | Named failing assertions |
++|---|---|---:|---|
++| `lv-second-lv-ends` (the registrar lets one `Lv` in LV pass and ends the registration on the second) | lvleave | 16 | S1,S2 |
++| `lv-never-ends` (an `Lv` in LV stops the leave timer, so the registration never ends) | lvleave | 16 | S2,S3 |
++| `lv-never-ends` (the same planted patch, in the same default run) | lvcoll | 3016 | SC2 |
++
++The older one-line forms of the same two defects, `talker-strict-lv` (an `Lv` in LV ends the
++registration at once) and `talker-no-expiry` (no leave-timer expiry reaches the talker
++registrar), are campaign rows of the phases group. Run through this group they fail 16 checks
++each, S1,S2 and S2,S3, closing after 14 or 5 ms and never.
++
++### Same-clock leave expiry (round 2)
++
++`RUN_ARGS=lvcoll` is also part of the default run. It contains 6,416 byte-stream
++cases: k = 0..400, both planes, own/peer LeaveAll, Ready/ReadyFailed, index 0/7.
++Sink 0 holds Advertise and sink 7 holds Failed. Both target registrars age;
++only the selected plane receives the `Lv` near expiry. The listener plane has no
++ACTIVE face: its matching TK_UNREGISTERED is graded alongside the source's
++STREAM_STOP in every case.
++
++A no-`Lv` calibration measures each plane's close clock. Each offset restores
++identical DUT and BFM state saved 401 clocks before that clock, then starts a real
++MRPDU k clocks before it. The shared prefix uses the real own/peer LeaveAll and
++5000 ms timer. All clocks around decoding, expiry and publication execute, followed
++by a 20 ms observation window. The run counter includes every executed replay
++clock; the snapshot lives outside the tree and is removed after the sweep.
++
++| Check | Required result | Planted fault that fails it |
++|---|---|---|
++| SC1 (`srp_stream_fsms`) | 128 simultaneous-event cases match Table 10-4, expiry first, including indications and timer operations | `lv-expiry-masked` 16 failures; `lv-expiry-last` 48; `lv-expiry-dropped` 80 SC1 failures |
++| SC2 | Every k ends with both registrars MT, both registrations absent, ACTIVE low, one STREAM_STOP and one TK_UNREGISTERED | `lv-expiry-masked` restores both original planes: 16 failures, one collision in each combination |
++| SC3 | Exactly one decoded `Lv` in each sweep shares the calibrated expiry clock | `lv-sweep-misses-collision` delays every frame 401 clocks: all 16 checks fail while SC2 stays green |
++
++The restoration mutant is a checked-in reverse patch of the complete RTL change.
++The two original mutants and S1-S3 remain. The two other matrix faults move expiry
++after reception (so a registering event wrongly ends MT) and discard expiry
++(so Lv/LA/In/Mt wrongly leave LV). Every new check fails under at least one fault.
++The full campaign requires SC1-SC3 as well as the original assertion coverage.
++
++Table 10-4 results after LV / leavetimer!: MT + Lv, then:
++
++| Same-clock event | Final state | Published result |
++|---|---|---|
++| rLv | MT | Registration closes once |
++| rLA / own txLA | MT | Registration closes once; no replacement leave ARM |
++| rIn / rMt | MT | Registration closes once |
++| rNew | IN | Received value registered; obsolete timer canceled |
++| rJoinIn / rJoinMt | IN | Received value registered; obsolete timer canceled |
++
++Both planes publish the final result of the composed transitions. A registering
++event preserves the published registration; it emits no intermediate withdrawal
++or ACTIVE edge. The listener retains its existing type-change, latency and
++FailureInformation notifications for the received value. Separate REGISTERED and
++UNREGISTERED pulses would enter independent event-router queues with no ordering
++guarantee, so renewal must not publish a transient withdrawal.
++
+ ## Timer-arm FIFOs at four shapes (issue #230)
+ 
+ Each stream FSM's timer ops reach the one merged arm port through a FIFO of its
+diff --git a/tb/srp_top/mutants.py b/tb/srp_top/mutants.py
+index 8bfc6a6..8b5f27c 100644
+--- a/tb/srp_top/mutants.py
++++ b/tb/srp_top/mutants.py
+@@ -150,6 +150,14 @@ MUTANTS = [
+      'round publishes the greedy walk over every current declaration'),
+     ('slope-read-source-0', 'srp_admission', '',
+      'round publishes the greedy walk over every current declaration'),
++    # issue #134: a withdrawal that meets an LV Listener registrar
++    ('lv-second-lv-ends', 'srp_top', 'lvleave', 'S1:'),
++    ('lv-never-ends', 'srp_top', 'lvleave', 'S2:'),
++    ('lv-expiry-masked', 'srp_top', 'lvcoll', 'SC2:'),
++    ('lv-expiry-masked', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-expiry-last', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-expiry-dropped', 'srp_stream_fsms', 'suite', 'SC1:'),
++    ('lv-sweep-misses-collision', 'srp_top', 'lvcoll', 'SC3:'),
+ ]
+ 
+ 
+@@ -242,7 +250,7 @@ def main() -> int:
+     if not args.only:
+         expected = {f"{group}{i}" for group, count in
+                     [("K", 12), ("L", 4), ("M", 12), ("N", 13), ("O", 8), ("P", 8), ("Q", 4), ("R", 4),
+-                     ("TF", 5), ("WK", 10)]
++                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 10)]
+                     for i in range(1, count + 1)}
+         missing = expected - covered
+         total += 1
+diff --git a/tb/srp_top/mutations/listener-no-renewal.patch b/tb/srp_top/mutations/listener-no-renewal.patch
+index 8c74ab7..390b10c 100644
+--- a/tb/srp_top/mutations/listener-no-renewal.patch
++++ b/tb/srp_top/mutations/listener-no-renewal.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -729,7 +729,7 @@
++@@ -753,7 +753,7 @@
+            // registering event: -> IN; latch type + payloads; a type change
+            // while IN/LV is the in-place swap (strobe, no unregistration)
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+diff --git a/tb/srp_top/mutations/listener-strict-lv.patch b/tb/srp_top/mutations/listener-strict-lv.patch
+index 4037ab8..24b8210 100644
+--- a/tb/srp_top/mutations/listener-strict-lv.patch
++++ b/tb/srp_top/mutations/listener-strict-lv.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -744,7 +744,7 @@
+-           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++@@ -772,7 +772,7 @@
++           evt_tk_unregistered_o[s] <= 1'b1;
+          end else if (reg_rx_hit_w[s]
+                       && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ -          if (reg_r[s] == R_IN_C) begin
+diff --git a/tb/srp_top/mutations/lv-expiry-dropped.patch b/tb/srp_top/mutations/lv-expiry-dropped.patch
+new file mode 100644
+index 0000000..7b2783a
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-dropped.patch
+@@ -0,0 +1,22 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -729,7 +729,7 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
+++        end else if (1'b0 && exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -766,7 +766,7 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
+++        end else if (1'b0 && exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++           evt_tk_unregistered_o[s] <= 1'b1;
+diff --git a/tb/srp_top/mutations/lv-expiry-last.patch b/tb/srp_top/mutations/lv-expiry-last.patch
+new file mode 100644
+index 0000000..a9cf8a3
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-last.patch
+@@ -0,0 +1,48 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -729,9 +729,6 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++@@ -740,6 +737,10 @@
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end
+++        if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -766,10 +766,6 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++-          evt_tk_unregistered_o[s] <= 1'b1;
++         end else if (reg_rx_hit_w[s]
++                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++@@ -780,6 +776,11 @@
++         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end
+++        if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+++          evt_tk_unregistered_o[s] <= 1'b1;
++         end
++         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
++         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-expiry-masked.patch b/tb/srp_top/mutations/lv-expiry-masked.patch
+new file mode 100644
+index 0000000..711173a
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-expiry-masked.patch
+@@ -0,0 +1,66 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -717,9 +717,6 @@
++         tpend_r[tsel_ix_w] <= T_NOP_C;
++       end
++ 
++-      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++-      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++-      // Test expiry before rLv so its one-clock strobe cannot be masked.
++       // ---- per-source registrar events ----------------------------------
++       for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
++         if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
++@@ -729,9 +726,6 @@
++           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++           reg_r[s]      <= R_IN_C;
++           lstn_val_r[s] <= evt_fourpacked_i;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++@@ -740,6 +734,9 @@
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end else if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -744,9 +744,6 @@
++         tpend_r[tsel_ix_w] <= T_NOP_C;
++       end
++ 
++-      // Table 10-4, expiry before reception: New/Join finish IN and cancel
++-      // the obsolete timer (no published withdrawal); Lv/LA finish MT.
++-      // Test expiry before rLv so its one-clock strobe cannot be masked.
++       // ---- per-sink registrar events ------------------------------------
++       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++         if (reg_rx_hit_w[s] && rx_registering_w) begin
++@@ -766,10 +763,6 @@
++           end
++           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
++           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
++-        end else if (exp_hit_w && (exp_idx_w == s)
++-                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++-          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
++-          evt_tk_unregistered_o[s] <= 1'b1;
++         end else if (reg_rx_hit_w[s]
++                      && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
++           if (reg_r[s] == R_IN_C) begin
++@@ -780,6 +773,10 @@
++         end else if (leaveall_any_w[s] && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++        end else if (exp_hit_w && (exp_idx_w == s)
+++                     && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+++          reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+++          evt_tk_unregistered_o[s] <= 1'b1;
++         end
++         // A15 arms a fresh matcher; A8 stops matching (no event — F10.5)
++         if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-never-ends.patch b/tb/srp_top/mutations/lv-never-ends.patch
+new file mode 100644
+index 0000000..a8e623d
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-never-ends.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -731,6 +731,7 @@
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++           end
++           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+++          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+diff --git a/tb/srp_top/mutations/lv-second-lv-ends.patch b/tb/srp_top/mutations/lv-second-lv-ends.patch
+new file mode 100644
+index 0000000..35fcce8
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-second-lv-ends.patch
+@@ -0,0 +1,25 @@
++--- a/hdl/srp/KL_srp_talker_fsm.sv
+++++ b/hdl/srp/KL_srp_talker_fsm.sv
++@@ -660,6 +660,7 @@
++   // a received LeaveAll ages it (§10.7.5.20 b)2)); an own LeaveAll ages
++   // every registrar of the participant (§10.7.9).
++   logic        leaveall_any_w;
+++  logic [N_SOURCES_P-1:0] lv2_r;
++   logic        exp_hit_w;
++   logic [31:0] exp_idx_w;
++ 
++@@ -737,9 +738,14 @@
++             reg_r[s] <= R_MT_C;              // Δ13: no leavetimer on rLv
++           end
++           // LV: table 10-4 rLv on LV is -x- (the LeaveAll aging continues)
+++          if (reg_r[s] == R_LV_C) begin
+++            if (lv2_r[s]) reg_r[s] <= R_MT_C;
+++            lv2_r[s] <= 1'b1;
+++          end
++         end else if (leaveall_any_w && (reg_r[s] == R_IN_C)) begin
++           reg_r[s]   <= R_LV_C;
++           tpend_r[s] <= T_ARM_C;
+++          lv2_r[s]   <= 1'b0;
++         end
++         // gate re-open arms a fresh tracker for the (possibly new) stream
++         if (gate_acc_w && gate_open_i && (gate_src_i == SRC_W_C'(s))) begin
+diff --git a/tb/srp_top/mutations/lv-sweep-misses-collision.patch b/tb/srp_top/mutations/lv-sweep-misses-collision.patch
+new file mode 100644
+index 0000000..32cb20b
+--- /dev/null
++++ b/tb/srp_top/mutations/lv-sweep-misses-collision.patch
+@@ -0,0 +1,10 @@
++--- a/tb/srp_top/sim_main.cpp
+++++ b/tb/srp_top/sim_main.cpp
++@@ -953,6 +953,7 @@
++           const uint32_t end_ms = d->now_ms_o + 20;
++           while (h.t + k < close) h.cycle();
++           h.rx_cycles.clear();
+++          h.idle(401);
++           if (listener) talker_event(target, EV_LV);
++           else listener_event(target, EV_LV, fp);
++           for (uint64_t cycle : h.rx_cycles) collisions += cycle + 1 == close;
+diff --git a/tb/srp_top/mutations/my-la-outranks-leave.patch b/tb/srp_top/mutations/my-la-outranks-leave.patch
+index b9e69fb..0ef9c3b 100644
+--- a/tb/srp_top/mutations/my-la-outranks-leave.patch
++++ b/tb/srp_top/mutations/my-la-outranks-leave.patch
+@@ -1,9 +1,9 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -690,7 +690,7 @@
+-           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+-           reg_r[s]      <= R_IN_C;
+-           lstn_val_r[s] <= evt_fourpacked_i;
++@@ -732,7 +732,7 @@
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+ -        end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ +        end else if (reg_rx_hit_w[s] && !leaveall_any_w && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+            if (reg_r[s] == R_IN_C) begin
+diff --git a/tb/srp_top/mutations/r-sink-receive-priority-lost.patch b/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+index 60e3c35..dbbb746 100644
+--- a/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
++++ b/tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -725,7 +725,9 @@
+- 
++@@ -749,7 +749,9 @@
++       // Test expiry before rLv so its one-clock strobe cannot be masked.
+        // ---- per-sink registrar events ------------------------------------
+        for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+ -        if (reg_rx_hit_w[s] && rx_registering_w) begin
+diff --git a/tb/srp_top/mutations/receive-priority-lost.patch b/tb/srp_top/mutations/receive-priority-lost.patch
+index db5e7f6..78abd4b 100644
+--- a/tb/srp_top/mutations/receive-priority-lost.patch
++++ b/tb/srp_top/mutations/receive-priority-lost.patch
+@@ -1,7 +1,7 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -683,7 +683,9 @@
+- 
++@@ -722,7 +722,9 @@
++       // Test expiry before rLv so its one-clock strobe cannot be masked.
+        // ---- per-source registrar events ----------------------------------
+        for (int unsigned s = 0; s < N_SOURCES_P; s++) begin
+ -        if (reg_rx_hit_w[s] && ((evt_mrp_event_i == 3'(SRP_EV_NEW))
+diff --git a/tb/srp_top/mutations/renewal-congestion.patch b/tb/srp_top/mutations/renewal-congestion.patch
+index 05a74e5..96070d4 100644
+--- a/tb/srp_top/mutations/renewal-congestion.patch
++++ b/tb/srp_top/mutations/renewal-congestion.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -688,7 +688,7 @@
++@@ -727,7 +727,7 @@
+                                  || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+            // registering event: -> IN, latch the declaration parameter
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+ -          reg_r[s]      <= R_IN_C;
+ +          reg_r[s]      <= (reg_r[s] == R_LV_C) ? R_MT_C : R_IN_C;
+            lstn_val_r[s] <= evt_fourpacked_i;
+-         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+-           if (reg_r[s] == R_IN_C) begin
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+diff --git a/tb/srp_top/mutations/talker-no-renewal.patch b/tb/srp_top/mutations/talker-no-renewal.patch
+index d5458b3..d5488d4 100644
+--- a/tb/srp_top/mutations/talker-no-renewal.patch
++++ b/tb/srp_top/mutations/talker-no-renewal.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -688,7 +688,7 @@
++@@ -727,7 +727,7 @@
+                                  || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+            // registering event: -> IN, latch the declaration parameter
+            if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+ -          reg_r[s]      <= R_IN_C;
+ +          reg_r[s]      <= (reg_r[s] == R_LV_C) ? R_LV_C : R_IN_C;
+            lstn_val_r[s] <= evt_fourpacked_i;
+-         end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+-           if (reg_r[s] == R_IN_C) begin
++         end else if (exp_hit_w && (exp_idx_w == s)
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
+diff --git a/tb/srp_top/mutations/talker-strict-lv.patch b/tb/srp_top/mutations/talker-strict-lv.patch
+index 7302566..ff73ed6 100644
+--- a/tb/srp_top/mutations/talker-strict-lv.patch
++++ b/tb/srp_top/mutations/talker-strict-lv.patch
+@@ -1,8 +1,8 @@
+ --- a/hdl/srp/KL_srp_talker_fsm.sv
+ +++ b/hdl/srp/KL_srp_talker_fsm.sv
+-@@ -691,7 +691,7 @@
+-           reg_r[s]      <= R_IN_C;
+-           lstn_val_r[s] <= evt_fourpacked_i;
++@@ -733,7 +733,7 @@
++                      && (reg_r[s] == R_LV_C) && (tpend_r[s] != T_ARM_C)) begin
++           reg_r[s] <= R_MT_C;                // leavetimer! -> MT + Lv
+          end else if (reg_rx_hit_w[s] && (evt_mrp_event_i == 3'(SRP_EV_LV))) begin
+ -          if (reg_r[s] == R_IN_C) begin
+ +          if (reg_r[s] != R_MT_C) begin
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index d432aee..44b0af4 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -17,8 +17,11 @@
+ #include <cstring>
+ #include <deque>
+ #include <vector>
++#include <string>
++#include <unistd.h>
+ #include "Vsrp_top_wrap.h"
+ #include "verilated.h"
++#include "verilated_save.h"
+ #include "../common/verilator_harness.hpp"
+ 
+ #define CHECK(cond, ...) do { \
+@@ -351,9 +354,18 @@ struct H {
+   std::vector<uint64_t> mvrp_action_cycles;
+   std::vector<uint64_t> redraw_cycles;
+   std::vector<uint64_t> mvrp_join_cycles;      // MVRP T-MRP-JOIN expiries
++  // issue #134: the edges of each source's ACTIVE level, which the
++  // integrator's STREAM_START / STREAM_STOP counters count (02 §4.6), and
++  // the LISTENER_REG_CHANGE strobes, each with the ms of its latest one
++  unsigned prev_active = 0;
++  int start_cnt[8] = {};
++  int stop_cnt[8] = {};
++  uint32_t stop_ms[8] = {};
++  int lrc_cnt[8] = {};
++  uint32_t lrc_ms[8] = {};
+   bool step() {
+     // Bound every run, including decoder/timer deadlocks, by DUT clocks. The
+-    // complete default run takes 185,012,669 (the P8 arm-delay sweep 53.3 M).
++    // complete default run takes 210,547,557 (the P8 arm-delay sweep 53.3 M).
+     if (t >= 300000000ULL) {
+       std::fprintf(stderr, "CYCLE_BUDGET: SRP top exceeded 300000000 clocks\n");
+       std::exit(3);
+@@ -373,6 +385,15 @@ struct H {
+       if (d->dbg_la_mvrp_action_o) mvrp_action_cycles.push_back(t);
+       if (d->dbg_la_redraw_o) redraw_cycles.push_back(t);
+       if (d->dbg_mvrp_join_o) mvrp_join_cycles.push_back(t);
++      unsigned act = d->active_o;
++      for (int k = 0; k < 8; k++) {
++        bool was = (prev_active >> k) & 1;
++        bool now = (act >> k) & 1;
++        if (!was && now) start_cnt[k]++;
++        if (was && !now) { stop_cnt[k]++; stop_ms[k] = d->now_ms_o; }
++        if ((d->lstn_reg_change_o >> k) & 1) { lrc_cnt[k]++; lrc_ms[k] = d->now_ms_o; }
++      }
++      prev_active = act;
+     }
+     unsigned decl = d->dbg_decl_o;
+     unsigned withdraw = d->dbg_withdraw_o;
+@@ -438,6 +459,7 @@ struct H {
+     mvrp_expiry_cycles.clear(); mvrp_expiry_times.clear(); mvrp_action_cycles.clear();
+     redraw_cycles.clear(); mvrp_join_cycles.clear();
+     pause_tx = false; expiry_cycles.clear(); prep_cycles.clear(); peer_la_cycles.clear(); la_cycles.clear(); la_times.clear(); rx_cycles.clear();
++    prev_active = 0;                     // reset clears ACTIVE: no edge to count
+     d->block_alloc_i = 0;
+     d->rst_n = 0;
+     d->own_mac_i = OWN_MAC; d->entity_id_i = EID;
+@@ -595,7 +617,10 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"restart")) check_received_leaveall_restarts_the_timer();
+     if (!*group || !strcmp(group,"timers")) check_mrp_timers_against_table_4_3();
+     if (!*group || !strcmp(group,"join")) check_mvrp_join_before_the_stream();
++    if (!*group || !strcmp(group,"lvleave")) check_withdrawal_meets_an_lv_registrar();
++    if (!*group || !strcmp(group,"lvcoll")) check_leave_expiry_collisions();
+ 
++    printf("TOTAL_CLOCKS %llu\n", static_cast<unsigned long long>(h.t));
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+     return fails ? 1 : 0;
+   }
+@@ -750,6 +775,207 @@ class SrpTopHarness {
+           "K10: reset discards the pending action and registrars");
+   }
+ 
++  // S (issue #134): a withdrawal meets an LV Listener registrar. The bench
++  // case of milan-fpga #608 (cycle 22): the DUT's own LeaveAll crossed the
++  // wire 1.390 ms before the bridge's Lv for a stream its listener had
++  // withdrawn. 802.1Q-2014 Table 10-4 puts rLv!, rLA! and txLA! in one row:
++  // in IN it starts the leavetimer and enters LV, in LV it does nothing
++  // (-x-); leavetimer! in LV is Lv and MT. Milan v1.2 4.2.7.2.2 (Δ13)
++  // replaces the IN cell alone. So the Lv changes nothing: the registration
++  // and ACTIVE stay until the leave timer expires, T-MRP-LEAVE after the
++  // LeaveAll (Milan v1.2 Table 4.3 LeaveTime, default 5000 ms, 4500-7500),
++  // then close, with one falling ACTIVE edge: one STREAM_STOP. Same-clock
++  // events apply after expiry: Lv/LA end MT; New/JoinIn/JoinMt end IN. The peer
++  // repeats the Lv 2.5 s in, which must change nothing either.
++  static constexpr uint32_t LEAVE_TIME_MS = 5000;
++  static constexpr int BENCH_GAP_CLOCKS = 56;   // 1.390 ms at 40 clocks per ms
++  // the bridge's Listener vectors: JoinIn for each declared source but
++  // `skip`, the first of them flagged LeaveAll when `la`
++  static Msg listener_rejoins(int fp, int skip, bool la) {
++    Msg m{3, 8, true, {}};
++    for (int s : {0, 3, 7}) {
++      if (s == skip) continue;
++      m.vecs.push_back(Vec{la && m.vecs.empty(), 1, fv_sid(own_sid(s)), {EV_JOININ}, {fp}});
++    }
++    return m;
++  }
++  void check_withdrawal_meets_an_lv_registrar() {
++    for (bool own : {true, false}) for (int fp : {DECL_READY, DECL_READYFAIL}) for (int target : {0, 7}) {
++      const char* cause = own ? "own" : "peer";
++      leaveall_setup(fp);
++      const int stops = h.stop_cnt[target];
++      const int starts = h.start_cnt[target];
++      const int lrcs = h.lrc_cnt[target];
++      // the bridge re-declares sink 0's Advertise and sink 7's Failed too
++      Msg ta{1, 25, false, {Vec{!own, 1, fv_talker(peer_sid(0), peer_da(0), 2, 29, 1, 3, 1, 500),
++                                {EV_JOININ}, {}}}};
++      Msg tf{2, 34, false, {Vec{!own, 1, fv_failed(peer_sid(7), peer_da(7), 2, 29, 1, 3, 1, 500,
++                                                   0x1234, 1), {EV_JOININ}, {}}}};
++      bool aged = false;
++      uint32_t la_ms = 0;
++      int lv1_reg = -1;
++      if (own) {
++        // the own LeaveAll: sLA ages every registrar, its MRPDU follows; the
++        // bridge then re-joins every other registration and withdraws the target
++        auto laf = h.wait_frame(true, 16000, [](const std::vector<uint8_t>& fr) {
++          for (const PVec& v : parse_frame(fr).vecs) {
++            if (v.la) return true;
++          }
++          return false;
++        });
++        aged = !laf.empty() && h.la_times.size() == 1;
++        la_ms = h.la_times.empty() ? 0 : h.la_times[0];
++        h.idle(BENCH_GAP_CLOCKS);
++        lv1_reg = source_reg(target);
++        Msg lr = listener_rejoins(fp, target, false);
++        lr.vecs.push_back(Vec{false, 1, fv_sid(own_sid(target)), {EV_LV}, {fp}});
++        h.feed(mrpdu_body(true, {lr, ta, tf}), true);
++      } else {
++        // the bridge's LeaveAll on every MSRP type, re-joining all but the
++        // target, then its Lv for the target
++        h.peer_la_times.clear();
++        h.feed(mrpdu_body(true, {listener_rejoins(fp, target, true), ta, tf,
++                                 la_only(4, 4, false)}), true);
++        aged = !h.peer_la_times.empty() && h.la_cycles.empty();
++        la_ms = h.peer_la_times.empty() ? 0 : h.peer_la_times[0];
++        h.idle(BENCH_GAP_CLOCKS);
++        lv1_reg = source_reg(target);
++        listener_event(target, EV_LV, fp);
++      }
++      const uint32_t lv1_ms = d->now_ms_o;
++      bool kept = source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
++      until_ms(la_ms + 2500);
++      const int lv2_reg = source_reg(target);
++      listener_event(target, EV_LV, fp);
++      const uint32_t lv2_ms = d->now_ms_o;
++      until_ms(la_ms + LEAVE_TIME_MS - 1);
++      kept &= source_reg(target) == 2 && h.lstn_reg(target) == fp && h.active(target);
++      CHECK(aged && lv1_reg == 2 && lv2_reg == 2 && kept && h.stop_cnt[target] == stops
++            && h.start_cnt[target] == starts && h.lrc_cnt[target] == lrcs,
++            "S1: %s LeaveAll fp=%d src=%d: both Lvs meet LV, and the registration and "
++            "ACTIVE stay until the leave timer expires", cause, fp, target);
++      until_ms(la_ms + LEAVE_TIME_MS + 2);
++      const bool closed = h.stop_cnt[target] == stops + 1 && h.lrc_cnt[target] == lrcs + 1;
++      const uint32_t leave_ms = closed ? h.stop_ms[target] - la_ms : 0;
++      const uint32_t change_ms = closed ? h.lrc_ms[target] - la_ms : 0;
++      CHECK(closed && leave_ms >= LEAVE_TIME_MS && leave_ms <= LEAVE_TIME_MS + 1
++            && change_ms >= LEAVE_TIME_MS && change_ms <= LEAVE_TIME_MS + 1
++            && source_reg(target) == 0 && h.lstn_reg(target) == 0 && !h.active(target),
++            "S2: %s LeaveAll fp=%d src=%d: the registration and ACTIVE close at the "
++            "leave timer's expiry (%u ms; Table 4.3 LeaveTime 5000 ms)", cause, fp, target, leave_ms);
++      until_ms(la_ms + LEAVE_TIME_MS + 2000);
++      CHECK(h.stop_cnt[target] == stops + 1 && h.start_cnt[target] == starts
++            && h.lrc_cnt[target] == lrcs + 1 && !h.active(target),
++            "S3: %s LeaveAll fp=%d src=%d: STREAM_STOP counted exactly once (%d), "
++            "no STREAM_START (%d)", cause, fp, target, h.stop_cnt[target] - stops,
++            h.start_cnt[target] - starts);
++      printf("LV_LEAVE cause=%s fp=%d source=%d leaveall_ms=%u lv_ms=%u,%u close_ms=%u "
++             "leave_time_ms=%u stream_stop=%d stream_start=%d\n", cause, fp, target, la_ms,
++             lv1_ms, lv2_ms, closed ? h.stop_ms[target] : 0, leave_ms,
++             h.stop_cnt[target] - stops, h.start_cnt[target] - starts);
++    }
++  }
++
++
++  // Calibration and k=0..400 follow the review's byte-stream collision probe.
++  // Both target registrars age together; only the selected plane receives Lv
++  // near expiry. Thus every case grades the real source STREAM_STOP as well
++  // as the listener's one TK_UNREGISTERED indication (it has no ACTIVE port).
++  void collision_setup(bool own, int fp, int target) {
++    leaveall_setup(fp);
++    if (own) {
++      h.wait_frame(true, 16000, [](const std::vector<uint8_t>& fr) {
++        for (const PVec& v : parse_frame(fr).vecs) if (v.la) return true;
++        return false;
++      });
++    }
++    const int other = target == 0 ? 7 : 0;
++    std::vector<Msg> msgs{listener_rejoins(fp, target, !own)};
++    for (int type : {1, 2}) {
++      if (type == (other == 0 ? 1 : 2)) {
++        auto fv = other == 0 ? fv_talker(peer_sid(0), peer_da(0), 2, 29, 1, 3, 1, 500)
++          : fv_failed(peer_sid(7), peer_da(7), 2, 29, 1, 3, 1, 500, 0x1234, 1);
++        msgs.push_back(Msg{type, type == 1 ? 25 : 34, false,
++                          {Vec{!own, 1, fv, {EV_JOININ}, {}}}});
++      } else if (!own) msgs.push_back(la_only(type, type == 1 ? 25 : 34, false));
++    }
++    if (!own) msgs.push_back(la_only(4, 4, false));
++    h.feed(mrpdu_body(true, msgs), true);
++  }
++
++  // Each offset starts from identical DUT and BFM state 401 clocks before
++  // expiry. Only the shared prefix is skipped; all clocks around the decoded
++  // event, expiry, publication and stop counters still run. No RTL is forced.
++  std::string save_collision_state() {
++    const char* tmp = std::getenv("TMPDIR");
++    std::string pattern = std::string(tmp ? tmp : "/tmp") + "/srp-collision-XXXXXX";
++    std::vector<char> path(pattern.begin(), pattern.end());
++    path.push_back(0);
++    const int fd = mkstemp(path.data());
++    if (fd < 0) { std::perror("collision snapshot"); std::exit(2); }
++    close(fd);
++    VerilatedSave save;
++    save.open(path.data());
++    save << *d;
++    save.close();
++    return path.data();
++  }
++  void check_leave_expiry_collisions() {
++    for (bool listener : {false, true}) for (bool own : {false, true})
++      for (int fp : {DECL_READY, DECL_READYFAIL}) for (int target : {0, 7}) {
++        collision_setup(own, fp, target);
++        const uint64_t origin = h.t;
++        const uint32_t limit = d->now_ms_o + LEAVE_TIME_MS + 10;
++        while ((listener ? sink_reg(target) : source_reg(target)) != 0 && d->now_ms_o < limit)
++          h.cycle();
++        const uint64_t close_offset = h.t - origin;
++        collision_setup(own, fp, target);
++        const uint64_t calibrated_close = h.t + close_offset;
++        while (h.t + 401 < calibrated_close) h.cycle();
++        const H saved = h;
++        const std::string snapshot = save_collision_state();
++        int collisions = 0;
++        for (int k = 0; k <= 400; ++k) {
++          const uint64_t total = h.t;
++          VerilatedRestore restore;
++          restore.open(snapshot.c_str());
++          restore >> *d;
++          restore.close();
++          h = saved;
++          // t counts clocks actually executed, including every replay. Device
++          // time and BFM state rewind; the run-length counter never does.
++          h.t = total;
++          h.accept_cycle += total - saved.t;
++          const uint64_t close = h.t + 401;
++          const bool aged = source_reg(target) == 2 && sink_reg(target) == 2 && h.active(target);
++          const int stops = h.stop_cnt[target];
++          const int unregs = h.unreg_cnt[target];
++          const uint32_t end_ms = d->now_ms_o + 20;
++          while (h.t + k < close) h.cycle();
++          h.rx_cycles.clear();
++          if (listener) talker_event(target, EV_LV);
++          else listener_event(target, EV_LV, fp);
++          for (uint64_t cycle : h.rx_cycles) collisions += cycle + 1 == close;
++          until_ms(end_ms);
++          const bool closed = source_reg(target) == 0 && sink_reg(target) == 0
++            && h.lstn_reg(target) == 0 && h.tk_reg(target) == 0 && !h.active(target)
++            && h.stop_cnt[target] == stops + 1 && h.unreg_cnt[target] == unregs + 1;
++          CHECK(aged && closed, "SC2: plane=%s cause=%s fp=%d target=%d k=%d CLOSED "
++                "source=%d sink=%d STREAM_STOP=%d TK_UNREGISTERED=%d",
++                listener ? "listener" : "talker", own ? "own" : "peer", fp, target, k,
++                source_reg(target), sink_reg(target), h.stop_cnt[target] - stops,
++                h.unreg_cnt[target] - unregs);
++          printf("LV_COLLISION plane=%s cause=%s fp=%d target=%d k=%d %s stream_stop=%d unreg=%d\n",
++                 listener ? "listener" : "talker", own ? "own" : "peer", fp, target, k,
++                 closed ? "CLOSED" : "STUCK", h.stop_cnt[target] - stops, h.unreg_cnt[target] - unregs);
++        }
++        unlink(snapshot.c_str());
++        CHECK(collisions == 1, "SC3: plane=%s cause=%s fp=%d target=%d exactly one decoded "
++              "Lv shares the calibrated expiry clock (got %d)", listener ? "listener" : "talker",
++              own ? "own" : "peer", fp, target, collisions);
++      }
++  }
++
+   // L: move slot acceptance across one decoded Listener Lv. The frame
+   // bytes and slot-pool handshake are real; no internal event is forced.
+   void check_own_leaveall_acceptance_boundary() {
+@@ -2720,6 +2946,6 @@ int main(int argc, char** argv) {
+   if (*group && strcmp(group,"armdelay") && strcmp(group,"phases") && strcmp(group,"edge")
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+-      && strcmp(group,"timers") && strcmp(group,"join")) return 2;
++      && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")) return 2;
+   return harness.run(group);
+ }

@@ -1,0 +1,3629 @@
+{
+  "head": "cb730a2f9dd7e4f60a03a38d4b47b569e68da8df",
+  "summary": {
+    "patch": {
+      "total": 298,
+      "passed": 298
+    },
+    "plant": {
+      "total": 208,
+      "passed": 208
+    },
+    "other-text": {
+      "total": 94,
+      "passed": 94
+    },
+    "guard-sites": {
+      "total": 1,
+      "passed": 1
+    }
+  },
+  "arms": [
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-bind-keeps-discovered.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-departing-silent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-discover-no-noadp-arm.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-fresh-no-rearm.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-fresh-no-store.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-fresh-store-max.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-fresh-store-plus-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-noadp-expiry-silent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-not-discovered-no-guard.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-restart-detector-off-by-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/arc-restart-skips-guard.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-dependent-field.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-frozen-at-top.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-nonzero-for-valid.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-overlay-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-read-live.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-valid-any-selector.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-valid-hard-reset.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-valid-no-reset.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-valid-not-sticky.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/cfg-valid-ucpu-bus.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-departing-ignores-interface.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-fresh-checks-gm.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-not-discovered-checks-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-not-discovered-checks-interface.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-restart-not-rediscovered.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-stray-noadp-departs.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/disc-unbind-keeps-timer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/gate-enable-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-aidx-reset-by-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-egress-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-gm-sample-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-gm-slice-reversed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-ingress-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-ingress-forced-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-link-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-link-fall-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-pdu-index-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-count-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-ingress-collapsed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-ingress-live.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-range-floor-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-range-floor-off-by-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/if-top-range-unguarded.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-delay-answers-discover.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-delay-ignores-link-down.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-delay-shutdown-silent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-departing-keeps-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-down-answers-discover.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-down-answers-gm-change.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-down-shutdown-departs.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-foreign-discover-answered.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-link-down-keeps-timer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/adp_engine/mutations/walk-stale-draw-arms.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/compare-mac-forward.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/defend-rdefend-ignored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/defend-rdefend-no-tiebreak.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/drain-waits-for-the-link.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/fit-compare-forced-true.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/fit-compare-off-by-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/idle-serves-a-latched-expiry-first.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/ival-sends-after-release.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/off-waits-for-an-edge.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/post-publishes-after-release.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/probe-rannounce-tiebreak.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/probe-rprobe-never-yields.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/release-keeps-draw-mark.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/release-waits-for-draw.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/rx-release-returns-to-idle.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/seed-clamp-off-by-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/seed-clamp-removed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/seed-rearmed-on-idle-release-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/teardown-keeps-announce-timer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-path-absorbs-release.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-set-omits-alloc.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-set-omits-commit.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-set-omits-gwait.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-set-omits-lane.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/tx-set-omits-write.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/validator-maap-version-1-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/maap/mutations/yield-reuses-range.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/a5b-reboot-success-arm.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/line-buffer-fixed-592.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/line-ceiling-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/line-floor-rounded.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-prefix-zero-body.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-sclks-miss-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-sctrl-miss-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/lk-ssrate-miss-lock-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-add-mappings.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-dynamic-info.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-get-name.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-remove-mappings.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-name.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-format.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/m9-guard-set-stream-info.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-at-576.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/ov-oversize-never.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/ov-top-oversize-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/pg-append-524.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/pg-cap-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/pg-cap-off-by-one.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rb-rounded-buffer-no-page-cap.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-au-image-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-au-unset-overlays.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-base-no-overlay.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-cd-image-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-cfg-any.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-so-reads-input-row.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-str-short-guard-nop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-str-unset-overlays.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/rd-tail-uncut.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-inclusive.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sclks-bound-three.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-branch-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-preload-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sclks-miss-target-next-word.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/aecp_dispatch_mutations/sctrl-badarg-zero-body.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-avb-not-supported.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-block-beats-swapped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-change-type-from-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-ckd-not-supported.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-index-from-type.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-locate-ignored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-avb-any-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-avb-as-clock.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-avb-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-ckd-any-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-ckd-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-no-window.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-one-window.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-stri-past-shape.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/ctr-notify-stro-past-shape.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/store-counts-domain-strobes.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/ctr_mutations/store-link-detector-resets-up.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/acmp-waits-for-aecp.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-armed-at-admission.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-boot-hold-not-exempt.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-edit-preempted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-gdi-runs-on.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-kill-ack-keeps-owner.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-kill-tied-off.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-lock-preempted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-mvu-forced-status-10.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-non-aem-forced-status-10.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-preempt-after-effect.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-registry-preempted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dl-released-before-queued.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/dlkill-always-misbehaving.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/fanout-never-ends.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-acmp-reads-as-steps.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-barrier-no-priority.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-clock-as-lock.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-clock-as-ro.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-clock-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-foreign-target-classified.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-gdi-as-barrier.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-gdi-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-identify-as-ro.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-identify-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-lock-not-lockop.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-map-as-ro.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-map-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-name-as-ro.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-name-as-stream.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-name-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-reads-keyed-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-registry-as-ro.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-response-classified.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-setcfg-not-barrier.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-stream-key-none.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-stub-restored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/hz-talker-keyed-as-listener.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/mvu-echo-slot-std.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/mvu-fault-status-10.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/mvu-silent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/td-lock-default-59s.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/td-tl-default-301s.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/ucpu-preempt-cuts-a-wait.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/ucpu-preempt-keeps-the-body.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/pp_top/mutations/ucpu-preempt-repeats.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/action-omitted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/already-full-missed.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/bad-listener-length.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/before-slot.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/canceled-content-never-drains.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/count-up-unsends.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/draw-kind-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/empty-canceled-pdu.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/encoder-peer-ignored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/expiry-congestion.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/expiry-event.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/expiry-only-redraw.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/expiry-outranks-peer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/full-drain-missing.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/join-ms-400.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/join-sent-at-handover.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/leaveall-expiry-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/licence-ignores-join.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-lane-cut.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-lost-txla.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-no-expiry.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-no-own.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-no-renewal.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-sid-ignored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/listener-strict-lv.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-expiry-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-expiry-last.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-expiry-masked.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-never-ends.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-second-lv-ends.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/lv-sweep-misses-collision.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/missing-registrar-edge.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/mvrp-expiry-only-redraw.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/mvrp-flag-at-expiry.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/mvrp-passive-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/mvrp-stale-expiry-honoured.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/mvrp-supersedes-msrp.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-cancel-eats-new-intent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-drop-join-during-wait.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-edge-cancel-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-expiry-pulse.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-join-edge-peer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-la-outranks-leave.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-no-walk-at-sLA.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/my-reuse-flags-ignore-cancel.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/own-flags-missing.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/pending-peer-ignored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/periodic-ms-3000.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/preparation-before-slot.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-accept-edge-drain-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-cancel-consumes-new-intent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-cancel-latch-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-collect-blocks-pushes.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-expiry-pulse-restored.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-flag-ignores-edge-peer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-join-coalesce-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-join-start-guard-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-la-only-emission-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-mvrp-start-during-prepare.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-rearm-no-deadline.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-rearm-no-inflight.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-reuse-without-action.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/r-sink-receive-priority-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/rearm-at-issue.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/receive-priority-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/renewal-congestion.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/repeated-action.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/repeated-expiry-queued.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/reserved-slot-not-reused.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/reset-retains-intent.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/round-completion-lost.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/slope-read-source-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/slope-store-source-0-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/slope-stored-at-source-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/slope-stored-at-stage-2-index.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/stale-expiry-honoured.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/table-one-short.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-lost-txla.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-no-expiry.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-no-own.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-no-renewal.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-strict-lv.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/talker-vid-unreset.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-full-guard-31.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-head-at-write-pointer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-heads-swapped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-listener-push-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-ls-head-reads-tk-ram.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-ls-write-ignores-full.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-ls-written-at-tk-pointer.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-tk-head-read-ahead.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-tk-write-at-rptr.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tf-tk-write-ignores-full.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/tx-strobe-any-app.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/walk-record-written-on-close.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-flops-da-of-gate-source.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-flops-sid-of-source-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-flops-vid-of-source-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-ram-first-open-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-ram-read-at-gate-source.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wid-ram-read-neighbour.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wsid-flops-of-control-sink.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wsid-flops-read-sink-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wsid-ram-first-settle-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wsid-ram-written-on-teardown.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wsid-write-ignores-ready.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-first-open-only.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-latency-field-shifted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-latency-shifted.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-prio-rank-swapped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-rank-dropped.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-read-at-gate-source.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-read-at-source-0.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "patch",
+      "name": "tb/srp_top/mutations/wtsp-write-ignores-ready.patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:0:ident_two_frames",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:1:ident_seq_per_frame",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:2:ident_no_rearm",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:3:ident_rearm_from_third_frame",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:4:ident_burst_100ms",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:5:ident_t0_at_request",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:6:ident_burst_from_t0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:7:ident_departure_is_retirement",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:8:ident_departure_unwired",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:9:ident_next_burst_at_once",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:10:ident_wait_ignores_gap",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:11:ident_press_not_latched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:12:ident_burst_press_not_latched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:13:ident_departure_ignores_ready",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:14:ident_burst_deadline_one_tick_short",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:15:ident_t0_same_ms",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:16:ident_cut_on_release",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:17:ident_release_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:18:ident_unicast_da",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:19:ident_face_taken_mid_job",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:20:ident_built_at_default",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:21:enq_dropped_configuration",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:22:enq_dropped_stream_info",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:23:class_4_mapped_to_rate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:24:class_9_mapped_to_control",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:25:requester_not_excluded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:26:entry_seq_not_advanced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:27:stream_info_get_body",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:28:counter_limit_500ms",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:29:fan_out_skips_row_0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:30:refresh_resets_seq",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:31:foreign_unlock_allowed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:32:lock_taker_notified",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:33:deregister_keeps_row",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:34:registry_holds_15",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:35:set_control_ignores_lock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:36:inflight_highest_free_id",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:37:inflight_match_ignores_seq",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:38:inflight_cancel_keeps_timer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:39:inflight_shared_seq",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:40:ix_old_identity_kept",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:41:ix_new_identity_unset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:42:ix_last_chunk_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:43:ix_rewrite_unmatched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:44:override_set_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:45:own_compare_new_row",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:46:stamp_read_without_valid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:47:counter_spacing_from_selection",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:48:counter_spacing_from_selection_tw",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:49:counter_stamp_at_send_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:50:counter_stamp_first_job_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:51:counter_limit_500ms_cs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:52:registry_holds_15_cs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:53:dereg_mid_round_no_hold",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:54:dereg_pending_stops_follow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:55:dereg_lost_at_round_end",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:56:port_not_compared",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:57:port_not_latched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:58:port_not_stored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:59:avb_counter_row_dropped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:60:avb_counter_row_collapsed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:61:avb_counter_named_clock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:62:avb_counter_any_index",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:63:avb_counter_name_overlaps_clock",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/notify_mutants.py:64:rgy_port_tied_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:0:hold_released_at_go",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:1:dispatch_not_held",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:2:own_taken_at_the_walk",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:3:image_unproven_continues",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:4:latch_ignores_program",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:5:TRG_cfg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:6:TRG_rate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:7:TRG_clks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:8:TRG_fmti",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:9:TRG_fmto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:10:TRG_ptof",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:11:taint_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:12:clear_wins_same_edge",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:13:clear_by_group",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:14:clear_by_index",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:15:identify_is_a_change",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:16:unchanged_compare_ignores_validity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:17:RPL_cfg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:18:RPL_rate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:19:RPL_clks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:20:RPL_fmti",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:21:RPL_fmto",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:22:RPL_ptof",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:23:rule_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:24:passes_may_disagree",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:25:device_error_reads_as_blank",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:26:unframed_reads_as_device_error",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:27:desc_error_is_a_refusal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:28:no_restore_watchdog",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:29:restore_writes_are_changes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:30:enable_not_released_by_restore",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:31:done_without_d3",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:32:blank_ignores_d3",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:33:store_not_cleared",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:34:valid_not_cleared",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:35:quarantine_released_by_time",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:36:no_rollback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:37:dyn_not_rolled_back",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:38:store_not_rolled_back",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:39:rollback_ignores_debt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:40:closed_releases_the_entity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:41:no_backoff_d3",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:42:fourth_attempt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:43:alarm_forgiven_by_success",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:44:no_backoff_binding",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:45:fourth_attempt_binding",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:46:alarm_forgiven_binding",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:47:backoff_derivation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:48:backoff_holds_dispatch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:49:disagree_one_direction",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:50:rollback_one_cycle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:51:pass1_read_not_drained",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:52:judge_wait_unwatched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:53:rate_walk_stuck_on_first_lane",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:54:rate_walk_unbounded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:55:no_aggregate_deadline",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:56:aggregate_mirrored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:57:aggregate_from_the_walk",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:58:per_wait_floor",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:59:agg_closes_before_proof",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:60:binding_walk_ignores_aggregate",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:61:proof_reads_records_past_bound",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:62:agg_not_in_rollback",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:63:agg_not_stopped_at_terminal",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:64:agg_fires_with_event_in_hand",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:65:drain_misses_issue_cycle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:66:drain_misses_issue_cycle_m1",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:67:issue_arm_cross_intent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:68:issue_arm_ignores_we",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:69:issue_arm_write_too",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:70:issue_arm_stale_we",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:71:owned_arm_write_too",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:72:owned_arm_cross_intent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:73:cross_own_m1_drains_m0",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:74:agg_closes_during_proof",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:75:proof_past_needs_fire",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:76:proof_default_only_from_img",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:77:proof_past_bound_needs_fired",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:78:agg_o_pulse",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:79:aecp_hold_unbounded",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:80:held_drop_uncounted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:81:resident_never_returned",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:82:validator_admits_held_aecp",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:83:clks_row_two_bits",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:84:clks_restore_count_narrowed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:85:clks_restore_index_narrowed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:86:clks_restore_bound_inclusive",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:87:registry_survives_reset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:88:lock_survives_reset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:89:identify_survives_reset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:90:cfg_crc_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:91:clks_crc_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:92:torn_read_not_an_abort",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:93:torn_read_not_an_abort_cfg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:94:frame_crc_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:95:blank_applies_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:96:blank_applies_zero_cfg",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:97:TRG_name",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:98:RPL_name",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:99:name_rule_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:100:name_empty_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:101:name_record_id_shifted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:102:name_entry_shifted",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:103:name_lanes_partial",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:104:name_taint_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:105:name_restore_pulses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:106:name_restore_is_a_change",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:107:names_before_the_image",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:108:cut_binding_crc_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/d3_mutants.py:109:cut_frame_crc_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:0:msg_ok_forced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:1:msg_ok_forced",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:2:guard_ctlr_dropped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:3:guard_talker_eid_dropped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:4:guard_talker_uid_dropped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:5:cdl_not_44_rejected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:6:cdl_not_44_rejected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:7:st_ls_settle_as_withdraw",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:8:st_ls_teardown_as_declare",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:9:st_ls_sid_da_swapped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:10:st_ls_state_none",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:11:st_ls_vid_dropped",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:12:st_ls_index_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:13:st_ls_teardown_lost",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:14:bound_view_not_latched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:15:bound_dmac_from_sid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:16:bound_view_not_cleared",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:17:matcher_da_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:18:matcher_vid_ignored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:19:rec_read_sink_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:20:rec_read_in_idle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:21:rec_started_unstored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:22:rec_settled_vlan_unstored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:23:rec_sweep_misaddressed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:24:armq_read_tail",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:25:armq_head_stuck",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:26:armq_ring_of_three",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:27:armq_write_at_head",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:28:armq_write_at_mid",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:29:armq_write_refused",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:30:armq_write_wrap_hi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:31:armq_full_pop_refuses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "plant",
+      "name": "tb/pp_top/acmp_mutants.py:32:armq_drop_skip_sat",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_round",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:early_round",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:late_round",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:retry_wrap",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_pacing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:fixed_priority",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:command_monopoly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:retry_monopoly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:disabled_alloc",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_accept_bound",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:short_accept_bound",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:refusal_is_grant",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:obsolete_grant",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:obsolete_release_lost",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_response_bound",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:response_wrap",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_stale_swallow",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_stale_capacity",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_stale_drain",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:backoff_bypass",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:reallocate_owned",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:half_backoff",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:fresh_forever",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:declare_without_demand",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:source_alias",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:gate_without_ownership",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_requests",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_command_ready",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:busy_tracker_blocks_commands",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_conflict_wait_clear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:wait_on_release",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:tick_no_rearm",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_rotate_advance",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_sticky_gp_window",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:grant_kill_reg_only",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:accept_kill_zero",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_no_pending_conflict",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_no_live_conflict",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_no_disable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:init_elig_no_avail",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_turn_restore",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_rel",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_off",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:ready_ignores_turn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:init_ignores_off_conflict",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:retry_period_200",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:tick_ge_to_gt",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_no_conflict_at_all",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_no_disable_at_all",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_sticky_off",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_probe_initset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_lsn_initset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_conflict_daok_initset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_backoff_exit_initset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_enable_wait_clear",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:eligible_only_init",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:accept_kill_no_disable",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:init_no_enable_check",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:eligible_ignores_init",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:tick_keeps_wait",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:no_get_tx_state_response",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_conflict",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_pcp",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_tmr",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:elig_drop_lsn",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:init_busy_else_removed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:kill_w_no_off",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:init_ready_no_en",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:wait_only_on_accept",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "retry:sticky_kill_ignores_accept",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-trigger-removed",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-low8",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-low16",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-high16",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-low31",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-high2",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:latency-cmp-bit31-dropped",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:failure-code-zero",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:failure-bridge-zero",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:pbsta-zero",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:acmpsta-zero",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:wrong-sink",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:integrator-path",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:missing-descriptor-leak",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:status-notification-zero",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:rebind-started-trigger-removed",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:failure-change-strobe-removed",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:failure-change-redeclares",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:index-guard-removed",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "gsi:bridge-gate-removed",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "other-text",
+      "name": "admission:stale-evaluation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "admission:pending-absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "admission:discarded-round-strobes",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "other-text",
+      "name": "name-write:decode",
+      "ok": true,
+      "detail": "1/1 anchors"
+    },
+    {
+      "group": "guard-sites",
+      "name": "desc_mem_guard:no_hold",
+      "ok": true,
+      "detail": "2/2 sites; one mutation removes both"
+    }
+  ]
+}

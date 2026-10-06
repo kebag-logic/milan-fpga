@@ -1,0 +1,32 @@
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/69#issuecomment-6010216843
+[A10] **Lane for #69: the redundancy seam in the fabric build.** Executor [A550], branch `pp69-if-seam` from `main` `e6a759de`. Reviewers [R512] (internal) and [R513] (external).
+
+The owner's standing rule is to keep the redundancy path open. So the seam is threaded through, not closed by decision.
+
+**Items:**
+1. **Top parameter.** `protocol_processor_top` exposes the interface count (F01.5 P-N-AVB-INTERFACES, default 1).
+   - It passes the count to `KL_adp_engine`, replacing the literal at `:1569`.
+   - It drives `rx_if_index_i` from the received frame's interface when the count is above 1, replacing the hardwired `2'd0` at `:1329`.
+   - Add an interface-index input port only at the top, defaulting to 0. The parent wiring stays unchanged at count 1.
+2. **Registry port field.** When the count is above 1, `KL_aecp_notify` stores the port per registry row (the Milan v1.2 5.3.4.2 tuple: entity_id, MAC and port). At count 1, the field is not generated.
+3. **Counters.** Say which counters are keyed per interface and which are not. Key the AVB_INTERFACE counters per interface when the count is above 1. Anything deliberately unkeyed is named with its reason.
+4. **No change at count 1.**
+   - The Yosys statistics of `protocol_processor_top` and of every touched module must be byte-identical at base and head for the shipping shape.
+   - Every suite record must be identical.
+   - Report the OOC 1x1 delta with #638's recipe, Vivado under `flock $VIVADO_LOCK`. It must be 0 LUT and 0 FF; STOP otherwise.
+5. **Elaborate at two interfaces.**
+   - A suite builds `KL_adp_engine` at N_IF_P = 2 and grades per-interface advertising.
+   - A lint-only (or suite) elaboration builds `protocol_processor_top` at count 2.
+   - A planted mutant that collapses the interface index must fail.
+6. **Docs.** The banner at `KL_aecp_notify.sv:17-20`, 01 section 7, and the REQ-SCP-003 Arch cell name what is and is not keyed.
+7. **Before any RTL edit,** run `git grep -F` for every changed line across `tb/**/*.patch` and the exact-text mutant tables. Show every arm still plants.
+
+**Gates:**
+- every processor suite and campaign;
+- `make check`, Yosys and lint;
+- the parent consumer set of 17 at parent dev `28f9666f`, with the 148 patch only (in your output directory). Add a parent patch only if the parent's wiring needs one; at count 1 it should not.
+
+**Output:** HANDOFF.md and PR-BODY.md ("Closes #69" if every acceptance item is met). Then post REVIEW READY with the head on #69. Do not push.
+
+Do not edit or delete any existing comment.
+

@@ -1,0 +1,58 @@
+command: ['python3', '$REVIEWS/pp69-r513-1-packet/scratch/focus-head/tb/adp_engine/mutants.py', '--output', '$REVIEWS/pp69-r513-1-packet/receipts/controls/adp', '--jobs', '2', '--only', 'if-ingress-collapsed,if-egress-collapsed,if-pdu-index-collapsed,if-gm-sample-collapsed,if-top-count-collapsed,if-top-count-collapsed-lint,if-top-ingress-collapsed,if-top-ingress-live,if-top-range-unguarded,if-link-collapsed,if-gm-slice-reversed,if-link-fall-collapsed,if-aidx-reset-by-index,if-ingress-forced-one,if-top-range-floor-off-by-one,if-top-range-floor-dropped']
+control adp_engine interfaces: rc=0 PASS
+control pp_top if-guards: rc=0 PASS
+control pp_top interfaces: rc=0 PASS
+if-ingress-collapsed: rc=2 failures=3 named=1 KILLED
+    FAIL: IF5: ENTITY_DISCOVER on interface 1, both machines WAITING, restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 21 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 1)
+    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/2)
+    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (0 event(s) after interface 0, 0 in all)
+if-egress-collapsed: rc=2 failures=5 named=1 KILLED
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (0 frame(s))
+    FAIL: IF4: each interface's frames carry its own available_index, 0 then +1 per frame of that interface (7 and 0 frames; next indices 3 and 4)
+    FAIL: IF5: ENTITY_DISCOVER on interface 1, both machines WAITING, restarts interface 1's advertise machine alone: it leaves WAITING (state 1) and advertises 4100 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 3)
+    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 2/2)
+    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (2 and 0 frames)
+if-pdu-index-collapsed: rc=2 failures=2 named=1 KILLED
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))
+    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)
+if-gm-sample-collapsed: rc=2 failures=2 named=1 KILLED
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))
+    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)
+if-top-count-collapsed: rc=2 failures=3 named=1 KILLED
+    FAIL: IF1: with two interfaces each advertise machine sends its own ENTITY_AVAILABLE inside T-ADP-DELAY-START, byte-exact with interface_index 0 and 1 and available_index 0 (1 ADPDU(s))
+    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 0) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)
+    FAIL: IF2: ENTITY_DISCOVER received on interface 0 restarts interface 0's advertise machine alone: it leaves WAITING (state 2) and advertises 223 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 0)
+if-top-count-collapsed-lint: rc=2 failures=1 named=1 KILLED
+    FAIL: if guard 2: must lint clean (verilator rc 1)
+if-top-ingress-collapsed: rc=2 failures=3 named=1 KILLED
+    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)
+    FAIL: IF3: REGISTER from C on interface 0 and again on interface 1 makes two entries: D's lock change reaches C twice, at sequence_id 0 and 0, and the unlock twice at 1 and 1
+    FAIL: IF3b: DEREGISTER from C on interface 1 removes interface 1's entry: the next lock and unlock reach C once each, at interface 0's sequence_id 2 and 3 (0 and 0)
+if-top-ingress-live: rc=2 failures=2 named=1 KILLED
+    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)
+    FAIL: IF2: ENTITY_DISCOVER received on interface 0 restarts interface 0's advertise machine alone: it leaves WAITING (state 3) and advertises 3893 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 2)
+if-top-range-unguarded: rc=2 failures=1 named=1 KILLED
+    FAIL: if guard 3: must be refused: N_AVB_IF_P=3 is outside 1 to 2 (verilator rc 1)
+if-link-collapsed: rc=2 failures=2 named=1 KILLED
+    FAIL: IF1: enabled with interface 0's link alone up, interface 0 advertises within T-ADP-DELAY-START and interface 1 stays DOWN and silent (states 3/2, 0 frame(s) on interface 1)
+    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/2)
+if-gm-slice-reversed: rc=2 failures=5 named=1 KILLED
+    FAIL: IF2: interface 0's ENTITY_AVAILABLE is byte-exact: interface_index 0, interface 0's grandmaster and domain, available_index 0, and its TX request names interface 0
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))
+    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 1/3)
+    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (0 event(s) after interface 0, 0 in all)
+    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (1 and 1 frames)
+if-link-fall-collapsed: rc=2 failures=1 named=1 KILLED
+    FAIL: IF7: interface 1's LINK_DOWN takes interface 1 to DOWN with no frame at all, while interface 0 keeps advertising (states 3/2; 1 and 1 frames)
+if-aidx-reset-by-index: rc=2 failures=3 named=1 KILLED
+    FAIL: IF0: both advertise machines reset to DOWN with available_index 0
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (1 frame(s))
+    FAIL: IF4: each interface's frames carry its own available_index, 0 then +1 per frame of that interface (3 and 3 frames; next indices 3 and 4)
+if-ingress-forced-one: rc=2 failures=2 named=1 KILLED
+    FAIL: IF5: ENTITY_DISCOVER on interface 0, both machines WAITING, restarts interface 0's advertise machine alone: it leaves WAITING (state 3) and advertises 21 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 1)
+    FAIL: IF8: T1's ENTITY_AVAILABLE carrying interface 1's grandmaster and domain is not matched when received on interface 0, and discovers sink 0 when received on interface 1 (1 event(s) after interface 0, 3 in all)
+if-top-range-floor-off-by-one: rc=2 failures=1 named=1 KILLED
+    FAIL: if guard 1: must lint clean (verilator rc 1)
+if-top-range-floor-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: if guard 0: must be refused: N_AVB_IF_P=0 is outside 1 to 2 (verilator rc 1)
+19 checks: 19 PASS, 0 FAIL

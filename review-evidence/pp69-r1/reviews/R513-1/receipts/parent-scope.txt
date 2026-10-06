@@ -1,0 +1,30 @@
+https://github.com/kebag-logic/milan-fpga/issues/415#issuecomment-6009637220
+[A10] **Ticket re-assessment after the Mark II decisions** (owner 2026-10-06, #664 6009576644).
+
+**The decisions it applies:**
+- ADP, ACMP, MAAP, SRP and AECP move to the bare-metal core, which becomes the Mark II default.
+- The all-fabric build stays supported, and stays the shipping default until F2 to F5 pass the bench.
+- VERSION 3 comes with that flip.
+- The split lands before the release.
+
+It covers the 58 open tickets opened by the owner, in both repositories.
+
+**Unaffected (no change).** Media path, gPTP, instruments, boot and release gates, tooling: #64, #74, #110, #117, #213, #260, #386, #387, #392, #393, #395, #396, #416, #417, #452, #488, #495, #578, #583, #584, #594, #611, #621, #625, #626, #629, #632, #633, #641, #642, #645, #647, #651, #657, #658, #667, #673, and processor #22, #42, #72, #134, #151.
+
+**Scope or priority changes:**
+
+| Ticket | Effect | Action |
+|---|---|---|
+| #397 service budget | Its decision (one cacheless RV32 hart at 50 MHz, PR #588) measured today's duties. Mark II puts five protocols on that hart, and D5 wants a smaller core. | Reopen the budget. #664's NFR-SCOUT-01/03 restates it, and each F-lane measures its service latency against the normative timeouts. D5 must be checked against the new duty set, not only the 24.5 ms capture bound. |
+| #76 release qualification | The split lands before the release, so qualification runs on the Mark II default image. | It depends on #665 F2 to F5, the default flip and VERSION 3. The all-fabric build is qualified as the supported option. |
+| #229 epic, #233 1x1 specialisation | Both reduce `KL_pp_shadow`, which leaves the Mark II default build. #233's phase 1 already found the parameters derived. | Proposed: close both as superseded by #640/#664, keeping the measurements. Owner to confirm. |
+| #654 SoC recipe flags ignored | `--with-fpu` and `--l2-bytes` are the knobs D5 and the core sizing depend on. | Raise priority: before any D5 core-size lane. |
+| #637 channel-map restore, #70 saved state, #671 writer durability | The fabric path stays needed for the all-fabric option. The split takes saved state through F1. | Keep. F1 already holds the #671 rule (HELD on a read fault). F3/F5 acceptance must include map restore and roll-back. |
+| #608 talker keeps streaming | Processor #134 fixes the fabric registrar. In the split, SRP is lwSRP on the core. | Re-run the #608 cycles after the next pin adoption. F4's acceptance includes the same withdrawal-meets-LV-after-LeaveAll case. |
+| #653 notification order | Not reproduced in the fabric. In the split, AECP notifications come from the core. | Recommended: close as not reproduced, and carry the rule (notification after the UNBIND_RX response) into F5's acceptance. Owner to confirm. |
+| processor #73 single-source command model | AECP now runs in two placements. One command model generating both the fabric ROMs and the firmware tables avoids two hand transcriptions. | Re-scope: generate both targets, and schedule it before F5. |
+| processor #69 redundancy seam | ADP moves to the core. The seam must exist in both placements (redundancy path kept open). | Keep. The F-lanes key ADP state per AVB interface, and the mailbox contract carries the interface index. |
+| #415 roadmap | Milestone 12/13 dates assumed the pivot started after the PP program. | Update: #664 runs now. FT, then F2 to F5, then the flip and VERSION 3, then release qualification (#76). |
+
+No ticket was closed or edited by this pass. Closures wait for the owner's confirmation above.
+
