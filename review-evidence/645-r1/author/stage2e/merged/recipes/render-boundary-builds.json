@@ -1,0 +1,54 @@
+{
+  "head": "4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f",
+  "utc": "2026-10-05T16:22:12.378446+00:00",
+  "source_sha256": "cf43f169a04a41d1dd0f1d35dd2dfb3ee0330ddd0afcfc3db4d085729db8e860",
+  "source": "tb/verilator/milan_dp_render/tdm8_render_mutants.py:756,825,894",
+  "reason": "All three designs are built before the first scan. Active descending/isolated scans prove that stage completed. Remaining run_leg calls execute existing binaries only; --law-boundary does not enter later build modes. No compiler or make process is active in this service. Full functional verdict remains pending and required.",
+  "binaries": [
+    {
+      "path": "$WORK/focused/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+      "bytes": 1122104,
+      "sha256": "d03d78e019b92c58825bb63c3713eb486e6ff7d8f2f566d6ab9c9b612e8f765b"
+    },
+    {
+      "path": "$WORK/tmp/tdm8-render-mutants-mzzykx9d/obj_the_render_setpoint_one_event_low/Vmilan_dp_tdm8r",
+      "bytes": 1122104,
+      "sha256": "5d44a0f1506be91b879840e6f1720883432789b04a78ea6e87523efa2eca1424"
+    },
+    {
+      "path": "$WORK/tmp/tdm8-render-mutants-mzzykx9d/obj_the_render_setpoint_one_event_high/Vmilan_dp_tdm8r",
+      "bytes": 1122104,
+      "sha256": "03f9667c6d06a95e401c92bfbfbb60f2a1b7e9be055fbfe8b2d4528e5ff8e5a2"
+    }
+  ],
+  "active_runs": [
+    {
+      "pid": 3517310,
+      "argv": [
+        "$WORK/focused/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+        "--law-boundary=2066..1986"
+      ]
+    },
+    {
+      "pid": 3576237,
+      "argv": [
+        "$WORK/focused/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+        "--law-boundary=2023"
+      ]
+    },
+    {
+      "pid": 3576319,
+      "argv": [
+        "$WORK/focused/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+        "--law-boundary=2024"
+      ]
+    },
+    {
+      "pid": 3576366,
+      "argv": [
+        "$WORK/focused/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+        "--law-boundary=2025"
+      ]
+    }
+  ]
+}

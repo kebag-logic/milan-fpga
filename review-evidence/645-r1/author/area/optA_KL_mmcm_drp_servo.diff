@@ -1,0 +1,80 @@
+--- hdl/ieee1722/crf/KL_mmcm_drp_servo.sv	2026-10-04 18:14:05.250407985 +0200
++++ servo_ph.sv	2026-10-04 18:51:07.905181136 +0200
+@@ -222,7 +222,7 @@
+ 
+ `default_nettype none
+ 
+-module KL_mmcm_drp_servo #(
++module KL_mmcm_drp_servo_ph #(
+   parameter int unsigned CLK_FREQ_HZ_P    = 50_000_000,   //! clk_i frequency
+   //! local media-rate window: TICK_CYC_P audio cycles per tick (24576 @
+   //! 24.576 MHz = 1 ms), 2^WIN_LOG2_P ticks per window (512 => 512 ms,
+@@ -278,6 +278,10 @@
+   input  wire         ref_locked_i,
+   input  wire         ref_rate_valid_i, //! reference history spans one era
+   input  wire signed [31:0] ref_rate_ns_i, //! reference rate (ns / 512 ms)
++  //! scratch option A: the reference's phase, a talker timestamp and the
++  //! local gPTP time it is compared at (the meter's pick and its arrival)
++  input  wire        [31:0] ref_pick_ns_i,
++  input  wire        [31:0] ref_at_ns_i,
+ 
+   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
+   input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
+@@ -448,6 +452,11 @@
+   logic signed [23:0]       pp_ut_r;      //! S6: clamped PI output
+   logic signed [31:0]       pp_du_r;      //! S6: ut - u_cmd (pre-slew)
+   logic signed [31:0]       u_gain_r;     //! registered u_cmd * GAIN_NUM_P
++  //! scratch option A: phase sample, target captured at LOCKED, difference
++  localparam int signed     KPH_SHIFT_C = 3;
++  localparam int signed     PH_HALF_C   = 1_000_000;   //! half the 2 ms CRF interval
++  logic signed [31:0]       ph_in_r, pp_ph_r, ph_tgt_r, pp_phd_r;
++  logic                     ph_valid_r;
+ 
+   //! PS batch accumulator + handshake
+   logic signed [31:0]       acc_r;
+@@ -535,6 +544,7 @@
+       pp_rate_r <= '0;      pp_isum_r <= '0;    pp_thr_r <= 1'b0;
+       pp_ig_r <= '0;        pp_un_r <= '0;      pp_ut_r <= '0;
+       pp_du_r <= '0;        u_gain_r <= '0;
++      ph_in_r <= '0; pp_ph_r <= '0; ph_tgt_r <= '0; pp_phd_r <= '0; ph_valid_r <= 1'b0;
+     end else begin
+       drp_en_o <= 1'b0;
+       drp_we_o <= 1'b0;
+@@ -542,6 +552,13 @@
+       //! GAIN stage: registered product keeps the multiplier cone out of
+       //! the acc_r adder (u_cmd_r settles >= 1 tick before the next use)
+       u_gain_r <= 32'(u_cmd_r) * 32'(GAIN_NUM_P);
++      ph_in_r  <= $signed(ref_pick_ns_i - ref_at_ns_i);
++      if (state_r == IDLE_S) ph_valid_r <= 1'b0;
++      else if (state_r == ACQUIRE_S && lock_cnt_r >= ($bits(lock_cnt_r))'(LOCK_WIN_P)
++               && !ph_valid_r) begin
++        ph_tgt_r   <= pp_ph_r;
++        ph_valid_r <= 1'b1;
++      end
+ 
+       // ---------------- top-level servo FSM ----------------
+       unique case (state_r)
+@@ -617,6 +634,7 @@
+             win_start_r <= ptp_q_r;
+             pp_d_r      <= $signed(ptp_q_r - win_start_r);
+             pp_rate_r   <= ref_rate_ns_i;
++            pp_ph_r     <= ph_in_r;
+             win_slew_r  <= phc_slew_q_r;
+             //! Invalid remote history holds PI and lock; local step/slew
+             //! guards retain their own independent window policy.
+@@ -647,10 +665,14 @@
+             pp_locerr_r <= (pp_spann_r >  64'(ECLAMP_C)) ?  ECLAMP_C
+                          : (pp_spann_r < -64'(ECLAMP_C)) ? -ECLAMP_C
+                          : 32'(pp_spann_r);
++            pp_phd_r    <= pp_ph_r - ph_tgt_r;
+             pp_seq_r    <= 3'd3;
+           end : pi_eclamp_S
+           3'd3: begin : pi_err_S
+-            ew_r     <= pp_locerr_r - pp_rate_r;
++            ew_r     <= pp_locerr_r - pp_rate_r
++                        + (ph_valid_r ? ((pp_phd_r >  PH_HALF_C) ? (pp_phd_r - 2 * PH_HALF_C) >>> KPH_SHIFT_C
++                                       : (pp_phd_r < -PH_HALF_C) ? (pp_phd_r + 2 * PH_HALF_C) >>> KPH_SHIFT_C
++                                       :  pp_phd_r >>> KPH_SHIFT_C) : 32'sd0);
+             pp_seq_r <= 3'd4;
+           end : pi_err_S
+           3'd4: begin : pi_isum_S

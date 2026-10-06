@@ -1,0 +1,56 @@
+--- settle_piece.svh	2026-10-04 18:50:16.305000000 +0200
++++ settle_piece_c.svh	2026-10-04 18:50:16.321212444 +0200
+@@ -10,10 +10,20 @@
+   //! selection
+   logic        src_recentre_p_r /* verilator public_flat_rd */;
+   wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+-  wire src_grid_ok_w = !follow_sel_r ||
+-                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
+-  wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
+-                       (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
++  wire src_grid_ok_w = mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C)));
++  //! an excursion: the settled grid leaves four times the band
++  localparam int unsigned SRC_EXC_ERR_C = 4 * SRC_SETTLE_ERR_C;
++  logic src_quiet_r;
++  wire src_exc_w = src_quiet_r && mga_engaged_w &&
++                   (mga_err_abs_w > 16'(signed'(SRC_EXC_ERR_C)));
++  //! 8 servo windows of LOCKED: the PI's tail is 0.64 per window
++  localparam int unsigned SRC_SRV_TICKS_C = 8 * 512 * 48;
++  localparam int unsigned SRC_SRV_CEIL_C  = 1 << 20;
++  logic [17:0] src_srv_ticks_r;
++  logic [20:0] src_ceil_ticks_r;
++  wire src_srv_ok_w = !follow_sel_r || (32'(src_srv_ticks_r) >= SRC_SRV_TICKS_C);
++  wire src_settled_w = ((32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) && src_srv_ok_w) ||
++                       (32'(src_ceil_ticks_r) >= SRC_SRV_CEIL_C);
+   always_ff @(posedge axis_clk) begin : g_src_recentre
+     if (!axis_resetn) begin
+       src_recentre_q_r <= 16'd0;
+@@ -22,17 +32,27 @@
+       src_band_ticks_r <= 16'd0;
+       src_eng_ticks_r  <= 16'd0;
+       src_recentre_p_r <= 1'b0;
++      src_quiet_r      <= 1'b0;
++      src_srv_ticks_r  <= '0;
++      src_ceil_ticks_r <= '0;
+     end else begin
+       src_recentre_q_r <= media_clk_src_r;
+       mga_engaged_q_r  <= mga_engaged_w;
+       src_recentre_p_r <= 1'b0;
++      if (src_recentre_p_r) src_quiet_r <= 1'b1;
+       if ((media_clk_src_r != src_recentre_q_r) ||
+-          (mga_engaged_w && !mga_engaged_q_r)) begin
++          (mga_engaged_w && !mga_engaged_q_r) || src_exc_w) begin
++        src_quiet_r      <= 1'b0;
+         src_pend_r       <= 1'b1;
+         src_band_ticks_r <= 16'd0;
+         src_eng_ticks_r  <= 16'd0;
++        src_srv_ticks_r  <= '0;
++        src_ceil_ticks_r <= '0;
+       end else if (src_pend_r) begin
+         if (media_tick_p) begin
++          src_srv_ticks_r  <= mcsrv_locked_w ? ((src_srv_ticks_r == '1) ? src_srv_ticks_r
++                                                : src_srv_ticks_r + 1'b1) : '0;
++          src_ceil_ticks_r <= src_ceil_ticks_r + 1'b1;
+           src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
+           src_eng_ticks_r  <= (follow_sel_r && mga_engaged_w)
+                               ? src_eng_ticks_r + 16'd1 : 16'd0;

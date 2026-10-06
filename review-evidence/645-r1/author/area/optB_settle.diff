@@ -1,0 +1,34 @@
+--- settle_piece.svh	2026-10-04 18:50:16.305000000 +0200
++++ settle_piece_b.svh	2026-10-04 18:50:16.321160717 +0200
+@@ -10,8 +10,12 @@
+   //! selection
+   logic        src_recentre_p_r /* verilator public_flat_rd */;
+   wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
+-  wire src_grid_ok_w = !follow_sel_r ||
+-                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
++  wire src_grid_ok_w = mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C)));
++  //! an excursion: the settled grid leaves four times the band
++  localparam int unsigned SRC_EXC_ERR_C = 4 * SRC_SETTLE_ERR_C;
++  logic src_quiet_r;
++  wire src_exc_w = src_quiet_r && mga_engaged_w &&
++                   (mga_err_abs_w > 16'(signed'(SRC_EXC_ERR_C)));
+   wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
+                        (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
+   always_ff @(posedge axis_clk) begin : g_src_recentre
+@@ -22,12 +26,15 @@
+       src_band_ticks_r <= 16'd0;
+       src_eng_ticks_r  <= 16'd0;
+       src_recentre_p_r <= 1'b0;
++      src_quiet_r      <= 1'b0;
+     end else begin
+       src_recentre_q_r <= media_clk_src_r;
+       mga_engaged_q_r  <= mga_engaged_w;
+       src_recentre_p_r <= 1'b0;
++      if (src_recentre_p_r) src_quiet_r <= 1'b1;
+       if ((media_clk_src_r != src_recentre_q_r) ||
+-          (mga_engaged_w && !mga_engaged_q_r)) begin
++          (mga_engaged_w && !mga_engaged_q_r) || src_exc_w) begin
++        src_quiet_r      <= 1'b0;
+         src_pend_r       <= 1'b1;
+         src_band_ticks_r <= 16'd0;
+         src_eng_ticks_r  <= 16'd0;

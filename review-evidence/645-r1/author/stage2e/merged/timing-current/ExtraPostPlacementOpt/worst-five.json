@@ -1,0 +1,68 @@
+{
+  "report": "$WORK/route/ax7101/gateware/alinx_ax7101_signoff_Slow_0C_timing.rpt",
+  "bytes": 1343734,
+  "sha256": "accb1e1bca11067560431df1125c5a278b643aa81c6f768394b2ecda9bf3d188",
+  "head": "4e1ddee9d7b9ebf58ebebcacd90c5d72dce0c96f",
+  "paths": [
+    {
+      "slack_ns": 0.151,
+      "source_line": 2634,
+      "fields": {
+        "Source": "milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]/C",
+        "Destination": "milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[0]/D",
+        "Path Group": "milansoc_crg_clkout1",
+        "Path Type": "Setup (Max at Slow Process Corner)",
+        "Data Path Delay": "19.711ns  (logic 5.821ns (29.532%)  route 13.890ns (70.468%))",
+        "Logic Levels": "43  (CARRY4=9 LUT2=7 LUT3=3 LUT4=4 LUT5=8 LUT6=10 MUXF7=1 RAMS32=1)"
+      }
+    },
+    {
+      "slack_ns": 0.205,
+      "source_line": 2794,
+      "fields": {
+        "Source": "milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]/C",
+        "Destination": "milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[2]/D",
+        "Path Group": "milansoc_crg_clkout1",
+        "Path Type": "Setup (Max at Slow Process Corner)",
+        "Data Path Delay": "19.656ns  (logic 5.821ns (29.614%)  route 13.835ns (70.386%))",
+        "Logic Levels": "43  (CARRY4=9 LUT2=7 LUT3=3 LUT4=4 LUT5=8 LUT6=10 MUXF7=1 RAMS32=1)"
+      }
+    },
+    {
+      "slack_ns": 0.26,
+      "source_line": 2954,
+      "fields": {
+        "Source": "milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]/C",
+        "Destination": "milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[1]/D",
+        "Path Group": "milansoc_crg_clkout1",
+        "Path Type": "Setup (Max at Slow Process Corner)",
+        "Data Path Delay": "19.645ns  (logic 5.821ns (29.631%)  route 13.824ns (70.369%))",
+        "Logic Levels": "43  (CARRY4=9 LUT2=7 LUT3=3 LUT4=4 LUT5=8 LUT6=10 MUXF7=1 RAMS32=1)"
+      }
+    },
+    {
+      "slack_ns": 0.381,
+      "source_line": 3114,
+      "fields": {
+        "Source": "milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]/C",
+        "Destination": "milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[4][1]/D",
+        "Path Group": "milansoc_crg_clkout1",
+        "Path Type": "Setup (Max at Slow Process Corner)",
+        "Data Path Delay": "19.556ns  (logic 5.249ns (26.841%)  route 14.307ns (73.159%))",
+        "Logic Levels": "38  (CARRY4=9 LUT2=7 LUT3=2 LUT4=4 LUT5=7 LUT6=8 RAMS32=1)"
+      }
+    },
+    {
+      "slack_ns": 0.411,
+      "source_line": 846,
+      "fields": {
+        "Source": "milansoc_write_w_buffer_level2_reg[0]/C",
+        "Destination": "storage_15_reg_1/ENARDEN",
+        "Path Group": "milansoc_crg_clkout0",
+        "Path Type": "Setup (Max at Slow Process Corner)",
+        "Data Path Delay": "9.003ns  (logic 1.742ns (19.349%)  route 7.261ns (80.651%))",
+        "Logic Levels": "12  (LUT2=3 LUT3=1 LUT4=3 LUT5=2 LUT6=3)"
+      }
+    }
+  ]
+}

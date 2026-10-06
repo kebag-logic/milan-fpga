@@ -1,0 +1,28 @@
+make -C tb/verilator/follow_ring (clean build, pinned Verilator 5.050, VERILATOR_JOBS=8) rc=0
+  info: INTERNAL: 1 slips in 3.533 s (beat 3.519 s); margin at the set +0.507..+0.584 ticks
+  info: t=3.532660 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.657 s after the set; trim -6.000 ppm at the end
+  info: slip at 1.7573 s after the set, -4.9001 s from LOCKED
+  info: render recentre at 0.0427 s after the set, -6.6147 s from LOCKED
+  info: INTERNAL, last second      [   2.533,    3.533) s: ring slips 0, margin +0.507..+0.791 ticks; render n 8000 fill 13..13 (off-law 8000), delay 7.411..7.703 (out of band 8000), end-to-pop clearance 0.297 ticks
+  info: set to LOCKED              [   3.533,   10.190) s: ring slips 1, margin +0.008..+1.014 ticks; render n 53257 fill 12..14 (off-law 41600), delay 6.981..8.410 (out of band 41891), end-to-pop clearance 0.003 ticks NOT GRADABLE
+  info: LOCKED to the hold's end   [  10.190,   23.533) s: ring slips 0, margin +0.046..+0.084 ticks; render n 106738 fill 12..13 (off-law 106738), delay 6.958..6.989 (out of band 106738), end-to-pop clearance 0.011 ticks NOT GRADABLE
+  info: the hold's last 10 s       [  13.533,   23.533) s: ring slips 0, margin +0.046..+0.061 ticks; render n 79998 fill 12..12 (off-law 79998), delay 6.958..6.966 (out of band 79998), end-to-pop clearance 0.034 ticks
+RESULT-645: phase 0.5000 jitter 0.0 us tail 0.0 us p 0e+00: slips set-to-LOCKED 1, after LOCKED 0 (last -1.00 s), margin at LOCKED +0.061..+0.084 ticks, LOCKED 6.66 s, render at the end fill 12..12 delay 6.958..6.966 (off the law)
+  info: t=23.532660 s  CLOCK_SOURCE <- 1
+  info: t=38.532660 s  CLOCK_SOURCE <- 2
+  info: AAF to CRF: LOCKED 3.042 s after, ring slips 0; CRF to AAF: LOCKED 5.962 s after, ring slips 0
+  info: AAF to CRF hold            [  23.533,   38.533) s: ring slips 0, margin +0.046..+0.061 ticks; render n 119997 fill 12..14 (off-law 340), delay 6.958..8.970 (out of band 340), end-to-pop clearance 0.030 ticks
+  info: CRF to AAF hold            [  38.533,   53.533) s: ring slips 0, margin +0.054..+0.084 ticks; render n 119997 fill 14..15 (off-law 35140), delay 8.963..8.993 (out of band 0), end-to-pop clearance 0.007 ticks NOT GRADABLE
+== follow_ring: checks: 5   failures: 0 ==
+RESULT: PASS
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0, margin +0.338..+0.346 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.241..8.248 (out of band 0), end-to-pop clearance 0.241 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0, margin +0.338..+0.868 ticks; render n 1600 fill 14..14 (off-law 0), delay 8.248..8.778 (out of band 0), end-to-pop clearance 0.222 ticks
+  info: after the pull, 0.5..1 s   [   5.100,    5.600) s: ring slips 0, margin +0.845..+0.891 ticks; render n 3999 fill 14..14 (off-law 0), delay 8.748..8.801 (out of band 0), end-to-pop clearance 0.199 ticks
+RESULT-647: latency 200.00 us hold 52.0 us: delay 8.241..8.248 -> 8.748..8.801 ticks (shift +0.530), fill 14..14 -> 14..14, clearance 0.241 -> 0.199 ticks, recentres 0: ON THE LAW
+== follow_ring: checks: 1   failures: 0 ==
+RESULT: PASS
+[MUTANT] FR_MUT_W1: caught by "[SW] no ring slip across the AAF to CRF switch" (rc 1)
+follow_ring mutants: 1/1 caught
+
+suite_tally.py on that log: checks: 6   in-suite failures: 0; suite_tally.py --verdict rc=0

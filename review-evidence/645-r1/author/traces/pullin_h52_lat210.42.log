@@ -1,0 +1,6 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0, margin +0.837..+0.845 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.748..8.755 (out of band 0), end-to-pop clearance 0.245 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0, margin +0.837..+1.375 ticks; render n 1600 fill 14..15 (off-law 1200), delay 8.748..9.277 (out of band 1181), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: after the pull, 0.5..1 s   [   5.100,    5.600) s: ring slips 0, margin +1.344..+1.390 ticks; render n 3998 fill 15..15 (off-law 3998), delay 9.254..9.300 (out of band 3998), end-to-pop clearance 0.254 ticks
+RESULT-647: latency 210.42 us hold 52.0 us: delay 8.748..8.755 -> 9.254..9.300 ticks (shift +0.526), fill 14..14 -> 15..15, clearance 0.245 -> 0.254 ticks, recentres 0: LEFT THE LAW
+== follow_ring: checks: 1   failures: 0 ==
+RESULT: PASS

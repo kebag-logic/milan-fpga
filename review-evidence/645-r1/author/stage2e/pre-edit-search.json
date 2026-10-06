@@ -1,0 +1,59 @@
+[
+  {
+    "argv": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "//! queues (depth 8 = one PDU + margin) popped one event per media tick -",
+      "--",
+      "tb/**/*.patch"
+    ],
+    "rc": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "//! queues (depth 8 = one PDU + margin) popped one event per media tick -",
+      "--",
+      "tb"
+    ],
+    "rc": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "grep",
+      "-n",
+      "-F",
+      "depth 8 = one PDU + margin",
+      "--",
+      "tb/**/*.patch",
+      "tb/**/*.py",
+      "tb/**/*.sh"
+    ],
+    "rc": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "patch_inventory": []
+  },
+  {
+    "exact_text_table": "tb/verilator/follow_ring/mutants.py",
+    "sha256": "09e2b24fb9d4f920f5905caafdc571a04aa1b2e172e5ee8ad7e59cf5a29d26ce",
+    "matching_strings": []
+  },
+  {
+    "exact_text_table": "tb/verilator/capture_coherence/mutants.py",
+    "sha256": "c977fcf8b3d54033b025e82528cde38556f86f6e805f776ad2c0e61dd4e6b410",
+    "matching_strings": []
+  }
+]

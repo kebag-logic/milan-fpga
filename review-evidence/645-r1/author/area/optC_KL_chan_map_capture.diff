@@ -1,0 +1,77 @@
+--- hdl/ieee1722/aaf/KL_chan_map_capture.sv	2026-10-04 18:14:05.245000000 +0200
++++ cmc_rc.sv	2026-10-04 18:50:40.152000000 +0200
+@@ -332,7 +332,7 @@
+ 
+ `default_nettype none
+ 
+-module KL_chan_map_capture #(
++module KL_chan_map_capture_rc #(
+   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
+   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
+   //! TDM FRAME HANDOFF (#617): the pairs one front-end frame delivers into
+@@ -427,6 +427,8 @@
+   //! samples replay on a rebind. Defaulted off: an integration without a
+   //! bind plane keeps the free-running behaviour.
+   input  wire [N_LB_STREAMS_P-1:0] lb_flush_i = '0,
++  //! scratch option C: re-centre stream s's pair queues at its next PDU end
++  input  wire [N_LB_STREAMS_P-1:0] lb_recentre_i = '0,
+ 
+   //! --- media sample tick (one walk of the enabled slots per pulse) -------
+   input  wire         tick_i,
+@@ -758,6 +760,11 @@
+   logic [LB_QPTRW_C:0]   q_cnt_r [LB_PAIRS_C];   //! 0..LB_QDEPTH_C
+   logic [LB_PAIRS_C-1:0] q_fed_r;                //! pushed since reset/flush
+   logic [LB_PAIRS_C-1:0] q_primed_r;             //! first whole PDU seen
++  //! scratch option C: the centred target (one event of the last PDU left at
++  //! every push), a pending recentre and a hold until the target is reached
++  localparam int unsigned LB_TARGET_C = 7;
++  logic [LB_PAIRS_C-1:0] q_rc_r;
++  logic [LB_PAIRS_C-1:0] q_hold_r;
+   logic [47:0] lb_hold_r [LB_PAIRS_C];           //! the walk's read bank
+ 
+   //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
+@@ -825,10 +832,11 @@
+   //! premature read; dup only fed pairs: an idle pair repeating silence is
+   //! not a slip
+   wire [LB_QPTRW_C:0] pop_cnt_w = q_cnt_r[pop_pair_w];
++  wire pop_held_w = q_hold_r[pop_pair_w] && (32'(pop_cnt_w) < LB_TARGET_C);
+   wire pop_act_w = pop_visit_w && q_primed_r[pop_pair_w]
+-                   && (pop_cnt_w != '0);
++                   && (pop_cnt_w != '0) && !pop_held_w;
+   wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
+-                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
++                   && q_fed_r[pop_pair_w] && ((pop_cnt_w == '0) || pop_held_w);
+   wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w];
+   //! queue array addresses (read the pre-advance rd pointer)
+   wire [LBPW_C+LB_QPTRW_C-1:0] pop_raddr_w  = {pop_pair_w, pop_rd_w};
+@@ -891,6 +899,8 @@
+       end
+       q_fed_r        <= '0;
+       q_primed_r     <= '0;
++      q_rc_r         <= '0;
++      q_hold_r       <= '0;
+       skid_v_r       <= '0;
+       skid_wp_r      <= 2'd0;
+       skid_rp_r      <= 2'd0;
+@@ -948,6 +958,21 @@
+         q_fed_r[push_pair_w] <= 1'b1;
+       end
+       q_primed_r <= (q_primed_r | prime_set_w) & ~flush_clr_w;
++      //! scratch option C: arm per pair, act at the stream's PDU end
++      for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
++        if (lb_recentre_i[pp / int'(LB_PPS_C)]) q_rc_r[pp] <= 1'b1;
++        if (pop_visit_w && (pop_pair_w == LBPW_C'(pp)) && !pop_held_w)
++          q_hold_r[pp] <= 1'b0;
++        if (q_rc_r[pp] && prime_set_w[pp]) begin
++          q_rc_r[pp] <= 1'b0;
++          if (32'(q_cnt_r[pp]) > LB_TARGET_C) begin
++            q_rd_r[pp]  <= q_wr_r[pp] - LB_QPTRW_C'(LB_TARGET_C);
++            q_cnt_r[pp] <= (LB_QPTRW_C+1)'(LB_TARGET_C);
++          end else begin
++            q_hold_r[pp] <= 1'b1;
++          end
++        end
++      end
+ 
+       //! ---- pop data return into the walk's hold bank -------------------
+       if (pop_ret_v_r) lb_hold_r[pop_ret_pair_r] <= q_rdata_r;
