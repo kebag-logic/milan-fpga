@@ -3,11 +3,15 @@
 
 Status: **F0 implemented behind a default-off build switch.** The all-fabric
 build is unchanged and remains the shipping image. This page is the design
-of the contract between the fabric and the bare-metal control-plane firmware
-of milestone 13 (Mark II: out-of-fabric slow path), as the owner decisions of
+of the contract between the fabric and the bare-metal control-plane firmware.
+The split integrates before P3; milestone 13 retains the hard-core port.
+The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+All-fabric stays the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+The owner decisions of
 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
 and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
-describe it. The numbers live in one place, the generated
+define the interface. The numbers live in one place, the generated
 [reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
 
 ## Contents
@@ -28,8 +32,8 @@ describe it. The numbers live in one place, the generated
 ## What moves, and what the fabric keeps
 
 The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
-fabric keeps framing and timestamps, the gPTP plane, the timers that carry
-hard deadlines, and an ingress filter in front of the core. The two exchange
+fabric keeps framing and timestamps, the gPTP plane, the media path,
+the timers that carry hard deadlines, and an ingress filter. The two exchange
 frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
 interrupt, 32-bit accesses only and no DMA.
 
@@ -339,6 +343,12 @@ ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
 the ADP channel does not carry yet; adding one is a minor contract change.
 
 ### Service latency
+
+The figures below are F0's conditional mailbox-access evidence.
+[NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+adds the proposed 10 ms project budget for integrated firmware.
+Its [hooks](../reference/FR_NFR.md#342-control-service-test-hooks) count backlog and egress separately.
+F0 does not prove that target-time budget.
 
 The D3 ruling on #640 asks each lane to state and test a deterministic upper
 bound per response path. The bound is stated in mailbox accesses and holds

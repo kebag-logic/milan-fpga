@@ -8,30 +8,52 @@ kept in Git history rather than the tracked product tree (#259).
 
 ## Contents
 
-- **[1. Product ownership](#1-product-ownership)** — Defines the one supported bare-metal target and its fabric/firmware responsibilities.
-- **[2. Reference standards](#2-reference-standards)** — Names the IEEE, Milan and interface specifications that constrain the design.
-- **[3. CSR plane](#3-csr-plane)** — Requires a stable, coherent AXI-Lite register ABI and explicit access semantics.
-- **[4. Time synchronization and timestamping](#4-time-synchronization-and-timestamping)** — Assigns the PHC, gPTP publication and AVTP uncertainty contracts to fabric.
-- **[5. Credit-based shaping](#5-credit-based-shaping)** — Specifies fixed-point CBS behavior, limits and runtime configuration.
-- **[6. Classification and queues](#6-classification-and-queues)** — Defines class mapping, control traffic treatment and queue ordering.
-- **[7. MAC and PHY management](#7-mac-and-phy-management)** — Covers frame integrity, filtering, link recovery and timestamp boundaries.
-- **[8. Verification and release acceptance](#8-verification-and-release-acceptance)** — Sets the local, remote and exact-candidate evidence bar.
-- **[9. Out of scope](#9-out-of-scope)** — Records deliberately unsupported profiles without creating alternate product paths.
+- **[1. Product ownership](#1-product-ownership)** -- Defines the one supported bare-metal target and its fabric/firmware responsibilities.
+- **[2. Reference standards](#2-reference-standards)** -- Names the IEEE, Milan and interface specifications that constrain the design.
+- **[3. CSR plane](#3-csr-plane)** -- Requires a stable, coherent AXI-Lite register ABI and explicit access semantics.
+- **[4. Time synchronization and timestamping](#4-time-synchronization-and-timestamping)** -- Assigns the PHC, gPTP publication and AVTP uncertainty contracts to fabric.
+- **[5. Credit-based shaping](#5-credit-based-shaping)** -- Specifies fixed-point CBS behavior, limits and runtime configuration.
+- **[6. Classification and queues](#6-classification-and-queues)** -- Defines class mapping, control traffic treatment and queue ordering.
+- **[7. MAC and PHY management](#7-mac-and-phy-management)** -- Covers frame integrity, filtering, link recovery and timestamp boundaries.
+- **[8. Verification and release acceptance](#8-verification-and-release-acceptance)** -- Sets the local, remote and exact-candidate evidence bar.
+- **[9. Out of scope](#9-out-of-scope)** -- Records deliberately unsupported profiles without creating alternate product paths.
 
 ## 1. Product ownership
 
 - Bare-metal firmware owns boot policy, CSR initialization, identity,
-  persistence orchestration, UART diagnostics, and remaining software-visible
-  control.
+  saved-state boot read/apply and write-back, and UART diagnostics.
+- ADP, ACMP, AECP (commands, unsolicited notifications and counter serving),
+  MAAP and SRP MUST each have build-selectable placement.
+  The Mark II default places them on the bare-metal core.
+  The all-fabric build remains a supported option.
+  It remains the shipping default until F2 to F5 pass
+  their suites and bench acceptance: all streams, counters and audio soak.
+  Requirement approval precedes that default flip (#664, #665).
 - The fabric gPTP plane is the sole product PHC, protocol, servo, and public
   state owner.
 - `GPTP_PLANE_EN_P=0` is verification-only hardware. It has no product image
   and zero runtime gPTP owners: GM, parent, PathTrace and peer delay are zero;
   sync/asCapable are zero; `tu` is one; retained writes are inert.
-- The fabric owns per-frame classification, reservation, shaping,
-  timestamping, AVTP/AAF/CRF, MAAP, and IEEE 1722.1 processing.
-- Required Milan state must survive power loss. The current blank-flash NVM
-  face does not satisfy this requirement and is the release blocker in #70.
+- The fabric MUST retain framing, timestamps, the ingress filter,
+  the gPTP plane, and the AVTP/AAF/CRF and physical-media paths.
+  Audio and gPTP deadlines MUST remain independent of firmware service.
+  Reservation protocol control follows its selected placement.
+  Media admission enforcement and any shaping remain in fabric.
+- Each selected function MUST have exactly one authoritative state owner.
+  Both placements MUST preserve wire behavior, ordering and normative timeouts.
+  Firmware service MUST satisfy NFR-SCOUT-03 and its path-specific hooks
+  in the [requirements register](docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+- Required Milan state must survive power loss.
+  The shipping backend is partial; #70 remains a release blocker.
+  F1 supplies the split store without integrating a shipping image.
+  Its [boot contract](sw/firmware/ctrl_nvm/README.md#boot) governs validation and apply.
+
+The [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
+Major `0x0003` identifies only images running the split.
+The major changes with the default-flip implementation, not this document change.
+MINOR remains flat and continuous across majors.
+The [landing plan](docs/ARCHITECTURE_HW_SW_SPLIT.md#7-version-and-default-flip) pins the simulations and firmware string.
+The current VERSION remains `0x0002_0060`.
 
 ## 2. Reference standards
 

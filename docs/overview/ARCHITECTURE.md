@@ -1,8 +1,15 @@
 # Architecture
 
-Milan FPGA is a fabric-first Milan 1.2 end station. A small bare-metal RV32
-CPU performs boot, policy setup, and diagnostics; packet protocols, gPTP, AAF,
-CRF, MAAP, shaping, and physical audio movement execute in FPGA logic.
+Milan FPGA is a Milan 1.2 end station.
+The current shipping build places control protocols in fabric.
+Mark II defaults ADP, ACMP, AECP, MAAP and SRP to firmware.
+Each control function has build-selectable placement with one owner.
+AECP includes unsolicited notifications and counter serving.
+Framing, timestamps, ingress filtering, gPTP and media remain in fabric.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines placement and service timing.
+The implementation sections below describe today's all-fabric shipping build.
 
 Machine-checked status rows are defined by the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -26,14 +33,14 @@ Machine-checked status rows are defined by the
 
 ## Contents
 
-- **[1. Product boundary](#1-product-boundary)** — The supported datapath, LiteX shell, flash, CSR, audio, and firmware surfaces.
-- **[2. Data flow](#2-data-flow)** — The fabric-only ingress observations and egress-source merge at the MAC.
-- **[3. Control and identity](#3-control-and-identity)** — Protocol-processor ownership and boot-time installation of the generated entity image.
-- **[4. Time and media clocks](#4-time-and-media-clocks)** — Fabric gPTP discipline, published state, and the configured audio grid.
-- **[5. Clock domains & CDC](#5-clock-domains--cdc)** — The principal domains, approved crossing mechanisms, and generated census.
-- **[6. Persistent state](#6-persistent-state)** — Paired image updates and the still-missing protocol-state backend owned by #70.
-- **[7. Verification architecture](#7-verification-architecture)** — How unit, integration, synthesis, timing, UART, and wire evidence compose.
-- **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** — The source-of-truth locations for behavior, integration, configuration, and evidence.
+- **[1. Product boundary](#1-product-boundary)** -- The supported datapath, LiteX shell, flash, CSR, audio, and firmware surfaces.
+- **[2. Data flow](#2-data-flow)** -- The fabric-only ingress observations and egress-source merge at the MAC.
+- **[3. Control and identity](#3-control-and-identity)** -- Protocol-processor ownership and boot-time installation of the generated entity image.
+- **[4. Time and media clocks](#4-time-and-media-clocks)** -- Fabric gPTP discipline, published state, and the configured audio grid.
+- **[5. Clock domains & CDC](#5-clock-domains--cdc)** -- The principal domains, approved crossing mechanisms, and generated census.
+- **[6. Persistent state](#6-persistent-state)** -- Paired image updates and the still-missing protocol-state backend owned by #70.
+- **[7. Verification architecture](#7-verification-architecture)** -- How unit, integration, synthesis, timing, UART, and wire evidence compose.
+- **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** -- The source-of-truth locations for behavior, integration, configuration, and evidence.
 
 ## 1. Product boundary
 
