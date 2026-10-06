@@ -3637,9 +3637,9 @@ void TdmRenderHarness::grade_the_law_at_a_feed_phase(long phase) {
 //! aligner stays engaged, folds the step to half a sample and pulls the grid
 //! back. Under a stream already running, nothing re-centred the render
 //! stage after that pull until #645: the stream kept the displacement, one
-//! event at some phases (#647). Now an aligner excursion past four settle
-//! bands arms milan_datapath's settle recentre, which fires once the aligner
-//! has rested inside its band for 2,048 ticks. Each phase is a fresh stream
+//! event at some phases (#647). Now an excursion past the quiet band outside
+//! recovery arms milan_datapath's settle recentre, which fires once the aligner
+//! has rested inside that band for 2,048 ticks. Each phase is a fresh stream
 //! at a [LAW] feed phase, on the law before the hold; after the settle
 //! recentre the same stream must be on the law again, the recentre the only
 //! one since the hold, and the loopback ring's counters static from it on.
