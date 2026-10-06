@@ -1,0 +1,33 @@
+[
+  {
+    "name": "toc-check-pinned",
+    "command": [
+      "$PACKET/scratch/markdown-env/bin/python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.338
+  },
+  {
+    "name": "toc-anchors-pinned",
+    "command": [
+      "$PACKET/scratch/markdown-env/bin/python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.927
+  },
+  {
+    "name": "em-dash-pinned",
+    "command": [
+      "$PACKET/scratch/markdown-env/bin/python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "bd884631684ccf5060339efa92263d5c3e5c262c"
+    ],
+    "rc": 0,
+    "seconds": 6.701
+  }
+]

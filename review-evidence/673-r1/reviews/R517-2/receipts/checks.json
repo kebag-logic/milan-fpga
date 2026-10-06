@@ -1,0 +1,122 @@
+[
+  {
+    "name": "focused-probe",
+    "command": [
+      "python3",
+      "$PACKET/scripts/focused_probe.py",
+      "$REPO"
+    ],
+    "rc": 0,
+    "seconds": 2.076
+  },
+  {
+    "name": "evidence-check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 8.849
+  },
+  {
+    "name": "evidence-selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 12.193
+  },
+  {
+    "name": "shell-syntax",
+    "command": [
+      "bash",
+      "-n",
+      "scripts/run_all_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 0.011
+  },
+  {
+    "name": "shards-selftest",
+    "command": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "ci-policy",
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.484
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 8.29
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.215
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.166
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.265
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "bd884631684ccf5060339efa92263d5c3e5c262c"
+    ],
+    "rc": 2,
+    "seconds": 2.595
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "bd884631684ccf5060339efa92263d5c3e5c262c",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.009
+  }
+]

@@ -1,0 +1,24 @@
+PASS: 60 default suites; physical/manual exclusions; unchanged affected owners
+PASS: shell dispatch for 62 names, override=None
+PASS: shell dispatch for 62 names, override=''
+PASS: shell dispatch for 62 names, override='0'
+PASS: shell dispatch for 62 names, override='17'
+PASS: shell dispatch for 62 names, override='0.125'
+PASS: shell dispatch for 62 names, override='5400'
+KILLED: capture_coherence: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: milan_dp_mclk: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: milan_dp: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: physical: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: fallback: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: capture name: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: mclk name: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: dp name: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: override: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: dispatch: the declared 1800/2400/3600/4800/5400-second suite budgets changed
+KILLED: guard: the per-suite wall-clock guard is missing
+KILLED: unknown exit: an unknown timeout result does not return exit 92
+KILLED: inert contract checker; 13 negative self-test assertions fail
+PASS: documented shard 1/5 arithmetic 5899.359s < 6480s; headroom 18.06%
+PASS: documented shard 2/5 arithmetic 6203.901s < 6480s; headroom 13.83%
+PASS: documented shard 4/5 arithmetic 4889.438s < 6480s; headroom 32.09%
+PASS: focused probe; no source writes; arithmetic does not remeasure hosted jobs
