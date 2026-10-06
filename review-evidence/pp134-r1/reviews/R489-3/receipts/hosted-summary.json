@@ -1,0 +1,330 @@
+{
+  "snapshot_utc": "2026-10-06T03:34:43.311369+00:00",
+  "head": "ffc3a8e5733202384e55ea9094569cca86b78261",
+  "runs": [
+    {
+      "run": 37408875830,
+      "jobs": [
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-06T03:25:08Z",
+          "completed_at": "2026-10-06T03:27:31Z",
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Install yosys + sv2v",
+              "completed",
+              "success"
+            ],
+            [
+              "Elaborate every top off-vendor",
+              "completed",
+              "success"
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Complete job",
+              "completed",
+              "success"
+            ]
+          ]
+        },
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-06T03:25:09Z",
+          "completed_at": "2026-10-06T03:26:21Z",
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Install the WaveDrom renderer and the Mermaid CLI",
+              "completed",
+              "success"
+            ],
+            [
+              "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "completed",
+              "success"
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Complete job",
+              "completed",
+              "success"
+            ]
+          ]
+        },
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-06T03:25:08Z",
+          "completed_at": null,
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Cache the pinned Verilator build",
+              "completed",
+              "success"
+            ],
+            [
+              "Build Verilator v5.050",
+              "completed",
+              "skipped"
+            ],
+            [
+              "Lint (zero tolerance) + every suite",
+              "in_progress",
+              null
+            ],
+            [
+              "SRP LeaveAll mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "MAAP mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "ADP mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "AECP deadline and hazard-class mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "AECP dispatch mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "Traceability matrix no-drift + untested budget 0",
+              "pending",
+              null
+            ],
+            [
+              "nvm_port README figures agree with the tree",
+              "pending",
+              null
+            ],
+            [
+              "Post Cache the pinned Verilator build",
+              "pending",
+              null
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "pending",
+              null
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "run": 37408871633,
+      "jobs": [
+        {
+          "name": "docs-gates",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-06T03:25:05Z",
+          "completed_at": "2026-10-06T03:26:18Z",
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Install the WaveDrom renderer and the Mermaid CLI",
+              "completed",
+              "success"
+            ],
+            [
+              "make check (Mermaid lint, WaveDrom freshness, links, matrices, parameters, IDs, figures, staleness)",
+              "completed",
+              "success"
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Complete job",
+              "completed",
+              "success"
+            ]
+          ]
+        },
+        {
+          "name": "suites",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-06T03:25:06Z",
+          "completed_at": null,
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Cache the pinned Verilator build",
+              "completed",
+              "success"
+            ],
+            [
+              "Build Verilator v5.050",
+              "completed",
+              "skipped"
+            ],
+            [
+              "Lint (zero tolerance) + every suite",
+              "in_progress",
+              null
+            ],
+            [
+              "SRP LeaveAll mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "MAAP mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "ADP mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "AECP deadline and hazard-class mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "AECP dispatch mutation campaign",
+              "pending",
+              null
+            ],
+            [
+              "Traceability matrix no-drift + untested budget 0",
+              "pending",
+              null
+            ],
+            [
+              "nvm_port README figures agree with the tree",
+              "pending",
+              null
+            ],
+            [
+              "Post Cache the pinned Verilator build",
+              "pending",
+              null
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "pending",
+              null
+            ]
+          ]
+        },
+        {
+          "name": "portability",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-06T03:25:05Z",
+          "completed_at": "2026-10-06T03:26:48Z",
+          "steps": [
+            [
+              "Set up job",
+              "completed",
+              "success"
+            ],
+            [
+              "Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Install yosys + sv2v",
+              "completed",
+              "success"
+            ],
+            [
+              "Elaborate every top off-vendor",
+              "completed",
+              "success"
+            ],
+            [
+              "Post Run actions/checkout@v4",
+              "completed",
+              "success"
+            ],
+            [
+              "Complete job",
+              "completed",
+              "success"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

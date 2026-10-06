@@ -1,0 +1,176 @@
+[
+  {
+    "file": "receipts/focused/expiry-dropped-fsm.log",
+    "tallies": [
+      "1347 checks: 1261 PASS, 86 FAIL"
+    ],
+    "failure_tags": {
+      "SC1": 80,
+      "T reg": 2,
+      "L expiry -> MT + unregistered": 1,
+      "K leavetimer! -> MT": 1,
+      "K one LISTENER_REG_CHANGE, got 0": 1,
+      "K source 3 no longer ACTIVE": 1
+    },
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/expiry-last-fsm.log",
+    "tallies": [
+      "1347 checks: 1299 PASS, 48 FAIL"
+    ],
+    "failure_tags": {
+      "SC1": 48
+    },
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/fsm-default-walk.log",
+    "tallies": [
+      "35 checks: 35 PASS, 0 FAIL",
+      "46 checks: 46 PASS, 0 FAIL",
+      "67 checks: 67 PASS, 0 FAIL",
+      "123 checks: 123 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/fsm-default.log",
+    "tallies": [
+      "1347 checks: 1347 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/missed-collision-top.log",
+    "tallies": [
+      "6432 checks: 6416 PASS, 16 FAIL"
+    ],
+    "failure_tags": {
+      "SC3": 16
+    },
+    "clock_counts": [
+      "TOTAL_CLOCKS 20948116"
+    ],
+    "closed_cases": 6416,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/never-ends-default-storage.log",
+    "tallies": [
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/never-ends-default.log",
+    "tallies": [
+      "8656 checks: 5624 PASS, 3032 FAIL"
+    ],
+    "failure_tags": {
+      "S2": 8,
+      "S3": 8,
+      "SC2": 3016
+    },
+    "clock_counts": [
+      "TOTAL_CLOCKS 210547557"
+    ],
+    "closed_cases": 3400,
+    "stuck_cases": 3016
+  },
+  {
+    "file": "receipts/focused/original-order-fsm.log",
+    "tallies": [
+      "1347 checks: 1331 PASS, 16 FAIL"
+    ],
+    "failure_tags": {
+      "SC1": 16
+    },
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/original-order-top.log",
+    "tallies": [
+      "6432 checks: 6416 PASS, 16 FAIL"
+    ],
+    "failure_tags": {
+      "SC2": 16
+    },
+    "clock_counts": [
+      "TOTAL_CLOCKS 20910008"
+    ],
+    "closed_cases": 6400,
+    "stuck_cases": 16
+  },
+  {
+    "file": "receipts/focused/second-lv-default-storage.log",
+    "tallies": [
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/second-lv-default.log",
+    "tallies": [
+      "8656 checks: 8640 PASS, 16 FAIL"
+    ],
+    "failure_tags": {
+      "S1": 8,
+      "S2": 8
+    },
+    "clock_counts": [
+      "TOTAL_CLOCKS 210547557"
+    ],
+    "closed_cases": 6416,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/top-default-storage.log",
+    "tallies": [
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL",
+      "15 checks: 15 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [],
+    "closed_cases": 0,
+    "stuck_cases": 0
+  },
+  {
+    "file": "receipts/focused/top-default.log",
+    "tallies": [
+      "8656 checks: 8656 PASS, 0 FAIL"
+    ],
+    "failure_tags": {},
+    "clock_counts": [
+      "TOTAL_CLOCKS 210547557"
+    ],
+    "closed_cases": 6416,
+    "stuck_cases": 0
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "label": "top-default",
+    "rc": 0,
+    "seconds": 228.99,
+    "failures": 0,
+    "tally": [
+      "8656 checks: 8656 PASS, 0 FAIL"
+    ],
+    "tags": []
+  },
+  {
+    "label": "fsm-default",
+    "rc": 0,
+    "seconds": 8.2,
+    "failures": 0,
+    "tally": [
+      "1347 checks: 1347 PASS, 0 FAIL"
+    ],
+    "tags": []
+  },
+  {
+    "label": "second-lv-default",
+    "rc": 2,
+    "seconds": 226.74,
+    "failures": 16,
+    "tally": [
+      "8656 checks: 8640 PASS, 16 FAIL"
+    ],
+    "tags": [
+      "S1",
+      "S2"
+    ]
+  },
+  {
+    "label": "never-ends-default",
+    "rc": 2,
+    "seconds": 225.6,
+    "failures": 3032,
+    "tally": [
+      "8656 checks: 5624 PASS, 3032 FAIL"
+    ],
+    "tags": [
+      "S2",
+      "S3",
+      "SC2"
+    ]
+  },
+  {
+    "label": "original-order-top",
+    "rc": 2,
+    "seconds": 30.03,
+    "failures": 16,
+    "tally": [
+      "6432 checks: 6416 PASS, 16 FAIL"
+    ],
+    "tags": [
+      "SC2"
+    ]
+  },
+  {
+    "label": "missed-collision-top",
+    "rc": 2,
+    "seconds": 27.78,
+    "failures": 16,
+    "tally": [
+      "6432 checks: 6416 PASS, 16 FAIL"
+    ],
+    "tags": [
+      "SC3"
+    ]
+  },
+  {
+    "label": "original-order-fsm",
+    "rc": 2,
+    "seconds": 9.04,
+    "failures": 16,
+    "tally": [
+      "1347 checks: 1331 PASS, 16 FAIL"
+    ],
+    "tags": [
+      "SC1"
+    ]
+  },
+  {
+    "label": "expiry-last-fsm",
+    "rc": 2,
+    "seconds": 6.89,
+    "failures": 48,
+    "tally": [
+      "1347 checks: 1299 PASS, 48 FAIL"
+    ],
+    "tags": [
+      "SC1"
+    ]
+  },
+  {
+    "label": "expiry-dropped-fsm",
+    "rc": 2,
+    "seconds": 7.09,
+    "failures": 86,
+    "tally": [
+      "1347 checks: 1261 PASS, 86 FAIL"
+    ],
+    "tags": [
+      "K leavetimer! -> MT",
+      "K one LISTENER_REG_CHANGE, got 0",
+      "K source 3 no longer ACTIVE",
+      "L expiry -> MT + unregistered",
+      "SC1",
+      "T reg"
+    ]
+  }
+]

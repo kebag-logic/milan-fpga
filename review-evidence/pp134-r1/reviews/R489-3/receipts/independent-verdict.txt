@@ -1,0 +1,13 @@
+[R489] POSITIVE - exact head ffc3a8e5733202384e55ea9094569cca86b78261
+Independent verdict recorded before reading previous review reports. 2026-10-06T03:33:04.358784+00:00
+This checkpoint will be reconciled against the prior public FINDINGS before the final REPORT.md.
+No open defect identified in the independent pass.
+
+lens | status | examined artifacts | covering round | exact head
+Conformance | CLEAN | #134 body and rulings 5990549074/5994864535/5995957938; 10 section 6.5; F08.1; timer-service strobe; 2048 independent input cases | R489-3 | ffc3a8e5733202384e55ea9094569cca86b78261
+RTL | CLEAN | both registrar blocks, listener indication logic, inherited notification diff, both automatic merge-tree equalities | R489-3 | ffc3a8e5733202384e55ea9094569cca86b78261
+Robustness | CLEAN | all event types, both planes, every stream index, match/mismatch and payload/type transitions; same-clock original-order and expiry controls | R489-3 | ffc3a8e5733202384e55ea9094569cca86b78261
+Tests | CLEAN | 1347 FSM checks; 8656 integrated checks; 449 planting trials; 2048 independent cases; all focused faults killed | R489-3 | ffc3a8e5733202384e55ea9094569cca86b78261
+Docs | CLEAN | docs conventions, 10 section 6.5, both suite READMEs and same-clock comments; measured 210547557 clocks; full-suite mutation counts; selected documentation checks | R489-3 | ffc3a8e5733202384e55ea9094569cca86b78261
+
+Limits at checkpoint: public evidence review and previous findings reconciliation remain; no hardware, synthesis or full-bank rerun. The public evidence packet at the supplied historical commit describes 5ab43bd9, not this head. Public later source validation claims will be separated by their actual head. The final merge candidate and hosted acceptance belong to the manager.

@@ -1,0 +1,102 @@
+ .github/workflows/hdl.yml                          |  23 +-
+ Makefile                                           |  21 +-
+ README.md                                          |   3 +-
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |   8 +-
+ docs/README.md                                     |  43 ++-
+ docs/architecture/01_overview.md                   |  11 +-
+ docs/architecture/02_interfaces.md                 | 202 ++++++++------
+ docs/architecture/03_packet_engine.md              |  10 +-
+ docs/architecture/06_aecp_engine.md                |  12 +-
+ docs/architecture/07_memory_maps.md                |   2 +-
+ docs/architecture/09_verification.md               |  19 +-
+ docs/architecture/10_srp_engine.md                 |  30 +++
+ docs/diagrams/20-rtl-dataflow.png                  | Bin 523744 -> 0 bytes
+ docs/diagrams/21-integration-faces.png             | Bin 663333 -> 0 bytes
+ docs/diagrams/22-aecp-descriptor-fetch.png         | Bin 565795 -> 0 bytes
+ docs/diagrams/23-bringup-decision.png              | Bin 790025 -> 0 bytes
+ docs/diagrams/24-adp-acmp-states.png               | Bin 444845 -> 0 bytes
+ docs/diagrams/README.md                            |  23 +-
+ docs/diagrams/wavedrom/fig-02-memwave.svg          |   4 +-
+ docs/diagrams/wavedrom/fig-02-rxwave.svg           |   4 +-
+ docs/diagrams/wavedrom/fig-02-txwave.svg           |   4 +-
+ docs/guides/hdl-engineer.md                        |   3 +-
+ docs/guides/integrator.md                          |  16 +-
+ docs/history/02-class-a-word-stream.md             |  84 ++++++
+ hdl/aecp/KL_aecp_notify.sv                         |  26 +-
+ hdl/packet_engine/KL_pp_side_port.sv               |   8 +-
+ hdl/packet_engine/KL_pp_trace_ring.sv              |  10 +-
+ hdl/packet_engine/KL_pp_tx_slots.sv                |   2 +-
+ hdl/srp/KL_srp_listener_fsm.sv                     |  11 +-
+ hdl/srp/KL_srp_talker_fsm.sv                       |   9 +-
+ scripts/check-figures.py                           | 242 +++++++++++++++++
+ scripts/check-ids.py                               | 293 +++++++++++++++++++++
+ scripts/render-wavedrom.py                         |  19 +-
+ tb/aecp_notify/README.md                           |  76 +++++-
+ tb/aecp_notify/sim_main.cpp                        | 291 ++++++++++++++++++++
+ tb/pp_top/README.md                                |  98 +++++--
+ .../ctr_mutations/ctr-notify-one-window.patch      |   8 +-
+ tb/pp_top/d3_phases.hpp                            |   4 +-
+ tb/pp_top/notify_mutants.py                        |  62 ++++-
+ tb/pp_top/notify_phases.hpp                        |  87 +++++-
+ tb/pp_top/sim_main.cpp                             |   4 +-
+ tb/side_port/README.md                             |   7 +-
+ tb/srp_stream_fsms/README.md                       |  18 +-
+ tb/srp_stream_fsms/sim_main.cpp                    |  42 +++
+ tb/srp_top/Makefile                                |   2 +-
+ tb/srp_top/README.md                               | 107 +++++++-
+ tb/srp_top/mutants.py                              |  10 +-
+ tb/srp_top/mutations/listener-no-renewal.patch     |   2 +-
+ tb/srp_top/mutations/listener-strict-lv.patch      |   4 +-
+ tb/srp_top/mutations/lv-expiry-dropped.patch       |  22 ++
+ tb/srp_top/mutations/lv-expiry-last.patch          |  48 ++++
+ tb/srp_top/mutations/lv-expiry-masked.patch        |  66 +++++
+ tb/srp_top/mutations/lv-never-ends.patch           |  10 +
+ tb/srp_top/mutations/lv-second-lv-ends.patch       |  25 ++
+ .../mutations/lv-sweep-misses-collision.patch      |  10 +
+ tb/srp_top/mutations/my-la-outranks-leave.patch    |   8 +-
+ .../mutations/r-sink-receive-priority-lost.patch   |   4 +-
+ tb/srp_top/mutations/receive-priority-lost.patch   |   4 +-
+ tb/srp_top/mutations/renewal-congestion.patch      |   6 +-
+ tb/srp_top/mutations/talker-no-renewal.patch       |   6 +-
+ tb/srp_top/mutations/talker-strict-lv.patch        |   6 +-
+ tb/srp_top/sim_main.cpp                            | 230 +++++++++++++++-
+ tb/tx_slots/README.md                              |   2 +-
+ tb/tx_slots/sim_main.cpp                           |   5 +-
+ 64 files changed, 2183 insertions(+), 233 deletions(-)
+
+ISSUE-SPECIFIC DELTA AGAINST INHERITED MAIN:
+ docs/architecture/10_srp_engine.md                 |  30 +++
+ hdl/srp/KL_srp_listener_fsm.sv                     |  11 +-
+ hdl/srp/KL_srp_talker_fsm.sv                       |   9 +-
+ tb/pp_top/d3_phases.hpp                            |   4 +-
+ tb/srp_stream_fsms/README.md                       |  18 +-
+ tb/srp_stream_fsms/sim_main.cpp                    |  42 ++++
+ tb/srp_top/Makefile                                |   2 +-
+ tb/srp_top/README.md                               | 107 +++++++++-
+ tb/srp_top/mutants.py                              |  10 +-
+ tb/srp_top/mutations/listener-no-renewal.patch     |   2 +-
+ tb/srp_top/mutations/listener-strict-lv.patch      |   4 +-
+ tb/srp_top/mutations/lv-expiry-dropped.patch       |  22 ++
+ tb/srp_top/mutations/lv-expiry-last.patch          |  48 +++++
+ tb/srp_top/mutations/lv-expiry-masked.patch        |  66 ++++++
+ tb/srp_top/mutations/lv-never-ends.patch           |  10 +
+ tb/srp_top/mutations/lv-second-lv-ends.patch       |  25 +++
+ .../mutations/lv-sweep-misses-collision.patch      |  10 +
+ tb/srp_top/mutations/my-la-outranks-leave.patch    |   8 +-
+ .../mutations/r-sink-receive-priority-lost.patch   |   4 +-
+ tb/srp_top/mutations/receive-priority-lost.patch   |   4 +-
+ tb/srp_top/mutations/renewal-congestion.patch      |   6 +-
+ tb/srp_top/mutations/talker-no-renewal.patch       |   6 +-
+ tb/srp_top/mutations/talker-strict-lv.patch        |   6 +-
+ tb/srp_top/sim_main.cpp                            | 230 ++++++++++++++++++++-
+ 24 files changed, 648 insertions(+), 36 deletions(-)
+
+FIRST-PARENT HISTORY:
+ffc3a8e5733202384e55ea9094569cca86b78261 a596c7626864ae10026994ca777a8ccfdb53a9f6 e6a759deeb70b2d7de1b3336e9f080bc85d4f0a8 Merge main e6a759de (#158) into pp134-lv-leave
+a596c7626864ae10026994ca777a8ccfdb53a9f6 9050c4bbd25556929a0f24fb98258bc98e3bcfbe Correct full-suite LV mutation records (#134)
+9050c4bbd25556929a0f24fb98258bc98e3bcfbe 9d2659884a6a8e000364b1a39b9bb9514cf04bd6 21c6f7096ac80007f723de59c6f717f55bd34cfc Merge processor main 21c6f709 into the LV leave lane (#134)
+9d2659884a6a8e000364b1a39b9bb9514cf04bd6 ed727d4d3fef5d24fe8053f72495fc2197fd3288 Supply the record count in D3 restore failure diagnostics (#134)
+ed727d4d3fef5d24fe8053f72495fc2197fd3288 ab3c1687f867e205ffbf5e41bd3a4bc89c759744 Preserve renewal indications while prioritizing leave expiry (#134)
+ab3c1687f867e205ffbf5e41bd3a4bc89c759744 5ab43bd98209ef3cde206b325c06f0e7405e1e86 Consume registrar leave expiry before simultaneous received events (#134)
+5ab43bd98209ef3cde206b325c06f0e7405e1e86 68b0e615d9af2b2564ba3baa4513847bedb9e0fe State the LV-case withdrawal behaviour in 10 section 6.5 (#134)
+68b0e615d9af2b2564ba3baa4513847bedb9e0fe ead8036035affd53ef4b29979190f2f4f67084c0 Grade a withdrawal that meets an LV Listener registrar after a LeaveAll (#134)
