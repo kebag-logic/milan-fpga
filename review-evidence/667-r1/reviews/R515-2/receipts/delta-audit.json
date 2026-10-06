@@ -1,0 +1,67 @@
+{
+  "head": "41bc9dac031526c1fd637ff1e801d3c6dc1260b4",
+  "tree": "1a233401c2f5d585b7a0a2d1a7db16daff6d29b6",
+  "merge_parents": [
+    "5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2",
+    "bd884631684ccf5060339efa92263d5c3e5c262c"
+  ],
+  "equality_base": "bd884631684ccf5060339efa92263d5c3e5c262c",
+  "source_base": "423ac5d910d09ab189b3acc39ae3ae1d10d50b19",
+  "prior_manifest_verified_files": [
+    "receipts/authority-identities.json",
+    "receipts/epoch-base-run.log",
+    "receipts/epoch-base-run.rc",
+    "receipts/epoch-comparison.json",
+    "receipts/epoch-dev-comparison.json",
+    "receipts/epoch-dev-run.log",
+    "receipts/epoch-dev-run.rc",
+    "receipts/epoch-failure-lines.json",
+    "receipts/epoch-head-run.log",
+    "receipts/epoch-head-run.rc",
+    "receipts/evidence-audit.json",
+    "receipts/tree-integrity.json",
+    "scripts/check_dev_epoch.py",
+    "scripts/check_epoch.py"
+  ],
+  "author_publication_verified_files": 19,
+  "render_source_closure_delta": [
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
+  ],
+  "changes_against_merge_parent": [
+    "docs/design/TIME_SYNC.md",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+    "scripts/measure_test_evidence_readers.py",
+    "tb/verilator/aaf/Makefile",
+    "tb/verilator/aaf/README.md",
+    "tb/verilator/aaf/sim_start.cpp",
+    "tb/verilator/aaf/start_mutants.py"
+  ],
+  "logs": {
+    "base": {
+      "bytes": 3745,
+      "sha256": "7876a3a277df5e06a9381e502249b9638b7a4e04ec676fefba207150b41d4007",
+      "rc": 1
+    },
+    "head": {
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "rc": 1
+    },
+    "dev": {
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "rc": 1
+    }
+  },
+  "head_equals_merge_parent": true,
+  "head_differs_from_original_base": true,
+  "four_failure_lines_identical": true,
+  "historical_full_campaign": {
+    "base": "423ac5d910d09ab189b3acc39ae3ae1d10d50b19",
+    "head": "5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2",
+    "runs": 32,
+    "same_campaign_verdicts": true
+  },
+  "fresh_simulation_executed": false,
+  "method": "Rehash immutable public same-head receipts and recheck source closure"
+}
