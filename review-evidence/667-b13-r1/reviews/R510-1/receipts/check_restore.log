@@ -1,0 +1,7 @@
+CHECK PASS start == end over 44 rows (volatile fields ignored)
+CHECK PASS every binding readback status 0 with 0 connections
+INFO end snapshot: SUCCESS observations 42, inventory rows 2, binding rows 18
+INFO binding row example: {"role": "dut", "category": "binding", "descriptor_type": 5, "descriptor_index": 0, "status": 0, "connections": 0}
+INFO SUCCESS by role/category: {('dut', 'format'): 4, ('dut', 'binding'): 4, ('dut', 'clock'): 1, ('dut', 'map'): 2, ('peer', 'format'): 14, ('peer', 'binding'): 14, ('peer', 'clock'): 1, ('peer', 'map'): 2}
+CHECK PASS 42 observations, 2 inventories, 18 binding readbacks
+RESULT fails=0

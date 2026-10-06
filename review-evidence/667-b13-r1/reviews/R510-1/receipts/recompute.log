@@ -1,0 +1,68 @@
+CHECK PASS startup cycles 100
+CHECK PASS startup all OK
+CHECK PASS ten headers per bind 1000
+CHECK PASS all subtype AAF 0x02
+CHECK PASS all tv=1
+CHECK PASS all tu=0
+CHECK PASS all mr=0 in first ten
+CHECK PASS sequence consecutive
+CHECK PASS EARLY-positive binds == 14 14
+CHECK PASS EARLY total == 14
+CHECK PASS LATE zero
+CHECK PASS EARLY binds all backward step
+CHECK PASS EARLY step range (-544469385, -279759747)
+CHECK PASS clean step range (124999, 125020)
+INFO later steps (PDU2..10) range 124999..125020
+INFO start-007 PDU1 minus trend 469739985 ns; tap spacing PDU1->2 125000 ns
+INFO start-018 PDU1 minus trend 525344404 ns; tap spacing PDU1->2 125001 ns
+INFO start-027 PDU1 minus trend 441010598 ns; tap spacing PDU1->2 125025 ns
+INFO start-032 PDU1 minus trend 514552478 ns; tap spacing PDU1->2 125000 ns
+INFO start-034 PDU1 minus trend 544594384 ns; tap spacing PDU1->2 125000 ns
+INFO start-055 PDU1 minus trend 279884746 ns; tap spacing PDU1->2 125001 ns
+INFO start-059 PDU1 minus trend 325093195 ns; tap spacing PDU1->2 125000 ns
+INFO start-065 PDU1 minus trend 315322277 ns; tap spacing PDU1->2 125000 ns
+INFO start-071 PDU1 minus trend 408697752 ns; tap spacing PDU1->2 125000 ns
+INFO start-072 PDU1 minus trend 384156018 ns; tap spacing PDU1->2 125000 ns
+INFO start-073 PDU1 minus trend 399635150 ns; tap spacing PDU1->2 124993 ns
+INFO start-080 PDU1 minus trend 344676595 ns; tap spacing PDU1->2 124992 ns
+INFO start-095 PDU1 minus trend 318947284 ns; tap spacing PDU1->2 125016 ns
+INFO start-098 PDU1 minus trend 309322186 ns; tap spacing PDU1->2 125001 ns
+CHECK PASS EARLY: PDU1 ahead of trend (future)
+CHECK PASS doc histogram == recomputed
+CHECK PASS doc per-bind rows == 100 100
+CHECK PASS doc per-bind table == recomputed (offset within 1 ns) []
+INFO first nonzero EARLY polls (cycle, phase, FRAMES_RX): [(7, 'first-pdus-20', 88), (18, 'first-pdus-20', 87), (27, 'first-pdus-20', 86), (32, 'first-pdus-20', 84), (34, 'first-pdus-20', 87), (55, 'first-pdus-20', 91), (59, 'first-pdus-20', 92), (65, 'first-pdus-100', 343), (71, 'first-pdus-20', 84), (72, 'pre-bind', 15954), (73, 'pre-bind', 15952), (80, 'first-pdus-20', 84), (95, 'first-pdus-20', 84), (98, 'first-pdus-20', 83)]
+CHECK PASS timing rows == 14 14
+CHECK PASS min lead 1900.062 ms 1900.062
+INFO run-events kinds ['both_online', 'capture_cleanup_complete', 'probe_exit', 'restore_unbind', 'short_cycle', 'soak_bind', 'soak_end', 'soak_poll', 'soak_start']
+CHECK PASS 145 counter checkpoints
+CHECK PASS nine GET_COUNTERS per checkpoint {9}
+CHECK PASS eight SUCCESS per checkpoint {8}
+CHECK PASS only DUT ENTITY unsupported {('dut', 'ENTITY', 'NOT_SUPPORTED')}
+CHECK PASS same counter set every checkpoint
+CHECK PASS 61 valid counters 61
+CHECK PASS no error-class change across 145 checkpoints []
+CHECK PASS no counter decreased during soak []
+INFO ('dut', 'CLOCK_DOMAIN', 0, 'LOCKED') 0->1 changed at checkpoint(s) [1]
+INFO ('dut', 'STREAM_INPUT', 1, 'MEDIA_LOCKED') 0->1 changed at checkpoint(s) [1]
+INFO ('dut', 'STREAM_OUTPUT', 0, 'MEDIA_RESET') 0->1 changed at checkpoint(s) [1]
+INFO ('dut', 'STREAM_OUTPUT', 1, 'MEDIA_RESET') 0->1 changed at checkpoint(s) [1]
+CHECK PASS doc counter rows == 61 61
+CHECK PASS doc counter table == decoded payloads []
+INFO checkpoint interval min 44.852 max 55.709 s
+CHECK PASS max checkpoint interval ~55.727 s 55.709
+CHECK PASS timing reads 4 per checkpoint {4}
+CHECK PASS one GM per role, SUCCESS 2
+CHECK PASS GM identical across roles
+CHECK PASS asCapable true throughout {('dut', True), ('peer', True)}
+CHECK PASS one path per role 2
+CHECK PASS doc soak rows == 145 and == csv []
+CHECK PASS nine segment gaps total
+CHECK PASS elapsed 7203.971 s 7203.971
+CHECK PASS doc states 7203.971
+CHECK PASS doc window 05:27:00.782-07:27:04.752
+INFO soak capture receipts 435 startup 300; without drop field ['667-b13-soak-063-vlan.pcap.json']
+CHECK PASS 435 soak capture receipts 435
+CHECK PASS 300 startup capture receipts 300
+CHECK PASS doc receipt hash table == published bytes []
+RESULT fails=0

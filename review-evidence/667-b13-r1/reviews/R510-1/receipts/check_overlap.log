@@ -1,0 +1,12 @@
+INFO segment_gaps=9 recovered=9 unrecovered=0 listed=9
+CHECK PASS soak-077-wire dut subtype 2 seq 254..13 (16 pkts) from 667-b13-soak-076-vlan.pcap
+CHECK PASS soak-077-wire peer subtype 2 seq 227..241 (15 pkts) from 667-b13-soak-076-vlan.pcap
+CHECK PASS soak-087-wire dut subtype 2 seq 150..172 (23 pkts) from 667-b13-soak-086-vlan.pcap
+CHECK PASS soak-087-wire peer subtype 2 seq 123..144 (22 pkts) from 667-b13-soak-086-vlan.pcap
+CHECK PASS soak-087-wire dut subtype 4 seq 89..91 (3 pkts) from 667-b13-soak-086-vlan.pcap
+CHECK PASS soak-087-wire peer subtype 4 seq 51..54 (4 pkts) from 667-b13-soak-086-vlan.pcap
+CHECK PASS soak-121-wire peer subtype 2 seq 122..131 (10 pkts) from 667-b13-soak-120-vlan.pcap
+CHECK PASS soak-121-wire dut subtype 2 seq 150..159 (10 pkts) from 667-b13-soak-120-vlan.pcap
+CHECK PASS soak-121-wire peer subtype 4 seq 115..117 (3 pkts) from 667-b13-soak-120-vlan.pcap
+CHECK PASS nine gaps listed and all recovered
+RESULT fails=0

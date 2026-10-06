@@ -1,0 +1,6 @@
+KILLED step_value rc=1 CHECK FAIL doc per-bind table == recomputed (offset within 1 ns) [(['034', '1', '0', '78', '-544469384', '544594384.0'], 34, -544469385, 544594384.0)]
+KILLED counter_row rc=1 CHECK FAIL doc counter table == decoded payloads [(['dut', 'STREAM_INPUT', '0', 'SEQ_NUM_MISMATCH', '0', '1', '1'], 0, 0)]
+KILLED histogram rc=1 CHECK FAIL doc histogram == recomputed
+KILLED soak_row rc=1 CHECK FAIL doc soak rows == 145 and == csv [(['soak-087', '4355.162', '0', '4', '3'], {'cycle': 'soak-087', 'utc': '2026-10-06T06:39:35.943559+00:00', 'elapsed_s': '4355.162', 'counter_errors': '0', 'segment_sequence_gaps': '4', 'overlap_recovered': '4'})]
+KILLED evidence_early rc=1 CHECK FAIL EARLY-positive binds == 14 15
+KILLED evidence_early_soak rc=1 CHECK FAIL no error-class change across 145 checkpoints [(100, ('peer', 'STREAM_INPUT', 0, 'EARLY_TIMESTAMP'), 0, 1), (101, ('peer', 'STREAM_INPUT', 0, 'EARLY_TIMESTAMP'), 1, 0)]
