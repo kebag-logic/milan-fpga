@@ -415,8 +415,9 @@ Only normative waits contribute `W`; total service remains <= 10 ms.
 Record the original aging deadline and the received validity separately.
 Test received validity 1, 10 and 31, without substituting 10.
 An unchanged discovery state still requires observing completed input handling.
-The [discovery extract](../../protocol-processor/docs/architecture/04_adp_engine.md#62-talker-discovery-state-machine-one-per-stream-input-active-while-bound)
-maps these checks to Milan v1.2 Table 5.54:
+The discovery extract is section 6.2 of
+`protocol-processor/docs/architecture/04_adp_engine.md`.
+It maps these checks to Milan v1.2 Table 5.54:
 
 | Discovery input and state | Required H-DISC check | Milan v1.2 clause |
 |---|---|---|
