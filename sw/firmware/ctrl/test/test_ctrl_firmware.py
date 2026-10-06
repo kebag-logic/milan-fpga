@@ -14,6 +14,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            driver and the event loop (test_port_loop.cpp);
   adp      the ADP core over fake ports, the adapter's tag race and every
            response path's service-latency bound (test_adp.cpp);
+  reentry_debug, reentry_release
+           synchronous callbacks from every port to every entry, on the same
+           instance and another, asserting or counted and ignored respectively;
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
@@ -31,7 +34,7 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            ADP_ENTITY_CAPS_C;
   rv32     the portable set and the MMIO platform cross-compiled freestanding
            for RV32I with the pinned SDK, every undefined symbol a C-library
-           string or format function or a libgcc helper (no heap, no OS);
+           string, format or assertion function or a libgcc helper (no heap, no OS);
   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
@@ -61,6 +64,7 @@ Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -75,13 +79,14 @@ from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
 from ctrl_reuse import cut_reuse  # noqa: E402
 
 
-def coverage(out: Path, lwsrp: Path | None) -> int:
+def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
-    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True))
+    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree),
+                    ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
     except Refusal as exc:
@@ -98,20 +103,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--require-rv32", action="store_true", help="fail, not skip, when no RV32 compiler is found")
     ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout: also run the lwSRP port arm")
     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
     args = ap.parse_args(argv)
     if args.coverage is not None:
-        return coverage(args.coverage.resolve(), args.lwsrp)
+        return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
     print(f"toolchain: {fw_gtest.toolchain()}")
     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
         try:
-            tree = Tree(CTRL, out / "checkout", out / "reuse")
+            tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
+                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
+                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
         except Refusal as exc:
@@ -119,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         failed = ctrl_arms.report(outcomes)
         if args.self_test and not failed:
-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse)
+            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs)
             if args.lwsrp is not None:
                 try:
                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed

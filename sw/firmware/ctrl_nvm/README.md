@@ -469,9 +469,14 @@ GoogleMock's command master and `timer0`.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (106 defects). They are graded at the 1x1 shape, except a defect that only
+by at least one (109 defects). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
+
+The host gate also runs exact-sized erased prefixes under AddressSanitizer.
+`test_nvm_prefix.cpp` checks 40, 47 and 48 loaded bytes.
+It pins both boundaries of the last erased payload.
+The three related defects restore `end` or shift `loaded`.
 
 ## What this does not prove
 
