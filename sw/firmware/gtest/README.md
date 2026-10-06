@@ -213,7 +213,10 @@ the module's public header reaches, with the ports keeping the contract their
 header states; a static function is judged through the public functions that
 call it. A row's proof does not rest on what today's callers happen to pass.
 Where it rests on a generated constant of the contract, the row says so, and
-the row stops matching (so the gate fails) when the constant changes.
+the row stops matching (so the gate fails) when the constant changes. Nine
+rows meet that standard through their headers as they stand. The five
+`adp.c` rows do not yet: they rest on a port rule that `adp.h` does not
+state, which #678 has ruled and will add to it (see below the gate's rules).
 
 ### Coverage exclusions
 
@@ -256,16 +259,41 @@ them differently would fail the gate, not pass it. `fw_coverage.py
 --selftest` plants each of these refusals, two of them on gcc's own output
 (a compensating swap and a condition over two lines).
 
-The ADP rows also assume two things of the ports. `adp.h` states the
-first: the timer port calls `adp_timer_expired` once, `delay_ms` after
+**The five `adp.c` rows rest on #678's rule, not on `adp.h` as it
+stands.** They assume two things of the ports. `adp.h` states the first:
+the timer port calls `adp_timer_expired` once, `delay_ms` after
 `timer_start`, which the rows read as after `timer_start` has returned.
 `adp.h` does not state the second: no port calls into the core while the
-core is calling it. The adapter (`adp_mbx.c`) keeps both: an expiry
-reaches the core from the mailbox's event stream, never from inside
-`timer_start`. A timer port that expired a timer from inside `timer_start`
-would reach the third and fourth ADP rows: expiring TMR_ADVERTISE that way
-leaves the machine in WAITING with no timer running, and expiring TMR_DELAY
-leaves it in DELAY with none.
+core is calling it. [#678](https://github.com/kebag-logic/milan-fpga/issues/678)
+rules that ports never call back into the core synchronously, and its
+follow-up to the F0 code states the rule in `adp.h` and the port headers
+and guards it in the core. Until that lands, the rows rest on the ruling.
+The adapter (`adp_mbx.c`) keeps the rule today: its ports call no core
+function, and the core is called only from the loop's handlers. A port
+that breaks the rule reaches every item the five rows name. Each of these
+was measured alone with gcov:
+
+- **Rows 1 and 2** (`adp_link_change`, arc 2 of 2 each): a send port that
+  reports the link down (`adp_link_change(false)`) from inside a send.
+  From inside the ENTITY_AVAILABLE send, it leaves the machine in WAITING
+  with the link recorded down and TMR_ADVERTISE running. The next link-up
+  then reaches row 1 and enters no DELAY. From inside SHUTDOWN's
+  ENTITY_DEPARTING send, the nested call reaches row 2.
+- **Rows 3 and 4** (`adp_timer_expired`: row 3's arc 4 of 4, row 4's arcs
+  2 and 4 of 4 and its stray-count line): a timer port that expires a
+  timer from inside `timer_start`. Expiring TMR_ADVERTISE that way reaches
+  row 3's arc and row 4's arc 2, and leaves the machine in WAITING with no
+  timer running. Expiring TMR_DELAY on a grandmaster change reaches row 4's
+  arc 4, and leaves it in DELAY with none. Each counts one stray.
+- **Row 5** (`adp_poll`, arcs 2 and 4 of 4 and its line): a link port that
+  calls back twice from inside `adp_set_enable(true)`. It reports the link
+  up, expires the TMR_DELAY that starts while the send port has no room,
+  then answers down. The machine is left in DOWN with an ENTITY_AVAILABLE
+  owed. The next `adp_poll` reaches arc 4, or arc 2 after
+  `adp_set_enable(false)`.
+
+So `adp.c`'s 100 % holds for ports that keep #678's rule, and not for a
+port that breaks it.
 
 | File | Function | Statement | Uncovered | Why no input reaches it |
 |---|---|---|---|---|
