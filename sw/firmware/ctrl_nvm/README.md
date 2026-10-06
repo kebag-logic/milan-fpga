@@ -17,6 +17,13 @@ is the gate. Exit 0 means every check passed on every shipped shape, each
 built at its own system clock, on both flash ports, and every planted defect
 was caught.
 
+The [split verification contract](../../../docs/ARCHITECTURE_HW_SW_SPLIT.md#6-verification-boundary)
+requires FT before F2 to F5.
+FT ports these checks to GoogleTest/GoogleMock and adds coverage gates.
+Existing mutation arms remain required.
+The [service budget](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+is an integration obligation, not a target-time result established here.
+
 ## Contents
 
 - **[Layout](#layout)** -- The codec, the store, the two ports, the host models and the suite.
@@ -114,8 +121,7 @@ an erase or a status poll. A command cut short reaches at most the slot being
 written, which is never the authoritative one, and the next attempt erases
 that slot first.
 
-**The seam with F0.** F0's HAL (`sw/firmware/ctrl/mbx/mbx_hal.h` on its own
-lane, not merged) carries the mailbox's bus port; this port carries the media.
+**The seam with F0.** F0's merged HAL (`sw/firmware/ctrl/mbx/mbx_hal.h`) carries the mailbox's bus port; this port carries the media.
 The two meet in time, which both need. Whichever time call the split image
 settles on must keep this port's contract: a local counter that only counts
 up, never the PHC. The event loop F0 owns calls `nvm_store_service()` once

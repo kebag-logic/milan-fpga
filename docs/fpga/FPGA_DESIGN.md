@@ -1,5 +1,12 @@
 # FPGA design reference - every module in `hdl/`, and how they compose
 
+This page describes the all-fabric shipping placement.
+[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+
+
 The complete map of the gateware: what each RTL module does, its interfaces
 and clock domain, which harness verifies it, and where its detailed doc
 lives. Companion pages: [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUIDE.md)

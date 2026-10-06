@@ -1,5 +1,12 @@
 # System domain map
 
+This page describes the all-fabric shipping placement.
+[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+
+
 Which module lives in which domain / language  -  the whole Milan TSN NIC stack, from the
 firmware down to the Artix-7 silicon, plus the host tooling that generates and deploys it.
 Software at the top, hardware at the bottom.

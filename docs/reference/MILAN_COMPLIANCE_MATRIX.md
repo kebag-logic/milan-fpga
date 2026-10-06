@@ -1,4 +1,9 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+
+The implementation evidence below describes the current all-fabric shipping image.
+It does not establish firmware-placement acceptance.
+The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) requires separate timing evidence
+for each selected control owner before the default changes.
 # Milan v1.2 compliance matrix — all five standards, one page
 
 The per-clause compliance position of this end-station against its five

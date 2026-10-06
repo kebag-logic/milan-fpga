@@ -12,6 +12,13 @@ each as its own ports-and-adapters module.
 `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
 is the gate: exit 0 = every arm passed and every planted defect was caught.
 
+The [split verification contract](../../../docs/ARCHITECTURE_HW_SW_SPLIT.md#6-verification-boundary)
+requires FT before F2 to F5.
+FT ports these checks to GoogleTest/GoogleMock and adds coverage gates.
+Existing mutation arms remain required.
+The [service budget](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+is an integration obligation, not a target-time result established here.
+
 ## Contents
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.

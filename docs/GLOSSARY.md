@@ -26,8 +26,8 @@ Current product terminology for the bare-metal Milan v1.2 end station.
 | **AVTP** | IEEE 1722 media transport carrying presentation timestamps and validity fields. |
 | **AVDECC** | IEEE 1722.1 discovery, enumeration, control, and connection management. |
 | **ADP** | Entity discovery and advertise/depart protocol, implemented by the protocol processor. |
-| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The processor serves the command inventory recorded in the feature ledger. |
-| **ACMP** | Stream connection protocol. The processor publishes settled binding records to the fabric. |
+| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The current fabric placement serves the feature-ledger inventory; Mark II selects firmware or fabric, including notifications and counters. |
+| **ACMP** | Stream connection protocol. The selected control owner publishes settled binding state to the fabric; currently the protocol processor. |
 | **SRP/MSRP/MVRP** | Reservation and VLAN registration protocols implemented by the protocol processor. |
 | **MAAP** | Multicast address acquisition for AVTP stream destinations. |
 | **AAF** | AVTP Audio Format transport for sampled audio. |
