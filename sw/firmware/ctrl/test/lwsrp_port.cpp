@@ -123,7 +123,8 @@ void compose() {
     ctrl_loop_init(&loop);
     EXPECT_TRUE(ctrl_loop_bind_rx(&loop, MBX_CH_SRP, on_srp, nullptr) && ctrl_loop_add_tick(&loop, shlan_timer_tick))
         << "W0 the SRP channel and the centisecond tick bind";
-    EXPECT_TRUE(ctrl_loop_open(&loop, 0x1122334455667788ull)) << "W0 the loop opens the mailbox";
+    const std::uint64_t own_mac[MBX_N_IF] = {0x001B92AABBCCull};
+    EXPECT_TRUE(ctrl_loop_open(&loop, 0x1122334455667788ull, own_mac)) << "W0 the loop opens the mailbox";
 }
 
 void pool_report() {

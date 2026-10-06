@@ -25,6 +25,7 @@
 #define MBX_SUITE_HPP
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "../../common/verilator_harness.hpp"
@@ -50,6 +51,11 @@ inline std::uint32_t field(std::uint32_t word, std::uint32_t lsb, std::uint32_t 
 }
 
 inline std::uint32_t ch_reg(std::uint32_t ch, std::uint32_t reg) { return MBX_CH_BASE + MBX_CH_STRIDE * ch + reg; }
+inline std::uint32_t iff_reg(std::uint32_t i, std::uint32_t reg) { return MBX_IFF_BASE + MBX_IFF_STRIDE * i + reg; }
+
+//! The interface indices the ingress stream can name: every configured
+//! interface and, where the index is wider, ones with no interface behind them.
+inline constexpr std::uint32_t kIfIndices = 1u << MBX_IF_W;
 
 //! The checks are graded by `Check`: milan::tb::Checker on the RTL benches,
 //! and on the host model a GoogleTest adapter (sw/firmware/ctrl/test/
@@ -61,11 +67,14 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 14;
+    static constexpr unsigned kGroups = 21;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
-        "BadHostCounters", "LinkAndGmEvents", "Timers", "Tick", "GmSnapshot"};
+        "BadHostCounters", "LinkAndGmEvents", "Timers", "Tick", "GmSnapshot",
+        // lane FC: the full-tuple filter (REQUIREMENTS.md section 1, NFR-SCOUT-08)
+        "TupleControls", "TupleRejections", "StreamDataNeverDelivered", "AecpBothDirections",
+        "OwnMacPerInterface", "FilterMismatchCount", "TokensApartFromTheFilter"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
@@ -96,7 +105,14 @@ class Suite {
         case 10: check_link_and_gm_events(); break;
         case 11: check_timers(); break;
         case 12: check_tick(); break;
-        default: check_gm_snapshot(); break;
+        case 13: check_gm_snapshot(); break;
+        case 14: check_tuple_controls(); break;
+        case 15: check_tuple_rejections(); break;
+        case 16: check_stream_data(); break;
+        case 17: check_aecp_both_directions(); break;
+        case 18: check_own_mac_per_interface(); break;
+        case 19: check_filter_mismatch_count(); break;
+        default: check_tokens_apart(); break;
         }
     }
 
@@ -113,14 +129,66 @@ class Suite {
     std::uint32_t rd(std::uint32_t off) { return b_.read(off); }
     void wr(std::uint32_t off, std::uint32_t v) { b_.write(off, v); }
 
+    //! OWN_MAC of interface i, as the firmware writes it.
+    void set_own_mac(std::uint32_t i, std::uint64_t mac) {
+        wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO), static_cast<std::uint32_t>(mac));
+        wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI), static_cast<std::uint32_t>(mac >> 32) & 0xFFFFu);
+    }
+
+    //! The firmware's bring-up order: identities first (OWN_EID, and interface
+    //! i's own MAC, kOwnMac + i), then the channels.
     void open(std::uint32_t mask) {
         wr(MBX_REG_OWN_EID_LO, static_cast<std::uint32_t>(kOwnEid));
         wr(MBX_REG_OWN_EID_HI, static_cast<std::uint32_t>(kOwnEid >> 32));
+        for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+            set_own_mac(i, kOwnMac + i);
+        }
         wr(MBX_REG_FILTER_EN, mask);
     }
 
     std::uint32_t rx_head(std::uint32_t ch) { return rd(ch_reg(ch, MBX_CH_REG_RX_HEAD)); }
     std::uint32_t rx_pass(std::uint32_t ch) { return rd(ch_reg(ch, MBX_CH_REG_RX_PASS)); }
+    std::uint32_t mismatches() { return rd(MBX_REG_FILTER_MISMATCH); }
+
+    //! Where one offered frame went: the channel whose ring it reached
+    //! (MBX_N_CH: none, no RX_HEAD and no RX_PASS moved anywhere), the record,
+    //! and how much FILTER_MISMATCH moved.
+    struct Verdict {
+        std::uint32_t channel = MBX_N_CH;
+        Record record;
+        std::uint32_t mismatched = 0;
+    };
+
+    //! Offer one frame on interface `iface`, release what it committed, then
+    //! give every token bucket a refill, so a run of offers grades the filter
+    //! and never the rate limiter (TokensApartFromTheFilter grades that).
+    Verdict offer(const std::vector<std::uint8_t>& f, unsigned iface = 0) {
+        std::vector<std::uint32_t> pass;
+        std::vector<std::uint32_t> head;
+        for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
+            pass.push_back(rx_pass(c));
+            head.push_back(rx_head(c));
+        }
+        const std::uint32_t before = mismatches();
+        b_.send_frame(f, iface);
+        b_.drain_rx();
+        Verdict v;
+        v.mismatched = (mismatches() - before) & 0xFFFFu;
+        for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
+            if (rx_pass(c) != pass[c] || rx_head(c) != head[c]) {
+                v.channel = v.channel == MBX_N_CH ? c : MBX_N_CH + 1u;   // two channels: never a channel
+            }
+        }
+        if (v.channel < MBX_N_CH) {
+            v.record = peek(v.channel);
+            release(v.channel, v.record);
+        }
+        b_.ms(kRefillMs);
+        return v;
+    }
+
+    //! Every channel's refill period at most: one token for every bucket.
+    static constexpr std::uint32_t kRefillMs = 20;
 
     //! The record at the harness's tail of channel `ch`, read word by word.
     Record peek(std::uint32_t ch) {
@@ -168,6 +236,25 @@ class Suite {
     void check_timers();
     void check_tick();
     void check_gm_snapshot();
+    void check_tuple_controls();
+    void check_tuple_rejections();
+    void check_rejected(const std::string& what, const std::vector<std::uint8_t>& f, std::uint32_t counted);
+    void check_stream_data();
+    void check_aecp_both_directions();
+    void check_own_mac_per_interface();
+    void check_filter_mismatch_count();
+    void check_tokens_apart();
+
+    //! One row of the owner's table (REQUIREMENTS.md section 1): its valid
+    //! frame, the channel it must reach, and whether it carries an AVTP subtype.
+    struct Row {
+        const char* name;
+        std::uint32_t channel;
+        std::vector<std::uint8_t> frame;
+        bool avtp;
+    };
+    std::vector<Row> table_rows();
+    void filter_up();
     void send_tx(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t w0, std::uint32_t w1);
     void send_tx_seq(std::uint32_t ch, const std::vector<std::uint8_t>& frame, std::uint32_t seq);
     std::vector<std::uint32_t> take_event();
@@ -195,12 +282,18 @@ void Suite<Bench, Check>::check_reset_and_identity() {
             MBX_EVT_WORDS);
     const std::uint32_t zero_regs[] = {MBX_REG_IRQ_STATUS, MBX_REG_IRQ_ENABLE, MBX_REG_NOW_MS, MBX_REG_TICK_CTL,
                                        MBX_REG_OWN_EID_LO, MBX_REG_OWN_EID_HI, MBX_REG_FILTER_EN,
-                                       MBX_REG_MAAP_COUNT, MBX_REG_EVT_HEAD, MBX_REG_EVT_TAIL, MBX_REG_BUS_ERR};
+                                       MBX_REG_MAAP_COUNT, MBX_REG_EVT_HEAD, MBX_REG_EVT_TAIL, MBX_REG_BUS_ERR,
+                                       MBX_REG_FILTER_MISMATCH};
     bool all_zero = true;
     for (std::uint32_t off : zero_regs) {
         all_zero = all_zero && rd(off) == 0u;
     }
     ck_.that("R0 every status, enable and counter register reads 0 after reset", all_zero);
+    bool mac_zero = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        mac_zero = mac_zero && rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO)) == 0u && rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI)) == 0u;
+    }
+    ck_.that("R0 every interface's OWN_MAC reads 0 after reset", mac_zero);
     bool ch_zero = true;
     for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
         for (std::uint32_t r = 0; r < MBX_CH_STRIDE; r += 4u) {
@@ -240,8 +333,23 @@ void Suite<Bench, Check>::check_register_masks() {
     wr(MBX_REG_FILTER_EN, 0u);
     wr(MBX_REG_NOW_MS, 0x12345678u);
     wr(MBX_REG_ID, 0u);
+    wr(MBX_REG_FILTER_MISMATCH, 0x5555u);
     ck_.that("R1 a write to a read-only register changes nothing",
-             rd(MBX_REG_NOW_MS) < 100u && field(rd(MBX_REG_ID), MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH) == MBX_MAGIC);
+             rd(MBX_REG_NOW_MS) < 100u && field(rd(MBX_REG_ID), MBX_ID_MAGIC_LSB, MBX_ID_MAGIC_WIDTH) == MBX_MAGIC &&
+                 rd(MBX_REG_FILTER_MISMATCH) == 0u);
+    // each interface's own MAC, in its own block: interface i's write lands
+    // in interface i's registers only
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO), 0xFFFFFFF0u + i);
+        wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI), 0xFFFFFFFFu - i);
+    }
+    bool own = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        own = own && rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO)) == 0xFFFFFFF0u + i &&
+              rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI)) == ((0xFFFFFFFFu - i) & 0xFFFFu);
+        set_own_mac(i, 0);
+    }
+    ck_.that("R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface", own);
 }
 
 template <class Bench, class Check>
@@ -813,6 +921,242 @@ void Suite<Bench, Check>::check_gm_snapshot() {
     ck_.hex("G0 GM_LO reads the live identity", lo, 0x22222222u);
     ck_.hex("G0 GM_HI reads the snapshot GM_LO took", hi, 0x11111111u);
     ck_.dec("G0 DOMAIN reads the same snapshot", dom, 3);
+}
+
+// ---- lane FC: the full-tuple filter -------------------------------------------
+//
+// The owner's table (#664, comment 6014311316; REQUIREMENTS.md section 1,
+// NFR-SCOUT-08, the FR_NFR.md section 3.4.2 hooks): each channel matches its
+// exact tuple (VLAN tag absent, destination MAC, EtherType, AVTP subtype), then
+// its identity term. The frames are the clauses' (frames.hpp), never the
+// contract's tables.
+
+//! Every channel open, the identities written, the MAAP range 8 addresses at
+//! 91:E0:00:00:01:00.
+template <class Bench, class Check>
+void Suite<Bench, Check>::filter_up() {
+    open((1u << MBX_N_CH) - 1u);
+    wr(MBX_REG_MAAP_BASE_LO, 0x00000100u);
+    wr(MBX_REG_MAAP_BASE_HI, 0x91E0u);
+    wr(MBX_REG_MAAP_COUNT, 8u);
+}
+
+template <class Bench, class Check>
+std::vector<typename Suite<Bench, Check>::Row> Suite<Bench, Check>::table_rows() {
+    const std::vector<std::uint8_t> mrpdu = {0x00, 0x01, 0x22, 0x04, 0x00, 0x00};
+    return {
+        {"adp", MBX_CH_ADP, mbx_tb::adpdu(2, 0), true},
+        {"acmp, multicast", MBX_CH_ACMP, mbx_tb::acmpdu(0, kOwnEid, kForeignEid), true},
+        {"acmp, own unicast", MBX_CH_ACMP, mbx_tb::to(mbx_tb::acmpdu(0, kOwnEid, kForeignEid), kOwnMac), true},
+        {"aecp, command", MBX_CH_AECP, mbx_tb::aecp(0, kOwnEid, kForeignEid), true},
+        {"aecp, response", MBX_CH_AECP, mbx_tb::aecp(1, kForeignEid, kOwnEid, kOwnMac, kControllerAvailable), true},
+        {"maap", MBX_CH_MAAP, mbx_tb::maap(1, 0x91E000000100ull + 6u, 4), true},
+        {"srp MSRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMsrp, mrpdu), false},
+        {"srp MVRP", MBX_CH_SRP, mbx_tb::mrp(mbx_tb::kEtherMvrp, mrpdu), false},
+    };
+}
+
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tuple_controls() {
+    filter_up();
+    for (const Row& r : table_rows()) {
+        const Verdict v = offer(r.frame);
+        const std::string row = std::string(" (") + r.name + ")";
+        ck_.dec(("Q0 a valid frame reaches its channel" + row).c_str(), v.channel, r.channel);
+        ck_.that(("Q0 its record is the frame, byte for byte" + row).c_str(), same_bytes(v.record.bytes, r.frame));
+        ck_.dec(("Q0 a valid frame never counts in FILTER_MISMATCH" + row).c_str(), v.mismatched, 0);
+    }
+    ck_.dec("Q0 and sets no IRQ_STATUS.ERR", field(rd(MBX_REG_IRQ_STATUS), MBX_IRQ_STATUS_ERR_LSB, 1), 0);
+}
+
+//! A frame that must reach no channel (no RX record, no RX_PASS) and move
+//! FILTER_MISMATCH by `counted`.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_rejected(const std::string& what, const std::vector<std::uint8_t>& f,
+                                         std::uint32_t counted) {
+    const Verdict v = offer(f);
+    ck_.dec((what + ": no RX record, no delivery").c_str(), v.channel, MBX_N_CH);
+    ck_.dec((what + (counted != 0u ? ": FILTER_MISMATCH counts it once" : ": FILTER_MISMATCH does not count it"))
+                .c_str(),
+            v.mismatched, counted);
+}
+
+// Each tuple element changed alone, per row. A tag, or a refused identity,
+// counts nothing; a destination, EtherType or subtype that leaves no tuple
+// holding counts once.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tuple_rejections() {
+    filter_up();
+    for (const Row& r : table_rows()) {
+        const std::string row = std::string(" (") + r.name + ")";
+        check_rejected("Q1 tagged, it" + row, mbx_tb::tagged(r.frame), 0);
+        std::uint64_t other = kForeignMac;                  // a unicast nobody here owns: flooded traffic
+        if (r.channel == MBX_CH_ADP) {
+            other = mbx_tb::kIdentifyMac;                   // the other ATDECC multicast address
+        } else if (r.channel == MBX_CH_MAAP) {
+            other = mbx_tb::kAdpAcmpMac;
+        } else if (r.channel == MBX_CH_SRP) {               // each MRP application at the other's address
+            other = r.frame[5] == 0x0Eu ? mbx_tb::kMvrpMac : mbx_tb::kMsrpMac;
+        }
+        check_rejected("Q2 to another destination MAC, it" + row, mbx_tb::to(r.frame, other), 1);
+        const std::uint16_t et = r.avtp ? mbx_tb::kEtherMvrp
+                                        : (r.frame[5] == 0x0Eu ? mbx_tb::kEtherMvrp : mbx_tb::kEtherMsrp);
+        check_rejected("Q3 under another control EtherType, it" + row, mbx_tb::with_ethertype(r.frame, et), 1);
+        if (r.avtp) {
+            check_rejected("Q4 with an unassigned AVTP subtype, it" + row,
+                           mbx_tb::with_subtype(r.frame, mbx_tb::kSubReserved), 1);
+        } else {
+            // MSRP and MVRP read no subtype: AVTP at their address selects no channel, whatever byte 14 holds
+            const auto avtp = mbx_tb::with_ethertype(r.frame, mbx_tb::kEtherAvtp);
+            check_rejected("Q4 as AVTP, a wrong AVTP subtype cannot select srp" + row, avtp, 1);
+            check_rejected("Q4 as AVTP with the ADP subtype, it cannot select srp" + row,
+                           mbx_tb::with_subtype(avtp, mbx_tb::kSubAdp), 1);
+        }
+    }
+    check_rejected("Q3 under a non-control EtherType (gPTP), an ADPDU",
+                   mbx_tb::with_ethertype(mbx_tb::adpdu(2, 0), mbx_tb::kEtherPtp), 0);
+    // the identity term, each refusal uncounted: the tuple held
+    check_rejected("Q5 ENTITY_DISCOVER for another entity", mbx_tb::adpdu(2, kForeignEid), 0);
+    check_rejected("Q5 ENTITY_AVAILABLE of this entity", mbx_tb::adpdu(0, kOwnEid), 0);
+    check_rejected("Q5 ACMP for neither this talker nor this listener", mbx_tb::acmpdu(0, kForeignEid, kForeignEid), 0);
+    check_rejected("Q5 an AECP command for another target, even with this controller",
+                   mbx_tb::aecp(0, kForeignEid, kOwnEid), 0);
+    check_rejected("Q5 an AECP response for another controller, even to this target",
+                   mbx_tb::aecp(1, kOwnEid, kForeignEid), 0);
+    check_rejected("Q5 a MAAP PROBE beside this entity's range", mbx_tb::maap(1, 0x91E000000100ull + 8u, 4), 0);
+    ck_.dec("Q5 no frame was refused for size, space or rate", rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)) +
+            rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)) + rd(ch_reg(MBX_CH_AECP, MBX_CH_REG_RATE_DROP)), 0);
+}
+
+// AAF and CRF have no channel (#664: the SR class VLAN carries them). Stray
+// untagged ones are control-EtherType frames no tuple holds: never delivered,
+// counted once; the tagged media the fabric carries count nothing.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_stream_data() {
+    filter_up();
+    check_rejected("Q6 untagged AAF to a stream address", mbx_tb::stream_pdu(mbx_tb::kSubAaf), 1);
+    check_rejected("Q6 untagged CRF to a stream address", mbx_tb::stream_pdu(mbx_tb::kSubCrf), 1);
+    check_rejected("Q6 untagged AAF to the ADP and ACMP address",
+                   mbx_tb::stream_pdu(mbx_tb::kSubAaf, mbx_tb::kAdpAcmpMac), 1);
+    check_rejected("Q6 untagged CRF to this interface's own MAC", mbx_tb::stream_pdu(mbx_tb::kSubCrf, kOwnMac), 1);
+    check_rejected("Q6 tagged AAF, the media path's", mbx_tb::tagged(mbx_tb::stream_pdu(mbx_tb::kSubAaf)), 0);
+    check_rejected("Q6 tagged CRF, the media path's", mbx_tb::tagged(mbx_tb::stream_pdu(mbx_tb::kSubCrf)), 0);
+}
+
+// Two-sided AECP (Milan v1.2 5.4.5.3; IEEE 1722.1-2021 Table 9-1, 9.2.2.7 and
+// 9.2.2.8): a command passes on target_entity_id, a response on
+// controller_entity_id, whatever the other identity holds.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_aecp_both_directions() {
+    filter_up();
+    const auto reply = mbx_tb::aecp(1, kForeignEid, kOwnEid, kOwnMac, kControllerAvailable);
+    const Verdict v = offer(reply);
+    ck_.dec("Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring", v.channel,
+            MBX_CH_AECP);
+    ck_.that("Q7 its record is the response, byte for byte", same_bytes(v.record.bytes, reply));
+    check_rejected("Q7 a CONTROLLER_AVAILABLE response for another controller",
+                   mbx_tb::aecp(1, kOwnEid, kForeignEid, kOwnMac, kControllerAvailable), 0);
+    std::uint32_t commands = 0;
+    std::uint32_t responses = 0;
+    std::uint32_t wrong_way = 0;
+    for (std::uint8_t mt = 0; mt < 16u; ++mt) {
+        // Table 9-1: a command is even, its response the next odd value
+        const bool command = (mt & 1u) == 0u;
+        const Verdict to_target = offer(mbx_tb::aecp(mt, kOwnEid, kForeignEid));
+        const Verdict to_controller = offer(mbx_tb::aecp(mt, kForeignEid, kOwnEid));
+        commands += command && to_target.channel == MBX_CH_AECP ? 1u : 0u;
+        responses += !command && to_controller.channel == MBX_CH_AECP ? 1u : 0u;
+        wrong_way += (command ? to_controller.channel : to_target.channel) != MBX_N_CH ? 1u : 0u;
+        wrong_way += to_target.mismatched + to_controller.mismatched;
+    }
+    ck_.dec("Q7 every command type (even) for this target passes", commands, 8);
+    ck_.dec("Q7 every response type (odd) for this controller passes", responses, 8);
+    ck_.dec("Q7 no command passes on its controller, no response on its target, none counted", wrong_way, 0);
+}
+
+// Own unicast is the arrival interface's OWN_MAC, never any unicast: each
+// interface index the stream can name, against each interface's MAC. An
+// index with no interface behind it has no own MAC.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_own_mac_per_interface() {
+    filter_up();
+    std::uint32_t right = 0;
+    std::uint32_t wrong = 0;
+    std::uint32_t counted = 0;
+    std::uint32_t indexed = 0;
+    for (std::uint32_t r = 0; r < kIfIndices; ++r) {
+        for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+            const auto cmd = mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac + i);
+            const auto tol = mbx_tb::to(mbx_tb::acmpdu(0, kOwnEid, kForeignEid), kOwnMac + i);
+            const Verdict a = offer(cmd, r);
+            const Verdict b = offer(tol, r);
+            if (r == i) {
+                right += (a.channel == MBX_CH_AECP ? 1u : 0u) + (b.channel == MBX_CH_ACMP ? 1u : 0u);
+                indexed += field(a.record.w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) == r ? 1u : 0u;
+            } else {
+                wrong += (a.channel != MBX_N_CH ? 1u : 0u) + (b.channel != MBX_N_CH ? 1u : 0u);
+                counted += a.mismatched + b.mismatched;
+            }
+        }
+    }
+    const std::uint32_t pairs = kIfIndices * MBX_N_IF - MBX_N_IF;
+    ck_.dec("Q8 each interface's own MAC passes AECP and the ACMP tolerance on that interface", right, 2u * MBX_N_IF);
+    ck_.dec("Q8 with the record's IF the arrival interface", indexed, MBX_N_IF);
+    ck_.dec("Q8 another interface's own MAC, or one on an index with no interface, reaches no ring", wrong, 0);
+    ck_.dec("Q8 and counts once each in FILTER_MISMATCH", counted, 2u * pairs);
+    check_rejected("Q8 a MAC differing from OWN_MAC in MAC[47:32] only",
+                   mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac ^ 0x020000000000ull), 1);
+    check_rejected("Q8 a MAC differing from OWN_MAC in MAC[31:0] only",
+                   mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac ^ 0x000000000100ull), 1);
+    set_own_mac(0, kOwnMac + 0x10000u);
+    check_rejected("Q8 rewritten, the old own MAC", mbx_tb::aecp(0, kOwnEid, kForeignEid), 1);
+    ck_.dec("Q8 rewritten, the new own MAC passes",
+            offer(mbx_tb::aecp(0, kOwnEid, kForeignEid, kOwnMac + 0x10000u)).channel, MBX_CH_AECP);
+}
+
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_filter_mismatch_count() {
+    // closed channels: the counter judges the tuple, not FILTER_EN
+    check_rejected("Q9 with every channel closed, a valid ADPDU", mbx_tb::adpdu(2, 0), 0);
+    check_rejected("Q9 with every channel closed, an untagged AAF", mbx_tb::stream_pdu(mbx_tb::kSubAaf), 1);
+    ck_.dec("Q9 a mismatch sets IRQ_STATUS.ERR", field(rd(MBX_REG_IRQ_STATUS), MBX_IRQ_STATUS_ERR_LSB, 1), 1);
+    wr(MBX_REG_IRQ_STATUS, 1u << MBX_IRQ_STATUS_ERR_LSB);
+    filter_up();
+    for (unsigned k = 0; k < 5u; ++k) {
+        b_.send_frame(mbx_tb::to(mbx_tb::adpdu(2, 0), mbx_tb::kIdentifyMac), 0);
+    }
+    b_.drain_rx(8000);
+    ck_.dec("Q9 five tuple failures in a row count five", mismatches(), 6);
+    wr(MBX_REG_IRQ_STATUS, 1u << MBX_IRQ_STATUS_ERR_LSB);
+    for (const Row& r : table_rows()) {
+        static_cast<void>(offer(r.frame));
+        static_cast<void>(offer(mbx_tb::tagged(r.frame)));
+    }
+    static_cast<void>(offer(mbx_tb::adpdu(2, kForeignEid)));
+    static_cast<void>(offer(mbx_tb::eth(mbx_tb::kAdpAcmpMac, mbx_tb::kEtherAvtp, 14)));
+    ck_.dec("Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it", mismatches(),
+            6);
+    ck_.dec("Q9 and set no IRQ_STATUS.ERR", field(rd(MBX_REG_IRQ_STATUS), MBX_IRQ_STATUS_ERR_LSB, 1), 0);
+}
+
+// The token buckets stay (NFR-SCOUT-02), and a refusal by the filter takes no
+// token: the bucket is observed apart from the tuple and the identity term.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_tokens_apart() {
+    filter_up();
+    const std::uint32_t burst = MBX_CH_ADP_RATE_BURST;
+    for (std::uint32_t k = 0; k < 2u * burst; ++k) {
+        b_.send_frame(mbx_tb::to(mbx_tb::adpdu(2, 0), mbx_tb::kIdentifyMac), 0);
+        b_.send_frame(mbx_tb::adpdu(2, kForeignEid), 0);
+    }
+    b_.drain_rx(40000);
+    for (std::uint32_t k = 0; k < burst + 1u; ++k) {
+        b_.send_frame(mbx_tb::adpdu(2, kOwnEid), 0);
+    }
+    b_.drain_rx(40000);
+    ck_.dec("Q10 refusals by the filter take no token: a full burst still passes after them", rx_pass(kAdp), burst);
+    ck_.dec("Q10 the bucket refuses the frame past it in RATE_DROP", rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 1);
+    ck_.dec("Q10 and FILTER_MISMATCH counts the tuple failures only", mismatches(), 2u * burst);
 }
 
 }  // namespace mbx_tb
