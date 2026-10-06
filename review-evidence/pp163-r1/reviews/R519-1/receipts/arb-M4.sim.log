@@ -1,0 +1,31 @@
+FAIL: B1 all five frames drain
+FAIL: B1 stream byte-exact, no model mismatch
+FAIL: B2 clean
+FAIL: B3 grant #1 is -1 exp 4
+FAIL: B3 grant #2 is -1 exp 3
+FAIL: B3 clean
+FAIL: C ACMP wins the next arbitration (got -1)
+FAIL: C both frames byte-exact and uninterrupted
+FAIL: D ACMP #1 outranks un-aged ADP (got -1)
+FAIL: D aged ADP outranks fresh native ACMP (got -1)
+FAIL: D ACMP resumes after the aged frame (got -1)
+FAIL: D clean
+FAIL: E grant #0 is -1 exp 1
+FAIL: E grant #1 is -1 exp 2
+FAIL: E grant #2 is -1 exp 4
+FAIL: E grant #3 is -1 exp 2
+FAIL: E grant #4 is -1 exp 3
+FAIL: E grant #5 is -1 exp 2
+FAIL: E pacing rounds byte-exact and model-matched
+FAIL: F clean
+FAIL: G every grant matched to the model (56412 off)
+FAIL: G merged stream byte-exact (53 off)
+FAIL: G sof/eof exact (5/1 off)
+FAIL: G no mid-frame grant ever (4)
+FAIL: G no arbitration stall with work pending (843)
+FAIL: G pool allocation bookkeeping exact (635)
+FAIL: G pool fully drained
+FAIL: H originator request reaches the pre-start selection stage
+FAIL: H aborted start leaves the committed slot untouched
+FAIL: H accepted retry is byte-exact and frees the pool
+66 checks: 36 PASS, 30 FAIL

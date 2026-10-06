@@ -1,0 +1,44 @@
+[
+  {
+    "name": "withdraw-campaign",
+    "command": [
+      "python3",
+      "tb/pp_top/notify_mutants.py",
+      "--output",
+      "$REVIEWS/pp163-r519-1-packet/receipts/withdraw-campaign",
+      "--verilator",
+      "$REVIEWS/pp163-r519-1-packet/scripts/compiler-cap.py",
+      "--jobs",
+      "2",
+      "--only",
+      "withdraw_unregistered",
+      "withdraw_abort_ignored",
+      "cancel_one_clock_late"
+    ],
+    "cwd": "scratch/head",
+    "rc": 0,
+    "seconds": 135.517
+  },
+  {
+    "name": "tx-arbiter",
+    "command": [
+      "make",
+      "-j16",
+      "VERILATOR=$REVIEWS/pp163-r519-1-packet/scripts/compiler-cap.py"
+    ],
+    "cwd": "scratch/head/tb/tx_arbiter",
+    "rc": 0,
+    "seconds": 5.496
+  },
+  {
+    "name": "originator",
+    "command": [
+      "make",
+      "-j16",
+      "VERILATOR=$REVIEWS/pp163-r519-1-packet/scripts/compiler-cap.py"
+    ],
+    "cwd": "scratch/head/tb/originator",
+    "rc": 0,
+    "seconds": 5.691
+  }
+]

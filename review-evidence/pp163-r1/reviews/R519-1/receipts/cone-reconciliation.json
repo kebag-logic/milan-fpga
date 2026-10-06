@@ -1,0 +1,37 @@
+{
+  "base": {
+    "standalone_sequential_cells": 188,
+    "standalone_families": {
+      "FSM_onehot_arb_st_r_reg[*]": 3,
+      "age_r_reg[*][*]": 32,
+      "cnt_r_reg[*][*]": 128,
+      "gnt_r_reg[*]": 8,
+      "owner_r_reg[*]": 3,
+      "pace_nonsol_r_reg": 1,
+      "pend_r_reg[*]": 8,
+      "slot_r_reg[*]": 3,
+      "sof_pend_r_reg": 1,
+      "start_sent_r_reg": 1
+    },
+    "wrapper_unused_sof_pruned_cells": 1,
+    "integrated_expected_cells": 187
+  },
+  "head": {
+    "standalone_sequential_cells": 188,
+    "standalone_families": {
+      "FSM_onehot_arb_st_r_reg[*]": 3,
+      "age_r_reg[*][*]": 32,
+      "cnt_r_reg[*][*]": 128,
+      "gnt_r_reg[*]": 8,
+      "owner_r_reg[*]": 3,
+      "pace_nonsol_r_reg": 1,
+      "pend_r_reg[*]": 8,
+      "slot_r_reg[*]": 3,
+      "sof_pend_r_reg": 1,
+      "start_sent_r_reg": 1
+    },
+    "wrapper_unused_sof_pruned_cells": 1,
+    "integrated_expected_cells": 187
+  },
+  "rationale": "The parent wrapper leaves processor tx_sof_o open at hdl/milan/KL_pp_shadow.sv:1182. sof_pend_r only feeds this output; pruning its single register reconciles standalone 188 with integrated 187. Every remaining family appears in the integrated cone summaries, including age, counters, grants, qualification, pacing and start state. The public packet describes exhaustive start/end-pair traversal but does not publish arb_cone.tcl or the full integrated TSVs; the traversal itself was not rerun."
+}

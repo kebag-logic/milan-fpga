@@ -1,0 +1,6 @@
+  [i] WD bit 0: stalled 1, probe queued 1, held 1, let go 1; the cancellation at command clock 40; [-1 st 0 owner 0 sent 1 start 0 queue 1] [+0 st 1 owner 7 sent 0 start 1 queue 1] [+1 st 1 owner 7 sent 1 start 0 queue 1] [+2 st 1 owner 7 sent 1 start 0 queue 0]; 1 probe(s), deregistration 0, answers 1, idle 1
+  [i] WD bit 1: stalled 1, probe queued 1, held 1, let go 1; the cancellation at command clock 40; [-1 st 2 owner 0 sent 1 start 0 queue 1] [+0 st 0 owner 0 sent 1 start 0 queue 1] [+1 st 1 owner 7 sent 0 start 0 queue 1] [+2 st 1 owner 7 sent 1 start 0 queue 0]; 0 probe(s), deregistration 0, answers 0, idle 0
+FAIL: WD2: a cancellation on the clock the arbiter selects a queued probe withdraws that selection one clock later, before the pool starts it (select clock 1)
+FAIL: WD3: that probe never reaches the wire, both answers leave, and the slots, the originator and its lane return idle (0 probe(s), deregistration 0, answers 0, idle 0)
+WD: 3 checks, 2 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 3 checks, 2 failures

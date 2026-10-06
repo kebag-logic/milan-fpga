@@ -1,0 +1,24 @@
+FAIL: B1 grant #0 is 1 exp 2
+FAIL: B1 grant #2 is 4 exp 5
+FAIL: B1 grant #3 is 5 exp 1
+FAIL: B1 grant #4 is 2 exp 4
+FAIL: B1 stream byte-exact, no model mismatch
+FAIL: B3 grant #1 is 3 exp 4
+FAIL: B3 grant #2 is 4 exp 3
+FAIL: B3 clean
+FAIL: D ACMP #1 outranks un-aged ADP (got 3)
+FAIL: D aged ADP outranks fresh native ACMP (got 2)
+FAIL: D ACMP resumes after the aged frame (got -1)
+FAIL: D clean
+FAIL: E grant #0 is 3 exp 1
+FAIL: E grant #1 is 1 exp 2
+FAIL: E grant #3 is -1 exp 2
+FAIL: E grant #4 is -1 exp 3
+FAIL: E grant #5 is -1 exp 2
+FAIL: E pacing rounds byte-exact and model-matched
+FAIL: G every grant matched to the model (260 off)
+FAIL: G pool allocation bookkeeping exact (1)
+FAIL: G pool fully drained
+FAIL: H aborted start leaves the committed slot untouched
+FAIL: H accepted retry is byte-exact and frees the pool
+66 checks: 43 PASS, 23 FAIL
