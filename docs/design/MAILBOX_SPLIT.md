@@ -20,7 +20,7 @@ define the interface. The numbers live in one place, the generated
 - **[One contract, four outputs](#one-contract-four-outputs)** -- The YAML that is the only place a number is written, the four files generated from it, and the drift, cross-output and planted-defect checks.
 - **[Byte order](#byte-order)** -- Fixed bit positions for every 32-bit word, little-endian lanes for frame bytes, network order inside a frame.
 - **[Rings, records and events](#rings-records-and-events)** -- The record shapes, commit order across channels, the doorbells and their range rule, the coalescing rule that keeps the event ring from ever dropping the last state of a source, and the interrupt levels.
-- **[The ingress filter](#the-ingress-filter)** -- Classification, the accept terms per channel with their clauses, the token bucket, and the MRPDU form the SRP channel hands lwSRP.
+- **[The ingress filter](#the-ingress-filter)** -- The full tuple per channel and its identity term with their clauses, tagged frames refused by construction, the own MAC per interface, two-sided AECP, FILTER_MISMATCH, the token bucket, and the MRPDU form the SRP channel hands lwSRP.
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
@@ -75,19 +75,25 @@ a register offset, a field position, a ring size or a filter rule is written.
 The generator refuses a contract that cannot be built: overlapping fields, a
 ring that is not a power of two or overlaps another, two channels that claim
 one EtherType, a register outside its block, a filter field past the frame,
-a read-only field the skeleton has no fabric source for.
+a read-only field the skeleton has no fabric source for, a match tuple that
+names a VLAN tag's TPID or no destination.
 
 `--check` regenerates every output in memory and fails on any byte of drift.
 `--crosscheck` reads the three constant carriers back by name and fails on a
 field mismatch between them, whatever produced it. `--selftest` plants a
-mismatch into each output (8 arms) and a defect into the YAML (7 arms), and
-requires each to be caught, after a clean positive control. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
+mismatch into each output (14 arms) and a defect into the YAML (12 arms), and
+requires each to be caught, after a clean positive control. It also builds
+the two-interface variant the suite uses, which must cross-check clean, and
+requires a four-interface one, whose blocks would overlap the global
+registers, to be refused. `--variant-interfaces N --out DIR` writes such a
+variant into a build directory, never into the tree. The leaves (`KL_mbx_ring`, `KL_mbx_rx`, `KL_mbx_tx`,
 `KL_mbx_evt`) and the two bus adapters are written by hand against the
 package, so a contract change reaches them through the constants.
 
-Versioning: a change that moves or resizes anything raises `major`; one that
-only adds raises `minor`. The fabric publishes both in `ID`, and the
-firmware's `mbx_open()` refuses a major it was not built against.
+Versioning: a change that moves or resizes anything raises `major`, and so
+does one that narrows what the filter passes; one that only adds raises
+`minor`. The fabric publishes both in `ID`, and the firmware's `mbx_open()`
+refuses a major it was not built against.
 
 ## Byte order
 
@@ -146,32 +152,61 @@ leaves the line low.
 
 ## The ingress filter
 
-The following describes the implemented F0 filter.
+The filter implements the owner's full-tuple acceptance rules
+([#664, comment 6014311316](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6014311316)),
+which [product ownership](../../REQUIREMENTS.md#1-product-ownership) and
 [NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
-and [product ownership](../../REQUIREMENTS.md#1-product-ownership)
-add the owner's full-tuple acceptance rules and filter hooks.
-They require per-interface own MACs and two-sided AECP identity matching.
-Untagged control tuple failures must increment FILTER_MISMATCH.
-The contract lane after FT implements these additions before F2 to F5.
-Its YAML, generated outputs and filter tests must change together.
-The command-only AECP term and uncounted refusals below describe F0 only.
-They do not satisfy the added ingress requirement.
+state (#665 lane FC; F0 classified on EtherType and subtype alone).
 
-A frame is classified by EtherType, and by AVTP subtype where the channel
-names one, into at most one channel. It is stored only when its channel is
-open, one of the channel's accept terms holds, it fits the channel's largest
-frame and the free ring space, and the channel's token bucket holds a token.
-A frame for no channel, or one no term accepts, is not addressed to this
-entity and is dropped uncounted; a size or space drop counts in RX_DROP and a
-rate drop in RATE_DROP. Untagged frames only.
+A frame is classified when its byte 14 arrives, by its full tuple. A channel's
+match tuple holds when the destination MAC is the tuple's address, or, for an
+`own` tuple, the `OWN_MAC` of the interface the frame arrived on; the
+EtherType is the tuple's; and the AVTP subtype is the tuple's where it names
+one. The frame is then stored only when its channel is open, one of the
+channel's accept terms (its identity term) holds, it fits the channel's
+largest frame and the free ring space, and the channel's token bucket holds a
+token.
 
-| Channel | Passes | Clause |
-|---|---|---|
-| `adp` | ENTITY_DISCOVER for entity_id 0 or this entity | IEEE 1722.1-2021 6.2; Milan v1.2 5.6.3.1 |
-| `acmp` | a command or response naming this entity as talker or listener | IEEE 1722.1-2021 8.2 |
-| `aecp` | a command whose target_entity_id is this entity | IEEE 1722.1-2021 9.2 |
-| `maap` | a PROBE, DEFEND or ANNOUNCE overlapping this entity's range | IEEE 1722-2016 Annex B |
-| `srp` | every MSRP and MVRP PDU | IEEE 802.1Q-2018 35.2.2, 11.2 |
+| Channel | Destination MAC | EtherType | Subtype | Passes | Clause |
+|---|---|---|---|---|---|
+| `adp` | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or this entity | IEEE 1722.1-2021 6.2, Table B.1; Milan v1.2 5.6.3.1 |
+| `acmp` | `91:E0:F0:01:00:00`, or own unicast (the owner's receive tolerance) | `0x22F0` | `0xFC` | a command or response naming this entity as talker or listener | IEEE 1722.1-2021 8.2.1, Table B.1 |
+| `aecp` | own unicast | `0x22F0` | `0xFB` | a command for this target, or a response for this controller | IEEE 1722.1-2021 9.2.2.4 (Table 9-1), 9.2.2.7, 9.2.2.8; Milan v1.2 5.4.5.3 |
+| `maap` | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | a PROBE, DEFEND or ANNOUNCE overlapping this entity's range | IEEE 1722-2016 Annex B, Table B.10 |
+| `srp` | `01:80:C2:00:00:0E` with `0x22EA` (MSRP); `01:80:C2:00:00:21` with `0x88F5` (MVRP) | as paired | none | every MSRP and MVRP PDU | IEEE 802.1Q-2018 35.2.2, 11.2.3.1.3, Tables 10-1 and 10-2 |
+
+- **Tagged frames reach no mailbox, by construction.** An 802.1Q tag puts
+  its TPID where the EtherType is read (wire bytes 12 and 13), and no tuple
+  may name a TPID: the generator refuses `0x8100`, `0x88A8` and `0x88E7`
+  (IEEE 802.1Q-2018 Table 9-1). A tagged frame therefore matches no tuple
+  and is of no control EtherType, so it reaches no channel and no counter.
+  AAF and CRF have no channel, so a stray untagged one is refused too.
+- **Own unicast is the arrival interface's MAC, never any unicast.** Each
+  interface has `OWN_MAC_LO` and `OWN_MAC_HI` in its own filter block
+  (`0x080 + 8 * i`). The filter compares a frame's destination with the
+  `OWN_MAC` of the interface the RX record will carry. An index with no
+  interface behind it has no own MAC. The firmware writes every interface's
+  own MAC before it opens a channel (`ctrl_loop_open`). The app gives each
+  interface the entity's MAC, which ADP sends on every interface.
+- **AECP is two-sided.** A command (an even message_type) passes when
+  target_entity_id is this entity. A response (an odd one) passes when
+  controller_entity_id is this entity, such as the CONTROLLER_AVAILABLE reply
+  of Milan v1.2 5.4.5.3. The reserved values 10 to 13 keep that parity, which
+  is how the fabric's AECP engine reads them.
+- **Counted drops.** An untagged frame whose EtherType some tuple names
+  (`0x22F0`, `0x22EA` or `0x88F5`), and which matches no tuple, counts once
+  in `FILTER_MISMATCH` at its end. Like `RX_DROP` and `RATE_DROP`, it sets
+  `IRQ_STATUS.ERR`. The counter judges the tuple whatever `FILTER_EN` holds.
+  A frame refused by its identity term, or for a closed channel, is not
+  addressed to this entity and is dropped uncounted. So is a frame that ends
+  before byte 14. A size or space drop counts in `RX_DROP`, a rate drop in
+  `RATE_DROP`.
+- **The token buckets stay.** Only a committed frame takes a token, so a
+  frame the filter refuses spends none.
+
+This narrows what the filter passes, so the contract went to major 2. A
+firmware built against major 1 would not write the own MAC the AECP channel
+now matches, and `mbx_open()` refuses the other major.
 
 The SRP record carries the whole frame, so the MRPDU (ProtocolVersion first)
 is frame bytes 14 onward: the contiguous buffer lwSRP's `mrp_rx()` and
@@ -446,13 +481,15 @@ simulation and is left open (see [Open items](#open-items)).
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 134 checks through the Wishbone adapter and the same 134 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own handshake checks |
-| the same suite on the host model | the 134 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 285 checks through the Wishbone adapter and the same 285 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter |
+| `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
+| the same suite on the host model | the 285 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; four of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; five of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build
 
