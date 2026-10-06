@@ -85,6 +85,7 @@ Publish conflicts before continuing.
 | Run RTL harnesses | [Verilator suites](../tb/verilator/README.md) |
 | Add bound assertions | [Assertion guide](testing/ASSERTIONS.md) |
 | Run behavior tests | [Behavior tests](../tests/README.md) |
+| Run or extend the firmware's host unit tests | [Firmware GoogleTest harness](../sw/firmware/gtest/README.md) |
 | Understand simulation boundaries | [Simulation guide](testing/SIMULATION.md) |
 | Trace modules into tests | [Generated module matrix](traceability/MODULE_MATRIX.md) |
 | Check the per-clause compliance position | [Compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md) |

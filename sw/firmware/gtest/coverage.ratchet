@@ -1,0 +1,18 @@
+# Per-file coverage of the bare-metal firmware's host suites (#665 lane FT), after the
+# exclusions in sw/firmware/gtest/README.md. Written by fw_coverage.py --write, which
+# refuses to record a drop; read by fw_coverage.py --check, which refuses one.
+# file  lines covered/total  branches covered/total
+sw/firmware/ctrl/adp/adp.c  lines 168/168  branches 73/73
+sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+sw/firmware/ctrl/app/ctrl_app.c  lines 12/12  branches 6/6
+sw/firmware/ctrl/loop/ctrl_loop.c  lines 93/93  branches 54/54
+sw/firmware/ctrl/mbx/mbx.c  lines 162/162  branches 60/60
+sw/firmware/ctrl/mbx/mbx_wire.h  lines 15/15  branches 12/12
+sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 59/59
+sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+sw/firmware/ctrl/wire/wire.h  lines 10/10  branches 2/2
+sw/firmware/ctrl_nvm/nvm_klj2.c  lines 194/194  branches 103/103
+sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
