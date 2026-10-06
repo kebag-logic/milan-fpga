@@ -1,0 +1,71 @@
+{
+  "decoded_segments": 145,
+  "streams": [
+    {
+      "role": "peer",
+      "subtype": 2,
+      "stream_unique_id": 0,
+      "segments": 145,
+      "first_tap_ns": 415527308983552,
+      "last_tap_ns": 422731468534320,
+      "packet_observations": 57822726,
+      "sequence_gaps": 3,
+      "mr_toggles": 0,
+      "tu_toggles": 0,
+      "uncovered_boundaries": [],
+      "covered_span_s": 7204.159550768
+    },
+    {
+      "role": "dut",
+      "subtype": 2,
+      "stream_unique_id": 0,
+      "segments": 145,
+      "first_tap_ns": 415527405838214,
+      "last_tap_ns": 422731446757842,
+      "packet_observations": 57821794,
+      "sequence_gaps": 3,
+      "mr_toggles": 1,
+      "tu_toggles": 0,
+      "uncovered_boundaries": [],
+      "covered_span_s": 7204.040919628
+    },
+    {
+      "role": "dut",
+      "subtype": 4,
+      "stream_unique_id": 1,
+      "segments": 145,
+      "first_tap_ns": 415527406011974,
+      "last_tap_ns": 422731246052711,
+      "packet_observations": 3613762,
+      "sequence_gaps": 1,
+      "mr_toggles": 0,
+      "tu_toggles": 0,
+      "uncovered_boundaries": [],
+      "covered_span_s": 7203.840040737
+    },
+    {
+      "role": "peer",
+      "subtype": 4,
+      "stream_unique_id": 16384,
+      "segments": 145,
+      "first_tap_ns": 415527546819317,
+      "last_tap_ns": 422731468863921,
+      "packet_observations": 3613810,
+      "sequence_gaps": 2,
+      "mr_toggles": 0,
+      "tu_toggles": 0,
+      "uncovered_boundaries": [],
+      "covered_span_s": 7203.922044604
+    }
+  ],
+  "capture_receipts": 435,
+  "kernel_drop_total": 0,
+  "issues": [
+    {
+      "capture": "667-b13-soak-063-vlan.pcap",
+      "rc": 130,
+      "kernel_dropped": null
+    }
+  ],
+  "count_definition": "Packet observations include overlapping segments; they are not unique packet totals."
+}

@@ -1,0 +1,13 @@
+{
+  "counter_semantics": "Milan v1.2 Tables 5.4 and 5.6 allow observation-interval frame counters. FRAMES_TX and FRAMES_RX must not all be treated as packet totals.",
+  "cleanup_boundary": {
+    "final_scheduled_timing_response_tap_ns": 422731203438229,
+    "first_cleanup_unbind_request_tap_ns": 422731237096553,
+    "crf_input_unbind_request_tap_ns": 422731435818039,
+    "crf_input_unbind_response_tap_ns": 422731435825535,
+    "aaf_mr_toggle_tap_ns": 422731435882639,
+    "aaf_sequence_before": 159,
+    "aaf_sequence_after": 160,
+    "interpretation": "The observed final AAF media-reset toggle follows the CRF-input unbind response. It is outside the completed bound soak window. The following input and clock unlock counter responses also follow that unbind."
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "scope": "Initial segment 077 investigation; complete results are in overlap-recovery.json.",
+  "observations": [
+    {
+      "file": "soak-077-wire.json",
+      "role": "dut",
+      "subtype": 2,
+      "gaps": 1,
+      "examples": [
+        {
+          "before": {
+            "capture": "667-b13-soak-077-vlan.pcap",
+            "record": 9,
+            "tap_ns": 419377623324746,
+            "port": 3,
+            "sequence": 254,
+            "mr": 1,
+            "tu": 0,
+            "header": "0289fe000000000000000000e2459e9c0250082000c00000",
+            "tv": 1,
+            "sp": 0,
+            "avtp_timestamp": 3796213404,
+            "relative_to_tenth_pdu_trend_ns": -1750030.0
+          },
+          "after": {
+            "capture": "667-b13-soak-077-vlan.pcap",
+            "record": 12,
+            "tap_ns": 419377625199790,
+            "port": 3,
+            "sequence": 13,
+            "mr": 1,
+            "tu": 0,
+            "header": "02890d000000000000000000e2623af00250082000c00000",
+            "tv": 1,
+            "sp": 0,
+            "avtp_timestamp": 3798088432,
+            "relative_to_tenth_pdu_trend_ns": -1.0
+          }
+        }
+      ]
+    },
+    {
+      "file": "soak-077-wire.json",
+      "role": "peer",
+      "subtype": 2,
+      "gaps": 1,
+      "examples": [
+        {
+          "before": {
+            "capture": "667-b13-soak-077-vlan.pcap",
+            "record": 10,
+            "tap_ns": 419377623353378,
+            "port": 2,
+            "sequence": 227,
+            "mr": 0,
+            "tu": 0,
+            "header": "0281e3000000000000000000e247cab00250042000600000",
+            "tv": 1,
+            "sp": 0,
+            "avtp_timestamp": 3796355760,
+            "relative_to_tenth_pdu_trend_ns": -1625020.0
+          },
+          "after": {
+            "capture": "667-b13-soak-077-vlan.pcap",
+            "record": 11,
+            "tap_ns": 419377625103798,
+            "port": 2,
+            "sequence": 241,
+            "mr": 0,
+            "tu": 0,
+            "header": "0281f1000000000000000000e2627eb40250042000600000",
+            "tv": 1,
+            "sp": 0,
+            "avtp_timestamp": 3798105780,
+            "relative_to_tenth_pdu_trend_ns": -1.0
+          }
+        }
+      ]
+    }
+  ]
+}
