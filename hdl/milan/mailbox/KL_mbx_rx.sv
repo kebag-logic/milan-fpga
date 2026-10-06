@@ -4,25 +4,36 @@
  */
 //---------------------------------------------------------------------------//
 //  File        : KL_mbx_rx.sv
-//  Project     : Milan FPGA Platform (packet mailbox, #665 lane F0)
+//  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0 and FC)
 //
 //  Description : The ingress filter and the receive ring writer. A frame arrives
-//                one byte per accepted cycle. Its EtherType (wire bytes 12
-//                and 13) and AVTP subtype (byte 14) pick at most one channel;
-//                every channel's accept terms are evaluated as the bytes pass
-//                (an 8-byte compare against OWN_EID or zero, or a MAAP range
-//                captured for the overlap test), and the frame's words are
-//                written into the picked channel's receive ring speculatively,
-//                past the ring's head. At the last byte the verdict is
-//                taken: a frame for no open channel, or one no accept term
-//                passes, is dropped silently (it is not addressed to this
-//                entity); one that did not fit max_frame_bytes or the free
-//                ring space counts in RX_DROP; one the channel's token bucket
-//                refuses counts in RATE_DROP. A passing frame gets its two
-//                header words written and only then is the head advanced
-//                past the whole record, so the core never reads a partial
-//                record. The bytes and rules are the contract's
-//                (sw/mailbox/mailbox.yaml, KL_mbx_pkg).
+//                one byte per accepted cycle. When its byte 14 arrives its full
+//                tuple picks at most one channel: the destination MAC (wire
+//                bytes 0 to 5) against each match tuple's address, or, for an
+//                `own` tuple, against OWN_MAC of the interface the frame
+//                arrived on; the EtherType (bytes 12 and 13); and the AVTP
+//                subtype (byte 14) where the tuple names one. Every channel's
+//                accept terms (the identity term: an 8-byte compare against
+//                OWN_EID or zero, or a MAAP range captured for the overlap
+//                test) are evaluated as the bytes pass, and the frame's words
+//                are written into the picked channel's receive ring
+//                speculatively, past the ring's head. At the last byte the
+//                verdict is taken: a frame for no open channel, or one no
+//                accept term passes, is dropped silently (it is not addressed
+//                to this entity), except that a frame whose EtherType is a
+//                control one (some tuple names it) and which matched no tuple
+//                counts once in FILTER_MISMATCH; one that did not fit
+//                max_frame_bytes or the free ring space counts in RX_DROP; one
+//                the channel's token bucket refuses counts in RATE_DROP. A
+//                passing frame gets its two header words written and only then
+//                is the head advanced past the whole record, so the core never
+//                reads a partial record. The bytes and rules are the
+//                contract's (sw/mailbox/mailbox.yaml, KL_mbx_pkg).
+//
+//                Tagged frames, by construction: an 802.1Q tag puts its TPID
+//                at bytes 12 and 13, which the contract lets no tuple name, so
+//                a tagged frame matches no tuple and is of no control
+//                EtherType: it reaches no channel and no counter.
 //
 //                The one decision that matters: a speculative word is
 //                written only into space the core has released (the word
@@ -44,6 +55,7 @@ module KL_mbx_rx
   input  wire  [31:0]                       now_ms_i,         //! NOW_MS, stamped into ARRIVAL_MS
 
   input  wire  [63:0]                       own_eid_i,        //! OWN_EID, the eq_own operand
+  input  wire  [MBX_N_IF_C*48-1:0]          own_mac_i,        //! OWN_MAC per interface, an `own` tuple's destination
   input  wire  [MBX_N_CH_C-1:0]             open_i,           //! FILTER_EN.OPEN, bit c opens channel c
   input  wire  [47:0]                       maap_base_i,      //! MAAP_BASE, first address of this entity's range
   input  wire  [15:0]                       maap_count_i,     //! MAAP_COUNT, addresses in the range (0 = none)
@@ -64,10 +76,12 @@ module KL_mbx_rx
   output logic [MBX_N_CH_C*16-1:0]          rx_drop_cnt_o,    //! RX_DROP per channel, saturating
   output logic [MBX_N_CH_C*16-1:0]          rate_drop_cnt_o,  //! RATE_DROP per channel, saturating
   output logic [MBX_N_CH_C*16-1:0]          rx_pass_cnt_o,    //! RX_PASS per channel, modulo 2^16
-  output logic                              err_p_o           //! one-cycle pulse: RX_DROP or RATE_DROP moved
+  output logic [15:0]                       mismatch_cnt_o,   //! FILTER_MISMATCH, saturating
+  output logic                              err_p_o           //! one-cycle pulse: RX_DROP, RATE_DROP or FILTER_MISMATCH moved
 );
 
   localparam int unsigned NT_C = MBX_N_CH_C * MBX_MAX_TERMS_C;   //! accept terms, flattened
+  localparam int unsigned NM_C = MBX_N_CH_C * MBX_MAX_TUPLES_C;  //! match tuples, flattened
   localparam int unsigned QD_C = 4;                              //! word queue depth
   localparam int unsigned TW_C = $clog2(NT_C);                   //! term index width
 
@@ -78,10 +92,13 @@ module KL_mbx_rx
   logic [31:0]             wacc_r;         //! the word being assembled
   logic [1:0]              lane_r;         //! next byte lane of wacc_r
   logic [8:0]              widx_r;         //! payload words formed so far
+  logic [47:0]             dst_r;          //! destination MAC, shifted in big-endian
   logic [7:0]              b12_r;          //! EtherType high byte
   logic [7:0]              b13_r;          //! EtherType low byte
   logic                    cls_done_r;     //! the channel decision is taken
   logic                    hit_r;          //! the frame classified into an open channel
+  logic                    mis_r;          //! a control EtherType that matched no tuple
+  logic [15:0]             mismatch_r;     //! FILTER_MISMATCH
   logic [MBX_CH_W_C-1:0]   ch_r;           //! that channel
   logic [3:0]              msg_r;          //! message_type, the low nibble of wire byte 15
   logic [MBX_IF_W_C-1:0]   if_r;           //! interface of the frame
@@ -110,20 +127,42 @@ module KL_mbx_rx
   assign rx_ready_o = (st_r == RECV_S) && (q_cnt_r < 3'(QD_C));
   assign take_w     = rx_valid_i && rx_ready_o;
 
-  // ---- classification of the byte at index 14 -------------------------------
-  logic                  cls_hit_w;
-  logic [MBX_CH_W_C-1:0] cls_ch_w;
+  // ---- the own MAC of the interface the frame arrived on ---------------------
+  // An index this build has no interface for has no own MAC: no `own` tuple holds.
+  logic [47:0] own_mac_w;
+  logic        own_if_w;
+  always_comb begin : own_mac
+    own_mac_w = '0;
+    own_if_w  = 1'b0;
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (int'(if_r) == i) begin
+        own_mac_w = own_mac_i[48*i +: 48];
+        own_if_w  = 1'b1;
+      end
+    end
+  end : own_mac
+
+  // ---- classification of the byte at index 14: the full tuple ----------------
+  logic                  cls_hit_w;   //! a channel's tuple holds
+  logic [MBX_CH_W_C-1:0] cls_ch_w;    //! that channel
+  logic                  ctrl_et_w;   //! the EtherType is one some tuple names
   always_comb begin : classify
     logic [15:0] ethertype;
     ethertype = {b12_r, b13_r};
     cls_hit_w = 1'b0;
     cls_ch_w  = '0;
-    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
-      if (!cls_hit_w
-          && (ethertype == 16'(MBX_CH_ETHERTYPE0_TBL_C[c]) || ethertype == 16'(MBX_CH_ETHERTYPE1_TBL_C[c]))
-          && (MBX_CH_HAS_SUBTYPE_TBL_C[c] == 0 || rx_data_i == 8'(MBX_CH_SUBTYPE_TBL_C[c]))) begin
+    ctrl_et_w = 1'b0;
+    for (int j = 0; j < int'(NM_C); j++) begin
+      logic dst_ok;
+      dst_ok = (MBX_TUPLE_DST_TBL_C[j] == MBX_DST_MAC_C
+                && dst_r == {16'(MBX_TUPLE_DST_HI_TBL_C[j]), MBX_TUPLE_DST_LO_TBL_C[j]})
+               || (MBX_TUPLE_DST_TBL_C[j] == MBX_DST_OWN_C && own_if_w && dst_r == own_mac_w);
+      if (MBX_TUPLE_DST_TBL_C[j] != MBX_DST_NONE_C && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j]))
+        ctrl_et_w = 1'b1;
+      if (!cls_hit_w && dst_ok && ethertype == 16'(MBX_TUPLE_ETHERTYPE_TBL_C[j])
+          && (MBX_TUPLE_HAS_SUBTYPE_TBL_C[j] == 0 || rx_data_i == 8'(MBX_TUPLE_SUBTYPE_TBL_C[j]))) begin
         cls_hit_w = 1'b1;
-        cls_ch_w  = MBX_CH_W_C'(c);
+        cls_ch_w  = MBX_CH_W_C'(j / int'(MBX_MAX_TUPLES_C));
       end
     end
   end : classify
@@ -209,13 +248,15 @@ module KL_mbx_rx
   logic commit_w;       //! the record's header is written this cycle (HDR1)
   logic drop_w;         //! RX_DROP moves this cycle
   logic rate_w;         //! RATE_DROP moves this cycle
+  logic mis_w;          //! FILTER_MISMATCH moves this cycle
   assign fin_ready_w = (st_r == FIN_S) && (q_cnt_r == 3'd0) && cls_done_r;
   assign bad_w       = overflow_r || oversize_r || (32'(cnt_r) > MBX_CH_MAX_FRAME_BYTES_TBL_C[ch_r]);
   assign drop_w      = fin_ready_w && hit_r && rule_pass_w && bad_w;
   assign rate_w      = fin_ready_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] == 8'd0);
   assign accept_w    = fin_ready_w && hit_r && rule_pass_w && !bad_w && (tokens_r[ch_r] != 8'd0);
+  assign mis_w       = fin_ready_w && mis_r;
   assign commit_w    = (st_r == HDR1_S);
-  assign err_p_o     = drop_w || rate_w;
+  assign err_p_o     = drop_w || rate_w || mis_w;
 
   // the word the taken byte completes or extends
   logic [31:0] word_w;
@@ -228,10 +269,12 @@ module KL_mbx_rx
       wacc_r       <= '0;
       lane_r       <= '0;
       widx_r       <= '0;
+      dst_r        <= '0;
       b12_r        <= '0;
       b13_r        <= '0;
       cls_done_r   <= 1'b0;
       hit_r        <= 1'b0;
+      mis_r        <= 1'b0;
       ch_r         <= '0;
       msg_r        <= '0;
       if_r         <= '0;
@@ -260,6 +303,8 @@ module KL_mbx_rx
       if (take_w) begin
         if (cnt_r == 11'd0) if_r <= rx_if_i;
         if (cnt_r != 11'h7FF) cnt_r <= cnt_r + 11'd1;
+        // the six destination bytes from DST_BYTE (the subtraction wraps below it)
+        if (32'(cnt_r) - MBX_DST_BYTE_C < 32'd6)    dst_r <= {dst_r[39:0], rx_data_i};
         if (cnt_r == 11'(MBX_ETHERTYPE_BYTE_C))     b12_r <= rx_data_i;
         if (cnt_r == 11'(MBX_ETHERTYPE_BYTE_C + 1)) b13_r <= rx_data_i;
         if (cnt_r == 11'(MBX_MSG_TYPE_BYTE_C))      msg_r <= rx_data_i[3:0];
@@ -267,6 +312,7 @@ module KL_mbx_rx
           cls_done_r <= 1'b1;
           hit_r      <= cls_hit_w && open_i[cls_ch_w];
           ch_r       <= cls_ch_w;
+          mis_r      <= ctrl_et_w && !cls_hit_w;
         end
         for (int j = 0; j < int'(NT_C); j++) begin
           if (32'(cnt_r) >= MBX_TERM_OFFSET_TBL_C[j]
@@ -310,6 +356,7 @@ module KL_mbx_rx
         widx_r     <= '0;
         cls_done_r <= 1'b0;
         hit_r      <= 1'b0;
+        mis_r      <= 1'b0;
         msg_r      <= '0;
         overflow_r <= 1'b0;
         oversize_r <= 1'b0;
@@ -336,6 +383,7 @@ module KL_mbx_rx
 
   always_ff @(posedge clk_i) begin : channel_state
     if (!rst_n) begin
+      mismatch_r <= '0;
       for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
         head_r[c]      <= '0;
         drop_r[c]      <= '0;
@@ -345,6 +393,7 @@ module KL_mbx_rx
         refill_r[c]    <= '0;
       end
     end else begin
+      if (mis_w && mismatch_r != 16'hFFFF) mismatch_r <= mismatch_r + 16'd1;
       for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
         if (refill_w[c]) refill_r[c] <= '0;
         else if (ms_tick_p_i) refill_r[c] <= refill_r[c] + 16'd1;
@@ -367,6 +416,7 @@ module KL_mbx_rx
       rate_drop_cnt_o[16*c +: 16] = rate_drop_r[c];
       rx_pass_cnt_o[16*c +: 16]   = pass_r[c];
     end
+    mismatch_cnt_o = mismatch_r;
   end : publish
 
 endmodule : KL_mbx_rx
