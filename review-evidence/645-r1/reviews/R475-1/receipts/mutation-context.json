@@ -1,0 +1,253 @@
+{
+  "old_line_search_at_parent_rc": 1,
+  "old_line_hits": "",
+  "follow_ring": [
+    {
+      "suite": "follow_ring",
+      "arm": "NO-SETTLE",
+      "plants": true,
+      "parts": [
+        {
+          "source": "hdl/milan/milan_datapath.sv",
+          "edits": 1,
+          "sha256": "fc58cb8735ad0645a87220ee5ac00e009d12f65e0a1d366b1a65bad8e30b6a42"
+        },
+        {
+          "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "edits": 0,
+          "sha256": "6d62b23bc7fad105d95e72445b1190055bf70b6449f9080ba95d1c2573f9737c"
+        }
+      ]
+    },
+    {
+      "suite": "follow_ring",
+      "arm": "RENDER-ONLY",
+      "plants": true,
+      "parts": [
+        {
+          "source": "hdl/milan/milan_datapath.sv",
+          "edits": 0,
+          "sha256": "53b1b9489440457ba547fc1544878d235da70aaa65b9f39517f78977eb6e934e"
+        },
+        {
+          "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "edits": 0,
+          "sha256": "6d62b23bc7fad105d95e72445b1190055bf70b6449f9080ba95d1c2573f9737c"
+        }
+      ]
+    },
+    {
+      "suite": "follow_ring",
+      "arm": "EARLY",
+      "plants": true,
+      "parts": [
+        {
+          "source": "hdl/milan/milan_datapath.sv",
+          "edits": 2,
+          "sha256": "9ae0651d18b3f778bcaf86114f50f2fc23939a3f824b4c7231f6f48440f00be2"
+        },
+        {
+          "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "edits": 0,
+          "sha256": "6d62b23bc7fad105d95e72445b1190055bf70b6449f9080ba95d1c2573f9737c"
+        }
+      ]
+    },
+    {
+      "suite": "follow_ring",
+      "arm": "W1",
+      "plants": true,
+      "parts": [
+        {
+          "source": "hdl/milan/milan_datapath.sv",
+          "edits": 0,
+          "sha256": "53b1b9489440457ba547fc1544878d235da70aaa65b9f39517f78977eb6e934e"
+        },
+        {
+          "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "edits": 0,
+          "sha256": "6d62b23bc7fad105d95e72445b1190055bf70b6449f9080ba95d1c2573f9737c"
+        }
+      ]
+    },
+    {
+      "suite": "follow_ring",
+      "arm": "OVERSHOOT",
+      "plants": true,
+      "parts": [
+        {
+          "source": "hdl/milan/milan_datapath.sv",
+          "edits": 0,
+          "sha256": "53b1b9489440457ba547fc1544878d235da70aaa65b9f39517f78977eb6e934e"
+        },
+        {
+          "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+          "edits": 1,
+          "sha256": "8111efa6bcb110d33b54a4378511411ad58e2eeebab3b2bdfc2c3bb064c89810"
+        }
+      ]
+    }
+  ],
+  "capture_coherence": [
+    {
+      "arm": "the walk reads the per-pair stage (the ce550952 latest-sample law)",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "bcca5a8616be2982b2cb6cf0c753d14705b17a5f8944f9f61285e2e1d1a14a01"
+    },
+    {
+      "arm": "no walk snapshot: the walk reads the frame bank live",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "ac2cd44d399e06466efc978fa6ad2deff844cae0f430bac04f46743828074fd5"
+    },
+    {
+      "arm": "the frame is closed by its first pair",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 2,
+      "plants": true,
+      "sha256": "ad21c6451d0e93f9641880848b0f7ef344993365a66c3c68006cfefadfcceb7e"
+    },
+    {
+      "arm": "the frame is published whole but one pair late (at the next frame's first pair)",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 2,
+      "plants": true,
+      "sha256": "1912f7903398f2ff6fe56cd2e6383225f7dfc6b40490c9aec220355404150e73"
+    },
+    {
+      "arm": "the stage is never written (only the closing pair reaches the frame)",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "7e739ccc9721d137288fcb23a657d663b7a6a61a0e85a461a6a792902f241390"
+    },
+    {
+      "arm": "the walk ignores the coincidence law: a close on the tick cycle always waits",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "84bad4e50a09638e2abc00e171b2fc56de6566a6ae0dbe0ee621064a1e178920"
+    },
+    {
+      "arm": "the walk snapshot back on the pre-walk's last cycle (the round-1 instant)",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "a48ee62d5bf69e893bbb0bba2fc43b0410b4bf62a866584fc18e427b7437ef2e"
+    },
+    {
+      "arm": "the junction counters keyed on the slot-0 write against the tick (the round-1 law)",
+      "leg": "junction",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "93f4d827f45ea3a11b221c042810fe044aa99531c0b01e32827007b897848964"
+    },
+    {
+      "arm": "the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off",
+      "leg": "band",
+      "source": "tb/verilator/capture_coherence/coherence_wrap.sv",
+      "edits": 3,
+      "plants": true,
+      "sha256": "08a7340a00f88947057fbe9c1fc62594e33fa6558fd5c3866b4a7316411d836f"
+    },
+    {
+      "arm": "the aligner's keep-off back to its 1/128-sample default",
+      "leg": "band",
+      "source": "tb/verilator/capture_coherence/coherence_wrap.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "03c6c9e5827f970b5d2c47234031156e377138a86c3546f65c7398c37ca5b36e"
+    },
+    {
+      "arm": "the aligner sees the tick itself, one cycle before the walk's crossing",
+      "leg": "band",
+      "source": "tb/verilator/capture_coherence/coherence_wrap.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "f3bc48bc0716160e3420c8d48399f10a2d8a44f258663bc56c1f74aae77639f9"
+    },
+    {
+      "arm": "milan_datapath tells the crossbar a one-pair TDM frame",
+      "leg": "dp",
+      "source": "hdl/milan/milan_datapath.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "6bd7d909e941f096ff58dd6ecef48993feda6d293261dcee045b2583bb81cf82"
+    },
+    {
+      "arm": "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off",
+      "leg": "dp-band",
+      "source": "hdl/milan/milan_datapath.sv",
+      "edits": 2,
+      "plants": true,
+      "sha256": "7fe84fcc2e452b4a4d9335b73e9c83c4e423dcf6766ff33c099d5b6543a3867a"
+    },
+    {
+      "arm": "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
+      "leg": "chmap",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "c22383a4821786790715881fc4c4111f32270370a0040326d23dd9d400089e01"
+    },
+    {
+      "arm": "RM8: a queued tick snapshots at the tick itself, reloading the walk still running",
+      "leg": "chmap",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "cf40b76d71402ad4442ec6715dd259150953a1ea10f3e63905ebc9cad604e125"
+    },
+    {
+      "arm": "RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement",
+      "leg": "band50",
+      "source": "hdl/milan/milan_datapath.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "1abfb449312de820de198aee5f839b16583d19506509b05fcbb9dd6ee701212f"
+    },
+    {
+      "arm": "RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1)",
+      "leg": "band50",
+      "source": "hdl/milan/milan_datapath.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "267d5bdd4aed6352bd67005aadd3175e8fbb7b4831be88d7659ffa809f5e009d"
+    },
+    {
+      "arm": "the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed",
+      "leg": "nco",
+      "source": "hdl/ieee1722/crf/KL_media_nco.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "bd7060ba2654fb5de979c38ed813d44576414781132c1e1317c46a9e91224afc"
+    },
+    {
+      "arm": "the terminal compare back to == (377d1ac3), under the aligner's trim updates",
+      "leg": "fine",
+      "source": "hdl/ieee1722/crf/KL_media_nco.sv",
+      "edits": 1,
+      "plants": true,
+      "sha256": "bd7060ba2654fb5de979c38ed813d44576414781132c1e1317c46a9e91224afc"
+    },
+    {
+      "arm": "the frame closes on the bucket's last pair whatever the frame length",
+      "leg": "chmap",
+      "source": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "edits": 2,
+      "plants": true,
+      "sha256": "75c532ef9c113b7f59f47465036ec78dc8c411e17b53b6b7da46f8f6e1b378b6"
+    }
+  ]
+}

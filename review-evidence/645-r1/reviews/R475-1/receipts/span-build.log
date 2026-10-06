@@ -1,0 +1,8 @@
+COMMAND ['make', '-j16', '-C', 'obj_dir', '-f', 'Vchmap_wrap.mk']
+make: Entering directory '$REVIEWS/645-r475-1-packet/scratch/tb/verilator/chmap_capture/obj_dir'
+g++  -I.  -MMD -I<SIMULATOR_ROOT>/include -I<SIMULATOR_ROOT>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+../sim_main.cpp:1884:6: warning: ‘void {anonymous}::ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds()’ defined but not used [-Wunused-function]
+ 1884 | void ChanMapCaptureHarness::pin_starved_pair_pegs_and_holds() {
+      |      ^~~~~~~~~~~~~~~~~~~~~
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vchmap_wrap__ALL.a    -pthread -lpthread -latomic   -o Vchmap_wrap
+make: Leaving directory '$REVIEWS/645-r475-1-packet/scratch/tb/verilator/chmap_capture/obj_dir'
