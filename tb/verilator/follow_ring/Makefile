@@ -60,9 +60,9 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module follow_ring_wrap \
          -Wno-EOFNEWLINE \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=$(CLK_HZ) -DFRAME_DIV_TB=$(FRAME_DIV)"
 
-.PHONY: all run build b8 pullin small-pullin mutants sweep-b8 sweep-pullin clean
+.PHONY: all run build b8 pullin small-pullin settle-control mutants sweep-b8 sweep-pullin clean
 all: run mutants
-run: b8 pullin small-pullin
+run: b8 pullin small-pullin settle-control
 
 build:
 	mkdir -p $(MDIR)
@@ -87,6 +87,10 @@ small-pullin:
 	$(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
 	python3 small_pulls.py --exe $(abspath $(MDIR))_fine/Vfollow_ring \
 	  --out $(abspath $(MDIR))_fine/results --jobs $(SWEEP_JOBS)
+
+settle-control:
+	python3 settle_control.py --sim $(VERILATOR) \
+	  --out $(abspath $(MDIR))_control --jobs $(SWEEP_JOBS)
 
 mutants:
 	python3 mutants.py --jobs $(SWEEP_JOBS)

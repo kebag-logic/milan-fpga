@@ -6331,16 +6331,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! plane has settled and goes to both rings: the render stage and the
   //! capture crossbar's LOOP queues (settle_recentre_p_r, declared at that
   //! instance). Armed by a change of the selected index, by the aligner's
-  //! re-engagement, and, while not pending, by an aligner excursion past
-  //! four settle bands (a pull-in under a running stream). SETTLED means:
+  //! re-engagement, and, outside recovery, by an aligner excursion past
+  //! the quiet band (a pull-in under a running stream). SETTLED means:
   //! under a followed source, the servo LOCKED for SETTLE_LOCK_WIN_C windows
   //! running, since the frequency-only loop's phase tail falls about 0.64 a
   //! window; at INTERNAL, the aligner inside the settle band for
   //! SRC_SETTLE_TICKS_C ticks running, or not engaged at all (no pull to
   //! wait out). An excursion while pending restarts that run. The ceiling,
   //! 2^SETTLE_CEIL_LOG2_C ticks (21.8 s) from the arming, fires it whatever
-  //! the loops do. One pending flag, cleared by the one pulse it fires.
-  localparam int unsigned SETTLE_EXC_ERR_C   = 4 * SRC_SETTLE_ERR_C;
+  //! the loops do. After an action, excursion arming stays disabled until
+  //! the engaged aligner has spent 2048 consecutive ticks in the quiet band.
+  //! Reuse the pending dwell counter for that recovery qualification; a
+  //! source change or re-engagement still arms immediately.
+  //! Twice the quiet +/-1 axis-cycle quantisation, independent of the
+  //! clock-frequency-scaled #386 settling band.
+  localparam int unsigned SETTLE_EXC_ERR_C   = 2;
   localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
   //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
   localparam int unsigned SETTLE_LOCK_TICKS_C =
@@ -6348,6 +6353,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int unsigned SETTLE_RUN_W_C     = $clog2(SETTLE_LOCK_TICKS_C + 1);
   localparam int unsigned SETTLE_CEIL_LOG2_C = 20;
   logic                        settle_pend_r /* verilator public_flat_rd */;
+  logic                        settle_recover_r /* verilator public_flat_rd */;
   logic [SETTLE_RUN_W_C-1:0]   settle_run_ticks_r /* verilator public_flat_rd */;
   logic [SETTLE_CEIL_LOG2_C:0] settle_ceil_ticks_r;
   wire settle_exc_w = mga_engaged_w &&
@@ -6355,7 +6361,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the #386 block's registered copies give the change and re-engagement
   wire settle_arm_w = (media_clk_src_r != src_recentre_q_r) ||
                       (mga_engaged_w && !mga_engaged_q_r) ||
-                      (settle_exc_w && !settle_pend_r);
+                      (settle_exc_w && !settle_pend_r && !settle_recover_r);
   wire settle_steady_w = follow_sel_r
                          ? mcsrv_locked_w
                          : (!mga_engaged_w ||
@@ -6368,6 +6374,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   always_ff @(posedge axis_clk) begin : g_settle_recentre
     if (!axis_resetn) begin
       settle_pend_r       <= 1'b0;
+      settle_recover_r    <= 1'b0;
       settle_run_ticks_r  <= '0;
       settle_ceil_ticks_r <= '0;
       settle_recentre_p_r <= 1'b0;
@@ -6383,12 +6390,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           settle_run_ticks_r  <= '0;
           settle_ceil_ticks_r <= '0;
           settle_recentre_p_r <= 1'b1;
+          settle_recover_r    <= 1'b1;
         end else begin
           if (media_tick_p) begin
             settle_run_ticks_r  <= settle_steady_w ? settle_run_ticks_r + 1'b1 : '0;
             settle_ceil_ticks_r <= settle_ceil_ticks_r + 1'b1;
           end
           if (settle_exc_w) settle_run_ticks_r <= '0;
+        end
+      end else if (settle_recover_r) begin
+        if (!mga_engaged_w || settle_exc_w) begin
+          settle_run_ticks_r <= '0;
+        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C)) begin
+          settle_recover_r   <= 1'b0;
+          settle_run_ticks_r <= '0;
+        end else if (media_tick_p) begin
+          settle_run_ticks_r <= settle_run_ticks_r + 1'b1;
         end
       end
     end

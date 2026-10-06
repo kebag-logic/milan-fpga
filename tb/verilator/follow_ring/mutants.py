@@ -36,12 +36,19 @@ NO-ARM: remove excursion arming under a running INTERNAL stream. The fine
   while its peak error remains below the former four-band threshold.
 SINGLE-DROP: replace the full-side correction with one drop. The ten-event
   pre-PDU fill must then fail the LRC wire expectation for five drops.
+NO-RECOVERY: let the excursion arm while recovering. The three-quantum hold
+  then causes two actions, one from the aligner's own recovery swing.
+HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. Its
+  gradable render-law boundary is missed.
+QUIET-ARM: set the quiet band to zero. Quantisation noise then arms a
+  pending correction in an undisturbed running stream.
 
 Exit 0 = every mutant built and was killed by its named check.
 """
 
 import argparse
 import concurrent.futures as cf
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -60,9 +67,24 @@ Plant = list[tuple[str, str]]
 Mutant = tuple[str, str | None, Plant, Plant, list[str], str]
 MUTANTS: tuple[Mutant, ...] = (
     ("NO-ARM", None,
-     [("                      (settle_exc_w && !settle_pend_r);\n",
+     [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
        "                      1'b0;\n")], [],
      SMALL_PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
+    ("NO-RECOVERY", None,
+     [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
+       "                      (settle_exc_w && !settle_pend_r);\n")], [],
+     SMALL_PULLIN,
+     "[PULLIN] exactly one settle recentre from the transient to the hold's end"),
+    ("HIGH-ARM", None,
+     [("  localparam int unsigned SETTLE_EXC_ERR_C   = 2;\n",
+       "  localparam int unsigned SETTLE_EXC_ERR_C   = 10;\n")], [],
+     ["--case", "pullin", "--hold-us", "41.9921875", "--latency-us", "204.0", "--after-s", "1.5"],
+     "[PULLIN] the render stage is on its law after the settle recentre"),
+    ("QUIET-ARM", None,
+     [("  localparam int unsigned SETTLE_EXC_ERR_C   = 2;\n",
+       "  localparam int unsigned SETTLE_EXC_ERR_C   = 0;\n")], [],
+     ["--case", "pullin", "--hold-us", "0", "--latency-us", "204.4", "--after-s", "1.5"],
+     "[STEADY] INTERNAL without a hold has no pending settle"),
     ("SINGLE-DROP", None, [],
      [("? LB_DROPW_C'(32'(rc_left_w) - LB_LEFT_C) : '0;",
        "? LB_DROPW_C'(1) : '0;")], [],
@@ -106,7 +128,7 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
     suite = HERE.parent / "chmap_capture" if name == "SINGLE-DROP" else HERE
     make = ["make", "-j16", "-s", "--no-print-directory", "-C", str(suite), "build",
             "VERILATOR_JOBS=16", f"MDIR={mdir}"]
-    if name == "NO-ARM":
+    if name in {"NO-ARM", "NO-RECOVERY", "HIGH-ARM", "QUIET-ARM"}:
         make += ["CLK_HZ=25000000", "FRAME_DIV=64"]
     if define:
         make.append(f"MUT_DEFS=+define+{define}")
@@ -117,11 +139,18 @@ def run_one(mdir_root: Path, mutant: Mutant) -> tuple[str, bool, str]:
             if why:
                 return name, False, f"not planted: {why}"
             make.append(f"{var}={planted}")
+    (mdir / "build.command.json").write_text(json.dumps(make) + "\n")
     build = subprocess.run(make, capture_output=True, text=True, check=False)
+    (mdir / "build.log").write_text(build.stdout + build.stderr)
+    (mdir / "build.rc").write_text(f"{build.returncode}\n")
     if build.returncode != 0:
         return name, False, f"did not build (rc {build.returncode})\n{build.stdout[-2000:]}{build.stderr[-2000:]}"
     executable = "Vchmap_wrap" if name == "SINGLE-DROP" else "Vfollow_ring"
-    run = subprocess.run([str(mdir / executable), *leg], capture_output=True, text=True, check=False)
+    argv = [str(mdir / executable), *leg]
+    (mdir / "run.command.json").write_text(json.dumps(argv) + "\n")
+    run = subprocess.run(argv, capture_output=True, text=True, check=False)
+    (mdir / "run.log").write_text(run.stdout + run.stderr)
+    (mdir / "run.rc").write_text(f"{run.returncode}\n")
     killed = run.returncode != 0 and f"[FAIL] {check}" in run.stdout
     return name, killed, run.stdout
 

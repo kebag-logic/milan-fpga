@@ -29,6 +29,7 @@ only when every run completed and passed.
 
 import argparse
 import concurrent.futures as cf
+import json
 import re
 import subprocess
 import sys
@@ -40,8 +41,11 @@ TICK_US = 1e6 / 48000.0
 def run(exe: Path, out: Path, name: str, args: list[str]) -> tuple[str, int, list[str]]:
     """One harness run; its exit status and its RESULT lines."""
     log = out / f"{name}.log"
+    argv = [str(exe), *args]
+    (out / f"{name}.command.json").write_text(json.dumps(argv) + "\n")
     with log.open("w") as fh:
-        rc = subprocess.run([str(exe), *args], stdout=fh, stderr=subprocess.STDOUT, check=False).returncode
+        rc = subprocess.run(argv, stdout=fh, stderr=subprocess.STDOUT, check=False).returncode
+    (out / f"{name}.rc").write_text(f"{rc}\n")
     found = re.findall(r"^RESULT-6\d\d(?:-SW)?: .*$", log.read_text(), re.M)
     return name, rc, found
 

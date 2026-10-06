@@ -20,8 +20,14 @@ CASES = (
     ("cross-2046", "42.64", "204.6"),
     ("above-old-arm", "43.29", "204.4"),
     ("one-quantum", "41.9921875", "204.0"),
+    ("eight-quanta", "44.270833333", "210.42"),
     ("negative-sub-arm", "40.690104167", "210.42"),
     ("no-hold", "0", "204.4"),
+)
+
+TWO_PULLS = (
+    ("second-inside", "0.10", True),
+    ("second-outside", "1.50", False),
 )
 
 
@@ -30,6 +36,22 @@ def run_case(exe: Path, out: Path, case: tuple[str, str, str]) -> int:
     name, hold, latency = case
     argv = [str(exe), "--case", "pullin", "--hold-us", hold,
             "--latency-us", latency, "--after-s", "1.5"]
+    return run_argv(out, name, argv)
+
+
+def run_two_pulls(exe: Path, out: Path, case: tuple[str, str, bool]) -> int:
+    """Exercise both sides of the declared recovery residual."""
+    name, gap, inside = case
+    argv = [str(exe), "--case", "pullin", "--hold-us", "42.64",
+            "--latency-us", "204.4", "--after-s", "1.5",
+            "--second-after-action-s", gap, "--second-hold-us", "40.690104167"]
+    if inside:
+        argv.append("--second-inside-recovery")
+    return run_argv(out, name, argv)
+
+
+def run_argv(out: Path, name: str, argv: list[str]) -> int:
+    """Keep the stimulus, output and original return code together."""
     (out / f"{name}.command.json").write_text(json.dumps(argv) + "\n")
     with (out / f"{name}.log").open("w") as log:
         rc = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT, check=False).returncode
@@ -49,7 +71,9 @@ def main() -> int:
         parser.error("--jobs must be positive")
     args.out.mkdir(parents=True, exist_ok=True)
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        results = list(pool.map(lambda case: run_case(args.exe.resolve(), args.out, case), CASES))
+        futures = [pool.submit(run_case, args.exe.resolve(), args.out, case) for case in CASES]
+        futures += [pool.submit(run_two_pulls, args.exe.resolve(), args.out, case) for case in TWO_PULLS]
+        results = [future.result() for future in futures]
     print(f"small pulls: {sum(rc == 0 for rc in results)}/{len(results)} passed")
     return int(any(results))
 

@@ -58,6 +58,7 @@
 #include "Vfollow_ring_wrap.h"
 #include "Vfollow_ring_wrap___024root.h"
 #include "verilated.h"
+#include "recovery_watch.hpp"
 
 #include <array>
 #include <cmath>
@@ -148,6 +149,9 @@ struct Options {
     double switch_hold_s = 0.0;                   //! each stream-to-stream hold (0 = none)
     double hold_us = 52.0;                        //! pullin: the serial-clock hold
     double after_s = 1.0;                         //! pullin: the run after the hold
+    double second_after_action_s = -1.0;         //! two-pull case, from the first action
+    double second_hold_us = 52.0;
+    bool second_inside_recovery = false;         //! declared residual, otherwise require the law
     //! a sweep may meet a window it cannot grade (#643's ambiguity window);
     //! a standing leg must not
     bool allow_ungradable = false;
@@ -170,6 +174,7 @@ void usage() {
         "  --seed N --start-s S\n"
         "  --dwell-s S --set-phase F (0..1 of one INTERNAL beat) --hold-s S\n"
         "  --switch-hold-s S --hold-us U --after-s S --allow-ungradable\n"
+        "  --second-after-action-s S --second-hold-us U --second-inside-recovery\n"
         "  --inject-recentre-s S (a planted control)\n"
         "  --trace FILE --servo-trace FILE --grid-trace FILE");
 }
@@ -197,6 +202,9 @@ bool parse(int argc, char** argv, Options& o) {
         else if (a == "--switch-hold-s" && has) num(o.switch_hold_s);
         else if (a == "--hold-us" && has) num(o.hold_us);
         else if (a == "--after-s" && has) num(o.after_s);
+        else if (a == "--second-after-action-s" && has) num(o.second_after_action_s);
+        else if (a == "--second-hold-us" && has) num(o.second_hold_us);
+        else if (a == "--second-inside-recovery") o.second_inside_recovery = true;
         else if (a == "--allow-ungradable") o.allow_ungradable = true;
         else if (a == "--inject-recentre-s" && has) num(o.inject_s);
         else if (a == "--trace" && has) o.trace = argv[++i];
@@ -289,8 +297,9 @@ class Bench {
     //! One sample on every media tick, retaining the signed error, not an
     //! absolute peak or a millisecond subsample. Window selection is done by
     //! the stimulus and the declared settle instant, never by the error.
-    struct GridSample { double time_s; int error_cyc; };
+    struct GridSample { double time_s; int error_cyc; bool pending; };
     std::vector<GridSample> grid_samples;
+    RecoveryWatch recovery;
 
     // what the run saw
     double first_locked_s = -1.0;
@@ -479,8 +488,12 @@ class Bench {
         watch_grid();
         auto* r = dut->rootp;
         if (r->follow_ring_wrap__DOT__media_tick_p && r->follow_ring_wrap__DOT__mga_engaged_w)
-            grid_samples.push_back({now_s(), static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w)});
+            grid_samples.push_back({now_s(), static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w),
+                                    bool(r->follow_ring_wrap__DOT__settle_pend_r)});
         if (dut->rootp->follow_ring_wrap__DOT__settle_recentre_p_r) settle_times.push_back(now_s());
+        recovery.sample(now_s(), static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w),
+                        r->follow_ring_wrap__DOT__mga_engaged_w, r->follow_ring_wrap__DOT__media_tick_p,
+                        r->follow_ring_wrap__DOT__settle_pend_r, r->follow_ring_wrap__DOT__settle_recover_r);
     }
 
     //! every millisecond: the aligner's error and trim, and the #386 settle's
@@ -490,7 +503,7 @@ class Bench {
         if (!grid_trace || t_fs_ < next_grid_fs_) return;
         next_grid_fs_ = t_fs_ + 1e12;
         auto* r = dut->rootp;
-        std::fprintf(grid_trace, "%.6f,%d,%d,%d,%d,%d,%d,%d,%d\n", now_s(),
+        std::fprintf(grid_trace, "%.6f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", now_s(),
                      static_cast<int>(r->follow_ring_wrap__DOT__mga_engaged_w),
                      static_cast<int>(static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w)),
                      static_cast<int>(static_cast<int16_t>(r->follow_ring_wrap__DOT__mnco_servo_trim_w)),
@@ -498,6 +511,7 @@ class Bench {
                      static_cast<int>(r->follow_ring_wrap__DOT__src_band_ticks_r),
                      static_cast<int>(r->follow_ring_wrap__DOT__settle_pend_r),
                      static_cast<int>(r->follow_ring_wrap__DOT__settle_run_ticks_r),
+                     static_cast<int>(r->follow_ring_wrap__DOT__settle_recover_r),
                      static_cast<int>(dut->render_fill_o));
     }
 
@@ -689,10 +703,12 @@ void print_errors(const Bench& b, const char* name, double a, double e,
                   milan::tb::Checker* steady = nullptr) {
     std::map<int, uint64_t> hist;
     uint64_t total = 0;
+    uint64_t pending = 0;
     for (const auto& sample : b.grid_samples) {
         if (sample.time_s >= a && sample.time_s < e) {
             ++hist[sample.error_cyc];
             ++total;
+            pending += sample.pending;
         }
     }
     std::printf("ERROR-DISTRIBUTION: %s window %.9f %.9f samples %llu axis_hz %.0f histogram",
@@ -706,6 +722,10 @@ void print_errors(const Bench& b, const char* name, double a, double e,
         steady->that(label, total > 0);
         std::snprintf(label, sizeof label, "[STEADY] %s has no false settle pulse", name);
         steady->dec(label, count_in(b.settle_times, a, e), 0);
+        std::snprintf(label, sizeof label, "[STEADY] %s has no excursion arm", name);
+        steady->dec(label, count_in(b.recovery.arms, a, e), 0);
+        std::snprintf(label, sizeof label, "[STEADY] %s has no pending settle", name);
+        steady->dec(label, pending, 0);
     }
 }
 
@@ -959,6 +979,37 @@ int run_b8(Bench& b, const Options& o, milan::tb::Checker& ck) {
     return 0;
 }
 
+//! Two independent pulls: the residual is restricted to a second pull that
+//! starts while recovery is active. Outside it the ordinary settle law holds.
+void run_second_pull(Bench& b, const Options& o, milan::tb::Checker& ck, double first_hold) {
+    const double first_action = first_at_or_after(b.settle_times, first_hold);
+    ck.that("[TWO-PULL] first hold produced an action", first_action > first_hold);
+    if (first_action < first_hold) return;
+    b.run_until((first_action + o.second_after_action_s) * 1e15);
+    const double second_hold = b.now_s();
+    const bool recovering = b.recovery.was_recovering;
+    ck.that("[TWO-PULL] second hold starts on its declared side of recovery",
+            recovering == o.second_inside_recovery);
+    const Settle first = grade_settle(b, first_hold, -1.0, second_hold);
+    print_settle("[FIRST-PULL]", first);
+    check_settle(ck, "[FIRST-PULL]", first, o, false);
+    b.frame_hold(o.second_hold_us);
+    b.run_for(o.after_s);
+    const Settle second = grade_settle(b, second_hold, -1.0, b.now_s());
+    print_settle("[SECOND-PULL]", second);
+    if (o.second_inside_recovery) {
+        ck.dec("[RESIDUAL] second pull in recovery adds no action", second.pulses, 0);
+        ck.that("[RESIDUAL] second pull leaves a gradable render-law shift",
+                second.law_after.gradable() && !second.law_after.on_law());
+    } else {
+        check_settle(ck, "[SECOND-PULL]", second, o, false);
+    }
+    b.recovery.check(ck, first_hold, b.now_s());
+    std::printf("TWO-PULL: first %.9f action %.9f second %.9f inside_recovery %d "
+                "second_actions %d final %s\n", first_hold, first_action, second_hold,
+                recovering, second.pulses, second.law_after.verdict());
+}
+
 int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     b.start_talkers(o.start_s);
     b.run_until((o.start_s + o.dwell_s) * 1e15);
@@ -966,6 +1017,12 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     const uint32_t rc0 = b.render_recentres();
     print_window(b, "before the hold, last 0.5 s", t_hold - 0.5, t_hold);
     b.frame_hold(o.hold_us);
+    if (o.second_after_action_s >= 0.0) {
+        while (first_at_or_after(b.settle_times, t_hold) < t_hold && b.now_s() < t_hold + o.after_s)
+            b.run_for(1e-3);
+        run_second_pull(b, o, ck, t_hold);
+        return 0;
+    }
     if (o.inject_s >= 0.0) {
         b.run_for(o.inject_s);
         b.inject_recentre();
@@ -1002,6 +1059,7 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
         ck.that("[STEADY] the running stream stays on its render law", law_holds(w1, o));
     } else {
         check_settle(ck, "[PULLIN]", s, o, false);
+        b.recovery.check(ck, t_hold, t_end);
     }
     return 0;
 }
@@ -1032,7 +1090,7 @@ int main(int argc, char** argv) {
         gt = std::fopen(o.grid_trace.c_str(), "w");
         if (gt) {
             std::fprintf(gt, "t_s,mga_engaged,mga_err_cyc,mga_trim_16th_ppm,src_pend,src_band_ticks,"
-                             "settle_pend,settle_run_ticks,render_fill\n");
+                             "settle_pend,settle_run_ticks,settle_recover,render_fill\n");
         }
     }
     b.grid_trace = gt;

@@ -73,9 +73,15 @@ DUT_READER_DISPOSITIONS: dict[str, str] = {
         "requires the named check to fail, and runs clean controls first",
     "tb/verilator/follow_ring/mutants.py":
         "mutation campaign; it plants the #645 ruling's settle-recentre controls (no pulse, "
-        "the band in place of 8 LOCKED windows, removed excursion arm) into a copy of the "
+        "the band in place of 8 LOCKED windows, removed excursion arm, removed recovery "
+        "qualification, missed fine pull and quiet-noise arm) into a copy of the "
         "datapath, overshoot and single-drop into a copy of the capture crossbar, and the "
         "render-only and W1 bindings by define; each must fail its named wire or law check",
+    "tb/verilator/follow_ring/settle_control.py":
+        "controller harness; it copies the shipping recentre control verbatim for "
+        "compilation at four axis rates, then applies independent stimuli and "
+        "hard-coded expectations for quiet noise, recovery dwell, reset, source "
+        "priority, LOCKED dwell and ceiling; it reads no expected value from the text",
     "tb/verilator/gptp_shadow/test_mutant_lifecycle.py":
         "orchestration lifecycle fixture; it identifies the planted mutation and "
         "compares caller bytes/modes/index across interruption. Synthetic commands "
