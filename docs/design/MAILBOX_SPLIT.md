@@ -146,6 +146,17 @@ leaves the line low.
 
 ## The ingress filter
 
+The following describes the implemented F0 filter.
+[NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
+and [product ownership](../../REQUIREMENTS.md#1-product-ownership)
+add the owner's full-tuple acceptance rules and filter hooks.
+They require per-interface own MACs and two-sided AECP identity matching.
+Untagged control tuple failures must increment FILTER_MISMATCH.
+The contract lane after FT implements these additions before F2 to F5.
+Its YAML, generated outputs and filter tests must change together.
+The command-only AECP term and uncounted refusals below describe F0 only.
+They do not satisfy the added ingress requirement.
+
 A frame is classified by EtherType, and by AVTP subtype where the channel
 names one, into at most one channel. It is stored only when its channel is
 open, one of the channel's accept terms holds, it fits the channel's largest

@@ -39,6 +39,13 @@ kept in Git history rather than the tracked product tree (#259).
   Audio and gPTP deadlines MUST remain independent of firmware service.
   Reservation protocol control follows its selected placement.
   Media admission enforcement and any shaping remain in fabric.
+  The mailbox ingress filter MUST enforce the acceptance rules below.
+  Tagged frames MUST NOT reach any mailbox.
+  Each channel MUST match its full tuple, then its identity term.
+  Own unicast means the receiving AVB interface's MAC only.
+  AECP MUST accept own-target commands or own-controller responses.
+  Untagged control frames failing their tuple MUST increment `FILTER_MISMATCH`.
+  Per-channel token buckets MUST remain in force.
 - Each selected function MUST have exactly one authoritative state owner.
   Both placements MUST preserve wire behavior, ordering and normative timeouts.
   Firmware service MUST satisfy NFR-SCOUT-03 and its path-specific hooks
@@ -47,6 +54,44 @@ kept in Git history rather than the tracked product tree (#259).
   The shipping backend is partial; #70 remains a release blocker.
   F1 supplies the split store without integrating a shipping image.
   Its [boot contract](sw/firmware/ctrl_nvm/README.md#boot) governs validation and apply.
+
+**Mailbox ingress acceptance (NFR-SCOUT-08).**
+The [owner filter decision](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6014311316)
+requires this exact channel table.
+Each row matches VLAN tag, destination MAC, EtherType and subtype.
+The identity term then restricts which matching frames are delivered.
+All rows require untagged frames; tagged frames retain the fabric path.
+AAF/CRF media use the SR class VLAN and have no mailbox channel.
+Stray untagged AAF/CRF frames therefore cannot reach the core either.
+
+| Channel | VLAN tag | Destination MAC | EtherType | AVTP subtype | Identity term |
+|---|---|---|---|---|---|
+| `adp` | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or own; F3 adds bound talkers' ENTITY_AVAILABLE/ENTITY_DEPARTING |
+| `acmp` | absent | `91:E0:F0:01:00:00`; own unicast as a receive tolerance | `0x22F0` | `0xFC` | talker_entity_id or listener_entity_id = own |
+| `aecp` | absent | own unicast MAC on the receiving AVB interface | `0x22F0` | `0xFB` | (command AND target_entity_id = own) OR (response AND controller_entity_id = own) |
+| `maap` | absent | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | overlaps own range |
+| `srp` MSRP | absent | `01:80:C2:00:00:0E` | `0x22EA` | not applicable | all |
+| `srp` MVRP | absent | `01:80:C2:00:00:21` | `0x88F5` | not applicable | all |
+
+A frame failing its tuple or identity term MUST be dropped.
+A different unicast destination MUST NOT reach the core.
+The record's interface index selects the own-MAC comparison.
+This preserves the future redundancy seam without enabling that feature.
+Control EtherTypes here are `0x22F0`, `0x22EA` and `0x88F5`.
+An untagged frame with one failing its tuple increments `FILTER_MISMATCH`.
+Tagged frames stay outside this counter's untagged-control definition.
+
+IEEE 802.1Q-2018 Table 10-1 assigns the Customer Bridge MVRP address.
+IEEE 1722.1-2021 8.2.1 requires multicast transmission of all ACMPDUs.
+Table B.1 assigns that multicast address.
+Own-unicast ACMP reception is the owner's tolerance, not normative transmission.
+Milan v1.2 5.4.5.3 requires the CONTROLLER_AVAILABLE liveness exchange.
+Its response must pass the own-controller AECP term.
+
+[The filter requirement](docs/reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
+traces this table to the mailbox YAML and acceptance hooks.
+The contract lane after FT implements these additions before F2 to F5.
+F0's current filter is described in the [mailbox design](docs/design/MAILBOX_SPLIT.md#the-ingress-filter).
 
 The [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
 Major `0x0003` identifies only images running the split.
