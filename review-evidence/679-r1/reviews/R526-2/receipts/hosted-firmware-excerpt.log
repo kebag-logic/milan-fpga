@@ -1,0 +1,177 @@
+95: 2026-10-06T18:41:56.3700390Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +8e846e586de567c15f890f2ab8b1cff39c142e02:refs/remotes/pull/683/merge
+96: 2026-10-06T18:41:58.5427469Z From https://github.com/kebag-logic/milan-fpga
+97: 2026-10-06T18:41:58.5429382Z  * [new ref]         8e846e586de567c15f890f2ab8b1cff39c142e02 -> pull/683/merge
+122: 2026-10-06T18:41:58.7317107Z HEAD is now at 8e846e5 Merge 04e1435a218908d2b12b4053e5dab2c2dcac2ebf into 6714181d0c8a16e2983f85b724f4d688f5111835
+123: 2026-10-06T18:41:58.7322005Z ##[endgroup]
+124: 2026-10-06T18:41:58.7356346Z [command]/usr/bin/git log -1 --format=%H
+125: 2026-10-06T18:41:58.7378962Z 8e846e586de567c15f890f2ab8b1cff39c142e02
+361: 2026-10-06T18:42:23.5683037Z python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+362: 2026-10-06T18:42:23.5683606Z python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+363: 2026-10-06T18:42:23.5725169Z shell: /usr/bin/bash -e {0}
+364: 2026-10-06T18:42:23.5725632Z env:
+365: 2026-10-06T18:42:23.5725947Z   VERILATOR_VERSION: v5.050
+366: 2026-10-06T18:42:23.5726318Z   YOSYS_VERSION: v0.66
+367: 2026-10-06T18:42:23.5726658Z ##[endgroup]
+368: 2026-10-06T18:42:28.6395137Z PASS: explicit absent compiler is refused without fallback
+369: 2026-10-06T18:42:28.6395931Z PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+370: 2026-10-06T18:42:28.6396444Z PASS: caught hosted headers restored
+371: 2026-10-06T18:42:28.6396805Z PASS: caught freestanding disabled
+372: 2026-10-06T18:42:28.6397213Z PASS: caught RV64 object
+373: 2026-10-06T18:42:28.6397576Z PASS: caught hard-float object
+374: 2026-10-06T18:42:28.6398146Z PASS: caught compressed ISA object
+375: 2026-10-06T18:42:28.6398505Z PASS: caught multiply ISA object
+376: 2026-10-06T18:42:28.6398910Z PASS: caught malformed object and dynamic stack report
+377: 2026-10-06T18:42:28.6399310Z PASS: ctrl rejects malloc
+378: 2026-10-06T18:42:28.6399667Z PASS: ctrl rejects __unexpected_service
+379: 2026-10-06T18:42:28.6400318Z PASS: ctrl rejects __unexpected_service despite a same-name static definition
+380: 2026-10-06T18:42:28.6400766Z PASS: ctrl_nvm rejects malloc
+381: 2026-10-06T18:42:28.6401192Z PASS: ctrl_nvm rejects __unexpected_service
+382: 2026-10-06T18:42:28.6401658Z PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+383: 2026-10-06T18:42:28.6402375Z PASS: ctrl_nvm rejects restored stack-protector dependency
+384: 2026-10-06T18:42:28.6402820Z RV32 build self-test: 17 checks PASS
+385: 2026-10-06T18:42:59.2829477Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+386: 2026-10-06T18:42:59.2830776Z [ok] arm model
+387: 2026-10-06T18:42:59.2831308Z     == mbx (host model): checks: 14   failures: 0 ==
+388: 2026-10-06T18:42:59.2831680Z     RESULT: PASS
+389: 2026-10-06T18:42:59.2832028Z     verdict: PASS (14 tests, 0 failures, exit 0)
+390: 2026-10-06T18:42:59.2832422Z [ok] arm port
+391: 2026-10-06T18:42:59.2832782Z     == ctrl port, driver and loop (host model): checks: 30   failures: 0 ==
+392: 2026-10-06T18:42:59.2833234Z     RESULT: PASS
+393: 2026-10-06T18:42:59.2833544Z     verdict: PASS (30 tests, 0 failures, exit 0)
+394: 2026-10-06T18:42:59.2833921Z [ok] arm adp
+395: 2026-10-06T18:42:59.2834298Z     C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+396: 2026-10-06T18:42:59.2834818Z     C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+397: 2026-10-06T18:42:59.2835311Z     C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+398: 2026-10-06T18:42:59.2835867Z     C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+399: 2026-10-06T18:42:59.2836325Z     C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+400: 2026-10-06T18:42:59.2836858Z     C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+401: 2026-10-06T18:42:59.2837384Z     C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+402: 2026-10-06T18:42:59.2837887Z     backlog: 16 event records, 30 centiseconds, 28 receive records
+403: 2026-10-06T18:42:59.2838573Z     passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+404: 2026-10-06T18:42:59.2839224Z     F5 the costliest pass of the backlog         105 accesses (bound 407)
+405: 2026-10-06T18:42:59.2840292Z     E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+406: 2026-10-06T18:42:59.2840960Z     E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+407: 2026-10-06T18:42:59.2842326Z     E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+408: 2026-10-06T18:42:59.2843030Z     E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+409: 2026-10-06T18:42:59.2843674Z     E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+410: 2026-10-06T18:42:59.2844319Z     E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+411: 2026-10-06T18:42:59.2844907Z     == ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 ==
+412: 2026-10-06T18:42:59.2845411Z     RESULT: PASS
+413: 2026-10-06T18:42:59.2845743Z     verdict: PASS (26 tests, 0 failures, exit 0)
+414: 2026-10-06T18:42:59.2846111Z [ok] arm unit
+415: 2026-10-06T18:42:59.2846548Z     == ctrl units on the HAL and port-layer mocks: checks: 21   failures: 0 ==
+416: 2026-10-06T18:42:59.2846973Z     RESULT: PASS
+417: 2026-10-06T18:42:59.2847352Z     verdict: PASS (21 tests, 0 failures, exit 0)
+418: 2026-10-06T18:42:59.2847795Z     == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+419: 2026-10-06T18:42:59.2848253Z     RESULT: PASS
+420: 2026-10-06T18:42:59.2848573Z     verdict: PASS (2 tests, 0 failures, exit 0)
+421: 2026-10-06T18:42:59.2848920Z [ok] arm walk
+422: 2026-10-06T18:42:59.2849450Z     walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+423: 2026-10-06T18:42:59.2851048Z     == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+424: 2026-10-06T18:42:59.2851522Z     RESULT: PASS
+425: 2026-10-06T18:42:59.2851849Z     verdict: PASS (41 tests, 0 failures, exit 0)
+426: 2026-10-06T18:42:59.2852197Z [ok] arm entity
+427: 2026-10-06T18:42:59.2852682Z     == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+428: 2026-10-06T18:42:59.2853246Z     RESULT: PASS
+429: 2026-10-06T18:42:59.2853585Z     verdict: PASS (9 tests, 0 failures, exit 0)
+430: 2026-10-06T18:42:59.2854038Z     == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+431: 2026-10-06T18:42:59.2854545Z     RESULT: PASS
+432: 2026-10-06T18:42:59.2854885Z     verdict: PASS (9 tests, 0 failures, exit 0)
+433: 2026-10-06T18:42:59.2855388Z     == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+434: 2026-10-06T18:42:59.2855843Z     RESULT: PASS
+435: 2026-10-06T18:42:59.2856205Z     verdict: PASS (9 tests, 0 failures, exit 0)
+436: 2026-10-06T18:42:59.2856740Z     == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+437: 2026-10-06T18:42:59.2857228Z     RESULT: PASS
+438: 2026-10-06T18:42:59.2857572Z     verdict: PASS (9 tests, 0 failures, exit 0)
+439: 2026-10-06T18:42:59.2858055Z     == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+440: 2026-10-06T18:42:59.2858472Z     RESULT: PASS
+441: 2026-10-06T18:42:59.2858804Z     verdict: PASS (9 tests, 0 failures, exit 0)
+442: 2026-10-06T18:42:59.2859155Z [ok] arm rv32
+443: 2026-10-06T18:42:59.2859646Z     riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+444: 2026-10-06T18:42:59.2860331Z     size (text data bss dec): 11520 0 170 11690
+445: 2026-10-06T18:42:59.2860772Z     largest static frame: 112 bytes (not a call-chain bound)
+446: 2026-10-06T18:42:59.2861279Z     undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+447: 2026-10-06T18:42:59.2861833Z     == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+448: 2026-10-06T18:42:59.2862214Z     RESULT: PASS
+449: 2026-10-06T18:42:59.2862538Z test_ctrl_firmware: PASS
+450: 2026-10-06T18:42:59.3000697Z ##[group]Run python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+451: 2026-10-06T18:42:59.3001543Z python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+452: 2026-10-06T18:42:59.3043224Z shell: /usr/bin/bash -e {0}
+453: 2026-10-06T18:42:59.3043586Z env:
+454: 2026-10-06T18:42:59.3043962Z   VERILATOR_VERSION: v5.050
+455: 2026-10-06T18:42:59.3044290Z   YOSYS_VERSION: v0.66
+456: 2026-10-06T18:42:59.3044683Z ##[endgroup]
+457: 2026-10-06T18:44:33.6467155Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+458: 2026-10-06T18:44:33.6468180Z endstation_arty_4x4          clock=83333000 Hz
+459: 2026-10-06T18:44:33.6469081Z   longest service call, model time: 210 us with no stall armed, 2190 us with a command-master stall
+460: 2026-10-06T18:44:33.6470494Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 85   failures: 0 ==
+461: 2026-10-06T18:44:33.6471293Z   RESULT: PASS
+462: 2026-10-06T18:44:33.6471744Z   verdict: PASS (85 tests, 0 failures, exit 0)
+463: 2026-10-06T18:44:33.6472408Z   rv32 at 83333000 Hz: text=12120 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+464: 2026-10-06T18:44:33.6473010Z   largest static frame: 128 bytes (not a call-chain bound)
+465: 2026-10-06T18:44:33.6473481Z endstation_arty_8ch          clock=83333000 Hz
+466: 2026-10-06T18:44:33.6474000Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+467: 2026-10-06T18:44:33.6474668Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 85   failures: 0 ==
+468: 2026-10-06T18:44:33.6475241Z   RESULT: PASS
+469: 2026-10-06T18:44:33.6475549Z   verdict: PASS (85 tests, 0 failures, exit 0)
+470: 2026-10-06T18:44:33.6476119Z   rv32 at 83333000 Hz: text=12120 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+471: 2026-10-06T18:44:33.6476689Z   largest static frame: 128 bytes (not a call-chain bound)
+472: 2026-10-06T18:44:33.6477141Z endstation_arty_current      clock=83333000 Hz
+473: 2026-10-06T18:44:33.6477656Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+474: 2026-10-06T18:44:33.6478289Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 85   failures: 0 ==
+475: 2026-10-06T18:44:33.6479113Z   RESULT: PASS
+476: 2026-10-06T18:44:33.6479425Z   verdict: PASS (85 tests, 0 failures, exit 0)
+477: 2026-10-06T18:44:33.6480176Z   rv32 at 83333000 Hz: text=12112 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+478: 2026-10-06T18:44:33.6480746Z   largest static frame: 128 bytes (not a call-chain bound)
+479: 2026-10-06T18:44:33.6481205Z endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+480: 2026-10-06T18:44:33.6481717Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+481: 2026-10-06T18:44:33.6482380Z   == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 85   failures: 0 ==
+482: 2026-10-06T18:44:33.6482915Z   RESULT: PASS
+483: 2026-10-06T18:44:33.6483284Z   verdict: PASS (85 tests, 0 failures, exit 0)
+484: 2026-10-06T18:44:33.6483824Z   longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+485: 2026-10-06T18:44:33.6484483Z   == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+486: 2026-10-06T18:44:33.6484976Z   RESULT: PASS
+487: 2026-10-06T18:44:33.6485348Z   verdict: PASS (2 tests, 0 failures, exit 0)
+488: 2026-10-06T18:44:33.6485829Z   longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+489: 2026-10-06T18:44:33.6486462Z   == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+490: 2026-10-06T18:44:33.6487002Z   RESULT: PASS
+491: 2026-10-06T18:44:33.6487289Z   verdict: PASS (1 tests, 0 failures, exit 0)
+492: 2026-10-06T18:44:33.6487992Z   longest service call, model time: 167 us with no stall armed, 0 us with a command-master stall
+493: 2026-10-06T18:44:33.6488589Z   == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+494: 2026-10-06T18:44:33.6489084Z   RESULT: PASS
+495: 2026-10-06T18:44:33.6489389Z   verdict: PASS (1 tests, 0 failures, exit 0)
+496: 2026-10-06T18:44:33.6490023Z   == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+497: 2026-10-06T18:44:33.6490547Z   RESULT: PASS
+498: 2026-10-06T18:44:33.6490881Z   verdict: PASS (3 tests, 0 failures, exit 0)
+499: 2026-10-06T18:44:33.6491404Z   rv32 at 100000000 Hz: text=12128 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+500: 2026-10-06T18:44:33.6491957Z   largest static frame: 128 bytes (not a call-chain bound)
+501: 2026-10-06T18:44:33.6492421Z endstation_ax7101_8x8        clock=100000000 Hz
+502: 2026-10-06T18:44:33.6492927Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+503: 2026-10-06T18:44:33.6493569Z   == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+504: 2026-10-06T18:44:33.6494077Z   RESULT: PASS
+505: 2026-10-06T18:44:33.6494410Z   verdict: PASS (85 tests, 0 failures, exit 0)
+506: 2026-10-06T18:44:33.6494924Z   longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+507: 2026-10-06T18:44:33.6495555Z   == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+508: 2026-10-06T18:44:33.6496037Z   RESULT: PASS
+509: 2026-10-06T18:44:33.6496390Z   verdict: PASS (2 tests, 0 failures, exit 0)
+510: 2026-10-06T18:44:33.6496895Z   rv32 at 100000000 Hz: text=12132 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+511: 2026-10-06T18:44:33.6497486Z   largest static frame: 128 bytes (not a call-chain bound)
+512: 2026-10-06T18:44:33.6497954Z saved-state store gate (#665 F1): OK across 5 shape(s), 434 tests
+569: 2026-10-06T18:46:31.9465156Z   verdict: PASS (2 tests, 0 failures, exit 0)
+570: 2026-10-06T18:46:31.9465699Z saved-state store coverage run: PASS
+571: 2026-10-06T18:46:31.9466284Z file                                                 lines    branches   after exclusions
+572: 2026-10-06T18:46:31.9467105Z sw/firmware/ctrl/adp/adp.c                       168/170      73/80      lines 100.00 %  branches 100.00 %
+573: 2026-10-06T18:46:31.9467965Z sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+574: 2026-10-06T18:46:31.9468843Z sw/firmware/ctrl/app/ctrl_app.c                   12/13        6/8       lines 100.00 %  branches 100.00 %
+575: 2026-10-06T18:46:31.9469723Z sw/firmware/ctrl/loop/ctrl_loop.c                 93/93       54/54      lines 100.00 %  branches 100.00 %
+576: 2026-10-06T18:46:31.9470787Z sw/firmware/ctrl/mbx/mbx.c                       162/162      60/60      lines 100.00 %  branches 100.00 %
+577: 2026-10-06T18:46:31.9471871Z sw/firmware/ctrl/mbx/mbx_wire.h                   15/15       12/12      lines 100.00 %  branches 100.00 %
+578: 2026-10-06T18:46:31.9472814Z sw/firmware/ctrl/plat/mbx_plat_mmio.c             10/10        0/0       lines 100.00 %  branches 100.00 %
+579: 2026-10-06T18:46:31.9473783Z sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+580: 2026-10-06T18:46:31.9474724Z sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %
+581: 2026-10-06T18:46:31.9477828Z sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+582: 2026-10-06T18:46:31.9479261Z sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %
+583: 2026-10-06T18:46:31.9480668Z sw/firmware/ctrl_nvm/nvm_klj2.c                  195/196     104/108     lines 100.00 %  branches 100.00 %
+584: 2026-10-06T18:46:31.9481897Z sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+585: 2026-10-06T18:46:31.9483417Z sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+586: 2026-10-06T18:46:31.9484492Z firmware coverage: PASS (14 files)

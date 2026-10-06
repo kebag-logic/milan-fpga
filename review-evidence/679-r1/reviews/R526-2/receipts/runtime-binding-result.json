@@ -1,0 +1,132 @@
+[
+  {
+    "arm": "ctrl",
+    "case": "baseline",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "ctrl",
+    "case": "unresolved",
+    "gate_rc": 1,
+    "findings": [
+      "[FAIL] symbols outside the C library and libgcc: __review_runtime_service"
+    ],
+    "symbols": [
+      "         U __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": true
+  },
+  {
+    "arm": "ctrl",
+    "case": "local",
+    "gate_rc": 1,
+    "findings": [
+      "[FAIL] symbols outside the C library and libgcc: __review_runtime_service"
+    ],
+    "symbols": [
+      "000000d4 t __review_runtime_service",
+      "         U __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": true
+  },
+  {
+    "arm": "ctrl",
+    "case": "global",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [
+      "000000d4 T __review_runtime_service",
+      "         U __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "ctrl",
+    "case": "weak",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [
+      "000000d4 W __review_runtime_service",
+      "         U __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "nvm",
+    "case": "baseline",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "nvm",
+    "case": "unresolved",
+    "gate_rc": 1,
+    "findings": [
+      "rv32: symbols outside the C library and libgcc: __review_runtime_service"
+    ],
+    "symbols": [
+      "         U __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": true
+  },
+  {
+    "arm": "nvm",
+    "case": "local",
+    "gate_rc": 1,
+    "findings": [
+      "rv32: symbols outside the C library and libgcc: __review_runtime_service"
+    ],
+    "symbols": [
+      "         U __review_runtime_service",
+      "000014f4 t __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": true
+  },
+  {
+    "arm": "nvm",
+    "case": "global",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [
+      "         U __review_runtime_service",
+      "000014f4 T __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "nvm",
+    "case": "weak",
+    "gate_rc": 0,
+    "findings": [],
+    "symbols": [
+      "         U __review_runtime_service",
+      "000014f4 W __review_runtime_service"
+    ],
+    "partial_link_rc": 0,
+    "still_undefined": false
+  },
+  {
+    "arm": "ctrl",
+    "control_mutation": "caught",
+    "assertion_line": 107
+  },
+  {
+    "arm": "nvm",
+    "control_mutation": "caught",
+    "assertion_line": 132
+  }
+]

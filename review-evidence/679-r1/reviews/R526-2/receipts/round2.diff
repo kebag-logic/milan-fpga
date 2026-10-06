@@ -1,0 +1,98 @@
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index 9f0dfee34..4dc153c7e 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -159,8 +159,9 @@ def rv32_compiler() -> str | None:
+ 
+ 
+ def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
+-    """The undefined, or the defined, symbols of a set of objects."""
+-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
++    """Undefined symbols, or definitions capable of resolving external references."""
++    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
++    res = run([tool, *flags, *map(str, objs)])
+     if res.returncode != 0:
+         raise Refusal(f"{tool}: {res.stderr.strip()}")
+     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_rv32.py b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+index a76a500f0..eba002147 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_rv32.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+@@ -65,7 +65,7 @@ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[s
+         objs.append(str(obj))
+     undefined = {ln.split()[-1] for ln in _tool(cc, "nm", "-u", *objs).splitlines()
+                  if ln.strip() and not ln.endswith(":")}
+-    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--defined-only", *objs).splitlines()
++    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--extern-only", "--defined-only", *objs).splitlines()
+                if ln.strip() and not ln.endswith(":")}
+     stray = sorted(undefined - defined - LIBC_OK - fw_rv32.HELPERS)
+     total = _tool(cc, "size", "-t", *objs).strip().splitlines()[-1].split()
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index 09289a6ce..a73c91b70 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -355,7 +355,10 @@ The SDK pin remains unchanged.
+ Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
+ Its architecture attribute must specify RV32I without extensions.
+ Compressed instructions and double-float ABI flags are refused.
+-Undefined symbols allow only named interfaces and arithmetic helpers.
++The dependency check matches names across the compiled objects.
++Only global or weak definitions remove names from undefined references.
++Same-name local definitions leave those references unresolved.
++Remaining undefined symbols allow only named interfaces and arithmetic helpers.
+ Both builds disable stack-protector instrumentation, matching bare-metal compilation.
+ Heap, OS, and unexpected double-underscore dependencies fail.
+ 
+@@ -375,6 +378,7 @@ Restoring hosted headers or disabling freestanding compilation fails.
+ RV64, hard-float, extended-ISA, and malformed objects are refused.
+ A dynamic stack report and absent required compiler fail.
+ Both real firmware arms reject planted heap and unknown dependencies.
++Same-name static definitions cannot hide the planted unknown dependencies.
+ The store also rejects restored stack-protector dependencies.
+ 
+ ## CI
+diff --git a/sw/firmware/gtest/fw_rv32_selftest.py b/sw/firmware/gtest/fw_rv32_selftest.py
+index fa4d440a9..dd9e494ba 100755
+--- a/sw/firmware/gtest/fw_rv32_selftest.py
++++ b/sw/firmware/gtest/fw_rv32_selftest.py
+@@ -97,6 +97,16 @@ def runtime_cases(cc: str, work: Path) -> int:
+             got = ctrl_arms.arm_rv32(tree, True)
+             assert got.rc and "symbols outside the C library" in got.log and symbol in got.log, got.log
+             print(f"PASS: ctrl rejects {symbol}")
++        # Keep the external call above; a private definition in another object
++        # cannot resolve it. `used` prevents optimization from dropping the plant.
++        private = ctrl / "port/ctrl_debug.c"
++        private_original = private.read_text()
++        private.write_text(private_original + "\n__attribute__((used)) static void "
++                           "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++        got = ctrl_arms.arm_rv32(tree, True)
++        assert got.rc and "symbols outside the C library" in got.log and "__unexpected_service" in got.log, got.log
++        print("PASS: ctrl rejects __unexpected_service despite a same-name static definition")
++        private.write_text(private_original)
+         source.write_text(original)
+     cfg = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
+     inputs = nvm_bench.shape_inputs(cfg, work / "inputs")
+@@ -114,6 +124,14 @@ def runtime_cases(cc: str, work: Path) -> int:
+         findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
+         assert any("symbols outside the C library" in f and symbol in f for f in findings), findings
+         print(f"PASS: ctrl_nvm rejects {symbol}")
++    private = nvm / "nvm_store.c"
++    private_original = private.read_text()
++    private.write_text(private_original + "\n__attribute__((used)) static void "
++                       "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert any("symbols outside the C library" in f and "__unexpected_service" in f for f in findings), findings
++    print("PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition")
++    private.write_text(private_original)
+     source.write_text(original + """
+ extern void use_buffer(char *);
+ void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
+@@ -122,7 +140,7 @@ void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
+         findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
+     assert any("__stack_chk_fail" in f for f in findings), findings
+     print("PASS: ctrl_nvm rejects restored stack-protector dependency")
+-    return 5
++    return 7
+ 
+ 
+ def main() -> int:

@@ -1,0 +1,819 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 0c403f40d..cbb682646 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -231,18 +231,14 @@ jobs:
+ 
+   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
+   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
+-  # every shipped shape, the saved-state store's RV32 build, the tally
++  # every shipped shape, both freestanding RV32 object builds, the tally
+   # listener's planted failure and crash, and the coverage ratchet with its
+   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
+   # are the distribution's packages, and the install step prints the
+   # versions and the compiler and gcov the ratchet is measured with.
+-  # Three arms stay local gates, each named where it is left out: the ctrl
+-  # gate runs before the RV32 SDK is installed, so its rv32 arm is SKIPPED,
+-  # visibly (it builds against the SDK's C headers for -mabi=ilp32, which
+-  # the pinned ilp32d SDK does not carry: no gnu/stubs-ilp32.h); the ctrl
+-  # gate's lwsrp arm is opt-in (--lwsrp) and lwSRP is a private repository
+-  # this workflow's token cannot read (the ratchet reads the same with and
+-  # without it); and both gates' planted-defect campaigns (--self-test).
++  # The ctrl gate's lwsrp arm stays opt-in: the workflow token cannot
++  # read that private dependency. Both firmware mutation campaigns remain
++  # local gates. The SDK is installed before either required RV32 arm.
+   firmware-unit:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+@@ -266,9 +262,6 @@ jobs:
+       - name: Prove the tally reads a failing and a crashing test as failures
+         run: python3 sw/firmware/gtest/tally_selftest.py
+ 
+-      - name: Run the control-plane firmware suites
+-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+-
+       - name: Cache the pinned RV32 SDK
+         uses: actions/cache@v4
+         with:
+@@ -280,6 +273,12 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+ 
++      - name: Run the control-plane firmware suites and its RV32 build
++        run: |
++          set -euo pipefail
++          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
++          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
++
+       - name: Run the saved-state store suites and its RV32 build
+         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+ 
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 21b0c768f..df8a895e3 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -42,19 +42,17 @@ pull-request update and on every push to `dev`. It produces one stable
+ - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
+   (#665), when RTL or its tooling changes: the GoogleTest suites of
+   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
+-  saved-state store's RV32 build, the tally listener's planted failure and
++  two freestanding RV32 object builds, the tally listener's planted failure and
+   crash, and the line and branch coverage ratchet with its planted cases
+   ([the harness page](../../sw/firmware/gtest/README.md)). GoogleTest and
+   GoogleMock are the runner distribution's `libgtest-dev` and
+   `libgmock-dev`; the job prints the versions it installed and the gcc and
+   gcov the ratchet is measured with. The RV32 SDK is the docs job's pinned
+-  cache and install. Three arms stay local gates (see
+-  [Local commands](#local-commands)), and the job names each:
+-  - the ctrl gate's `rv32` arm. It builds against the SDK's C headers with
+-    `-mabi=ilp32`, and the pinned SDK is `ilp32d` with no
+-    `gnu/stubs-ilp32.h`, at the base this job was added on as well. The
+-    ctrl gate therefore runs before the SDK is installed and reports that
+-    arm SKIPPED.
++  cache and install. It precedes both required RV32 arms.
++  Their freestanding headers exclude the SDK's hosted C library.
++  The RV32 self-test plants header, ABI, and runtime-dependency defects.
++  These builds report objects and frames, not linked-image bounds.
++  Two groups stay local (see [Local commands](#local-commands)):
+   - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
+     workflow's token cannot read; the ratchet reads the same with and
+     without that arm.
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index db18f3011..344b49157 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -2341,13 +2341,9 @@ RTL_STEP_LISTS = {
+              'python3 syn/yosys/cache_selftest.py',
+          )},
+     ),
+-    # #665 lane FT: the bare-metal firmware's GoogleTest suites, the
+-    # saved-state store's RV32 build and the coverage ratchet. The RV32
+-    # steps are the docs job's pinned cache and install, placed after the
+-    # ctrl gate: that gate's rv32 arm builds against the SDK's C headers
+-    # for -mabi=ilp32, which the pinned ilp32d SDK does not carry, so it
+-    # runs with no RV32 compiler present and skips that arm by name. lwSRP
+-    # is private, so the ctrl gate's opt-in lwsrp arm stays local too.
++    # #679: both object builds require the SDK, installed before either.
++    # Freestanding headers exclude the SDK's hosted libc. The ctrl gate's
++    # opt-in lwSRP arm and both mutation campaigns remain local gates.
+     (RTL_FAST, FIRMWARE_UNIT_JOB): (
+         {"uses": "actions/checkout@v4"},
+         {"name": "Fetch RTL dependencies",
+@@ -2366,14 +2362,16 @@ RTL_STEP_LISTS = {
+          "run": (
+              'python3 sw/firmware/gtest/tally_selftest.py',
+          )},
+-        {"name": "Run the control-plane firmware suites",
+-         "run": (
+-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py',
+-         )},
+         {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+          "with": RV32_CACHE_WITH},
+         {"name": "Install and verify the pinned RV32 SDK",
+          "run": RV32_INSTALL},
++        {"name": "Run the control-plane firmware suites and its RV32 build",
++         "run": (
++             'set -euo pipefail',
++             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
++             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32',
++         )},
+         {"name": "Run the saved-state store suites and its RV32 build",
+          "run": (
+              'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+@@ -7765,14 +7763,15 @@ def _rv32_sdk_arms() -> list[Arm]:
+                      _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
+                      "(`Install and verify the pinned RV32 SDK`)"))
+         if path == RTL_FAST:
+-            # #665 lane FT: the store's gate skips its RV32 arm visibly
+-            # without a compiler; only --require-rv32 makes that a refusal.
+-            store = "Run the saved-state store suites and its RV32 build"
+-            suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == store)
+-            arms.append((f"RV32 {jid} allows a stood-down compiler",
+-                         _m_step_key_any(path, jid, "test_ctrl_nvm.py", "run",
+-                                         "\n".join(suites["run"]).replace(" --require-rv32", "")),
+-                         f"(`{store}`) script is not the canonical form"))
++            # Each missing compiler must refuse, never silently skip a build.
++            for script, label in (("test_ctrl_firmware.py", "control-plane firmware"),
++                                  ("test_ctrl_nvm.py", "saved-state store")):
++                step_name = f"Run the {label} suites and its RV32 build"
++                suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
++                arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
++                             _m_step_key_any(path, jid, script, "run",
++                                             "\n".join(suites["run"]).replace(" --require-rv32", "")),
++                             f"(`{step_name}`) script is not the canonical form"))
+             continue
+         builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
+         arms.append((f"RV32 {jid} allows a stood-down compiler",
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index b287173c6..777a24aba 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -107,11 +107,14 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+ ```
+ 
+-Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
+-and `libgmock-dev`), PyYAML, and for `rv32` an RV32 compiler for
+-`-mabi=ilp32` with its C headers (the CI-pinned SDK of
+-`scripts/ci_rv32_sdk.py` is `ilp32d` and carries no `gnu/stubs-ilp32.h`, so
+-`firmware-unit` runs this gate with the arm skipped). lwSRP is referenced, never vendored, at the
++Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML.
++RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
++Both firmware gates require RV32 in `firmware-unit`.
++Freestanding declarations avoid the SDK's hosted C headers.
++GCC supplies its own freestanding integer and varargs headers.
++`MILAN_RV32_CC` selects an explicit compiler for local validation.
++See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
++lwSRP is referenced, never vendored, at the
+ revision `ctrl_arms.LWSRP_REV` records,
+ `19f5796b63652eb1151906de73cb827d4980a53f`:
+ 
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index 3b30f3af6..4dc153c7e 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -5,13 +5,13 @@
+ from __future__ import annotations
+ 
+ import re
+-import shutil
+ import sys
+ from pathlib import Path
+ 
+-from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON,
++from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
+                         run, sources)
++import fw_rv32
+ 
+ 
+ def arm_model(tree: Tree) -> Outcome:
+@@ -154,17 +154,14 @@ def arm_entity(tree: Tree) -> Outcome:
+ # ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
+ 
+ def rv32_compiler() -> str | None:
+-    """The first RV32 compiler present, the pinned SDK's first."""
+-    for cand in RV32_CANDIDATES:
+-        found = shutil.which(cand)
+-        if found is not None:
+-            return found
+-    return None
++    """The explicit compiler, or the first available SDK candidate."""
++    return fw_rv32.compiler()
+ 
+ 
+ def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
+-    """The undefined, or the defined, symbols of a set of objects."""
+-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
++    """Undefined symbols, or definitions capable of resolving external references."""
++    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
++    res = run([tool, *flags, *map(str, objs)])
+     if res.returncode != 0:
+         raise Refusal(f"{tool}: {res.stderr.strip()}")
+     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
+@@ -179,25 +176,40 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
+         return Outcome("rv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
+     obj_dir = tree.out / "rv32"
+     obj_dir.mkdir(parents=True, exist_ok=True)
++    try:
++        runtime_inc = fw_rv32.includes(cc)
++    except ValueError as exc:
++        raise Refusal(str(exc)) from exc
+     objs = []
+     for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
+         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
+-        res = run([cc, *RV32_FLAGS, *includes(tree), "-c", str(src), "-o", str(obj)])
++        res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
+         if res.returncode != 0:
+             return Outcome("rv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{res.stderr}")
+         objs.append(obj)
+     tool = cc.removesuffix("gcc")
+     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
+-    stray = sorted(s for s in open_syms if s not in RV32_LIBC and not s.startswith("__"))
+-    size = run([tool + "size", "-t", *map(str, objs)]).stdout.strip().splitlines()
++    stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
++    findings = fw_rv32.object_findings(cc, objs)
++    try:
++        frame = fw_rv32.stack_frames(objs)
++    except ValueError as exc:
++        findings.append(str(exc))
++        frame = None
++    measured = run([tool + "size", "-t", *map(str, objs)])
++    if measured.returncode:
++        raise Refusal(f"RV32 size failed: {measured.stderr.strip()}")
++    size = measured.stdout.strip().splitlines()
+     lines = [f"  {cc.rsplit('/', 1)[-1]} {' '.join(RV32_FLAGS[:4])}: {len(objs)} objects",
+              f"  size (text data bss dec): {' '.join(size[-1].split()[:4]) if size else 'unknown'}",
++             f"  largest static frame: {frame} bytes (not a call-chain bound)",
+              f"  undefined: {', '.join(sorted(open_syms))}"]
+     if stray:
+-        lines.append(f"  [FAIL] symbols outside the C library and libgcc: {', '.join(stray)}")
+-    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if stray else 0} ==",
+-              f"RESULT: {'FAIL' if stray else 'PASS'}"]
+-    return Outcome("rv32", 1 if stray else 0, "\n".join(lines))
++        findings.append(f"symbols outside the C library and libgcc: {', '.join(stray)}")
++    lines += [f"  [FAIL] {finding}" for finding in findings]
++    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if findings else 0} ==",
++              f"RESULT: {'FAIL' if findings else 'PASS'}"]
++    return Outcome("rv32", 1 if findings else 0, "\n".join(lines))
+ 
+ 
+ # ---- lwsrp: lwSRP's MRP core on the port layer -----------------------------------------
+diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py
+index dbc40507c..f52c341f9 100644
+--- a/sw/firmware/ctrl/test/ctrl_build.py
++++ b/sw/firmware/ctrl/test/ctrl_build.py
+@@ -39,11 +39,9 @@ HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
+ INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "app", "test")
+ C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
+ 
+-RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"), "riscv32-unknown-elf-gcc",
+-                   "riscv64-elf-gcc")
+ RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
+-              "-Wextra", "-Werror", "-pedantic", "-DCTRL_MBX_BASE=0x80000000u")
+-#: What a freestanding RV32I build may leave undefined, besides libgcc's `__` helpers.
++              "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
++#: Runtime interfaces an object-only check may leave undefined.
+ RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})
+ 
+ 
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 22cf4972d..bef6ad14b 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -30,8 +30,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+            (the builder's ADP shape include) and the processor's
+            ADP_ENTITY_CAPS_C;
+   rv32     the portable set and the MMIO platform cross-compiled freestanding
+-           for RV32I with the pinned SDK, every undefined symbol a C-library
+-           string or format function or a libgcc helper (no heap, no OS);
++           for RV32I with the pinned SDK and isolated freestanding headers;
++           every undefined symbol a named runtime interface or arithmetic
++           helper, with ELF ABI and static-frame checks (no heap, no OS);
+   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
+            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
+            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index a76f2f56a..7bab2bc4c 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -334,8 +334,12 @@ access to the command master costs 40 ns, and CPU work costs none of it.
+ 
+ ## Static sizes
+ 
+-The RV32I freestanding build (`-march=rv32i -Os`) of the codec, the store
+-and the LiteSPI port, per shipped shape at its own system clock, in bytes.
++RV32I object sizes, compiled with the pinned SDK at `-Os`.
++Each shape uses its own system clock and ILP32 ABI.
++Both builds disable compiler stack-protector instrumentation.
++The largest static frame is 128 bytes per shape.
++That figure does not bound the complete runtime stack.
++See [the harness](../gtest/README.md#rv32-object-builds) for validation limits.
+ The stage is the container plus one record header; the payload buffer is the
+ shape's largest payload; the chunk is one read-back step; the clock counters
+ are the port's time base and its per-call deadline state. bss includes
+@@ -344,11 +348,11 @@ only while the slot is judged.
+ 
+ | Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
+ |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+-| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,352 |
+-| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,368 |
+-| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,360 |
+-| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,360 |
+-| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,372 |
++| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,112 |
++| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,128 |
++| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,120 |
++| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,120 |
++| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,132 |
+ 
+ #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
+ 64 KiB slot. The shipping writer keeps a live window and a private stage in
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_rv32.py b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+index b9c0ac16c..eba002147 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_rv32.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+@@ -7,24 +7,23 @@ with the pinned SDK's compiler for RV32I, freestanding, against MMIO stand-ins
+ for the LiteX-generated CSR and memory headers (test/rv32/) and the shape's
+ own generated/soc.h, which the bench writes from its config's system clock,
+ so each shape is built at the clock it ships. The arm fails on any undefined
+-symbol that is not a C-library memory function or a libgcc helper, so a heap
++symbol outside named memory interfaces and arithmetic helpers, so a heap
+ allocator, a stdio call or an OS service cannot enter the store; and it
+ reports the store's text, data and bss and each static buffer, which is the
+-size of the store as the shape fixes it.
++size of the store as the shape fixes it. These are object sizes, not a
++linked image; the maximum static frame is not a call-chain bound.
+ """
+ 
+ from __future__ import annotations
+ 
+-import shutil
+ import subprocess
+ from pathlib import Path
+ 
+ from nvm_bench import Refusal
++import fw_rv32
+ 
+-RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
+-                   "riscv32-linux-gcc", "riscv32-unknown-elf-gcc", "riscv64-unknown-elf-gcc")
+ RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-Os", "-std=c11", "-ffreestanding",
+-              "-Wall", "-Wextra", "-Werror")
++              "-fno-stack-protector", "-fstack-usage", "-Wall", "-Wextra", "-Werror")
+ PORTABLE = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
+ LIBC_OK = frozenset({"memcpy", "memset", "memmove", "memcmp"})
+ #: The store's static buffers and state, and the port's counters: its clock
+@@ -35,12 +34,8 @@ CLOCK = ("ls_ticks", "ls_tick_last", "ls_call_start", "ls_waited")
+ 
+ 
+ def compiler() -> str | None:
+-    """The first RV32 compiler present, the pinned SDK's first."""
+-    for cand in RV32_CANDIDATES:
+-        found = shutil.which(cand)
+-        if found is not None:
+-            return found
+-    return None
++    """The explicit compiler, or the first available SDK candidate."""
++    return fw_rv32.compiler()
+ 
+ 
+ def _tool(cc: str, name: str, *args: str) -> str:
+@@ -55,10 +50,14 @@ def _tool(cc: str, name: str, *args: str) -> str:
+ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[str, int]]:
+     """Compile the portable set for RV32I into `work`: (findings, sizes)."""
+     work.mkdir(parents=True, exist_ok=True)
++    try:
++        runtime_inc = fw_rv32.includes(cc)
++    except ValueError as exc:
++        raise Refusal(str(exc)) from exc
+     objs = []
+     for src in PORTABLE:
+         obj = work / (Path(src).stem + ".o")
+-        r = subprocess.run([cc, *RV32_FLAGS, f"-I{gen}", f"-I{tree / 'test/rv32'}", "-c",
++        r = subprocess.run([cc, *RV32_FLAGS, *runtime_inc, f"-I{gen}", f"-I{tree / 'test/rv32'}", "-c",
+                             str(tree / src), "-o", str(obj)], capture_output=True, text=True,
+                            check=False)
+         if r.returncode:
+@@ -66,14 +65,20 @@ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[s
+         objs.append(str(obj))
+     undefined = {ln.split()[-1] for ln in _tool(cc, "nm", "-u", *objs).splitlines()
+                  if ln.strip() and not ln.endswith(":")}
+-    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--defined-only", *objs).splitlines()
++    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--extern-only", "--defined-only", *objs).splitlines()
+                if ln.strip() and not ln.endswith(":")}
+-    stray = sorted(s for s in undefined - defined if s not in LIBC_OK and not s.startswith("__"))
++    stray = sorted(undefined - defined - LIBC_OK - fw_rv32.HELPERS)
+     total = _tool(cc, "size", "-t", *objs).strip().splitlines()[-1].split()
+     sizes = {"text": int(total[0]), "data": int(total[1]), "bss": int(total[2])}
++    found = fw_rv32.object_findings(cc, [Path(obj) for obj in objs])
++    try:
++        sizes["stack_frame"] = fw_rv32.stack_frames([Path(obj) for obj in objs])
++    except ValueError as exc:
++        found.append(str(exc))
+     for line in _tool(cc, "nm", "-S", "--defined-only", *objs).splitlines():
+         parts = line.split()
+         if len(parts) == 4 and parts[3] in BUFFERS:
+             sizes[parts[3]] = int(parts[1], 16)
+-    found = [f"rv32: symbols outside the C library and libgcc: {', '.join(stray)}"] if stray else []
++    if stray:
++        found.append(f"rv32: symbols outside the C library and libgcc: {', '.join(stray)}")
+     return found, sizes
+diff --git a/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py b/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+index c960f0441..66e863c1c 100755
+--- a/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
++++ b/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+@@ -152,6 +152,7 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
+               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
+               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
+               f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
++        print(f"  largest static frame: {sizes.get('stack_frame')} bytes (not a call-chain bound)")
+     return found
+ 
+ 
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index 747bbea7b..a73c91b70 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -21,6 +21,7 @@ binaries and grade each one by the tally it prints.
+ - **[The port](#the-port)** -- Every hand-rolled check moved onto GoogleTest, arm by arm, with the counts.
+ - **[Coverage](#coverage)** -- Line and branch coverage of the firmware's sources with gcc's gcov, the ratchet that refuses a drop, and each branch no input can reach, with its proof.
+ - **[Run](#run)** -- The commands, and what each needs.
++- **[RV32 object builds](#rv32-object-builds)** -- Freestanding compilation, dependency checks, and evidence limits.
+ - **[CI](#ci)** -- The hosted job, the arms it leaves to the local gates, and the versions it runs with.
+ - **[Not in this lane](#not-in-this-lane)** -- lwSRP's own suites.
+ 
+@@ -332,16 +333,54 @@ python3 sw/firmware/gtest/fw_coverage.py --selftest
+ They need a C11 and a C++20 compiler (gcc), `gcov`, GoogleTest and
+ GoogleMock with their pkg-config files (`libgtest-dev` and `libgmock-dev` on
+ Debian and Ubuntu, `gtest` on Arch), PyYAML, and for the RV32 arms an RV32
+-compiler. The store's arm builds with the pinned SDK
+-(`scripts/ci_rv32_sdk.py`). The ctrl arm compiles against the SDK's C
+-headers for `-mabi=ilp32`, and that SDK is `ilp32d` with no
+-`gnu/stubs-ilp32.h`, so the ctrl arm needs an `ilp32` SDK at
+-`~/br-milan-rv32/host` or a bare-metal compiler. The ctrl gate, the store's
++compiler. Both arms use the SDK from `scripts/ci_rv32_sdk.py`.
++Their headers exclude the SDK's hosted C library.
++`MILAN_RV32_CC` selects an explicit local compiler.
++The ctrl gate, the store's
+ gate, the coverage gate and the tally's self-test each print a `toolchain:`
+ line first: the C and C++ compilers, gcov and GoogleTest and GoogleMock
+ they ran with. A gate's coverage mode does not; the coverage gate that
+ drives it prints the line for the run.
+ 
++## RV32 object builds
++
++Both arms compile RV32I objects using ILP32.
++`-ffreestanding` selects GCC's freestanding C headers.
++`-nostdinc` excludes the SDK's hosted include directories.
++`rv32_include` declares memory functions and the bounded formatter.
++Those declarations supply no runtime implementations or replacement behavior.
++The product supplies its runtime through the bare-metal build.
++The SDK pin remains unchanged.
++
++Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
++Its architecture attribute must specify RV32I without extensions.
++Compressed instructions and double-float ABI flags are refused.
++The dependency check matches names across the compiled objects.
++Only global or weak definitions remove names from undefined references.
++Same-name local definitions leave those references unresolved.
++Remaining undefined symbols allow only named interfaces and arithmetic helpers.
++Both builds disable stack-protector instrumentation, matching bare-metal compilation.
++Heap, OS, and unexpected double-underscore dependencies fail.
++
++The outputs are objects, not linked firmware images.
++Text, data, BSS, and static buffers are reported.
++The largest compiler-reported static frame is reported separately.
++It does not bound nested calls, interrupts, or runtime functions.
++Dynamic or missing frame reports cannot pass.
++Shipping firmware sources and image construction remain unchanged.
++
++```sh
++python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
++```
++
++The self-test compiles against a deliberately hostile hosted-header tree.
++Restoring hosted headers or disabling freestanding compilation fails.
++RV64, hard-float, extended-ISA, and malformed objects are refused.
++A dynamic stack report and absent required compiler fail.
++Both real firmware arms reject planted heap and unknown dependencies.
++Same-name static definitions cannot hide the planted unknown dependencies.
++The store also rejects restored stack-protector dependencies.
++
+ ## CI
+ 
+ `rtl-fast`'s `firmware-unit` job
+@@ -350,15 +389,13 @@ runs on every change the classifier calls relevant (`scripts/ci_scope.py`;
+ every path under `sw/firmware/` is). It installs `libgtest-dev` and
+ `libgmock-dev` from the runner's distribution, prints their versions and the
+ gcc and gcov it measures with, then runs the tally's planted cases, the ctrl
+-gate, the store's gate at every shape with its RV32 build on the pinned SDK,
++gate, and the store's gate at every shape. Both require RV32.
++The SDK installation precedes both, followed by the RV32 self-test,
+ and this coverage gate with its planted cases. `scripts/ci_events.py` pins
+ the job's steps and the `rtl-fast` aggregate's verdict on it, and
+ `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
+ 
+-Three arms stay with the local gates, and the job names each:
+-
+-- the ctrl gate's `rv32` arm, for the SDK reason above: the job runs that
+-  gate before it installs the SDK, so the arm reports SKIPPED;
++Two groups stay with local gates:
+ - the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
+   token cannot read. The coverage ratchet reads the same with and without
+   it;
+diff --git a/sw/firmware/gtest/fw_rv32.py b/sw/firmware/gtest/fw_rv32.py
+new file mode 100644
+index 000000000..d33c89c41
+--- /dev/null
++++ b/sw/firmware/gtest/fw_rv32.py
+@@ -0,0 +1,74 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Shared freestanding RV32I object checks, without the SDK's hosted libc.
++
++GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The two
++rv32_include headers declare the bare-metal runtime interfaces consumed by
++the firmware. These checks compile objects, not a linked or bootable image.
++"""
++
++from __future__ import annotations
++
++import os
++import re
++import shutil
++import struct
++from pathlib import Path
++
++import fw_gtest
++
++HERE = Path(__file__).resolve().parent
++CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
++              "riscv32-linux-gcc", "riscv32-unknown-elf-gcc",
++              "riscv64-unknown-elf-gcc", "riscv64-elf-gcc")
++# Exact compiler arithmetic helpers, never an unrestricted double-underscore prefix.
++HELPERS = frozenset({"__lshrdi3", "__ashldi3", "__ashrdi3", "__mulsi3", "__muldi3",
++                     "__divsi3", "__udivsi3", "__modsi3", "__umodsi3",
++                     "__divdi3", "__udivdi3", "__moddi3", "__umoddi3"})
++
++
++def compiler() -> str | None:
++    """Use an explicit compiler when requested; otherwise prefer the CI SDK."""
++    requested = os.environ.get("MILAN_RV32_CC")
++    choices = (requested,) if requested else CANDIDATES
++    return next((found for name in choices if (found := shutil.which(name))), None)
++
++
++def includes(cc: str) -> list[str]:
++    """Exclude all hosted headers, retaining GCC's freestanding C headers."""
++    result = fw_gtest.run([cc, "-print-file-name=include"])
++    directory = Path(result.stdout.strip())
++    if result.returncode or not directory.is_dir() or not (directory / "stdint.h").is_file():
++        raise ValueError("RV32 compiler did not identify its freestanding headers")
++    return ["-nostdinc", "-isystem", str(directory), "-I", str(HERE / "rv32_include")]
++
++
++def object_findings(cc: str, objects: list[Path]) -> list[str]:
++    """Every emitted object must use little-endian ELF32 RISC-V soft-float ABI."""
++    found = []
++    for obj in objects:
++        data = obj.read_bytes()
++        if (len(data) < 52 or data[:7] != b"\x7fELF\x01\x01\x01" or
++                struct.unpack_from("<HH", data, 16) != (1, 243) or
++                struct.unpack_from("<I", data, 36)[0] != 0):
++            found.append(f"{obj.name}: expected RV32I ILP32 relocatable object")
++            continue
++        attributes = fw_gtest.run([cc.removesuffix("gcc") + "readelf", "-A", str(obj)])
++        arches = re.findall(r'Tag_RISCV_arch: "([^"]+)"', attributes.stdout)
++        if attributes.returncode or len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+", arches[0]):
++            found.append(f"{obj.name}: expected RV32I architecture attribute, got {arches}")
++    return found
++
++
++def stack_frames(objects: list[Path]) -> int:
++    """Largest compiler-reported static frame; not a call-chain stack bound."""
++    maximum = 0
++    for obj in objects:
++        rows = obj.with_suffix(".su").read_text().splitlines()
++        if not rows:
++            raise ValueError(f"{obj.name}: missing stack usage rows")
++        for row in rows:
++            _, size, kind = row.split("\t")
++            if kind != "static":
++                raise ValueError(f"{obj.name}: non-static stack usage: {row}")
++            maximum = max(maximum, int(size))
++    return maximum
+diff --git a/sw/firmware/gtest/fw_rv32_selftest.py b/sw/firmware/gtest/fw_rv32_selftest.py
+new file mode 100755
+index 000000000..dd9e494ba
+--- /dev/null
++++ b/sw/firmware/gtest/fw_rv32_selftest.py
+@@ -0,0 +1,172 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Plant header, ABI and runtime-dependency defects in RV32 object checks (#679)."""
++
++from __future__ import annotations
++
++import argparse
++import os
++import sys
++import tempfile
++from pathlib import Path
++from unittest.mock import patch
++
++import fw_gtest
++import fw_rv32
++
++ROOT = Path(__file__).resolve().parents[3]
++sys.path[:0] = [str(ROOT / "sw/firmware/ctrl/test"), str(ROOT / "sw/firmware/ctrl_nvm/test")]
++
++import ctrl_arms  # noqa: E402
++import nvm_bench  # noqa: E402
++import nvm_rv32  # noqa: E402
++from ctrl_build import CTRL, Tree  # noqa: E402
++
++
++def header_and_abi_cases(cc: str, work: Path) -> int:
++    """A hostile hosted include tree cannot affect the freestanding build."""
++    poison = work / "sysroot/usr/include"
++    poison.mkdir(parents=True)
++    for header in ("stdint.h", "string.h", "stdio.h"):
++        (poison / header).write_text('#error "hosted header reached"\n')
++    source = work / "interfaces.c"
++    source.write_text("""#include <stdint.h>
++#include <stdbool.h>
++#include <string.h>
++#include <stdio.h>
++_Static_assert(sizeof(uintptr_t) == 4, "RV32 pointers");
++_Static_assert(sizeof(long) == 4, "ILP32 long");
++_Static_assert(sizeof(uint64_t) == 8, "64-bit wire fields");
++int format(char *dst, size_t n, const char *fmt, va_list ap) {
++    memset(dst, 0, n);
++    return vsnprintf(dst, n, fmt, ap);
++}
++""")
++    flags = ["-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector",
++             "-fstack-usage", "-Os", "-std=c11", "-Wall", "-Werror",
++             f"--sysroot={work / 'sysroot'}"]
++    obj = work / "interfaces.o"
++    inc = fw_rv32.includes(cc)
++    command = [cc, *flags, *inc, "-c", str(source), "-o", str(obj)]
++    built = fw_gtest.run(command)
++    assert built.returncode == 0, built.stderr
++    assert not fw_rv32.object_findings(cc, [obj])
++    assert fw_rv32.stack_frames([obj]) >= 0
++    print("PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot")
++    for name, bad, reason in (
++            ("hosted headers restored", [cc, *flags, "-c", str(source), "-o", str(obj)], "hosted header reached"),
++            ("freestanding disabled", [x for x in command if x != "-ffreestanding"], "include_next")):
++        result = fw_gtest.run(bad)
++        assert result.returncode != 0 and reason in result.stderr, (name, result.stderr)
++        print(f"PASS: caught {name}")
++    source.write_text("int identity(int value) { return value; }\n")
++    for name, arch, abi in (("RV64", "rv64i", "lp64"), ("hard-float", "rv32imafd", "ilp32d"),
++                            ("compressed ISA", "rv32ic", "ilp32"), ("multiply ISA", "rv32im", "ilp32")):
++        result = fw_gtest.run([cc, f"-march={arch}", f"-mabi={abi}", "-ffreestanding",
++                               "-c", str(source), "-o", str(obj)])
++        assert result.returncode == 0, result.stderr
++        assert fw_rv32.object_findings(cc, [obj]), name
++        print(f"PASS: caught {name} object")
++    obj.write_bytes(b"not an ELF object")
++    assert fw_rv32.object_findings(cc, [obj])
++    obj.with_suffix(".su").write_text("probe.c:1:1:probe\t16\tdynamic\n")
++    try:
++        fw_rv32.stack_frames([obj])
++    except ValueError as exc:
++        assert "non-static stack usage" in str(exc)
++    else:
++        raise AssertionError("dynamic stack report was accepted")
++    print("PASS: caught malformed object and dynamic stack report")
++    return 9
++
++
++def runtime_cases(cc: str, work: Path) -> int:
++    """Real firmware arms must reject heap and unrecognised __ dependencies."""
++    import shutil
++
++    ctrl = work / "ctrl"
++    shutil.copytree(CTRL, ctrl)
++    tree = Tree(ctrl, work / "ctrl-build", work / "reuse")
++    with patch.dict(os.environ, MILAN_RV32_CC=cc):
++        assert ctrl_arms.arm_rv32(tree, True).rc == 0
++        source = ctrl / "port/shlan_port.c"
++        original = source.read_text()
++        for symbol in ("malloc", "__unexpected_service"):
++            source.write_text(f"extern void *{symbol}(__SIZE_TYPE__);\n" + original.replace(
++                "return ctrl_pool_alloc(port_pool, size);", f"return {symbol}(size);"))
++            got = ctrl_arms.arm_rv32(tree, True)
++            assert got.rc and "symbols outside the C library" in got.log and symbol in got.log, got.log
++            print(f"PASS: ctrl rejects {symbol}")
++        # Keep the external call above; a private definition in another object
++        # cannot resolve it. `used` prevents optimization from dropping the plant.
++        private = ctrl / "port/ctrl_debug.c"
++        private_original = private.read_text()
++        private.write_text(private_original + "\n__attribute__((used)) static void "
++                           "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++        got = ctrl_arms.arm_rv32(tree, True)
++        assert got.rc and "symbols outside the C library" in got.log and "__unexpected_service" in got.log, got.log
++        print("PASS: ctrl rejects __unexpected_service despite a same-name static definition")
++        private.write_text(private_original)
++        source.write_text(original)
++    cfg = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
++    inputs = nvm_bench.shape_inputs(cfg, work / "inputs")
++    gen = work / "gen"
++    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
++    nvm = work / "nvm"
++    shutil.copytree(nvm_bench.TREE, nvm)
++    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert not findings, findings
++    source = nvm / "nvm_klj2.c"
++    original = source.read_text()
++    for symbol in ("malloc", "__unexpected_service"):
++        source.write_text(original + f"\nextern void *{symbol}(__SIZE_TYPE__);\n"
++                          f"void *runtime_probe(void) {{ return {symbol}(16); }}\n")
++        findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++        assert any("symbols outside the C library" in f and symbol in f for f in findings), findings
++        print(f"PASS: ctrl_nvm rejects {symbol}")
++    private = nvm / "nvm_store.c"
++    private_original = private.read_text()
++    private.write_text(private_original + "\n__attribute__((used)) static void "
++                       "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert any("symbols outside the C library" in f and "__unexpected_service" in f for f in findings), findings
++    print("PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition")
++    private.write_text(private_original)
++    source.write_text(original + """
++extern void use_buffer(char *);
++void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
++""")
++    with patch.object(nvm_rv32, "RV32_FLAGS", (*nvm_rv32.RV32_FLAGS, "-fstack-protector-all")):
++        findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert any("__stack_chk_fail" in f for f in findings), findings
++    print("PASS: ctrl_nvm rejects restored stack-protector dependency")
++    return 7
++
++
++def main() -> int:
++    """Compile positive controls and require every planted defect caught."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--require-rv32", action="store_true")
++    args = parser.parse_args()
++    cc = fw_rv32.compiler()
++    if cc is None:
++        print("REFUSED: no RV32 compiler" if args.require_rv32 else "SKIPPED: no RV32 compiler")
++        return 2 if args.require_rv32 else 0
++    with tempfile.TemporaryDirectory(prefix="fw-rv32-") as tmp:
++        work = Path(tmp)
++        with patch.dict(os.environ, MILAN_RV32_CC=str(work / "absent-compiler")):
++            assert fw_rv32.compiler() is None, "explicit absent compiler fell back"
++            try:
++                ctrl_arms.arm_rv32(Tree(CTRL, work, work), True)
++            except ctrl_arms.Refusal:
++                pass
++            else:
++                raise AssertionError("required ctrl compiler was skipped")
++        print("PASS: explicit absent compiler is refused without fallback")
++        checks = 1 + header_and_abi_cases(cc, work) + runtime_cases(cc, work)
++    print(f"RV32 build self-test: {checks} checks PASS")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/sw/firmware/gtest/rv32_include/stdio.h b/sw/firmware/gtest/rv32_include/stdio.h
+new file mode 100644
+index 000000000..43a18799a
+--- /dev/null
++++ b/sw/firmware/gtest/rv32_include/stdio.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* The bounded C11 formatter's declaration for object-only target checks.
++ * This declares the runtime interface; it supplies no replacement formatter. */
++#ifndef MILAN_RV32_STDIO_H
++#define MILAN_RV32_STDIO_H
++
++#include <stdarg.h>
++#include <stddef.h>
++
++int vsnprintf(char *restrict dst, size_t n, const char *restrict fmt, va_list ap);
++
++#endif
+diff --git a/sw/firmware/gtest/rv32_include/string.h b/sw/firmware/gtest/rv32_include/string.h
+new file mode 100644
+index 000000000..f0029c720
+--- /dev/null
++++ b/sw/firmware/gtest/rv32_include/string.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* Freestanding C11 memory declarations for object-only target checks.
++ * Implementations belong to the product's bare-metal C runtime. */
++#ifndef MILAN_RV32_STRING_H
++#define MILAN_RV32_STRING_H
++
++#include <stddef.h>
++
++void *memcpy(void *restrict dst, const void *restrict src, size_t n);
++void *memset(void *dst, int value, size_t n);
++void *memmove(void *dst, const void *src, size_t n);
++int memcmp(const void *a, const void *b, size_t n);
++
++#endif

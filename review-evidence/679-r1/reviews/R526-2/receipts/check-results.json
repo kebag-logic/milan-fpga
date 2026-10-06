@@ -1,0 +1,164 @@
+[
+  {
+    "name": "ctrl-campaign",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 622.687
+  },
+  {
+    "name": "nvm-campaign",
+    "argv": [
+      "/usr/bin/python3",
+      "<review-packet>/scripts/nvm-campaign.py"
+    ],
+    "rc": 0,
+    "seconds": 414.305
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "3"
+    ],
+    "rc": 0,
+    "seconds": 154.849
+  },
+  {
+    "name": "rv32-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 4.98
+  },
+  {
+    "name": "ctrl-unit",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 46.406
+  },
+  {
+    "name": "nvm-unit",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "2"
+    ],
+    "rc": 0,
+    "seconds": 146.744
+  },
+  {
+    "name": "sdk-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.27
+  },
+  {
+    "name": "tally-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/gtest/tally_selftest.py",
+      "--mutants"
+    ],
+    "rc": 0,
+    "seconds": 66.837
+  },
+  {
+    "name": "coverage-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.467
+  },
+  {
+    "name": "ci-events-check",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.216
+  },
+  {
+    "name": "ci-events-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 16.875
+  },
+  {
+    "name": "ci-scope-controls",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.031
+  },
+  {
+    "name": "docs-check",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.933
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "6714181d0c8a16e2983f85b724f4d688f5111835"
+    ],
+    "rc": 2,
+    "seconds": 1.117
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "/usr/bin/python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "seconds": 0.114
+  }
+]

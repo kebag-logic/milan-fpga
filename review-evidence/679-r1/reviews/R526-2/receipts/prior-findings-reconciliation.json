@@ -1,0 +1,34 @@
+{
+  "independent_report_sha256_before_reconciliation": "6366485fd213aab20e129c2b231d9cb637552d5b5cccad59c84912917f4d28c6",
+  "independent_report_written_at_utc": "2026-10-06T18:55:29.831388+00:00",
+  "reviewed_head": "04e1435a218908d2b12b4053e5dab2c2dcac2ebf",
+  "conversation_comments": 6,
+  "submitted_reviews": 0,
+  "inline_comments": 0,
+  "prior_findings": [
+    {
+      "id": "R526-1-F1",
+      "source": "https://github.com/kebag-logic/milan-fpga/pull/683#issuecomment-6022774174",
+      "severity": "MAJOR",
+      "lenses": [
+        "Conformance",
+        "Robustness",
+        "Tests",
+        "Docs"
+      ],
+      "state": "RESOLVED",
+      "evidence": [
+        "receipts/runtime-binding.log",
+        "receipts/local-data.log",
+        "receipts/rv32-controls.log"
+      ]
+    },
+    {
+      "review": "R527-1",
+      "source": "https://github.com/kebag-logic/milan-fpga/pull/683#issuecomment-6022705859",
+      "findings": "none",
+      "read_after_independent_verdict_and_ledger": true
+    }
+  ],
+  "open_prior_findings": []
+}
