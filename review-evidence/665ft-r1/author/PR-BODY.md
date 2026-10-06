@@ -1,0 +1,423 @@
+[A547]
+
+## Contents
+
+- **[Status](#status)** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
+- **[Linked Issue / roles](#linked-issue--roles)** — Public task, executor, and independent reviewers.
+- **[Description](#description)** — What changed and why.
+- **[Authoritative references](#authoritative-references)** — Requirements/specification clauses and docs.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** — Copy-pasteable checkout/dependency/environment commands.
+- **[How to validate](#how-to-validate)** — Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What this deliberately does not do, and why.
+- **[Definition of Done](#definition-of-done)** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Status
+
+GREEN locally at `27433e47c6d7805376547a91b418cf6aa9d95d2a`: every gate in the lane's table rc 0 (the 48-command builder set, both
+firmware gates with their RV32 builds and planted-defect campaigns at base and head, the tally,
+coverage and classifier self-tests, the workflow contract, the docs gates). `665-ft-gtest` -> `dev`.
+No hosted run yet.
+
+## Linked Issue / roles
+
+Relates to #665
+
+Executor: `[A547]`
+Internal cleared-context reviewer: `[R506]`
+External reviewer: `[R507]`
+
+## Description
+
+Lane FT of #665: the bare-metal control-plane firmware's host checks run on GoogleTest and
+GoogleMock under a tally listener, with gcov line and branch coverage held by a ratchet, in a hosted
+job. The firmware stays C11, bare metal, no heap; the tests are host C++ including its C headers
+through `extern "C"`. No firmware source changed (one header comment names the new test file), no
+RTL changed, and the default build and the shipping image are untouched.
+
+| Piece | What changed |
+|---|---|
+| Harness (`sw/firmware/gtest/`) | the `main()` and tally listener every test binary links: `== <label>: checks: N   failures: M ==` as `scripts/suite_tally.py` reads it, a `[FAIL] Suite.Test: <words>` line per failed assertion, a failing tally from a crash or an early `exit()`, `NOCOUNT` for a run that leaves none; 11 planted cases prove a failing, crashing, aborting, exiting, skipped, throwing, disabled, set-up-failing, `_exit`ing or empty run fails the tally |
+| Seams and mocks | GoogleMock objects for the four ports the firmware already has (`mbx_hal.h`, `shlan_port.h`, `nvm_flash.h`, the LiteSPI port's CSR accessors); no seam was added |
+| ctrl port | every F0 check on GoogleTest by its own words: `model` 134 checks -> 14 tests, `port` 81 -> 29, `adp` 163 -> 26, `walk` 320 -> 41, `entity` 45 -> 45, `lwsrp` 13 -> 1, new `unit` arm 23; `test_check.h/.c` and the C test files retired |
+| ctrl_nvm port | the 42 named checks kept by name per port (71 tests per shape), run in process by `nvm_rig.cpp` against a fixture `nvm_fixture.py` writes from `scripts/nvm_klj2.py`; 16 checks added for branch coverage (codec, longer containers, console commit, DR5, DR2a edges, read agreement on a mocked medium, two doctored shapes, the LiteSPI port alone); `nvm_test.c` and both check modules retired |
+| Planted defects | every base defect still killed, now by a named GoogleTest test; 23 ctrl and 18 ctrl_nvm defects added so each new check can fail (ctrl 74 of 74, ctrl_nvm 100 of 100); one new test strengthened when its defect survived |
+| Coverage (`fw_coverage.py`) | gcc's own `gcov` JSON read by an in-tree reader; per-file ratchet `coverage.ratchet` refusing any line or branch drop; 100 % lines and branches on all 14 firmware files after 16 exclusion rows (13 functions), each with its proof in the harness README; 18 planted cases including a real gcc+gcov build |
+| CI | `rtl-fast`'s new `firmware-unit` job (GoogleTest from the distribution, versions printed), in the aggregate's verdict; `scripts/ci_events.py` pins its steps; `scripts/ci_scope.py` cases and mutations for `sw/firmware/**`; `docs/testing/CI_WORKFLOWS.md` |
+| Fix found on the way | `fw_gtest.run` now reports a missing program as a failed run instead of raising |
+
+<details>
+<summary>Port table: every hand-rolled check and the GoogleTest test that now holds it</summary>
+
+#### ctrl `port` and `adp`, by the check's words
+
+Generated from the base's `check()`, `check_eq()` and `bound()` call sites, each found at the head by
+its exact words. The `model` (134 checks, one test per `suite.hpp` group), `walk` (320 checks, one
+test per walked Table 5.51 cell), `entity` (one test per field per config) and `lwsrp` (one test)
+mappings are stated arm by arm in the harness README's port table.
+
+#### `test_port_loop.c` -> `test_port_loop.cpp` (81 call sites)
+
+| Check (its words at base) | GoogleTest test at head |
+|---|---|
+| P0 an arena one byte short is refused | `Pool.P0Refusals` |
+| P0 a misaligned arena is refused | `Pool.P0Refusals` |
+| P0 classes that do not grow are refused | `Pool.P0Refusals` |
+| P0 an empty class is refused | `Pool.P0Refusals` |
+| P0 the exact arena is accepted | `Pool.P0Refusals` |
+| P1 four 24-byte blocks come from the 32-byte class, aligned | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 an exhausted class spills into the next larger one | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 a size no class holds is refused | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 a zero-byte allocation is refused | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 refusals are counted | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 the last block of the large class | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 then nothing is left | `Pool.P1ClassesExhaustionAndRefusals` |
+| P1 every block is in use | `Pool.P1ClassesExhaustionAndRefusals` |
+| P2 a released block is the next one handed out | `Pool.P2ReleaseAndBadFrees` |
+| P2 a double free is refused and counted | `Pool.P2ReleaseAndBadFrees` |
+| P2 a free into the middle of a block is refused | `Pool.P2ReleaseAndBadFrees` |
+| P2 a free of a pointer the pool never handed out is refused | `Pool.P2ReleaseAndBadFrees` |
+| P2 a free of NULL is a no-op | `Pool.P2ReleaseAndBadFrees` |
+| P2 the high-water mark of the small class | `Pool.P2ReleaseAndBadFrees` |
+| P3 calloc hands out a zeroed block, even a reused one | `Pool.P3CallocZeroesAndRefusesAWrap` |
+| P3 calloc refuses a count times size that wraps to a small size | `Pool.P3CallocZeroesAndRefusesAWrap` |
+| P4 shlan_malloc before the pool is bound refuses | `Pool.P4ShlanFunctionsDrawOnTheBoundPool` |
+| P4 shlan_malloc and shlan_calloc draw on the bound pool | `Pool.P4ShlanFunctionsDrawOnTheBoundPool` |
+| P4 shlan_free returns both blocks | `Pool.P4ShlanFunctionsDrawOnTheBoundPool` |
+| S0 with no sink bound shlan_printf emits nothing | `DebugSink.S0NoSinkDiscardsAndCounts` |
+| S0 and counts the discard | `DebugSink.S0NoSinkDiscardsAndCounts` |
+| S1 shlan_printf reaches the bound sink formatted | `DebugSink.S1FormattedToTheSink` |
+| S2 a line over the buffer is truncated to it | `DebugSink.S2TruncatedToTheLine` |
+| S2 and the sink receives that many bytes | `DebugSink.S2TruncatedToTheLine` |
+| S2 in one call | `DebugSink.S2TruncatedToTheLine` |
+| S2 the truncation is counted | `DebugSink.S2TruncatedToTheLine` |
+| D0 mbx_open accepts the model's contract | `Driver.D0RxRecordByteForByte` |
+| D0 the model commits a DISCOVER | `Driver.D0RxRecordByteForByte` |
+| D0 mbx_rx_take returns it | `Driver.D0RxRecordByteForByte` |
+| D0 byte for byte, with its length, interface and arrival | `Driver.D0RxRecordByteForByte` |
+| D0 the release moved RX_TAIL to RX_HEAD | `Driver.D0RxRecordByteForByte` |
+| D0 an empty ring | `Driver.D0RxRecordByteForByte` |
+| D1 a record with the wrong KIND is refused | `Driver.D1MalformedRecordResynchronises` |
+| D1 and the ring is resynchronised to RX_HEAD, the next record included | `Driver.D1MalformedRecordResynchronises` |
+| D1 bad channel | `Driver.D1MalformedRecordResynchronises` |
+| D2 a frame becomes a TX record | `Driver.D2TxRecordAndRefusals` |
+| D2 and leaves the merge byte for byte | `Driver.D2TxRecordAndRefusals` |
+| D2 a 13-byte frame is refused | `Driver.D2TxRecordAndRefusals` |
+| D2 a frame over max_frame_bytes is refused | `Driver.D2TxRecordAndRefusals` |
+| D2 an unknown interface is refused | `Driver.D2TxRecordAndRefusals` |
+| D3 a held merge fills the ring to its last whole record | `Driver.D3HeldMergeFillsAndOrderAcrossChannels` |
+| D3 once drained every record leaves | `Driver.D3HeldMergeFillsAndOrderAcrossChannels` |
+| D3 and none was refused | `Driver.D3HeldMergeFillsAndOrderAcrossChannels` |
+| D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order | `Driver.D3HeldMergeFillsAndOrderAcrossChannels` |
+| D4 a LINK event | `Driver.D4EveryEventTypeDecoded` |
+| D4 a GM event with the identity and domain | `Driver.D4EveryEventTypeDecoded` |
+| D4 a TIMER event with slot, tag and deadline | `Driver.D4EveryEventTypeDecoded` |
+| D4 a cancelled timer posts nothing | `Driver.D4EveryEventTypeDecoded` |
+| D4 TICK events count the centiseconds | `Driver.D4EveryEventTypeDecoded` |
+| D5 the grandmaster read is coherent | `Driver.D5CoherentGrandmasterRead` |
+| L0 bindings fit their tables | `LoopBring.L0BindingsFitTheirTables` |
+| L0 an unknown channel cannot be bound | `LoopBring.L0BindingsFitTheirTables` |
+| L1 ctrl_loop_open brings the mailbox up | `LoopBring.L1OpenOrder` |
+| L1 OWN_EID is written before any channel opens | `LoopBring.L1OpenOrder` |
+| L1 only the bound channel opens | `LoopBring.L1OpenOrder` |
+| L1 the tick starts because a centisecond consumer is bound | `LoopBring.L1OpenOrder` |
+| L1 IRQ_ENABLE holds the bound channel and the event ring | `LoopBring.L1OpenOrder` |
+| L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel | `Loop.L2PerPassRxBound` |
+| L2 and polls every module once | `Loop.L2PerPassRxBound` |
+| L2 the rest follow in later passes | `Loop.L2PerPassRxBound` |
+| L3 a pass takes at most CTRL_LOOP_EVENTS_PER_PASS events | `Loop.L3PerPassEventBound` |
+| L3 the rest follow in the next pass | `Loop.L3PerPassEventBound` |
+| L4 (a late firmware: the ring is full while three ticks pass) | `Loop.L4TickFanOut` |
+| L4 every centisecond reaches the first consumer | `Loop.L4TickFanOut` |
+| L4 and the second | `Loop.L4TickFanOut` |
+| L4 in registration order, tick by tick (a b a b a b) | `Loop.L4TickFanOut` |
+| L5 a malformed record is counted, not handed out | `Loop.L5MalformedRecordCounted` |
+| L5 and no handler saw it | `Loop.L5MalformedRecordCounted` |
+| L6 a pass after which a module still owes output asks for the next pass at once | `Loop.L6OwedOutputKeepsPassing` |
+| L6 a pass that handled nothing and owes nothing lets the loop sleep | `Loop.L6OwedOutputKeepsPassing` |
+| L7 every one of 40 coalesced centiseconds reaches the consumer | `Loop.L7TickSlices` |
+| L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass | `Loop.L7TickSlices` |
+| L7 and the loop keeps passing until the last is dispatched | `Loop.L7TickSlices` |
+| L8 (centiseconds are carried when the second TICK record is posted, alone in the ring) | `Loop.L8TickRecordWhileCarried` |
+| L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer | `Loop.L8TickRecordWhileCarried` |
+| L8 and none is left owed | `Loop.L8TickRecordWhileCarried` |
+
+81 of 81 literal call sites found at head by their words, and 0 formatted at run time mapped by hand.
+
+#### `test_adp.c` -> `test_adp.cpp` (121 call sites)
+
+| Check (its words at base) | GoogleTest test at head |
+|---|---|
+| A0 enabled with the link down: DOWN (5.6.3.5.1) | `AdpCore.A0toA2Schedule` |
+| A0 and no timer | `AdpCore.A0toA2Schedule` |
+| A0 LINK_UP: DELAY with a 0..4 s draw (5.6.3.5.3) | `AdpCore.A0toA2Schedule` |
+| A1 TMR_DELAY: ENTITY_AVAILABLE, WAITING, TMR_ADVERTISE 5 s (5.6.3.5.9) | `AdpCore.A0toA2Schedule` |
+| A1 valid_time 10, control_data_length 56 | `AdpCore.A0toA2Schedule` |
+| A1 the first available_index is 0 | `AdpCore.A0toA2Schedule` |
+| A1 available_index is incremented after the send (6.2.2.15) | `AdpCore.A0toA2Schedule` |
+| A2 the next cycle carries index 1 and the grandmaster sampled at build | `AdpCore.A0toA2Schedule` |
+| A2 GM_CHANGE in WAITING re-advertises (5.6.3.5.7) | `AdpCore.A0toA2Schedule` |
+| A2 with the new current_configuration_index (6.2.2.18) | `AdpCore.A0toA2Schedule` |
+| A2 and the entity's identify_control_index (6.2.2.19) | `AdpCore.A0toA2Schedule` |
+| A3 enabled with the link up: DELAY with a 0..2 s draw (5.6.3.5.2) | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A3 RCV_ADP_DISCOVER in DELAY is ignored (Table 5.51) | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1) | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A4 and leave WAITING alone | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A4 a DISCOVER for this entity stops TMR_ADVERTISE and enters DELAY (5.6.3.5.4) | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A5 an expiry with no timer running is a stray, counted | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A5 and sends nothing | `AdpCore.A3toA5DiscoverAndDiscard` |
+| A6 a refused send keeps ENTITY_AVAILABLE owed in DELAY | `AdpCore.A6toA8DeferredSends` |
+| A6 a poll without room retries and keeps it | `AdpCore.A6toA8DeferredSends` |
+| A6 a poll with room sends it and completes 5.6.3.5.9 | `AdpCore.A6toA8DeferredSends` |
+| A7 a link loss drops an owed ENTITY_AVAILABLE and departs nothing (5.6.3.5.10) | `AdpCore.A6toA8DeferredSends` |
+| A8 SHUTDOWN with no room keeps ENTITY_DEPARTING owed, index reset | `AdpCore.A6toA8DeferredSends` |
+| A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN | `AdpCore.A6toA8DeferredSends` |
+| A8 SHUTDOWN in DOWN sends nothing (Table 5.51) | `AdpCore.A6toA8DeferredSends` |
+| A10 the first ENTITY_AVAILABLE carries 0 | `AdpCore.A10toA14DepartingIndex` |
+| A10 the second carries 1 | `AdpCore.A10toA14DepartingIndex` |
+| A10 SHUTDOWN is taken in WAITING | `AdpCore.A10toA14DepartingIndex` |
+| A10 SHUTDOWN in WAITING, sent at once: ENTITY_DEPARTING carries the current index, 2 | `AdpCore.A10toA14DepartingIndex` |
+| A11 the first ENTITY_AVAILABLE after a restart carries 0 | `AdpCore.A10toA14DepartingIndex` |
+| A12 SHUTDOWN is taken in DELAY | `AdpCore.A10toA14DepartingIndex` |
+| A12 SHUTDOWN in DELAY, sent at once: ENTITY_DEPARTING carries the current index, 1 | `AdpCore.A10toA14DepartingIndex` |
+| A13 SHUTDOWN with no room leaves ENTITY_DEPARTING owed | `AdpCore.A10toA14DepartingIndex` |
+| A13 sent from a later poll, it carries the index current at SHUTDOWN, 2 | `AdpCore.A10toA14DepartingIndex` |
+| A13 and the restart's first ENTITY_AVAILABLE carries 0 | `AdpCore.A10toA14DepartingIndex` |
+| A14 available_index 0xFFFFFFFF goes on the wire | `AdpCore.A10toA14DepartingIndex` |
+| A14 the next ENTITY_AVAILABLE carries 0, modulo 2^32 | `AdpCore.A10toA14DepartingIndex` |
+| A14 SHUTDOWN after the wrap: ENTITY_DEPARTING carries the current index, 1 | `AdpCore.A10toA14DepartingIndex` |
+| A15 advertised once, SHUTDOWN behind a full ring: ENTITY_DEPARTING owed with index 1 | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 the restart runs while it is owed: DELAY, the startup TMR_DELAY armed | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 a poll without room keeps both owed | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1 | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0 | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 then WAITING with TMR_ADVERTISE armed 5 s, available_index 1 | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 and nothing stranded: nothing owed, a further poll sends nothing | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1 | `AdpCore.A15OwedDepartingAcrossARestart` |
+| A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE | `AdpCore.A16SecondShutdownQueuesItsOwn` |
+| A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing) | `AdpCore.A16SecondShutdownQueuesItsOwn` |
+| A16 the restart running meanwhile is untouched: DELAY, its TMR_DELAY armed | `AdpCore.A16SecondShutdownQueuesItsOwn` |
+| A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING | `AdpCore.A16SecondShutdownQueuesItsOwn` |
+| A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING | `AdpCore.A17RoomBackBeforeAPoll` |
+| A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order | `AdpCore.A17RoomBackBeforeAPoll` |
+| A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1 | `AdpCore.A18LinkLossKeepsTheOwedDeparting` |
+| A18 the link's return starts a new run with the ENTITY_DEPARTING still owed (5.6.3.5.3) | `AdpCore.A18LinkLossKeepsTheOwedDeparting` |
+| A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING | `AdpCore.A18LinkLossKeepsTheOwedDeparting` |
+| A18 with room the ENTITY_DEPARTING leaves, index 1 | `AdpCore.A18LinkLossKeepsTheOwedDeparting` |
+| A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING | `AdpCore.A18LinkLossKeepsTheOwedDeparting` |
+| A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started | `AdpCore.A19IgnoredInputsKeepTheOwedAvailable` |
+| A19 so does an ENTITY_DISCOVER | `AdpCore.A19IgnoredInputsKeepTheOwedAvailable` |
+| A19 and a stray expiry, which is counted | `AdpCore.A19IgnoredInputsKeepTheOwedAvailable` |
+| A19 the next poll with room sends it, index 0, then WAITING with TMR_ADVERTISE 5 s | `AdpCore.A19IgnoredInputsKeepTheOwedAvailable` |
+| A20 a link loss drops the owed ENTITY_AVAILABLE at once, before any poll (5.6.3.5.10) | `AdpCore.A20LinkLossDropsTheOwedAvailable` |
+| A20 after the link's return a poll sends nothing: the new run waits for its TMR_DELAY (5.6.3.5.3) | `AdpCore.A20LinkLossDropsTheOwedAvailable` |
+| A20 whose expiry sends the ENTITY_AVAILABLE, index 0; WAITING | `AdpCore.A20LinkLossDropsTheOwedAvailable` |
+| A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced | `AdpCore.A21DepartingCapacity` |
+| A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped | `AdpCore.A21DepartingCapacity` |
+| A21 and so are 100000 more, each counted, the two owed unchanged | `AdpCore.A21DepartingCapacity` |
+| A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed | `AdpCore.A21DepartingCapacity` |
+| A21 then the running restart's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING | `AdpCore.A21DepartingCapacity` |
+| A9 every startup draw is 0..2 s and every other draw 0..4 s | `AdpCore.A9DrawKinds` |
+| A9 the two kinds are distinct: the 0..4 s draws pass 2 s | `AdpCore.A9DrawKinds` |
+| A9 and both reach near their maxima | `AdpCore.A9DrawKinds` |
+| B0 the app starts on the model | `the set-up of every adapter test (boot(): B1, C0 to C6, E0 to E5, F0 to F7)` |
+| B1 the model reaches WAITING | `AdpAdapter.B1StaleTagDiscarded` |
+| B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag | `AdpAdapter.B1StaleTagDiscarded` |
+| B1 and the replacing TMR_DELAY stands | `AdpAdapter.B1StaleTagDiscarded` |
+| C0 LINK_UP -> TMR_DELAY armed, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C0 LINK_UP -> TMR_DELAY armed | `AdpLatency.C0toC6EveryResponsePath` |
+| C1 TMR_DELAY -> ENTITY_AVAILABLE committed and TMR_ADVERTISE armed, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE | `AdpLatency.C0toC6EveryResponsePath` |
+| C2 RCV_ADP_DISCOVER -> TMR_DELAY armed, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C2 RCV_ADP_DISCOVER -> TMR_DELAY armed | `AdpLatency.C0toC6EveryResponsePath` |
+| C3 TMR_ADVERTISE -> TMR_DELAY armed, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C3 TMR_ADVERTISE -> TMR_DELAY armed | `AdpLatency.C0toC6EveryResponsePath` |
+| C4 GM_CHANGE -> TMR_DELAY armed, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C4 GM_CHANGE -> TMR_DELAY armed | `AdpLatency.C0toC6EveryResponsePath` |
+| C5 LINK_DOWN -> timer cancelled, one pass | `AdpLatency.C0toC6EveryResponsePath` |
+| C5 LINK_DOWN -> timer cancelled | `AdpLatency.C0toC6EveryResponsePath` |
+| C6 SHUTDOWN -> ENTITY_DEPARTING committed | `AdpLatency.C0toC6EveryResponsePath` |
+| C6 SHUTDOWN -> ENTITY_DEPARTING committed | `AdpLatency.C0toC6EveryResponsePath` |
+| E0 LINK_UP takes the machine to DELAY | `AdpOwed.E0toE3PendingWake` |
+| E0 TMR_DELAY expires behind a full transmit ring: ENTITY_AVAILABLE is owed | `AdpOwed.E0toE3PendingWake` |
+| E0 and nothing else can wake the core: no RX, no event, TICK off | `AdpOwed.E0toE3PendingWake` |
+| E1 the loop does not sleep while a frame is owed | `AdpOwed.E0toE3PendingWake` |
+| E2 once the ring drains, the next pass sends the owed ENTITY_AVAILABLE | `AdpOwed.E0toE3PendingWake` |
+| E2 and restarts its timer: TMR_ADVERTISE armed 5 s after the frame left, the machine in WAITING | `AdpOwed.E0toE3PendingWake` |
+| E3 then the loop sleeps, and the TMR_ADVERTISE expiry wakes it | `AdpOwed.E0toE3PendingWake` |
+| E4 advertised once: the first ENTITY_AVAILABLE left with index 0, the machine in WAITING | `AdpOwed.E4OwedDepartingWake` |
+| E4 SHUTDOWN behind the full ring leaves ENTITY_DEPARTING owed with index 1; the restart arms TMR_DELAY | `AdpOwed.E4OwedDepartingWake` |
+| E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm | `AdpOwed.E4OwedDepartingWake` |
+| E4 the loop does not sleep while both are owed | `AdpOwed.E4OwedDepartingWake` |
+| E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0 | `AdpOwed.E4OwedDepartingWake` |
+| E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left | `AdpOwed.E4OwedDepartingWake` |
+| E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it | `AdpOwed.E4OwedDepartingWake` |
+| F0 the F0 composition with a centisecond consumer comes up | `AdpBacklog.F0toF7FullBacklogs` |
+| F0 the event ring is full, ADP's TMR_DELAY expiry its 16th record | `AdpBacklog.F0toF7FullBacklogs` |
+| F0 the receive ring is full: it refuses the next frame | `AdpBacklog.F0toF7FullBacklogs` |
+| F0 30 centiseconds wait coalesced behind the full event ring | `AdpBacklog.F0toF7FullBacklogs` |
+| F0 and holds no more records than A1 assumes | `AdpBacklog.F0toF7FullBacklogs` |
+| F1 events first: no event-ring access follows a receive-ring access in a pass | `AdpBacklog.F0toF7FullBacklogs` |
+| F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES | `AdpBacklog.F0toF7FullBacklogs` |
+| F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it | `AdpBacklog.F0toF7FullBacklogs` |
+| F2 within ADP_MBX_EVT_ACCESSES of the backlog's first access | `AdpBacklog.F0toF7FullBacklogs` |
+| F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS) | `AdpBacklog.F0toF7FullBacklogs` |
+| F3 within CTRL_LOOP_RX_PASSES(256) passes and ADP_MBX_RX_ACCESSES accesses | `AdpBacklog.F0toF7FullBacklogs` |
+| F4 every coalesced centisecond reaches the consumer | `AdpBacklog.F0toF7FullBacklogs` |
+| F4 at most CTRL_LOOP_TICKS_PER_PASS of them in a pass | `AdpBacklog.F0toF7FullBacklogs` |
+| F5 the costliest pass of the backlog | `AdpBacklog.F0toF7FullBacklogs` |
+| F6 the loop passes until the backlog is gone, then may sleep | `AdpBacklog.F0toF7FullBacklogs` |
+| F7 the backlog left exactly one frame, the ENTITY_AVAILABLE | `AdpBacklog.F0toF7FullBacklogs` |
+| E5 %u SHUTDOWNs behind a full ring, %s: five checks per case (owed, the AVAILABLE behind, the pass it is committed in, the wire, WAITING after), for 1, 2 and 64 SHUTDOWNs with the expiry before and after the room | `Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0 to /5 (one test per case)` |
+
+121 of 121 literal call sites found at head by their words, and 1 formatted at run time mapped by hand.
+
+#### ctrl_nvm, by the check's name
+
+| Check at base | Ports at base | GoogleTest test(s) at head | Tests |
+|---|---|---|---:|
+| `blank_boot` | model, litespi | `Ports/NvmBoth.blank_boot/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `golden_restore` | model, litespi | `Ports/NvmBoth.golden_restore/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `erased_records` | model, litespi | `Ports/NvmBoth.erased_records/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `newer_wins` | model, litespi | `Ports/NvmBoth.newer_wins/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `torn_falls_back` | model, litespi | `Ports/NvmBoth.torn_falls_back/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `both_torn_blank` | model, litespi | `Ports/NvmBoth.both_torn_blank/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `verdict_parity` | model, litespi | `Ports/NvmBoth.verdict_parity/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `wrong_version_falls_back` | model, litespi | `Ports/NvmBoth.wrong_version_falls_back/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `read_flip_at_stage` | model | `NvmModel.read_flip_at_stage` (test_nvm_boot.cpp) | 1 |
+| `read_flip_boot` | model | `NvmModel.read_flip_boot` (test_nvm_boot.cpp) | 1 |
+| `read_alias_at_stage` | model | `NvmModel.read_alias_at_stage` (test_nvm_boot.cpp) | 1 |
+| `read_fail_boot` | model | `NvmModel.read_fail_boot` (test_nvm_boot.cpp) | 1 |
+| `fallback_restage` | model | `NvmModel.fallback_restage` (test_nvm_boot.cpp) | 1 |
+| `apply_fault_rolls_back` | model, litespi | `Ports/NvmBoth.apply_fault_rolls_back/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `settle_fault_rolls_back` | model, litespi | `Ports/NvmBoth.settle_fault_rolls_back/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `binding_walk` | model, litespi | `Ports/NvmBoth.binding_walk/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `rollback_fault_closes` | model, litespi | `Ports/NvmBoth.rollback_fault_closes/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `model_unproven_closes` | model, litespi | `Ports/NvmBoth.model_unproven_closes/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `refused_keeps_default` | model, litespi | `Ports/NvmBoth.refused_keeps_default/model`, `.../litespi` (test_nvm_boot.cpp) | 2 |
+| `first_commit_bytes` | model, litespi | `Ports/NvmBoth.first_commit_bytes/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `change_commit_bytes` | model, litespi | `Ports/NvmBoth.change_commit_bytes/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `debounce` | model, litespi | `Ports/NvmBoth.debounce/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `unchanged_no_erase` | model, litespi | `Ports/NvmBoth.unchanged_no_erase/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `failed_commit_not_skipped` | model, litespi | `Ports/NvmBoth.failed_commit_not_skipped/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `media_failures` | model, litespi | `Ports/NvmBoth.media_failures/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `recovers_after_failure` | model, litespi | `Ports/NvmBoth.recovers_after_failure/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `dr2c_unchanged_set` | model, litespi | `Ports/NvmBoth.dr2c_unchanged_set/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `dr2c_console` | model, litespi | `Ports/NvmBoth.dr2c_console/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `verify_tail` | model, litespi | `Ports/NvmBoth.verify_tail/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `blankcheck_tail` | model, litespi | `Ports/NvmBoth.blankcheck_tail/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `media_verdicts` | model | `NvmModel.media_verdicts` (test_nvm_write.cpp) | 1 |
+| `refused_slot_kept` | model, litespi | `Ports/NvmBoth.refused_slot_kept/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `service_bound` | model, litespi | `Ports/NvmBoth.service_bound/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `powercut` | model, litespi | `Ports/NvmBoth.powercut/model`, `.../litespi` (test_nvm_write.cpp) | 2 |
+| `vector_round_trip` | model, litespi | `Ports/NvmBoth.vector_round_trip/model`, `.../litespi` (test_nvm_vector.cpp) | 2 |
+| `time_base` | litespi | `NvmLitespi.time_base` (test_nvm_write.cpp) | 1 |
+| `port_clock` | litespi | `NvmLitespi.port_clock` (test_nvm_write.cpp) | 1 |
+| `port_stall` | litespi | `NvmLitespi.port_stall` (test_nvm_write.cpp) | 1 |
+| `port_deadline` | litespi | `NvmLitespi.port_deadline` (test_nvm_write.cpp) | 1 |
+| `port_guard` | litespi | `NvmLitespi.port_guard` (test_nvm_write.cpp) | 1 |
+| `authority_unknown` | model | `NvmModel.authority_unknown` (test_nvm_write.cpp) | 1 |
+| `read_disagreement` | model | `NvmModel.read_disagreement` (test_nvm_write.cpp) | 1 |
+
+42 checks at base, 42 found at head by name, 71 tests.
+
+Checks added at head (#665 lane FT), each with a planted defect of its own:
+
+| Check | GoogleTest test(s) | Tests |
+|---|---|---:|
+| `capture_window_edges` | `Ports/NvmBoth.capture_window_edges/model`, `.../litespi` (test_nvm_more.cpp) | 2 |
+| `change_unknown_record` | `NvmModel.change_unknown_record` (test_nvm_more.cpp) | 1 |
+| `codec_lookups` | `NvmCodec.codec_lookups` (test_nvm_codec.cpp) | 1 |
+| `codec_parity` | `NvmCodec.codec_parity` (test_nvm_codec.cpp) | 1 |
+| `codec_room` | `NvmCodec.codec_room` (test_nvm_codec.cpp) | 1 |
+| `console_commit_unchanged` | `Ports/NvmBoth.console_commit_unchanged/model`, `.../litespi` (test_nvm_more.cpp) | 2 |
+| `first_commit_no_blank_slot` | `Ports/NvmBoth.first_commit_no_blank_slot/model`, `.../litespi` (test_nvm_more.cpp) | 2 |
+| `long_container_reads` | `NvmModel.long_container_reads` (test_nvm_more.cpp) | 1 |
+| `nothing_to_save` | `Ports/NvmBoth.nothing_to_save/model`, `.../litespi` (test_nvm_more.cpp) | 2 |
+| `port_drain_deadline` | `NvmLitespiPort.port_drain_deadline` (test_nvm_litespi.cpp) | 1 |
+| `port_read_range` | `NvmLitespiPort.port_read_range` (test_nvm_litespi.cpp) | 1 |
+| `port_write_refusals` | `NvmLitespiPort.port_write_refusals` (test_nvm_litespi.cpp) | 1 |
+| `reads_agree_in_digest_not_length` | `NvmFlashMock.reads_agree_in_digest_not_length` (test_nvm_flashmock.cpp) | 1 |
+| `reads_differ_in_verdict` | `NvmFlashMock.reads_differ_in_verdict` (test_nvm_flashmock.cpp) | 1 |
+| `settle_after_the_last_record` | `NvmModel.settle_after_the_last_record` (test_nvm_shapes.cpp) | 1 |
+| `shape_mismatch_disables_persistence` | `NvmModel.shape_mismatch_disables_persistence` (test_nvm_shapes.cpp) | 1 |
+
+</details>
+
+## Authoritative references
+
+- #665, the lane FT assignment (comment 6009234414) and its STOP conditions.
+- [CONTRIBUTING.md](../CONTRIBUTING.md), [AGENTS.md](../AGENTS.md).
+- [Firmware GoogleTest harness](../sw/firmware/gtest/README.md): layout, tally, mocks, port table,
+  coverage method, every exclusion with its proof, CI, versions.
+- [CI workflow policy](../docs/testing/CI_WORKFLOWS.md): `firmware-unit` in Fast feedback, local commands.
+- [Control-plane firmware](../sw/firmware/ctrl/README.md), [Saved-state store](../sw/firmware/ctrl_nvm/README.md),
+  [Packet mailbox split](../docs/design/MAILBOX_SPLIT.md).
+
+## How to get into the same state
+
+```sh
+git fetch origin 665-ft-gtest
+git checkout 27433e47c6d7805376547a91b418cf6aa9d95d2a
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+sudo apt-get install -y libgtest-dev libgmock-dev    # or the distribution's gtest package
+python3 -m pip install pyyaml
+python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"   # the store's RV32 arm
+# the ctrl rv32 arm needs an ilp32 RV32 SDK at ~/br-milan-rv32/host or a bare-metal compiler
+# the ctrl lwsrp arm needs lwSRP (private) at the pin ctrl_arms.LWSRP_REV records:
+git clone https://github.com/kebag-logic/lwSRP lwSRP
+git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
+```
+
+## How to validate
+
+```sh
+python3 sw/firmware/gtest/tally_selftest.py
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp lwSRP
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
+python3 sw/firmware/gtest/fw_coverage.py --selftest
+python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp lwSRP --jobs 16
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 16
+python3 scripts/ci_scope.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+make -C tb/verilator/mbx -j16    # with Verilator 5.050
+```
+
+Expected result / pass criteria: every command exits 0. `tally self-test: 11 of 11 planted cases
+read as planted`; `test_ctrl_firmware: PASS` with `mutants: 74 of 74 caught` and both lwSRP pin arms
+refusing; `saved-state store gate (#665 F1): OK across 5 shape(s), 429 tests, and all 100 planted
+defects reddened`; `coverage self-test: 18 of 18`; `firmware coverage: PASS (14 files)` with and
+without lwSRP; `ci_scope` and `ci_events` selftests `PASS`; the mailbox bench `checks: 134`, `179`
+and `13` with `4 of 4` mutants caught, as at base.
+
+## Known limitations / out of scope
+
+- The ctrl gate's `rv32` arm does not build against the CI-pinned RV32 SDK (`ilp32d`, no
+  `gnu/stubs-ilp32.h` for `-mabi=ilp32`). This is pre-existing: it fails the same way at base
+  `423ac5d9`. `firmware-unit` runs the ctrl gate before installing the SDK, so the arm reports
+  SKIPPED by name; the store's RV32 arm runs hosted with `--require-rv32`. Fixing the ctrl arm is an
+  F0 decision and wants its own Issue.
+- lwSRP is a private repository, so `firmware-unit` cannot run the opt-in `lwsrp` arm; the coverage
+  ratchet reads the same with and without it. lwSRP's own upstream suites run with lane F4.
+- The planted-defect campaigns stay local gates (minutes at 16 jobs, too long for a 4-vCPU fast job).
+- Tallies now count tests, not assertions; the per-arm split and merge is stated in the harness README
+  and every check is mapped by its words in the lane's handoff.
+- No hosted or `act_ci.py` run exists yet: the branch is not pushed. The job's `run:` steps were
+  replayed verbatim in an `ubuntu:24.04` container (GoogleTest 1.14.0, gcc 13.3.0) and passed, with
+  the same coverage and every exclusion matching.
+
+## Definition of Done
+
+- [x] Linked Issue acceptance criteria are satisfied (executor's claim; for review)
+- [x] New or changed behavior has self-checking tests
+- [x] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done
