@@ -1,0 +1,150 @@
+Builder batch 1-35/100; pinned SDK compiler mapping only
+test_commercial_timing_grade
+  [timing grade] declaration pinned; 19 wrong-condition refusals, including the report hook; four endpoint/model reports with setup, hold and diagnostics; complete analysis restored after success and failure
+  [timing grade] platform declaration reaches the part, pre-placement setup and post-route reports
+  [timing grade] declared part reaches the AX7101 PLL speed grade, including a changed-part control
+test_baremetal_clock_contract
+[clock contract] 5 configured positives; 50 named clock refusals; system-clock ordering and non-cache Scala refusals; no output on failure
+test_rom_clock_contract
+[clock contract] 5 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+test_rom_clock_skip_reaches_the_ledger
+  [clock contract] SKIP: tmpte20f1lm: system-clock ROM control not applicable, sys_clk_hz == milan_clk_hz makes its ROM the configured one
+[clock contract] 1 ROMs match configured Milan clocks; applicable default-clock and system-clock controls differ
+  [clock contract] a planted equal-clock shape's declined ROM control reached the NOT RUN ledger (removed again: it is not a tracked shape); the run list uses the ledger
+test_extra_sweep_clocks
+[clock contract] extra sweep: defaults, all configurations, changed system clock, omitted system clock, board mismatch, invalid clock and missing configuration pass
+test_tap_clock_docs
+[clock contract] 5 tap conversions and presence declarations match configurations
+test_sim_clock
+[clock contract] AX 1x1 gPTP simulation: ROM, elaboration and harness clocks follow the contract and a planted recipe; an unreadable recipe is refused; the harness restates no clock
+test_extra_sweep_invocation
+[clock contract] extra sweep: --dry-run in every position previews; missing, extra, unknown and empty arguments refuse before launching; an ungenerated entity refuses a launch; the build interpreter reads the configuration
+test_builder_clock_source
+[clock contract] builder clock follows a planted recipe.py under a shadowing tb package
+test_declaration_contracts
+[F1] literal/pinned legal IDs, ENTITY/ADP equality, four endpoint refusals
+[F1] shadowed literals and derived endpoints refused
+[F1] eight hex fields: strings preserve digits; non-strings receive named quote refusals
+[595 MAC] twelve quoted values preserved; non-strings receive exact quote refusals
+[495 MAC] 9 named shape rules, 30 spellings refused
+[595 uint] OUI and capabilities strings preserve values; all non-strings refuse
+[495 hex] 10 hex fields: 8 named shape rules and the width refused
+[595 formats] all stream indices: list type, exact quoted values, defaults and element refusals
+[u32] zero/maximum pack unchanged; negative and overflowing fields refuse
+[F2] eight listeners: floor/uint32 maximum pack equal; underflow/overflow refused
+[F3] each AAF input/output: 46 final entries accepted; count/family refusals
+[F3] both CRF directions: Milan word accepted; altered word/wrong family refused
+[F4] INTERNAL+CRF accepted; AAF/CRF outputs refused without INTERNAL; input-only unchanged
+[gate 40] endstation_arty_4x4.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_8ch.yaml: 5 output factory rows, VID 2, promiscuous
+[gate 40] endstation_arty_current.yaml: 1 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_1x1_tdm8.yaml: 2 output factory rows, VID 2, promiscuous
+[gate 40] endstation_ax7101_8x8.yaml: 9 output factory rows, VID 2, promiscuous
+[gate 40] 9 binding/reset mutants; donor timer profile
+[gate 40] 26 refusals; 3 header mutants per config
+test_clock_crossing_constraints
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+[constraints] <scratch>/constraint-log-x689uju3/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/digilent_arty.bit as <scratch>/constraint-log-x689uju3/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/constraint-log-x689uju3/alinx_ax7101.bit as <scratch>/constraint-log-x689uju3/alinx_ax7101.bit.rejected
+[constraints] <scratch>/constraint-log-x689uju3/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4] PASS
+test_all_configs_build
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_gptp_product_default_and_legacy_option
+  [gate 1c] fabric ownership is the only product configuration
+test_gptp_launch_observer_seam
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+test_qspi_owner_transition_completed_write_prefixes
+  [gate 1e] 4 injected before/after-write prefixes across the fabric-baremetal refresh retain one live owner and every prefix resumes; all writes verify; a live target bit gets an AEM-only repair; a source BIT replaced after live identification cannot replace the validated staged copy; every success/refusal (including both recovery primitives) cleans its staged transaction set; the ownerless owner, malformed/collision layouts, missing artifacts, missing cpu_xlen x2 and an unidentified live bit all refuse before programmer I/O
+test_gptp_plane_reaches_the_instance
+  [gate 1e] 8 real elaborations: the product fabric default is identical across product shapes and to explicit ON; bare-metal option-OFF elaborates as announced verification-only hardware (#259); build.sh, sweep.sh and deploy.sh ship fabric ownership
+test_gptp_plane_instance_gate_bites
+  [gate 1e mutation] 6/6 owner-carrier cuts rejected
+test_current_shape_matches_sweep_flags
+  [gate 2] arty_4x4 argv == sweep.sh arty design flags (18 flags)
+  [gate 2] ax7101_1x1_tdm8 argv == sweep.sh ax7101 design flags (26 flags, --eth-port e1 == the config)
+test_current_shape_matches_gen_aem_store
+  [gate 3] arty_current overlay == gen_aem_store model (15 descriptor types, formats, rates, port layout)
+test_capability_marks
+  [gate 4] arty_4x4: 4 planned mark(s) (item 5, tdm mark = supported), declared interface tdm8, no failure
+  [gate 4] ax7101_8x8: 5 planned mark(s) (item 5, tdm mark = supported), declared interface tdm32, no failure
+  [gate 4] aes3 variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] spdif variant: ser/des supported (KL_aes3_rx + KL_aes3_tx), datapath/SoC plumbing still planned
+  [gate 4] arty_current: zero planned FABRIC marks; the 3 clock-plan declaration(s) the fabric does not elaborate each carry their own item-6 mark (#399)
+test_bad_configs_rejected
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_port_layout_invariants
+  [gate 6] arty_current: 1+1 stream ports, 16 clusters, 1 maps - invariants hold
+  [gate 6] arty_4x4: 4+4 stream ports, 32 clusters, 4 maps - invariants hold
+  [gate 6] ax7101_8x8: 8+8 stream ports, 72 clusters, 0 maps - invariants hold
+test_both_policies_valid
+  [gate 7] arty_4x4: all 3 cluster policies -> valid layouts
+  [gate 7] ax7101_8x8: all 3 cluster policies -> valid layouts
+  [gate 7] cap-at-interface caps 8ch streams to the 2ch i2s interface (32 clusters total)
+  [gate 7] cluster-per-stream-channel keeps the legacy-8 layout expressible
+test_model_id_hashing
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+test_sweep_opts_fragments
+  [gate 9] arty: generated OPTS/L2 byte-match sweep.sh inline table (322 chars)
+  [gate 9] ax7101: generated OPTS/L2 byte-match sweep.sh inline table (470 chars)
+  [gate 9] sh -n clean: sweep.sh + both fragments
+test_gen_aem_store_consumes_overlay
+  [gate 10] ax7101_1x1_tdm8 overlay -> gen_aem_store --overlay: svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh (41787 B); no RTL destination touched; 4 stream descriptors in 1722.1-2021 Table 7-8 layout
+  [gate 10] gen_aem_store default path == arty_current overlay (refactor guard)
+test_resource_calibration
+  [gate 11] SKIP: real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+test_resource_determinism
+  [gate 12] resource estimate + plan deterministic across builds
+test_resource_verdicts
+  [gate 13] arty_4x4: verdict OVER (worst LUT 84.9%, fits the part, shared-engine rows)
+  [gate 13] ax7101_8x8: verdict OVER (worst LUT 85.4%, fits the part, shared-engine rows)
+  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current verdict OVER (worst LUT 81.7%), no upper-bound rows
+test_milan_723_crf_output_rule
+  [gate 14] Milan 7.2.3 enforced: 4x4/8x8/2-listener shapes rejected without crf_output (error cites 7.2.3); optional at 1 listener, format defaults to 0x041060010000BB80
+test_crf_output_overlay_structure
+  [gate 15] arty_4x4: CRF STREAM_OUTPUT idx 4 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] ax7101_8x8: CRF STREAM_OUTPUT idx 8 advertised (no port/cluster/map growth, talker count +1, clock sources unchanged)
+  [gate 15] arty_current: no CRF output (deployed shape untouched)
+test_gen_aem_store_crf_output_overlay
+  [gate 16] all 10 STREAM_INPUT/OUTPUT descriptors are 1722.1-2021 Table 7-8: formats_offset 138, redundant_offset 138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear
+  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM 6601 B structurally valid; STREAM_OUTPUT[4] = CRF (domain 0, flags 0x0003, 0x041060010000BB80), CONFIGURATION count 5, 4 output ports
+  [gate 16b] per-stream format tables: `AEM_PER_STREAM_FMT + 5-in/5-out reference + WB-addr arrays match the directory (CRF flags/formats in the right rows)
+test_clock_sources_follow_the_fabric
+  [gate 33] 5/5 configs advertise INTERNAL 0, CRF 1 and AAF listener k at 2 + k (overlay, header count, CRF index, kind/STREAM_INPUT table and model shape agree); without INTERNAL the emitter puts CRF at 0; crf-without-a-sink refused with the honest posture accepted; a planted L2 order fails the check
+test_dynamic_map_topology_reaches_shape_header
+  [gate 16c] dynamic-map input keys, physical projections and output CSRC tables match both AX7101 entity models
+NOT RUN ('gate 11', 'real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree', 'row')
+Builder batch 1-35: 34 selected functions/phases completed, 1 recorded skips

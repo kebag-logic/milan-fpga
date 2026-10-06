@@ -1,0 +1,21 @@
+  self-test OK: no_rollback                caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: rollback_failure_ignored   caught by rollback_fault_closes; first: [FAIL] Ports/NvmBoth.rollback_fault_closes/model: rollback fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: fallback_restage_unchecked caught by fallback_restage; first: [FAIL] NvmModel.fallback_restage: both re-stages flipped: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: restage_not_retried        caught by read_flip_at_stage, read_alias_at_stage, read_fail_boot; first: [FAIL] NvmModel.read_flip_at_stage: one flipped re-stage: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: release_on_closed          caught by rollback_fault_closes; first: [FAIL] Ports/NvmBoth.rollback_fault_closes/model: rollback fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: fault_as_refusal           caught by apply_fault_rolls_back, binding_walk; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: refusal_aborts             caught by refused_keeps_default; first: [FAIL] Ports/NvmBoth.refused_keeps_default/model: refusals: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 3, 
+  self-test OK: settle_fault_ignored       caught by settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.settle_fault_rolls_back/model: settle fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: settle_after_names         caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=39
+  self-test OK: shape_not_checked          caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: a walk that disagrees with the sizes disables persistence
+  self-test OK: no_settle_without_names    caught by settle_after_the_last_record; first: [FAIL] NvmModel.settle_after_the_last_record: the settle step runs once, after the last record: {'abandoned': 
+  self-test OK: shape_mismatch_released_unproven caught by shape_mismatch_disables_persistence; first: [FAIL] NvmModel.shape_mismatch_disables_persistence: and over an unproven model nothing is released: {'abandon
+  self-test OK: apply_erased               caught by erased_records; first: [FAIL] Ports/NvmBoth.erased_records/model: erased-record counts: {'abandoned': 0, 'abandoned_vd': 0, 'applied'
+  self-test OK: release_before_apply       caught by golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=54
+  self-test OK: model_ready_ignored        caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: bindings_skipped_unproven  caught by model_unproven_closes; first: [FAIL] Ports/NvmBoth.model_unproven_closes/model: unproven model: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: bindings_in_d3_walk        caught by binding_walk, golden_restore; first: [FAIL] Ports/NvmBoth.golden_restore/model: model: invariant sm_order=2
+  self-test OK: d3_rollback_takes_bindings caught by apply_fault_rolls_back, settle_fault_rolls_back; first: [FAIL] Ports/NvmBoth.apply_fault_rolls_back/model: apply fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: binding_fault_aborts_d3    caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 1, 'att
+  self-test OK: binding_fault_keeps_preloads caught by binding_walk; first: [FAIL] Ports/NvmBoth.binding_walk/model: binding fault: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 53, 'at
+Batch 41-60: 20/20 caught

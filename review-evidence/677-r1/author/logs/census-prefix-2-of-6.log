@@ -1,0 +1,129 @@
+Builder batch 13-13/100; pinned SDK compiler mapping only
+test_baremetal_profile_contract
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+  [gate 1b] boot-unit asm forms: 11 exact production forms; whitespace controls accepted; 7 changed/incomplete forms refused; fifth fence needs no extra entry
+  [gate 1b] identity storage: 3 automatic spellings accepted; 3 nonautomatic spellings refused on the identity-sample absence rule
+Census prefix 2/6: 60 of 358 mutations
+Census case CSR identity contract repointed to VERSION
+Census case passed CSR identity contract repointed to VERSION
+Census case RTL A_ID address selected through an inactive preprocessor arm
+Census case passed RTL A_ID address selected through an inactive preprocessor arm
+Census case CSR identity mismatch guard does not return
+Census case passed CSR identity mismatch guard does not return
+Census case inverted entity enable
+Census case passed inverted entity enable
+Census case PP enabled before AEM verification
+Census case passed PP enabled before AEM verification
+Census case entity enabled through a repointed register name
+Census case passed entity enabled through a repointed register name
+Census case entity enabled through a raw CSR pointer
+Census case passed entity enabled through a raw CSR pointer
+Census case AEM verdict overridden
+Census case passed AEM verdict overridden
+Census case milan_csr PHC output binding gated by ADP
+Census case passed milan_csr PHC output binding gated by ADP
+Census case media restart engine port gated by ADP
+Census case passed media restart engine port gated by ADP
+Census case effective PHC frequency adjustment gated by ADP
+Census case passed effective PHC frequency adjustment gated by ADP
+Census case enabled RX-filter ingress valid gated by ADP
+Census case passed enabled RX-filter ingress valid gated by ADP
+Census case fabric gPTP ingress valid gated by ADP
+Census case passed fabric gPTP ingress valid gated by ADP
+Census case external MAC TX valid hidden behind a resolved second driver
+Census case passed external MAC TX valid hidden behind a resolved second driver
+Census case external MAC RX valid gated by ADP
+Census case passed external MAC RX valid gated by ADP
+Census case entity enabled by a case falling into the AEM-success guard
+Census case passed entity enabled by a case falling into the AEM-success guard
+Census case AEM verifier that can never succeed
+Census case passed AEM verifier that can never succeed
+Census case second source pulled in by #include of a .c
+Census case passed second source pulled in by #include of a .c
+Census case a store planted in the AEM verifier's no-QSPI arm
+Census case passed a store planted in the AEM verifier's no-QSPI arm
+Census case pinned include shadowed by an added -I search path
+Census case passed pinned include shadowed by an added -I search path
+Census case search path added through the CC tool variable
+Census case passed search path added through the CC tool variable
+Census case compile flags deferred to the environment through a top-level $(eval) assignment
+Census case passed compile flags deferred to the environment through a top-level $(eval) assignment
+Census case a Makefile fragment written at parse time by $(call file,...)
+Census case passed a Makefile fragment written at parse time by $(call file,...)
+Census case compile flags injected through a define-body $(eval) of ${1}
+Census case passed compile flags injected through a define-body $(eval) of ${1}
+Census case compile flags injected through a define-body $(eval) reached through a second define
+Census case passed compile flags injected through a define-body $(eval) reached through a second define
+Census case compile flags injected through a top-level $(eval) of $(1)
+Census case passed compile flags injected through a top-level $(eval) of $(1)
+Census case objects added by a Makefile fragment this gate does not read
+Census case passed objects added by a Makefile fragment this gate does not read
+Census case ADP_CTRL reset value advertising the entity
+Census case passed ADP_CTRL reset value advertising the entity
+Census case ADP_CTRL given no reset value at all
+Census case passed ADP_CTRL given no reset value at all
+Census case entity enabled through a vertical-tab phase-2 token splice
+Census case passed entity enabled through a vertical-tab phase-2 token splice
+Census case the CSR identity sample forged by a splice of its name between its read and its mismatch guard
+Census case passed the CSR identity sample forged by a splice of its name between its read and its mismatch guard
+Census case entity enable hidden in a continuation-line macro body and invoked from a UART handler
+Census case passed entity enable hidden in a continuation-line macro body and invoked from a UART handler
+Census case the pre-AEM clear dropped by a product-only #ifndef behind a form feed
+Census case passed the pre-AEM clear dropped by a product-only #ifndef behind a form feed
+Census case a second source #included behind a form feed
+Census case passed a second source #included behind a form feed
+Census case a `%:` pair maximal munch reads as `<%` and `:`, in a UART command handler
+Census case passed a `%:` pair maximal munch reads as `<%` and `:`, in a UART command handler
+Census case a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)
+Census case passed a store in the CSR window hidden between two directive names GCC reads with U+203F, in a UART command handler ([R273] and [R272] on the round-three head)
+Census case a UTF-8 byte-order mark at the start of the file, which round two accepted
+Census case passed a UTF-8 byte-order mark at the start of the file, which round two accepted
+Census case a _Pragma operator the #-directive scan cannot see
+Census case passed a _Pragma operator the #-directive scan cannot see
+Census case a struct-overlay store at the ADP_CTRL address in a dropped arm
+Census case passed a struct-overlay store at the ADP_CTRL address in a dropped arm
+Census case entity enabled through a reordered pointer cast
+Census case passed entity enabled through a reordered pointer cast
+Census case entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler
+Census case passed entity enabled through a fifth pointer cast in an arm only the product compiles, behind a NUL, in a UART command handler
+Census case entity enabled through a cast in the second of two groups on CSR_UART_BASE
+Census case passed entity enabled through a cast in the second of two groups on CSR_UART_BASE
+Census case entity enabled through a struct overlay and an -> store
+Census case passed entity enabled through a struct overlay and an -> store
+Census case entity enabled by a struct-overlay store through a base derived from a runtime CSR read
+Census case passed entity enabled by a struct-overlay store through a base derived from a runtime CSR read
+Census case AEM verifier reaching its success return by goto past the CRC comparison
+Census case passed AEM verifier reaching its success return by goto past the CRC comparison
+Census case the verifier's verdict overwritten through an alias the assignment rule cannot see
+Census case passed the verifier's verdict overwritten through an alias the assignment rule cannot see
+Census case entity enabled by a double struct-overlay store through a paged base
+Census case passed entity enabled by a double struct-overlay store through a paged base
+Census case entity enabled through a local rewritten by an integer store through a pointer to it
+Census case passed entity enabled through a local rewritten by an integer store through a pointer to it
+Census case identity macro compound -=
+Census case passed identity macro compound -=
+Census case identity macro compound &=
+Census case passed identity macro compound &=
+Census case identity macro postfix decrement
+Census case passed identity macro postfix decrement
+Census case identity macro continued replacement
+Census case passed identity macro continued replacement
+Census case identity plain asm immediate output
+Census case passed identity plain asm immediate output
+Census case identity plain real lvalue
+Census case passed identity plain real lvalue
+Census case identity asm without sample operand
+Census case passed identity asm without sample operand
+Census case identity generic address after guard
+Census case passed identity generic address after guard
+Census case identity C03 header paste
+Census case passed identity C03 header paste
+Census case identity C17 indirect assignment
+Census case passed identity C17 indirect assignment
+Census case identity extension cast argument
+Census case passed identity extension cast argument
+Census case identity W02 macro callee
+Census case passed identity W02 macro callee
+Census prefix 2/6: 60 mutations rejected; 10/10 RTL variants elaborated
+Builder batch 13-13-prefix-2: 1 selected functions/phases completed, 0 recorded skips

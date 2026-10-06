@@ -1,0 +1,16 @@
+  self-test OK: blankcheck_read_fail_ignored caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:7: want the first failure 11: {'abandoned': 0, 'abandoned_vd': 0, 
+  self-test OK: no_blankcheck              caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-stuck: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+  self-test OK: blankcheck_first_stretch_only caught by blankcheck_tail; first: [FAIL] Ports/NvmBoth.blankcheck_tail/model: erase-stuck:1:0:3335: want the first failure 11: {'abandoned': 0, 
+  self-test OK: no_verify                  caught by media_failures, failed_commit_not_skipped; first: [FAIL] Ports/NvmBoth.failed_commit_not_skipped/model: retry after a failed attempt: {'abandoned': 0, 'abandone
+  self-test OK: verify_skips_last_stretch  caught by verify_tail; first: [FAIL] Ports/NvmBoth.verify_tail/model: program-drop:1:13: want the first failure 13: {'abandoned': 0, 'abando
+  self-test OK: verify_read_fail_ignored   caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:21: want the first failure 13: {'abandoned': 0, 'abandoned_vd': 0,
+  self-test OK: no_timeout                 caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: program_refusal_ignored    caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: program-refuse:1:2: want the first failure 12: {'abandoned': 0, 'abandoned_vd'
+  self-test OK: same_sequence              caught by change_commit_bytes; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: change commit: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 
+  self-test OK: no_blank_slot_takes_b      caught by first_commit_no_blank_slot; first: [FAIL] Ports/NvmBoth.first_commit_no_blank_slot/model: first commit with both slots refused: {'abandoned': 0, 
+  self-test OK: refused_slot_overwritten   caught by refused_slot_kept; first: [FAIL] Ports/NvmBoth.refused_slot_kept/model: refused slot A: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: model: invariant protected=3
+  self-test OK: descending_pages           caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/model: model: invariant descending=13
+  self-test OK: capture_in_one_step        caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=6040 > step_bound=278
+  self-test OK: spin_wait                  caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant max_call_us=2999900 > 250
+Batch 81-95: 15/15 caught

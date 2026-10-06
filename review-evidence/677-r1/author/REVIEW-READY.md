@@ -1,0 +1,37 @@
+[A556] REVIEW READY
+Commit: `6c94e9f5f496ac25f8c4e31f9e3685c725de29f3` on `677-fw-fixes`, one commit on dev `6714181d0c8a16e2983f85b724f4d688f5111835`. Not pushed: this lane may not push, so publishing the branch is the next step.
+
+Changed (bounds-checking and re-entrancy robustness, firmware only, 26 files under `sw/firmware/`):
+- **#677:** `nvm_klj2_record` refuses an erased payload beyond `loaded` (`NVM_VD_REC`) before any read. The `end` check still runs first, so an overrun container still gets `NVM_VD_LEN`. This closes the read past a caller's loaded prefix.
+- **#678:** the no-callback rule is stated in `adp.h` and the nine other port headers, including zero-delay timers and calls into any instance. A shared guard brackets all six port calls and checks every public ADP entry before it touches arguments. Debug and test builds assert. Release builds ignore the call and count it (`adp_reentry_count`).
+- **Docs:** the five ADP exclusion rows in the gtest README cite the header rule.
+- **Not changed:** no RTL, configuration, builder, workflow, default-build or shipping-image change.
+
+Validation (every command ran at the exact head; all rc 0):
+- `tally_selftest.py --mutants`: 18/18 listener defects caught.
+- `test_ctrl_firmware.py --require-rv32 --self-test --jobs 4`: 423 host checks and the RV32I build pass. Includes 122 re-entry tests in each of debug and release. 79/79 mutants caught.
+- `test_ctrl_nvm.py --require-rv32 --jobs 4`: 435 tests over 5 shapes; all RV32 builds pass.
+- NVM campaign: 109/109 mutants caught. It ran as six bounded batches through the repository's `plant_and_grade`, and every repository mutant was graded exactly once.
+- `fw_coverage.py --selftest` and `--check --jobs 4` (with the pinned lwSRP arm): 14/14 files at 100% lines and branches. Exclusion table unchanged (15 rows); no new exclusion.
+- Builder bank: all 100 functions of `test_builder.py --require-rv32` pass.
+  - Function 13's census ran as disjoint slices: 358 mutations and 43 controls, each exactly once, with 53/53 RTL variants elaborated.
+  - Only skip: resource calibration (the historical mf48 report is absent).
+- Docs and tooling bank: 47 commands pass. Includes `docs_check`, `gen_toc --check/--verify-anchors`, `check_em_dash --base`, `lint_rtl --check --self-test`, `xvlog_gate --check` and `git diff --check`.
+- Extra: lwSRP arm and pin defects pass; the mailbox firmware co-simulation passes (13 checks).
+
+Acceptance criteria:
+- **#677, met.** `NvmCodec.codec_erased_loaded_prefix` runs under AddressSanitizer in the default firmware-unit command, with exact buffers of 40, 47 and 48 bytes. With the old `end` bound restored it reports `heap-buffer-overflow`, so the planted defect is caught. Two off-by-one guard defects are also caught. The 102 store defects (106 at base) all stay caught.
+- **#678, met.**
+  - The rule is in `adp.h` and every port header.
+  - The guard asserts in debug and test builds and counts in release.
+  - Both probes are standing tests: `AdpReentry.AdvertiseInlineExpiry` and `DelayInlineExpiryOnGmChange`, plus a 120-case port/entry matrix.
+  - `reentry-guard-removed`, `reentry-uncounted` and `reentry-not-ignored` are all caught.
+- **Coverage, met.** 100% branches, no new exclusions.
+
+Open risks/questions:
+- **Long local gates owed.** `scripts/ci_scope.py` treats any `sw/` change as RTL/tooling-relevant. CONTRIBUTING therefore also asks for `scripts/run_all_suites.sh` and `syn/yosys/run.sh` before the PR is marked validated. They were outside this lane's assigned gates and have not run; the RTL is unchanged.
+- **Not run.** Hosted CI and the local hosted-workflow replica need a published head.
+- **RV32 limit.** The RV32 evidence is freestanding objects and the symbol inventory, not a linked target assertion handler.
+- **Not a lock.** The guard serves a single event loop and is not a concurrency lock.
+
+Executor: [A556]. Reviewers: [R524] (internal, cleared context), [R525] (external). The executor gives no verdict.

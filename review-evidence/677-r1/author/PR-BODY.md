@@ -1,0 +1,150 @@
+[A556]
+
+## Contents
+
+- **[Status](#status)** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
+- **[Linked Issue / roles](#linked-issue--roles)** — Public task, executor, and independent reviewers.
+- **[Description](#description)** — What changed and why.
+- **[Authoritative references](#authoritative-references)** — Requirements/specification clauses and docs.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** — Copy-pasteable checkout/dependency/environment commands.
+- **[How to validate](#how-to-validate)** — Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What this deliberately does not do, and why.
+- **[Definition of Done](#definition-of-done)** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Status
+
+GREEN on the assigned gates. `677-fw-fixes` -> `dev`.
+
+- Base: `6714181d0c8a16e2983f85b724f4d688f5111835`.
+- Head: `6c94e9f5f496ac25f8c4e31f9e3685c725de29f3`.
+
+Results at the head:
+- Control firmware: 423 host checks and the RV32I build pass; 79/79 mutants caught.
+- Tally listener: 18/18 defects caught.
+- NVM store: 435 tests over 5 shapes and five RV32 builds pass; 109/109 mutants caught.
+- Coverage: the ratchet holds at 100% lines and branches on all 14 files, with no new exclusion.
+- Builder bank: all 100 functions pass, with the census run in disjoint slices.
+- Docs and tooling bank: all 47 commands pass.
+
+The long local gates `scripts/run_all_suites.sh` and `syn/yosys/run.sh` are
+still owed (see Known limitations).
+
+## Linked Issue / roles
+
+Closes #677
+Closes #678
+Relates to #665 and #675.
+
+Executor: `[A556]`
+Internal cleared-context reviewer: `[R524]`
+External reviewer: `[R525]`
+
+## Description
+
+A bounds-checking fix and a re-entrancy robustness fix in the bare-metal
+control firmware. Both are host-tested under the FT coverage ratchet.
+
+| Piece | Change |
+|---|---|
+| `sw/firmware/ctrl_nvm/nvm_klj2.c` | **Out-of-bounds read (#677).** An erased record's payload was bounded only by the container end, which comes from the container's own length field. A caller holding just a loaded prefix could therefore be read past its buffer. The codec now refuses a payload beyond `loaded` (`NVM_VD_REC`) before reading it. The `end` check still runs first, so an overrun container still gets `NVM_VD_LEN`. |
+| `sw/firmware/ctrl/adp/adp.h`, `adp.c` | **Re-entrant callbacks (#678).** The no-callback rule is now public: every port returns before the event loop delivers another core input, including a zero-delay timer expiry. A shared guard brackets all six port calls, and every public ADP entry checks it before touching its arguments, including `adp_init` and `adp_build`. Debug and test builds assert. Release builds ignore the call and count it (`adp_reentry_count`, lifetime, modulo 2^32). A refused `adp_poll` returns false. The guard spans every instance on the one event loop. |
+| Nine other port headers (`adp_mbx.h`, `mbx.h`, `mbx_hal.h`, `ctrl_debug.h`, `ctrl_pool.h`, `shlan_port.h`, `nvm_flash.h`, `nvm_state.h`, `nvm_flash_litespi.h`) | State the same port rule; `shlan_port.h` carries it to F2-F5. |
+| `sw/firmware/ctrl/test/test_adp_reentry.cpp` | The two inline-expiry probes become standing tests, plus 6 ports x 10 entries x same/other instance (120 cases). All 122 tests run in a debug arm and in a release arm. |
+| `sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp` | An AddressSanitizer test owns exact-sized buffers of 40, 47 and 48 bytes and checks both sides of the final payload boundary. It runs in the default firmware-unit command. |
+| `ctrl_mutants.py`, `nvm_mutants.py` | Planted defects: `reentry-guard-removed`, `reentry-uncounted`, `reentry-not-ignored`; `erased_payload_end_bound` (the old bound, reported as a heap-buffer-overflow), `erased_payload_guard_early`, `erased_payload_guard_late`. Every previous mutant is retained. |
+| `fw_gtest.py`, `nvm_bench.py`, `ctrl_arms.py`, `test_ctrl_firmware.py`, `fw_coverage.py` | Host-only ASan build option, the new arms in the default and coverage gates, and the `--jobs` limit honored. |
+| `sw/firmware/gtest/coverage.ratchet`, `gtest/README.md` | The ratchet was regenerated through `fw_coverage.py --write`. The five ADP exclusion proofs now cite the header rule; there are no new or widened exclusions. |
+| `sw/firmware/ctrl/README.md`, `ctrl_nvm/README.md` | Document the new arms, the sanitizer test and the campaign size. |
+
+There is no RTL, configuration, builder or workflow change. Neither the
+shipping bare-metal image nor the default all-fabric build compiles
+`sw/firmware/ctrl` or `sw/firmware/ctrl_nvm`.
+
+## Authoritative references
+
+- #677 assignment comment 6021510152, #677 acceptance criteria and the #678 manager ruling.
+- `REQUIREMENTS.md` and `docs/reference/FR_NFR.md`: experimental firmware scope and retained fabric ownership.
+- `docs/design/SAVED_STATE_FASTCONNECT.md` section 6.2: KLJ2 container and record validation.
+- `sw/firmware/ctrl_nvm/nvm_klj2.h`: the partial-prefix (`loaded`) validation contract.
+- `sw/firmware/ctrl/adp/adp.h`: IEEE 1722.1-2021 section 5.6.3 state-machine references and the no-callback port contract.
+- `sw/firmware/gtest/README.md`: FT coverage rules and exclusion proofs.
+
+## How to get into the same state
+
+```sh
+git fetch origin 677-fw-fixes
+git switch 677-fw-fixes
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+sudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev
+python3 -m pip install pyyaml
+python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+python3 scripts/ci_rv32_sdk_selftest.py
+python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+```
+
+Validated with:
+- GCC/gcov 16.2.1 and GoogleTest/GoogleMock 1.18.0.
+- GCC 14.3.0 for the freestanding RV32 firmware builds.
+- The repository-pinned RV32 SDK for the builder census.
+- Verilator 5.050.
+
+The optional lwSRP arm uses a checkout at
+`19f5796b63652eb1151906de73cb827d4980a53f`.
+
+## How to validate
+
+```sh
+python3 sw/firmware/gtest/tally_selftest.py --mutants
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 4
+python3 sw/firmware/gtest/fw_coverage.py --selftest
+python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+python3 sw/builder/test_builder.py --require-rv32
+python3 scripts/docs_check.py
+python3 scripts/gen_toc.py --check
+python3 scripts/gen_toc.py --verify-anchors
+python3 scripts/check_em_dash.py --base 6714181d0c8a16e2983f85b724f4d688f5111835
+git diff --check 6714181d0c8a16e2983f85b724f4d688f5111835 HEAD
+```
+
+Expected result / pass criteria:
+- Every command returns 0.
+- 18 listener defects, 79 control-firmware mutants and 109 NVM mutants are caught.
+- There are 423 control host checks; the re-entry arms run 122 tests in each of debug and release.
+- There are 435 NVM tests across 5 shapes, with all RV32 builds passing.
+- All 14 measured firmware files stay at 100% lines and branches, with the exclusions unchanged.
+- The builder's only skip is the resource calibration, which needs an absent historical placement report.
+
+With the old `end` bound restored, `NvmCodec.codec_erased_loaded_prefix` must
+fail with an AddressSanitizer heap-buffer-overflow. With the guard removed,
+`AdpReentry.AdvertiseInlineExpiry` must fail in both modes.
+
+The handoff evidence records every one of these at the head. Commands that
+exceed a ten-minute window ran as bounded slices built on the repository's own
+functions: the NVM campaign, and the builder census inside function 13. It
+also records the full 47-command docs and tooling bank, the optional lwSRP
+controls and the mailbox firmware co-simulation.
+
+## Known limitations / out of scope
+
+- **Not a lock.** The shared ADP guard diagnoses re-entry on a single event loop; it is not a concurrency lock. Its release counter covers the whole lifetime and wraps modulo 2^32.
+- **RV32 evidence.** It covers the existing freestanding object builds and symbol checks (`__assert_fail` is listed as undefined), not a linked target image or a target assertion handler.
+- **Long local gates owed.** `scripts/ci_scope.py` classifies any change under `sw/` as RTL/tooling-relevant. The long local gates `scripts/run_all_suites.sh` and `syn/yosys/run.sh` are therefore owed before this PR is marked validated. They were not part of this lane's assigned gates and have not run. The RTL is unchanged.
+- **Builder skip.** The builder's resource calibration arm is NOT RUN: it needs an mf48 placement report that is not on the validation host.
+- **Unchanged.** No RTL, default fabric build, shipping image, board or hardware behavior changes.
+- **Pending.** Hosted CI, the local hosted-workflow replica, independent review and merge validation.
+
+## Definition of Done
+
+- [x] Linked Issue acceptance criteria are satisfied
+- [x] New or changed behavior has self-checking tests
+- [ ] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done

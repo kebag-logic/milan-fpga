@@ -1,0 +1,127 @@
+Builder batch 13-13/100; pinned SDK compiler mapping only
+test_baremetal_profile_contract
+  [gate 1b] 5 product configs and 11 refusal arms pass
+  [gate 1b] compiler argv[0]=<home>/br-milan-rv32/host/bin/riscv32-linux-gcc version=riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0 driver=()
+  [gate 1b] boot-unit asm forms: 11 exact production forms; whitespace controls accepted; 7 changed/incomplete forms refused; fifth fence needs no extra entry
+  [gate 1b] identity storage: 3 automatic spellings accepted; 3 nonautomatic spellings refused on the identity-sample absence rule
+Census prefix 4/6: 59 of 358 mutations
+Census case CSR identity magic replaced by the sampled value
+Census case passed CSR identity magic replaced by the sampled value
+Census case RTL A_ID default hidden in a dead procedural case
+Census case passed RTL A_ID default hidden in a dead procedural case
+Census case CSR identity sample overwritten before the guard
+Census case passed CSR identity sample overwritten before the guard
+Census case PHC disabled during fabric configuration
+Census case passed PHC disabled during fabric configuration
+Census case entity enabled through an indirect helper
+Census case passed entity enabled through an indirect helper
+Census case entity enabled with a space before the call paren
+Census case passed entity enabled with a space before the call paren
+Census case entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler
+Census case passed entity enabled through a single-line macro hiding the store primitive, invoked from a UART handler
+Census case AEM verdict incremented
+Census case passed AEM verdict incremented
+Census case ADP term spliced into the render recentre pulse
+Census case passed ADP term spliced into the render recentre pulse
+Census case additional media re-base reader
+Census case passed additional media re-base reader
+Census case effective PHC adjustment strobe gated by ADP
+Census case passed effective PHC adjustment strobe gated by ADP
+Census case enabled RX-filter reset gated by ADP
+Census case passed enabled RX-filter reset gated by ADP
+Census case fabric gPTP control-mux reset gated by ADP
+Census case passed fabric gPTP control-mux reset gated by ADP
+Census case direct TX connection made an inactive conditional
+Census case passed direct TX connection made an inactive conditional
+Census case pre-AEM clear behind a build flag
+Census case passed pre-AEM clear behind a build flag
+Census case AEM verifier returning a non-boolean status before the CRC gate
+Census case passed AEM verifier returning a non-boolean status before the CRC gate
+Census case second translation unit appended with OBJECTS +=
+Census case passed second translation unit appended with OBJECTS +=
+Census case second source pulled in by a spliced #include directive
+Census case passed second source pulled in by a spliced #include directive
+Census case ADP_CTRL's name moved to another register by an arm only the product compiles
+Census case passed ADP_CTRL's name moved to another register by an arm only the product compiles
+Census case second file injected through -Wp, the preprocessor pass-through
+Census case passed second file injected through -Wp, the preprocessor pass-through
+Census case compile flags routed through a computed variable name
+Census case passed compile flags routed through a computed variable name
+Census case compile flags routed through a computed $(call) first argument
+Census case passed compile flags routed through a computed $(call) first argument
+Census case a Makefile fragment included by an $(eval) whose value expands to a second line
+Census case passed a Makefile fragment included by an $(eval) whose value expands to a second line
+Census case compile flags injected through a define-body $(eval) of $(1) behind a function
+Census case passed compile flags injected through a define-body $(eval) of $(1) behind a function
+Census case compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads
+Census case passed compile flags injected by a $(foreach) rebinding the pinned name a define-body $(eval) reads
+Census case compile flags injected through a top-level $(eval) reaching $(1) through a named define
+Census case passed compile flags injected through a top-level $(eval) reaching $(1) through a named define
+Census case compile recipe redefined to take a second source
+Census case passed compile recipe redefined to take a second source
+Census case entity enabled through a CSR base held in a variable
+Census case passed entity enabled through a CSR base held in a variable
+Census case entity enabled through a phase-2-spliced call name
+Census case passed entity enabled through a phase-2-spliced call name
+Census case a pasted call name in an arm the stub tree drops
+Census case passed a pasted call name in an arm the stub tree drops
+Census case the CSR identity sample forged by a paste a second macro reaches
+Census case passed the CSR identity sample forged by a paste a second macro reaches
+Census case the store primitive hidden in a macro whose #define a splice splits
+Census case passed the store primitive hidden in a macro whose #define a splice splits
+Census case the pre-AEM clear dropped by a product-only #ifndef behind a NUL
+Census case passed the pre-AEM clear dropped by a product-only #ifndef behind a NUL
+Census case ADP_CTRL's name defined a second time behind a NUL
+Census case passed ADP_CTRL's name defined a second time behind a NUL
+Census case a second source #included behind a byte-order mark
+Census case passed a second source #included behind a byte-order mark
+Census case the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()
+Census case passed the identity sample forged between two directive names GCC reads with U+00B7, in milan_init()
+Census case the identity local forged through a universal character name
+Census case passed the identity local forged through a universal character name
+Census case entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+Census case passed entity enabled by a store inside the exempted address helper, refused by the helper's return-provenance rule and invisible to the census (shipping baseline)
+Census case an arm only the product compiles, short-circuiting the choke point's verdict test
+Census case passed an arm only the product compiles, short-circuiting the choke point's verdict test
+Census case entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+Census case passed entity enabled through a fifth pointer cast in an arm only the product compiles, in a UART command handler
+Census case entity enabled through a fifth pointer cast in the product's arm of an #ifdef a split `%:` digraph spells, graded as the selection the readers find
+Census case passed entity enabled through a fifth pointer cast in the product's arm of an #ifdef a split `%:` digraph spells, graded as the selection the readers find
+Census case pinned include shadowed by a file beside the firmware
+Census case passed pinned include shadowed by a file beside the firmware
+Census case entity enabled through a qualifier-after-star cast
+Census case passed entity enabled through a qualifier-after-star cast
+Census case the AEM copy destination redirected onto ADP_CTRL by a runtime CSR read, keeping the retired residual's key and count
+Census case passed the AEM copy destination redirected onto ADP_CTRL by a runtime CSR read, keeping the retired residual's key and count
+Census case CRC result overwritten between the call and the comparison
+Census case passed CRC result overwritten between the call and the comparison
+Census case a global alias of the choke point, which exports neither this name nor its address
+Census case passed a global alias of the choke point, which exports neither this name nor its address
+Census case entity enabled by an atomic fetch-or through a paged base
+Census case passed entity enabled by an atomic fetch-or through a paged base
+Census case MAKEFLAGS += -e letting the environment choose
+Census case passed MAKEFLAGS += -e letting the environment choose
+Census case identity macro compound /=
+Census case passed identity macro compound /=
+Census case identity macro compound ^=
+Census case passed identity macro compound ^=
+Census case identity macro unevaluated address
+Census case passed identity macro unevaluated address
+Census case published identity macro 2
+Census case passed published identity macro 2
+Census case identity plain choose lvalue
+Census case passed identity plain choose lvalue
+Census case identity plain extension lvalue
+Census case passed identity plain extension lvalue
+Census case identity __asm__ without sample operand
+Census case passed identity __asm__ without sample operand
+Census case identity wrapped extension address after guard
+Census case passed identity wrapped extension address after guard
+Census case identity C13 object-like macro alias
+Census case passed identity C13 object-like macro alias
+Census case identity cast used as lvalue
+Census case passed identity cast used as lvalue
+Census case identity extension discarded mask
+Census case passed identity extension discarded mask
+Census prefix 4/6: 59 mutations rejected; 7/7 RTL variants elaborated
+Builder batch 13-13-prefix-4: 1 selected functions/phases completed, 0 recorded skips

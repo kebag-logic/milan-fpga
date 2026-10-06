@@ -1,0 +1,21 @@
+  self-test OK: no_version_check           caught by wrong_version_falls_back; first: [FAIL] Ports/NvmBoth.wrong_version_falls_back/model: major 1: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 5
+  self-test OK: no_blank_verdict           caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: blank boot state: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0, 'at
+  self-test OK: unread_not_counted         caught by long_container_reads; first: [FAIL] NvmModel.long_container_reads: read 1 of a container longer than the stage failing once: {'abandoned': 
+  self-test OK: long_crc_unchecked         caught by long_container_reads; first: [FAIL] NvmModel.long_container_reads: a container longer than the stage whose CRC does not close: {'abandoned'
+  self-test OK: pad_not_zero               caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: header_n_rec               caught by blank_boot, first_commit_bytes; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: no_blank_stage             caught by blank_boot; first: [FAIL] Ports/NvmBoth.blank_boot/model: the staged blank container differs from nvm_klj2.py's
+  self-test OK: frame_crc_init             caught by vector_round_trip, change_commit_bytes; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: the committed container differs from nvm_klj2.py's for the sam
+  self-test OK: verdict_not_named          caught by both_torn_blank; first: [FAIL] Ports/NvmBoth.both_torn_blank/model: two torn slots: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0, 
+  self-test OK: stage_not_rechecked        caught by read_flip_at_stage; first: [FAIL] NvmModel.read_flip_at_stage: one flipped re-stage: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, '
+  self-test OK: select_on_unchecked_reread caught by read_flip_boot; first: [FAIL] NvmModel.read_flip_boot: seq A 0x5 B 0x6, flip in slot 0 read 2: the older slot's flipped word displace
+  self-test OK: stage_seq_unchecked        caught by read_alias_at_stage; first: [FAIL] NvmModel.read_alias_at_stage: every re-stage aliased: slot 0 holds seq 0x6, published 0x5, staged 0x5
+  self-test OK: slot_read_fail_ignored     caught by read_fail_boot; first: [FAIL] NvmModel.read_fail_boot: read-fail-at:3:0:0xef0100: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 
+  self-test OK: unread_not_held            caught by authority_unknown, fallback_restage, read_disagreement; first: [FAIL] NvmModel.fallback_restage: both re-stages flipped: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0, 'a
+  self-test OK: read_not_retried           caught by read_fail_boot, authority_unknown; first: [FAIL] NvmModel.read_fail_boot: read-fail:2:2: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'attempts': 
+  self-test OK: refusal_unconfirmed        caught by authority_unknown, read_disagreement, reads_differ_in_verdict, reads_agree_in_digest_not_length; first: [FAIL] NvmModel.authority_unknown: slot A at 0x1, read-flip-at:1:0:0xee0100: the slot was not read again and a
+  self-test OK: blank_unconfirmed          caught by authority_unknown; first: [FAIL] NvmModel.authority_unknown: slot A at 0x1, read-alias:1:0: the slot was not read again and applied: {'a
+  self-test OK: refusal_by_verdict         caught by read_disagreement; first: [FAIL] NvmModel.read_disagreement: slot A at 0x1, read-vary-at:2:0:0xee0000: the slot was not read again and a
+  self-test OK: agreement_by_digest        caught by reads_agree_in_digest_not_length; first: [FAIL] NvmFlashMock.reads_agree_in_digest_not_length: two refusals alike in verdict and digest over different 
+  self-test OK: disagreement_not_counted   caught by reads_differ_in_verdict, reads_agree_in_digest_not_length; first: [FAIL] NvmFlashMock.reads_differ_in_verdict: two refusals of different verdicts are one media fault, and the c
+Batch 21-40: 20/20 caught

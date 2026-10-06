@@ -1,0 +1,82 @@
+Builder batch 36-65/100; pinned SDK compiler mapping only
+test_shipping_channel_map_table
+  [gate 16d] 8 published channel-map rows match the generated shape header, the AEM overlay, the 2-based TDM lane table and the platform pin (J11.5, ball A20); a wrong key and a dropped row both refused
+test_dynamic_audio_map_overlay
+  [gate 17] dynamic audio map: listeners[0] map_mode dynamic -> port n_maps=0, input AUDIO_MAP dropped (output renumbered to 0), svh emits `AEM_DYNMAP keys=8 page=4 nmaps=[2]
+  [gate 17] tracked entity definition is owned by endstation_ax7101_1x1_tdm8 (read from its own `Source : marker); it declares a dynamic port, so its svh must be `AEM_DYNMAP-bearing - and is
+  [gate 17] a Milan input owner requires `AEM_DYNMAP PRESENT and the candidate pair carries it
+  [gate 17] MUTATION rejected: owner declares a dynamic port, tracked ROM has no engine
+            (<scratch>/tmpoyk9c2wr/broken.svh: `AEM_DYNMAP absent but its owner tmpxd38fuc9 (/data)
+  [gate 17] MUTATION rejected: shape include names a config that does not exist
+            (<scratch>/tmpoyk9c2wr/current/adp_shape_defaults.svh: `Source : configs/endstation_gh)
+  [gate 17b] arty_4x4 ALL listeners dynamic (Milan 5.3.3.9): 4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases 0/4/8/12, CRF sink flagged unmappable
+  [gate 17c] AEM_DMAP_PHYS_C 10 == milan_datapath CHMAP_PHYS_C 10 = lanes {'i2s': (0, 2), 'tdm': (2, 8)}, mirrored by endstation_builder and aem_assemble; RPHYS validity and full-width physical-depth gates protect both render-map write arms
+  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28
+  [gate 17e] lane OFF: power-on identity = PILOT (13'h1400), reserved source 3 absent (#259), loopback templates emitted fabric-disabled (13'h05xx) and protocol-mappable
+  [gate 17e] lane ON: loopback valid (13'h1500), primary_role/INIT move onto it (6'h21..6'h28) - declaring the lane hands the pool back
+  [gate 17f] dynamic legacy-policy output: explicit physical/virtual source pool accepted; missing/empty topology refused by descriptor, model, and ADP consumers
+  [gate 17] reject paths: static input, disagreeing input pages, mixed output map modes, and missing dynamic-output source topology raise ConfigError
+test_lwsrp_reset_words_match_rtl
+  [gate 18a] arty_current lwSRP reset words == the generated lwsrp_csr_defaults.svh == the symbols milan_csr's reset block and csr_default table use == the REGISTER_MAP Reset column (6 registers, 6 offsets)
+test_lwsrp_class_constants_match_rtl
+  [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row and an unclamped 4ch AAF row both compose to the clause's kb/s, and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)
+  [gate 18b] PriorityAndRank == the generated symbol milan_csr drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference lwsrp_table.svh still carries the words the CSR subset was cut from, and no hdl/ieee8021q/srp tree was recreated
+test_lwsrp_tspec_and_params
+  [gate 18c] arty_current: TSpec derived, 7360000 bps = 7.36% of the port (ceiling 75%), ctx rows 2 needed / 2 available
+  [gate 18c] arty_4x4: TSpec derived, 47360000 bps = 47.36% of the port (ceiling 75%), ctx rows 9 needed / 9 available
+  [gate 18c] ax7101_8x8: TSpec derived, 138240000 bps = 13.82% of the port (ceiling 75%), ctx rows 17 needed / 17 available
+  [gate 18c] NxN ctx-row shortfall (L+T-1 rows in max(L,T) contexts) marked planned; 1x1 supported
+test_lwsrp_rejects
+  [gate 18d] 7/7 contradictory reservations rejected with ConfigError (incl. a 213 Mb/s class-A request on a 100 Mb/s port)
+test_platform_gateware_shape
+  [gate 19] 5 gateware memory reservations contain only pp_mem; unknown/retired/unaligned inputs are refused
+test_csr_defaults_header_consumed
+  [gate 20a] milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh; 6 reset words + PriorityAndRank == the FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: 0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals left in the RTL, 7 constants agree with the emitted lwSRP table, 4 consumers carry the include dir
+test_csr_defaults_rejects
+  [gate 20b] 3/3 malformed LWSRP_CTRL sources rejected with ConfigError; en+talker+q4 emits 0x00000013
+test_aes3_interface_switch
+  [gate 21a] 6 aes3/spdif shapes: one core, CONSUMER_P picks the dialect, WORD_BITS_P 16/20/24, serial clock 128x4x rate = an exact PLL divide; RTL defaults (OVERSAMPLE_P=4, LOCK_BLOCKS_P=2, 192 frames/block) parsed from the modules themselves
+test_aes3_rejects
+  [gate 21b] 3/3 unclockable AES3 shapes rejected with ConfigError; 48 kHz AES3 rides the shipping 24.576 MHz audio PLL exactly (divide 1)
+test_cbs_reset_table_single_source
+  [gate 22] CBS reset table single-sourced: 5 queues, sum(IDLE_SLOPE_1G) = 725 Mb/s (72.5 % <= 75 %), SR A+B = 600 Mb/s; milan_csr CBS_*_RST == the package (credits re-derived, not copied), CBS_EN_RST = 5'b00000, and both REGISTER_MAP 0x400 and EGRESS_QUEUE_MAP agree row for row
+test_optional_blocks_default_present
+  [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+test_optional_block_gates_bite
+  [gate 23b] 10/10 contradictory prune configs REFUSED with ConfigError; 3/3 honest prunes accepted and their --no-* flags reach the soc argv
+test_optional_block_prune_accounting
+  [gate 23c] supported prunes, MAAP retained: estimate -4052 LUT / -10816 FF (banked rows -3727 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+test_optional_block_names_reach_the_rtl
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+test_optional_block_consumption_gate_bites
+  [gate 23d mutation] 7/7 disconnected --no-* handoffs rejected by block name
+  [gate 23d mutation] 6/6 dedicated keywords MilanSoC.__init__ never declares rejected by block name (LiteX warns and ignores; the bitstream ships unpruned)
+  [gate 23d chain] 10/10 cut links between main() and `dp_params[f"p_{param}"] = 0` rejected, the three that would prune an UNFLAGGED build included
+test_optional_blocks_reach_the_instance
+  [gate 23f] 8 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8, the shipping AX shape, in 6 s: each of the 7 --no-* flags lands as p_<PARAM>=0 in the Instance("milan_datapath") parameters and moves NOTHING else, a build that prunes nothing passes none of them (16 parameters, byte-identical top .v). Fabric gPTP's product default is graded separately by gate 1e. This grades what elaboration HANDS the module, not what the module DOES with it (gate 23d) and not that the bitstream places or boots
+test_optional_block_instance_gate_bites
+  [gate 23f mutation] 8/8 broken links of the argv -> Instance chain rejected in 12 s: a dropped CLI handoff, two dropped constructor keywords, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, and both prune polarities inverted; gate 1e separately owns the profile-aware gPTP chain
+test_clock_plan_reaches_the_instance
+  [gate 23l] 4 real milan_soc.py elaborations of endstation_ax7101_1x1_tdm8 in 3 s: --audio-fs-hz and --audio-word-bits land as p_AUDIO_IF_FS_HZ_P / p_AUDIO_IF_WORD_BITS_P and move p_AUDIO_IF_CLK_HZ_P (2 x SLOTS x slot bits x fs) with them, singly and together, moving NOTHING else; at the declared shipping values both are ABSENT, so the tracked configs' top .v is byte-identical to the build before #399. This grades what elaboration HANDS the module, not that the bitstream places or boots
+test_clock_plan_instance_gate_bites
+  [gate 23l mutation] 7/7 broken links of the declaration -> Instance chain rejected in 10 s: a dropped CLI handoff, a dropped constructor keyword, a dropped keyword inside add_milan_datapath, a suppressed parameter, a renamed parameter, a bit clock that stopped following the declaration, and a parameter passed at the default
+test_every_recipe_elaborates
+  [gate 23g] 5/5 shipped recipes reach Instance("milan_datapath") in 4 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+test_recipe_smoke_gate_bites
+  [gate 23g mutation] 2/2 recipes stripped of --entity-gen-dir refused to elaborate, which is #156 item 1 replayed on the recipes that shipped it
+test_recipe_skip_classifier_bites
+  [gate 23g classifier] 8/8 shaped results and 4/4 --require-elaboration verdicts graded as [R0] on PR #188 requires: a synthetic recorded Arty error and scopt's own refusal of an --l2-* argument are the only skip shapes, a stale #184 row and every other failure fail, and the toolchain skip fails --require-elaboration
+test_build_sh_argv_follows_the_config
+  [gate 23i] --no-datapath-probes planted in a throwaway config reached the build.sh arty launch line at position 6 of 34 with build.sh unedited; the other 26 design tokens and the 5-token flow tail are the unplanted line's, verbatim
+test_build_sh_grades_its_own_bindings
+  [gate 23i-b] 3 build.sh recipes keep their own bindings with BUILD_CFG=endstation_ax7101_8x8.yaml exported
+test_build_sh_dry_run_leaves_the_tracked_tree
+  [gate 23j] a dry run whose builder run would rewrite lwsrp_csr_defaults.svh exited 2 with no launch line, left the tracked bytes as it found them and left no configs/generated/gate23j_planted behind
+test_build_sh_refuses_a_preservation_it_cannot_complete
+  [gate 23k] over lwsrp_csr_defaults.svh: a refused temporary directory, a copy that failed, one short and loud, one short and silent, the first as a real launch, a failed put-back, one short and reporting success, and an absent file each refused with no launch line, no provenance line, the bytes on disk untouched or named with the copy kept for them, and no include directory left behind; and over adp_shape_defaults.svh the bound config's own absent include refused the same way, with its artefact not rewritten
+test_toolchain_patches_are_applied
+  [gate 23h] the 4 patches in sw/litex/patches are the 4 apply.sh applies, and reversing them off this interpreter's trees and re-applying them reproduces all 4 installed files byte for byte, including 0 that two patches share and must therefore compose on ({}). Upstream LiteX has no `baremetal` VexiiRiscv variant and the revision it pins rejects the --l2-* arguments four configs pass, so this is what lets gates 23f/23g elaborate at all. It says nothing about whether the patches are CORRECT, only that the tree is the one described here
+test_toolchain_patch_gate_bites
+  [gate 23h mutation] 4/4 fixtures rejected by the production validator, naming a patch the tree genuinely lacked: 4 with exactly one patch reversed out, 0 where a later patch sits on the same hunks so the reachable state is the whole tail - what a half-finished apply.sh leaves. No arm passes by reversing anything twice
+Builder batch 36-65: 30 selected functions/phases completed, 0 recorded skips
