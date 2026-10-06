@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Gate: the control-plane firmware of #665 lane F0, built and run on the host.
+"""Gate: the control-plane firmware of #665 (lanes F0 and F3), built and run on the host.
 
 WHAT IT RUNS. The firmware under sw/firmware/ctrl is portable C11; here it is
 compiled for the host exactly as the target compiles it, against the mailbox
@@ -24,6 +24,22 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            entity constants, its model_frame builder and its Table 5.51
            transcription ADV), driving the firmware through the model
            (adp_walk.cpp). The pin and the file's blob are proved first;
+  acmp     the ACMP core over fake ports (every Milan v1.2 5.5.3 transition,
+           the talker's 5.5.4 answers, the 5.6.4 discovery machine, the saved
+           record, the no-callback guard), then its mailbox adapter on the
+           model: the timers on the interface's slot, the ADP channel's tap,
+           every path's service cost (the H-ACMP and H-DISC hooks), owed frames
+           and the response before its notification (test_acmp.cpp,
+           test_acmp_mbx.cpp);
+  acmpwalk the PROCESSOR's own ACMP expectations, cut out of the pinned
+           submodule at build time: its F05.3 matrix model of Milan Table 5.30
+           (tb/acmp_listener), its Table 5.54 transcription (tb/adp_engine) and
+           its F05.11 constants (tb/acmp_talker), against the firmware's core,
+           every difference asserted to be what it is (acmp_walk.cpp);
+  acmpnvm  the ACMP core and its binding owner (acmp_nvm.c) on lane F1's store
+           over the host flash model at the shipping 1x1 shape: a bind saved
+           and fast-connected after a power cycle, an unread slot refusing
+           persistence (test_acmp_nvm.cpp);
   entity   for every shipped config, the ENTITY_AVAILABLE the firmware builds
            from adp_entity.py's header, field by field against what the fabric
            is programmed with (boot_policy.fabric_constants), compiled with
@@ -81,7 +97,8 @@ def coverage(out: Path, lwsrp: Path | None) -> int:
     try:
         cut_reuse(tree.reuse)
         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
+                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree), ctrl_arms.arm_acmpwalk(tree),
+                    ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_entity(tree)]
         if lwsrp is not None:
             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
     except Refusal as exc:
@@ -110,7 +127,8 @@ def main(argv: list[str] | None = None) -> int:
             tree = Tree(CTRL, out / "checkout", out / "reuse")
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
-                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
+                        ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
+                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))

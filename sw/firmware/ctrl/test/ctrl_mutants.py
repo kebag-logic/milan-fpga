@@ -479,7 +479,8 @@ def campaign(root: Path, reuse: Path) -> bool:
     copy, so a test object is compiled again only where a planted header
     changes what it sees."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
-            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
+            "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "entity": ctrl_arms.arm_entity,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
     build = fw_gtest.Build()
     escaped = 0
