@@ -1,0 +1,16 @@
+COMMAND ["python3", "tb/pp_top/notify_mutants.py", "--output", "$REVIEWS/pp69-r513-2-packet/receipts/round2-controls", "--verilator", "$REVIEWS/pp69-r513-2-packet/scripts/verilator_bounded.py", "--jobs", "3", "--only", "cancel_one_per_command", "report_fail_ignores_probe", "report_rsp_ignores_probe", "owner_turns_dropped", "settle_dropped", "depth_shared", "depth_not_keyed", "registry_tag_port_bits", "monitor_tag_port_bits", "expiry_port_dropped", "rgy_port_from_latest_frame", "dereg_matches_other_port"]
+{"mutant": "golden-aecp_notify-interfaces", "verdict": "PASS"}
+{"mutant": "golden-pp_top-obj_if2_Vpp_top_if2", "verdict": "PASS"}
+{"mutant": "cancel_one_per_command", "verdict": "KILLED", "missing": []}
+{"mutant": "report_rsp_ignores_probe", "verdict": "KILLED", "missing": []}
+{"mutant": "report_fail_ignores_probe", "verdict": "KILLED", "missing": []}
+{"mutant": "settle_dropped", "verdict": "KILLED", "missing": []}
+{"mutant": "depth_shared", "verdict": "KILLED", "missing": []}
+{"mutant": "owner_turns_dropped", "verdict": "KILLED", "missing": []}
+{"mutant": "depth_not_keyed", "verdict": "KILLED", "missing": []}
+{"mutant": "registry_tag_port_bits", "verdict": "KILLED", "missing": []}
+{"mutant": "monitor_tag_port_bits", "verdict": "KILLED", "missing": []}
+{"mutant": "expiry_port_dropped", "verdict": "KILLED", "missing": []}
+{"mutant": "dereg_matches_other_port", "verdict": "KILLED", "missing": []}
+{"mutant": "rgy_port_from_latest_frame", "verdict": "KILLED", "missing": []}
+C6 notification mutations: 12 of 12 KILLED by their named checks; goldens PASS

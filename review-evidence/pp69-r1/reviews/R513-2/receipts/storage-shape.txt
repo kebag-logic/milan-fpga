@@ -1,0 +1,39 @@
+docs/architecture/06_aecp_engine.md
+919: **Storage (issue #232, 2026-10-03).** Each array of `KL_aecp_notify` and the
+920: primitive it is built for. The measured mapping, before and after, is recorded on
+921: milan-fpga #232.
+922: 
+923: | Structure | Shape | Built for | Why |
+924: |---|---|---|---|
+925: | Row table `rows_r` {EID, MAC, seq} | `P-N-CONTROLLERS` × `P-N-AVB-INTERFACES` × 128 bits | distributed RAM, read at the walk (or drain), the probe's pick and the write index | no reader sees every row at once |
+926: | Port `g_port.port_r`, at two interfaces only | `P-N-CONTROLLERS` × 2 × 1 bit | distributed RAM | written with the row a REGISTER claims or refreshes, read by the walk's compare alone |
+927: | Cancel-pending bits and settle count `g_ca_turns`, at two interfaces only | 1 bit per row, and 2 bits | flops | every superseded probe's cancel waits its cycle; the settle and the probe flags decide whose turn an index's CA owner is |
+928: | Identity index | `P-N-CONTROLLERS` × `P-N-AVB-INTERFACES` rows × 19 six-bit chunks, one 64 × 1 memory each | distributed RAM | the monitor's "any valid AECP cmd from this controller" (F06.5) matches every row in the command's own cycle without a comparator per row; a REGISTER rewrites its row's index over the row write's own cycle and the cycle after it, while that row is matched by one comparator against the write port's read. The index's correctness relies on its configuration-time zero content (an explicit `initial`), as the ROM images rely on `$readmemh`; `rst_n` leaves both the index and `rows_r` as they are |
+929: | valid, TIME_LIMITED, parked expiry, monitor and probe flags | 1 bit per row each | flops | the expiry intake, the monitor and the walk read and write them in one cycle |
+930: | Command-notification queue `cmdq_*` | `P-NOTIF-QUEUE-DEPTH` (16) × 132 bits | distributed RAM | one write pointer, one read pointer; the pointers and count are the reset state |
+931: | GET_COUNTERS stamps `ctr_last_r` | (streams in + out + 2) × 32 bits | flops, no reset | `ctr_sent_r` is each stamp's valid bit; the one-second window reads every stamp against `now_ms_i` in every cycle |
+
+hdl/aecp/KL_aecp_notify.sv
+430:   // descriptor. This build serves every stream row plus AVB_INTERFACE[0]
+431:   // and CLOCK_DOMAIN[0], the same set accepted by GET_COUNTERS, and with
+432:   // more than one interface AVB_INTERFACE[1] to [N_IF_P - 1] after them:
+433:   // the AVB_INTERFACE counters are keyed per interface, and the first two
+434:   // keep the slots they hold at one interface.
+435:   localparam int unsigned N_CTR_DESC_C = N_STREAM_IN_P + N_STREAM_OUT_P + 1 + N_IF_P;
+436:   localparam int unsigned CTX_W_C = (N_CTR_DESC_C > 1) ? $clog2(N_CTR_DESC_C) : 1;
+437:   localparam logic [15:0] DT_STREAM_INPUT_C  = 16'h0005;
+438:   localparam logic [15:0] DT_STREAM_OUTPUT_C = 16'h0006;
+439:   localparam logic [15:0] DT_AVB_INTERFACE_C = 16'h0009;
+440:   localparam logic [15:0] DT_CLOCK_DOMAIN_C  = 16'h0024;
+441:   //! ctr_sent_r is each stamp's valid bit: a stamp is read only once its
+442:   //! descriptor was sent, and is written in the cycle that sets the bit, so
+443:   //! the stamps are bulk data and carry no reset. They stay in flops: the
+444:   //! window check reads every stamp against now_ms_i in every cycle.
+445:   logic [N_CTR_DESC_C-1:0] ctr_dirty_r, ctr_pend_r, ctr_sent_r;
+446:   logic [31:0] ctr_last_r [0:N_CTR_DESC_C-1];
+
+Declaration geometry (not a physical cell measurement):
+8 inputs + 8 outputs + CLOCK_DOMAIN 0 + one AVB_INTERFACE stamp each:
+count 1: 18 stamps, 576 bits; document: 18 stamps, 576 bits.
+count 2: 19 stamps, 608 bits; document: 18 stamps, 576 bits.
+The count-2 formula omits one 32-bit stamp.

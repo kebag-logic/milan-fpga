@@ -1,0 +1,8 @@
+COMMAND ["make", "-j16", "-C", "tb/pp_top", "if-guards", "VERILATOR=$REVIEWS/pp69-r513-2-packet/scripts/verilator_bounded.py"]
+make: Entering directory '$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/tb/pp_top'
+if guard 1: lints clean
+if guard 2: lints clean
+if guard 0: refused: N_AVB_IF_P=0 is outside 1 to 2
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 0 failing
+make: Leaving directory '$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/tb/pp_top'

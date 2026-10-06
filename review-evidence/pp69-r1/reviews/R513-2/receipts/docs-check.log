@@ -1,0 +1,57 @@
+COMMAND ["make", "-j16", "check"]
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 29, guide 29, diagram 29, OK
+matrix: OK (94 rows, 0 untested)
+links: 1179 checked, OK
+figures selftest: 17 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-figures.py", line 242, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-figures.py", line 238, in main
+    return selftest() if args.selftest else check(args.root)
+                                            ~~~~~^^^^^^^^^^^
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-figures.py", line 118, in check
+    files = listed_files(root, str(DIAGRAMS))
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-figures.py", line 41, in listed_files
+    out = subprocess.run(
+          ~~~~~~~~~~~~~~^
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "--exclude-standard", "--", *trees],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True).stdout.decode("utf-8")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp69-r513-2-packet/scratch/focused-tree', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'docs/diagrams']' returned non-zero exit status 128.
+make: *** [Makefile:53: figures] Error 1
+make: *** Waiting for unfinished jobs....
+ids selftest: 30 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-ids.py", line 293, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-ids.py", line 289, in main
+    return selftest() if args.selftest else check(args.root)
+                                            ~~~~~^^^^^^^^^^^
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-ids.py", line 163, in check
+    problems, used, files = [], set(), scanned_files(root)
+                                       ~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/pp69-r513-2-packet/scratch/focused-tree/scripts/check-ids.py", line 100, in scanned_files
+    out = subprocess.run(
+          ~~~~~~~~~~~~~~^
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "--exclude-standard", "--", *SCAN_DIRS],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True).stdout.decode("utf-8")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp69-r513-2-packet/scratch/focused-tree', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'docs', 'hdl', 'tb']' returned non-zero exit status 128.
+make: *** [Makefile:48: ids] Error 1
+wavedrom: 18 blocks checked, OK
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
