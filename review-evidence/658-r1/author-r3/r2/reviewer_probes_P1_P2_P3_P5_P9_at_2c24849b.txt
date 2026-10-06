@@ -1,0 +1,23 @@
+P1-no-csr-hold: KILLED  tally=(162, 4)  CSR 0x900 writer not held while the boot writer is busy
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x2 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+P2-no-edit-wait: KILLED  tally=(162, 2)  edit face never waits for the boot writer
+    [FAIL] [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends got=0x0 exp=0x1
+    [FAIL] [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word got=0x1a03 exp=0x1203
+P3-no-final-sweep: KILLED  tally=(162, 6)  no sweep after the restore terminal
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map got=0x4 exp=0x0
+    [FAIL] [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0
+P5-no-closed-terminal: KILLED  tally=(162, 2)  boot window ignores the CLOSED terminal
+    [FAIL] [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0
+P9-no-drain: KILLED  tally=(162, 4)  busy drops the cycle the last boot write is still in flight
+    [FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0
+    [FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0

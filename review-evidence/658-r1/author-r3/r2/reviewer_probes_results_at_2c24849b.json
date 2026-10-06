@@ -1,0 +1,85 @@
+[
+ {
+  "id": "P1-no-csr-hold",
+  "desc": "CSR 0x900 writer not held while the boot writer is busy",
+  "rc": 1,
+  "tally": [
+   162,
+   4
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x2 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0"
+  ],
+  "n_fail_lines": 4,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P2-no-edit-wait",
+  "desc": "edit face never waits for the boot writer",
+  "rc": 1,
+  "tally": [
+   162,
+   2
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends got=0x0 exp=0x1",
+   "[FAIL] [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word got=0x1a03 exp=0x1203"
+  ],
+  "n_fail_lines": 2,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P3-no-final-sweep",
+  "desc": "no sweep after the restore terminal",
+  "rc": 1,
+  "tally": [
+   162,
+   6
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x9 exp=0x0",
+   "[FAIL] [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map got=0x4 exp=0x0",
+   "[FAIL] [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map got=0x4 exp=0x0"
+  ],
+  "n_fail_lines": 6,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P5-no-closed-terminal",
+  "desc": "boot window ignores the CLOSED terminal",
+  "rc": 1,
+  "tally": [
+   162,
+   2
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended got=0x3 exp=0x0"
+  ],
+  "n_fail_lines": 2,
+  "verdict": "KILLED"
+ },
+ {
+  "id": "P9-no-drain",
+  "desc": "busy drops the cycle the last boot write is still in flight",
+  "rc": 1,
+  "tally": [
+   162,
+   4
+  ],
+  "first_fails": [
+   "[FAIL] [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM got=0x1 exp=0x0",
+   "[FAIL] [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED got=0x1 exp=0x0"
+  ],
+  "n_fail_lines": 4,
+  "verdict": "KILLED"
+ }
+]
