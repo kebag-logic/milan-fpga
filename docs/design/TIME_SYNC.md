@@ -504,6 +504,18 @@ The capture crossbar hands the talker whole TDM frames (#617).
 
 Every channel of one sample event is one TDM frame.
 
+After each enable, packetization waits for the first channel pair.
+
+Reset or disable clears that admission state for each talker.
+
+The first accepted pair captures sample time plus presentation offset.
+
+Partial sample frames cannot start an epoch with retained timestamps.
+
+IEEE 1722-2016 7.5 requires valid timestamps in normal mode.
+
+The [startup sweep](../../tb/verilator/aaf/sim_start.cpp) grades this boundary (#667).
+
 | Term | Value | Derivation |
 |---|---|---|
 | Frame complete | the strobe of the frame's last pair: pair 3 on TDM8 | `KL_tdm_capture_master` strobes pair k at the end of slot 2k+1 |

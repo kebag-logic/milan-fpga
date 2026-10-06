@@ -18,6 +18,9 @@ A new reader is debt until review classifies it here.
 """
 
 DUT_READER_DISPOSITIONS = {
+    "tb/verilator/aaf/start_mutants.py":
+        "mutation campaign; plants named defects in isolated RTL and requires named assertion failures; "
+        "expected timestamps and samples are independent of RTL text",
     "protocol-processor/tb/pp_top/acmp_mutants.py":
         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
         "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
