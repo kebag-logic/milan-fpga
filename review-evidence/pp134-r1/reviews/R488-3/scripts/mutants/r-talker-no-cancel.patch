@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_talker_fsm.sv
++++ b/hdl/srp/KL_srp_talker_fsm.sv
+@@ -726,7 +726,7 @@
+                                 || (evt_mrp_event_i == 3'(SRP_EV_JOININ))
+                                 || (evt_mrp_event_i == 3'(SRP_EV_JOINMT)))) begin
+           // registering event: -> IN, latch the declaration parameter
+-          if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
++          if (reg_r[s] == R_LV_C && !(exp_hit_w && (exp_idx_w == s))) tpend_r[s] <= T_CANCEL_C;
+           reg_r[s]      <= R_IN_C;
+           lstn_val_r[s] <= evt_fourpacked_i;
+         end else if (exp_hit_w && (exp_idx_w == s)

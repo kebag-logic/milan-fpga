@@ -1,0 +1,48 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "clks_restore_index_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C4 at the count",
+   "D3C4 above the count"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C4 at the count: the saved 9 over 9 sources is refused, COMPLETE (applied 1 refused 0 blank 58 of 59)",
+   "D3C4 at the count: the row stays unset and GET reads the image's 0 (row 9 valid 1, export 9)",
+   "D3C4 above the count: the saved 9 over 3 sources is refused, COMPLETE (applied 1 refused 0 blank 58 of 59)",
+   "D3C4 above the count: the row stays unset and GET reads the image's 0 (row 9 valid 1, export 9)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "clks_restore_count_narrowed",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3C3 restore"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3C3 restore: COMPLETE from cleared rows with the saved record applied (applied 0 refused 1 blank 58 of 59)",
+   "D3C3 restore: clock source 9 restored with its valid flag, GET reads it and the top exports it (row 0 valid 0, export 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]
