@@ -1,0 +1,166 @@
+[
+  {
+    "name": "py-idiom-check",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "2381ed35c5007132e27ad9ecb2b0729f6920460cb1d2ec5b464b6de192aae55d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "py-idiom-selftest",
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "ci-scope-selftest",
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "077525191c73646a55517ab5e2ae89895e6067da0538bd13cf7ad3d3d556d7b7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "head-default",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "head-check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "head-selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "before-default",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "before-check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "before-selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "after-default",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "29d2df9da1246aafd0d9e2e0ed855a9c97d6ed7a8d904454dbae468c31fda589",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "after-check",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "4322b73a4b194c5aedc7a75ca57b7e20bbecce56a56032963eb515d2e1892a2a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "after-selftest",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "expected_rc": 0,
+    "actual_rc": 0,
+    "stdout_sha256": "3c818777e9f41c6d64a15fa699cd238a94b030f0ce19981df099f855b97416ba",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "missing-reader",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "stdout_sha256": "e553c1d1b09710ed18789c9c6fbfe5bd5b8f31b1e913a789ec526df0f3d7779b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "stale-reader",
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "expected_rc": 1,
+    "actual_rc": 1,
+    "stdout_sha256": "6b38488093aea8632c71121f734347818f11d17e50a4c9940e99d295f580db9f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
