@@ -167,12 +167,22 @@ Issue #682 adopts processor pin `2ad2f845`.
 | #42, Domain notifications | [164](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/164) | Tests Domain and link-edge notification triggers; the parent still owns the mapping words |
 
 The processor top is byte-identical to the previous pin.
+
 No port, parameter or register changes require parent adaptation.
+
 Both processor ROM digests match the `ead80360` rows.
-Counter spacing is measured at grant; later MAC stalls remain a wire-gap limitation.
+
+Counter spacing is measured at grant.
+
+Later MAC stalls remain a wire-gap limitation.
+
 The held DEREGISTER retains its contents but can arrive later.
-After merge, the manager repeats #608 withdrawal cycles and reads #658's default map.
-The resource baseline and capture receipt are checked for this adoption.
+
+After merge, the manager repeats #608 withdrawal cycles.
+
+The manager also reads #658's default map.
+
+This adoption checks the resource baseline and capture receipt.
 
 The ROM ledger records current and earlier pins.
 
@@ -269,10 +279,14 @@ Window overlap preserves lock until measured correction completes.
 - [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/HDL_DEVELOPER.md)
 - [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d/docs/TEST_DEVELOPER.md)
 
-Processor PR 156 resolves the former word-wide RX and RX-backpressure contradictions.
-The current interface guide describes byte-wide RX with no ready input.
+Processor PR 156 resolves both former RX-interface contradictions.
+
+The current guide describes byte-wide RX without a ready input.
+
 Its historical word-stream contract remains linked from the donor documentation.
+
 The integrator supplies complete, FCS-good frames.
+
 Root RTL remains the authority for parent runtime wiring.
 
 Historical audit exceptions remain open disclosures.
