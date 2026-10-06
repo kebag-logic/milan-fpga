@@ -1,0 +1,51 @@
+{
+  "published_receipts_verified": 19,
+  "public_evidence_commit": "90d0bcbfb83ee4f5d47edadd734acd1e1056759b",
+  "public_gate_summary_head": "5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2",
+  "merge_head": "41bc9dac031526c1fd637ff1e801d3c6dc1260b4",
+  "dev_parent": "bd884631684ccf5060339efa92263d5c3e5c262c",
+  "merge_reader_table": "exact dev table plus unchanged author startup entry",
+  "new_paths_against_dev": [
+    "docs/design/TIME_SYNC.md",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+    "scripts/measure_test_evidence_readers.py",
+    "tb/verilator/aaf/Makefile",
+    "tb/verilator/aaf/README.md",
+    "tb/verilator/aaf/sim_start.cpp",
+    "tb/verilator/aaf/start_mutants.py"
+  ],
+  "other_new_path_bytes": "equal to author head",
+  "public_render_comparison": "32 identical stdout/rc/hash/size records; author head versus assigned base",
+  "public_epoch_logs": {
+    "bytes": 3745,
+    "sha256": "7876a3a277df5e06a9381e502249b9638b7a4e04ec676fefba207150b41d4007",
+    "equal": true
+  },
+  "public_own_area_delta": {
+    "lut": -4,
+    "ff": 0,
+    "ramb36": 0,
+    "ramb18": 0,
+    "dsp": 0
+  },
+  "reviewer_startup": {
+    "starts": 486,
+    "pdus": 4860,
+    "checks": 34020,
+    "failures": 0,
+    "mutants_caught": 8
+  },
+  "reviewer_base": {
+    "checks": 33804,
+    "failures": 864,
+    "backward_step_ns": -494821316
+  },
+  "reviewer_multistream": {
+    "cases": 48,
+    "stream_starts": 384,
+    "checks": 202752,
+    "failures": 0,
+    "pdus": 4224
+  },
+  "limits": "Public gate summaries and artifact indexes are not raw logs or a fresh full-bank execution."
+}
