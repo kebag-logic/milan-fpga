@@ -1,0 +1,13 @@
+# merge facts
+candidate parents: 5615f52eb810c6104a8250b44004df3a2917cec8 6ca834a782a1bd5574d44998c8e214cf16df3441
+merge-base(5615f52e,6ca834a7): 423ac5d910d09ab189b3acc39ae3ae1d10d50b19
+git merge-tree --write-tree 5615f52e 6ca834a7: a7c029500f102da623ad7f28c0da3be77c105d6e
+candidate tree: a7c029500f102da623ad7f28c0da3be77c105d6e
+live dev 16af003a tree: d6b6c59540f75a27a5c17e9c535ee0c867220561  5615f52e tree: d6b6c59540f75a27a5c17e9c535ee0c867220561
+files changed by both sides since merge-base:
+docs/design/MAILBOX_SPLIT.md
+docs/README.md
+sw/firmware/ctrl_nvm/README.md
+sw/firmware/ctrl/README.md
+candidate-vs-5615 changed set equals FT-vs-merge-base set: yes
+FT files outside the four shared that differ between FT head and candidate: 0

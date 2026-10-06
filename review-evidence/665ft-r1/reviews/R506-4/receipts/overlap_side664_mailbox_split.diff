@@ -1,0 +1,80 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index f5d7df1dd..33083cb9f 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -3,11 +3,15 @@
+ 
+ Status: **F0 implemented behind a default-off build switch.** The all-fabric
+ build is unchanged and remains the shipping image. This page is the design
+-of the contract between the fabric and the bare-metal control-plane firmware
+-of milestone 13 (Mark II: out-of-fabric slow path), as the owner decisions of
++of the contract between the fabric and the bare-metal control-plane firmware.
++The split integrates before P3; milestone 13 retains the hard-core port.
++The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
++All-fabric stays the shipping default until F2 to F5 acceptance.
++That acceptance covers all streams, counters and the audio soak.
++The owner decisions of
+ 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
+ and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
+-describe it. The numbers live in one place, the generated
++define the interface. The numbers live in one place, the generated
+ [reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
+ 
+ ## Contents
+@@ -28,8 +32,8 @@ describe it. The numbers live in one place, the generated
+ ## What moves, and what the fabric keeps
+ 
+ The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
+-fabric keeps framing and timestamps, the gPTP plane, the timers that carry
+-hard deadlines, and an ingress filter in front of the core. The two exchange
++fabric keeps framing and timestamps, the gPTP plane, the media path,
++the timers that carry hard deadlines, and an ingress filter. The two exchange
+ frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
+ interrupt, 32-bit accesses only and no DMA.
+ 
+@@ -142,6 +146,17 @@ leaves the line low.
+ 
+ ## The ingress filter
+ 
++The following describes the implemented F0 filter.
++[NFR-SCOUT-08](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
++and [product ownership](../../REQUIREMENTS.md#1-product-ownership)
++add the owner's full-tuple acceptance rules and filter hooks.
++They require per-interface own MACs and two-sided AECP identity matching.
++Untagged control tuple failures must increment FILTER_MISMATCH.
++The contract lane after FT implements these additions before F2 to F5.
++Its YAML, generated outputs and filter tests must change together.
++The command-only AECP term and uncounted refusals below describe F0 only.
++They do not satisfy the added ingress requirement.
++
+ A frame is classified by EtherType, and by AVTP subtype where the channel
+ names one, into at most one channel. It is stored only when its channel is
+ open, one of the channel's accept terms holds, it fits the channel's largest
+@@ -338,8 +353,27 @@ The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3. Its
+ ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
+ the ADP channel does not carry yet; adding one is a minor contract change.
+ 
++F3 must also meet the listener-discovery timing requirement.
++[H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP expiry.
++It ends after discovery and resulting connection-state commitments.
++Any resulting TX commit shares that same service allowance.
++Normative waits are recorded separately; service remains <= 10 ms.
++Milan v1.2 5.6.4.1 requires processing every matching bound sink.
++Sections 5.6.4.5.1/.2 arm/reset aging from the received `valid_time`.
++IEEE 1722.1-2021 6.2.2.5 defines its two-second units.
++Table 5.54 and 5.6.4.5.1-.4 supply the transition checks.
++They cover available_index restart, interface/GM/domain mismatch, departing and expiry.
++Delayed receive handling or aging must fail H-DISC independently.
++F0's advertiser checks do not establish this listener timing.
++
+ ### Service latency
+ 
++The figures below are F0's conditional mailbox-access evidence.
++[NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
++adds the proposed 10 ms project budget for integrated firmware.
++Its [hooks](../reference/FR_NFR.md#342-control-service-test-hooks) count backlog and egress separately.
++F0 does not prove that target-time budget.
++
+ The D3 ruling on #640 asks each lane to state and test a deterministic upper
+ bound per response path. The bound is stated in mailbox accesses and holds
+ under four assumptions ([`ctrl_loop.h`](../../sw/firmware/ctrl/loop/ctrl_loop.h)):
