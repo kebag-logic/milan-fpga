@@ -1,0 +1,11 @@
+  [FAIL] Q0 a valid frame reaches its channel (aecp, response) got=5 exp=2
+  [FAIL] Q0 its record is the frame, byte for byte (aecp, response)
+  [FAIL] Q5 an AECP response for another controller, even to this target: no RX record, no delivery got=2 exp=5
+  [FAIL] Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring got=5 exp=2
+  [FAIL] Q7 its record is the response, byte for byte
+  [FAIL] Q7 a CONTROLLER_AVAILABLE response for another controller: no RX record, no delivery got=2 exp=5
+  [FAIL] Q7 every response type (odd) for this controller passes got=0 exp=8
+  [FAIL] Q7 no command passes on its controller, no response on its target, none counted got=8 exp=0
+== mbx (Wishbone host): checks: 285   failures: 8 ==
+RESULT: FAIL
+rc=1

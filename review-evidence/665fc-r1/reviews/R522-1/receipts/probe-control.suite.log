@@ -1,0 +1,19 @@
+  [FAIL] Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery got=1 exp=5
+  [FAIL] Q2 to another destination MAC, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (acmp, own unicast): no RX record, no delivery got=1 exp=5
+  [FAIL] Q2 to another destination MAC, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (aecp, command): no RX record, no delivery got=2 exp=5
+  [FAIL] Q2 to another destination MAC, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (aecp, response): no RX record, no delivery got=2 exp=5
+  [FAIL] Q2 to another destination MAC, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 another interface's own MAC, or one on an index with no interface, reaches no ring got=2 exp=0
+  [FAIL] Q8 and counts once each in FILTER_MISMATCH got=0 exp=2
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[47:32] only: no RX record, no delivery got=2 exp=5
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[47:32] only: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[31:0] only: no RX record, no delivery got=2 exp=5
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[31:0] only: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 rewritten, the old own MAC: no RX record, no delivery got=2 exp=5
+  [FAIL] Q8 rewritten, the old own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+== mbx (Wishbone host): checks: 285   failures: 16 ==
+RESULT: FAIL
+rc=1

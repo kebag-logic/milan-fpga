@@ -1,0 +1,5 @@
+== mismatch-not-saturating: rc=0 == mbx (Wishbone host): checks: 285   failures: 0 == first: 
+== mismatch-flag-not-cleared: rc=0 == mbx (Wishbone host): checks: 285   failures: 0 == first: 
+== own-tuple-on-index-without-interface: rc=0 == mbx (Wishbone host): checks: 285   failures: 0 == first: 
+== aecp-response-term-reads-target: rc=1 == mbx (Wishbone host): checks: 285   failures: 8 == first:   [FAIL] Q0 a valid frame reaches its channel (aecp, response) got=5 exp=2
+== probe-control: rc=1 == mbx (Wishbone host): checks: 285   failures: 16 == first:   [FAIL] Q2 to another destination MAC, it (acmp, multicast): no RX record, no delivery got=1 exp=5

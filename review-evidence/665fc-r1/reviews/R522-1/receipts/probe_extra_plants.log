@@ -1,0 +1,15 @@
+== mismatch-not-saturating: planted
+   suite rc 0, 0 failing check(s)
+   probe rc 1: differential: 3000 frames, 1379 delivered (adp 157 acmp 272 aecp 343 maap 180 srp 427), 609 mismatches, 0 size drops, 353 tagged; 0 disagreement(s) | [FAIL] 65540 mismatches saturate FILTER_MISMATCH: rtl 0x4 model 0xffff (want 0xffff) | RESULT: FAIL (1 failure(s)) | RESULT: FAIL (1 failure(s))
+== mismatch-flag-not-cleared: planted
+   suite rc 0, 0 failing check(s)
+   probe rc 1: [FAIL] frame 80 len 9 if 1: ref ch -1 drop 0 mis 0 | rtl ch -1 drop 0 mis 1 | model ch -1 drop 0 mis 0 | [FAIL] frame 200 len 13 if 1: ref ch -1 drop 0 mis 0 | rtl ch -1 drop 0 mis 1 | model ch -1 drop 0 mis 0 | [FAIL] frame 352 len 5 if 1: ref ch -1 drop 0 mis 0 | rtl ch -1 drop 0 mis 1 | model ch -1 drop 0 mis 0 | RESULT: FAIL (21 failure(s))
+== own-tuple-on-index-without-interface: planted
+   suite rc 0, 0 failing check(s)
+   probe rc 1: [FAIL] frame 2692 len 66 if 1: ref ch -1 drop 0 mis 1 | rtl ch -1 drop 0 mis 0 | model ch -1 drop 0 mis 1 | [FAIL] frame 2717 len 79 if 1: ref ch -1 drop 0 mis 1 | rtl ch 1 drop 0 mis 0 | model ch -1 drop 0 mis 1 | differential: 3000 frames, 1379 delivered (adp 157 acmp 272 aecp 343 maap 180 srp 427), 609 mismatches, 0 size drops, 353 tagged; 2 disagreement(s) | RESULT: FAIL (2 failure(s))
+== aecp-response-term-reads-target: planted
+   suite rc 2, 0 failing check(s)
+   probe rc 1: [FAIL] frame 7 len 70 if 0: ref ch 2 drop 0 mis 0 | rtl ch -1 drop 0 mis 0 | model ch 2 drop 0 mis 0 | [FAIL] frame 15 len 70 if 0: ref ch 2 drop 0 mis 0 | rtl ch -1 drop 0 mis 0 | model ch 2 drop 0 mis 0 | [FAIL] frame 57 len 70 if 0: ref ch 2 drop 0 mis 0 | rtl ch -1 drop 0 mis 0 | model ch 2 drop 0 mis 0 | RESULT: FAIL (181 failure(s))
+== probe-control: planted
+   suite rc 2, 0 failing check(s)
+   probe rc 1: [FAIL] frame 91 len 70 if 0: ref ch -1 drop 0 mis 1 | rtl ch 2 drop 0 mis 0 | model ch -1 drop 0 mis 1 | [FAIL] frame 174 len 60 if 0: ref ch -1 drop 0 mis 1 | rtl ch -1 drop 0 mis 0 | model ch -1 drop 0 mis 1 | [FAIL] frame 201 len 56 if 1: ref ch -1 drop 0 mis 1 | rtl ch -1 drop 0 mis 0 | model ch -1 drop 0 mis 1 | RESULT: FAIL (57 failure(s))
