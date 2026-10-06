@@ -1,0 +1,28 @@
+shard: 0/1   selected suites: 5
+TIMEOUT  capture_coherence   (2400s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  milan_dp_mclk   (3600s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  milan_dp   (4800s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  milan_dp_gptp   (5400s wall clock - result UNKNOWN, not a failure)
+TIMEOUT  mmcm_servo   (1800s wall clock - result UNKNOWN, not a failure)
+----------------------------------------------------------------
+suites: 5   passed: 0   failed: 0   timed out: 5
+checks: 0   in-suite failures: 0
+
+ACCOUNTING FAILURE -- nothing was measured by 5 suite log(s):
+  NOCOUNT  capture_coherence: printed no tally line at all
+  NOCOUNT  milan_dp: printed no tally line at all
+  NOCOUNT  milan_dp_gptp: printed no tally line at all
+  NOCOUNT  milan_dp_mclk: printed no tally line at all
+  NOCOUNT  mmcm_servo: printed no tally line at all
+  A suite that measured nothing is an UNKNOWN, not agreement.
+  If it printed no tally: make it print one of the shapes in
+  scripts/suite_tally.py. If it tallied zero: make it assert
+  something, or say why it ran nothing with a SUITE-SKIP: line
+  AND still report the checks it did run.
+
+The check total above is INCOMPLETE and must not be quoted.
+TIMED OUT (result unknown, NOT a failure): capture_coherence milan_dp_mclk milan_dp milan_dp_gptp mmcm_servo
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: $PROBE_ROOT/out-137

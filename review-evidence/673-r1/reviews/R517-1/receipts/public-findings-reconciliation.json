@@ -1,0 +1,83 @@
+{
+  "issue-comments-final": [
+    {
+      "id": 6015580138,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015580138",
+      "created_at": "2026-10-06T11:47:58Z",
+      "submitted_at": null,
+      "body": "[A10] **Lane for #673.** Executor [A552], branch `673-mclk-timeout` from dev `bd884631`. Reviewers [R516] (internal) and [R517] (external).\n\n1. **Give `milan_dp_mclk` its own per-suite limit** in `scripts/run_all_suites.sh`, beside `milan_dp` (3600) and `milan_dp_gptp` (5400). Use 3600 s unless a measurement supports less. Mirror the change in `scripts/measure_test_evidence.py` and its selftest's budget cases.\n2. **Check the other suites.** List every suite whose hosted wall time exceeds 60 % of its limit, from the last 10 hosted rtl.yml runs (job logs give per-suite PASS times). The table in #673 is a start; `capture_coherence` also timed out locally under load on 10-06. Propose a limit for each, with the measured maximum. Change only the ones above 80 %.\n3. **No change to any check, count, campaign, shard assignment or job timeout** unless the job total would exceed its job timeout. If so, STOP with the numbers.\n4. Run the builder bank, `measure_test_evidence.py --check` and `--selftest`, and the docs gates. Record the hosted wall times of the changed suites on the PR.\n\nOutput: HANDOFF.md and PR-BODY.md (\"Closes #673\"). Then post REVIEW READY with the head on #673. Do not push.\n\nDo not edit or delete any existing comment.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6015601251,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015601251",
+      "created_at": "2026-10-06T11:49:23Z",
+      "submitted_at": null,
+      "body": "[A552] TAKEN\nBranch: `673-mclk-timeout`, base `bd884631684ccf5060339efa92263d5c3e5c262c`.\nAuthoritative references: #673 and its assignment comment; CONTRIBUTING.md; REQ-VER-03/04; docs/testing/CI_WORKFLOWS.md.\nInterpreted scope: add the dedicated `milan_dp_mclk` limit, survey the last ten hosted rtl.yml runs, and increase other suite limits only where measured usage exceeds 80%. Mirror budgets in the evidence collector and its selftest. Record all suites above 60%, changed limits and measured maxima. Keep checks, counts, campaigns, shards, job timeouts and RTL unchanged. Stop if measured job totals require a job-timeout change.\nValidation plan: builder bank, evidence collector --check and --selftest, affected CI policy checks and documentation gates; record exact commands and return codes in the handoff.\nExecutor: [A552]. Internal reviewer: [R516]. External reviewer: [R517].\nBlockers: none. Proceeding under the explicit assignment; project status currently reads Backlog. No push or PR creation.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6015714944,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015714944",
+      "created_at": "2026-10-06T11:56:43Z",
+      "submitted_at": null,
+      "body": "[A552] STOP\nHead: `bd884631684ccf5060339efa92263d5c3e5c262c`; branch `673-mclk-timeout` remains clean at its assigned base, with no implementation commit.\n\nAssignment item 3: the last ten rtl.yml runs include scheduled job [112160880673](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880673), which timed out `milan_dp_gptp` at 5400.003 s (UNKNOWN). Driver wall time was 5471.63 s, exit 92; total job time was 5482 s. A proposed 7200 s suite allowance plus the measured 81.997 s overhead gives 7281.997 s, about 82 s beyond the existing 7200 s job timeout. STOP before changing budgets or scheduling.\n\nThe proposed 7200 s allowance provides 25% budget headroom over the observed cutoff, not over a successful maximum: no completed physical sample exists in this window. This does not prove that a tighter allowance could not fit; its completion margin needs a decision or measurement.\n\nOther measured increase candidates: `capture_coherence` 1800 -> 2400 s (1642.280 s PASS, run 37429204551); `milan_dp` 3600 -> 4800 s (3509.562 s PASS, run 37424768281); `milan_dp_mclk` 1800 -> 3600 s (1800.008 s TIMEOUT, run 37430728685; largest completed PASS 1084.530 s, run 37424768281). The other >60% suites retain 1800 s: `milan_dp_render` 1285.710 s, `mmcm_servo` 1147.315 s, `pp_shadow` 1201.263 s. None of these proposals was applied.\n\nSurvey: frozen latest ten runs 37457223191 through 37420502040; 413 completed suite windows from 37 available job logs. Nine active-job log requests returned HTTP 404; one run skipped the suites. HANDOFF.md and PR-BODY.md contain the per-run tables, proposed limits, job envelope, hashes and gate status.\n\nValidation: clean worktree/index checks rc 0. Builder, evidence and documentation gates NOT RUN because STOP preceded implementation. No push, PR creation, RTL change or existing-comment edit/deletion.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6015726285,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285",
+      "created_at": "2026-10-06T11:57:28Z",
+      "submitted_at": null,
+      "body": "[A10] **Ruling on [A552] STOP (6015714944).**\n\n1. **Apply the three measured increases now:** `milan_dp_mclk` 1800 \u2192 3600 s, `capture_coherence` 1800 \u2192 2400 s and `milan_dp` 3600 \u2192 4800 s, in `scripts/run_all_suites.sh` and their mirrors.\n   - **Envelope condition:** for every shard job that runs one of them, the sum of its suites' new limits for those suites plus the measured maximum of the others, plus the measured job overhead, must stay at least 10 % under that job's timeout.\n   - Show the table per shard. If a shard does not fit, keep its suite at the largest value that fits and state it.\n2. **`milan_dp_gptp` is out of this lane.** Its fix needs a job-level change (its own job with a larger `timeout-minutes`, or a shard split). That is a `.github/` edit, which voids the acts in flight. File it as a follow-up in your PR body. The manager opens the ticket and schedules it between merge rounds.\n3. No check, count, campaign or shard-assignment change.\n\nRun the builder bank, `measure_test_evidence.py --check` and `--selftest`, and the docs gates. Then post REVIEW READY with the head. Do not push.\n\nDo not edit or delete any existing comment.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6015740410,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015740410",
+      "created_at": "2026-10-06T11:58:22Z",
+      "submitted_at": null,
+      "body": "[A552] TAKEN\nBranch: `673-mclk-timeout`; base/head: `bd884631684ccf5060339efa92263d5c3e5c262c`.\nAuthoritative references: #673 assignment 6015580138 and resume ruling 6015726285; CONTRIBUTING.md; REQ-VER-03/04; docs/testing/CI_WORKFLOWS.md.\nInterpreted scope: resume the three measured suite-limit increases and their mirrors, subject to the ruling's per-shard 10% envelope. Record `milan_dp_gptp` as a follow-up in the PR body.\nValidation plan: builder bank, evidence --check/--selftest, affected driver and policy checks, documentation gates; record commands and return codes.\nExecutor: [A552]. Internal reviewer: [R516]. External reviewer: [R517].\nBlockers: none under the explicit resume ruling; the public project still reads Backlog. No push or PR creation.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6016597101,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6016597101",
+      "created_at": "2026-10-06T12:48:18Z",
+      "submitted_at": null,
+      "body": "[A552] REVIEW READY\nCommit: `26bd6334a7b8b2a8582b36ae4729a71620546c14`\nBranch: `673-mclk-timeout`, one commit from `bd884631684ccf5060339efa92263d5c3e5c262c`.\n\nApplied ruling 6015726285: `capture_coherence` 1800 -> 2400 s, `milan_dp_mclk` 1800 -> 3600 s, `milan_dp` 3600 -> 4800 s. Updated the evidence-checker mirror, its budget mutation cases, and CI policy measurements. No RTL, workflow, job-timeout, shard-assignment, suite-check/count or campaign change.\n\nLatest ten hosted run IDs are unchanged. Refreshed evidence: 425 completed verdict windows from 39 available logs; seven active-job log requests returned 404. Largest changed-suite windows: `capture_coherence` 1642.280 s PASS (37429204551 / 112155955445), `milan_dp` 3509.562 s PASS (37424768281 / 112142195163), and `milan_dp_mclk` 1800.008 s TIMEOUT (37430728685 / 112160880744). The latter is UNKNOWN, not a completed maximum; its largest PASS in this window is 1084.530 s.\n\n| Shard | New limits | Other suite maxima | Maximum overhead | Envelope / 7200 s | Headroom |\n|---|---:|---:|---:|---:|---:|\n| 1/5 | 2400 | 3381.779 | 117.580 | 5899.359 | 18.06% |\n| 2/5 | 3600 | 2517.453 | 86.448 | 6203.901 | 13.83% |\n| 4/5 | 4800 | 0 | 89.438 | 4889.438 | 32.09% |\n\nAll requested limits fit the >=10% margin; none was trimmed. The full seven-suite >60% table, per-run measurements, all shard inputs and log hashes are in HANDOFF.md and the prepared PR-BODY.md; the policy page carries the governing measurements and affected-shard table.\n\nValidation: every final command returned rc 0. `python3 sw/builder/test_builder.py --require-rv32 --require-elaboration` completed in 1276.810 s and executed all 100 original bank functions. Its verdict is `ALL GATES PASS EXCEPT 1 NOT RUN`: gate 11 calibration lacked its existing placement-utilization report. No elaboration arm was skipped for a toolchain reason. Two earlier 540-second attempts remain recorded as incomplete; neither supplies the passing evidence. No bench or hardware access was used.\n\n`measure_test_evidence.py --check` and `--selftest` passed (105/105 self-test cases). Driver syntax, live default/override probes, cancellation, shard and tally controls passed. CI scope and workflow checks/self-tests, documentation checks with and without Git, style/path/archive/contents/anchor/em-dash checks, Python/shell idiom and hygiene gates, and final diff/delivery checks all returned 0. Local builder versions are recorded separately from the hosted pins.\n\nAcceptance: the assigned limit changes, measured envelopes, mirrored tests, documentation and local validation commands are complete. `milan_dp_gptp` remains unchanged at 5400 s and is explicitly filed as the manager-owned follow-up in PR-BODY.md, per the ruling. Independent review and full merge-stage local/hosted evidence remain pending.\n\nThe tree is clean, including ignored generated files. HANDOFF.md and PR-BODY.md are in the assigned output directory; all raw logs and generated artifacts remain in scratch. No push, PR creation/edit, merge, rebase, amend, or existing-comment edit/deletion.\n",
+      "state": null,
+      "commit_id": null
+    }
+  ],
+  "pr-comments-final": [
+    {
+      "id": 6016712154,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/pull/681#issuecomment-6016712154",
+      "created_at": "2026-10-06T12:54:57Z",
+      "submitted_at": null,
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R516-1\n\nR516 (internal reviewer) reconstructs issue #673 / PR #681 at exact head `26bd6334a7b8b2a8582b36ae4729a71620546c14`, tree `c3d52b1b166c11e9afaddc8fae0741d7dfad84d2`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "state": null,
+      "commit_id": null
+    },
+    {
+      "id": 6016713150,
+      "html_url": "https://github.com/kebag-logic/milan-fpga/pull/681#issuecomment-6016713150",
+      "created_at": "2026-10-06T12:55:00Z",
+      "submitted_at": null,
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R517-1\n\nR517 (external reviewer) reconstructs issue #673 / PR #681 at exact head `26bd6334a7b8b2a8582b36ae4729a71620546c14`, tree `c3d52b1b166c11e9afaddc8fae0741d7dfad84d2`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "state": null,
+      "commit_id": null
+    }
+  ],
+  "pr-reviews": [],
+  "pr-inline-comments": [],
+  "snapshot_recorded_at": "2026-10-06T13:03:21.783775+00:00",
+  "order": "Independent verdict and five-lens ledger written before fetching review endpoints.",
+  "prior_findings": "None: two PR discussion comments announce review starts; zero formal reviews and zero inline review comments."
+}

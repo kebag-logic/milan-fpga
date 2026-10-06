@@ -1,0 +1,110 @@
+[
+  {
+    "name": "evidence-check",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 8.6
+  },
+  {
+    "name": "evidence-selftest",
+    "argv": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 9.854
+  },
+  {
+    "name": "shell-syntax",
+    "argv": [
+      "bash",
+      "-n",
+      "scripts/run_all_suites.sh"
+    ],
+    "rc": 0,
+    "seconds": 0.014
+  },
+  {
+    "name": "shards-selftest",
+    "argv": [
+      "python3",
+      "scripts/suite_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.169
+  },
+  {
+    "name": "tally-selftest",
+    "argv": [
+      "python3",
+      "scripts/suite_tally.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.17
+  },
+  {
+    "name": "cancellation",
+    "argv": [
+      "python3",
+      "scripts/test_suite_cancellation.py"
+    ],
+    "rc": 0,
+    "seconds": 48.738
+  },
+  {
+    "name": "docs-check",
+    "argv": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.544
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "doc-style",
+    "argv": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "workflow-check",
+    "argv": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.42
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "bd884631684ccf5060339efa92263d5c3e5c262c",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.017
+  }
+]
