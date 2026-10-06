@@ -1,0 +1,247 @@
+++ git remote -v
+origin	https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git (fetch)
+origin	https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git (push)
+++ git ls-remote origin refs/heads/main refs/heads/pp22-decl-order refs/pull/162/head
+7e5415e069cae46b63cafcc9e6ac9f68e058d9d0	refs/heads/main
+d52bd7f277c6339b13fe7c8ebe849b25f3e14638	refs/heads/pp22-decl-order
+d52bd7f277c6339b13fe7c8ebe849b25f3e14638	refs/pull/162/head
+++ git merge-tree --write-tree 2139f3dc10161b456dfbd51d2f73a63f9164e041 7e5415e0
+7b74e9bc8bee72a089f20b38578ac6d64b474b96
+++ git rev-parse 'd52bd7f^{tree}'
+7b74e9bc8bee72a089f20b38578ac6d64b474b96
+++ git cat-file -p d52bd7f
+++ head -5
+tree 7b74e9bc8bee72a089f20b38578ac6d64b474b96
+parent 2139f3dc10161b456dfbd51d2f73a63f9164e041
+parent 7e5415e069cae46b63cafcc9e6ac9f68e058d9d0
+author hackerman-kl <hackerman-kl@kebag-logic.com> 1791267868 +0200
+committer hackerman-kl <hackerman-kl@kebag-logic.com> 1791267868 +0200
+++ echo '--- 134 files vs main'
+--- 134 files vs main
++++ git diff --name-only e6a759d 7e5415e
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:docs/architecture/10_srp_engine.md
+++ a=9520a5776f7d6b424729dc9427d73eb6a7ce2e38
++++ git rev-parse d52bd7f:docs/architecture/10_srp_engine.md
+++ b=9520a5776f7d6b424729dc9427d73eb6a7ce2e38
+++ '[' 9520a5776f7d6b424729dc9427d73eb6a7ce2e38 = 9520a5776f7d6b424729dc9427d73eb6a7ce2e38 ']'
+++ echo 'SAME 9520a5776f7d6b424729dc9427d73eb6a7ce2e38 docs/architecture/10_srp_engine.md'
+SAME 9520a5776f7d6b424729dc9427d73eb6a7ce2e38 docs/architecture/10_srp_engine.md
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:hdl/srp/KL_srp_listener_fsm.sv
+++ a=20df3afb69d4ad164a3c502236f27f4cd177ff3d
++++ git rev-parse d52bd7f:hdl/srp/KL_srp_listener_fsm.sv
+++ b=20df3afb69d4ad164a3c502236f27f4cd177ff3d
+++ '[' 20df3afb69d4ad164a3c502236f27f4cd177ff3d = 20df3afb69d4ad164a3c502236f27f4cd177ff3d ']'
+++ echo 'SAME 20df3afb69d4ad164a3c502236f27f4cd177ff3d hdl/srp/KL_srp_listener_fsm.sv'
+SAME 20df3afb69d4ad164a3c502236f27f4cd177ff3d hdl/srp/KL_srp_listener_fsm.sv
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:hdl/srp/KL_srp_talker_fsm.sv
+++ a=f716e2a360a8d0ba6aafb059f14ef4ab477892a8
++++ git rev-parse d52bd7f:hdl/srp/KL_srp_talker_fsm.sv
+++ b=f716e2a360a8d0ba6aafb059f14ef4ab477892a8
+++ '[' f716e2a360a8d0ba6aafb059f14ef4ab477892a8 = f716e2a360a8d0ba6aafb059f14ef4ab477892a8 ']'
+++ echo 'SAME f716e2a360a8d0ba6aafb059f14ef4ab477892a8 hdl/srp/KL_srp_talker_fsm.sv'
+SAME f716e2a360a8d0ba6aafb059f14ef4ab477892a8 hdl/srp/KL_srp_talker_fsm.sv
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/pp_top/d3_phases.hpp
+++ a=3ad7c8490067a854de1235e2c2f8f9cc167e5ac0
++++ git rev-parse d52bd7f:tb/pp_top/d3_phases.hpp
+++ b=3ad7c8490067a854de1235e2c2f8f9cc167e5ac0
+++ '[' 3ad7c8490067a854de1235e2c2f8f9cc167e5ac0 = 3ad7c8490067a854de1235e2c2f8f9cc167e5ac0 ']'
+++ echo 'SAME 3ad7c8490067a854de1235e2c2f8f9cc167e5ac0 tb/pp_top/d3_phases.hpp'
+SAME 3ad7c8490067a854de1235e2c2f8f9cc167e5ac0 tb/pp_top/d3_phases.hpp
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_stream_fsms/README.md
+++ a=b958a918ec7488af1079421b48f3ba7e490a0e82
++++ git rev-parse d52bd7f:tb/srp_stream_fsms/README.md
+++ b=b958a918ec7488af1079421b48f3ba7e490a0e82
+++ '[' b958a918ec7488af1079421b48f3ba7e490a0e82 = b958a918ec7488af1079421b48f3ba7e490a0e82 ']'
+++ echo 'SAME b958a918ec7488af1079421b48f3ba7e490a0e82 tb/srp_stream_fsms/README.md'
+SAME b958a918ec7488af1079421b48f3ba7e490a0e82 tb/srp_stream_fsms/README.md
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_stream_fsms/sim_main.cpp
+++ a=0e36cb209364a7d3aba2918a718fe6b2913797d9
++++ git rev-parse d52bd7f:tb/srp_stream_fsms/sim_main.cpp
+++ b=0e36cb209364a7d3aba2918a718fe6b2913797d9
+++ '[' 0e36cb209364a7d3aba2918a718fe6b2913797d9 = 0e36cb209364a7d3aba2918a718fe6b2913797d9 ']'
+++ echo 'SAME 0e36cb209364a7d3aba2918a718fe6b2913797d9 tb/srp_stream_fsms/sim_main.cpp'
+SAME 0e36cb209364a7d3aba2918a718fe6b2913797d9 tb/srp_stream_fsms/sim_main.cpp
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/Makefile
+++ a=efbb3d56172333fb88ee3f5b55241847f2f62c91
++++ git rev-parse d52bd7f:tb/srp_top/Makefile
+++ b=efbb3d56172333fb88ee3f5b55241847f2f62c91
+++ '[' efbb3d56172333fb88ee3f5b55241847f2f62c91 = efbb3d56172333fb88ee3f5b55241847f2f62c91 ']'
+++ echo 'SAME efbb3d56172333fb88ee3f5b55241847f2f62c91 tb/srp_top/Makefile'
+SAME efbb3d56172333fb88ee3f5b55241847f2f62c91 tb/srp_top/Makefile
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/README.md
+++ a=e056a5a5864b2e14381748479ff4501e54701cba
++++ git rev-parse d52bd7f:tb/srp_top/README.md
+++ b=e056a5a5864b2e14381748479ff4501e54701cba
+++ '[' e056a5a5864b2e14381748479ff4501e54701cba = e056a5a5864b2e14381748479ff4501e54701cba ']'
+++ echo 'SAME e056a5a5864b2e14381748479ff4501e54701cba tb/srp_top/README.md'
+SAME e056a5a5864b2e14381748479ff4501e54701cba tb/srp_top/README.md
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutants.py
+++ a=8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2
++++ git rev-parse d52bd7f:tb/srp_top/mutants.py
+++ b=8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2
+++ '[' 8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2 = 8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2 ']'
+++ echo 'SAME 8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2 tb/srp_top/mutants.py'
+SAME 8b5f27ccb9a4cdab279a558f8dc3aaa225038fd2 tb/srp_top/mutants.py
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/listener-no-renewal.patch
+++ a=390b10cd29f978afac9a577851ef549aa024459a
++++ git rev-parse d52bd7f:tb/srp_top/mutations/listener-no-renewal.patch
+++ b=390b10cd29f978afac9a577851ef549aa024459a
+++ '[' 390b10cd29f978afac9a577851ef549aa024459a = 390b10cd29f978afac9a577851ef549aa024459a ']'
+++ echo 'SAME 390b10cd29f978afac9a577851ef549aa024459a tb/srp_top/mutations/listener-no-renewal.patch'
+SAME 390b10cd29f978afac9a577851ef549aa024459a tb/srp_top/mutations/listener-no-renewal.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/listener-strict-lv.patch
+++ a=24b8210fe2576460b58efa7b12697c07b6add006
++++ git rev-parse d52bd7f:tb/srp_top/mutations/listener-strict-lv.patch
+++ b=24b8210fe2576460b58efa7b12697c07b6add006
+++ '[' 24b8210fe2576460b58efa7b12697c07b6add006 = 24b8210fe2576460b58efa7b12697c07b6add006 ']'
+++ echo 'SAME 24b8210fe2576460b58efa7b12697c07b6add006 tb/srp_top/mutations/listener-strict-lv.patch'
+SAME 24b8210fe2576460b58efa7b12697c07b6add006 tb/srp_top/mutations/listener-strict-lv.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-expiry-dropped.patch
+++ a=7b2783ada746c8933ab37303f24c616c876f624d
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-expiry-dropped.patch
+++ b=7b2783ada746c8933ab37303f24c616c876f624d
+++ '[' 7b2783ada746c8933ab37303f24c616c876f624d = 7b2783ada746c8933ab37303f24c616c876f624d ']'
+++ echo 'SAME 7b2783ada746c8933ab37303f24c616c876f624d tb/srp_top/mutations/lv-expiry-dropped.patch'
+SAME 7b2783ada746c8933ab37303f24c616c876f624d tb/srp_top/mutations/lv-expiry-dropped.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-expiry-last.patch
+++ a=a9cf8a34eecd81ba068706e865faf33881a71446
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-expiry-last.patch
+++ b=a9cf8a34eecd81ba068706e865faf33881a71446
+++ '[' a9cf8a34eecd81ba068706e865faf33881a71446 = a9cf8a34eecd81ba068706e865faf33881a71446 ']'
+++ echo 'SAME a9cf8a34eecd81ba068706e865faf33881a71446 tb/srp_top/mutations/lv-expiry-last.patch'
+SAME a9cf8a34eecd81ba068706e865faf33881a71446 tb/srp_top/mutations/lv-expiry-last.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-expiry-masked.patch
+++ a=711173a355435e72d04c496a7cfb018abae56ae7
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-expiry-masked.patch
+++ b=711173a355435e72d04c496a7cfb018abae56ae7
+++ '[' 711173a355435e72d04c496a7cfb018abae56ae7 = 711173a355435e72d04c496a7cfb018abae56ae7 ']'
+++ echo 'SAME 711173a355435e72d04c496a7cfb018abae56ae7 tb/srp_top/mutations/lv-expiry-masked.patch'
+SAME 711173a355435e72d04c496a7cfb018abae56ae7 tb/srp_top/mutations/lv-expiry-masked.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-never-ends.patch
+++ a=a8e623dc8710f61551cda8a29c4e69a89f031b86
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-never-ends.patch
+++ b=a8e623dc8710f61551cda8a29c4e69a89f031b86
+++ '[' a8e623dc8710f61551cda8a29c4e69a89f031b86 = a8e623dc8710f61551cda8a29c4e69a89f031b86 ']'
+++ echo 'SAME a8e623dc8710f61551cda8a29c4e69a89f031b86 tb/srp_top/mutations/lv-never-ends.patch'
+SAME a8e623dc8710f61551cda8a29c4e69a89f031b86 tb/srp_top/mutations/lv-never-ends.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-second-lv-ends.patch
+++ a=35fcce8e732404f85edcf4e1ae702def7342bf8c
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-second-lv-ends.patch
+++ b=35fcce8e732404f85edcf4e1ae702def7342bf8c
+++ '[' 35fcce8e732404f85edcf4e1ae702def7342bf8c = 35fcce8e732404f85edcf4e1ae702def7342bf8c ']'
+++ echo 'SAME 35fcce8e732404f85edcf4e1ae702def7342bf8c tb/srp_top/mutations/lv-second-lv-ends.patch'
+SAME 35fcce8e732404f85edcf4e1ae702def7342bf8c tb/srp_top/mutations/lv-second-lv-ends.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/lv-sweep-misses-collision.patch
+++ a=32cb20b87a6a98e4f434591df26b1be08f49f7b7
++++ git rev-parse d52bd7f:tb/srp_top/mutations/lv-sweep-misses-collision.patch
+++ b=32cb20b87a6a98e4f434591df26b1be08f49f7b7
+++ '[' 32cb20b87a6a98e4f434591df26b1be08f49f7b7 = 32cb20b87a6a98e4f434591df26b1be08f49f7b7 ']'
+++ echo 'SAME 32cb20b87a6a98e4f434591df26b1be08f49f7b7 tb/srp_top/mutations/lv-sweep-misses-collision.patch'
+SAME 32cb20b87a6a98e4f434591df26b1be08f49f7b7 tb/srp_top/mutations/lv-sweep-misses-collision.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/my-la-outranks-leave.patch
+++ a=0ef9c3b791afafd5d609a305bd79310cba173c8a
++++ git rev-parse d52bd7f:tb/srp_top/mutations/my-la-outranks-leave.patch
+++ b=0ef9c3b791afafd5d609a305bd79310cba173c8a
+++ '[' 0ef9c3b791afafd5d609a305bd79310cba173c8a = 0ef9c3b791afafd5d609a305bd79310cba173c8a ']'
+++ echo 'SAME 0ef9c3b791afafd5d609a305bd79310cba173c8a tb/srp_top/mutations/my-la-outranks-leave.patch'
+SAME 0ef9c3b791afafd5d609a305bd79310cba173c8a tb/srp_top/mutations/my-la-outranks-leave.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+++ a=dbbb746dcae53767ae801329e41cae9b80d04777
++++ git rev-parse d52bd7f:tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+++ b=dbbb746dcae53767ae801329e41cae9b80d04777
+++ '[' dbbb746dcae53767ae801329e41cae9b80d04777 = dbbb746dcae53767ae801329e41cae9b80d04777 ']'
+++ echo 'SAME dbbb746dcae53767ae801329e41cae9b80d04777 tb/srp_top/mutations/r-sink-receive-priority-lost.patch'
+SAME dbbb746dcae53767ae801329e41cae9b80d04777 tb/srp_top/mutations/r-sink-receive-priority-lost.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/receive-priority-lost.patch
+++ a=78abd4bee4b2a40ada812787c4789b6479b73a80
++++ git rev-parse d52bd7f:tb/srp_top/mutations/receive-priority-lost.patch
+++ b=78abd4bee4b2a40ada812787c4789b6479b73a80
+++ '[' 78abd4bee4b2a40ada812787c4789b6479b73a80 = 78abd4bee4b2a40ada812787c4789b6479b73a80 ']'
+++ echo 'SAME 78abd4bee4b2a40ada812787c4789b6479b73a80 tb/srp_top/mutations/receive-priority-lost.patch'
+SAME 78abd4bee4b2a40ada812787c4789b6479b73a80 tb/srp_top/mutations/receive-priority-lost.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/renewal-congestion.patch
+++ a=96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973
++++ git rev-parse d52bd7f:tb/srp_top/mutations/renewal-congestion.patch
+++ b=96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973
+++ '[' 96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973 = 96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973 ']'
+++ echo 'SAME 96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973 tb/srp_top/mutations/renewal-congestion.patch'
+SAME 96070d4fd2ee36b8f59ee5bfa8ae9d48d82ee973 tb/srp_top/mutations/renewal-congestion.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/talker-no-renewal.patch
+++ a=d5488d4e8752f8bed176322c55bc760b00ff6a26
++++ git rev-parse d52bd7f:tb/srp_top/mutations/talker-no-renewal.patch
+++ b=d5488d4e8752f8bed176322c55bc760b00ff6a26
+++ '[' d5488d4e8752f8bed176322c55bc760b00ff6a26 = d5488d4e8752f8bed176322c55bc760b00ff6a26 ']'
+++ echo 'SAME d5488d4e8752f8bed176322c55bc760b00ff6a26 tb/srp_top/mutations/talker-no-renewal.patch'
+SAME d5488d4e8752f8bed176322c55bc760b00ff6a26 tb/srp_top/mutations/talker-no-renewal.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/mutations/talker-strict-lv.patch
+++ a=ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e
++++ git rev-parse d52bd7f:tb/srp_top/mutations/talker-strict-lv.patch
+++ b=ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e
+++ '[' ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e = ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e ']'
+++ echo 'SAME ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e tb/srp_top/mutations/talker-strict-lv.patch'
+SAME ff73ed6283390dfcf351791bbf4b4bb2f84b0b0e tb/srp_top/mutations/talker-strict-lv.patch
+++ for f in $(git diff --name-only e6a759d 7e5415e)
++++ git rev-parse 7e5415e:tb/srp_top/sim_main.cpp
+++ a=44b0af48db0816861800e774e221393f7611867c
++++ git rev-parse d52bd7f:tb/srp_top/sim_main.cpp
+++ b=44b0af48db0816861800e774e221393f7611867c
+++ '[' 44b0af48db0816861800e774e221393f7611867c = 44b0af48db0816861800e774e221393f7611867c ']'
+++ echo 'SAME 44b0af48db0816861800e774e221393f7611867c tb/srp_top/sim_main.cpp'
+SAME 44b0af48db0816861800e774e221393f7611867c tb/srp_top/sim_main.cpp
+++ echo '--- 22 files vs 2139f3d'
+--- 22 files vs 2139f3d
++++ git diff --name-only e6a759d 2139f3d
+++ for f in $(git diff --name-only e6a759d 2139f3d)
++++ git rev-parse 2139f3d:hdl/packet_engine/KL_pp_originator.sv
+++ a=0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b
++++ git rev-parse d52bd7f:hdl/packet_engine/KL_pp_originator.sv
+++ b=0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b
+++ '[' 0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b = 0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b ']'
+++ echo 'SAME 0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b hdl/packet_engine/KL_pp_originator.sv'
+SAME 0aaeb6e27fbc1fbdc5fbd602110154aaf0346c8b hdl/packet_engine/KL_pp_originator.sv
+++ for f in $(git diff --name-only e6a759d 2139f3d)
++++ git rev-parse 2139f3d:hdl/packet_engine/KL_pp_rx_validator.sv
+++ a=158f0b17dd42aead810f65d10cb51a66444dfab5
++++ git rev-parse d52bd7f:hdl/packet_engine/KL_pp_rx_validator.sv
+++ b=158f0b17dd42aead810f65d10cb51a66444dfab5
+++ '[' 158f0b17dd42aead810f65d10cb51a66444dfab5 = 158f0b17dd42aead810f65d10cb51a66444dfab5 ']'
+++ echo 'SAME 158f0b17dd42aead810f65d10cb51a66444dfab5 hdl/packet_engine/KL_pp_rx_validator.sv'
+SAME 158f0b17dd42aead810f65d10cb51a66444dfab5 hdl/packet_engine/KL_pp_rx_validator.sv
+++ echo '--- full-tree: head vs (main + PR files)'
+--- full-tree: head vs (main + PR files)
+++ git diff --stat 7e5415e d52bd7f
+ hdl/packet_engine/KL_pp_originator.sv   | 6 +++---
+ hdl/packet_engine/KL_pp_rx_validator.sv | 4 ++--
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+++ git diff --stat 2139f3d d52bd7f
+++ tail -1
+ 24 files changed, 648 insertions(+), 36 deletions(-)
+++ git diff --raw e6a759d d52bd7f
+++ awk '{print $1,$2}'
+++ sort
+++ uniq -c
+      6 :000000 100644
+     20 :100644 100644
