@@ -1,0 +1,125 @@
+--- F0 30 centiseconds wait coalesced behind the full event ring
+    base check_eq: ticks_due, 30
+    head EXPECT_EQ(b.ticks_due, 30u)
+--- F0 and holds no more records than A1 assumes
+    base check: stored > 0u && stored <= CTRL_LOOP_RX_BACKLOG(MBX_CH_ADP_RX_WORDS)
+    head EXPECT_TRUE(b.stored > 0u && b.stored <= CTRL_LOOP_RX_BACKLOG(MBX_CH_ADP_RX_WORDS))
+--- F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+    base check: evt_at != 0u && evt_at <= CTRL_LOOP_EVT_PASSES
+    head EXPECT_TRUE(s.evt_at != 0u && s.evt_at <= CTRL_LOOP_EVT_PASSES)
+--- F2 the TMR_DELAY expiry, posted 16th, has its ENTITY_AVAILABLE committed in the pass that takes it
+    base check: answer_at != 0u && answer_at <= CTRL_LOOP_EVT_PASSES && answer_at == evt_at
+    head EXPECT_TRUE(s.answer_at != 0u && s.answer_at <= CTRL_LOOP_EVT_PASSES && s.answer_at == s.evt_at)
+--- F2 within ADP_MBX_EVT_ACCESSES of the backlog's first access
+    base check: answer_at != 0u && answer_accesses <= ADP_MBX_EVT_ACCESSES
+    head EXPECT_TRUE(s.answer_at != 0u && s.answer_accesses <= ADP_MBX_EVT_ACCESSES)
+--- F3 the receive backlog is taken by pass ceil(records / CTRL_LOOP_RX_PER_PASS)
+    base check: rx_at == (stored + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS
+    head EXPECT_TRUE(s.rx_at == (b.stored + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
+--- F3 within CTRL_LOOP_RX_PASSES(256) passes and ADP_MBX_RX_ACCESSES accesses
+    base check: rx_at != 0u && rx_at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) && rx_accesses <= ADP_MBX_RX_ACCESSES
+    head EXPECT_TRUE(s.rx_at != 0u && s.rx_at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) &&
+                s.rx_accesses <= ADP_MBX_RX_ACCESSES)
+--- F4 every coalesced centisecond reaches the consumer
+    base check_eq: ticks_seen, ticks_due
+    head EXPECT_EQ(ticks_seen, b.ticks_due)
+--- F4 at most CTRL_LOOP_TICKS_PER_PASS of them in a pass
+    base check: most_ticks <= CTRL_LOOP_TICKS_PER_PASS
+    head EXPECT_TRUE(s.most_ticks <= CTRL_LOOP_TICKS_PER_PASS)
+--- F6 the loop passes until the backlog is gone, then may sleep
+    base check: idle_at != 0u && idle_at > rx_at && idle_at > evt_at && app.loop.ticks_owed == 0u
+    head EXPECT_TRUE(s.idle_at != 0u && s.idle_at > s.rx_at && s.idle_at > s.evt_at && app.loop.ticks_owed == 0u)
+--- F7 the backlog left exactly one frame, the ENTITY_AVAILABLE
+    base check_eq: model.tx_sent, sent0 + 1u
+    head EXPECT_EQ(model.tx_sent, b.sent0 + 1u)
+sw/firmware/ctrl/test/test_adp.c: 11 pairs differ after normalisation
+--- P1 an exhausted class spills into the next larger one
+    base check: spill != NULL && (uint8_t *)spill >= pool.bins[1].base
+    head EXPECT_TRUE(spill != nullptr && bytes_of(spill) >= pool.bins[1].base)
+--- P1 a size no class holds is refused
+    base check: ctrl_pool_alloc(&pool, 65u) == NULL
+    head EXPECT_EQ(ctrl_pool_alloc(&pool, 65u), nullptr)
+--- P1 a zero-byte allocation is refused
+    base check: ctrl_pool_alloc(&pool, 0u) == NULL
+    head EXPECT_EQ(ctrl_pool_alloc(&pool, 0u), nullptr)
+--- P1 the last block of the large class
+    base check: last != NULL
+    head EXPECT_NE(ctrl_pool_alloc(&pool, 64u), nullptr)
+--- P1 then nothing is left
+    base check: ctrl_pool_alloc(&pool, 1u) == NULL
+    head EXPECT_EQ(ctrl_pool_alloc(&pool, 1u), nullptr)
+--- P2 a released block is the next one handed out
+    base check: ctrl_pool_alloc(&pool, 32u) == small[2]
+    head EXPECT_EQ(ctrl_pool_alloc(&f.pool, 32u), f.small[2])
+--- P2 a double free is refused and counted
+    base check_eq: pool.bad_frees, 1
+    head EXPECT_EQ(f.pool.bad_frees, 1u)
+--- P2 a free into the middle of a block is refused
+    base check_eq: pool.bad_frees, 2
+    head EXPECT_EQ(f.pool.bad_frees, 2u)
+--- P2 a free of a pointer the pool never handed out is refused
+    base check_eq: pool.bad_frees, 3
+    head EXPECT_EQ(f.pool.bad_frees, 3u)
+--- P2 a free of NULL is a no-op
+    base check_eq: pool.bad_frees, 3
+    head EXPECT_EQ(f.pool.bad_frees, 3u)
+--- P2 the high-water mark of the small class
+    base check_eq: pool.bins[0].high_water, 4
+    head EXPECT_EQ(f.pool.bins[0].high_water, 4u)
+--- P3 calloc refuses a count times size that wraps to a small size
+    base check: ctrl_pool_calloc(&pool, SIZE_MAX / 4u + 2u, 4u) == NULL
+    head EXPECT_EQ(ctrl_pool_calloc(&pool, SIZE_MAX / 4u + 2u, 4u), nullptr)
+--- P4 shlan_malloc and shlan_calloc draw on the bound pool
+    base check: a != NULL && b != NULL && (uint8_t *)a >= pool.bins[1].base && (uint8_t *)b < pool.bins[1].base
+    head EXPECT_TRUE(in_bin(pool, 1, a) && in_bin(pool, 0, b))
+--- S0 and counts the discard
+    base check_eq: ctrl_debug_discarded(), 1
+    head EXPECT_EQ(ctrl_debug_discarded() - before, 1u)
+--- S1 shlan_printf reaches the bound sink formatted
+    base check: n == 18 && strcmp(cap.text, "mrp port 3 attr 2a") == 0
+    head EXPECT_TRUE(n == 18 && std::strcmp(cap.text, "mrp port 3 attr 2a") == 0)
+--- S2 in one call
+    base check_eq: cap.calls, 2
+    head EXPECT_EQ(cap.calls, 1u)
+--- S2 the truncation is counted
+    base check_eq: ctrl_debug_truncated(), 1
+    head EXPECT_EQ(ctrl_debug_truncated() - before, 1u)
+--- D0 byte for byte, with its length, interface and arrival
+    base check: got.len == sizeof f && memcmp(got.bytes, f, sizeof f) == 0 && got.interface == 0u && got.arrival_ms == 9u
+    head EXPECT_TRUE(got.len == sizeof f && std::memcmp(got.bytes, f, sizeof f) == 0 && got.interface == 0u &&
+                got.arrival_ms == 9u)
+--- D2 and leaves the merge byte for byte
+    base check: sent != NULL && sent->len == sizeof f && memcmp(sent->bytes, f, sizeof f) == 0 && sent->channel == MBX_CH_ADP
+    head EXPECT_TRUE(sent != nullptr && sent->len == sizeof f && std::memcmp(sent->bytes, f, sizeof f) == 0 &&
+                sent->channel == MBX_CH_ADP)
+--- D3 once drained every record leaves
+    base check_eq: model.tx_sent, 1u + taken
+    head EXPECT_EQ(model.tx_sent, taken)
+--- L0 bindings fit their tables
+    base check: ctrl_loop_bind_rx(l, MBX_CH_ADP, probe_rx, NULL) &&
+						      ctrl_loop_add_sink(l, probe_event, NULL) &&
+						      ctrl_loop_add_poll(l, probe_poll, NULL) && ctrl_loop_add_tick(l, tick_a) &&
+				
+    head EXPECT_TRUE(bind_probe(&loop))
+--- L0 an unknown channel cannot be bound
+    base check: !ctrl_loop_bind_rx(l, MBX_N_CH, probe_rx, NULL)
+    head EXPECT_FALSE(ctrl_loop_bind_rx(&loop, MBX_N_CH, probe_rx, nullptr))
+--- L1 ctrl_loop_open brings the mailbox up
+    base check: ctrl_loop_open(l, 0)
+    head EXPECT_TRUE(ctrl_loop_open(&loop, 0))
+--- L5 a malformed record is counted, not handed out
+    base check_eq: l->stats.rx_bad, 1
+    head EXPECT_EQ(loop_.stats.rx_bad, 1u)
+--- L6 a pass after which a module still owes output asks for the next pass at once
+    base check: ctrl_loop_service(l) != 0u
+    head EXPECT_NE(ctrl_loop_service(&loop_), 0u)
+--- L6 a pass that handled nothing and owes nothing lets the loop sleep
+    base check_eq: ctrl_loop_service(l), 0
+    head EXPECT_EQ(ctrl_loop_service(&loop_), 0u)
+--- L7 and the loop keeps passing until the last is dispatched
+    base check: !slept_owing && l->ticks_owed == 0u
+    head EXPECT_TRUE(!slept_owing && loop_.ticks_owed == 0u)
+--- L8 and none is left owed
+    base check_eq: l->ticks_owed, 0
+    head EXPECT_EQ(loop_.ticks_owed, 0u)
+sw/firmware/ctrl/test/test_port_loop.c: 28 pairs differ after normalisation

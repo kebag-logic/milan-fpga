@@ -1,0 +1,35 @@
+0
+== ok
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PoolProbe
+[ RUN      ] PoolProbe.FreeListDisagreeingWithItsCountIsExhausted
+[       OK ] PoolProbe.FreeListDisagreeingWithItsCountIsExhausted (0 ms)
+[----------] 1 test from PoolProbe (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+exit 0
+== mut
+Running main() from /usr/src/debug/gtest/googletest-1.18.0/googletest/src/gtest_main.cc
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PoolProbe
+[ RUN      ] PoolProbe.FreeListDisagreeingWithItsCountIsExhausted
+<packet>/probes/pool_guard_probe.sh: line 14: 1302800 Segmentation fault         (core dumped) "$W/$v/probe"
+exit 139
+172:        4:  115:		if (bin->stride >= bytes && bin->free_count > 0u && bin->free_head != NULL) {
+173-branch  0 taken 100% (fallthrough)
+174-branch  1 taken 0%
+175-branch  2 taken 100% (fallthrough)
+172:        4:  115:		if (bin->stride >= bytes && bin->free_count > 0u && bin->free_head != NULL) {
+173-branch  0 taken 100% (fallthrough)
+174-branch  1 taken 0%
+175-branch  2 taken 100% (fallthrough)
+176-branch  3 taken 0%
+177-branch  4 taken 75% (fallthrough)
+178-branch  5 taken 25%
+179-        3:  116:			return bin_take(bin);
+180-call    0 returned 100%
