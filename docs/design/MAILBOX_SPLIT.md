@@ -26,7 +26,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walk and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
-- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers and the recipe.
+- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter added, and the recipe.
 - **[Open items](#open-items)** -- The datapath tap, the listener's ADP terms, lwSRP's transmit hook, the CPU-cycle measurement and MMRP.
 
 ## What moves, and what the fabric keeps
@@ -543,6 +543,26 @@ bar yet (#665). It is above the
 are the timer bank (sixteen 48-bit slots in flip-flops, scanned one per clock,
 which fits distributed RAM) and the filter's per-term 64-bit field registers,
 which one shared field register per frame would replace.
+
+The full-tuple filter (#665 lane FC) was measured with the same recipe on
+2026-10-06, the dev tree it started from beside it:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,003 | 1,136 | 994 | 1,061 |
+| `KL_mbx` registers, decode, read mux | 275 | 296 | 484 | 532 |
+| `KL_mbx_evt` | 731 | 681 | 978 | 978 |
+| `KL_mbx_tx` | 546 | 530 | 280 | 280 |
+| `KL_mbx_wb` | 66 | 67 | 1 | 1 |
+| **Total** | **2,641** | **2,730** | **2,737** | **2,852** |
+
+The block RAM is unchanged (1 RAMB36, 10 RAMB18), with no DSP. WNS is
++0.240 ns before and +0.271 ns after, at 10 ns, with all 5,524 and 5,600
+nets routed. The filter costs 89 LUT and 115 FF. They go to the destination
+register and the tuple compares in `KL_mbx_rx`, and to the 48-bit own MAC of
+each interface in `KL_mbx`. The "before" column equals the measurement
+above. The event and TX blocks' RTL did not change; their figures moved only
+with Vivado's optimisation across the hierarchy.
 
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
