@@ -1,0 +1,34 @@
+--- tb/pp_top/notify_phases.hpp	2026-10-06 09:07:33.010000000 +0200
++++ notify_phases.hpp	2026-10-06 09:29:51.648878773 +0200
+@@ -1691,7 +1691,12 @@
+   //! the bridge's Class A Domain {3, vid}: Class A arrives as value 1 (10 3)
+   void declare_domain(uint16_t vid) {
+     Msg dom{4, 4, false, {Vec{false, 2, fv_domain(5, 2, vid), {EV_JOININ, EV_JOININ}, {}}}};
+-    feed(mrpdu_frame(true, T1_MAC, {dom}));
++    const auto fr = mrpdu_frame(true, T1_MAC, {dom});
++    const uint64_t a = io.t;
++    feed(fr);
++    printf("  [probe] MRPDU of %zu bytes: last byte clocked at %llu; feed() returns (t0) at %llu: t0 - last byte = %llu clocks\n",
++           fr.size(), (unsigned long long)(a + fr.size()), (unsigned long long)io.t,
++           (unsigned long long)(io.t - (a + fr.size())));
+   }
+   //! the window after a stimulus that ended at log index `from`; returns the
+   //! frames A received in it
+@@ -1737,6 +1742,7 @@
+     const int ch0 = io.domain_changes;
+     space_out();
+     size_t from = seen.size();
++    printf("  [probe] link_up_i dropped at clock %llu\n", (unsigned long long)io.t);
+     io.d->link_up_i = 0;
+     one_notification("DN4b", "DN4c", "link down", from, io.t);
+     space_out();
+@@ -1797,6 +1803,9 @@
+     CHECK(register_controller(CTLR_MAC, CTLR_EID, seq++),
+           "DN0: controller A registered (premise)");
+     const uint32_t ms0 = io.d->dbg_now_ms_o;
++    { uint64_t tr = 0; for (auto& x : seen) if (da_of(x.f) == CTLR_MAC) tr = x.t;
++      printf("  [probe] REGISTER response to A left at %llu; link-down stimulus at %llu; gap %llu clocks; last_sent %llu\n",
++             (unsigned long long)tr, (unsigned long long)io.t, (unsigned long long)(io.t - tr), (unsigned long long)last_sent); }
+     link_edges();
+     adoption();
+     identical("DN3", ADOPT_VID);
