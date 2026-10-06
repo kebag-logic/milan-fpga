@@ -48,8 +48,9 @@ RESULT: PASS
 ```
 
 `checks` is the tests run and `failures` the tests that failed, were skipped,
-or crashed. One more is added for each failure outside any test (a test
-suite's set-up or tear-down) and for each disabled test, which runs nothing.
+or crashed. One more is added for each test suite whose set-up or tear-down
+failed, one for a failure outside every test (a global environment's), and
+one for each disabled test, alone or in a disabled suite, which runs nothing.
 Every failed assertion also prints `[FAIL] <Suite.Test>: <its last line>`,
 which is the marker `suite_tally.py --verdict` reads and the line the
 planted-defect campaigns match a test by. An assertion's last line is the
@@ -65,7 +66,8 @@ log reads as a pass: one tally, no `NOCOUNT`, no failure in it, no `[FAIL]`
 line (`fw_gtest.grade`).
 
 `tally_selftest.py` proves each of those with a planted case run through the
-same grade, and through `suite_tally.py` itself. Each case proves two things
+same grade, and through `suite_tally.py` itself: every count above, every
+fatal signal the handler is installed for, the `atexit` path and `NOCOUNT`. Each case proves two things
 apart. Its tally line, read with `suite_tally.scan`, the sweep's own
 scanner, must carry exactly the `checks` and `failures` below, with
 `RESULT: FAIL` under it whenever `failures` is not 0: so the tally line
@@ -79,22 +81,32 @@ verdict must be the one below, through `fw_gtest.grade` and through
 | a failing assertion | 1 | 1, 1 | fails, `[FAIL] Fail.Expect` |
 | SIGSEGV inside a test | -11 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Segv` |
 | `abort()` inside a test | -6 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Abort` |
+| SIGBUS inside a test | -7 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Bus` |
+| SIGFPE inside a test | -8 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Fpe` |
+| SIGILL inside a test | -4 | 1, 1, from the signal handler | fails, `[FAIL] Crash.Ill` |
 | `exit(0)` inside a test | 0 | 1, 1, from the `atexit` handler | fails, `[FAIL] Exit.Zero` |
 | a skipped test | 0 | 1, 1 | fails, `[FAIL] Skip.Silent: skipped: ...` |
 | an uncaught exception | 1 | 1, 1 | fails, GoogleTest's own catch, `[FAIL] Throw.Uncaught` |
 | a disabled test | 0 | 0, 1 | fails, `[FAIL] Disabled.DISABLED_NeverRuns` |
+| a disabled suite | 0 | 0, 1 | fails, `[FAIL] DISABLED_Suite.NeverRuns` |
 | a failure in a suite's set-up | 1 | 1, 2: the suite's test and its set-up | fails, `[FAIL] SetUpFails` |
+| a failure in a suite's tear-down | 1 | 1, 1: the tear-down, its test passed | fails, `[FAIL] TearDownFails` |
+| a failure in the global environment's set-up | 1 | 1, 1: the program's, its test passed | fails, `[FAIL] (program)` |
 | `_exit(0)` inside a test | 0 | none | `NOCOUNT` |
 | no test selected | 0 | 0, 0 | `NOCOUNT` |
 | a disabled test, `GTEST_ALSO_RUN_DISABLED_TESTS=1` in the environment | 0 | 0, 1 | fails, as above: the gates drop `GTEST_*` from each binary's environment, so a shell's GoogleTest controls cannot narrow or reshape a gate's run |
 
-`tally_selftest.py --mutants` plants eleven defects into copies of the
+`tally_selftest.py --mutants` plants eighteen defects into copies of the
 listener and requires each to turn the cases it names red, through the
 tally line wherever the defect falsifies it: a skipped test, a suite's
-set-up failure, a crashed test or an early exit left out of the failures; a
-crashed test left out of the checks; a disabled test not counted; `RESULT:
-PASS` printed whatever the failures; no test counted; no `[FAIL]` line; no
-`atexit` handler; no signal handler. A copy that does not build, or a case
+set-up or tear-down failure, a crashed test or an early exit left out of
+the failures; a crashed test left out of the checks; disabled tests left
+out of the failures; a test disabled by its suite's name not seen as
+disabled; a failure outside every test not counted; `RESULT: PASS` printed whatever the
+failures; no test counted; no `[FAIL]` line; no `atexit` handler; no
+signal handler; and each of the five signals left out of the handler's
+list. A suite's tear-down failure or the program's, left out, prints
+`RESULT: PASS` on the tally line. A copy that does not build, or a case
 that still reads as planted, is an escape.
 
 A binary still running after `fw_gtest.RUN_TIMEOUT_S` (600 s) is killed and

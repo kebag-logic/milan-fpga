@@ -11,11 +11,14 @@ once per case with --gtest_filter, and requires each log to read as planted:
     says PASS when there are no failures and FAIL otherwise. A run that
     leaves no tally (an _exit(0) inside a test) must print none;
   * the control (one passing test) passes;
-  * a failing assertion, a crash (SIGSEGV), an abort, an exit(0) inside a
-    test, a skipped test, an uncaught exception, a disabled test and a
-    failure in a suite's set-up each fail: the run is refused, a [FAIL] line
-    names the test, and scripts/suite_tally.py --verdict, the sweep's own
-    reader, exits 1 on the log;
+  * a failing assertion, each fatal signal the listener handles (SIGSEGV,
+    SIGBUS, SIGFPE, SIGILL, and SIGABRT from an abort), an exit(0) inside a
+    test, a skipped test, an uncaught exception, a disabled test, a disabled
+    suite, a failure in a suite's set-up, one in a suite's tear-down and one
+    in the global environment (outside every test) each fail: the run is
+    refused, a [FAIL] line names the test, the suite or the program, and
+    scripts/suite_tally.py --verdict, the sweep's own reader, exits 1 on the
+    log;
   * an _exit(0) inside a test and a run that selects no test leave no tally,
     or a tally of nothing, and the sweep's tally refuses both as NOCOUNT;
   * a GoogleTest control in the environment (GTEST_ALSO_RUN_DISABLED_TESTS)
@@ -81,12 +84,20 @@ CASES = (
     Case("a failing assertion", "Fail.*", False, (1, 1), "Fail.Expect"),
     Case("a crash on SIGSEGV", "Crash.Segv", False, (1, 1), "Crash.Segv"),
     Case("an abort", "Crash.Abort", False, (1, 1), "Crash.Abort"),
+    Case("a crash on SIGBUS", "Crash.Bus", False, (1, 1), "Crash.Bus"),
+    Case("a crash on SIGFPE", "Crash.Fpe", False, (1, 1), "Crash.Fpe"),
+    Case("a crash on SIGILL", "Crash.Ill", False, (1, 1), "Crash.Ill"),
     Case("exit(0) inside a test", "Exit.Zero", False, (1, 1), "Exit.Zero"),
     Case("a skipped test", "Skip.*", False, (1, 1), "Skip.Silent"),
     Case("an uncaught exception", "Throw.*", False, (1, 1), "Throw.Uncaught"),
     Case("a disabled test", "Disabled.*", False, (0, 1), "Disabled.DISABLED_NeverRuns"),
+    Case("a disabled suite", "DISABLED_Suite.*", False, (0, 1), "DISABLED_Suite.NeverRuns"),
     # GoogleTest fails the suite's test too, and the listener adds the set-up
     Case("a failure in a suite's set-up", "SetUpFails.*", False, (1, 2), "SetUpFails"),
+    # the test passed, so the listener's count of the tear-down is the only failure
+    Case("a failure in a suite's tear-down", "TearDownFails.*", False, (1, 1), "TearDownFails"),
+    # likewise the program's: the global environment's set-up fails, its test passes
+    Case("a failure in the global environment", "ProgramFails.*", False, (1, 1), "(program)"),
     Case("_exit(0) inside a test", "Exit.Immediate", False, None, nocount=True),
     Case("no test selected", "NoSuchSuite.*", False, (0, 0), nocount=True),
     Case("a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment", "Disabled.*", False, (0, 1),
@@ -106,35 +117,62 @@ class Defect:
     cases: tuple[str, ...]
 
 
+#: Every crash case, one per fatal signal the listener handles.
+CRASHES = ("Crash.Segv", "Crash.Abort", "Crash.Bus", "Crash.Fpe", "Crash.Ill")
+#: The signal list the listener installs its handler for.
+SIGNALS = "{SIGSEGV, SIGBUS, SIGFPE, SIGILL, SIGABRT}"
+
+
+def unhandled(sig: str, case: str) -> Defect:
+    """One fatal signal dropped from the handler's list."""
+    return Defect(f"{sig.lower()}-unhandled", SIGNALS, SIGNALS.replace(f"{sig}, ", "").replace(f", {sig}", ""),
+                  (case,))
+
+
 #: The listener's defects. The first three are R506-1-F2's: each falsified
-#: the tally line while the [FAIL] marker alone kept the run refused.
+#: the tally line while the [FAIL] marker alone kept the run refused. The
+#: per-signal ones and the last two are R506-2-F3's; a program failure not
+#: counted, like a suite tear-down's, leaves the tally line at RESULT: PASS.
 DEFECTS = (
     Defect("skip-not-counted", "if (info.result()->Failed() || info.result()->Skipped()) {",
            "if (info.result()->Failed()) {", ("Skip.*",)),
-    Defect("setup-failure-not-counted",
+    Defect("suite-failure-not-counted",
            '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());\n                failures++;',
-           '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());', ("SetUpFails.*",)),
+           '"  [FAIL] %s: a failure in its set-up or tear-down\\n", suite->name());',
+           ("SetUpFails.*", "TearDownFails.*")),
     Defect("crash-tally-passes",
            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
            "        put_tally(state.checks + 1u, state.failures + 1u);",
            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
-           "        put_tally(state.checks + 1u, state.failures);", ("Crash.Segv", "Crash.Abort")),
+           "        put_tally(state.checks + 1u, state.failures);", CRASHES),
     Defect("crashed-test-not-counted",
            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
            "        put_tally(state.checks + 1u, state.failures + 1u);",
            '    put_number(static_cast<unsigned long>(sig));\n        put("\\n");\n'
-           "        put_tally(state.checks, state.failures + 1u);", ("Crash.Segv", "Crash.Abort")),
+           "        put_tally(state.checks, state.failures + 1u);", CRASHES),
     Defect("early-exit-tally-passes", "    put(how);\n    put_tally(state.checks + 1u, state.failures + 1u);",
            "    put(how);\n    put_tally(state.checks + 1u, state.failures);", ("Exit.Zero",)),
     Defect("disabled-not-counted", "failures += report_disabled(unit);",
-           "static_cast<void>(report_disabled(unit));", ("Disabled.*",)),
+           "static_cast<void>(report_disabled(unit));", ("Disabled.*", "DISABLED_Suite.*")),
     Defect("result-always-pass", 'put(failures == 0u ? "RESULT: PASS\\n" : "RESULT: FAIL\\n");',
-           'put("RESULT: PASS\\n");', ("Fail.*", "Crash.Segv", "Exit.Zero", "Skip.*", "Disabled.*")),
+           'put("RESULT: PASS\\n");', ("Fail.*", "Crash.Segv", "Exit.Zero", "Skip.*", "Disabled.*",
+                                        "TearDownFails.*", "ProgramFails.*")),
     Defect("tests-not-counted", "        state.checks++;\n", "", ("Pass.*", "Fail.*")),
     Defect("fail-line-dropped", "if (part.passed()) {", "if (part.passed() || part.failed()) {", ("Fail.*",)),
     Defect("no-atexit", "    static_cast<void>(std::atexit(on_exit_early));\n", "", ("Exit.Zero",)),
     Defect("no-signal-handler", "static_cast<void>(std::signal(sig, on_fatal_signal));",
-           "static_cast<void>(sig);", ("Crash.Segv", "Crash.Abort")),
+           "static_cast<void>(sig);", CRASHES),
+    unhandled("SIGSEGV", "Crash.Segv"),
+    unhandled("SIGBUS", "Crash.Bus"),
+    unhandled("SIGFPE", "Crash.Fpe"),
+    unhandled("SIGILL", "Crash.Ill"),
+    unhandled("SIGABRT", "Crash.Abort"),
+    Defect("program-failure-not-counted",
+           '"  [FAIL] (program): a failure outside every test\\n");\n            failures++;',
+           '"  [FAIL] (program): a failure outside every test\\n");', ("ProgramFails.*",)),
+    Defect("disabled-suite-not-counted",
+           'std::strncmp(suite->name(), "DISABLED_", 9) == 0 || std::strncmp(info->name(), "DISABLED_", 9) == 0',
+           'std::strncmp(info->name(), "DISABLED_", 9) == 0', ("DISABLED_Suite.*",)),
 )
 
 
