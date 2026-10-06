@@ -159,8 +159,9 @@ def rv32_compiler() -> str | None:
 
 
 def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
-    """The undefined, or the defined, symbols of a set of objects."""
-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
+    """Undefined symbols, or definitions capable of resolving external references."""
+    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
+    res = run([tool, *flags, *map(str, objs)])
     if res.returncode != 0:
         raise Refusal(f"{tool}: {res.stderr.strip()}")
     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}

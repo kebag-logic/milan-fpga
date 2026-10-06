@@ -97,6 +97,16 @@ def runtime_cases(cc: str, work: Path) -> int:
             got = ctrl_arms.arm_rv32(tree, True)
             assert got.rc and "symbols outside the C library" in got.log and symbol in got.log, got.log
             print(f"PASS: ctrl rejects {symbol}")
+        # Keep the external call above; a private definition in another object
+        # cannot resolve it. `used` prevents optimization from dropping the plant.
+        private = ctrl / "port/ctrl_debug.c"
+        private_original = private.read_text()
+        private.write_text(private_original + "\n__attribute__((used)) static void "
+                           "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
+        got = ctrl_arms.arm_rv32(tree, True)
+        assert got.rc and "symbols outside the C library" in got.log and "__unexpected_service" in got.log, got.log
+        print("PASS: ctrl rejects __unexpected_service despite a same-name static definition")
+        private.write_text(private_original)
         source.write_text(original)
     cfg = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
     inputs = nvm_bench.shape_inputs(cfg, work / "inputs")
@@ -114,6 +124,14 @@ def runtime_cases(cc: str, work: Path) -> int:
         findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
         assert any("symbols outside the C library" in f and symbol in f for f in findings), findings
         print(f"PASS: ctrl_nvm rejects {symbol}")
+    private = nvm / "nvm_store.c"
+    private_original = private.read_text()
+    private.write_text(private_original + "\n__attribute__((used)) static void "
+                       "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
+    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
+    assert any("symbols outside the C library" in f and "__unexpected_service" in f for f in findings), findings
+    print("PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition")
+    private.write_text(private_original)
     source.write_text(original + """
 extern void use_buffer(char *);
 void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
@@ -122,7 +140,7 @@ void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
         findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
     assert any("__stack_chk_fail" in f for f in findings), findings
     print("PASS: ctrl_nvm rejects restored stack-protector dependency")
-    return 5
+    return 7
 
 
 def main() -> int:

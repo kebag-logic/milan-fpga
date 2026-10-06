@@ -355,7 +355,10 @@ The SDK pin remains unchanged.
 Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
 Its architecture attribute must specify RV32I without extensions.
 Compressed instructions and double-float ABI flags are refused.
-Undefined symbols allow only named interfaces and arithmetic helpers.
+The dependency check matches names across the compiled objects.
+Only global or weak definitions remove names from undefined references.
+Same-name local definitions leave those references unresolved.
+Remaining undefined symbols allow only named interfaces and arithmetic helpers.
 Both builds disable stack-protector instrumentation, matching bare-metal compilation.
 Heap, OS, and unexpected double-underscore dependencies fail.
 
@@ -375,6 +378,7 @@ Restoring hosted headers or disabling freestanding compilation fails.
 RV64, hard-float, extended-ISA, and malformed objects are refused.
 A dynamic stack report and absent required compiler fail.
 Both real firmware arms reject planted heap and unknown dependencies.
+Same-name static definitions cannot hide the planted unknown dependencies.
 The store also rejects restored stack-protector dependencies.
 
 ## CI

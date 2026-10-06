@@ -65,7 +65,7 @@ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[s
         objs.append(str(obj))
     undefined = {ln.split()[-1] for ln in _tool(cc, "nm", "-u", *objs).splitlines()
                  if ln.strip() and not ln.endswith(":")}
-    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--defined-only", *objs).splitlines()
+    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--extern-only", "--defined-only", *objs).splitlines()
                if ln.strip() and not ln.endswith(":")}
     stray = sorted(undefined - defined - LIBC_OK - fw_rv32.HELPERS)
     total = _tool(cc, "size", "-t", *objs).strip().splitlines()[-1].split()
