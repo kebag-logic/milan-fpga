@@ -1,0 +1,13 @@
+skip-not-counted: selftest exit 1 (caught); 2 case(s) not as planted
+no-atexit: selftest exit 1 (caught); 1 case(s) not as planted
+no-signal-handler: selftest exit 1 (caught); 2 case(s) not as planted
+disabled-not-counted: selftest exit 2 (caught); 0 case(s) not as planted
+setup-failure-not-counted: selftest exit 1 (caught); 1 case(s) not as planted
+crash-tally-passes: selftest exit 1 (caught); 2 case(s) not as planted
+disabled-not-counted-v2: selftest exit 1 (caught); 2 case(s) not as planted
+skip-not-counted, the planted skip's log tail:
+    [  SKIPPED ] 1 test, listed below:
+    [  SKIPPED ] Skip.Silent
+    == firmware tally listener (planted cases): checks: 1   failures: 0 ==
+    RESULT: PASS
+    grade: (False, 'it carries 1 [FAIL] line(s), first: [FAIL] Skip.Silent: skipped: a planted skip')

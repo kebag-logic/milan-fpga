@@ -1,0 +1,587 @@
+firmware-unit	Set up job	﻿2026-10-06T09:53:00.2606775Z Current runner version: '2.337.0'
+firmware-unit	Set up job	2026-10-06T09:53:00.2632210Z ##[group]Runner Image Provisioner
+firmware-unit	Set up job	2026-10-06T09:53:00.2633155Z Hosted Compute Agent
+firmware-unit	Set up job	2026-10-06T09:53:00.2633815Z Version: 20260901.588
+firmware-unit	Set up job	2026-10-06T09:53:00.2634453Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+firmware-unit	Set up job	2026-10-06T09:53:00.2635299Z Build Date: 2026-09-01T19:56:44Z
+firmware-unit	Set up job	2026-10-06T09:53:00.2635996Z Worker ID: {26e4dabd-0f88-4d86-bc00-7c4cd19848ec}
+firmware-unit	Set up job	2026-10-06T09:53:00.2636760Z Azure Region: westus2
+firmware-unit	Set up job	2026-10-06T09:53:00.2637388Z ##[endgroup]
+firmware-unit	Set up job	2026-10-06T09:53:00.2639145Z ##[group]Operating System
+firmware-unit	Set up job	2026-10-06T09:53:00.2639938Z Ubuntu
+firmware-unit	Set up job	2026-10-06T09:53:00.2640455Z 24.04.5
+firmware-unit	Set up job	2026-10-06T09:53:00.2640936Z LTS
+firmware-unit	Set up job	2026-10-06T09:53:00.2641890Z ##[endgroup]
+firmware-unit	Set up job	2026-10-06T09:53:00.2642559Z ##[group]Runner Image
+firmware-unit	Set up job	2026-10-06T09:53:00.2643267Z Image: ubuntu-24.04
+firmware-unit	Set up job	2026-10-06T09:53:00.2643840Z Version: 20260927.320.1
+firmware-unit	Set up job	2026-10-06T09:53:00.2644909Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+firmware-unit	Set up job	2026-10-06T09:53:00.2646771Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+firmware-unit	Set up job	2026-10-06T09:53:00.2647832Z ##[endgroup]
+firmware-unit	Set up job	2026-10-06T09:53:00.2648999Z ##[group]GITHUB_TOKEN Permissions
+firmware-unit	Set up job	2026-10-06T09:53:00.2651018Z Contents: read
+firmware-unit	Set up job	2026-10-06T09:53:00.2652183Z Metadata: read
+firmware-unit	Set up job	2026-10-06T09:53:00.2652766Z Packages: read
+firmware-unit	Set up job	2026-10-06T09:53:00.2653418Z ##[endgroup]
+firmware-unit	Set up job	2026-10-06T09:53:00.2655529Z Secret source: Actions
+firmware-unit	Set up job	2026-10-06T09:53:00.2656628Z Cache mode: write
+firmware-unit	Set up job	2026-10-06T09:53:00.2657321Z Prepare workflow directory
+firmware-unit	Set up job	2026-10-06T09:53:00.3058024Z Prepare all required actions
+firmware-unit	Set up job	2026-10-06T09:53:00.3109141Z Getting action download info
+firmware-unit	Set up job	2026-10-06T09:53:00.6647175Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+firmware-unit	Set up job	2026-10-06T09:53:00.7815446Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+firmware-unit	Set up job	2026-10-06T09:53:00.9724537Z Complete job name: firmware-unit
+firmware-unit	Run actions/checkout@v4	﻿2026-10-06T09:53:01.0516228Z ##[group]Run actions/checkout@v4
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0517153Z with:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0517636Z   repository: kebag-logic/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0521560Z   token: ***
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0522023Z   ssh-strict: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0522474Z   ssh-user: git
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0522927Z   persist-credentials: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0523426Z   clean: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0523878Z   sparse-checkout-cone-mode: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0524407Z   fetch-depth: 1
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0524845Z   fetch-tags: false
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0525286Z   show-progress: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0525738Z   lfs: false
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0526154Z   submodules: false
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0526609Z   set-safe-directory: true
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0527127Z   allow-unsafe-pr-checkout: false
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0527920Z env:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0528420Z   VERILATOR_VERSION: v5.050
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0528988Z   YOSYS_VERSION: v0.66
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.0529511Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1528742Z Syncing repository: kebag-logic/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1530794Z ##[group]Getting Git version info
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1532074Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1533770Z [command]/usr/bin/git version
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1608978Z git version 2.55.0
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1633314Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1649267Z Temporarily overriding HOME='<home-path>/work/_temp/98206774-7d57-481e-97a8-b3742c50eafb' before making global git config changes
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1651080Z Adding repository directory to the temporary git global config as a safe directory
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1655625Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1708881Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1714507Z ##[group]Initializing the repository
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1721757Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1829170Z hint: Using 'master' as the name for the initial branch. This default branch name
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1831848Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1833429Z hint: to use in all of your new repositories, which will suppress this warning,
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1834299Z hint: call:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1834760Z hint:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1835321Z hint: 	git config --global init.defaultBranch <name>
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1835986Z hint:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1836606Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1837616Z hint: 'development'. The just-created branch can be renamed via this command:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1838416Z hint:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1838847Z hint: 	git branch -m <name>
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1839349Z hint:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1840012Z hint: Disable this message with "git config set advice.defaultBranchName false"
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1847360Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1860800Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1930444Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1932164Z ##[group]Disabling automatic garbage collection
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1937391Z [command]/usr/bin/git config --local gc.auto 0
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1978915Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1980607Z ##[group]Setting up auth
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.1989679Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.2029104Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.2462358Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.2504321Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.2731949Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.2769191Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.3030730Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.3071849Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.3072850Z ##[group]Fetching the repository
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:01.3080706Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +80a7318e16c2c97c4afa231841b047ac67d2321b:refs/remotes/pull/675/merge
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6669129Z From https://github.com/kebag-logic/milan-fpga
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6673294Z  * [new ref]         80a7318e16c2c97c4afa231841b047ac67d2321b -> pull/675/merge
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6680018Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6682993Z ##[group]Determining the checkout info
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6685754Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6687628Z [command]/usr/bin/git sparse-checkout disable
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6736178Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6768577Z ##[group]Checking out the ref
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.6772154Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/675/merge
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8479761Z Note: switching to 'refs/remotes/pull/675/merge'.
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8481652Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8482458Z You are in 'detached HEAD' state. You can look around, make experimental
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8484292Z changes and commit them, and you can discard any commits you make in this
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8486070Z state without impacting any branches by switching back to a branch.
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8487084Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8487794Z If you want to create a new branch to retain commits you create, you may
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8489404Z do so (now or later) by using -c with the switch command. Example:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8490588Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8490991Z   git switch -c <new-branch-name>
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8492023Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8492663Z Or undo this operation with:
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8493487Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8493977Z   git switch -
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8494612Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8495589Z Turn off this advice by setting config variable advice.detachedHead to false
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8496925Z 
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8498473Z HEAD is now at 80a7318 Merge e7e0c10f4d4e9f3180b5650507a83aa300c5d4d7 into 30e3c018b9add0cb182d8f1229eeec062218130d
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8511549Z ##[endgroup]
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8556085Z [command]/usr/bin/git log -1 --format=%H
+firmware-unit	Run actions/checkout@v4	2026-10-06T09:53:02.8583232Z 80a7318e16c2c97c4afa231841b047ac67d2321b
+firmware-unit	Fetch RTL dependencies	﻿2026-10-06T09:53:02.8915523Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.8918801Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor^[[0m
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9165728Z shell: /usr/bin/bash -e {0}
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9167345Z env:
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9168498Z   VERILATOR_VERSION: v5.050
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9169901Z   YOSYS_VERSION: v0.66
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9171164Z ##[endgroup]
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9500929Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9509257Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9516243Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:02.9538745Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:03.4466093Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:04.6458797Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:05.1476099Z Submodule path 'gptp-processor': checked out '5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d'
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:05.2308520Z Submodule path 'protocol-processor': checked out 'ead8036035affd53ef4b29979190f2f4f67084c0'
+firmware-unit	Fetch RTL dependencies	2026-10-06T09:53:05.2503977Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	﻿2026-10-06T09:53:05.2616144Z ##[group]Run set -euo pipefail
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2616555Z ^[[36;1mset -euo pipefail^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2616870Z ^[[36;1msudo apt-get update -qq^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2617324Z ^[[36;1msudo apt-get install -y --no-install-recommends libgtest-dev libgmock-dev^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2617859Z ^[[36;1mpython3 -m pip install --quiet pyyaml^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2618246Z ^[[36;1mdpkg-query -W libgtest-dev libgmock-dev^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2618604Z ^[[36;1mg++ --version | head -n 1^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2618927Z ^[[36;1mgcov --version | head -n 1^[[0m
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2684258Z shell: /usr/bin/bash -e {0}
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2684578Z env:
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2684851Z   VERILATOR_VERSION: v5.050
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2685152Z   YOSYS_VERSION: v0.66
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:05.2685419Z ##[endgroup]
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:10.8197973Z Reading package lists...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.0087856Z Building dependency tree...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.0094996Z Reading state information...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1472500Z The following additional packages will be installed:
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1477602Z   googletest
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1632134Z The following NEW packages will be installed:
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1636999Z   googletest libgmock-dev libgtest-dev
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1798615Z 0 upgraded, 3 newly installed, 0 to remove and 25 not upgraded.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1799156Z Need to get 924 kB of archives.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1799575Z After this operation, 5933 kB of additional disk space will be used.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.1800009Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.2666401Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 googletest all 1.14.0-1 [521 kB]
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.3524050Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgtest-dev amd64 1.14.0-1 [268 kB]
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.4325479Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgmock-dev amd64 1.14.0-1 [135 kB]
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.6814900Z Fetched 924 kB in 0s (3468 kB/s)
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7039585Z Selecting previously unselected package googletest.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7314806Z (Reading database ... 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7315852Z (Reading database ... 5%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7316593Z (Reading database ... 10%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7317109Z (Reading database ... 15%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7317590Z (Reading database ... 20%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7317984Z (Reading database ... 25%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7318462Z (Reading database ... 30%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7318779Z (Reading database ... 35%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7319068Z (Reading database ... 40%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7319414Z (Reading database ... 45%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7319711Z (Reading database ... 50%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.7362117Z (Reading database ... 55%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:11.8690690Z (Reading database ... 60%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.0612771Z (Reading database ... 65%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.2654944Z (Reading database ... 70%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.4700956Z (Reading database ... 75%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.5705997Z (Reading database ... 80%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.7734364Z (Reading database ... 85%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:12.9277811Z (Reading database ... 90%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1254014Z (Reading database ... 95%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1254638Z (Reading database ... 100%
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1255418Z (Reading database ... 202296 files and directories currently installed.)
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1298743Z Preparing to unpack .../googletest_1.14.0-1_all.deb ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1347566Z Unpacking googletest (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.1894392Z Selecting previously unselected package libgtest-dev:amd64.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2020334Z Preparing to unpack .../libgtest-dev_1.14.0-1_amd64.deb ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2028892Z Unpacking libgtest-dev:amd64 (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2333778Z Selecting previously unselected package libgmock-dev:amd64.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2464367Z Preparing to unpack .../libgmock-dev_1.14.0-1_amd64.deb ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2474122Z Unpacking libgmock-dev:amd64 (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2880729Z Setting up googletest (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2912526Z Setting up libgtest-dev:amd64 (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.2932856Z Setting up libgmock-dev:amd64 (1.14.0-1) ...
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9182238Z 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9183100Z Running kernel seems to be up-to-date.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9183715Z 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9183931Z No services need to be restarted.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9184319Z 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9184523Z No containers need to be restarted.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9185255Z 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9185537Z No user sessions are running outdated binaries.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9186011Z 
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:13.9186479Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:15.8647394Z libgmock-dev:amd64	1.14.0-1
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:15.8648080Z libgtest-dev:amd64	1.14.0-1
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:15.8716928Z g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-unit	Install GoogleTest and GoogleMock and print the versions	2026-10-06T09:53:16.0200914Z gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	﻿2026-10-06T09:53:16.0241125Z ##[group]Run python3 sw/firmware/gtest/tally_selftest.py
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0241863Z ^[[36;1mpython3 sw/firmware/gtest/tally_selftest.py^[[0m
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0304143Z shell: /usr/bin/bash -e {0}
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0304435Z env:
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0304674Z   VERILATOR_VERSION: v5.050
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0304959Z   YOSYS_VERSION: v0.66
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:16.0305217Z ##[endgroup]
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6316908Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6318929Z [ok] a passing test (the control): exit 0, tally 1/0, 1 tests, 0 failures
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6320162Z [ok] a failing assertion: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6321522Z [ok] a crash on SIGSEGV: exit -11, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6322594Z [ok] an abort: exit -6, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6323719Z [ok] exit(0) inside a test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6324770Z [ok] a skipped test: exit 0, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6325910Z [ok] an uncaught exception: exit 1, tally 1/1, its tallies report 1 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6327013Z [ok] a disabled test: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6328133Z [ok] a failure in a suite's set-up: exit 1, tally 1/2, its tallies report 2 failure(s) across 1 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6329347Z [ok] _exit(0) inside a test: exit 0, no tally, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6330579Z [ok] no test selected: exit 0, tally 0/0, NOCOUNT: no tally, or a tally of nothing (the run did not finish)
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6332284Z [ok] a disabled test, GTEST_ALSO_RUN_DISABLED_TESTS=1 in the environment: exit 0, tally 0/1, its tallies report 1 failure(s) across 0 checks
+firmware-unit	Prove the tally reads a failing and a crashing test as failures	2026-10-06T09:53:18.6333504Z tally self-test: 12 of 12 planted cases read as planted
+firmware-unit	Run the control-plane firmware suites	﻿2026-10-06T09:53:18.6486654Z ##[group]Run python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6487512Z ^[[36;1mpython3 sw/firmware/ctrl/test/test_ctrl_firmware.py^[[0m
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6568961Z shell: /usr/bin/bash -e {0}
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6569376Z env:
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6569708Z   VERILATOR_VERSION: v5.050
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6570103Z   YOSYS_VERSION: v0.66
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:18.6570461Z ##[endgroup]
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0372247Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0373479Z [ok] arm model
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0373832Z     == mbx (host model): checks: 14   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0374295Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0374639Z     verdict: PASS (14 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0375055Z [ok] arm port
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0375487Z     == ctrl port, driver and loop (host model): checks: 30   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0376092Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0376422Z     verdict: PASS (30 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0376833Z [ok] arm adp
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0377230Z     C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0377890Z     C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0378546Z     C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0379187Z     C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0379811Z     C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0380428Z     C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0381057Z     C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0382023Z     backlog: 16 event records, 30 centiseconds, 28 receive records
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0382934Z     passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0383875Z     F5 the costliest pass of the backlog         105 accesses (bound 407)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0384679Z     E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0385608Z     E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0386586Z     E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0387237Z     E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0387869Z     E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0388492Z     E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0389054Z     == ctrl ADP slice (fake ports and host model): checks: 26   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0389430Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0389671Z     verdict: PASS (26 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0389955Z [ok] arm unit
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0390254Z     == ctrl units on the HAL and port-layer mocks: checks: 21   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0390630Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0390865Z     verdict: PASS (21 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0391430Z     == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0391778Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0392032Z     verdict: PASS (2 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0392310Z [ok] arm walk
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0392712Z     walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0393315Z     == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0394050Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0394284Z     verdict: PASS (41 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0394567Z [ok] arm entity
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0394875Z     == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0395258Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0395477Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0395856Z     == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0396217Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0396433Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0396826Z     == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0397212Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0397434Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0397830Z     == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0398216Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0398436Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0398818Z     == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0399183Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0399399Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0399662Z [ok] arm rv32
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0399985Z     SKIPPED: no RV32 compiler; --require-rv32 refuses instead
+firmware-unit	Run the control-plane firmware suites	2026-10-06T09:53:53.0400322Z test_ctrl_firmware: PASS
+firmware-unit	Cache the pinned RV32 SDK	﻿2026-10-06T09:53:53.1231103Z ##[group]Run actions/cache@v4
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1231771Z with:
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1232009Z   path: ~/br-milan-rv32/host
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1232837Z   key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1233719Z   enableCrossOsArchive: false
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1234025Z   fail-on-cache-miss: false
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1234324Z   lookup-only: false
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1234558Z   save-always: false
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1234776Z env:
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1234984Z   VERILATOR_VERSION: v5.050
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1235241Z   YOSYS_VERSION: v0.66
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.1235478Z ##[endgroup]
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.2337090Z (node:3524) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.2338270Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.4714212Z Cache hit for: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:53.4817740Z (node:3524) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:54.7437462Z Received 4194304 of 153250353 (2.7%), 4.0 MBs/sec
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:55.7492335Z Received 130023424 of 153250353 (84.8%), 61.9 MBs/sec
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:56.1454001Z Received 153250353 of 153250353 (100.0%), 60.8 MBs/sec
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:56.1509882Z Cache Size: ~146 MB (153250353 B)
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:56.1567850Z [command]/usr/bin/tar -xf <home-path>/work/_temp/15ecd740-7176-4d89-8cde-fc6c0e07879e/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:57.1432408Z Cache restored successfully
+firmware-unit	Cache the pinned RV32 SDK	2026-10-06T09:53:57.1595605Z Cache restored from key: rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9
+firmware-unit	Install and verify the pinned RV32 SDK	﻿2026-10-06T09:53:57.1726923Z ##[group]Run set -euo pipefail
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1727262Z ^[[36;1mset -euo pipefail^[[0m
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1727566Z ^[[36;1mpython3 scripts/ci_rv32_sdk_selftest.py^[[0m
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1728045Z ^[[36;1mpython3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"^[[0m
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1792338Z shell: /usr/bin/bash -e {0}
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1792624Z env:
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1792845Z   VERILATOR_VERSION: v5.050
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1793125Z   YOSYS_VERSION: v0.66
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.1793378Z ##[endgroup]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2771059Z test_archive_root (__main__.InstallerTests.test_archive_root)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2896157Z SDK archive verified: /tmp/rv32-installer-test-ricoak9o/wrong-root.tar.xz sha256=56581e5bf210848f5f740bd1c7cc268c83e54f60f19a96c5d17d87d0520209bc
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2906317Z An authenticated archive with another root is still not extracted. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2907420Z test_bad_archive (__main__.InstallerTests.test_bad_archive)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2958798Z A wrong offline --archive never reaches tar or creates an installation. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.2959989Z test_bad_archive_with_cache (__main__.InstallerTests.test_bad_archive_with_cache)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.3541070Z Explicit offline inputs are checked even beside a valid cache. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.3542102Z test_changed_installer (__main__.InstallerTests.test_changed_installer)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.3854232Z A cache made by other installer bytes is refused before its tools run. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.3854850Z test_download_path (__main__.InstallerTests.test_download_path)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4153475Z The hosted path, with no --archive, installs what the pin names. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4154724Z test_download_path_refuses_unpinned_bytes (__main__.InstallerTests.test_download_path_refuses_unpinned_bytes)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4297663Z A wrong download is refused before tar reads it or anything runs. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4298654Z test_escaping_compiler (__main__.InstallerTests.test_escaping_compiler)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4584769Z A compiler whose realpath leaves the prefix is never executed. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4585933Z test_extra_receipt_section (__main__.InstallerTests.test_extra_receipt_section)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4875745Z A receipt carrying an unexpected section is malformed. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4876830Z test_failed_relocation (__main__.InstallerTests.test_failed_relocation)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4980383Z A failed relocation leaves no success receipt and cannot become a hit. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.4981677Z test_fresh_and_cache_hit (__main__.InstallerTests.test_fresh_and_cache_hit)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.5366737Z Extraction relocates; a valid hit neither downloads nor extracts. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.5367514Z test_incomplete_and_corrupt_tree (__main__.InstallerTests.test_incomplete_and_corrupt_tree)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.5724834Z Deletion, replacement, mode change and extra files all refuse. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.5725637Z test_malformed_receipt (__main__.InstallerTests.test_malformed_receipt)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6020579Z JSON of the wrong type cannot pass as provenance. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6021871Z test_missing_receipt (__main__.InstallerTests.test_missing_receipt)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6077259Z An existing directory is not an installed SDK. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6078045Z test_moved_cache (__main__.InstallerTests.test_moved_cache)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6361772Z A relocated tree is bound to the prefix where it was measured. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6362518Z test_provenance_values (__main__.InstallerTests.test_provenance_values)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6646899Z The installer digest and host are the ones measured here, independently. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6648050Z test_retargeted_symlink (__main__.InstallerTests.test_retargeted_symlink)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6935633Z Pointing the selector at another installed tool is cache drift. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.6936591Z test_special_file (__main__.InstallerTests.test_special_file)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7232257Z A FIFO planted in the cache is refused before any tool runs. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7233566Z test_symlink_destination (__main__.InstallerTests.test_symlink_destination)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7288114Z Do not overwrite or adopt a tree reached through a selector symlink. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7289080Z test_symlink_receipt (__main__.InstallerTests.test_symlink_receipt)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7566858Z Provenance must be stored in the installation, not another tree. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7567506Z test_truncated_receipt (__main__.InstallerTests.test_truncated_receipt)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7849436Z An interrupted receipt write never becomes a usable cache. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.7850384Z test_unrelocated_sdk (__main__.InstallerTests.test_unrelocated_sdk)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8122468Z SDK argv: ["/tmp/rv32-installer-test-zhq20c2x/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8141628Z SDK argv: ["/tmp/rv32-installer-test-zhq20c2x/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8160161Z SDK argv: ["/tmp/rv32-installer-test-zhq20c2x/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8179525Z SDK argv: ["/tmp/rv32-installer-test-zhq20c2x/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8208167Z Even a successful process must prove its relocation result. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8209315Z test_unsupported_host (__main__.InstallerTests.test_unsupported_host)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8262966Z The fixed x86-64 archive cannot silently adopt another host. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8263903Z test_wrong_provenance (__main__.InstallerTests.test_wrong_provenance)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8583621Z Every cache input is bound, including the whole digest and prefix. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8584269Z test_wrong_tool (__main__.InstallerTests.test_wrong_tool)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8859953Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8880227Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8900330Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8920553Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8945564Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8966255Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.8986231Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9006854Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9030527Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9051251Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9071282Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9092606Z SDK argv: ["/tmp/rv32-installer-test-1n3o_pdv/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9122711Z A compiler with the wrong version or target cannot create a receipt. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9123704Z test_wrong_tool_receipt (__main__.InstallerTests.test_wrong_tool_receipt)
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9412348Z SDK argv: ["/tmp/rv32-installer-test-odhhl_q_/installed/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9432169Z SDK argv: ["/tmp/rv32-installer-test-odhhl_q_/installed/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9452049Z SDK argv: ["/tmp/rv32-installer-test-odhhl_q_/installed/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9471959Z SDK argv: ["/tmp/rv32-installer-test-odhhl_q_/installed/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9502615Z Cached identification must agree with the program actually invoked. ... ok
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9503551Z 
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9503810Z ----------------------------------------------------------------------
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9504392Z Ran 25 tests in 0.673s
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9504618Z 
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:57.9504736Z OK
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9729961Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "--version"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9751134Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpfullversion"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9766244Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-dumpmachine"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9780813Z SDK argv: ["<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "-print-sysroot"]
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9809156Z SDK verified: {"archive_sha256": "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f", "archive_url": "https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--stable-2025.08-1.tar.xz", "destination": "<home-path>/br-milan-rv32/host", "host": {"architecture": "x86_64", "os": "Linux"}, "installer_revision": 1, "installer_sha256": "ffcc5433d97209b00cac5155c61bc464a43a60fec49bce0330d81279e1df7cb4", "release": "riscv32-ilp32d--glibc--stable-2025.08-1"}
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9815271Z SDK tools: {"compiler": "<home-path>/br-milan-rv32/host/bin/riscv32-linux-gcc", "gcc_version": "14.3.0", "realpath": "<home-path>/br-milan-rv32/host/bin/toolchain-wrapper", "sysroot": "<home-path>/br-milan-rv32/host/riscv32-buildroot-linux-gnu/sysroot", "target": "riscv32-buildroot-linux-gnu", "version": "riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0\nCopyright (C) 2024 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."}
+firmware-unit	Install and verify the pinned RV32 SDK	2026-10-06T09:53:58.9818147Z SDK cache hit: verified
+firmware-unit	Run the saved-state store suites and its RV32 build	﻿2026-10-06T09:53:58.9936442Z ##[group]Run python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:58.9937195Z ^[[36;1mpython3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"^[[0m
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:58.9999555Z shell: /usr/bin/bash -e {0}
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:58.9999857Z env:
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:59.0000095Z   VERILATOR_VERSION: v5.050
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:59.0000382Z   YOSYS_VERSION: v0.66
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:53:59.0000641Z ##[endgroup]
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6807723Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6809730Z endstation_arty_4x4          clock=83333000 Hz
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6810948Z   longest service call, model time: 210 us with no stall armed, 2190 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6813553Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 85   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6814894Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6815494Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6816400Z   rv32 at 83333000 Hz: text=12360 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6817203Z endstation_arty_8ch          clock=83333000 Hz
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6817970Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6819166Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 85   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6819872Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6820107Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6820609Z   rv32 at 83333000 Hz: text=12360 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6821115Z endstation_arty_current      clock=83333000 Hz
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6821870Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6822566Z   == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 85   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6823046Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6823273Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6823757Z   rv32 at 83333000 Hz: text=12352 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6824257Z endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6824728Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6825398Z   == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 85   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6825895Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6826118Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6826577Z   longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6827235Z   == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6827716Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6827946Z   verdict: PASS (2 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6828400Z   longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6829042Z   == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6829521Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6829742Z   verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6830192Z   longest service call, model time: 167 us with no stall armed, 0 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6830757Z   == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6831167Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6831614Z   verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6832292Z   == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6832697Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6832919Z   verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6833395Z   rv32 at 100000000 Hz: text=12368 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6833880Z endstation_ax7101_8x8        clock=100000000 Hz
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6834338Z   longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6834980Z   == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6835431Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6835653Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6836229Z   longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6836843Z   == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6837293Z   RESULT: PASS
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6837514Z   verdict: PASS (2 tests, 0 failures, exit 0)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6837992Z   rv32 at 100000000 Hz: text=12372 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+firmware-unit	Run the saved-state store suites and its RV32 build	2026-10-06T09:55:40.6838547Z saved-state store gate (#665 F1): OK across 5 shape(s), 434 tests
+firmware-unit	Hold the firmware coverage ratchet	﻿2026-10-06T09:55:40.7057958Z ##[group]Run set -euo pipefail
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7058337Z ^[[36;1mset -euo pipefail^[[0m
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7058683Z ^[[36;1mpython3 sw/firmware/gtest/fw_coverage.py --selftest^[[0m
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7059176Z ^[[36;1mpython3 sw/firmware/gtest/fw_coverage.py --check --jobs "$(nproc)"^[[0m
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7121654Z shell: /usr/bin/bash -e {0}
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7121951Z env:
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7122174Z   VERILATOR_VERSION: v5.050
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7122443Z   YOSYS_VERSION: v0.66
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:40.7122688Z ##[endgroup]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1486796Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1487943Z [ok] the control: the only gap excluded, at its record: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1488632Z [ok] a branch of f no longer taken: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1489456Z [ok] a line of f no longer run: sw/firmware/ctrl/x.c: lines 6/7 fell below the recorded 7/7
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1490098Z [ok] the record is a floor: a measurement over it passes: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1490860Z [ok] a measured file the ratchet does not record: sw/firmware/ctrl/x.c: measured, but the ratchet does not record it
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1492089Z [ok] a recorded file nothing measured: sw/firmware/ctrl/x.c: recorded in the ratchet, but nothing measured it
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1492947Z [ok] an exclusion with no reason: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no reason given
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1493985Z [ok] an exclusion whose statement is not in its function: exclusion sw/firmware/ctrl/x.c g(): `if (a == 8)`: the statement occurs 0 times in the function, not once
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1495262Z [ok] an exclusion whose statement is not one statement: exclusion sw/firmware/ctrl/x.c g(): `return`: the statement occurs 2 times in the function, not once
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1496434Z [ok] an exclusion naming no function measured: exclusion sw/firmware/ctrl/x.c h(): `if (a == 7)`: no such function in the measurement
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1497631Z [ok] an exclusion gone stale: the arc it names is covered now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1498891Z [ok] an exclusion gone stale: the line it names runs now: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1499913Z [ok] an exclusion that names less than is uncovered: exclusion sw/firmware/ctrl/x.c g(): line 10 is unexecuted, and no row names it
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1500937Z [ok] the uncovered arc moved to the statement's other arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [2] of the statement's 2 are uncovered, the row names [1]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1502446Z [ok] the uncovered arc and line moved to another statement, the function's totals unchanged: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1503716Z [ok] an exclusion whose statement has another number of arcs: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: the statement (lines 9-9) has 2 arcs, the row says 3
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1504834Z [ok] an exclusion naming a line no line from the statement on holds: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: no line from the statement's on holds `return 8;`
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1506132Z [ok] two exclusions naming one arc: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: names an arc or a line another row of the function names
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1507024Z [ok] an exclusion whose items cannot be read: exclusion sw/firmware/ctrl/x.c g(): `if (a == 7)`: cannot read 'one arc'
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1507647Z [ok] two builds of one source merge to the union: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1508325Z [ok] a build with fewer arcs on a line covers none of the longer build's: sw/firmware/ctrl/x.c: branches 4/5 fell below the recorded 5/5
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1509214Z [ok] a test, a host model and a source outside the tree are not measured: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1509655Z [ok] an exception edge is not a branch: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1510014Z [ok] gcc and gcov on this host read as planted: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1510429Z [ok] gcc: a compensating swap, the control measurement: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1511636Z [ok] gcc: a compensating swap, refused with the function's totals unchanged: exclusion sw/firmware/ctrl/swap.c h(): `if (x == 7)`: arcs [] of the statement's 2 are uncovered, the row names [1]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1512513Z [ok] gcc: a condition over two lines, the control measurement: no finding
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1513362Z [ok] gcc: a condition over two lines, its other operand uncovered instead: exclusion sw/firmware/ctrl/two_lines.c m(): `if (a > 0 &&`: arcs [3] of the statement's 4 are uncovered, the row names [4]
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:55:41.1514155Z coverage self-test: 28 of 28 planted cases read as planted
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9816785Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9818548Z [ok] ctrl coverage run
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9819242Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9820348Z     == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9821667Z     RESULT: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9822079Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9843642Z     == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9844193Z     RESULT: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9844473Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9844809Z test_ctrl_firmware coverage run: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9845174Z [ok] ctrl_nvm coverage run
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9845682Z   verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9846379Z   == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9846963Z   RESULT: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9847212Z   verdict: PASS (85 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9847693Z   == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9848161Z   RESULT: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9848389Z   verdict: PASS (2 tests, 0 failures, exit 0)
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9848712Z saved-state store coverage run: PASS
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9849066Z file                                                 lines    branches   after exclusions
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9849594Z sw/firmware/ctrl/adp/adp.c                       168/170      73/80      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9850185Z sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9850772Z sw/firmware/ctrl/app/ctrl_app.c                   12/13        6/8       lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9851653Z sw/firmware/ctrl/loop/ctrl_loop.c                 93/93       54/54      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9852241Z sw/firmware/ctrl/mbx/mbx.c                       162/162      60/60      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9853148Z sw/firmware/ctrl/mbx/mbx_wire.h                   15/15       12/12      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9853771Z sw/firmware/ctrl/plat/mbx_plat_mmio.c             10/10        0/0       lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9854367Z sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9854937Z sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9855505Z sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9856219Z sw/firmware/ctrl/wire/wire.h                      10/10        2/2       lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9856782Z sw/firmware/ctrl_nvm/nvm_klj2.c                  195/196     104/108     lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9857370Z sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9857970Z sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+firmware-unit	Hold the firmware coverage ratchet	2026-10-06T09:57:53.9858432Z firmware coverage: PASS (14 files)
+firmware-unit	Post Cache the pinned RV32 SDK	﻿2026-10-06T09:57:54.0572255Z Post job cleanup.
+firmware-unit	Post Cache the pinned RV32 SDK	2026-10-06T09:57:54.1698970Z Cache hit occurred on the primary key rv32-sdk-v1-Linux-X64-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-a11c5b5421386f4d8a8b14cf2eff259251ae3ee42716b3b69c5a314f2f1790f9, not saving cache.
+firmware-unit	Post Cache the pinned RV32 SDK	2026-10-06T09:57:54.1701523Z (node:5944) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+firmware-unit	Post Cache the pinned RV32 SDK	2026-10-06T09:57:54.1702739Z (Use `node --trace-deprecation ...` to show where the warning was created)
+firmware-unit	Post Run actions/checkout@v4	﻿2026-10-06T09:57:54.1859378Z Post job cleanup.
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2772092Z [command]/usr/bin/git version
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2811657Z git version 2.55.0
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2872677Z Temporarily overriding HOME='<home-path>/work/_temp/87d9764e-6bdc-491d-9fb5-df9fc90515ce' before making global git config changes
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2892360Z Adding repository directory to the temporary git global config as a safe directory
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2922288Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2924503Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.2968126Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3271822Z Entering 'gptp-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3348152Z Entering 'protocol-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3414741Z Entering 'third_party/verilog-axis'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3507668Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3552378Z http.https://github.com/.extraheader
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3570402Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3642681Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3937310Z Entering 'gptp-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.3981603Z Entering 'protocol-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4025501Z Entering 'third_party/verilog-axis'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4093734Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4141749Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4381981Z Entering 'gptp-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4412501Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4421860Z Entering 'protocol-processor'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4441145Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4460276Z Entering 'third_party/verilog-axis'
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4479511Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4514973Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4552224Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-unit	Post Run actions/checkout@v4	2026-10-06T09:57:54.4585478Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+firmware-unit	Complete job	﻿2026-10-06T09:57:54.4750145Z Cleaning up orphan processes
+firmware-unit	Complete job	2026-10-06T09:57:54.5059673Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

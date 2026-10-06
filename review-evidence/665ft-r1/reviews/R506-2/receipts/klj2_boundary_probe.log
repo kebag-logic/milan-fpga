@@ -1,0 +1,61 @@
+== $REVIEWS/665ft-r506-2-packet/scratch/covkeep/ctrl_nvm/shapes/endstation_ax7101_1x1_tdm8/suite/gen
+== orig boundary
+crc-closed: check=3
+loaded = first header's end: check_body=3 (VD_LEN=3, VD_REC=7)
+== ge boundary
+crc-closed: check=3
+loaded = first header's end: check_body=7 (VD_LEN=3, VD_REC=7)
+== orig asan
+=================================================================
+==3483639==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7b5ec07e0040 at pc 0x55b0cee5fc64 bp 0x7ffef7390060 sp 0x7ffef7390050
+READ of size 1 at 0x7b5ec07e0040 thread T0
+    #0 0x55b0cee5fc63 in nvm_all_erased klj2probe/orig.c:115
+    #1 0x55b0cee60f0c in nvm_klj2_record klj2probe/orig.c:298
+    #2 0x55b0cee615ba in nvm_klj2_check_body klj2probe/orig.c:352
+    #3 0x55b0cee5f36c in main $REVIEWS/665ft-r506-2-packet/scripts/klj2_boundary_probe.c:18
+    #4 0x7f1ec1a27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #5 0x7f1ec1a278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #6 0x55b0cee5f174 in _start ($REVIEWS/665ft-r506-2-packet/scratch/klj2probe/orig+0x2174) (BuildId: 4fe46f392cdc04335d436c0eade06d9ed1fdd719)
+
+0x7b5ec07e0040 is located 0 bytes after 48-byte region [0x7b5ec07e0010,0x7b5ec07e0040)
+allocated by thread T0 here:
+    #0 0x7f1ec1f2c0c1 in malloc (/usr/lib/libasan.so.8+0x12c0c1) (BuildId: b8a4241051a1621937fdc46e867ba7ecb56d96ea)
+    #1 0x55b0cee5f33b in main $REVIEWS/665ft-r506-2-packet/scripts/klj2_boundary_probe.c:16
+    #2 0x7f1ec1a27780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #3 0x7f1ec1a278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #4 0x55b0cee5f174 in _start ($REVIEWS/665ft-r506-2-packet/scratch/klj2probe/orig+0x2174) (BuildId: 4fe46f392cdc04335d436c0eade06d9ed1fdd719)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow klj2probe/orig.c:115 in nvm_all_erased
+Shadow bytes around the buggy address:
+  0x7b5ec07dfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b5ec07dfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b5ec07dfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b5ec07dff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x7b5ec07dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+=>0x7b5ec07e0000: fa fa 00 00 00 00 00 00[fa]fa fa fa fa fa fa fa
+  0x7b5ec07e0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b5ec07e0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b5ec07e0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b5ec07e0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x7b5ec07e0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==3483639==ABORTING
+asan rc=1
