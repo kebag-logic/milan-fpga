@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <cwchar>
 
 #include "ctrl_debug.h"
 #include "ctrl_loop.h"
@@ -168,6 +169,58 @@ TEST(Pool, P4ShlanFunctionsDrawOnTheBoundPool) {
     shlan_port_bind_pool(nullptr);
 }
 
+// The refusals P0 does not reach: no class, too many classes, a class of
+// zero-byte blocks, and no arena at all (#665 FT, coverage).
+TEST(Pool, P5ClassTablesAndArenasRefused) {
+    ctrl_pool pool;
+    const ctrl_pool_class zero_bytes[] = {{0u, 4u}};
+    ctrl_pool_class many[CTRL_POOL_MAX_CLASSES + 1u];
+    for (unsigned k = 0; k < CTRL_POOL_MAX_CLASSES + 1u; ++k) {
+        many[k] = ctrl_pool_class{static_cast<std::uint16_t>(16u * (k + 1u)), 1u};
+    }
+    EXPECT_FALSE(ctrl_pool_init(&pool, arena, sizeof arena, classes, 0)) << "P5 a pool of no class is refused";
+    EXPECT_FALSE(ctrl_pool_init(&pool, arena, sizeof arena, many, CTRL_POOL_MAX_CLASSES + 1u))
+        << "P5 more classes than CTRL_POOL_MAX_CLASSES are refused";
+    EXPECT_FALSE(ctrl_pool_init(&pool, arena, sizeof arena, zero_bytes, 1)) << "P5 a class of zero-byte blocks is refused";
+    EXPECT_FALSE(ctrl_pool_init(&pool, nullptr, sizeof arena, classes, 2)) << "P5 no arena is refused";
+    EXPECT_EQ(pool.n_bins, 0u) << "P5 and a refused pool carves nothing";
+}
+
+// calloc of nothing is refused as malloc of nothing is, and calloc on an
+// exhausted pool returns NULL without touching memory (#665 FT, coverage).
+TEST(Pool, P6CallocOfNothingAndOnAnExhaustedPool) {
+    FullPool f;
+    ASSERT_NO_FATAL_FAILURE(fill(f));
+    const std::uint32_t refused = f.pool.refused;
+    EXPECT_EQ(ctrl_pool_calloc(&f.pool, 0u, 8u), nullptr) << "P6 calloc of zero members is refused";
+    EXPECT_EQ(ctrl_pool_calloc(&f.pool, 1u, 8u), nullptr) << "P6 calloc on an exhausted pool returns NULL";
+    EXPECT_EQ(f.pool.refused - refused, 2u) << "P6 and both refusals are counted";
+}
+
+// A pointer below every class is no block of the pool's (#665 FT, coverage).
+TEST(Pool, P7FreeBelowTheArenaRefused) {
+    ctrl_pool pool;
+    ASSERT_TRUE(ctrl_pool_init(&pool, arena + 64, sizeof arena - 64u, classes, 2));
+    ctrl_pool_free(&pool, arena);
+    EXPECT_EQ(pool.bad_frees, 1u) << "P7 a free below the first class is refused and counted";
+    EXPECT_EQ(ctrl_pool_in_use(&pool), 0u) << "P7 and no block changes hands";
+}
+
+// The port layer before a pool is bound, and what it reports bound
+// (#665 FT, coverage).
+TEST(Pool, P8PortLayerUnbound) {
+    ctrl_pool pool;
+    ASSERT_TRUE(ctrl_pool_init(&pool, arena, sizeof arena, classes, 2));
+    shlan_port_bind_pool(nullptr);
+    EXPECT_EQ(shlan_port_pool(), nullptr) << "P8 no pool is reported before the bind";
+    EXPECT_EQ(shlan_calloc(2u, 8u), nullptr) << "P8 shlan_calloc before the pool is bound refuses";
+    shlan_free(arena);
+    EXPECT_EQ(pool.bad_frees, 0u) << "P8 shlan_free before the bind touches no pool";
+    shlan_port_bind_pool(&pool);
+    EXPECT_EQ(shlan_port_pool(), &pool) << "P8 the bound pool is the one reported";
+    shlan_port_bind_pool(nullptr);
+}
+
 // ---- S: the debug sink ----------------------------------------------------
 
 struct SinkCapture {
@@ -212,6 +265,19 @@ TEST(DebugSink, S2TruncatedToTheLine) {
     EXPECT_EQ(cap.len, CTRL_DEBUG_LINE_BYTES) << "S2 and the sink receives that many bytes";
     EXPECT_EQ(cap.calls, 1u) << "S2 in one call";
     EXPECT_EQ(ctrl_debug_truncated() - before, 1u) << "S2 the truncation is counted";
+    ctrl_debug_bind(nullptr, nullptr);
+}
+
+// A print the formatter cannot encode (a wide character the C locale has no
+// byte for) reaches no sink and is counted as discarded (#665 FT, coverage).
+TEST(DebugSink, S3UnencodablePrintDiscarded) {
+    SinkCapture cap{};
+    const std::uint32_t before = ctrl_debug_discarded();
+    ctrl_debug_bind(capture_sink, &cap);
+    const int n = shlan_printf("%lc", static_cast<wint_t>(0x10FFFFu));
+    EXPECT_LT(n, 0) << "S3 an encoding failure is returned as the formatter's negative value";
+    EXPECT_EQ(cap.calls, 0u) << "S3 and the sink receives nothing";
+    EXPECT_EQ(ctrl_debug_discarded() - before, 1u) << "S3 the discard is counted";
     ctrl_debug_bind(nullptr, nullptr);
 }
 
@@ -474,6 +540,32 @@ TEST_F(LoopBring, L1OpenOrder) {
     EXPECT_EQ(order.tick_ctl, 1u) << "L1 the tick starts because a centisecond consumer is bound";
     EXPECT_EQ(model.irq_enable, (1u << MBX_CH_ADP) | (1u << MBX_IRQ_ENABLE_EVT_LSB))
         << "L1 IRQ_ENABLE holds the bound channel and the event ring";
+}
+
+// Every table of the loop refuses a binding with no function and one past
+// its size, and keeps what it had (#665 FT, coverage).
+TEST_F(LoopBring, L9TablesRefuseNullAndOverflow) {
+    static ctrl_loop loop;
+    ctrl_loop_init(&loop);
+    EXPECT_FALSE(ctrl_loop_bind_rx(&loop, MBX_CH_ADP, nullptr, nullptr)) << "L9 a channel bound to no function is refused";
+    EXPECT_FALSE(ctrl_loop_add_sink(&loop, nullptr, nullptr)) << "L9 a sink with no function is refused";
+    EXPECT_FALSE(ctrl_loop_add_tick(&loop, nullptr)) << "L9 a centisecond consumer with no function is refused";
+    EXPECT_FALSE(ctrl_loop_add_poll(&loop, nullptr, nullptr)) << "L9 a poll with no function is refused";
+    for (unsigned k = 0; k < CTRL_LOOP_MAX_SINKS; ++k) {
+        ASSERT_TRUE(ctrl_loop_add_sink(&loop, probe_event, nullptr));
+    }
+    for (unsigned k = 0; k < CTRL_LOOP_MAX_TICKS; ++k) {
+        ASSERT_TRUE(ctrl_loop_add_tick(&loop, tick_a));
+    }
+    for (unsigned k = 0; k < CTRL_LOOP_MAX_POLLS; ++k) {
+        ASSERT_TRUE(ctrl_loop_add_poll(&loop, probe_poll, nullptr));
+    }
+    EXPECT_FALSE(ctrl_loop_add_sink(&loop, probe_event, nullptr)) << "L9 a sink past CTRL_LOOP_MAX_SINKS is refused";
+    EXPECT_FALSE(ctrl_loop_add_tick(&loop, tick_a)) << "L9 a consumer past CTRL_LOOP_MAX_TICKS is refused";
+    EXPECT_FALSE(ctrl_loop_add_poll(&loop, probe_poll, nullptr)) << "L9 a poll past CTRL_LOOP_MAX_POLLS is refused";
+    EXPECT_TRUE(loop.n_sinks == CTRL_LOOP_MAX_SINKS && loop.n_ticks == CTRL_LOOP_MAX_TICKS &&
+                loop.n_polls == CTRL_LOOP_MAX_POLLS)
+        << "L9 and the tables keep what they had";
 }
 
 TEST_F(Loop, L2PerPassRxBound) {

@@ -5,18 +5,25 @@
 Each mutant is one defect planted into a COPY of sw/firmware/ctrl_nvm (every
 seam must match its file exactly once, so a line that moves breaks the
 self-test rather than compiling unchanged), and names the checks that must
-fail on it. A named check that stays green is a finding: the check cannot
-fail for the defect it claims to detect. Every check of the suite is named by
-at least one mutant, which `unnamed_checks` proves before any is planted.
+fail on it. A check is a GoogleTest test of that name (test_nvm_boot.cpp,
+test_nvm_write.cpp, test_nvm_vector.cpp, test_nvm_more.cpp,
+test_nvm_codec.cpp, test_nvm_flashmock.cpp, test_nvm_litespi.cpp and the two
+doctored shapes' test_nvm_shapes.cpp), on either port it runs on. A named
+check whose test stays green is a finding: the test cannot fail for the
+defect it claims to detect. Every check of the suite is named by at least one
+mutant, which `unnamed_checks` proves before any is planted.
 """
 
 from __future__ import annotations
 
+import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
 from nvm_bench import TREE, Refusal
+
+import fw_gtest
 
 STORE = "nvm_store.c"
 CODEC = "nvm_klj2.c"
@@ -122,15 +129,25 @@ MUTANTS = (
        "((int32_t)(s->seq_a - s->seq_b) > 0) ? 0 : 1;", "newer_wins"),
     _m("erased_header_only", CODEC,
        "\t\tif (!nvm_all_erased(p + NVM_REC_HDR, r.plen))\n\t\t\treturn NVM_VD_REC;\n", "",
-       "verdict_parity"),
+       "verdict_parity", "codec_parity"),
     _m("no_ascending", CODEC, "\tif ((int)p[3] <= last)\n\t\treturn NVM_VD_REC;\n", "",
-       "verdict_parity"),
+       "verdict_parity", "codec_parity"),
     _m("overrun_as_rec", CODEC,
        "\tif (pos + NVM_REC_HDR + plen > end)\n\t\treturn NVM_VD_LEN;\n\t/* A payload",
        "\tif (pos + NVM_REC_HDR + plen > end)\n\t\treturn NVM_VD_REC;\n\t/* A payload",
-       "verdict_parity"),
+       "verdict_parity", "codec_parity"),
     _m("incomplete_accepted", CODEC, "\tif (seen != NVM_N_REC)\n\t\treturn NVM_VD_INCOMPLETE;\n", "",
-       "verdict_parity"),
+       "verdict_parity", "codec_parity"),
+    # ---- the codec asked directly: its room and its lookups ----
+    _m("room_unchecked", CODEC, "\tif (img_len > room)\n\t\treturn NVM_VD_LEN;\n", "", "codec_room"),
+    _m("lookup_index_unbounded", CODEC,
+       "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn r;",
+       "\tif (group >= NVM_G_COUNT)\n\t\treturn r;", "codec_lookups"),
+    # ---- a container longer than the stage ----
+    _m("long_crc_unchecked", STORE, "\tif (~crc != nvm_rd32le(trailer))\n\t\treturn NVM_VD_CRC;\n", "",
+       "long_container_reads"),
+    _m("unread_not_counted", STORE, "\t\t\tnvm.st.read_faults++;\n\t\t\tcontinue;", "\t\t\tcontinue;",
+       "long_container_reads"),
     _m("no_version_check", CODEC,
        "\tif ((nvm_rd32le(hdr + 4) >> 16) != (NVM_KLJ2_FMT_VER >> 16))\n\t\treturn NVM_VD_VER;\n", "",
        "wrong_version_falls_back"),
@@ -175,13 +192,22 @@ MUTANTS = (
        "\t\t\tcontinue;       /* the port failed a read: read the slot again */",
        "\t\t\tbreak;", "read_fail_boot", "authority_unknown"),
     _m("refusal_unconfirmed", STORE, STANDS, "\t\tif (1)", "authority_unknown",
-       "read_disagreement"),
+       "read_disagreement", "reads_differ_in_verdict", "reads_agree_in_digest_not_length"),
     _m("blank_unconfirmed", STORE, STANDS,
        "\t\tif (seen[n].vd == NVM_VD_OK || seen[n].vd == NVM_VD_BLANK || nvm_agrees(seen, n))",
        "authority_unknown"),
     # the round-3 store: two reads agree when their verdicts do, whatever
     # bytes they returned (R501-3)
     _m("refusal_by_verdict", STORE, SAME_BYTES, "seen[j].vd == seen[n].vd", "read_disagreement"),
+    # the count left out of "the same bytes": a forged CRC-32 collision over
+    # a shorter read agrees with the first
+    _m("agreement_by_digest", STORE, SAME_BYTES, "seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest",
+       "reads_agree_in_digest_not_length"),
+    # reads that return other bytes than every earlier one are not counted
+    # as media faults
+    _m("disagreement_not_counted", STORE,
+       "\t\tif (n)\n\t\t\tnvm.st.read_faults++;   /* other bytes than every earlier read */\n", "",
+       "reads_differ_in_verdict", "reads_agree_in_digest_not_length"),
     _m("restage_not_retried", STORE,
        "\tfor (i = 0; i < NVM_READ_TRIES; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
        "\tfor (i = 0; i < 1u; ++i) {\n\t\tif (nvm_restage_once(slot, seq))",
@@ -208,6 +234,15 @@ MUTANTS = (
        "\t\t\t(void)s->settle(s->ctx);\n", "settle_fault_rolls_back"),
     _m("settle_after_names", STORE, "\t\tif (r.group == NVM_G_NAME && !settled) {",
        "\t\tif (0 && r.group == NVM_G_NAME && !settled) {", "golden_restore"),
+    # a shape with no name record never settles (the doctored no-name shape)
+    _m("no_settle_without_names", STORE,
+       "\tif (!settled && s->settle(s->ctx) == NVM_FAULT)\n\t\treturn nvm_abort(NVM_C_SETTLE);\n", "",
+       "settle_after_the_last_record"),
+    # ---- DR3b at a doctored shape whose walk and sizes disagree ----
+    _m("shape_not_checked", STORE, "\tshaped = nvm_shape_consistent();", "\tshaped = 1;",
+       "shape_mismatch_disables_persistence"),
+    _m("shape_mismatch_released_unproven", STORE, "\t} else if (nvm_model_proven()) {", "\t} else {",
+       "shape_mismatch_disables_persistence"),
     _m("release_before_apply", STORE, "\tstruct nvm_rec r;\n\tint settled = 0;\n",
        "\tstruct nvm_rec r;\n\tint settled = 0;\n\n\ts->release(s->ctx);\n", "golden_restore"),
     _m("apply_erased", STORE, "\tif (nvm_all_erased(rec, NVM_REC_HDR)) {", "\tif (0) {",
@@ -244,11 +279,27 @@ MUTANTS = (
        "\tif (!nvm.dirty_armed) {", "debounce"),
     # the record the capture examines next counted as passed
     _m("taken_off_by_one", STORE, "r.id >= nvm.cursor.id", "r.id > nvm.cursor.id", "debounce"),
+    # every change during the capture counted as taken: one it has passed,
+    # and one after its last latch, open no window and are never written
+    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;",
+       "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges"),
+    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && r.id >= nvm.cursor.id;", "r.id >= nvm.cursor.id;",
+       "capture_window_edges"),
+    # a change to a record the shape does not have marks one it does
+    _m("change_of_no_record", STORE, "\tif (!r.ok || nvm.st.phase == NVM_P_OFF)\n\t\treturn;",
+       "\tif (nvm.st.phase == NVM_P_OFF)\n\t\treturn;", "change_unknown_record"),
+    # an owner with nothing to save has its stale payload framed
+    _m("nothing_to_save_framed", STORE,
+       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))\n\t\treturn;",
+       "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen) && 0)\n\t\treturn;", "nothing_to_save"),
     # ---- DR2b ----
     _m("dr2b_ignores_durability", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {",
        "\t} else if (!nvm.force) {", "failed_commit_not_skipped"),
     _m("no_dr2b", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {", "\t} else if (0) {",
        "unchanged_no_erase"),
+    # the console's commit skipped like any other over a verified container
+    _m("console_force_ignored", STORE, "\t} else if (nvm.stage_durable && !nvm.force) {",
+       "\t} else if (nvm.stage_durable) {", "console_commit_unchanged"),
     # ---- DR2c ----
     _m("no_backoff", STORE, "\tnvm.retry_at_us = nvm.now_us + NVM_US(NVM_TXN_BACKOFF_MS);",
        "\tnvm.retry_at_us = nvm.now_us;", "media_failures"),
@@ -309,6 +360,10 @@ MUTANTS = (
     _m("refused_slot_overwritten", STORE,
        "\treturn nvm.st.verdict_a != NVM_VD_BLANK && nvm.st.verdict_b == NVM_VD_BLANK;",
        "\treturn 0;", "refused_slot_kept"),
+    # DR5 with neither slot blank: the first commit lands on slot B
+    _m("no_blank_slot_takes_b", STORE,
+       "\treturn nvm.st.verdict_a != NVM_VD_BLANK && nvm.st.verdict_b == NVM_VD_BLANK;",
+       "\treturn nvm.st.verdict_a != NVM_VD_BLANK;", "first_commit_no_blank_slot"),
     Mutant("erase_authoritative",
            ((STORE, "\t\treturn !nvm.st.auth;", "\t\treturn nvm.st.auth;"),
             (STORE, "\tif (nvm.target == nvm.st.auth || f->erase", "\tif (f->erase")),
@@ -364,7 +419,15 @@ MUTANTS = (
     # a call bounded per wait only: a master slow in every wait holds it
     _m("call_deadline_ignored", LITESPI,
        "\treturn (uint32_t)(ls_call_start - ls_timer()) > nvm_flash_litespi_call_ticks;",
-       "\treturn 0;", "port_deadline"),
+       "\treturn 0;", "port_deadline", "port_drain_deadline"),
+    # the drain bounded by its poll count alone
+    _m("drain_deadline_ignored", LITESPI, "\t\tif (++n > LS_POLL_MAX || ls_late())\n\t\t\treturn -1;\n",
+       "\t\tif (++n > LS_POLL_MAX)\n\t\t\treturn -1;\n", "port_drain_deadline"),
+    # the port's own refusals, before the master is touched
+    _m("read_runs_past_device", LITESPI, "\tif (addr >= SPIFLASH_SIZE || len > SPIFLASH_SIZE - addr)",
+       "\tif (addr >= SPIFLASH_SIZE)", "port_read_range"),
+    _m("program_across_page", LITESPI, " || (addr % LS_PAGE) + len > LS_PAGE ||", " ||",
+       "port_write_refusals"),
     _m("deadline_per_wait", LITESPI, "\tuint32_t n;\n\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
        "\tuint32_t n;\n\n\tls_call_begin();\n\tfor (n = 0; n < LS_POLL_MAX; ++n) {",
        "port_deadline"),
@@ -381,6 +444,18 @@ def unnamed_checks(names: list[str]) -> list[str]:
     return [n for n in names if n not in named]
 
 
+def check_of(test: str) -> str:
+    """The check a GoogleTest test is: Ports/NvmBoth.torn_falls_back/model
+    and NvmModel.read_flip_boot are torn_falls_back and read_flip_boot."""
+    return test.split(".", 1)[-1].split("/", 1)[0]
+
+
+def listed_checks(listing: str) -> list[str]:
+    """The checks a binary's --gtest_list_tests output names."""
+    return sorted({ln.split()[0].split("/", 1)[0] for ln in listing.splitlines()
+                   if re.match(r"^  [A-Za-z_]\w*(/\w+)?(\s|$)", ln)})
+
+
 def plant(m: Mutant, dest: Path) -> None:
     """Copy the store's tree to `dest` and plant `m` into the copy."""
     shutil.copytree(TREE, dest, ignore=shutil.ignore_patterns("__pycache__"))
@@ -392,6 +467,8 @@ def plant(m: Mutant, dest: Path) -> None:
         path.write_text(text.replace(old, new))
 
 
-def survivors(m: Mutant, grade: dict[str, list[str]]) -> list[str]:
-    """The checks `m` names that its graded run left green."""
-    return [k for k in m.kills if not grade.get(k)]
+def survivors(m: Mutant, log: str) -> list[str]:
+    """The checks `m` names whose test its graded run left green: no [FAIL]
+    line names a test of that check, on either port."""
+    failed = {check_of(test) for test in fw_gtest.failed_tests(log)}
+    return [k for k in m.kills if k not in failed]

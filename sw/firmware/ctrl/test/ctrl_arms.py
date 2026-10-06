@@ -9,9 +9,9 @@ import shutil
 import sys
 from pathlib import Path
 
-from ctrl_build import (CTRL, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON, TB_MBX,
-                        Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link, run,
-                        sources)
+from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+                        TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
+                        run, sources)
 
 
 def arm_model(tree: Tree) -> Outcome:
@@ -31,6 +31,23 @@ def arm_adp(tree: Tree) -> Outcome:
     """The ADP core, its adapter and the latency bounds."""
     objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
     return execute("adp", link(tree, "test_adp", objs))
+
+
+def arm_unit(tree: Tree) -> Outcome:
+    """The driver, the loop and the composition on GoogleMock's HAL and port-layer
+    mocks; then the MMIO platform over a host window."""
+    fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
+    objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
+    seams = execute("unit", link(tree, "test_unit", objs))
+    window = (f"-include{HERE / 'mmio_window.h'}", "-DCTRL_MBX_BASE=((uintptr_t)ctrl_test_window)",
+              "-DCTRL_MBX_WFI=ctrl_test_wfi")
+    mmio = compile_c(tree, sources(tree, ("plat/mbx_plat_mmio.c",)), "mmio", window)
+    platform = execute("unit", link(tree, "test_mmio", mmio + compile_tests(tree, ("test_mmio.cpp",), "mmio/tests")))
+    return Outcome("unit", max(seams.rc, platform.rc), f"{seams.log}\n{platform.log}")
+
+
+#: The unit binary: the two link-seam mocks and the tests written on them.
+UNIT_TESTS = ("mock_mbx_hal.cpp", "mock_shlan_port.cpp", "test_unit_seams.cpp", "test_unit_driver.cpp")
 
 
 def entity_caps() -> int:

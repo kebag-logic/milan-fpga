@@ -188,6 +188,8 @@ int main(int argc, char** argv) {
     static_cast<void>(std::setvbuf(stdout, nullptr, _IONBF, 0));
     std::snprintf(state.label, sizeof state.label, "%s", fw_test::tally_label());
     ::testing::InitGoogleMock(&argc, argv);
+    // a listing runs no test and owes no tally
+    state.reported = GTEST_FLAG_GET(list_tests);
     // GoogleTest takes ownership of an appended listener (its documented API).
     ::testing::UnitTest::GetInstance()->listeners().Append(new TallyListener);
     for (const int sig : {SIGSEGV, SIGBUS, SIGFPE, SIGILL, SIGABRT}) {

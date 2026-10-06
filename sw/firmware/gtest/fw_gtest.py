@@ -11,9 +11,10 @@ one tally in a shape the reader knows, no NOCOUNT, no failure in a tally and
 no [FAIL] line. So a test that crashes, ends the program early or never runs
 is a failure, never a quiet zero (README.md, "The tally").
 
-A coverage build (Build.coverage) compiles the firmware at -O0 with gcov's
-instrumentation and the tests as before; fw_coverage.py reads what the runs
-leave behind.
+A coverage build (Build.coverage) compiles the firmware and the tests at -O0
+with gcov's instrumentation, the host models and stubs without it;
+fw_coverage.py reads what the runs leave behind and measures only the
+firmware's own sources.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ import os
 import re
 import subprocess
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -69,6 +70,11 @@ class Build:
         """The C++ compiler."""
         return os.environ.get("CXX", "g++")
 
+    def cxx_flags(self) -> list[str]:
+        """The tests' flags; a coverage build instruments them too, so firmware
+        code a test runs in its own object (a header's inline helper) counts."""
+        return self.c_flags(CXX_FLAGS)
+
     def c_flags(self, flags: Sequence[str]) -> list[str]:
         """A module's C flags, with its optimisation replaced in a coverage build."""
         if not self.coverage:
@@ -76,16 +82,19 @@ class Build:
         return [f for f in flags if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
 
 
-def run(argv: Sequence[str], cwd: Path | None = None,
-        timeout: int | None = None) -> subprocess.CompletedProcess[str]:
-    """One subprocess, its output captured; a timeout is a failed run."""
+def run(argv: Sequence[str], cwd: Path | None = None, timeout: int | None = None,
+        env: Mapping[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    """One subprocess, its output captured; a timeout, or a program that is not
+    there, is a failed run."""
     try:
         return subprocess.run(list(argv), cwd=cwd, capture_output=True, text=True, check=False,
-                              timeout=timeout)
+                              timeout=timeout, env=None if env is None else dict(env))
     except subprocess.TimeoutExpired as exc:
         # what the child printed before the kill, which the exception holds as bytes
         out = exc.stdout.decode(errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
         return subprocess.CompletedProcess(list(argv), 124, out, f"\ntimed out after {timeout} s")
+    except OSError as exc:
+        return subprocess.CompletedProcess(list(argv), 127, "", f"cannot run {argv[0]}: {exc.strerror}")
 
 
 def _compile(argv: list[str], src: Path) -> None:
@@ -124,7 +133,7 @@ def compile_tests(build: Build, includes: Sequence[str], sources: Sequence[Path]
     objects: list[Path] = []
     todo: list[tuple[list[str], Path]] = []
     for src in sources:
-        flags = [*CXX_FLAGS, *includes, *extra]
+        flags = [*build.cxx_flags(), *includes, *extra]
         pre = run([build.cxx, *flags, "-E", "-P", str(src)])
         if pre.returncode != 0:
             raise BuildError(f"{src.name} does not preprocess:\n{pre.stderr}")
@@ -168,9 +177,10 @@ def grade(rc: int, log: str) -> tuple[bool, str]:
     return True, f"{checks} tests, 0 failures"
 
 
-def run_binary(exe: Path, args: Sequence[str] = (), cwd: Path | None = None) -> tuple[bool, str]:
+def run_binary(exe: Path, args: Sequence[str] = (), cwd: Path | None = None,
+               env: Mapping[str, str] | None = None) -> tuple[bool, str]:
     """Run one test binary; (passed, its log ending in the verdict)."""
-    res = run([str(exe), *args], cwd=cwd, timeout=RUN_TIMEOUT_S)
+    res = run([str(exe), *args], cwd=cwd, timeout=RUN_TIMEOUT_S, env=env)
     log = res.stdout + res.stderr
     ok, why = grade(res.returncode, log)
     return ok, f"{log.rstrip()}\n  verdict: {'PASS' if ok else 'FAIL'} ({why}, exit {res.returncode})"

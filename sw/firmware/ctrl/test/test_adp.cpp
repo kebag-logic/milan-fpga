@@ -525,6 +525,63 @@ void core_draws(void) {
     EXPECT_TRUE(max_start > 1800u && max_delay > 3600u) << "A9 and both reach near their maxima";
 }
 
+// The random-delay generator never sticks at zero: an entity whose id words
+// cancel the seed constant, and a start seed equal to the state, each leave
+// it at 1 (xorshift32 maps 0 to 0 for ever) (#665 FT, coverage).
+uint32_t seed_value;
+
+uint32_t chosen_seed(void* ctx) {
+    static_cast<void>(ctx);
+    return seed_value;
+}
+
+void core_rng_never_zero(void) {
+    static const adp_entity cancelling = {0x000000009E3779B9ull, 1u, 2u, 3u, 1u, 1u, 1u, 1u, 0u};
+    static const adp_ports seeded = {nullptr, fake_send, fake_start, fake_stop, fake_gptp, fake_link, chosen_seed};
+    struct adp a;
+    fresh(&a, true);
+    adp_init(&a, &cancelling, &seeded, 0, 0);
+    EXPECT_EQ(a.rng, 1u) << "A22 an entity id whose words cancel the seed constant starts the generator at 1";
+    seed_value = a.rng;
+    adp_set_enable(&a, true);
+    EXPECT_TRUE(a.rng != 0u && a.state == ADP_STATE_DELAY && a.draws == 1u)
+        << "A22 a start seed equal to the state leaves it at 1 and the startup draw is made";
+}
+
+// A repeated enable or disable changes nothing: no draw, no timer, no frame
+// (#665 FT, coverage).
+void core_enable_idempotent(void) {
+    struct adp a;
+    fresh(&a, true);
+    adp_set_enable(&a, false);
+    EXPECT_TRUE(fk.sends == 0u && fk.stops == 0u && a.state == ADP_STATE_DOWN)
+        << "A23 a disable while disabled sends and stops nothing";
+    adp_set_enable(&a, true);
+    const unsigned draws = a.draws;
+    const unsigned starts = fk.starts;
+    adp_set_enable(&a, true);
+    EXPECT_TRUE(a.draws == draws && fk.starts == starts && a.state == ADP_STATE_DELAY)
+        << "A23 an enable while enabled draws and arms nothing";
+}
+
+// 5.6.3.1 discards an ADPDU of another EtherType or another subtype, counted
+// (#665 FT, coverage).
+void core_discard_kinds(void) {
+    struct adp a;
+    uint8_t f[ADP_FRAME_BYTES];
+    fresh(&a, true);
+    adp_set_enable(&a, true);
+    adp_timer_expired(&a);
+    discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
+    wire_put_be(f + 12, 0x88F5u, 2);
+    adp_rx(&a, f, sizeof f);
+    discover(f, ADP_MSG_ENTITY_DISCOVER, 0);
+    f[ADP_HEADER_BYTES] = 0xFCu;
+    adp_rx(&a, f, sizeof f);
+    EXPECT_EQ(a.discarded, 2u) << "A24 a DISCOVER under another EtherType or subtype is discarded and counted";
+    EXPECT_EQ(a.state, ADP_STATE_WAITING) << "A24 and leaves WAITING alone";
+}
+
 // ---- the adapter and the latency bounds, on the model ---------------------------
 
 struct mbx_model model;
@@ -1029,6 +1086,9 @@ TEST(AdpCore, A20LinkLossDropsTheOwedAvailable) {
 TEST(AdpCore, A21DepartingCapacity) {
     core_departing_capacity();
 }
+TEST(AdpCore, A22GeneratorNeverStuckAtZero) { core_rng_never_zero(); }
+TEST(AdpCore, A23RepeatedEnableOrDisableChangesNothing) { core_enable_idempotent(); }
+TEST(AdpCore, A24OtherEtherTypeOrSubtypeDiscarded) { core_discard_kinds(); }
 TEST(AdpAdapter, B1StaleTagDiscarded) {
     adapter_race();
 }

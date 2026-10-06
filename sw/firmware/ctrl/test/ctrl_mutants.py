@@ -42,6 +42,18 @@ class Mutant:
         return ((self.arm, self.test, self.needle), *self.also)
 
 
+#: ctrl_app_start from the pool's bind to the mailbox's open: the app binds
+#: lwSRP's pool before anything reads the mailbox window.
+APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, cfg->sink_ctx);\n"
+             "\tctrl_loop_init(&app->loop);\n"
+             "\tif (!adp_mbx_init(&app->adp, cfg->entity, CTRL_APP_ADP_FIRST_SLOT, "
+             "cfg->current_configuration_index) ||\n"
+             "\t    !adp_mbx_attach(&app->adp, &app->loop)) {\n\t\treturn false;\n\t}\n"
+             "\tif (!ctrl_loop_open(&app->loop, cfg->entity->entity_id)) {\n\t\treturn false;\n\t}\n")
+#: The same with the pool bound only once the mailbox is open.
+APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
+    "\tshlan_port_bind_pool(&app->pool);\n"
+
 MUTANTS = (
     Mutant("departing-keeps-index", "adp/adp.c",
            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
@@ -189,7 +201,9 @@ MUTANTS = (
     Mutant("rx-no-resync", "mbx/mbx.c",
            "\trx_tail[ch] = head;\n\tmbx_hal_write32(ch_reg(ch, MBX_CH_REG_RX_TAIL), head);",
            "\t(void)ch;\n\t(void)head;", "port", "Driver.D1MalformedRecordResynchronises",
-           "D1 and the ring is resynchronised"),
+           "D1 and the ring is resynchronised",
+           (("unit", "Records/DriverMalformed.D7RefusedAndResynchronised/",
+             "and the ring is resynchronised to RX_HEAD"),)),
     Mutant("tx-overfills", "mbx/mbx.c", "record > tx_words[ch] - used", "record > tx_words[ch] - used + 23u",
            "port", "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
            "D3 a held merge fills the ring"),
@@ -219,6 +233,79 @@ MUTANTS = (
     Mutant("model-gm-hi-live", "host/mbx_model.c", "\t\treturn m->gm_hi_snap[i];",
            "\t\treturn (uint32_t)(m->gm_id[i] >> 32);",
            "model", "Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot", "G0 GM_HI reads the snapshot"),
+    # ---- #665 lane FT: the tests written for branch coverage ----
+    Mutant("zero-byte-class-accepted", "port/ctrl_pool.c",
+           "if (classes[i].blocks == 0u || classes[i].block_bytes == 0u) {", "if (classes[i].blocks == 0u) {",
+           "port", "Pool.P5ClassTablesAndArenasRefused", "P5 a class of zero-byte blocks is refused"),
+    Mutant("zero-size-refusal-uncounted", "port/ctrl_pool.c", "\tif (bytes == 0u) {\n\t\tpool->refused++;\n",
+           "\tif (bytes == 0u) {\n", "port", "Pool.P6CallocOfNothingAndOnAnExhaustedPool",
+           "P6 and both refusals are counted"),
+    Mutant("foreign-free-uncounted", "port/ctrl_pool.c", "\t\treturn;\n\t}\n\tpool->bad_frees++;\n}",
+           "\t\treturn;\n\t}\n}", "port", "Pool.P7FreeBelowTheArenaRefused",
+           "P7 a free below the first class is refused and counted"),
+    Mutant("port-pool-unreported", "port/shlan_port.c", "\treturn port_pool;\n", "\treturn NULL;\n",
+           "port", "Pool.P8PortLayerUnbound", "P8 the bound pool is the one reported"),
+    Mutant("encoding-failure-swallowed", "port/ctrl_debug.c", "return want < 0 ? want : 0;", "return 0;",
+           "port", "DebugSink.S3UnencodablePrintDiscarded", "S3 an encoding failure is returned"),
+    Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
+           "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
+           "L9 a channel bound to no function is refused"),
+    Mutant("seed-left-at-zero", "adp/adp.c", "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
+           "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
+           "A22 an entity id whose words cancel the seed constant"),
+    Mutant("enable-not-idempotent", "adp/adp.c", "\tif (enable == a->enabled) {\n\t\treturn;\n\t}\n", "",
+           "adp", "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
+           "A23 an enable while enabled draws and arms nothing"),
+    Mutant("other-subtype-accepted", "adp/adp.c", "\t    frame[ADP_HEADER_BYTES] != ADP_SUBTYPE ||\n", "",
+           "adp", "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
+           "A24 a DISCOVER under another EtherType or subtype is discarded"),
+    # the unit arm: each seam on GoogleMock's mailbox window or port layer
+    Mutant("app-binds-pool-after-the-mailbox", "app/ctrl_app.c", APP_BRING, APP_BRING_LATE,
+           "unit", "AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox", "unsatisfied and active"),
+    Mutant("app-starts-on-an-uncarved-pool", "app/ctrl_app.c",
+           "\tif (!ctrl_pool_init(&app->pool, cfg->arena, cfg->arena_bytes, cfg->classes, cfg->n_classes)) {\n"
+           "\t\treturn false;\n\t}\n",
+           "\t(void)ctrl_pool_init(&app->pool, cfg->arena, cfg->arena_bytes, cfg->classes, cfg->n_classes);\n",
+           "unit", "AppComposition.U1AnUncarvablePoolStartsNothing", "over-saturated and active"),
+    Mutant("major-unchecked", "mbx/mbx.c",
+           "\t       mbx_field(id, MBX_ID_MAJOR_LSB, MBX_ID_MAJOR_WIDTH) == MBX_VERSION_MAJOR &&\n", "",
+           "unit", "AppComposition.U1AnotherContractOpensNothing",
+           "U1 a bitstream carrying another contract is refused",
+           (("unit", "IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major", "U2 major differs"),)),
+    Mutant("evt-words-unchecked", "mbx/mbx.c",
+           " &&\n\t       (1u << mbx_field(caps, MBX_CAPS_EVT_WORDS_LOG2_LSB, MBX_CAPS_EVT_WORDS_LOG2_WIDTH)) == "
+           "MBX_EVT_WORDS;", ";",
+           "unit", "IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words", "U2 evt_words differs"),
+    Mutant("step-waits-twice", "loop/ctrl_loop.c", "\t\tmbx_hal_wait();\n",
+           "\t\tmbx_hal_wait();\n\t\tmbx_hal_wait();\n",
+           "unit", "LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed", "U3 every turn is one pass"),
+    Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
+           "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
+           "unit", "DriverUnit.D6MaapRangeWritten", "D6 MAAP_BASE_LO holds the base's low word"),
+    Mutant("tx-negative-fill", "mbx/mbx.c", "if (used > tx_words[ch] || record > tx_words[ch] - used) {",
+           "if (record > tx_words[ch] - used) {",
+           "unit", "DriverUnit.D8TransmitRefusals", "D8 a TX_TAIL more than a ring behind TX_HEAD is no room"),
+    Mutant("unknown-event-decoded-as-tick", "mbx/mbx.c", "\t} else if (ev->type == MBX_EV_TYPE_TICK) {",
+           "\t} else {", "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
+           "D9 an event of a type the contract does not define"),
+    Mutant("whole-field-loses-its-top-bit", "mbx/mbx_wire.h",
+           "\tuint32_t mask = width >= 32u ? 0xFFFFFFFFu : ((1u << width) - 1u);\n\treturn (word >> lsb) & mask;",
+           "\tuint32_t mask = width >= 32u ? 0x7FFFFFFFu : ((1u << width) - 1u);\n\treturn (word >> lsb) & mask;",
+           "unit", "DriverUnit.D10LanesAndFieldsAtTheirBounds", "D10 and reads whole"),
+    Mutant("slots-past-the-bank", "adp/adp_mbx.c", "if (first_slot + MBX_N_IF > MBX_N_TIMERS) {",
+           "if (first_slot > MBX_N_TIMERS) {",
+           "unit", "AdpAdapterUnit.B2SlotsPastTheTimerBankRefused", "B2 slots past the fabric's timer bank"),
+    Mutant("foreign-frame-uncounted", "adp/adp_mbx.c", "\tif (i == NULL) {\n\t\tm->foreign_if++;\n\t\treturn;\n\t}",
+           "\tif (i == NULL) {\n\t\t(void)m;\n\t\treturn;\n\t}",
+           "unit", "AdpAdapterUnit.B3ForeignInterfaceCounted", "B3 a record, a LINK and a GM"),
+    Mutant("attach-ignores-poll-room", "adp/adp_mbx.c", "&&\n\t       ctrl_loop_add_poll(l, on_poll, m);",
+           "&&\n\t       (ctrl_loop_add_poll(l, on_poll, m) || true);",
+           "unit", "AdpAdapterUnit.B4LoopWithNoRoomRefused", "B4 a loop with no room for the poll is refused"),
+    Mutant("mmio-offset-as-index", "plat/mbx_plat_mmio.c", "(uintptr_t)(CTRL_MBX_BASE) + byte_offset)",
+           "(uintptr_t)(CTRL_MBX_BASE) + byte_offset / 4u)",
+           "unit", "MmioPlatform.M1OneWordAtBasePlusOffset", "M1 a write lands in the word at base + offset"),
+    Mutant("wait-without-wfi", "plat/mbx_plat_mmio.c", "\tCTRL_MBX_WFI();\n", "",
+           "unit", "MmioPlatform.M2WaitIsThePlatformWfi", "M2 each mbx_hal_wait() waits once"),
 )
 
 
@@ -287,7 +374,7 @@ def campaign(root: Path, reuse: Path) -> bool:
     copy, so a test object is compiled again only where a planted header
     changes what it sees."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
-            "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
     build = fw_gtest.Build()
     escaped = 0

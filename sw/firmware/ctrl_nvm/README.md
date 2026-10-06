@@ -359,15 +359,23 @@ writer. Each shape is built at its own system clock: the suite writes
 `milan_soc.py`, or to that option's 100 MHz default when the builder passes
 none. The host build and the RV32 arm both read that header, and the model's
 `timer0` counts at that clock. So the three Arty shapes are built and graded
-at 83,333,000 Hz, and the two AX7101 shapes at 100 MHz. The suite runs
-[`test/nvm_test.c`](test/nvm_test.c) over the flash model directly and over
-the LiteSPI port on the command-master model. Every byte and every verdict
-is compared with `scripts/nvm_klj2.py`. Forty-two checks per shape: 29 on
-both ports, eight on the model port alone (its read and refusal faults do
-not reach memory-mapped LiteSPI reads), and five on the LiteSPI port alone
-(the PHC, `timer0`, the command master and the guard exist only there).
+at 83,333,000 Hz, and the two AX7101 shapes at 100 MHz. The suite is a set
+of GoogleTest binaries ([the harness page](../gtest/README.md)) that run the
+store in process, over the flash model directly and over the LiteSPI port on
+the command-master model ([`test/nvm_rig.cpp`](test/nvm_rig.cpp)). Every
+byte and every verdict is compared with the fixture
+[`test/nvm_fixture.py`](test/nvm_fixture.py) writes from
+`scripts/nvm_klj2.py`, the reference codec. Per shape, 52 checks in 84
+tests: 32 on both ports, ten on the model port alone (its read and refusal
+faults do not reach memory-mapped LiteSPI reads), five on the LiteSPI port
+alone (the PHC, `timer0`, the command master and the guard exist only
+there), three that ask the codec directly and two on GoogleMock's flash
+port. The recorded vector's round trip runs on both ports at the two shapes
+that have one. At the shipping 1x1 shape three more binaries run: two
+builds against a doctored shape header, and the LiteSPI port alone on
+GoogleMock's command master and `timer0`.
 
-- **Boot** ([`test/nvm_checks.py`](test/nvm_checks.py)):
+- **Boot** ([`test/test_nvm_boot.cpp`](test/test_nvm_boot.cpp)):
   - blank, golden and erased-record slots;
   - newer wins, across the sequence wrap, and on a tie, at the wrap too;
   - a torn newer slot, two torn slots, a wrong major version;
@@ -381,7 +389,7 @@ not reach memory-mapped LiteSPI reads), and five on the LiteSPI port alone
     bindings applied, and a binding fault that fails only the binding walk;
   - roll-back faults, an unproven model after the binding walk, and refused
     values.
-- **Write-back** ([`test/nvm_checks_write.py`](test/nvm_checks_write.py)):
+- **Write-back** ([`test/test_nvm_write.cpp`](test/test_nvm_write.cpp)):
   - the first commit and a change commit, byte for byte;
   - the debounce, with changes before, during and after a capture, the one
     to the record the capture examines next included;
@@ -422,7 +430,29 @@ not reach memory-mapped LiteSPI reads), and five on the LiteSPI port alone
   starts from blank media, one slot and two slots. Every case boots the old
   values, or the new ones only when the new container is whole, and the next
   change commits.
-- **The round trip.** Given the records of the recorded vectors
+- **Paths written for branch coverage** (#665 lane FT), each graded as the
+  checks above are:
+  - [`test/test_nvm_more.cpp`](test/test_nvm_more.cpp): a container
+    longer than the stage, each of its reads failing once and its CRC not
+    closing; a console commit of an unchanged container; the first commit
+    with neither slot blank (DR5's other face); a change whose owner has
+    nothing to save; a change to a record the shape does not have; and the
+    capture's window edges (DR2a);
+  - [`test/test_nvm_codec.cpp`](test/test_nvm_codec.cpp): the codec asked
+    directly, every refusal of the parity table, the room a container is
+    held in, and the record lookups;
+  - [`test/test_nvm_flashmock.cpp`](test/test_nvm_flashmock.cpp): two
+    refusals of different verdicts, and two alike in verdict and CRC-32
+    digest over different byte counts (a collision the test forges), are a
+    media fault, on a flash port GoogleMock answers read by read;
+  - [`test/test_nvm_shapes.cpp`](test/test_nvm_shapes.cpp): a shape whose
+    record walk and sizes disagree disables persistence (DR3b), and a shape
+    with no name record settles after its last record;
+  - [`test/test_nvm_litespi.cpp`](test/test_nvm_litespi.cpp): the port's
+    own refusals before the command master is touched, and a drain that ends
+    on the call's deadline.
+- **The round trip** ([`test/test_nvm_vector.cpp`](test/test_nvm_vector.cpp)).
+  Given the records of the recorded vectors
   [`records_endstation_ax7101_1x1_tdm8.txt`](../../../tb/verilator/nvm_backend/records_endstation_ax7101_1x1_tdm8.txt)
   and its 8x8 twin, the store commits the container `tb/verilator/nvm_backend`
   grades the RTL against: its length, its CRC-32 and every record's offset. It
@@ -432,7 +462,7 @@ not reach memory-mapped LiteSPI reads), and five on the LiteSPI port alone
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one. They are graded at the 1x1 shape, except a defect that only
+by at least one (100 defects). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
 
