@@ -158,14 +158,18 @@ TEST_F(Srp, ReentryFromOutputIsRefusedAndCounted) {
     settle();
     EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
         const unsigned before=adapter.reentries;
+        const unsigned malformed=adapter.malformed;
         EXPECT_FALSE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
+        EXPECT_FALSE(srp_mbx_bind(&adapter,MBX_N_IF,0,nullptr,nullptr,0));
         EXPECT_FALSE(srp_mbx_attach(&adapter,&loop));
         srp_mbx_destroy(&adapter);
         mbx_frame f{}; f.len=17; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
+        f.len=0; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         EXPECT_FALSE(loop.polls[loop.n_polls-1].fn(&adapter));
         loop.ticks[loop.n_ticks-1]();
         EXPECT_FALSE(srp_mbx_init(&adapter,&config));
-        EXPECT_EQ(adapter.reentries,before+7);
+        EXPECT_EQ(adapter.reentries,before+9);
+        EXPECT_EQ(adapter.malformed,malformed);
     });
     offer(frame(3,identity(),0,2));
     EXPECT_TRUE(adapter.initialized); EXPECT_TRUE(adapter.ifs[0].active[0]);

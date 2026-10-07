@@ -265,8 +265,12 @@ static bool another_sink(const struct srp_interface *i, unsigned skip,
 bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid)
 {
+    if (!enter(m)) {
+        return false;
+    }
     if (interface >= MBX_N_IF || sink >= CTRL_SRP_SINKS ||
-        (identity && (!dest_mac || vid == 0 || vid >= 4095)) || m->owed_len || !enter(m)) {
+        (identity && (!dest_mac || vid == 0 || vid >= 4095)) || m->owed_len) {
+        m->busy = false;
         return false;
     }
     struct srp_interface *i = &m->ifs[interface];
@@ -306,8 +310,12 @@ static bool rx_ready(void *ctx)
 static void receive(void *ctx, const struct mbx_frame *frame)
 {
     struct srp_mbx *m = ctx;
-    if (frame->interface >= MBX_N_IF || frame->len < 17u || !enter(m)) {
+    if (!enter(m)) {
+        return;
+    }
+    if (frame->interface >= MBX_N_IF || frame->len < 17u) {
         ++m->malformed;
+        m->busy = false;
         return;
     }
     struct srp_interface *i = &m->ifs[frame->interface];

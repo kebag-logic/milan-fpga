@@ -5,24 +5,28 @@ FW_TALLY_LABEL("ctrl SRP debug guard");
 namespace {
 TEST_F(Srp, SynchronousBindingFromOutputAsserts) {
     settle();
-    EXPECT_DEATH({
-        std::signal(SIGABRT,SIG_DFL);
-        EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
-            srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0);
-        });
-        offer(frame(3,identity(),0,2));
-    },"!m->busy");
+    for (unsigned interface : {0u,static_cast<unsigned>(MBX_N_IF)}) {
+        EXPECT_DEATH({
+            std::signal(SIGABRT,SIG_DFL);
+            EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
+                srp_mbx_bind(&adapter,interface,0,nullptr,nullptr,0);
+            });
+            offer(frame(3,identity(),0,2));
+        },"!m->busy");
+    }
 }
 TEST_F(Srp, SynchronousReceiveFromOutputAsserts) {
     settle();
-    EXPECT_DEATH({
-        std::signal(SIGABRT,SIG_DFL);
-        EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
-            mbx_frame received{}; received.len=17;
-            loop.rx[MBX_CH_SRP].fn(&adapter,&received);
-        });
-        offer(frame(3,identity(),0,2));
-    },"!m->busy");
+    for (unsigned length : {17u,0u}) {
+        EXPECT_DEATH({
+            std::signal(SIGABRT,SIG_DFL);
+            EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
+                mbx_frame received{}; received.len=length;
+                loop.rx[MBX_CH_SRP].fn(&adapter,&received);
+            });
+            offer(frame(3,identity(),0,2));
+        },"!m->busy");
+    }
 }
 TEST_F(Srp, SynchronousTickFromOutputAsserts) {
     settle();
