@@ -1,0 +1,40 @@
+[
+ {
+  "plant": "clear-only-on-flush-event",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_snapshot_survives_cross_port_updates",
+    "pending_flush_listener_snapshot_survives_cross_port_updates",
+    "pending_flush_snapshot_survives_local_declarations_and_repeated_failure",
+    "pending_flush_talker_snapshot_survives_cross_port_updates",
+    "timer_completed_flush_keeps_unchanged_registrations_quiet"
+   ],
+   "failure_lines": 234
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=6"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_snapshot_survives_cross_port_updates",
+    "pending_flush_listener_snapshot_survives_cross_port_updates",
+    "pending_flush_snapshot_survives_local_declarations_and_repeated_failure",
+    "pending_flush_talker_snapshot_survives_cross_port_updates",
+    "timer_completed_flush_keeps_unchanged_registrations_quiet"
+   ],
+   "failure_lines": 234
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=6"
+  }
+ }
+]
+

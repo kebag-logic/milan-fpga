@@ -1,0 +1,94 @@
+{
+  "initial_evidence_ref": "eb9c5a65ef3cab26831bff8924c3ec91a5844e30",
+  "initial_scope": "four first-round author files; no author-r7 directory",
+  "round7_evidence_ref": "271ee8152e1b1ed7f7ab2ca60d1076d3ab037684",
+  "round7_path": "review-evidence/lwsrpm2-r1/author-r7",
+  "source_head": "14c8b364863be49bc222f4913830b79d23dcf173",
+  "retrieved_sha256": {
+    "author-ROUND7-REVIEWER-PLANT.json": "f06350667b96eb0f01fcfe0d585e72b7faee509ce27827e003715400b73596cc",
+    "author-ROUND7-RESULTS.txt": "8a449db85ddffc49ebc0995e46992708334d4147d450d080eca068bb023f7ec9",
+    "author-ROUND7-COMMANDS.json": "347c2f488127e1dcb030464dfad15693299e579710920128bc95bf13342ab180",
+    "author-ROUND7-REVERSALS-ON.json": "a1b0c5ebcf8a68d7ce6c6f9d11995b739329a2dec19c83afc94843f63f690343",
+    "author-ROUND7-PROVENANCE.json": "98206157181a1fee6707c29955f55815fd6f8b0863cc875f40e6ea1e45e08ce7",
+    "author-ROUND7-REVERSALS-OFF.json": "c5ed294761b3ec07eb92b679d28051a607b362005e9afabefebad6b9dd31e0cf"
+  },
+  "hosted_workflows": 0,
+  "hosted_checks": 0,
+  "hosted_status_contexts": 0,
+  "hardware_calibration": "NOT RUN",
+  "manager_source_validation": "Reported passed by assignment; not independently rerun",
+  "current_dev": "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+  "current_dev_candidate": "not built in this review",
+  "OFF": {
+    "keys": [
+      "profile",
+      "commands",
+      "verified_cases"
+    ],
+    "commands": 187,
+    "restored": [
+      {
+        "label": "restored-build",
+        "command": [
+          "cmake",
+          "--build",
+          "$SCRATCH/final-published/published-reversals/build",
+          "--parallel",
+          "2"
+        ],
+        "rc": 0
+      },
+      {
+        "label": "restored-check",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "$SCRATCH/final-published/published-reversals/build",
+          "--output-on-failure",
+          "--timeout",
+          "10"
+        ],
+        "rc": 0
+      }
+    ],
+    "reversal_records": {
+      "verified_cases": 93
+    }
+  },
+  "ON": {
+    "keys": [
+      "profile",
+      "commands",
+      "verified_cases"
+    ],
+    "commands": 187,
+    "restored": [
+      {
+        "label": "restored-build",
+        "command": [
+          "cmake",
+          "--build",
+          "$SCRATCH/final-published/published-milan-reversals/build",
+          "--parallel",
+          "2"
+        ],
+        "rc": 0
+      },
+      {
+        "label": "restored-check",
+        "command": [
+          "ctest",
+          "--test-dir",
+          "$SCRATCH/final-published/published-milan-reversals/build",
+          "--output-on-failure",
+          "--timeout",
+          "10"
+        ],
+        "rc": 0
+      }
+    ],
+    "reversal_records": {
+      "verified_cases": 93
+    }
+  }
+}

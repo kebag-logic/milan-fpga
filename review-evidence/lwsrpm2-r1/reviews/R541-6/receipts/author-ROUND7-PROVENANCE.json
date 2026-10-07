@@ -1,0 +1,49 @@
+{
+  "evidence": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "rc": 0,
+      "output": "ca7c2622b720a44b6cfce39390ff885a9cf181ac"
+    },
+    {
+      "command": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "rc": 0,
+      "output": "lwsrpm2-review-evidence"
+    },
+    {
+      "command": [
+        "git",
+        "remote",
+        "get-url",
+        "origin"
+      ],
+      "rc": 0,
+      "output": "https://github.com/kebag-logic/milan-fpga.git"
+    }
+  ],
+  "files": {
+    "packets/R540-5/REPORT.md": "863e68575efeb5b321f967d7829ecea10db5f13a73cc295ab59b92b7a8ad747f",
+    "packets/R541-5/REPORT.md": "62c56ff456ac47642939d01865db272906e9da5a9065deec02945ae8a8106c2e",
+    "packets/R541-5/scripts/extra_checks.py": "6e43bc28667a80ea527c9503069e6e0a52c74eb9d51fbd438755e3457420662f",
+    "packets/R541-5/scripts/reproduce.sh": "620739b8cd80000a8d2ae2bc552b8fe7f7272bbe731d98e523695c53192db675",
+    "packets/R541-5/scripts/audit.py": "1db87c1151ad2df9c925790736deb1845141a268af7d7b35ffa465965c6aec91",
+    "packets/R541-5/scripts/campaign.py": "c9868c793b203782a487b11e91c194c91f63075ebe33714d4dbd5ef0a9db5a8c",
+    "packets/R541-5/scripts/final_campaign.py": "4b51575228b1d7a1651b2ae8dbbff8de6e719efba8f9a288a9a68ba25d867419",
+    "packets/R541-5/scripts/run_common.py": "d61f110075b8839046bb37c5911fa24e5e1c92c8b52b36d868ca011da7ba66f6",
+    "packets/R541-5/scripts/probe.c": "0b80866b567530f45bfc3e3eaedcdc1adb1c63915e0c5ac4cff7812bc7e66b7b",
+    "packets/R540-5/scripts/run_profile.sh": "f61c83e9c0645bf389256e7cd5bcb92a855383808c92566afa856b483217ba1c",
+    "packets/R540-5/scripts/integrity.sh": "7fa8529339ca48572df9306826be53f6dbc7c83690e80d1f6f954539aae8b935",
+    "packets/R540-5/scripts/run_probe.sh": "2886900a10285ece5e2dd693543e675c99c8246feffb75ed1174db174ac75d98",
+    "packets/R540-5/scripts/plants_r5.py": "c83a6e608e348df626e4159ddbf5c5558d57ce4709be3af12fbf5b52a64dac5c",
+    "packets/R540-5/scripts/probe_r5.c": "1f152677c6517f0c71ddebb9c9dafaea654c6b697532b616338edeeb750ff552",
+    "packets/R540-5/scripts/launch.sh": "f6e675090652dd1cf4ec41e0998371f90be9e65cc1fe6556d8a4ddf77bdbc7e1"
+  }
+}

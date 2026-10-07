@@ -1,0 +1,70 @@
+Running "main" (86 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 9ms.
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:142: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/mutations-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+  "milan_suite": 418 passes, 12 failures in 8ms.
+  "boundaries_suite": 17156 passes in 84ms.
+Completed "main": 19861 passes, 12 failures in 125ms.

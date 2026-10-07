@@ -1,0 +1,190 @@
+[
+  {
+    "label": "milan-delayed-in-leave",
+    "killed": true,
+    "required": [
+      "talker_leave_in_is_immediate",
+      "listener_leave_in_is_immediate"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "milan-restarted-lv-deadline",
+    "killed": true,
+    "required": [
+      "leave_in_lv_keeps_the_original_deadline"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "application-decode-error",
+    "killed": true,
+    "required": [
+      "application_errors_reject_the_whole_pdu"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "propagation-retention",
+    "killed": true,
+    "required": [
+      "retained_ports_replay_propagated_join_and_timer_leave_in_order"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "registrar-recovery-indication",
+    "killed": true,
+    "required": [
+      "registrar_recovery_stops_aging_without_duplicate_join_or_map"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "changed-in-only",
+    "killed": true,
+    "required": [
+      "changed_values_after_received_leaveall_are_indicated_and_propagated",
+      "changed_values_after_transmitted_leaveall_are_indicated_and_propagated"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "stream-list-boundary",
+    "killed": true,
+    "required": [
+      "unknown_stream_layout_uses_attribute_list_length"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "callback-order",
+    "killed": true,
+    "required": [
+      "propagation_policy_observes_completed_host_indications"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-retry",
+    "killed": true,
+    "required": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "pending-flush",
+    "killed": true,
+    "required": [
+      "pending_flush_precedes_received_registration",
+      "pending_flush_talker_receive_failures_preserve_order_and_values",
+      "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+      "pending_flush_listener_receive_failures_preserve_order_and_values"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-before-refresh",
+    "killed": true,
+    "required": [
+      "pending_flush_precedes_received_registration"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-deadline",
+    "killed": true,
+    "required": [
+      "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-observer",
+    "killed": true,
+    "required": [
+      "failed_flush_reports_continuous_observer_transitions"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "replacement-lv",
+    "killed": true,
+    "required": [
+      "replacement_from_lv_keeps_leave_before_join_at_every_allocation"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "replacement-leave-timer",
+    "killed": true,
+    "required": [
+      "replacement_from_lv_keeps_leave_before_join_at_every_allocation"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "receive-instance-stop",
+    "killed": true,
+    "required": [
+      "reservation_failure_stops_later_receive_messages"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-completion",
+    "killed": true,
+    "required": [
+      "pending_flush_precedes_received_registration"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-snapshot-bypass",
+    "killed": true,
+    "required": [
+      "pending_flush_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_failed_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_listener_snapshot_survives_cross_port_updates",
+      "pending_flush_snapshot_survives_local_declarations_and_repeated_failure"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-snapshot-replaced",
+    "killed": true,
+    "required": [
+      "pending_flush_snapshot_survives_local_declarations_and_repeated_failure"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-snapshot-indication",
+    "killed": true,
+    "required": [
+      "pending_flush_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_failed_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_listener_snapshot_survives_cross_port_updates"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-snapshot-policy",
+    "killed": true,
+    "required": [
+      "pending_flush_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_failed_talker_snapshot_survives_cross_port_updates",
+      "pending_flush_listener_snapshot_survives_cross_port_updates"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "flush-timer-completion",
+    "killed": true,
+    "required": [
+      "timer_completed_flush_keeps_unchanged_registrations_quiet"
+    ],
+    "rc": 1
+  }
+]

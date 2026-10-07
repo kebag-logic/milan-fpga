@@ -1,0 +1,165 @@
+{"label": "dependency-configure", "command": ["cmake", "-S", "$PACKET/scratch/cgreen", "-B", "$PACKET/scratch/cgreen-build", "-DCMAKE_INSTALL_PREFIX=$PACKET/scratch/prefix", "-DCGREEN_WITH_UNIT_TESTS=OFF", "-DCGREEN_WITH_LIBXML2=OFF", "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.845}
+{"label": "dependency-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/cgreen-build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.319}
+{"label": "dependency-install", "command": ["cmake", "--install", "$PACKET/scratch/cgreen-build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.017}
+{"label": "ON-configure", "command": ["cmake", "-S", "$SOURCE", "-B", "$PACKET/scratch/baseline-ON", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix", "-DLWSRP_MILAN=ON"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.288}
+{"label": "OFF-configure", "command": ["cmake", "-S", "$SOURCE", "-B", "$PACKET/scratch/baseline-OFF", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix", "-DLWSRP_MILAN=OFF"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "ON-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/baseline-ON"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.444}
+{"label": "ON-ctest", "command": ["ctest", "--test-dir", "$PACKET/scratch/baseline-ON", "--output-on-failure"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.129}
+{"label": "ON-units", "command": ["$PACKET/scratch/baseline-ON/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.123}
+{"label": "ON-scenarios", "command": ["behave"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.109}
+{"label": "OFF-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/baseline-OFF"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.461}
+{"label": "ON-probe-build", "command": ["cc", "-std=c11", "-O1", "-g", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/prior_cross_port_probe.c", "tests/unit/fault_alloc.c", "-L$PACKET/scratch/baseline-ON", "-Wl,-rpath,$PACKET/scratch/baseline-ON", "-lshlan", "-o", "$PACKET/scratch/baseline-ON/prior-probe"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.178}
+{"label": "ON-cross-port", "command": ["$PACKET/scratch/baseline-ON/prior-probe", "cross-port"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.001}
+{"label": "ON-broad-probe", "command": ["$PACKET/scratch/baseline-ON/prior-probe"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.003}
+{"label": "OFF-ctest", "command": ["ctest", "--test-dir", "$PACKET/scratch/baseline-OFF", "--output-on-failure"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.126}
+{"label": "OFF-units", "command": ["$PACKET/scratch/baseline-OFF/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.115}
+{"label": "ON-freestanding", "command": ["python3", "tests/check_freestanding.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.163}
+{"label": "OFF-scenarios", "command": ["behave"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.108}
+{"label": "OFF-probe-build", "command": ["cc", "-std=c11", "-O1", "-g", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/prior_cross_port_probe.c", "tests/unit/fault_alloc.c", "-L$PACKET/scratch/baseline-OFF", "-Wl,-rpath,$PACKET/scratch/baseline-OFF", "-lshlan", "-o", "$PACKET/scratch/baseline-OFF/prior-probe"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.179}
+{"label": "OFF-cross-port", "command": ["$PACKET/scratch/baseline-OFF/prior-probe", "cross-port"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.001}
+{"label": "OFF-broad-probe", "command": ["$PACKET/scratch/baseline-OFF/prior-probe"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.004}
+{"label": "OFF-freestanding", "command": ["python3", "tests/check_freestanding.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.166}
+{"label": "scenario-dry-run", "command": ["behave", "--dry-run"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.107}
+{"label": "OFF-mut-configure", "command": ["cmake", "-S", "$PACKET/scratch/mutations-OFF/source", "-B", "$PACKET/scratch/mutations-OFF/build", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix", "-DLWSRP_MILAN=OFF"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.287}
+{"label": "ON-mut-configure", "command": ["cmake", "-S", "$PACKET/scratch/mutations-ON/source", "-B", "$PACKET/scratch/mutations-ON/build", "-DCMAKE_BUILD_TYPE=Debug", "-DCMAKE_PREFIX_PATH=$PACKET/scratch/prefix", "-DLWSRP_MILAN=ON"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.291}
+{"label": "OFF-mut-baseline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.449}
+{"label": "OFF-mut-baseline-units", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.118}
+{"label": "ON-mut-baseline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.449}
+{"label": "ON-mut-baseline-units", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.128}
+{"label": "OFF-mut-milan-delayed-in-leave-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.3}
+{"label": "OFF-mut-milan-delayed-in-leave", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.126}
+{"label": "ON-mut-milan-delayed-in-leave-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.316}
+{"label": "ON-mut-milan-delayed-in-leave", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.128}
+{"label": "OFF-mut-milan-restarted-lv-deadline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.32}
+{"label": "OFF-mut-milan-restarted-lv-deadline", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.124}
+{"label": "ON-mut-milan-restarted-lv-deadline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.316}
+{"label": "ON-mut-milan-restarted-lv-deadline", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.126}
+{"label": "OFF-mut-application-decode-error-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.314}
+{"label": "OFF-mut-application-decode-error", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.129}
+{"label": "ON-mut-application-decode-error-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.321}
+{"label": "ON-mut-application-decode-error", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.125}
+{"label": "OFF-mut-propagation-retention-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.319}
+{"label": "OFF-mut-propagation-retention", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.127}
+{"label": "ON-mut-propagation-retention-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.318}
+{"label": "ON-mut-propagation-retention", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.124}
+{"label": "OFF-mut-registrar-recovery-indication-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.31}
+{"label": "OFF-mut-registrar-recovery-indication", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.129}
+{"label": "ON-mut-registrar-recovery-indication-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.312}
+{"label": "ON-mut-registrar-recovery-indication", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.128}
+{"label": "OFF-mut-changed-in-only-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.314}
+{"label": "OFF-mut-changed-in-only", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.263}
+{"label": "ON-mut-changed-in-only-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.305}
+{"label": "ON-mut-changed-in-only", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.233}
+{"label": "OFF-mut-stream-list-boundary-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.283}
+{"label": "OFF-mut-stream-list-boundary", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.113}
+{"label": "ON-mut-stream-list-boundary-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.277}
+{"label": "ON-mut-stream-list-boundary", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.117}
+{"label": "OFF-mut-callback-order-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.287}
+{"label": "OFF-mut-callback-order", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.112}
+{"label": "ON-mut-callback-order-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.284}
+{"label": "ON-mut-callback-order", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.12}
+{"label": "OFF-mut-flush-retry-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.286}
+{"label": "OFF-mut-flush-retry", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.128}
+{"label": "ON-mut-flush-retry-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.286}
+{"label": "ON-mut-flush-retry", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.129}
+{"label": "OFF-mut-pending-flush-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.286}
+{"label": "OFF-mut-pending-flush", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.127}
+{"label": "ON-mut-pending-flush-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.283}
+{"label": "ON-mut-pending-flush", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.13}
+{"label": "OFF-mut-flush-before-refresh-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.28}
+{"label": "OFF-mut-flush-before-refresh", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.124}
+{"label": "ON-mut-flush-before-refresh-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.29}
+{"label": "ON-mut-flush-before-refresh", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.124}
+{"label": "OFF-mut-flush-deadline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "OFF-mut-flush-deadline", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.122}
+{"label": "ON-mut-flush-deadline-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.297}
+{"label": "ON-mut-flush-deadline", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.116}
+{"label": "OFF-mut-flush-observer-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.293}
+{"label": "OFF-mut-flush-observer", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.114}
+{"label": "ON-mut-flush-observer-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.29}
+{"label": "ON-mut-flush-observer", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.115}
+{"label": "OFF-mut-replacement-lv-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "OFF-mut-replacement-lv", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.116}
+{"label": "ON-mut-replacement-lv-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.293}
+{"label": "ON-mut-replacement-lv", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.114}
+{"label": "OFF-mut-replacement-leave-timer-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.284}
+{"label": "OFF-mut-replacement-leave-timer", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.119}
+{"label": "ON-mut-replacement-leave-timer-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "ON-mut-replacement-leave-timer", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.118}
+{"label": "OFF-mut-receive-instance-stop-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.299}
+{"label": "OFF-mut-receive-instance-stop", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.118}
+{"label": "ON-mut-receive-instance-stop-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.29}
+{"label": "ON-mut-receive-instance-stop", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.113}
+{"label": "OFF-mut-flush-completion-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.286}
+{"label": "OFF-mut-flush-completion", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.12}
+{"label": "ON-mut-flush-completion-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.283}
+{"label": "ON-mut-flush-completion", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.12}
+{"label": "OFF-mut-flush-snapshot-bypass-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.297}
+{"label": "OFF-mut-flush-snapshot-bypass", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.115}
+{"label": "ON-mut-flush-snapshot-bypass-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.283}
+{"label": "ON-mut-flush-snapshot-bypass", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.118}
+{"label": "OFF-mut-flush-snapshot-replaced-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.302}
+{"label": "OFF-mut-flush-snapshot-replaced", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.118}
+{"label": "ON-mut-flush-snapshot-replaced-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.292}
+{"label": "ON-mut-flush-snapshot-replaced", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.115}
+{"label": "OFF-mut-flush-snapshot-indication-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.29}
+{"label": "OFF-mut-flush-snapshot-indication", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.115}
+{"label": "ON-mut-flush-snapshot-indication-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.292}
+{"label": "ON-mut-flush-snapshot-indication", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.123}
+{"label": "OFF-mut-flush-snapshot-policy-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.291}
+{"label": "OFF-mut-flush-snapshot-policy", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.117}
+{"label": "ON-mut-flush-snapshot-policy-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.312}
+{"label": "ON-mut-flush-snapshot-policy", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.113}
+{"label": "OFF-mut-flush-timer-completion-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "OFF-mut-flush-timer-completion", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.117}
+{"label": "ON-mut-flush-timer-completion-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.289}
+{"label": "ON-mut-flush-timer-completion", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 1, "seconds": 0.118}
+{"label": "OFF-mut-restored-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.29}
+{"label": "OFF-mut-restored-units", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.114}
+{"label": "ON-mut-restored-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.286}
+{"label": "ON-mut-restored-units", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.117}
+{"label": "sentences", "command": ["python3", "doc/tools/check_sentences.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.041}
+{"label": "reference-self-test", "command": ["python3", "doc/tools/check_references.py", "--self-test"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.055}
+{"label": "references", "command": ["python3", "doc/tools/check_references.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.075}
+{"label": "links", "command": ["python3", "doc/tools/check_links.py", "--github-auth"], "cwd": "$SOURCE", "rc": 0, "seconds": 2.222}
+{"label": "graphs", "command": ["python3", "doc/tools/render_mermaid.py", "--output", "$PACKET/scratch/graphs", "--puppeteer-config", "$PACKET/scratch/browser.json"], "cwd": "$SOURCE", "rc": 0, "seconds": 15.921}
+{"label": "OFF-storage-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/OFF-storage"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.5}
+{"label": "OFF-storage", "command": ["$PACKET/scratch/OFF-storage"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.002}
+{"label": "ON-storage-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/ON-storage"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.503}
+{"label": "ON-storage", "command": ["$PACKET/scratch/ON-storage"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.002}
+{"label": "ON-storage-san-build", "command": ["cc", "-std=c11", "-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-fno-pie", "-no-pie", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/ON-storage-san"], "cwd": "$SOURCE", "rc": 0, "seconds": 1.149}
+{"label": "OFF-storage-san-build", "command": ["cc", "-std=c11", "-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-fno-pie", "-no-pie", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/OFF-storage-san"], "cwd": "$SOURCE", "rc": 0, "seconds": 1.156}
+{"label": "ON-storage-san", "command": ["$PACKET/scratch/ON-storage-san"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.018}
+{"label": "OFF-storage-san", "command": ["$PACKET/scratch/OFF-storage-san"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.016}
+{"label": "OFF-own-snapshot-copies-only-identity-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-OFF/snapshot-copies-only-identity"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 0, "seconds": 0.532}
+{"label": "OFF-own-snapshot-copies-only-identity", "command": ["$PACKET/scratch/own-mut-OFF/snapshot-copies-only-identity"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 1, "seconds": 0.001}
+{"label": "ON-own-snapshot-copies-only-identity-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-ON/snapshot-copies-only-identity"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 0, "seconds": 0.536}
+{"label": "ON-own-snapshot-copies-only-identity", "command": ["$PACKET/scratch/own-mut-ON/snapshot-copies-only-identity"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 1, "seconds": 0.001}
+{"label": "OFF-own-queue-reserves-current-value-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-OFF/queue-reserves-current-value"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 0, "seconds": 0.513}
+{"label": "OFF-own-queue-reserves-current-value", "command": ["$PACKET/scratch/own-mut-OFF/queue-reserves-current-value"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 1, "seconds": 0.001}
+{"label": "ON-own-queue-reserves-current-value-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-ON/queue-reserves-current-value"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 0, "seconds": 0.511}
+{"label": "ON-own-queue-reserves-current-value", "command": ["$PACKET/scratch/own-mut-ON/queue-reserves-current-value"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 1, "seconds": 0.001}
+{"label": "ON-own-pending-freezes-applicant-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-ON/pending-freezes-applicant"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 0, "seconds": 0.503}
+{"label": "OFF-own-pending-freezes-applicant-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-OFF/pending-freezes-applicant"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 0, "seconds": 0.506}
+{"label": "ON-own-pending-freezes-applicant", "command": ["$PACKET/scratch/own-mut-ON/pending-freezes-applicant"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 1, "seconds": 0.001}
+{"label": "OFF-own-pending-freezes-applicant", "command": ["$PACKET/scratch/own-mut-OFF/pending-freezes-applicant"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 1, "seconds": 0.001}
+{"label": "OFF-own-replacement-ignores-pending-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=0", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-OFF/replacement-ignores-pending"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 0, "seconds": 0.499}
+{"label": "OFF-own-replacement-ignores-pending", "command": ["$PACKET/scratch/own-mut-OFF/replacement-ignores-pending"], "cwd": "$PACKET/scratch/own-mut-OFF", "rc": 1, "seconds": 0.002}
+{"label": "ON-own-replacement-ignores-pending-build", "command": ["cc", "-std=c11", "-O1", "-g", "-DLWSRP_MILAN=1", "-Isrc/include", "-Isrc", "-Itests/unit", "$PACKET/scripts/storage_probe.c", "src/core/mrp_pdu.c", "src/modules/msrp.c", "src/ports/timer.c", "tests/unit/fault_alloc.c", "-o", "$PACKET/scratch/own-mut-ON/replacement-ignores-pending"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 0, "seconds": 0.515}
+{"label": "ON-own-replacement-ignores-pending", "command": ["$PACKET/scratch/own-mut-ON/replacement-ignores-pending"], "cwd": "$PACKET/scratch/own-mut-ON", "rc": 1, "seconds": 0.002}
+{"label": "embedded-boundary", "command": ["python3", "$PACKET/scratch/embedded-source/tests/check_embedded.py", "--work-dir", "$PACKET/scratch/embedded-build"], "cwd": "$PACKET/scratch/embedded-source", "rc": 0, "seconds": 1.293}
+{"label": "changed-graph-image", "command": ["mmdc", "-i", "$PACKET/scratch/graphs/doc-developer.md-306.mmd", "-o", "$PACKET/receipts/changed-retry-graph.png", "-b", "white", "-p", "$PACKET/scratch/browser.json"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.787}
+{"label": "OFF-suggestion-pending-replacement-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.297}
+{"label": "OFF-suggestion-pending-replacement", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.114}
+{"label": "ON-suggestion-pending-replacement-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.287}
+{"label": "ON-suggestion-pending-replacement", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.113}
+{"label": "OFF-suggestion-flush-leaveall-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.287}
+{"label": "OFF-suggestion-flush-leaveall", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.124}
+{"label": "ON-suggestion-flush-leaveall-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.297}
+{"label": "ON-suggestion-flush-leaveall", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.118}
+{"label": "OFF-suggestions-restored-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-OFF/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.3}
+{"label": "OFF-suggestions-restored-units", "command": ["$PACKET/scratch/mutations-OFF/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.118}
+{"label": "ON-suggestions-restored-build", "command": ["make", "-j16", "-C", "$PACKET/scratch/mutations-ON/build"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.285}
+{"label": "ON-suggestions-restored-units", "command": ["$PACKET/scratch/mutations-ON/build/unit_tests"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.113}
+{"label": "source-history", "command": ["git", "log", "--format=%H %P %s", "1401654530ce7d9275de9b901e67df47e5bbc536..14c8b364863be49bc222f4913830b79d23dcf173"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.003}
+{"label": "final-integrity", "command": ["python3", "$PACKET/scripts/audit.py"], "cwd": "$SOURCE", "rc": 0, "seconds": 0.114}
