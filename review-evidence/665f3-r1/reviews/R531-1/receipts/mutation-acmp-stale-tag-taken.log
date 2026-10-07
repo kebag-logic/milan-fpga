@@ -1,0 +1,193 @@
+[==========] Running 67 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 50 tests from AcmpCore
+[ RUN      ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold
+[       OK ] AcmpCore.A0InitRefusesWhatTheStaticSizesCannotHold (0 ms)
+[ RUN      ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled
+[       OK ] AcmpCore.A0EverySinkStartsUnboundAndNothingIsCalled (0 ms)
+[ RUN      ] AcmpCore.A1BindFromUnboundRespondsThenProbes
+[       OK ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms)
+[ RUN      ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted
+[       OK ] AcmpCore.A1BindWithoutStreamingWaitBindsStarted (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateInEveryState
+[       OK ] AcmpCore.A2GetRxStateInEveryState (0 ms)
+[ RUN      ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed
+[       OK ] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed (0 ms)
+[ RUN      ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId
+[       OK ] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId (0 ms)
+[ RUN      ] AcmpCore.A3UnbindInEveryState
+[       OK ] AcmpCore.A3UnbindInEveryState (0 ms)
+[ RUN      ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind
+[       OK ] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind (0 ms)
+[ RUN      ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+[       OK ] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked (0 ms)
+[ RUN      ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits
+[       OK ] AcmpCore.A5RebindTheSameSourceUpdatesAndExits (0 ms)
+[ RUN      ] AcmpCore.A6BindAnotherSourceRestartsTheSink
+[       OK ] AcmpCore.A6BindAnotherSourceRestartsTheSink (0 ms)
+[ RUN      ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding
+[       OK ] AcmpCore.A6TheSameTalkerAnotherSourceIsANewBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId
+[       OK ] AcmpCore.A7ResponsesKeyOnTheListenerUniqueId (0 ms)
+[ RUN      ] AcmpCore.A7EachGuardTermIsChecked
+[       OK ] AcmpCore.A7EachGuardTermIsChecked (0 ms)
+[ RUN      ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+[       OK ] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding (0 ms)
+[ RUN      ] AcmpCore.A7ResponsesOutsideProbingAreIgnored
+[       OK ] AcmpCore.A7ResponsesOutsideProbingAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A8SuccessSettles
+[       OK ] AcmpCore.A8SuccessSettles (0 ms)
+[ RUN      ] AcmpCore.A9FailureWaitsForTheRetry
+[       OK ] AcmpCore.A9FailureWaitsForTheRetry (0 ms)
+[ RUN      ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp
+[       OK ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms)
+[ RUN      ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays
+[       OK ] AcmpCore.A11RetryWaitsForTheTalkerOrDelays (0 ms)
+[ RUN      ] AcmpCore.A12DelaySendsANewProbe
+[       OK ] AcmpCore.A12DelaySendsANewProbe (0 ms)
+[ RUN      ] AcmpCore.A13NoTalkerAttributeReprobes
+[       OK ] AcmpCore.A13NoTalkerAttributeReprobes (0 ms)
+[ RUN      ] AcmpCore.A14RegisteredSettlesTheReservation
+[       OK ] AcmpCore.A14RegisteredSettlesTheReservation (0 ms)
+[ RUN      ] AcmpCore.A15UnregisteredReprobes
+[       OK ] AcmpCore.A15UnregisteredReprobes (0 ms)
+[ RUN      ] AcmpCore.A16OneCounterForEveryNewProbe
+[       OK ] AcmpCore.A16OneCounterForEveryNewProbe (0 ms)
+[ RUN      ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline
+[       OK ] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline (0 ms)
+[ RUN      ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry
+[       OK ] AcmpCore.A18AZeroDelayProbesInTheSameExpiry (0 ms)
+[ RUN      ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw
+[       OK ] AcmpCore.A18TheSeedIsTakenAtTheFirstDraw (0 ms)
+[ RUN      ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource
+[       OK ] AcmpCore.A20ProbeTxIsAnsweredFromTheSource (0 ms)
+[ RUN      ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection
+[       OK ] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection (0 ms)
+[ RUN      ] AcmpCore.A21MessagesNotForThisEntityAreIgnored
+[       OK ] AcmpCore.A21MessagesNotForThisEntityAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A21MalformedFramesAreCounted
+[       OK ] AcmpCore.A21MalformedFramesAreCounted (0 ms)
+[ RUN      ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits
+[       OK ] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits (0 ms)
+[ RUN      ] AcmpCore.A19NothingPassesAnOwedFrame
+[       OK ] AcmpCore.A19NothingPassesAnOwedFrame (0 ms)
+[ RUN      ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs
+[       OK ] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs (0 ms)
+[ RUN      ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered
+[       OK ] AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered (0 ms)
+[ RUN      ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether
+[       OK ] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether (0 ms)
+[ RUN      ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches
+[       OK ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail
+[       OK ] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail (0 ms)
+[ RUN      ] AcmpCore.A22DiscoveredStateCells
+[       OK ] AcmpCore.A22DiscoveredStateCells (0 ms)
+[ RUN      ] AcmpCore.A22DepartingAndAging
+[       OK ] AcmpCore.A22DepartingAndAging (0 ms)
+[ RUN      ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface
+[       OK ] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface (0 ms)
+[ RUN      ] AcmpCore.A22OtherAdpFramesAreIgnored
+[       OK ] AcmpCore.A22OtherAdpFramesAreIgnored (0 ms)
+[ RUN      ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort
+[       OK ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms)
+[ RUN      ] AcmpCore.A23EveryPortIsGuarded
+[       OK ] AcmpCore.A23EveryPortIsGuarded (0 ms)
+[ RUN      ] AcmpCore.A24ARestoredBindingFastConnects
+[       OK ] AcmpCore.A24ARestoredBindingFastConnects (0 ms)
+[ RUN      ] AcmpCore.A24UnboundRecordsRefusalsAndRollback
+[       OK ] AcmpCore.A24UnboundRecordsRefusalsAndRollback (0 ms)
+[ RUN      ] AcmpCore.A24StartedIsSavedAndReported
+[       OK ] AcmpCore.A24StartedIsSavedAndReported (0 ms)
+[ RUN      ] AcmpCore.A25OnlyTable522ItemsAreReported
+[       OK ] AcmpCore.A25OnlyTable522ItemsAreReported (0 ms)
+[----------] 50 tests from AcmpCore (0 ms total)
+
+[----------] 16 tests from AcmpMailbox
+[ RUN      ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[       OK ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder (0 ms)
+[ RUN      ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[       OK ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused (0 ms)
+[ RUN      ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[       OK ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot (0 ms)
+[ RUN      ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:288: Failure
+Value of: app.acmp.ifs[0].stale_expiries == 1u && core()->sinks[0].state == ACMP_SETTLED_RSV_OK && app.acmp.ifs[0].armed && model.timers[(0u + 1u)].deadline_ms == core()->sinks[0].adp_deadline
+  Actual: false
+Expected: true
+B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_mbx.cpp:300: Failure
+Value of: app.acmp.ifs[0].stale_expiries == 1u && app.acmp.ifs[0].armed
+  Actual: false
+Expected: true
+B4 another module's slot is not ACMP's
+
+  [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 another module's slot is not ACMP's
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded (0 ms)
+[ RUN      ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[       OK ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp (0 ms)
+[ RUN      ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[       OK ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces (0 ms)
+[ RUN      ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+  C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP          72 accesses (bound 72)
+  C1 GET_RX_STATE -> response                            47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed                28 accesses (bound 28)
+  C3 UNBIND_RX -> response, timer stopped                48 accesses (bound 48)
+  C4 talker command -> response                          47 accesses (bound 47)
+  C4 talker command -> response                          47 accesses (bound 47)
+  C4 talker command -> response                          47 accesses (bound 47)
+  C4 talker command -> response                          47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed       28 accesses (bound 28)
+[       OK ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem (0 ms)
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP      34 accesses (bound 34)
+  C6 TMR_NO_RESP -> TMR_RETRY armed                      12 accesses (bound 13)
+  C7 TMR_RETRY -> TMR_DELAY armed                        13 accesses (bound 13)
+  C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP                  34 accesses (bound 34)
+  C9 TMR_NO_TK -> TMR_DELAY armed                        12 accesses (bound 13)
+[       OK ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+  C10 ENTITY_AVAILABLE -> TMR_DELAY armed (H-DISC)       35 accesses (bound 35)
+  C11 ENTITY_DEPARTING -> timer stopped (H-DISC)         29 accesses (bound 30)
+[       OK ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord (0 ms)
+[ RUN      ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+  C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC)   12 accesses (bound 12)
+[       OK ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[       OK ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt (0 ms)
+[ RUN      ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+  E2 0 owed ahead: room to response                      25 accesses (bound 8865)
+  E2 3 owed ahead: room to response                     100 accesses (bound 8865)
+  E2 7 owed ahead: room to response                     200 accesses (bound 8865)
+[       OK ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 (0 ms)
+[ RUN      ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+  backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 186 accesses
+  F3 the worst pass of the backlog                      186 accesses (bound 985)
+[       OK ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[       OK ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing (0 ms)
+[ RUN      ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+  adp backlog: 26 records, the ENTITY_AVAILABLE served in pass 13
+  F5 ENTITY_AVAILABLE behind a full adp ring (H-DISC)   333 accesses (bound 21670)
+[       OK ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[       OK ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract (0 ms)
+[----------] 16 tests from AcmpMailbox (2 ms total)
+
+[----------] 1 test from AcmpAdapterUnit
+[ RUN      ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[       OK ] AcmpAdapterUnit.B7RefusalsOfTheAdapter (0 ms)
+[----------] 1 test from AcmpAdapterUnit (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 67 tests from 3 test suites ran. (3 ms total)
+[  PASSED  ] 66 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+
+ 1 FAILED TEST
+== ctrl ACMP core and adapter (fake ports and host model): checks: 67   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 67 checks, exit 1)

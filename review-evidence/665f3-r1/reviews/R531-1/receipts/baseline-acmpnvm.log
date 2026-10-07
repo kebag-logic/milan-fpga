@@ -1,0 +1,23 @@
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from AcmpStore
+[ RUN      ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[       OK ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects (3 ms)
+[ RUN      ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[       OK ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord (1 ms)
+[ RUN      ] AcmpStore.N3EachSinksStartedStateIsSaved
+[       OK ] AcmpStore.N3EachSinksStartedStateIsSaved (0 ms)
+[ RUN      ] AcmpStore.N4AnUnreadSlotRefusesPersistence
+[       OK ] AcmpStore.N4AnUnreadSlotRefusesPersistence (1 ms)
+[ RUN      ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[       OK ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault (0 ms)
+[ RUN      ] AcmpStore.N6TheRollBackAndEveryOtherGroup
+[       OK ] AcmpStore.N6TheRollBackAndEveryOtherGroup (0 ms)
+[----------] 6 tests from AcmpStore (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 6 tests.
+== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)

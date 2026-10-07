@@ -1,0 +1,132 @@
+[==========] Running 9 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from CoreProbe
+[ RUN      ] CoreProbe.VersionZeroBinds
+[       OK ] CoreProbe.VersionZeroBinds (0 ms)
+[ RUN      ] CoreProbe.UnsupportedVersionCannotBind
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:31: Failure
+Value of: a.sinks[0].bound
+  Actual: true
+Expected: false
+
+  [FAIL] CoreProbe.UnsupportedVersionCannotBind: Expected: false
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:31: Failure
+Value of: fk.sent.empty()
+  Actual: false
+Expected: true
+
+  [FAIL] CoreProbe.UnsupportedVersionCannotBind: Expected: true
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:31: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 1
+  0u
+    Which is: 0
+
+  [FAIL] CoreProbe.UnsupportedVersionCannotBind:     Which is: 0
+[  FAILED  ] CoreProbe.UnsupportedVersionCannotBind (0 ms)
+[ RUN      ] CoreProbe.UnsupportedVersionCannotDiscover
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:37: Failure
+Value of: a.sinks[0].discovered
+  Actual: true
+Expected: false
+
+  [FAIL] CoreProbe.UnsupportedVersionCannotDiscover: Expected: false
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:37: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 2
+  ACMP_PRB_W_AVAIL
+    Which is: 1
+
+  [FAIL] CoreProbe.UnsupportedVersionCannotDiscover:     Which is: 1
+[  FAILED  ] CoreProbe.UnsupportedVersionCannotDiscover (0 ms)
+[ RUN      ] CoreProbe.UnstalledDuplicateAcceptsResponseAt197ms
+[       OK ] CoreProbe.UnstalledDuplicateAcceptsResponseAt197ms (0 ms)
+[ RUN      ] CoreProbe.DuplicateGets200msAfterFiveMsSendStall
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:56: Failure
+Expected equality of these values:
+  a.sinks[0].timer_deadline
+    Which is: 50400
+  t+405
+    Which is: 50405
+
+  [FAIL] CoreProbe.DuplicateGets200msAfterFiveMsSendStall:     Which is: 50405
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:58: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 5
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+  [FAIL] CoreProbe.DuplicateGets200msAfterFiveMsSendStall:     Which is: 4
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:62: Failure
+Expected equality of these values:
+  a.sinks[0].state
+    Which is: 5
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+
+  [FAIL] CoreProbe.DuplicateGets200msAfterFiveMsSendStall:     Which is: 6
+[  FAILED  ] CoreProbe.DuplicateGets200msAfterFiveMsSendStall (0 ms)
+[ RUN      ] CoreProbe.TimerSlotBoundsIncludeUnsignedMaximum
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:67: Failure
+Value of: acmp_mbx_init(&m,&cfg,&kEnv,(0x7fffffff * 2U + 1U))
+  Actual: true
+Expected: false
+
+  [FAIL] CoreProbe.TimerSlotBoundsIncludeUnsignedMaximum: Expected: false
+[  FAILED  ] CoreProbe.TimerSlotBoundsIncludeUnsignedMaximum (0 ms)
+[----------] 6 tests from CoreProbe (0 ms total)
+
+[----------] 3 tests from MailboxProbe
+[ RUN      ] MailboxProbe.UnsupportedVersionPassesFilterButMustNotBind
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:86: Failure
+Value of: app.acmp.acmp.sinks[0].bound
+  Actual: true
+Expected: false
+
+  [FAIL] MailboxProbe.UnsupportedVersionPassesFilterButMustNotBind: Expected: false
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:86: Failure
+Expected equality of these values:
+  fk.count(Call::PERSIST)
+    Which is: 1
+  0u
+    Which is: 0
+
+  [FAIL] MailboxProbe.UnsupportedVersionPassesFilterButMustNotBind:     Which is: 0
+[  FAILED  ] MailboxProbe.UnsupportedVersionPassesFilterButMustNotBind (0 ms)
+[ RUN      ] MailboxProbe.OverflowSlotCannotReceiveItsFabricExpiry
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:91: Failure
+Value of: accepted
+  Actual: true
+Expected: false
+
+  [FAIL] MailboxProbe.OverflowSlotCannotReceiveItsFabricExpiry: Expected: false
+$REVIEWS/665f3-r531-1-packet/scripts/independent_probes.cpp:98: Failure
+Expected equality of these values:
+  app.acmp.acmp.sinks[0].state
+    Which is: 3
+  ACMP_PRB_W_RESP2
+    Which is: 4
+
+  [FAIL] MailboxProbe.OverflowSlotCannotReceiveItsFabricExpiry:     Which is: 4
+[  FAILED  ] MailboxProbe.OverflowSlotCannotReceiveItsFabricExpiry (0 ms)
+[ RUN      ] MailboxProbe.ConfiguredInterfacesHaveSeparateTimersAndProbeRoutes
+[       OK ] MailboxProbe.ConfiguredInterfacesHaveSeparateTimersAndProbeRoutes (0 ms)
+[----------] 3 tests from MailboxProbe (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 2 test suites ran. (0 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] CoreProbe.UnsupportedVersionCannotBind
+[  FAILED  ] CoreProbe.UnsupportedVersionCannotDiscover
+[  FAILED  ] CoreProbe.DuplicateGets200msAfterFiveMsSendStall
+[  FAILED  ] CoreProbe.TimerSlotBoundsIncludeUnsignedMaximum
+[  FAILED  ] MailboxProbe.UnsupportedVersionPassesFilterButMustNotBind
+[  FAILED  ] MailboxProbe.OverflowSlotCannotReceiveItsFabricExpiry
+
+ 6 FAILED TESTS
+== R531 independent protocol and boundary probes: checks: 9   failures: 6 ==
+RESULT: FAIL

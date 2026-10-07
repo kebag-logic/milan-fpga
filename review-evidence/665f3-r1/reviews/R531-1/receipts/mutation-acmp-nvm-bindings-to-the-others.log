@@ -1,0 +1,95 @@
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from AcmpStore
+[ RUN      ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:125: Failure
+Value of: s.bound && s.binding.talker_entity_id == kTkA && s.binding.talker_unique_id == 1u && s.binding.controller_entity_id == kCtl1 && s.started && !s.binding.streaming_wait
+  Actual: false
+Expected: true
+N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+
+  [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:128: Failure
+Value of: s.state == ACMP_PRB_W_AVAIL && s.probing == ACMP_PROBING_PASSIVE && s.disc_running && !s.discovered
+  Actual: false
+Expected: true
+N1 into PRB_W_AVAIL, PROBING_PASSIVE, discovery running (5.5.3.5.2)
+
+  [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 into PRB_W_AVAIL, PROBING_PASSIVE, discovery running (5.5.3.5.2)
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:136: Failure
+Value of: fk.sent.empty()
+  Actual: true
+Expected: false
+
+  [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: Expected: false
+[  FAILED  ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects (3 ms)
+[ RUN      ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:148: Failure
+Value of: a.sinks[0].bound
+  Actual: false
+Expected: true
+
+  [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: Expected: true
+[  FAILED  ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord (0 ms)
+[ RUN      ] AcmpStore.N3EachSinksStartedStateIsSaved
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:166: Failure
+Value of: a.sinks[0].bound && !a.sinks[0].started && a.sinks[0].binding.streaming_wait && a.sinks[1].bound && !a.sinks[1].started && !a.sinks[1].binding.streaming_wait && a.sinks[1].binding.talker_entity_id == kTkB
+  Actual: false
+Expected: true
+N3 each sink's started state and STREAMING_WAIT come back (5.3.8.7)
+
+  [FAIL] AcmpStore.N3EachSinksStartedStateIsSaved: N3 each sink's started state and STREAMING_WAIT come back (5.3.8.7)
+[  FAILED  ] AcmpStore.N3EachSinksStartedStateIsSaved (1 ms)
+[ RUN      ] AcmpStore.N4AnUnreadSlotRefusesPersistence
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:190: Failure
+Value of: a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA && a.sinks[0].state == ACMP_PRB_W_AVAIL
+  Actual: false
+Expected: true
+N4 what the readable slot holds is still restored: the fast connect stands
+
+  [FAIL] AcmpStore.N4AnUnreadSlotRefusesPersistence: N4 what the readable slot holds is still restored: the fast connect stands
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:201: Failure
+Value of: a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA
+  Actual: false
+Expected: true
+N4 a clean boot brings back the binding that was saved, not the refused one
+
+  [FAIL] AcmpStore.N4AnUnreadSlotRefusesPersistence: N4 a clean boot brings back the binding that was saved, not the refused one
+[  FAILED  ] AcmpStore.N4AnUnreadSlotRefusesPersistence (1 ms)
+[ RUN      ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:209: Failure
+Value of: nvm_store_status()->terminal == NVM_T_COMPLETE && nvm_store_status()->refused >= 1u
+  Actual: false
+Expected: true
+N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+
+  [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+[  FAILED  ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault (1 ms)
+[ RUN      ] AcmpStore.N6TheRollBackAndEveryOtherGroup
+$REVIEWS/r531-1-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:218: Failure
+Expected equality of these values:
+  glue.port.apply(glue.port.ctx, NVM_G_BIND, 0, record, sizeof record - 1u)
+    Which is: 2
+  NVM_REFUSED
+    Which is: 1
+N6 one of another length is refused
+
+  [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 one of another length is refused
+[  FAILED  ] AcmpStore.N6TheRollBackAndEveryOtherGroup (0 ms)
+[----------] 6 tests from AcmpStore (9 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (9 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[  FAILED  ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[  FAILED  ] AcmpStore.N3EachSinksStartedStateIsSaved
+[  FAILED  ] AcmpStore.N4AnUnreadSlotRefusesPersistence
+[  FAILED  ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[  FAILED  ] AcmpStore.N6TheRollBackAndEveryOtherGroup
+
+ 6 FAILED TESTS
+== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 6   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 6 checks, exit 1)

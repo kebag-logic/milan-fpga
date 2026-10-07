@@ -1,0 +1,224 @@
+[
+  {
+    "name": "acmp-response-keyed-on-the-source",
+    "path": "acmp/acmp.c",
+    "old": "\tunsigned k = rsp->listener_uid;\n\tif (k >= a->cfg.n_sinks) {\n\t\ta->unknown_sink++;                              // 5.5.3.1: ignored",
+    "new": "\tunsigned k = 0;\n\twhile (k < a->cfg.n_sinks && (a->sinks[k].probe_talker != rsp->talker ||\n\t\t\t\t\t a->sinks[k].probe_talker_uid != rsp->talker_uid)) {\n\t\tk++;\n\t}\n\tif (k >= a->cfg.n_sinks) {\n\t\ta->unknown_sink++;",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A7ResponsesKeyOnTheListenerUniqueId",
+        "assertion": "A7 the response belongs to the sink",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-duplicate-takes-a-new-sequence-id",
+    "path": "acmp/acmp.c",
+    "old": "\t\ts->probe_retried = true;\n\t\tsend_probe(a, k);                               // the same sequence_id",
+    "new": "\t\tprobe(a, k);\n\t\ts->probe_retried = true;",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp",
+        "assertion": "A10 an exact duplicate of the first probe",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "Table530/ListenerWalk.Graded/TMR_CMD_PWR",
+        "assertion": "frame 0 byte for byte",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-retry-zeroes-the-status",
+    "path": "acmp/acmp.c",
+    "old": "\t\tdelay(a, s);\n\t} else {                                                // 5.5.3.5.36, TMR_NO_TK",
+    "new": "\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);\n\t} else {",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A11RetryWaitsForTheTalkerOrDelays",
+        "assertion": "A11 and the ACMP status stays",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc",
+        "assertion": "state, probing and ACMP status",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-change-not-held-for-its-response",
+    "path": "acmp/acmp.c",
+    "old": "\t\ta->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((release >> k) & 1u));",
+    "new": "\t\t(void)release;",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits",
+        "assertion": "A19 but its change is not reported while its response waits (#653)",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmp",
+        "test": "AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt",
+        "assertion": "E1 nothing reported yet",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-probe-tx-any-interface",
+    "path": "acmp/acmp.c",
+    "old": "\tif (cmd->msg == ACMP_MSG_PROBE_TX_COMMAND && interface != a->cfg.source_interface[src]) {",
+    "new": "\tif (cmd->msg == ACMP_MSG_PROBE_TX_COMMAND && false) {",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A20ProbeTxIsAnsweredFromTheSource",
+        "assertion": "A20 a probe from another interface than the source's",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "TalkerWalk.TW4TheInterfaceAndTheStatelessProperty",
+        "assertion": "TW4 a probe from another interface",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-disconnect-always-succeeds",
+    "path": "acmp/acmp.c",
+    "old": "\tif (src >= a->cfg.n_sources) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "new": "\tif (src >= a->cfg.n_sources && cmd->msg != ACMP_MSG_DISCONNECT_TX_COMMAND) {\n\t\tstruct pdu r = echo(cmd, ACMP_STATUS_TALKER_UNKNOWN_ID);",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A20DisconnectGetTxStateAndGetTxConnection",
+        "assertion": "A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "TalkerWalk.TW3DisconnectAndGetTxConnection",
+        "assertion": "TD1 DISCONNECT_TX of an unknown source",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-valid-time-in-seconds",
+    "path": "acmp/acmp.c",
+    "old": "\td.valid_ms = (uint32_t)(frame[A_VALID_TIME] >> 3) * ACMP_VALID_TIME_UNIT_MS;   // 6.2.2.5",
+    "new": "\td.valid_ms = (uint32_t)(frame[A_VALID_TIME] >> 3) * 1000u;",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches",
+        "assertion": "A22 TMR_NO_ADP is the received valid_time in two-second units",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "Table554/DiscoveryWalk.Graded/",
+        "assertion": "TMR_NO_ADP armed from the received valid_time",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-restart-on-a-smaller-index-only",
+    "path": "acmp/acmp.c",
+    "old": "\tif (index <= s->disc_available_index) {                 // step 2: a new availability cycle",
+    "new": "\tif (index < s->disc_available_index) {",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A22DiscoveredStateCells",
+        "assertion": "A22 available_index 700 <= last",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-discovery-on-every-interface",
+    "path": "acmp/acmp.c",
+    "old": "\t\tif (!s->disc_running || s->interface != interface || s->binding.talker_entity_id != entity) {",
+    "new": "\t\tif (!s->disc_running || s->binding.talker_entity_id != entity) {",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface",
+        "assertion": "A22 every bound sink of the talker processes it",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-record-unique-id-little-endian",
+    "path": "acmp/acmp.c",
+    "old": "\t\twire_put_be(payload + 2, s->binding.talker_unique_id, 2);",
+    "new": "\t\tpayload[2] = (uint8_t)s->binding.talker_unique_id;\n\t\tpayload[3] = (uint8_t)(s->binding.talker_unique_id >> 8);",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.A24ARestoredBindingFastConnects",
+        "assertion": "A24 the latch gives the same record back",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-stale-tag-taken",
+    "path": "acmp/acmp_mbx.c",
+    "old": "\t\tif (!i->armed || ev->timer_tag != i->tag) {",
+    "new": "\t\tif (!i->armed) {",
+    "results": [
+      {
+        "arm": "acmp",
+        "test": "AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded",
+        "assertion": "B4 the expiry of a replaced arm",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "name": "acmp-nvm-bindings-to-the-others",
+    "path": "acmp/acmp_nvm.c",
+    "old": "\tif (group != n->bind_group) {\n\t\treturn n->others->apply(",
+    "new": "\tif (true) {\n\t\treturn n->others->apply(",
+    "results": [
+      {
+        "arm": "acmpnvm",
+        "test": "AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects",
+        "assertion": "N1 the binding parameters come back",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  }
+]
