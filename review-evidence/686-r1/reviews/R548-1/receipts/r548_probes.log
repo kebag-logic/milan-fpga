@@ -1,0 +1,65 @@
+[SURVIVED] defend_while_busy: ['KL_maap: 120 checks, 0 failures']
+[KILLED] compare_mac_inverted: rc=1 ['KL_maap: 120 checks, 6 failures']
+    [FAIL] T.B7 note d: lower MAC keeps range           got=0 exp=1
+    [FAIL] B.2.7 ANNOUNCE conflict_* is not its range   got=0 exp=1
+    [FAIL] note b adjacent above: no conflict           got=0 exp=1
+    [FAIL] note b adjacent below: no conflict           got=0 exp=1
+    [FAIL] note b empty range: no conflict              got=0 exp=1
+    [FAIL] no re-address so far                         got=1 exp=0
+[KILLED] restart_keeps_probe_count: rc=1 ['KL_maap: 105 checks, 10 failures']
+    [FAIL] T.B7 rAnnounce!/DEFEND: re-address           got=2 exp=1
+    [FAIL] addr dropped                                 got=1 exp=0
+    [FAIL] T.B7 rAnnounce!/PROBE: no compare_MAC        got=0 exp=1
+    [FAIL] T.B7 Restart!: first PROBE at once           got=0 exp=1
+    [FAIL] T.B7 Restart!: four PROBEs before ANNOUNCE   got=0 exp=4
+    [FAIL] T.B7 probeCount!: ANNOUNCE at once (Restart!) got=0 exp=1
+[KILLED] restart_same_offset: rc=1 ['KL_maap: 120 checks, 6 failures']
+    [FAIL] offset changed                               got=0 exp=1
+    [FAIL] T.B7 rAnnounce!/PROBE: no compare_MAC        got=0 exp=1
+    [FAIL] DEFEND with conflicting conflict_*: re-address got=0 exp=1
+    [FAIL] probing + PROBE: offset changed              got=0 exp=1
+    [FAIL] ver7: conflict honored (re-address)          got=0 exp=1
+    [FAIL] ver0: conflict honored (re-address)          got=0 exp=1
+[KILLED] conflict_ignores_pool: rc=1 ['KL_maap: 120 checks, 2 failures']
+    [FAIL] offset stable                                got=7443 exp=12833
+    [FAIL] conflicts unchanged                          got=6 exp=5
+[SURVIVED] own_empty_range_conflicts: ['KL_maap: 120 checks, 0 failures']
+[KILLED] defend_judged_on_requested: rc=1 ['KL_maap: 120 checks, 9 failures']
+    [FAIL] DEFEND re-addresses (state PROBE)            got=2 exp=1
+    [FAIL] then the new range's PROBE                   got=0 exp=1
+    [FAIL] DEFEND with conflicting conflict_*: re-address got=0 exp=1
+    [FAIL] conflicts +1                                 got=2 exp=3
+    [FAIL] DEFEND judged on conflict_* only             got=51989 exp=10873
+    [FAIL] conflicts +2                                 got=3 exp=4
+[KILLED] probe_in_announce_restarts: rc=1 ['KL_maap: 110 checks, 19 failures']
+    [FAIL] above: DEFEND emitted promptly               got=0 exp=1
+    [FAIL] still ANNOUNCE                               got=1 exp=2
+    [FAIL] defends counted                              got=0 exp=1
+    [FAIL] below: DEFEND emitted promptly               got=0 exp=1
+    [FAIL] B.2.1 DEFEND DA latched at send              got=0 exp=1
+    [FAIL] B.2.7 one-address overlap start              got=0 exp=19297
+[KILLED] defend_ignored_while_probing: rc=1 ['KL_maap: 120 checks, 6 failures']
+    [FAIL] DEFEND with conflicting conflict_*: re-address got=0 exp=1
+    [FAIL] conflicts +1                                 got=3 exp=4
+    [FAIL] conflicts +2                                 got=4 exp=5
+    [FAIL] ver0: conflict honored (re-address)          got=0 exp=1
+    [FAIL] ver0: conflicts +2                           got=5 exp=6
+    [FAIL] ver7 disjoint: conflicts still +2            got=5 exp=6
+[KILLED] five_probes: rc=1 ['KL_maap: 124 checks, 6 failures']
+    [FAIL] T.B7 Begin!: four PROBEs before ANNOUNCE     got=5 exp=4
+    [FAIL] T.B7 probeCount!: ANNOUNCE at once (Begin!)  got=0 exp=1
+    [FAIL] B.3.4.1 announce T < 32 s                    got=0 exp=1
+    [FAIL] T.B7 Restart!: four PROBEs before ANNOUNCE   got=5 exp=4
+    [FAIL] T.B7 probeCount!: ANNOUNCE at once (Restart!) got=0 exp=1
+    [FAIL] campaign: every walk four PROBEs + ANNOUNCE  got=150 exp=0
+[SURVIVED] truncated_pdu_accepted: ['KL_maap: 120 checks, 0 failures']
+[KILLED] conf_start_our_offset: rc=1 ['KL_maap: 120 checks, 2 failures']
+    [FAIL] B.2.7 conflict_start = overlap (above)       got=160395285252961 exp=160395285252965
+    [FAIL] B.2.8 conflict_count = overlap (above)       got=8 exp=4
+[KILLED] announce_reload_probe_draw: rc=1 ['KL_maap: 120 checks, 1 failures']
+    [FAIL] B.3.4.1 announce T > 30 s                    got=0 exp=1
+[KILLED] src_mac_lanes_swapped: rc=1 ['KL_maap: 120 checks, 3 failures']
+    [FAIL] B.2.1 DEFEND DA = PROBE source (above)       got=0 exp=1
+    [FAIL] B.2.1 DEFEND DA = PROBE source (below)       got=0 exp=1
+    [FAIL] B.2.1 DEFEND DA latched at send              got=0 exp=1
+== r548 probes: 14 probes, 3 survived ==
