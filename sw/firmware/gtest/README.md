@@ -341,7 +341,8 @@ drives it prints the line for the run.
 Both arms compile RV32I objects using ILP32.
 `-ffreestanding` selects GCC's freestanding C headers.
 `-nostdinc` excludes the SDK's hosted include directories.
-`rv32_include` declares memory functions and the bounded formatter.
+`rv32_include` declares memory functions, the bounded formatter and `assert`.
+The ctrl build keeps assertions, so `__assert_fail` is a named interface there.
 Those declarations supply no runtime implementations or replacement behavior.
 The product supplies its runtime through the bare-metal build.
 The SDK pin remains unchanged.
