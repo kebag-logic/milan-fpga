@@ -285,8 +285,9 @@ identity.
 At lane F3 round 5, with the pinned SDK of `scripts/ci_rv32_sdk.py`
 (`riscv32-ilp32d--glibc--stable-2025.08-1`, archive sha256
 `d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f`), whose
-compiler's version line ends `(Buildroot 2021.11-18033-g83947c7bb6) 14.3.0`
-and whose `libgcc.a` has sha256
+compiler's version line reports GCC 14.3.0 from the SDK build
+`2021.11-18033-g83947c7bb6` (`ctrl_image.py` prints the line in full) and
+whose `libgcc.a` has sha256
 `d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58`, against
 dev `d51b373a` (the app without ACMP, the same store):
 
