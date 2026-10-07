@@ -49,7 +49,7 @@
 //   the pass's tail     EVT_HEAD + RX_HEAD (adp) + RX_HEAD (acmp)        3
 //
 // At 70 bytes an ACMP frame is 18 payload words. ACMP_MBX_LAT_* below are
-// these sums, and test_acmp.cpp (C0 to C14) counts every path access by
+// these sums, and test_acmp_mbx.cpp (C0 to C12) counts every path access by
 // access on the host model and fails one that exceeds its figure.
 //
 // The bound with a backlog. A pass of the ADP and ACMP composition costs at
@@ -77,9 +77,13 @@
 // that starts after the fabric posted it; an event by pass 2. With the pass
 // already running when the input arrived, and under A3, a response is
 // committed within ACMP_MBX_RX_ACCESSES and an event's action within
-// ACMP_MBX_EVT_ACCESSES. Owed frames (A3): at most ACMP_OWED_MAX (8) wait,
-// and a poll sends one per pass, so a response with k owed ahead of it is
-// committed in pass k + 1 after the room returns, k <= 7.
+// ACMP_MBX_EVT_ACCESSES. An adp record is taken by pass
+// CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) (21, adp_mbx.h's A1), so an
+// ENTITY_AVAILABLE or ENTITY_DEPARTING behind a full adp ring reaches every
+// matching sink within ACMP_MBX_ADP_RX_ACCESSES (H-DISC). Owed frames (A3):
+// at most ACMP_OWED_MAX (8) wait, and a poll sends one per pass, so a
+// response with k owed ahead of it is committed in pass k + 1 after the room
+// returns, k <= 7.
 //
 // In time (A4): the per-path figures are under 0.1 ms at an assumed 1 us per
 // access, which this lane has not measured. The full-backlog figures are
@@ -134,6 +138,8 @@ extern "C" {
 #define ACMP_MBX_RX_PASSES ((ACMP_MBX_RX_BACKLOG + CTRL_LOOP_RX_PER_PASS - 1u) / CTRL_LOOP_RX_PER_PASS)
 #define ACMP_MBX_EVT_ACCESSES ((CTRL_LOOP_EVT_PASSES + 1u) * ACMP_MBX_PASS_MAX)
 #define ACMP_MBX_RX_ACCESSES ((ACMP_MBX_RX_PASSES + 1u) * ACMP_MBX_PASS_MAX)
+// H-DISC: an ENTITY_AVAILABLE or ENTITY_DEPARTING behind a full adp ring.
+#define ACMP_MBX_ADP_RX_ACCESSES ((CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) + 1u) * ACMP_MBX_PASS_MAX)
 // An owed response: k <= ACMP_OWED_MAX - 1 ahead of it, one per pass.
 #define ACMP_MBX_OWED_PASSES ACMP_OWED_MAX
 #define ACMP_MBX_OWED_ACCESSES ((ACMP_MBX_OWED_PASSES + 1u) * ACMP_MBX_PASS_MAX)

@@ -15,6 +15,7 @@ test can see the defect. A mutant may name further (arm, test, words) kills in
 
 from __future__ import annotations
 
+import re
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -211,7 +212,8 @@ MUTANTS = (
     Mutant("events-halved", "loop/ctrl_loop.c", "while (n < CTRL_LOOP_EVENTS_PER_PASS && mbx_event_take(&ev)) {",
            "while (n < CTRL_LOOP_EVENTS_PER_PASS / 2u && mbx_event_take(&ev)) {",
            "adp", "AdpBacklog.F0toF7FullBacklogs",
-           "F2 all 16 event records are taken by pass"),
+           "F2 all 16 event records are taken by pass",
+           (("acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F1 every event is taken by pass 2"),)),
     Mutant("rx-before-events", "loop/ctrl_loop.c",
            "\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
            "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n",
@@ -370,7 +372,8 @@ MUTANTS = (
     # 3. own unicast is the arrival interface's MAC, never any unicast
     Mutant("model-own-any-unicast", "host/mbx_model.c", "&& dst == mac &&",
            "&& (dst == mac || (tuple_dst[j] == MBX_DST_OWN && ((dst >> 40) & 1u) == 0u)) &&",
-           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (aecp, command)"),
+           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (aecp, command)",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused", "B2 a foreign unicast is refused"),)),
     Mutant("model-own-mac-of-interface-0", "host/mbx_model.c",
            "if (tuple_dst[j] == MBX_DST_OWN && interface < MBX_N_IF) {\n\t\t*mac = m->own_mac[interface];",
            "if (tuple_dst[j] == MBX_DST_OWN) {\n\t\t(void)interface;\n\t\t*mac = m->own_mac[0];",
@@ -389,7 +392,9 @@ MUTANTS = (
     Mutant("model-mismatch-never-counted", "host/mbx_model.c", "\t*mismatch = control;",
            "\t*mismatch = control && false;",
            "model", MODEL_GROUP + "TupleRejections",
-           "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once"),
+           "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+             "B2 and counted once in FILTER_MISMATCH"),)),
     Mutant("model-mismatch-counts-identity-refusals", "host/mbx_model.c",
            "\tif (!rule_passes(m, c, frame, len)) {\n\t\treturn false;",
            "\tif (!rule_passes(m, c, frame, len)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
@@ -418,7 +423,9 @@ MUTANTS = (
            "port", "LoopBring.L1OpenOrder", "L1 every interface's OWN_MAC is written before any channel opens"),
     Mutant("app-own-mac-not-the-entity-mac", "app/ctrl_app.c", "\t\town_mac[i] = cfg->entity->mac;\n",
            "\t\town_mac[i] = cfg->entity->mac & 0xFFFFFFFFull;\n",
-           "unit", "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens", "OWN_MAC is the entity's MAC"),
+           "unit", "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens", "OWN_MAC is the entity's MAC",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+             "B2 a command to this interface's own unicast MAC passes"),)),
     # ---- #665 lane F3: ACMP. Every check of the acmp, acmpwalk and acmpnvm arms has a defect of its own ----
     # the configuration (A0)
     Mutant("acmp-init-no-interface", "acmp/acmp.c",
@@ -501,6 +508,10 @@ MUTANTS = (
            "\t\tif (!same_record(record, s->saved) && s->bound) {",
            "acmpnvm", "AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord", "N2 the unbind marks the record",
            (("acmpwalk", "Table530/ListenerWalk.Graded/UNBIND_PWR", "the store marked"),)),
+    Mutant("acmp-rebind-not-persisted", "acmp/acmp.c", "\t\tif (!same_record(record, s->saved)) {",
+           "\t\tif (!same_record(record, s->saved) && (s->saved[0] & 0x01u) == 0u) {",
+           "acmpnvm", "AcmpStore.N4AnUnreadSlotRefusesPersistence", "N4 a new bind is answered and taken, and its record marked",
+           (("acmp", "AcmpCore.A6BindAnotherSourceRestartsTheSink", "A6 the new binding is saved"),)),
     Mutant("acmp-streaming-wait-ignored", "acmp/acmp.c",
            "\t// START_STREAMING (Milan v1.2 5.3.8.7)\n\ts->started = !sw;",
            "\t// START_STREAMING (Milan v1.2 5.3.8.7)\n\ts->started = true;",
@@ -1119,6 +1130,101 @@ MUTANTS = (
     Mutant("acmp-pass-bound-understated", "acmp/acmp_mbx.h", "#define ACMP_MBX_PASS_MAX      ",
            "#define ACMP_MBX_PASS_MAX (CTRL_LOOP_EVENTS_PER_PASS * MBX_EV_WORDS)\n#define ACMP_MBX_PASS_MAX_UNUSED      ",
            "acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F3 the worst pass of the backlog"),
+    Mutant("acmp-adp-ring-bound-understated", "acmp/acmp_mbx.h",
+           "#define ACMP_MBX_ADP_RX_ACCESSES ((CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) + 1u) * ACMP_MBX_PASS_MAX)",
+           "#define ACMP_MBX_ADP_RX_ACCESSES (CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS) * MBX_RX_HDR_WORDS)",
+           "acmp", "AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound",
+           "F5 ENTITY_AVAILABLE behind a full adp ring"),
+    Mutant("acmp-discovery-takes-the-first-sink", "acmp/acmp.c",
+           "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {        // 5.6.4.1: every bound sink of this talker",
+           "\tfor (unsigned k = 0; k < a->cfg.n_sinks && taken == 0u; ++k) {",
+           "acmp", "AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound",
+           "F5 every matching bound sink takes it in the same pass"),
+    Mutant("rx-one-record-per-pass", "loop/ctrl_loop.c", "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {",
+           "for (unsigned k = 0; k < 1u; ++k) {",
+           "acmp", "AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound",
+           "F5 the ENTITY_AVAILABLE is taken by pass",
+           (("acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F2 every acmp record is taken by"),)),
+    # the timer paths' own bounds (C6 to C9): each path made to read the bus more than its figure
+    Mutant("acmp-second-no-resp-samples-the-grandmaster", "acmp/acmp.c",
+           "\t} else if (kind == ACMP_TIMER_NO_RESP) {                // 5.5.3.5.23, in PRB_W_RESP2\n",
+           "\t} else if (kind == ACMP_TIMER_NO_RESP) {                // 5.5.3.5.23, in PRB_W_RESP2\n\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n",
+           "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry", "C6 TMR_NO_RESP -> TMR_RETRY armed"),
+    Mutant("acmp-retry-samples-the-grandmaster", "acmp/acmp.c",
+           "\t} else if (kind == ACMP_TIMER_RETRY) {                  // step 2: the ACMP status stays\n",
+           "\t} else if (kind == ACMP_TIMER_RETRY) {                  // step 2: the ACMP status stays\n\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n",
+           "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry", "C7 TMR_RETRY -> TMR_DELAY armed"),
+    Mutant("acmp-delay-reads-the-clock-again", "acmp/acmp.c",
+           "\tif (kind == ACMP_TIMER_DELAY) {                         // 5.5.3.5.10\n\t\tprobe(a, k);",
+           "\tif (kind == ACMP_TIMER_DELAY) {                         // 5.5.3.5.10\n"
+           "\t\t(void)a->ports->now_ms(a->ports->ctx);\n\t\tprobe(a, k);",
+           "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry", "C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP"),
+    Mutant("acmp-no-tk-samples-the-grandmaster", "acmp/acmp.c", "\t\tsrp_stop(a, k);\n\t\treprobe(a, s);",
+           "\t\t{\n\t\t\tuint64_t g;\n\t\t\tuint8_t dm;\n\t\t\tp_gptp(a, s->interface, &g, &dm);\n\t\t}\n\t\tsrp_stop(a, k);\n\t\treprobe(a, s);",
+           "acmp", "AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry", "C9 TMR_NO_TK -> TMR_DELAY armed"),
+    # the backlog's own preconditions (F0)
+    Mutant("acmp-backlog-understated", "acmp/acmp_mbx.h",
+           "#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS)",
+           "#define ACMP_MBX_RX_BACKLOG (MBX_CH_ACMP_RX_WORDS / ACMP_MBX_RX_MIN_RECORD_WORDS / 2u)",
+           "acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound",
+           "F0 the acmp ring holds no more records than A1 assumes",
+           (("acmp", "AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing",
+             "F4 the ring holds ACMP_MBX_RX_BACKLOG records of the smallest frame"),)),
+    Mutant("model-event-ring-a-record-short", "host/mbx_model.c",
+           "uint16_t free_words = used > MBX_EVT_WORDS ? 0u : (uint16_t)(MBX_EVT_WORDS - used);",
+           "uint16_t free_words = used >= MBX_EVT_WORDS - MBX_EV_WORDS ? 0u : "
+           "(uint16_t)(MBX_EVT_WORDS - MBX_EV_WORDS - used);",
+           "acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F0 the event ring is full"),
+    # a bind without STREAMING_WAIT (A1), the view's flags (A2)
+    Mutant("acmp-new-bind-never-started", "acmp/acmp.c",
+           "\t// START_STREAMING (Milan v1.2 5.3.8.7)\n\ts->started = !sw;",
+           "\t// START_STREAMING (Milan v1.2 5.3.8.7)\n\ts->started = false;",
+           "acmp", "AcmpCore.A1BindWithoutStreamingWaitBindsStarted", "A1 a bind without STREAMING_WAIT lands started"),
+    Mutant("acmp-bind-response-always-streaming-wait", "acmp/acmp.c",
+           "\tr.flags = cmd->flags & ACMP_FLAG_STREAMING_WAIT;\n\trespond(",
+           "\tr.flags = ACMP_FLAG_STREAMING_WAIT;\n\trespond(",
+           "acmp", "AcmpCore.A1BindWithoutStreamingWaitBindsStarted", "A1 a bind without STREAMING_WAIT lands started"),
+    Mutant("acmp-view-without-registering-failed", "acmp/acmp.c",
+           "\tv->registering_failed = v->talker_registered && s->tk_failed;",
+           "\tv->registering_failed = false;",
+           "acmp", "AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed", "A2 and the view says so"),
+    # discovery from PRB_W_AVAIL (A22, 5.5.3.5.9) and the one grandmaster sample
+    Mutant("acmp-discovered-probing-stays-passive", "acmp/acmp.c",
+           "\t\ts->probing = ACMP_PROBING_ACTIVE;\n\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);",
+           "\t\ts->acmp_status = ACMP_STATUS_SUCCESS;\n\t\tdelay(a, s);",
+           "acmp", "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail", "A22 EVT_TK_DISCOVERED in PRB_W_AVAIL"),
+    Mutant("acmp-grandmaster-read-twice", "acmp/acmp.c",
+           "\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n\t\td->sampled = true;",
+           "\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n"
+           "\t\tp_gptp(a, d->interface, &d->local_gm, &d->local_domain);\n\t\td->sampled = true;",
+           "acmp", "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail", "A22 the grandmaster is sampled once for the frame",
+           (("acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
+             "C10 ENTITY_AVAILABLE -> TMR_DELAY armed"),)),
+    # what discovery takes (A22): each term of acmp_adp_rx's guard but the interface's,
+    # which no sink can match past the configuration
+    Mutant("acmp-adp-short-frame-taken", "acmp/acmp.c",
+           "if (interface >= a->cfg.n_interfaces || len < ACMP_ADP_FRAME_BYTES || ",
+           "if (interface >= a->cfg.n_interfaces || len < ACMP_ADP_FRAME_BYTES - 1u || ",
+           "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
+    Mutant("acmp-adp-ethertype-unchecked", "acmp/acmp.c",
+           "len < ACMP_ADP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||",
+           "len < ACMP_ADP_FRAME_BYTES ||",
+           "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
+    Mutant("acmp-adp-subtype-unchecked", "acmp/acmp.c",
+           "\t    frame[PDU] != ACMP_ADP_SUBTYPE || (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
+           "\t    (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
+           "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
+    Mutant("acmp-adp-discover-taken", "acmp/acmp.c",
+           "(frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
+           "(frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING + 1u) {",
+           "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
+    # every frame to the ACMP multicast address (B1, B2; IEEE 1722.1-2021 8.2.1)
+    Mutant("acmp-frames-to-the-own-mac", "acmp/acmp.c", "\twire_put_be(frame, ACMP_MULTICAST_MAC, 6);",
+           "\twire_put_be(frame, a->cfg.mac[interface], 6);",
+           "acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+           "B2 and is answered, to the multicast address",
+           (("acmp", "AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder",
+             "B1 to the ACMP multicast address from the interface's MAC"),)),
     # the composition (U5)
     Mutant("app-acmp-before-adp", "app/ctrl_app.c", "\tctrl_loop_init(&app->loop);\n\tif (!adp_mbx_init(",
            "\tctrl_loop_init(&app->loop);\n"
@@ -1155,6 +1261,21 @@ MUTANTS = (
            "\t(void)n;\n\treturn 1;",
            "acmpnvm", "AcmpStore.N6TheRollBackAndEveryOtherGroup", "N6 the model's readiness is the other owners'"),
 )
+
+
+#: Lane F3's test sources. Every test in them is named by at least one defect,
+#: which `unnamed_tests` proves before any is planted (the rule lane F1's
+#: store suite proves with nvm_mutants.unnamed_checks).
+NAMED_SOURCES = ("test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+
+
+def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]:
+    """The tests of NAMED_SOURCES no defect names: a test with no planted
+    defect is unproven. A parameterised test is named through any instance."""
+    named = {t.split("/")[1] if "/" in t else t for m in MUTANTS for _, t, _ in m.kills()}
+    tests = [f"{suite}.{name}" for src in NAMED_SOURCES
+             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", (test_dir / src).read_text(), re.M)]
+    return [t for t in tests if t not in named]
 
 
 def plant(m: Mutant, root: Path) -> Path:
@@ -1235,6 +1356,9 @@ def campaign(root: Path, reuse: Path, part: tuple[int, int] = (1, 1)) -> bool:
             "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "entity": ctrl_arms.arm_entity,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
     build = fw_gtest.Build()
+    unnamed = unnamed_tests()
+    for test in unnamed:
+        print(f"[ESCAPED] no defect names the test {test}")
     escaped = 0
     table = sliced(part)
     for m in table:
@@ -1256,5 +1380,6 @@ def campaign(root: Path, reuse: Path, part: tuple[int, int] = (1, 1)) -> bool:
         escaped += 0 if not missed else 1
         shutil.rmtree(root / m.name, ignore_errors=True)
     where = "" if part == (1, 1) else f" (slice {part[0]} of {part[1]} of {len(MUTANTS)})"
-    print(f"mutants: {len(table) - escaped} of {len(table)} caught{where}")
-    return escaped != 0
+    print(f"mutants: {len(table) - escaped} of {len(table)} caught{where}"
+          f"{'' if not unnamed else f'; {len(unnamed)} test(s) named by no defect'}")
+    return escaped != 0 or bool(unnamed)

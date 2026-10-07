@@ -235,7 +235,9 @@ TEST_F(AcmpMailbox, B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused) {
     ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0), kMac0))
         << "B2 a command to this interface's own unicast MAC passes (the owner's receive tolerance)";
     settle();
-    EXPECT_EQ(wire(model.tx_sent - 1u).msg, spec::MSG_GET_RX_STATE_RESPONSE)
+    const mbx_model_tx* r = mbx_model_tx_frame(&model, model.tx_sent - 1u);
+    EXPECT_TRUE(r != nullptr && read(r->bytes).msg == spec::MSG_GET_RX_STATE_RESPONSE &&
+                (wire_be64(r->bytes) >> 16) == spec::MULTICAST_MAC)
         << "B2 and is answered, to the multicast address (8.2.1)";
     std::uint16_t mismatch = model.filter_mismatch;
     EXPECT_FALSE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0), kMac0 ^ 1u)) << "B2 a foreign unicast is refused";
@@ -643,6 +645,50 @@ TEST_F(AcmpMailbox, F4TheSmallestRecordsTheFilterPassesFillTheRing) {
     }
     EXPECT_TRUE(at == ACMP_MBX_RX_PASSES && core()->rx_malformed == stored)
         << "F4 taken by pass ACMP_MBX_RX_PASSES, each a malformed ACMPDU the core counts";
+}
+
+TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
+    restore(0);
+    restore(1);
+    // The smallest ENTITY_DISCOVER the filter passes (26 bytes, through
+    // entity_id), as adp_mbx.h's backlog test sends, until only the
+    // ENTITY_AVAILABLE's record still fits; that record goes in last.
+    Adp d;
+    d.msg = spec::ADPDU_ENTITY_DISCOVER;
+    d.entity = 0;
+    auto discover = adpdu(d);
+    const unsigned available_words = MBX_RX_HDR_WORDS + (spec::ADPDU_FRAME_BYTES + 3u) / 4u;
+    const unsigned discover_words = MBX_RX_HDR_WORDS + (26u + 3u) / 4u;
+    auto room = [] {
+        const mbx_model_channel& ch = model.ch[MBX_CH_ADP];
+        return MBX_CH_ADP_RX_WORDS - static_cast<std::uint16_t>(ch.rx_head - ch.rx_tail);
+    };
+    unsigned stored = 0;
+    for (unsigned j = 0; j < 100000u && room() >= available_words + discover_words; ++j) {
+        if (mbx_model_rx(&model, discover.data(), 26u, 0)) {
+            stored++;
+        } else {
+            mbx_model_advance_ms(&model, 1);
+        }
+    }
+    ASSERT_EQ(model.ch[MBX_CH_ADP].rx_drop, 0u);
+    post_adp(Adp{});
+    stored++;
+    EXPECT_TRUE(room() < discover_words && stored <= CTRL_LOOP_RX_BACKLOG(MBX_CH_ADP_RX_WORDS))
+        << "F5 the adp ring is full, the ENTITY_AVAILABLE its last record";
+    std::uint64_t spent = 0;
+    unsigned at = 0;
+    for (unsigned p = 1; p <= 64u && at == 0u; ++p) {
+        spent += pass();
+        at = core()->sinks[0].state == ACMP_PRB_W_DELAY ? p : 0u;
+        EXPECT_EQ(core()->sinks[1].state, core()->sinks[0].state)
+            << "F5 every matching bound sink takes it in the same pass (5.6.4.1)";
+    }
+    std::printf("  adp backlog: %u records, the ENTITY_AVAILABLE served in pass %u\n", stored, at);
+    EXPECT_TRUE(at != 0u && at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS))
+        << "F5 the ENTITY_AVAILABLE is taken by pass CTRL_LOOP_RX_PASSES(256)";
+    bound("F5 ENTITY_AVAILABLE behind a full adp ring (H-DISC)", at != 0u ? spent : UINT64_MAX,
+          ACMP_MBX_ADP_RX_ACCESSES);
 }
 
 // ---- U: the composition ---------------------------------------------------------------------

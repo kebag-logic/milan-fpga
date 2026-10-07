@@ -145,6 +145,9 @@ class Bench {
 
     bool tx_done(std::size_t n) const { return tx_frames.size() > n || (tx_frames.size() == n && !tx_open_); }
 
+    //! A frame is on the TX stream now, its last byte not yet taken.
+    bool tx_open() const { return tx_open_; }
+
     //! The TX sink takes a byte on cycles where the pattern's bit is set
     //! (bit k of `pattern` for cycle k modulo 8); 0xFF is always ready.
     void tx_ready_pattern(std::uint8_t pattern) { tx_pattern_ = pattern; }

@@ -51,7 +51,9 @@
 //   to 5.43), DISCONNECT_TX (5.5.4.2, Tables 5.44 and 5.45: SUCCESS, nothing
 //   changes), GET_TX_STATE (5.5.4.3, Tables 5.46 and 5.47) and
 //   GET_TX_CONNECTION (5.5.4.4, Table 5.48: NOT_SUPPORTED), each with
-//   talker_entity_id this entity (IEEE 1722.1-2021 8.2.1.9). A PROBE_TX that
+//   talker_entity_id this entity (IEEE 1722.1-2021 8.2.1.9). The first three
+//   naming a source that does not exist are answered TALKER_UNKNOWN_ID
+//   (Tables 5.40, 5.44 and 5.46). A PROBE_TX that
 //   ingressed on another interface than the source's is answered
 //   INCOMPATIBLE_REQUEST (Table 5.41), one of the two answers 5.5.4.1 step 2
 //   permits. The source's stream, destination MAC, VLAN and SRP state are

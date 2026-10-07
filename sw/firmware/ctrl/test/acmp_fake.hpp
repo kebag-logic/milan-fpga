@@ -72,6 +72,7 @@ constexpr std::uint16_t FLAG_REGISTERING_FAILED = 0x0040u;
 // IEEE 1722.1-2021 Table 6-1
 constexpr std::uint8_t ADPDU_ENTITY_AVAILABLE = 0u;
 constexpr std::uint8_t ADPDU_ENTITY_DEPARTING = 1u;
+constexpr std::uint8_t ADPDU_ENTITY_DISCOVER = 2u;
 }  // namespace spec
 
 namespace acmp_test {

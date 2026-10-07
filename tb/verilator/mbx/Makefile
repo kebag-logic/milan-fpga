@@ -36,7 +36,7 @@ VFLAGS = --cc --exe --build -j 0 --top-module $(TOP) \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CONTRACT_INC)"
 
 # The firmware the co-simulation links: the mailbox driver, the event loop,
-# the port layer, the ADP slice and the app, compiled as C11 exactly as the
+# the port layer, the ADP slice, the ACMP module and the app, compiled as C11 exactly as the
 # target builds them, plus the host model the same scenario also runs on.
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
