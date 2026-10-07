@@ -1,0 +1,39 @@
+Note: Google Test filter = Srp.RecreateAllocationFailureIsCountedAndRetried
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:631: Failure
+Value of: other_sent
+  Actual: false
+Expected: true
+a failed participant must not starve the other interface
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: a failed participant must not starve the other interface
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:631: Failure
+Value of: other_sent
+  Actual: false
+Expected: true
+a failed participant must not starve the other interface
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: a failed participant must not starve the other interface
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:631: Failure
+Value of: other_sent
+  Actual: false
+Expected: true
+a failed participant must not starve the other interface
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: a failed participant must not starve the other interface
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried (6 ms)
+[----------] 1 test from Srp (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (6 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

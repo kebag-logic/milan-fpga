@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "$REPO/sw/firmware/ctrl/test/srp_arms.py", line 70, in arm_srp
+    exe = fw_gtest.link(build,[*ours,*host,*theirs,*tests,main],out / "suite")
+  File "$REPO/sw/firmware/gtest/fw_gtest.py", line 170, in link
+    raise BuildError(f"{exe.name} does not link:\n{res.stderr}")
+fw_gtest.BuildError: suite does not link:
+/usr/bin/ld: $PACKET/scratch/probes/head-probes/if1/srp-independent-if1-endstation_ax7101_1x1_tdm8/main/fw_gtest_main-35ee7ffc9ac0.o: in function `main':
+$REPO/sw/firmware/gtest/fw_gtest_main.cpp:189:(.text+0x566): undefined reference to `fw_test::tally_label()'
+collect2: error: ld returned 1 exit status
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$PACKET/scripts/focused.py", line 42, in <module>
+    run('head-probes',lw)
+    ~~~^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scripts/focused.py", line 37, in run
+    r=srp_arms.arm_srp(Tree(src,scratch/name/f'if{n}',scratch/'reuse',build),library,n,
+                     test=('independent.cpp',selected))
+  File "$REPO/sw/firmware/ctrl/test/srp_arms.py", line 73, in arm_srp
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: suite does not link:
+/usr/bin/ld: $PACKET/scratch/probes/head-probes/if1/srp-independent-if1-endstation_ax7101_1x1_tdm8/main/fw_gtest_main-35ee7ffc9ac0.o: in function `main':
+$REPO/sw/firmware/gtest/fw_gtest_main.cpp:189:(.text+0x566): undefined reference to `fw_test::tally_label()'
+collect2: error: ld returned 1 exit status
+
