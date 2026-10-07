@@ -1,0 +1,586 @@
+[
+ {
+  "plant": "timer-path-two-tick",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+    "timer_allocation_failure_rolls_back_and_retries"
+   ],
+   "failure_lines": 46
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=4"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+    "timer_allocation_failure_rolls_back_and_retries"
+   ],
+   "failure_lines": 46
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=4"
+  }
+ },
+ {
+  "plant": "flush-no-timer",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+   ],
+   "failure_lines": 120
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=16"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+   ],
+   "failure_lines": 120
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=16"
+  }
+ },
+ {
+  "plant": "refresh-before-flush",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 270
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=18"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 270
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=18"
+  }
+ },
+ {
+  "plant": "continue-after-retry-failure",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 594
+  },
+  "probe_OFF": {
+   "rc": 0,
+   "summary": "probe_r5 profile=OFF checks=243 failures=0"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 594
+  },
+  "probe_ON": {
+   "rc": 0,
+   "summary": "probe_r5 profile=ON checks=243 failures=0"
+  }
+ },
+ {
+  "plant": "pending-only-from-in",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 1692
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=4"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 1692
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=4"
+  }
+ },
+ {
+  "plant": "clear-only-on-flush-event",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=6"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=6"
+  }
+ },
+ {
+  "plant": "replacement-skips-pending",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=237 failures=20"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=237 failures=20"
+  }
+ },
+ {
+  "plant": "flush-every-lv-recovery",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "changed_values_after_received_leaveall_are_indicated_and_propagated",
+    "changed_values_after_transmitted_leaveall_are_indicated_and_propagated",
+    "disabled_application_option_preserves_ieee_timing",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+    "leave_in_lv_keeps_the_original_deadline",
+    "leaveall_then_withdrawal_retains_until_leave_expiry",
+    "mmrp_keeps_ieee_leave_timing",
+    "msrp_constructor_selects_the_build_profile",
+    "mvrp_keeps_ieee_leave_timing",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values",
+    "registrar_recovery_stops_aging_without_duplicate_join_or_map",
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+    "timer_allocation_failure_rolls_back_and_retries"
+   ],
+   "failure_lines": 1802
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=9"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "changed_values_after_received_leaveall_are_indicated_and_propagated",
+    "changed_values_after_transmitted_leaveall_are_indicated_and_propagated",
+    "disabled_application_option_preserves_ieee_timing",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick",
+    "leave_in_lv_keeps_the_original_deadline",
+    "leaveall_then_withdrawal_retains_until_leave_expiry",
+    "mmrp_keeps_ieee_leave_timing",
+    "mvrp_keeps_ieee_leave_timing",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values",
+    "registrar_recovery_stops_aging_without_duplicate_join_or_map",
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+    "timer_allocation_failure_rolls_back_and_retries"
+   ],
+   "failure_lines": 1790
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=9"
+  }
+ },
+ {
+  "plant": "retry-only-declarations",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_OFF": {
+   "rc": 0,
+   "summary": "probe_r5 profile=OFF checks=243 failures=0"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_ON": {
+   "rc": 0,
+   "summary": "probe_r5 profile=ON checks=243 failures=0"
+  }
+ },
+ {
+  "plant": "flush-leaveall-request",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_OFF": {
+   "rc": 0,
+   "summary": "probe_r5 profile=OFF checks=243 failures=0"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 0,
+   "failing_tests": [],
+   "failure_lines": 0
+  },
+  "probe_ON": {
+   "rc": 0,
+   "summary": "probe_r5 profile=ON checks=243 failures=0"
+  }
+ },
+ {
+  "plant": "S-pending-flush",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 3009
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=23"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 3009
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=23"
+  }
+ },
+ {
+  "plant": "S-flush-before-refresh",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 3009
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=23"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 3009
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=23"
+  }
+ },
+ {
+  "plant": "S-flush-deadline",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+   ],
+   "failure_lines": 48
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=6"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions",
+    "flush_allocation_failures_retry_withdrawal_on_the_next_tick"
+   ],
+   "failure_lines": 48
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=6"
+  }
+ },
+ {
+  "plant": "S-flush-observer",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions"
+   ],
+   "failure_lines": 24
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=18"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "failed_flush_reports_continuous_observer_transitions"
+   ],
+   "failure_lines": 24
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=18"
+  }
+ },
+ {
+  "plant": "S-replacement-lv",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "replacement_allocation_failures_keep_leave_before_join",
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation"
+   ],
+   "failure_lines": 104
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=237 failures=20"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation"
+   ],
+   "failure_lines": 92
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=237 failures=20"
+  }
+ },
+ {
+  "plant": "S-receive-instance-stop",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "reservation_failure_stops_later_receive_messages"
+   ],
+   "failure_lines": 4
+  },
+  "probe_OFF": {
+   "rc": 0,
+   "summary": "probe_r5 profile=OFF checks=243 failures=0"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "reservation_failure_stops_later_receive_messages"
+   ],
+   "failure_lines": 4
+  },
+  "probe_ON": {
+   "rc": 0,
+   "summary": "probe_r5 profile=ON checks=243 failures=0"
+  }
+ },
+ {
+  "plant": "S-flush-completion",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 972
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=243 failures=6"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "pending_flush_failed_talker_receive_failures_preserve_order_and_values",
+    "pending_flush_listener_receive_failures_preserve_order_and_values",
+    "pending_flush_precedes_received_registration",
+    "pending_flush_talker_receive_failures_preserve_order_and_values"
+   ],
+   "failure_lines": 972
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=243 failures=6"
+  }
+ },
+ {
+  "plant": "S-replacement-leave-timer",
+  "file": "src/core/mrp_mad.c",
+  "target_count": 1,
+  "build_OFF": 0,
+  "unit_OFF": {
+   "rc": 1,
+   "failing_tests": [
+    "replacement_allocation_failures_keep_leave_before_join",
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation",
+    "talker_join_replaces_the_other_type_on_the_same_port"
+   ],
+   "failure_lines": 186
+  },
+  "probe_OFF": {
+   "rc": 1,
+   "summary": "probe_r5 profile=OFF checks=237 failures=20"
+  },
+  "build_ON": 0,
+  "unit_ON": {
+   "rc": 1,
+   "failing_tests": [
+    "replacement_from_lv_keeps_leave_before_join_at_every_allocation"
+   ],
+   "failure_lines": 92
+  },
+  "probe_ON": {
+   "rc": 1,
+   "summary": "probe_r5 profile=ON checks=237 failures=20"
+  }
+ }
+]

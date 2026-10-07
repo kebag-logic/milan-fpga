@@ -1,0 +1,8 @@
+sh $PACKET/scripts/run_probe.sh $PACKET/scratch/plants/clear-only-on-flush-event/src $PACKET/scratch/plants/clear-only-on-flush-event/probe 0
+FAIL timer_completion:332 timer completion type 1 lv 0 got 'L1:100 J1:100 L1:100 J1:100'
+FAIL timer_completion:332 timer completion type 1 lv 1 got 'L1:100 J1:100 L1:100 J1:100'
+FAIL timer_completion:332 timer completion type 2 lv 0 got 'L2:100 J2:100 L2:100 J2:100'
+FAIL timer_completion:332 timer completion type 2 lv 1 got 'L2:100 J2:100 L2:100 J2:100'
+FAIL timer_completion:332 timer completion type 3 lv 0 got 'L3:2 J3:2 L3:2 J3:2'
+FAIL timer_completion:332 timer completion type 3 lv 1 got 'L3:2 J3:2 L3:2 J3:2'
+probe_r5 profile=OFF checks=243 failures=6

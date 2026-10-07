@@ -1,0 +1,8 @@
+profile LWSRP_MILAN=1
+flush cases 114; cases with observer gaps 0
+  info [flush-retained then rJoinIn]: reg=LV joins=2 leaves=1
+  info [flush fault=1 then peer JoinIn each tick, tick before rx]: leaves=1 joins=2 reg=IN
+  info [flush fault=1 then peer JoinIn each tick, rx before tick]: leaves=1 joins=2 reg=IN
+replacement cases 184
+  info [later LeaveAll after failure]: rc=-12 talker sid2 reg after failed pass=LV
+checks 5934 failures 0
