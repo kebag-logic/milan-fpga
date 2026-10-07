@@ -295,6 +295,9 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
 			return NVM_VD_REC;
 		if (pos + NVM_REC_HDR + r.plen > end)
 			return NVM_VD_LEN;
+		/* The caller may hold only a prefix of the CRC-closed container. */
+		if (pos + NVM_REC_HDR + r.plen > loaded)
+			return NVM_VD_REC;
 		if (!nvm_all_erased(p + NVM_REC_HDR, r.plen))
 			return NVM_VD_REC;
 		*out = r;

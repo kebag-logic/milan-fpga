@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Shared freestanding RV32I object checks, without the SDK's hosted libc.
 
-GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The two
+GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The
 rv32_include headers declare the bare-metal runtime interfaces consumed by
 the firmware. These checks compile objects, not a linked or bootable image.
 """

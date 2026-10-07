@@ -424,8 +424,7 @@ def measure(work: Path, lwsrp: Path | None, jobs: int) -> dict[str, Source]:
         argv = [sys.executable, str(gate), "--coverage", str(out)]
         if name == "ctrl" and lwsrp is not None:
             argv += ["--lwsrp", str(lwsrp)]
-        if name == "ctrl_nvm":
-            argv += ["--jobs", str(jobs)]
+        argv += ["--jobs", str(jobs)]
         res = subprocess.run(argv, capture_output=True, text=True, check=False)
         tail = "\n".join((res.stdout + res.stderr).strip().splitlines()[-8:])
         print(f"[{'ok' if res.returncode == 0 else 'FAIL'}] {name} coverage run\n{tail}")

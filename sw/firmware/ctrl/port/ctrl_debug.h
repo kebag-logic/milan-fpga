@@ -10,6 +10,12 @@
 // one print costs a bounded time. With no sink bound the text is discarded
 // and counted.
 
+// No synchronous callbacks (#678): a port must return before any core
+// input is dispatched by the single bare-metal event loop. A port never
+// calls back into a protocol core or the store, including on zero-delay
+// timer arms or TX completion. Interrupts defer dispatch to the loop.
+// F2 to F5 inherit this rule for every protocol port.
+
 #ifndef CTRL_DEBUG_H
 #define CTRL_DEBUG_H
 

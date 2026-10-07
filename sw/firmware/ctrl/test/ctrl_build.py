@@ -41,8 +41,9 @@ C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
 
 RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
-#: Runtime interfaces an object-only check may leave undefined.
-RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})
+#: Runtime interfaces an object-only check may leave undefined; ADP's re-entry
+#: guard asserts in this (NDEBUG-free) build.
+RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf", "__assert_fail"})
 
 
 class Refusal(Exception):
