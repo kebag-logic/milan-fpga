@@ -247,7 +247,7 @@ helper the `rv32` arm admits (none is a floating-point one), each a
 shift-and-add or shift-and-subtract loop that must be a leaf. A helpers
 object that leaves a symbol open or calls a helper is refused, since GCC
 lowers a `*` inside `__mulsi3` into a call to `__mulsi3`. In the SoC image
-LiteX's `libcompiler_rt` supplies them. They are reported apart: 420 bytes,
+LiteX's `libcompiler_rt` supplies them. They are reported apart: 412 bytes,
 `__lshrdi3`, `__muldi3`, `__mulsi3`, `__udivdi3` and `__umoddi3` (the only
 ones the composition reaches) and their shared divide loop.
 
@@ -293,12 +293,12 @@ dev `d51b373a` (the app without ACMP, the same store):
 
 | Shape | STREAM_INPUTs / OUTPUTs | text | rodata | data | bss | total | of 128 KB |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 27,708 (+10,852) | 736 (+36) | 0 (+0) | 11,280 (+4,848) | 39,724 (+15,736) | 30.3 % |
-| `endstation_ax7101_8x8` (largest) | 9 / 9 | 27,712 (+10,852) | 736 (+36) | 0 (+0) | 21,648 (+4,864) | 50,096 (+15,752) | 38.2 % |
+| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 27,700 (+10,852) | 736 (+36) | 0 (+0) | 11,280 (+4,848) | 39,716 (+15,736) | 30.3 % |
+| `endstation_ax7101_8x8` (largest) | 9 / 9 | 27,704 (+10,852) | 736 (+36) | 0 (+0) | 21,648 (+4,864) | 50,088 (+15,752) | 38.2 % |
 
-Every image passes the audit (`rv32i2p1`, 6,927 and 6,928 words at the
-head, 4,214 and 4,215 at the base). The text includes the 64 bytes of
-runtime stand-ins and the 420 bytes of helpers, at the head and the base.
+Every image passes the audit (`rv32i2p1`, 6,925 and 6,926 words at the
+head, 4,212 and 4,213 at the base). The text includes the 64 bytes of
+runtime stand-ins and the 412 bytes of helpers, at the head and the base.
 
 The static objects: the app, 6,800 bytes at every shape (ACMP's state 4,720
 at its maxima of 16 sinks, 16 sources and four interfaces, the loop 1,748,
