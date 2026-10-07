@@ -150,6 +150,33 @@ TEST(DriverUnit, D11OwnMacPerInterfaceAndTheMismatchCount) {
     EXPECT_EQ(mbx_filter_mismatch(), 0x0123u) << "D11 FILTER_MISMATCH is read as its COUNT field";
 }
 
+TEST(DriverUnit, D13BoundTalkerEntries) {
+    NiceMock<MockMbxHal> hal;
+    Window w(hal);
+    const std::uint64_t talker = 0x0022110099887766ull;
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        const unsigned e = MBX_N_BOUND - 1u - i;
+        const std::uint32_t entry = MBX_BND_BASE + MBX_BND_STRIDE * i + MBX_BND_ENTRY_STRIDE * e;
+        std::size_t first = w.writes.size();
+        EXPECT_TRUE(mbx_filter_set_bound_talker(i, e, true, talker + i)) << "D13 interface " << i << " takes an entry";
+        ASSERT_EQ(w.writes.size(), first + 4u) << "D13 four writes: BOUND_EN, BOUND_EID_LO, BOUND_EID_HI, BOUND_EN";
+        EXPECT_TRUE(w.writes[first].first == entry + MBX_BND_REG_BOUND_EN && w.writes[first].second == 0u &&
+                    w.writes[first + 3u].first == entry + MBX_BND_REG_BOUND_EN)
+            << "D13 BOUND_EN is cleared before the identity is written, and set after it";
+        EXPECT_EQ(w.at(entry + MBX_BND_REG_BOUND_EID_LO), 0x99887766u + i) << "D13 BOUND_EID_LO holds talker[31:0]";
+        EXPECT_EQ(w.at(entry + MBX_BND_REG_BOUND_EID_HI), 0x00221100u) << "D13 BOUND_EID_HI holds talker[63:32]";
+        EXPECT_EQ(w.at(entry + MBX_BND_REG_BOUND_EN), 1u) << "D13 BOUND_EN set";
+        first = w.writes.size();
+        EXPECT_TRUE(mbx_filter_set_bound_talker(i, e, false, talker + i));
+        EXPECT_TRUE(w.writes.size() == first + 1u && w.at(entry + MBX_BND_REG_BOUND_EN) == 0u)
+            << "D13 a withdrawn entry: BOUND_EN cleared, one write";
+    }
+    const std::size_t writes = w.writes.size();
+    EXPECT_FALSE(mbx_filter_set_bound_talker(MBX_N_IF, 0, true, talker)) << "D13 an interface past the contract's is refused";
+    EXPECT_FALSE(mbx_filter_set_bound_talker(0, MBX_N_BOUND, true, talker)) << "D13 an entry past the table's is refused";
+    EXPECT_EQ(w.writes.size(), writes) << "D13 and nothing is written";
+}
+
 const adp_entity kEntity = {0x1122334455667788ull, 0x99AABBCCDDEEFF01ull, 0x001B921122AAull, 0xC588u, 8u, 0x4801u,
                             8u, 0x4801u, 5u};
 const std::uint64_t kOwnMac[MBX_N_IF] = {kEntity.mac};

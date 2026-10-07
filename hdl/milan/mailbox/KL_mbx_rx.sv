@@ -4,7 +4,7 @@
  */
 //---------------------------------------------------------------------------//
 //  File        : KL_mbx_rx.sv
-//  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0 and FC)
+//  Project     : Milan FPGA Platform (packet mailbox, #665 lanes F0, FC and F3)
 //
 //  Description : The ingress filter and the receive ring writer. A frame arrives
 //                one byte per accepted cycle. When its byte 15 arrives (or its
@@ -17,8 +17,10 @@
 //                when the frame ends at byte 14) where the tuple names some, as
 //                the MAAP DEFEND to own unicast does. Every channel's
 //                accept terms (the identity term: an 8-byte compare against
-//                OWN_EID or zero, or a MAAP range captured for the overlap
-//                test) are evaluated as the bytes pass, and the frame's words
+//                OWN_EID or zero, a MAAP range captured for the overlap test,
+//                or the eq_bound test, an 8-byte compare against every entry
+//                of the arrival interface's bound-talker table) are evaluated
+//                as the bytes pass, and the frame's words
 //                are written into the picked channel's receive ring
 //                speculatively, past the ring's head. At the last byte the
 //                verdict is taken: a frame for no open channel, or one no
@@ -48,6 +50,25 @@
 //                a record the core has not read. A frame that would need
 //                more space than was free while it arrived is dropped, even
 //                if the core frees space before its last byte.
+//
+//                The bound-talker tables live here, in distributed RAM: the
+//                host's BOUND_EID words in a read-back memory, two words per
+//                entry, and each entry's identity again as eight bytes in a
+//                shift register of its own, byte b at tap b. As identity byte
+//                b of a frame arrives, every entry's byte b is compared with
+//                it and the entry's match flag keeps the AND; the verdict
+//                reads the flags. A copier shifts an entry's eight bytes in
+//                from the read-back memory when the host sets BOUND_EN, or
+//                writes a BOUND_EID word while it is set, one byte in each
+//                cycle the host does not hold the read-back memory. An entry
+//                takes part only while its BOUND_EN is set and no copy of it
+//                is owed, from its first compared byte to the verdict, so an
+//                entry rewritten while a frame passes never matches that
+//                frame, and one whose BOUND_EN is cleared first, as the
+//                firmware does, never matches half written. Distributed RAM
+//                keeps its contents through a reset, so a word not written
+//                since the reset reads 0 (the skeleton's read) and is copied
+//                as 0.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -62,6 +83,15 @@ module KL_mbx_rx
 
   input  wire  [63:0]                       own_eid_i,        //! OWN_EID, the eq_own operand
   input  wire  [MBX_N_IF_C*48-1:0]          own_mac_i,        //! OWN_MAC per interface, an `own` tuple's destination
+  input  wire                               bnd_req_i,        //! the host addresses a bound-talker register this cycle
+  input  wire                               bnd_we_i,         //! and writes it, all four strobes
+  input  wire  [MBX_IF_W_C-1:0]             bnd_if_i,         //! the register's interface
+  input  wire  [4:0]                        bnd_entry_i,      //! its entry (bound_talkers is at most 32)
+  input  wire  [1:0]                        bnd_reg_i,        //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN
+  input  wire  [31:0]                       bnd_wdata_i,      //! the write data
+  output logic [31:0]                       bnd_eid_o,        //! the BOUND_EID word the host addresses, as stored
+  output logic                              bnd_eid_vld_o,    //! that word was written since the reset (else it reads 0)
+  output logic                              bnd_en_o,         //! the addressed entry's BOUND_EN
   input  wire  [MBX_N_CH_C-1:0]             open_i,           //! FILTER_EN.OPEN, bit c opens channel c
   input  wire  [47:0]                       maap_base_i,      //! MAAP_BASE, first address of this entity's range
   input  wire  [15:0]                       maap_count_i,     //! MAAP_COUNT, addresses in the range (0 = none)
@@ -90,6 +120,41 @@ module KL_mbx_rx
   localparam int unsigned NM_C = MBX_N_CH_C * MBX_MAX_TUPLES_C;  //! match tuples, flattened
   localparam int unsigned QD_C = 4;                              //! word queue depth
   localparam int unsigned TW_C = $clog2(NT_C);                   //! term index width
+  localparam int unsigned NB_C = MBX_N_BOUND_C;                  //! bound-talker entries per interface
+  localparam int unsigned NE_C = MBX_N_IF_C * NB_C;              //! bound-talker entries, every interface
+  localparam int unsigned KW_C = (NE_C > 1) ? $clog2(NE_C) : 1;  //! entry index width
+  localparam int unsigned RD_C = 2 * NE_C;                       //! read-back memory depth: 2 words per entry
+  localparam int unsigned RW_C = $clog2(RD_C);                   //! read-back memory address width
+
+  //! The first byte of the eq_bound field: every eq_bound term reads the same
+  //! one (checked below), so one compare per frame serves them all.
+  function automatic int unsigned bound_offset_f();
+    int unsigned off;
+    off = 0;
+    for (int j = int'(NT_C) - 1; j >= 0; j--) begin
+      if (MBX_TERM_TEST_TBL_C[j] == MBX_TEST_EQ_BOUND_C) off = MBX_TERM_OFFSET_TBL_C[j];
+    end
+    return off;
+  endfunction : bound_offset_f
+
+  //! Every eq_bound term reads the field at BO_C.
+  function automatic bit bound_offsets_agree_f();
+    bit agree;
+    agree = 1'b1;
+    for (int j = 0; j < int'(NT_C); j++) begin
+      if (MBX_TERM_TEST_TBL_C[j] == MBX_TEST_EQ_BOUND_C && MBX_TERM_OFFSET_TBL_C[j] != bound_offset_f())
+        agree = 1'b0;
+    end
+    return agree;
+  endfunction : bound_offsets_agree_f
+
+  localparam int unsigned BO_C = bound_offset_f();               //! the eq_bound field's first byte
+
+  // An elaboration contract: the shift registers hold one field per frame,
+  // and an entry is decoded from bnd_entry_i's five bits.
+  if (!bound_offsets_agree_f() || NB_C > 32) begin : g_bad_bound
+    $error("KL_mbx_rx: the eq_bound terms read different fields, or %0d bound-talker entries exceed 32", NB_C);
+  end : g_bad_bound
 
   typedef enum logic [1:0] {RECV_S, FIN_S, HDR0_S, HDR1_S} state_t;
 
@@ -148,6 +213,151 @@ module KL_mbx_rx
       end
     end
   end : own_mac
+
+  // ---- the bound-talker tables ------------------------------------------------
+  // Per entry k = i * NB_C + e: BOUND_EN, whether each BOUND_EID word was
+  // written since the reset, and whether a copy into its shift register is owed.
+  logic [NE_C-1:0] en_r;        //! BOUND_EN
+  logic [NE_C-1:0] vlo_r;       //! BOUND_EID_LO written since the reset (else it reads 0)
+  logic [NE_C-1:0] vhi_r;       //! BOUND_EID_HI written since the reset (else it reads 0)
+  logic [NE_C-1:0] owed_r;      //! BOUND_EN was set, or a BOUND_EID word written while it was, and no
+                                //! copy begun since has ended
+  logic            cp_busy_r;   //! the copier is copying entry cp_k_r
+  logic [KW_C-1:0] cp_k_r;      //! the entry the copier copies, or looks at for an owed copy
+  logic [2:0]      cp_b_r;      //! the copier's next step
+  logic [NB_C-1:0] match_r;     //! entry e of the frame's interface equals every identity byte taken
+
+  // the host's register
+  logic [KW_C-1:0] hk_w;        //! its entry
+  logic            hhi_w;       //! it is BOUND_EID_HI
+  logic            heid_w;      //! it is a BOUND_EID word
+  logic            howe_w;      //! the write owes the entry a copy: BOUND_EN set, or a word while it is
+  assign hk_w   = KW_C'(int'(bnd_if_i) * int'(NB_C) + int'(bnd_entry_i));
+  assign hhi_w  = (bnd_reg_i == 2'd1);
+  assign heid_w = (bnd_reg_i != 2'd2);
+  assign howe_w = bnd_we_i && (heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C]);
+
+  // the frame's identity bytes, and the copier's steps: the read-back memory's
+  // one read port is the host's in a cycle it addresses the tables
+  logic       cmp_w;            //! identity byte cmp_b_w of the frame is taken this cycle
+  logic [2:0] cmp_b_w;          //! the identity byte cnt_r is, when it is one
+  logic       cp_step_w;        //! the copier takes one step this cycle
+  assign cmp_b_w   = 3'(cnt_r - 11'(BO_C));
+  assign cmp_w     = take_w && (32'(cnt_r) - BO_C < 32'd8);
+  assign cp_step_w = cp_busy_r && !bnd_req_i;
+
+  // the read-back memory: word 2k is entry k's BOUND_EID_LO, 2k + 1 its BOUND_EID_HI
+  logic [31:0]     rb_mem_r [RD_C];
+  logic [RW_C-1:0] rb_wa_w;     //! the host's word
+  logic [RW_C-1:0] rb_a_w;      //! the word read: the host's, or the copier's
+  logic [31:0]     rb_q_w;
+  logic            rb_vld_w;    //! the word read was written since the reset
+  assign rb_wa_w = RW_C'(2 * int'(hk_w) + int'(hhi_w));
+  assign rb_a_w  = bnd_req_i ? rb_wa_w : RW_C'(2 * int'(cp_k_r) + int'(cp_b_r[2]));
+  always_ff @(posedge clk_i) begin : rb_write
+    if (bnd_we_i && heid_w) rb_mem_r[rb_wa_w] <= bnd_wdata_i;
+  end : rb_write
+  assign rb_q_w = rb_mem_r[rb_a_w];
+  always_comb begin : rb_valid
+    rb_vld_w = 1'b0;
+    for (int k = 0; k < int'(NE_C); k++) begin
+      if (rb_a_w == RW_C'(2 * k)) rb_vld_w = vlo_r[k];
+      if (rb_a_w == RW_C'(2 * k + 1)) rb_vld_w = vhi_r[k];
+    end
+  end : rb_valid
+
+  // the read-back: the skeleton answers the stored word only while it is valid
+  assign bnd_eid_o     = rb_q_w;
+  assign bnd_eid_vld_o = rb_vld_w;
+  assign bnd_en_o      = en_r[hk_w];
+
+  // the shift registers: entry k's identity byte b at tap b. The copier's step
+  // s shifts in byte 7 - s, the big-endian identity's [8s + 7 -: 8]:
+  // BOUND_EID_LO's lane s for s < 4, BOUND_EID_HI's lane s - 4 after, and 0
+  // for a word not written since the reset.
+  logic [7:0]      c_d_w;       //! the byte the copier shifts in
+  logic [NE_C-1:0] c_sh_w;      //! the copier shifts entry k
+  logic [7:0]      c_tap_w [NE_C];
+  always_comb begin : copy_byte
+    c_d_w = rb_vld_w ? rb_q_w[8 * int'(cp_b_r[1:0]) +: 8] : 8'd0;
+    for (int k = 0; k < int'(NE_C); k++) begin
+      c_sh_w[k] = cp_step_w && int'(cp_k_r) == k;
+    end
+  end : copy_byte
+  for (genvar k = 0; k < int'(NE_C); k++) begin : g_cmp
+    logic [7:0] sr_r [8];
+    always_ff @(posedge clk_i) begin : shift
+      if (c_sh_w[k]) begin
+        sr_r[0] <= c_d_w;
+        for (int b = 1; b < 8; b++) sr_r[b] <= sr_r[b - 1];
+      end
+    end : shift
+    assign c_tap_w[k] = sr_r[cmp_b_w];
+  end : g_cmp
+
+  // ---- each entry of the frame's interface against the identity bytes --------
+  // The table is the arrival interface's; an index this build has no
+  // interface for has none. An entry is live while BOUND_EN is set and no copy
+  // of it is owed (a running copy is owed until it ends).
+  logic                  fok_w;   //! the frame's interface index has a table
+  logic [MBX_IF_W_C-1:0] fif_w;   //! that table's interface, 0 when none
+  logic [NB_C-1:0]       live_w;  //! entry e of the frame's interface takes part this cycle
+  logic [NB_C-1:0]       eq_w;    //! entry e's identity byte cmp_b_w equals the byte taken
+  assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;
+  always_comb begin : bound_table
+    for (int e = 0; e < int'(NB_C); e++) begin
+      live_w[e] = fok_w && en_r[int'(fif_w) * int'(NB_C) + e] && !owed_r[int'(fif_w) * int'(NB_C) + e];
+      eq_w[e]   = rx_data_i == c_tap_w[int'(fif_w) * int'(NB_C) + e];
+    end
+  end : bound_table
+
+  logic bound_hit_w;            //! a live entry equals the whole field
+  assign bound_hit_w = |(match_r & live_w);
+
+  always_ff @(posedge clk_i) begin : bound_state
+    if (!rst_n) begin
+      en_r      <= '0;
+      vlo_r     <= '0;
+      vhi_r     <= '0;
+      owed_r    <= '0;
+      cp_busy_r <= 1'b0;
+      cp_k_r    <= '0;
+      cp_b_r    <= '0;
+      match_r   <= '0;
+    end else begin
+      // the copier: look at one entry a cycle; an owed one is copied in eight
+      // steps, each in a cycle the host leaves the read-back memory, and owes
+      // nothing once the eighth is taken; owed again meanwhile, it starts over
+      if (!cp_busy_r) begin
+        if (owed_r[cp_k_r]) cp_busy_r <= 1'b1;
+        else cp_k_r <= (32'(cp_k_r) == NE_C - 1) ? '0 : cp_k_r + KW_C'(1);
+      end else if (cp_step_w) begin
+        cp_b_r <= cp_b_r + 3'd1;
+        if (cp_b_r == 3'd7) begin
+          cp_busy_r      <= 1'b0;
+          owed_r[cp_k_r] <= 1'b0;
+        end
+      end
+      // the host's writes (a cycle of one is never a copier's step)
+      if (bnd_we_i) begin
+        unique case (bnd_reg_i)
+          2'd2:    en_r[hk_w] <= bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C];
+          2'd1:    vhi_r[hk_w] <= 1'b1;
+          default: vlo_r[hk_w] <= 1'b1;
+        endcase
+      end
+      if (howe_w) begin
+        owed_r[hk_w] <= 1'b1;
+        if (cp_busy_r && hk_w == cp_k_r) cp_b_r <= '0;
+      end
+      // the match flags: armed by the first identity byte, kept by every later
+      // one, and lost in any cycle the entry is not live
+      for (int e = 0; e < int'(NB_C); e++) begin
+        if (cmp_w) match_r[e] <= live_w[e] && eq_w[e] && (cnt_r == 11'(BO_C) || match_r[e]);
+        else match_r[e] <= match_r[e] && live_w[e];
+      end
+    end
+  end : bound_state
 
   // ---- classification at byte 15, or at the last byte of a frame ending at 14 --
   logic                  cls_at_w;    //! the byte taken now decides the channel
@@ -217,6 +427,7 @@ module KL_mbx_rx
           MBX_TEST_EQ_OWN_C:        if (field_ok && eqown_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_EQ_ZERO_C:       if (field_ok && eqzero_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_RANGE_OVERLAP_C: if (field_ok && overlap) rule_pass_w = 1'b1;
+          MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w) rule_pass_w = 1'b1;
           default: ;
         endcase
       end

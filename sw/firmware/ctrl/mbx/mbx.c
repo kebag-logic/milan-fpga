@@ -51,6 +51,11 @@ static uint32_t iff_reg(unsigned interface, uint32_t reg)
 	return MBX_IFF_BASE + MBX_IFF_STRIDE * (uint32_t)interface + reg;
 }
 
+static uint32_t bnd_reg(unsigned interface, unsigned entry, uint32_t reg)
+{
+	return MBX_BND_BASE + MBX_BND_STRIDE * (uint32_t)interface + MBX_BND_ENTRY_STRIDE * (uint32_t)entry + reg;
+}
+
 static uint16_t counter(uint32_t byte_offset)
 {
 	return (uint16_t)mbx_field(mbx_hal_read32(byte_offset), 0u, MBX_INDEX_BITS);
@@ -107,6 +112,24 @@ bool mbx_filter_set_own_mac(unsigned interface, uint64_t mac)
 			mbx_place((uint32_t)mac, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH));
 	mbx_hal_write32(iff_reg(interface, MBX_IFF_REG_OWN_MAC_HI),
 			mbx_place((uint32_t)(mac >> 32), MBX_OWN_MAC_HI_MAC_LSB, MBX_OWN_MAC_HI_MAC_WIDTH));
+	return true;
+}
+
+bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound, uint64_t talker_entity_id)
+{
+	if (interface >= MBX_N_IF || entry >= MBX_N_BOUND) {
+		return false;
+	}
+	mbx_hal_write32(bnd_reg(interface, entry, MBX_BND_REG_BOUND_EN), 0u);
+	if (bound) {
+		mbx_hal_write32(bnd_reg(interface, entry, MBX_BND_REG_BOUND_EID_LO),
+				mbx_place((uint32_t)talker_entity_id, MBX_BOUND_EID_LO_EID_LSB, MBX_BOUND_EID_LO_EID_WIDTH));
+		mbx_hal_write32(bnd_reg(interface, entry, MBX_BND_REG_BOUND_EID_HI),
+				mbx_place((uint32_t)(talker_entity_id >> 32), MBX_BOUND_EID_HI_EID_LSB,
+					  MBX_BOUND_EID_HI_EID_WIDTH));
+		mbx_hal_write32(bnd_reg(interface, entry, MBX_BND_REG_BOUND_EN),
+				mbx_place(1u, MBX_BOUND_EN_EN_LSB, MBX_BOUND_EN_EN_WIDTH));
+	}
 	return true;
 }
 

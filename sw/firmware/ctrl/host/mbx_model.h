@@ -85,6 +85,8 @@ struct mbx_model {
 	uint32_t tick_ctl;
 	uint64_t own_eid;
 	uint64_t own_mac[MBX_N_IF];                     // OWN_MAC_HI:OWN_MAC_LO per interface, 48 bits
+	uint64_t bound_eid[MBX_N_IF][MBX_N_BOUND];     // BOUND_EID_HI:BOUND_EID_LO per interface and entry
+	bool bound_en[MBX_N_IF][MBX_N_BOUND];           // BOUND_EN
 	uint32_t filter_en;
 	uint64_t maap_base;
 	uint16_t maap_count;

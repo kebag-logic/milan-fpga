@@ -5,7 +5,8 @@
 One reading for every output. ``load()`` turns the YAML into a ``Contract``
 and refuses a contract that could not be built (an overlapping field, a ring
 that is not a power of two, a channel two EtherType rules both claim, a
-match tuple naming a VLAN tag's TPID, or message types with no subtype).
+match tuple naming a VLAN tag's TPID, message types with no subtype, or a
+bound-talker table that spills its block).
 ``constants()`` flattens it into the one named list every emitter writes, so
 the SystemVerilog package, the C header and the reference page carry the same
 names with the same values, and ``gen_mailbox.py --selftest`` can compare the
@@ -137,6 +138,11 @@ class Contract:
     iff_base: int
     iff_stride: int
     iff_registers: tuple[Register, ...]
+    bound_talkers: int
+    bnd_base: int
+    bnd_stride: int
+    bnd_entry_stride: int
+    bnd_registers: tuple[Register, ...]
     ch_base: int
     ch_stride: int
     ch_registers: tuple[Register, ...]
@@ -361,18 +367,29 @@ def _check_channels(contract: Contract) -> None:
 
 
 def _check_blocks(contract: Contract) -> None:
-    """The interface and channel register blocks fit and miss the global registers."""
+    """The interface, bound-talker and channel register blocks fit and miss the
+    global registers and each other."""
     globals_at = {r.offset for r in contract.registers}
+    if not 1 <= contract.bound_talkers <= 32:
+        raise ContractError(f"bound_talkers {contract.bound_talkers} is not 1..32")
+    if contract.bound_talkers * contract.bnd_entry_stride > contract.bnd_stride:
+        raise ContractError(f"{contract.bound_talkers} bound-talker entries spill out of their "
+                            f"{contract.bnd_stride:#x} interface stride")
     for base, stride, regs, count, label in (
             (contract.if_base, contract.if_stride, contract.if_registers, contract.interfaces, "interface"),
             (contract.iff_base, contract.iff_stride, contract.iff_registers, contract.interfaces,
              "interface filter"),
+            (contract.bnd_base, contract.bnd_entry_stride, contract.bnd_registers,
+             contract.interfaces * contract.bound_talkers, "bound-talker entry"),
             (contract.ch_base, contract.ch_stride, contract.ch_registers, len(contract.channels), "channel")):
         if any(r.offset >= stride for r in regs):
             raise ContractError(f"{label} registers spill out of their {stride:#x} stride")
         for k in range(count):
             for reg in regs:
                 at = base + k * stride + reg.offset
+                if label == "bound-talker entry":   # entry e of interface i, i's block a whole stride
+                    i, e = divmod(k, contract.bound_talkers)
+                    at = base + i * contract.bnd_stride + e * stride + reg.offset
                 if at >= REGISTER_SPACE_BYTES or at in globals_at:
                     raise ContractError(f"{label} {k} {reg.name} at {at:#x} collides or leaves the register space")
                 globals_at.add(at)
@@ -403,6 +420,7 @@ def load(path: Path = CONTRACT) -> Contract:
     max_tuples = int(_need(flt, "max_tuples", "filter"))
     ifr = _need(raw, "interface_registers", "contract")
     iffr = _need(raw, "interface_filter_registers", "contract")
+    bndr = _need(raw, "interface_bound_registers", "contract")
     chr_ = _need(raw, "channel_registers", "contract")
     contract = Contract(
         major=int(raw["version"]["major"]), minor=int(raw["version"]["minor"]),
@@ -415,6 +433,12 @@ def load(path: Path = CONTRACT) -> Contract:
         if_registers=_registers(ifr["registers"], "interface_registers", REGISTER_SPACE_BYTES),
         iff_base=int(iffr["base"]), iff_stride=int(iffr["stride"]),
         iff_registers=_registers(iffr["registers"], "interface_filter_registers", REGISTER_SPACE_BYTES),
+        bound_talkers=int(_need(raw, "bound_talkers", "contract")),
+        bnd_base=int(_need(bndr, "base", "interface_bound_registers")),
+        bnd_stride=int(_need(bndr, "stride", "interface_bound_registers")),
+        bnd_entry_stride=int(_need(bndr, "entry_stride", "interface_bound_registers")),
+        bnd_registers=_registers(_need(bndr, "registers", "interface_bound_registers"), "interface_bound_registers",
+                                 REGISTER_SPACE_BYTES),
         ch_base=int(chr_["base"]), ch_stride=int(chr_["stride"]),
         ch_registers=_registers(chr_["registers"], "channel_registers", REGISTER_SPACE_BYTES),
         evt_base=int(raw["event_ring"]["base"]), evt_words=int(raw["event_ring"]["words"]),
@@ -478,7 +502,7 @@ def _field_constants(prefix: str, fields: tuple[Field, ...], doc: str) -> list[C
 
 
 def _register_constants(contract: Contract) -> list[Constant]:
-    """Offsets and fields of the three register blocks."""
+    """Offsets and fields of the register blocks."""
     out: list[Constant] = []
     for reg in contract.registers:
         out.append(Constant(f"REG_{reg.name}", reg.offset, reg.doc, True))
@@ -492,6 +516,12 @@ def _register_constants(contract: Contract) -> list[Constant]:
     out.append(Constant("IFF_STRIDE", contract.iff_stride, "bytes per interface filter block", True))
     for reg in contract.iff_registers:
         out.append(Constant(f"IFF_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("BND_BASE", contract.bnd_base, "first interface's bound-talker table", True))
+    out.append(Constant("BND_STRIDE", contract.bnd_stride, "bytes per interface's bound-talker table", True))
+    out.append(Constant("BND_ENTRY_STRIDE", contract.bnd_entry_stride, "bytes per bound-talker entry", True))
+    for reg in contract.bnd_registers:
+        out.append(Constant(f"BND_REG_{reg.name}", reg.offset, reg.doc, True))
         out += _field_constants(reg.name, reg.fields, reg.name)
     out.append(Constant("CH_BASE", contract.ch_base, "first channel register block", True))
     out.append(Constant("CH_STRIDE", contract.ch_stride, "bytes per channel block", True))
@@ -567,6 +597,7 @@ def constants(contract: Contract) -> list[Constant]:
            Constant("REGISTER_SPACE_BYTES", REGISTER_SPACE_BYTES, "registers live below this offset", True),
            Constant("N_IF", contract.interfaces, "interfaces", False),
            Constant("N_TIMERS", contract.timers, "timer slots", False),
+           Constant("N_BOUND", contract.bound_talkers, "bound-talker entries per interface (listener streams)", False),
            Constant("TICK_MS", contract.tick_ms, "NOW_MS milliseconds per TICK (one centisecond)", False),
            Constant("N_CH", len(contract.channels), "channels", False),
            Constant("INDEX_BITS", contract.index_bits, "ring counter width", False),
