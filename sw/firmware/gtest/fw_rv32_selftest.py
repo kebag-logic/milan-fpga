@@ -27,17 +27,19 @@ def header_and_abi_cases(cc: str, work: Path) -> int:
     """A hostile hosted include tree cannot affect the freestanding build."""
     poison = work / "sysroot/usr/include"
     poison.mkdir(parents=True)
-    for header in ("stdint.h", "string.h", "stdio.h"):
+    for header in ("stdint.h", "string.h", "stdio.h", "assert.h"):
         (poison / header).write_text('#error "hosted header reached"\n')
     source = work / "interfaces.c"
     source.write_text("""#include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 _Static_assert(sizeof(uintptr_t) == 4, "RV32 pointers");
 _Static_assert(sizeof(long) == 4, "ILP32 long");
 _Static_assert(sizeof(uint64_t) == 8, "64-bit wire fields");
 int format(char *dst, size_t n, const char *fmt, va_list ap) {
+    assert(dst != NULL);
     memset(dst, 0, n);
     return vsnprintf(dst, n, fmt, ap);
 }

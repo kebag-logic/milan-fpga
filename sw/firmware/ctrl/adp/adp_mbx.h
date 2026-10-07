@@ -86,6 +86,12 @@
 // TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50) and the 20 s a listener ages
 // the entity out by (valid_time 10).
 
+// No synchronous callbacks (#678): a port must return before any core
+// input is dispatched by the single bare-metal event loop. A port never
+// calls back into a protocol core or the store, including on zero-delay
+// timer arms or TX completion. Interrupts defer dispatch to the loop.
+// F2 to F5 inherit this rule for every protocol port.
+
 #ifndef ADP_MBX_H
 #define ADP_MBX_H
 

@@ -14,9 +14,31 @@
 
 #include "adp.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "wire.h"
+
+// One event loop owns every instance. Shared state also protects init's
+// uninitialized destination and build's const instance without casting.
+static bool port_active;
+static uint32_t reentry_count;
+
+static bool reject_reentry(void)
+{
+	assert(!port_active);
+	if (port_active) {
+		reentry_count++;
+		return true;
+	}
+	return false;
+}
+
+uint32_t adp_reentry_count(void)
+{
+	(void)reject_reentry();
+	return reentry_count;
+}
 
 static uint32_t rng_next(struct adp *a)
 {
@@ -42,13 +64,17 @@ static uint32_t draw_ms(struct adp *a, enum adp_draw kind)
 static void timer_start(struct adp *a, enum adp_timer kind, uint32_t delay_ms)
 {
 	a->timer = kind;
+	port_active = true;
 	a->ports->timer_start(a->ports->ctx, a->interface, delay_ms);
+	port_active = false;
 }
 
 static void timer_stop(struct adp *a)
 {
 	a->timer = ADP_TIMER_NONE;
+	port_active = true;
 	a->ports->timer_stop(a->ports->ctx, a->interface);
+	port_active = false;
 }
 
 // Start TMR_DELAY and go to DELAY.
@@ -60,10 +86,15 @@ static void enter_delay(struct adp *a, enum adp_draw kind)
 
 void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	const struct adp_entity *e = a->entity;
 	uint64_t gm = 0;
 	uint8_t domain = 0;
+	port_active = true;
 	a->ports->gptp(a->ports->ctx, a->interface, &gm, &domain);    // sampled at build, as the fabric does
+	port_active = false;
 	uint8_t valid_time = message_type == ADP_MSG_ENTITY_AVAILABLE ? ADP_VALID_TIME : 0u;
 	uint8_t *pdu = frame + ADP_HEADER_BYTES;
 
@@ -97,7 +128,10 @@ static bool send(struct adp *a, uint8_t message_type, uint32_t available_index)
 {
 	uint8_t frame[ADP_FRAME_BYTES];
 	adp_build(a, message_type, available_index, frame);
-	if (a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES)) {
+	port_active = true;
+	bool sent = a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES);
+	port_active = false;
+	if (sent) {
 		return true;
 	}
 	a->deferred_sends++;
@@ -133,6 +167,9 @@ static void advertise(struct adp *a)
 void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_ports *ports,
 	      unsigned interface, uint16_t current_configuration_index)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	memset(a, 0, sizeof *a);
 	a->entity = entity;
 	a->ports = ports;
@@ -147,6 +184,9 @@ void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_p
 
 void adp_set_current_configuration(struct adp *a, uint16_t index)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	a->current_configuration_index = index;
 }
 
@@ -176,6 +216,9 @@ static void shutdown(struct adp *a)
 
 void adp_set_enable(struct adp *a, bool enable)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	if (enable == a->enabled) {
 		return;
 	}
@@ -185,11 +228,15 @@ void adp_set_enable(struct adp *a, bool enable)
 		return;
 	}
 	a->enabled = true;
+	port_active = true;
 	a->rng ^= a->ports->seed(a->ports->ctx);
+	port_active = false;
 	if (a->rng == 0u) {
 		a->rng = 1u;
 	}
+	port_active = true;
 	a->link_up = a->ports->link_up(a->ports->ctx, a->interface);
+	port_active = false;
 	if (a->link_up) {
 		enter_delay(a, ADP_DRAW_STARTUP);                       // 5.6.3.5.2
 	} else {
@@ -199,6 +246,9 @@ void adp_set_enable(struct adp *a, bool enable)
 
 void adp_link_change(struct adp *a, bool up)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	bool was = a->link_up;
 	a->link_up = up;
 	if (!a->enabled || up == was) {
@@ -219,6 +269,9 @@ void adp_link_change(struct adp *a, bool up)
 
 void adp_gm_change(struct adp *a)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	a->gm_changed++;
 	if (a->enabled && a->state == ADP_STATE_WAITING) {
 		enter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.7
@@ -227,6 +280,9 @@ void adp_gm_change(struct adp *a)
 
 void adp_timer_expired(struct adp *a)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	enum adp_timer kind = a->timer;
 	if (kind == ADP_TIMER_NONE) {
 		a->stray_expiries++;
@@ -244,6 +300,9 @@ void adp_timer_expired(struct adp *a)
 
 void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
 {
+	if (reject_reentry()) {
+		return;
+	}
 	// 5.6.3.1: an ENTITY_DISCOVER for entity_id 0 or this entity is
 	// RCV_ADP_DISCOVER; anything else is discarded.
 	if (len < ADP_HEADER_BYTES + 12u || wire_be16(frame + 12) != ADP_ETHERTYPE ||
@@ -268,6 +327,9 @@ void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
 // when none is owed, the owed ENTITY_AVAILABLE.
 bool adp_poll(struct adp *a)
 {
+	if (reject_reentry()) {
+		return false;
+	}
 	if (a->departing_owed != 0u) {
 		depart(a);
 	} else if (a->available_owed) {

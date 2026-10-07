@@ -83,10 +83,7 @@ TEST(NvmCodec, codec_room) {
 // guard that passes there can reach. On the last record, the payload's
 // guard: one byte short of the payload's end VD_REC, at its exact end VD_OK.
 //
-// Left out: an erased record whose header ends exactly at `loaded`. Its
-// verdict is right, but nvm_klj2_record reads its erased payload past
-// `loaded` to reach it, which a buffer holding the whole container cannot
-// show; the fix and its test are #677's.
+// Exact-sized erased prefixes run under AddressSanitizer in test_nvm_prefix.cpp.
 TEST(NvmCodec, codec_loaded_prefix) {
     std::vector<std::uint8_t> blank(NVM_IMG_LEN);
     nvm_klj2_blank(blank.data());

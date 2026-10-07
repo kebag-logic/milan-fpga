@@ -117,6 +117,28 @@ def arm_acmpnvm(tree: Tree) -> Outcome:
     return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
 
 
+def reentry(tree: Tree, release: bool) -> Outcome:
+    """The same violating ports against assertions and release refusal."""
+    tag = "reentry_release" if release else "reentry_debug"
+    flags = ("-DNDEBUG",) if release else ("-UNDEBUG",)
+    tests = ("-DADP_TEST_RELEASE",) if release else ()
+    if tree.build.coverage:
+        tests += ("-DADP_TEST_COVERAGE",)
+    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
+    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
+    return execute(tag, link(tree, f"test_{tag}", objs))
+
+
+def arm_reentry_debug(tree: Tree) -> Outcome:
+    """Debug/test assertion on a synchronous callback."""
+    return reentry(tree, False)
+
+
+def arm_reentry_release(tree: Tree) -> Outcome:
+    """Release count and ignore, with the outer transition preserved."""
+    return reentry(tree, True)
+
+
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
     mocks; then the MMIO platform over a host window."""
