@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 #include "srp_fixture.hpp"
+#include <array>
 FW_TALLY_LABEL("ctrl SRP receive recovery");
 namespace {
 class SrpRetry : public Srp {
@@ -171,8 +172,8 @@ TEST_F(SrpRetry, FailedParticipantRecreationRetainsFreshReceive) {
 TEST_F(SrpRetry, RetainedMvrpUsesItsOriginalParticipant) {
     settle(); advance(400);
     const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
-    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
-    ASSERT_TRUE(srp_mbx_bind(&adapter,MBX_N_IF-1,0,&sid,da,7));
+    const std::array<uint8_t,6> da{0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,MBX_N_IF-1,0,&sid,da.data(),7));
     std::vector<uint8_t> f(26);
     wire_put_be(f.data(),0x0180c2000021ull,6);
     wire_put_be(f.data()+12,0x88f5,2);
