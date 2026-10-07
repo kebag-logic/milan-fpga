@@ -25,6 +25,7 @@ is an integration obligation, not a target-time result established here.
 - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
 - **[The host test](#the-host-test)** -- The thirteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The four invocations and what each needs.
+- **[Linked size](#linked-size)** -- The composed app linked for RV32I at the shipping and the largest shape, against the block-RAM budget and dev.
 
 ## Layout
 
@@ -220,3 +221,41 @@ git -C lwSRP checkout 19f5796b63652eb1151906de73cb827d4980a53f
 The `lwsrp` arm refuses another HEAD, and a checkout whose `src/` (every
 source and header it compiles) differs from that revision. Moving the pin is
 a reviewed change to `LWSRP_REV`.
+
+## Linked size
+
+`ctrl_image.py` links the firmware as a Mark II platform composes it
+([`rv32_image/image_main.c`](test/rv32_image/image_main.c)): the app, the
+binding owner and lane F1's store on the LiteSPI port at the shape's
+container, booted in the order above, every source compiled with its gate's
+RV32I flags plus `-DNDEBUG`, one section per function and object, and linked
+at `--gc-sections` into one 128 KB block-RAM region
+([`image.ld`](test/rv32_image/image.ld)), so only what the composition
+reaches counts (#665, acceptance addition 6030870481). The integrator's
+owners (the lock, the sources, SRP, the notifier, every other saved group)
+are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
+stand-ins, reported apart (64 bytes: `memset` and `memcpy`, the only ones the
+composition reaches); lwSRP's pool is the host tests' 256 bytes until F4
+sizes it; the stack is not counted. `--base REV` measures another revision's
+firmware with the same harness.
+
+```sh
+python3 sw/firmware/ctrl/test/ctrl_image.py --base d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+```
+
+At lane F3 round 4, with the pinned SDK's GCC 14.3.0, against dev
+`d51b373a` (the app without ACMP, the same store):
+
+| Shape | STREAM_INPUTs / OUTPUTs | text | rodata | data | bss | total | of 128 KB |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 29,812 (+10,852) | 992 (+36) | 16 (+0) | 11,280 (+4,848) | 42,100 (+15,736) | 32.1 % |
+| `endstation_ax7101_8x8` (largest) | 9 / 9 | 29,816 (+10,852) | 992 (+36) | 16 (+0) | 21,648 (+4,864) | 52,472 (+15,752) | 40.0 % |
+
+The static objects: the app, 6,800 bytes at every shape (ACMP's state 4,720
+at its maxima of 16 sinks, 16 sources and four interfaces, the loop 1,748,
+the pool's header 204, ADP's 124), the store's stage (3,344 at the shipping
+shape, 13,264 at the largest), its payload buffer (136, 576), chunk (256)
+and state (288), and the pool's arena (256). ACMP's state does not follow
+the shape: the sinks and sources it serves are a run-time configuration
+within those maxima, so the shape moves only the store's buffers and a few
+bytes of code.

@@ -360,6 +360,7 @@ The ctrl build keeps assertions, so `__assert_fail` is a named interface there.
 Those declarations supply no runtime implementations or replacement behavior.
 The product supplies its runtime through the bare-metal build.
 The SDK pin remains unchanged.
+The ctrl tree's [linked size](../ctrl/README.md#linked-size) is measured apart, by linking.
 
 Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
 Its architecture attribute must specify RV32I without extensions.
