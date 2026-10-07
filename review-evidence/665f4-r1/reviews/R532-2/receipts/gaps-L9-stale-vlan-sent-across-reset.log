@@ -1,0 +1,23 @@
+wrote $PACKET/scratch/gaps-L9-stale-vlan-sent-across-reset/build/srp-r532_gaps-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/gaps-L9-stale-vlan-sent-across-reset/build/srp-r532_gaps-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/gaps-L9-stale-vlan-sent-across-reset/build/srp-r532_gaps-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.G1_RefusedPeerDomainDoesNotSurviveLinkRestart
+[       OK ] Srp.G1_RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.G2_SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+[       OK ] Srp.G2_SinkVlanRedeclaredBeforeReadyAfterLinkRestart (0 ms)
+[ RUN      ] Srp.G3_SharedIdentityReadyWaitsForTheMatchingBindingsVlan
+[       OK ] Srp.G3_SharedIdentityReadyWaitsForTheMatchingBindingsVlan (0 ms)
+[ RUN      ] Srp.G4_ListenerRedeclaredOnNewLink
+[       OK ] Srp.G4_ListenerRedeclaredOnNewLink (0 ms)
+[----------] 4 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 4 tests.
+== R532 SRP gap probes: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+PROBE rc=0

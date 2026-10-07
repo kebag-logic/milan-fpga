@@ -1,0 +1,28 @@
+--- sw/firmware/ctrl/srp/srp_mbx.c	2026-10-07 11:04:38.138589211 +0200
++++ $PACKET/scratch/ctrl-fix/srp/srp_mbx.c	2026-10-07 11:13:01.704502770 +0200
+@@ -308,6 +308,12 @@
+         }
+         if (s->vlan_requested && s->vid != i->domain.vid && !another_sink(i,sink,s,false)) {
+             (void)mvrp_withdraw(i->mvrp,0,s->vid);
++        } else if (s->vlan_requested) {
++            for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
++                if (k != sink && i->sinks[k].bound && i->sinks[k].vid == s->vid) {
++                    i->sinks[k].vlan_requested = true;
++                }
++            }
+         }
+     }
+     memset(s,0,sizeof(*s));
+@@ -581,6 +587,12 @@
+         if (i->link && !link) {
+             reset_interface(i);
+             i->link = false;
++        } else if (!i->link && link) {
++            if (i->link_seen) {
++                reset_interface(i);
++            }
++            i->link_seen = true;
++            i->link = true;
+         }
+         if (i->discard_prefix && !mbx_rx_before(MBX_CH_SRP,i->rx_mark)) {
+             i->discard_prefix = false;

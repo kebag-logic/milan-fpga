@@ -1,0 +1,30 @@
+Note: Google Test filter = Srp.P4*:Srp.P5*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from Srp
+[ RUN      ] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline
+$PACKET/scratch/ctl-restart-probe/tests_src/r532_probe.cpp:81: Failure
+Expected equality of these values:
+  adapter.ifs[0].sinks[0].declared
+    Which is: '\x2' (2)
+  0u
+    Which is: 0
+original deadline must expire at 5 s
+
+  [FAIL] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline: original deadline must expire at 5 s
+[  FAILED  ] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline (1 ms)
+[ RUN      ] Srp.P5_MvrpLeaveInInAgesButMsrpLeaveIsImmediate
+[       OK ] Srp.P5_MvrpLeaveInInAgesButMsrpLeaveIsImmediate (0 ms)
+[----------] 2 tests from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline
+
+ 1 FAILED TEST
+== R532 SRP probes: checks: 2   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 2 checks, exit 1)
+PROBE rc=1

@@ -1,0 +1,69 @@
+wrote $PACKET/scratch/p-head-if2/build/srp-r532_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/p-head-if2/build/srp-r532_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/p-head-if2/build/srp-r532_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from Srp
+[ RUN      ] Srp.P1_ReinitWithLinkAlreadyUpStillDeclares
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:24: Failure
+Expected: (adapter.transmitted) > (before), actual: 0 vs 0
+no Talker/Domain/VLAN declaration after re-init with link up
+
+  [FAIL] Srp.P1_ReinitWithLinkAlreadyUpStillDeclares: no Talker/Domain/VLAN declaration after re-init with link up
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:25: Failure
+Value of: adapter.ifs[0].link
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.P1_ReinitWithLinkAlreadyUpStillDeclares: Expected: true
+[  FAILED  ] Srp.P1_ReinitWithLinkAlreadyUpStillDeclares (1 ms)
+[ RUN      ] Srp.P2_LevelLossThenLevelReturnWithoutRecordRecovers
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:40: Failure
+Value of: adapter.ifs[0].link
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.P2_LevelLossThenLevelReturnWithoutRecordRecovers: Expected: true
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:44: Failure
+Value of: adapter.ifs[0].registered[0]
+  Actual: false
+Expected: true
+receive is dropped while i->link stays false
+
+  [FAIL] Srp.P2_LevelLossThenLevelReturnWithoutRecordRecovers: receive is dropped while i->link stays false
+[  FAILED  ] Srp.P2_LevelLossThenLevelReturnWithoutRecordRecovers (0 ms)
+[ RUN      ] Srp.P3_SharedVidWithdrawnAfterBothUnbindsInEitherOrder
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:63: Failure
+Value of: left
+  Actual: false
+Expected: true
+VID 7 is never withdrawn
+
+  [FAIL] Srp.P3_SharedVidWithdrawnAfterBothUnbindsInEitherOrder: VID 7 is never withdrawn
+$PACKET/scratch/p-head-if2/tests_src/r532_probe.cpp:64: Failure
+Value of: still_joined && !left
+  Actual: true
+Expected: false
+VID 7 is still declared with no binding
+
+  [FAIL] Srp.P3_SharedVidWithdrawnAfterBothUnbindsInEitherOrder: VID 7 is still declared with no binding
+[  FAILED  ] Srp.P3_SharedVidWithdrawnAfterBothUnbindsInEitherOrder (0 ms)
+[ RUN      ] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline
+[       OK ] Srp.P4_TalkerLeaveInLvKeepsOriginalDeadline (1 ms)
+[ RUN      ] Srp.P5_MvrpLeaveInInAgesButMsrpLeaveIsImmediate
+[       OK ] Srp.P5_MvrpLeaveInInAgesButMsrpLeaveIsImmediate (0 ms)
+[----------] 5 tests from Srp (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (5 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.P1_ReinitWithLinkAlreadyUpStillDeclares
+[  FAILED  ] Srp.P2_LevelLossThenLevelReturnWithoutRecordRecovers
+[  FAILED  ] Srp.P3_SharedVidWithdrawnAfterBothUnbindsInEitherOrder
+
+ 3 FAILED TESTS
+== R532 SRP probes: checks: 5   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 5 checks, exit 1)
+PROBE rc=1
