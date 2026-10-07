@@ -1,0 +1,12 @@
+Mutation probe disposition (R520-3):
+M1 KILLED  gen_toc --check refuses a removed CHANGELOG contents entry.
+M2 KILLED  gen_toc --check refuses a renamed section heading (stale contents label).
+M3 INVALID probe design, not a gate result: the em-dash gate judges `git diff <base> HEAD`
+           (committed lines), so an uncommitted worktree mutant is outside its input by
+           construction. summary.rc=1 reflects only this invalid probe. Superseded by M3c.
+M3c KILLED check_em_dash --base e21c1ca0 refuses a committed U+2014 at CHANGELOG.md:50
+           (disposable scratch clone at the exact head; unmutated control rc 0).
+M4 KILLED  pp_baseline --selftest refuses a worker cap that also changes general.maxThreads.
+M5 KILLED  pp_baseline --selftest refuses a no-op --single-thread-synthesis.
+M6 KILLED  check_doc_style refuses an over-long sentence in the new CHANGELOG section.
+All in-clone mutants restored with `git checkout -- <file>`; see ../restore_verification.txt.

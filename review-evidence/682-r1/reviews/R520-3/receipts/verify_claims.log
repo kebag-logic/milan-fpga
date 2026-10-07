@@ -1,0 +1,25 @@
+CHECK PASS head is fe8294978dd306706d659dc06468d0c07d43ce3e
+CHECK PASS tree is 1d9982e2
+CHECK PASS only 3 Markdown files changed since round-2 head
+CHECK PASS manager commit touches only CHANGELOG.md and SUBMODULES.md
+CHECK PASS no gitlink moved since round-2 head
+CHECK PASS processor gitlink at 2ad2f845dd583f8310075fa2380cb60a04fd091a
+CHECK PASS base gitlink was ead8036035affd53ef4b29979190f2f4f67084c0
+CHECK PASS VERSION unchanged vs base
+CHECK PASS no firmware/capture/sw change vs base
+INFO processor merges ead8036035affd53ef4b29979190f2f4f67084c0..2ad2f845dd583f8310075fa2380cb60a04fd091a: 156 159 160 161 162 164 
+CHECK PASS processor PRs are exactly 156 159 160 161 162 164
+CHECK PASS processor top byte-identical between pins
+CHECK PASS processor ROM sources unchanged between pins
+CHECK PASS ROM ledger has two 2ad2f845dd583f8310075fa2380cb60a04fd091a rows equal to the ead8036035affd53ef4b29979190f2f4f67084c0 rows
+CHECK PASS xvlog budget: zero processor findings
+CHECK PASS harness extension bounded by 2048 cycles
+CHECK PASS PR 156 adds no synchronous-reset wording
+CHECK PASS PR 157 (b0a741963212e7d49a902cbab3940033266084c4) adds the synchronous-reset wording
+CHECK PASS PR 157 is in the earlier pin, not the new range
+CHECK PASS CHANGELOG no longer credits synchronous reset to C11
+CHECK PASS SUBMODULES C11 row no longer credits synchronous reset
+CHECK PASS every baseline-F flow starts with the worker cap and keeps general.maxThreads 32
+INFO recipe measurement-preparation commands: 5; carrying --single-thread-synthesis: 5
+CHECK PASS every recipe preparation command carries the flag
+rc=0

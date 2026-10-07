@@ -1,0 +1,18 @@
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+<scratch-tmp>/pp-baseline-export-qlzat8du/gateware/baseline_integrated.tcl
+<scratch-tmp>/pp-baseline-export-qlzat8du/gateware/baseline_integrated.tcl
+<scratch-tmp>/pp-baseline-export-qlzat8du/gateware/baseline_integrated.tcl
+Traceback (most recent call last):
+  File "<clone>/syn/ooc/pp_baseline.py", line 587, in <module>
+    main()
+    ~~~~^^
+  File "<clone>/syn/ooc/pp_baseline.py", line 566, in main
+    selftest()
+    ~~~~~~~~^^
+  File "<clone>/syn/ooc/pp_baseline.py", line 321, in selftest
+    export_selftest()
+    ~~~~~~~~~~~~~~~^^
+  File "<clone>/syn/ooc/pp_baseline.py", line 521, in export_selftest
+    raise AssertionError(f"synthesis worker cap changes more than its flow setting: {filename}")
+AssertionError: synthesis worker cap changes more than its flow setting: baseline_integrated.tcl
