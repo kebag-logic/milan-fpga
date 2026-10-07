@@ -26,6 +26,9 @@ B.3.6.6 sends DEFEND to the requesting source, echoing its range and the interse
 Loss withdraws the old allocation before selecting and probing another range.
 Release stops the timer, drops obsolete output and leaves INITIAL.
 Starting with a down link also withdraws the previous allocation.
+A supplied Begin range survives until the first operational port.
+Table B.7 note a governs that saved-range reuse.
+Conflict Restart draws again, after consuming the supplied range.
 
 B.2 encoding uses control_data_length 16, MAAP version 1 and a zero stream ID.
 Frames are padded to 60 bytes; the receiver accepts the complete 42-byte minimum.
@@ -75,6 +78,7 @@ Ports return without blocking and must never invoke a core synchronously.
 
 Call `ctrl_app_start_maap` with an allocation callback for the experimental composition.
 It preserves ADP startup, uses separate timer slots and opens ADP plus MAAP.
+MAAP reception enables its interrupt alongside ADP and events.
 The ordinary `ctrl_app_start` remains the ADP-only entry point.
 No builder placement switch or shipping firmware entry point changes.
 
@@ -93,6 +97,16 @@ Loss closes admission immediately; no register definitions change.
 The platform must quiesce pre-existing media before first ownership transfer.
 The host CSR tests establish ordered programming, not fabric frame quiescence.
 The later placement integration owns target bus arbitration and boot-policy binding.
+
+Clearing `MAAP_CTRL[0]` disables the fabric `KL_maap` engine.
+Then `KL_pp_maap_shim` cannot answer ALLOC_DA successfully.
+The processor's `talker_active` consequently never asserts.
+Programmed destinations alone cannot admit the current fabric talker.
+Before using this output, integration must supply that allocation.
+Feed the processor's MAAP face from the firmware allocation,
+or move ACMP onto the core through F3.
+This is a #664 decision 3 default-flip condition.
+F2 records the dependency; it does not change that wiring.
 
 ## Service evidence
 
@@ -127,9 +141,13 @@ audio deadlines and bench acceptance remain later integration obligations.
 The control gate runs the core/CSR tests and H-MAAP at one and two interfaces.
 Release coverage measures the original portable C sources.
 The debug assertion has a separate expected-abort test.
+RV32 object validation uses `-DNDEBUG` only.
+The host assertion test does not prove target debug linkage.
 New firmware must have 100% line and branch coverage without exclusions.
 `maap_mutants.py` plants protocol, wire, timer, ordering, adapter and output defects;
 the named test and failure text must match, not merely a failed executable.
+Generic predicate defects supplement the fixture-specific Table B.7 controls.
+R528-1 and R529-1 supplied the added regression probes.
 The campaign can be partitioned with `--self-test --mutation-shard INDEX COUNT`.
 Run every zero-based index to cover the complete campaign.
 
@@ -145,6 +163,19 @@ Use the repository-pinned simulator for the last command.
 Set TMPDIR to disk-backed scratch before running the gates.
 The differential drives shared probe, per-state conflict, loss and retry stimulus
 through the C core and the unchanged parent MAAP engine.
-Annex B is the oracle; #686 records the parent's different retransmission count,
-length field, DEFEND destination, ANNOUNCE handling and announcement interval.
-The test checks those differences explicitly rather than accepting arbitrary divergence.
+Annex B is the oracle; #686 records these parent deviations:
+
+- Three delayed PROBEs versus four starting immediately (Table B.7).
+- Probe draws of 500..627 ms versus strict 500/600 ms endpoints.
+- Control-data length 28 versus 16 (B.2.1).
+- Multicast DEFEND versus the triggering source destination (B.2.1).
+- ANNOUNCE conflicts tested against conflict fields (Table B.7).
+- Announcement draws of 3..5.047 s versus strict 30/32 s endpoints.
+
+The differential observes software deadlines and parent frame completion cycles.
+Initial parent observations include one millisecond of tick/serialization uncertainty.
+Later equal-length frames cancel that error in interval measurements.
+Varying the start phase reaches both 500/627 ms parent boundaries.
+Firmware sends span both 511/589 ms guarded draw boundaries.
+Named controls reject 1, 500 and 600 ms probe intervals.
+Separate controls falsify the parent probe bound and count expectations.

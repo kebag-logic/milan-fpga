@@ -23,7 +23,57 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
     _table(add)
     add("allocation-seam-disconnected", "maap/maap.c", "publish(m, m->count, true);",
         "publish(m, m->count, false);", ("MaapHost.AcquiredRangeFeedsExistingCsrPath", "allocation reaches AAF CSR"))
+    _review_regressions(add)
+    _generic_table(add)
     return tuple(out)
+
+
+def _review_regressions(add: Plant) -> None:
+    """Standing R528-1 and R529-1 probes and their original escaping defects."""
+    core = "maap/maap.c"
+    csr = "maap/maap_csr.c"
+    add("app-missing-rx-interrupt", "app/ctrl_app.c",
+        "mbx_place(channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
+        "mbx_place(channels & ~(1u << MBX_CH_MAAP), MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH)",
+        ("MaapHost.AppWaitWakesForMaapWithinBudget", "accepted MAAP wakes idle loop"))
+    add("begin-down-forgets-range", core, "m->preferred = preferred;", "m->preferred = 0;",
+        ("MaapCore.BeginBeforePortOperationalRetainsRange", "Begin supplied range survives port down"))
+    add("restart-reuses-range", core, "m->state = MAAP_INITIAL;\n\treserve(m, 0);",
+        "m->state = MAAP_INITIAL;\n\treserve(m, m->base);",
+        ("MaapCore.RestartDrawsNewRange", "fixed seed Restart draws a new range"))
+    priority = ("MaapCore.PriorityAfterTiedOctets", "every reversed octet decides")
+    add("reverse-five-octets", core, "for (unsigned i = 0; i < 6u; ++i) {",
+        "for (unsigned i = 0; i < 5u; ++i) {", priority)
+    add("compare-mac-lsb-only", core, "reverse_mac(m->mac) >= reverse_mac(peer)",
+        "(reverse_mac(m->mac) >> 40) >= (reverse_mac(peer) >> 40)", priority)
+    add("csr-select-listener", csr, "STRM_SEL, 0x100u | k);", "STRM_SEL, k);",
+        ("MaapCsr.EveryStreamAddressAndLossGate", "stream destination base plus index"))
+    add("csr-enable-before-programming", csr,
+        "\tif (c->aaf_outputs != 0u) {\n\t\taddress(c, interface, AAF_DMLO",
+        "\twrite_word(c, interface, AAF_CTRL, c->aaf_control);\n"
+        "\twrite_word(c, interface, CRFT_CTRL, c->crf_control);\n"
+        "\tif (c->aaf_outputs != 0u) {\n\t\taddress(c, interface, AAF_DMLO",
+        ("MaapCsr.AdmissionAfterEveryDestinationWrite", "enables follow every destination word"))
+    add("poll-first-interface-only", "maap/maap_mbx.c",
+        "for (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\towed = maap_poll",
+        "for (unsigned k = 0; k < 1u; ++k) {\n\t\towed = maap_poll",
+        ("MaapHost.InterfaceOneStallDrainsWithinBudget", "interface 1 poll drains deferred output"), "maap_if2")
+
+
+def _generic_table(add: Plant) -> None:
+    """R528-1-S1: alter production predicates without fixture MAC literals."""
+    core = "maap/maap.c"
+    for name, old, new, test, words in (
+        ("initial-handles-conflict", "else if (m->state != MAAP_INITIAL) {", "else if (true) {",
+         "AllStates/MaapCell.TableB7/0", "Table B.7"),
+        ("probe-state-defends", "type == MAAP_MSG_PROBE && m->state == MAAP_DEFEND",
+         "type == MAAP_MSG_PROBE && m->state == MAAP_PROBE", "AllStates/MaapCell.TableB7/12", "Table B.7"),
+        ("probe-defend-uses-priority", "(m->state == MAAP_PROBE && type != MAAP_MSG_PROBE) ||",
+         "false ||", "AllStates/MaapCell.TableB7/10", "Table B.7"),
+        ("equal-mac-wins", "reverse_mac(m->mac) >= reverse_mac(peer)",
+         "reverse_mac(m->mac) > reverse_mac(peer)", "MaapCore.ReverseOctetPriority", "equal MAC is not lower"),
+    ):
+        add("generic-" + name, core, old, new, (test, words))
 
 
 def _wire(add: Plant) -> None:

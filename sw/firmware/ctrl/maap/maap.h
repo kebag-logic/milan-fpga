@@ -46,6 +46,7 @@ struct maap {
 	const struct maap_ports *ports;
 	uint64_t mac;
 	uint64_t base;
+	uint64_t preferred; // Begin!'s supplied range, consumed by the first reserve
 	uint16_t count;
 	uint8_t interface;
 	enum maap_state state;
@@ -74,7 +75,9 @@ struct maap {
 bool maap_init(struct maap *m, const struct maap_ports *ports, unsigned interface,
 	       uint64_t mac, uint16_t count);
 // Begin! in INITIAL only. preferred=0 draws; otherwise a valid pool range
-// is used under Table B.7 note a. An invalid preferred range is refused.
+// is used under Table B.7 note a, even when the port becomes operational
+// later. The preference is consumed by that reserve, not reused on conflict.
+// An invalid preferred range is refused.
 bool maap_begin(struct maap *m, uint64_t preferred);
 void maap_release(struct maap *m);
 // Link down withdraws; link up implements PortOperational!, including

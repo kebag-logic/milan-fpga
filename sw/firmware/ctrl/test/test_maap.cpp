@@ -175,6 +175,35 @@ TEST(MaapCore, ReverseOctetPriority) {
     EXPECT_EQ(equal.core.conflicts, 1u) << "equal MAC is not lower";
 }
 
+// R528-1-F3: each octet must decide after all later octets tie.
+TEST(MaapCore, PriorityAfterTiedOctets) {
+    constexpr std::uint64_t local = 0x024040404080ULL;
+    for (unsigned octet = 0; octet < 6; ++octet) {
+        for (bool wins : {false, true}) {
+            CoreRig r;
+            ASSERT_TRUE(maap_init(&r.core, &r.ports, 3, local, 8));
+            r.begin();
+            const auto step = std::uint64_t{octet == 0 ? 2u : 1u} << (8 * (5 - octet));
+            const auto peer = wins ? local + step : local - step;
+            r.receive(pdu(1, kBase, 8, peer));
+            EXPECT_EQ(r.core.conflicts, wins ? 0u : 1u)
+                << "every reversed octet decides, including first: " << octet;
+        }
+    }
+}
+
+TEST(MaapCore, RestartDrawsNewRange) {
+    CoreRig r; r.acquire();
+    r.receive(pdu(3));
+    EXPECT_EQ(r.core.conflicts, 1u);
+    EXPECT_NE(r.core.base, kBase) << "fixed seed Restart draws a new range";
+    EXPECT_GE(r.core.base, MAAP_POOL_BASE);
+    EXPECT_LE(r.core.base + 8, MAAP_POOL_BASE + MAAP_POOL_SIZE);
+    ASSERT_EQ(r.frames.size(), 6u);
+    EXPECT_EQ(field(r.frames.back(), 26, 6), r.core.base);
+    EXPECT_EQ(r.frames.back()[15], 1u);
+}
+
 TEST(MaapCore, UniformDrawRejectsIncompleteBucket) {
     CoreRig r;
     // Inverse xorshift seed: the first word is UINT32_MAX, outside the
@@ -278,6 +307,26 @@ TEST(MaapCore, ReleaseLossAndRetry) {
     EXPECT_EQ(r.frames.size(), n) << "released instance stays idle";
 }
 
+// R528-1-F1: Table B.7 note a survives the normal link-down boot order.
+TEST(MaapCore, BeginBeforePortOperationalRetainsRange) {
+    CoreRig r;
+    maap_port_operational(&r.core, false);
+    r.begin();
+    EXPECT_TRUE(r.frames.empty());
+    EXPECT_FALSE(maap_begin(&r.core, MAAP_POOL_BASE - 1));
+    maap_port_operational(&r.core, true);
+    ASSERT_EQ(r.frames.size(), 1u);
+    EXPECT_EQ(r.core.base, kBase) << "Begin supplied range survives port down";
+    EXPECT_EQ(r.frames[0], pdu(1, kBase, 8, kMac));
+    r.receive(pdu(2));
+    EXPECT_NE(r.core.base, kBase) << "saved range consumed before conflict Restart";
+    maap_release(&r.core);
+    maap_port_operational(&r.core, false);
+    ASSERT_TRUE(maap_begin(&r.core, 0));
+    maap_port_operational(&r.core, true);
+    EXPECT_NE(r.core.base, kBase) << "new Begin without preferred range draws";
+}
+
 TEST(MaapCore, StalledOutputRetainsOrderAndOriginalExpiry) {
     CoreRig r; r.room = false; r.begin();
     EXPECT_EQ(r.core.queued, 1u);
@@ -327,7 +376,10 @@ struct CsrRig {
         port.read32 = [](void* ctx, unsigned, std::uint32_t offset) { return static_cast<CsrRig*>(ctx)->regs.at(offset / 4); };
         port.write32 = [](void* ctx, unsigned interface, std::uint32_t offset, std::uint32_t value) {
             auto& r = *static_cast<CsrRig*>(ctx);
-            r.writes.push_back({interface, offset, value}); r.regs.at(offset / 4) = value;
+            r.writes.push_back({interface, offset, value});
+            // REGISTER_MAP 0x800: listener DMAC words are read-only.
+            if ((offset == 0x81c || offset == 0x820) && !(r.regs[0x800 / 4] & 0x100u)) return;
+            r.regs.at(offset / 4) = value;
             auto k = r.regs[0x800 / 4] & 15;
             if (offset == 0x81c) r.streams.at(k) = (r.streams.at(k) & 0xffff00000000ULL) | value;
             if (offset == 0x820) r.streams.at(k) = (static_cast<std::uint64_t>(value) << 32) | (r.streams.at(k) & 0xffffffffULL);
@@ -365,5 +417,27 @@ TEST(MaapCsr, ShapesAndCountRefusal) {
     ASSERT_TRUE(maap_csr_init(&r.output, r.port, 0, true, 0, 3));
     maap_csr_allocation(&r.output, 0, kBase + 3, 1, true);
     EXPECT_EQ(r.regs[0x75c / 4], 0xf0000103u) << "CRF only shape";
+}
+
+// R528-1-F4: inspect the whole trace, not just its final register image.
+TEST(MaapCsr, AdmissionAfterEveryDestinationWrite) {
+    CsrRig r;
+    ASSERT_TRUE(maap_csr_init(&r.output, r.port, 8, true, 1, 1));
+    maap_csr_allocation(&r.output, 0, kBase, 9, true);
+    unsigned destinations = 0, enables = 0;
+    for (unsigned k = 0; k < r.writes.size(); ++k) {
+        const auto offset = r.writes[k][1], value = r.writes[k][2];
+        if (offset == 0x658 || offset == 0x65c || offset == 0x81c ||
+            offset == 0x820 || offset == 0x75c || offset == 0x760) {
+            EXPECT_EQ(enables, 0u) << "no destination write after admission opens";
+            ++destinations;
+        }
+        if ((offset == 0x654 || offset == 0x750) && (value & 1u)) {
+            EXPECT_EQ(destinations, 18u) << "enables follow every destination word";
+            EXPECT_GE(k, r.writes.size() - 2u) << "AAF and CRF enables are last";
+            ++enables;
+        }
+    }
+    EXPECT_EQ(destinations, 18u); EXPECT_EQ(enables, 2u);
 }
 } // namespace

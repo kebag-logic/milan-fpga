@@ -269,6 +269,84 @@ TEST_F(MaapHost, ExplicitAppComposition) {
     ASSERT_TRUE(ctrl_app_start_maap(&app, &config, allocation, this, 0));
 }
 
+// R529-1-F1 probe extended through the actual loop wait/wake boundary.
+TEST_F(MaapHost, AppWaitWakesForMaapWithinBudget) {
+    maap_mbx_stop(&adapter); mbx_model_reset(&model);
+    std::array<std::uint8_t, 1024> arena{};
+    const ctrl_pool_class classes[] = {{64, 4}};
+    adp_entity entity{}; entity.mac = kMac; entity.entity_id = 1; entity.talker_stream_sources = 8;
+    ctrl_app_config config{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr};
+    ctrl_app app{};
+    for (unsigned k = 0; k < MBX_N_IF; ++k) mbx_model_set_link(&model, k, true);
+    ASSERT_TRUE(ctrl_app_start_maap(&app, &config, allocation, this, kBase));
+    EXPECT_EQ(model.irq_enable, (1u << (MBX_IRQ_ENABLE_RX_LSB + MBX_CH_ADP)) |
+              (1u << (MBX_IRQ_ENABLE_RX_LSB + MBX_CH_MAAP)) | (1u << MBX_IRQ_ENABLE_EVT_LSB))
+        << "MAAP wake preserves ADP and event interrupts";
+    for (unsigned k = 0; k < MBX_N_IF; ++k) {
+        for (unsigned n = 0; n < 8 && ctrl_loop_service(&app.loop); ++n) {}
+        ASSERT_FALSE(mbx_model_irq(&model));
+        struct WaitInput {
+            mbx_model* model;
+            const std::uint64_t* now_ns;
+            unsigned interface;
+            unsigned waits = 0;
+            bool woke = false;
+            std::uint64_t published_ns = 0;
+        } input{&model, &now_ns, k};
+        mbx_model_bind(&model, [](void* ctx) {
+            auto& w = *static_cast<WaitInput*>(ctx);
+            ++w.waits;
+            EXPECT_FALSE(mbx_model_irq(w.model)) << "loop entered idle wait";
+            w.published_ns = *w.now_ns;
+            const auto frame = incoming(1);
+            EXPECT_TRUE(mbx_model_rx(w.model, frame.data(), frame.size(), w.interface));
+            w.woke = mbx_model_irq(w.model);
+        }, &input);
+        const auto previous = commits.size();
+        ctrl_loop_step(&app.loop);
+        EXPECT_EQ(input.waits, 1u);
+        EXPECT_TRUE(input.woke) << "accepted MAAP wakes idle loop";
+        // A waiting platform cannot service until an enabled cause wakes it.
+        if (input.woke) ctrl_loop_step(&app.loop);
+        EXPECT_EQ(app.maap.ifs[k].core.conflicts, 1u) << "woken input reaches indexed core";
+        ASSERT_EQ(commits.size(), previous + 1u) << "wake commits the conflict retry";
+        EXPECT_TRUE(service_bound(input.published_ns)) << "H-MAAP wake from original RX within 10 ms";
+        EXPECT_EQ(model.ch[MBX_CH_MAAP].rx_head, model.ch[MBX_CH_MAAP].rx_tail);
+        EXPECT_FALSE(mbx_model_irq(&model));
+        std::printf("  H-MAAP wake interface %u: %llu ns from RX_HEAD (model)\n", k,
+                    static_cast<unsigned long long>(commits.back() - input.published_ns));
+        mbx_model_bind(&model, nullptr, nullptr);
+    }
+    maap_mbx_stop(&app.maap);
+}
+
+#if MBX_N_IF > 1
+TEST_F(MaapHost, InterfaceOneStallDrainsWithinBudget) {
+    maap_release(&adapter.ifs[0].core);
+    for (unsigned k = 0; k < 3; ++k) expiry(1);
+    ASSERT_TRUE(valid[1]);
+    auto f = incoming(1);
+    mbx_model_tx_pause(&model, true);
+    for (unsigned k = 0; k < 7; ++k) ASSERT_EQ(mbx_tx_send(MBX_CH_MAAP, 0, f.data(), 60), MBX_STATUS_OK);
+    ASSERT_TRUE(inject(f, 1));
+    auto start = now_ns; auto previous = commits.size();
+    ctrl_loop_step(&loop);
+    EXPECT_EQ(commits.size(), previous); EXPECT_EQ(adapter.ifs[1].core.queued, 1u);
+    advance(5); mbx_model_tx_pause(&model, false);
+    const auto before = accesses();
+    ctrl_loop_step(&loop);
+    EXPECT_LE(accesses() - before, MAAP_MBX_PASS_MAX);
+    EXPECT_EQ(adapter.ifs[1].core.queued, 0u) << "interface 1 poll drains deferred output";
+    ASSERT_EQ(commits.size(), previous + 1u) << "interface 1 response committed";
+    EXPECT_TRUE(service_bound(start)) << "H-MAAP interface 1 stall charged to original RX";
+    auto frame = mbx_model_tx_frame(&model, model.tx_sent - 1);
+    ASSERT_NE(frame, nullptr);
+    EXPECT_EQ(frame->interface, 1u); EXPECT_EQ(frame->bytes[15], 2u);
+    std::printf("  H-MAAP interface 1 stall: %llu ns from RX_HEAD (model)\n",
+                static_cast<unsigned long long>(commits.back() - start));
+}
+#endif
+
 TEST_F(MaapHost, CallbackWorkAndEveryOutputCount) {
     // Counts 1..9 cover every shipped AAF+CRF shape; audio rate is not a MAAP input.
     for (unsigned count = 1; count <= 9; ++count) {

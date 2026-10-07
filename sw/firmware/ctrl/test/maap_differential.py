@@ -11,7 +11,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from ctrl_build import CTRL, HERE, ROOT, Outcome, Tree, compile_c, execute, sources
+from ctrl_build import CTRL, ROOT, Outcome, Tree, compile_c, execute, sources
 import fw_gtest
 
 
@@ -28,7 +28,7 @@ def differential(out: Path, ctrl: Path = CTRL) -> Outcome:
             "--top-module", "KL_maap", "-GCLK_FREQ_HZ_P=10000", "-Wno-fatal",
             "--Mdir", str(out / "fabric"), "-CFLAGS", " ".join(flags),
             "-LDFLAGS", " ".join(fw_gtest.TEST_LIBS), "-o", str(exe),
-            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(HERE / "test_maap_differential.cpp"),
+            str(ROOT / "hdl/ieee1722/maap/KL_maap.sv"), str(ctrl / "test/test_maap_differential.cpp"),
             *map(str, objs)]
     result = fw_gtest.run(argv, timeout=570)
     (out / "build.log").write_text(result.stdout + result.stderr, encoding="utf-8")
@@ -45,17 +45,28 @@ def sensitivity(out: Path) -> int:
     """Require every differential case to reject its own planted core defect."""
     from ctrl_mutants import MUTANTS, caught
 
-    cells = [(m.name, m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
+    cells = [(m.name, "maap/maap.c", m.old, m.new, f"AllStates/DifferentialCell.SharedConflict/{k}")
              for k, key in enumerate((0, 1, 2, 6, 7, 8, 12, 13, 14))
              for m in MUTANTS if m.name == f"maap-table-b7-{key}"]
-    cases = [("wire", "f[17] = 16u;", "f[17] = 28u;", "MaapDifferential.ProbeSequenceWireAndCadence"),
-             ("release", "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
+    cases = [("wire", "maap/maap.c", "f[17] = 16u;", "f[17] = 28u;", "MaapDifferential.ProbeSequenceWireAndCadence"),
+             ("release", "maap/maap.c", "m->state = MAAP_INITIAL;\n\tm->queued = 0;",
               "m->state = MAAP_DEFEND;\n\tm->queued = 0;", "MaapDifferential.ReleaseAndRetry"), *cells]
+    delay = "base + MAAP_SERVICE_MS + 1u + draw(m, variation - 2u * MAAP_SERVICE_MS - 1u)"
+    timing = "MaapDifferential.ProbeTimingAndParentDelta"
+    # R529-1's 1 ms escape and both strict boundary controls.
+    for ms in (1, 500, 600):
+        cases.append((f"probe-{ms}ms", "maap/maap.c", delay,
+                      f"announce ? {delay} : {ms}u", timing))
+    cases.append(("parent-probe-bound", "test/test_maap_differential.cpp",
+                  "kParentProbeMaxMs = 627", "kParentProbeMaxMs = 499", timing))
+    cases.append(("parent-probe-count", "test/test_maap_differential.cpp",
+                  'ASSERT_EQ(f.frames.size(), 4u) << "#686 parent three',
+                  'ASSERT_EQ(f.frames.size(), 5u) << "#686 parent three', timing))
     escaped = 0
-    for name, old, new, test in cases:
+    for name, path, old, new, test in cases:
         copy = out / name / "ctrl"
         shutil.copytree(CTRL, copy, ignore=shutil.ignore_patterns("__pycache__"), dirs_exist_ok=True)
-        source = copy / "maap/maap.c"
+        source = copy / path
         original = source.read_text(encoding="utf-8")
         if original.count(old) != 1:
             raise ValueError(f"{name}: differential fixture is not unique")

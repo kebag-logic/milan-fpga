@@ -5,6 +5,7 @@
 
 #include "ctrl_app.h"
 
+#include "mbx_wire.h"
 #include "shlan_port.h"
 
 bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
@@ -51,6 +52,9 @@ bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg
 	// F0 just initialized the tables and bound one sink and one poll.
 	(void)maap_mbx_attach(&app->maap, &app->loop);
 	(void)maap_mbx_start(&app->maap, preferred);
-	mbx_filter_open((1u << MBX_CH_ADP) | (1u << MBX_CH_MAAP));
+	uint32_t channels = (1u << MBX_CH_ADP) | (1u << MBX_CH_MAAP);
+	mbx_irq_enable(mbx_place(channels, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |
+		       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));
+	mbx_filter_open(channels);
 	return true;
 }

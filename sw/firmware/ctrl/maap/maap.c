@@ -102,6 +102,7 @@ static void request(struct maap *m, uint8_t type)
 static void reserve(struct maap *m, uint64_t preferred)
 {
 	m->base = preferred != 0u ? preferred : MAAP_POOL_BASE + draw(m, MAAP_POOL_SIZE - m->count + 1u);
+	m->preferred = 0; // Table B.7 note a applies once, never to conflict Restart!
 	m->probe_count = MAAP_PROBE_RETRANSMITS;
 	publish(m, m->count, false);
 	start_timer(m, false);
@@ -181,6 +182,7 @@ bool maap_begin(struct maap *m, uint64_t preferred)
 	}
 	bool accepted = preferred == 0u || pool_range(preferred, m->count);
 	if (accepted && m->state == MAAP_INITIAL) {
+		m->preferred = preferred;
 		m->enabled = true;
 		m->rng = (uint32_t)m->mac + m->ports->clock(m->ports->ctx);
 		if (m->rng == 0u) {
@@ -225,7 +227,11 @@ void maap_port_operational(struct maap *m, bool up)
 	m->operational = up;
 	if (m->enabled) {
 		if (up) {
-			restart(m); // Table B.7 PortOperational! in every state
+			if (m->preferred != 0u) {
+				reserve(m, m->preferred); // Begin! accepted before the port was operational
+			} else {
+				restart(m); // Table B.7 PortOperational! in every state
+			}
 			(void)pump(m);
 		} else {
 			withdraw(m);
