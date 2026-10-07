@@ -1,0 +1,16 @@
+### md venv: $VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python (requirements sha256 40cdefe08ebda5e63f0ed13f5437f96dc58f8b2d64a6fb045f3ba02441ed2817)
+### gen_toc --check
+TOC gate: OK (138 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+### gen_toc --verify-anchors
+anchor check: 388 existing cross-page fragment links reproduced
+rc=0
+### check_em_dash --base 910f338d
+check_em_dash: 0 finding(s) over 52 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [910f338d..HEAD]
+rc=0
+### check_em_dash --base 6714181d
+check_em_dash: 0 finding(s) over 304 added line(s) in 10 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [6714181d..HEAD]
+rc=0
+### docs_check (md venv)
+docs_check: 0 finding(s) across 198 md files + 1126 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0

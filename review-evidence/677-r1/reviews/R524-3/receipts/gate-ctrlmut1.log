@@ -1,0 +1,43 @@
+slice 1/4: 20 of 79 mutants: reentry-uncounted, available-replaces-owed-departing, link-loss-drops-owed-departing, link-loss-keeps-owed-available, coalesce-overwrites-oldest-index, gm-change-ignored, advertise-period-wrong, frame-misses-config-index, calloc-overflow-unchecked, rx-pass-unbounded, carried-ticks-overwritten, rx-no-resync, pool-falls-back-to-heap, model-gm-hi-live, port-pool-unreported, rx-binds-no-function, app-binds-pool-after-the-mailbox, step-waits-twice, whole-field-loses-its-top-bit, mmio-offset-as-index
+[ok] mutant reentry-uncounted (reentry_release): 122 check(s) failed
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry is counted
+[ok] mutant available-replaces-owed-departing (adp): 34 check(s) failed
+    first: [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+[ok] mutant link-loss-drops-owed-departing (adp): 5 check(s) failed
+    first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING, index 1
+[ok] mutant link-loss-keeps-owed-available (adp): 5 check(s) failed
+    first: [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+[ok] mutant coalesce-overwrites-oldest-index (adp): 7 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant gm-change-ignored (walk): 4 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+[ok] mutant advertise-period-wrong (walk): 4 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 TMR_ADVERTISE fires 5000 ms after the send
+[ok] mutant frame-misses-config-index (walk): 11 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+[ok] mutant calloc-overflow-unchecked (port): 1 check(s) failed
+    first: [FAIL] Pool.P3CallocZeroesAndRefusesAWrap: P3 calloc refuses a count times size that wraps to a small size
+[ok] mutant rx-pass-unbounded (port): 1 check(s) failed
+    first: [FAIL] Loop.L2PerPassRxBound: L2 a pass takes at most CTRL_LOOP_RX_PER_PASS records of a channel
+[ok] mutant carried-ticks-overwritten (port): 1 check(s) failed
+    first: [FAIL] Loop.L8TickRecordWhileCarried: L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer
+[ok] mutant rx-no-resync (port, unit): 6 check(s) failed
+    first: [FAIL] Driver.D1MalformedRecordResynchronises: D1 and the ring is resynchronised to RX_HEAD, the next record included
+[ok] mutant pool-falls-back-to-heap (port, rv32): 3 check(s) failed
+    first: [FAIL] Pool.P4ShlanFunctionsDrawOnTheBoundPool: P4 shlan_malloc and shlan_calloc draw on the bound pool
+[ok] mutant model-gm-hi-live (model): 1 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot: G0 GM_HI reads the snapshot GM_LO took
+[ok] mutant port-pool-unreported (port): 1 check(s) failed
+    first: [FAIL] Pool.P8PortLayerUnbound: P8 the bound pool is the one reported
+[ok] mutant rx-binds-no-function (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L9TablesRefuseNullAndOverflow: L9 a channel bound to no function is refused
+[ok] mutant app-binds-pool-after-the-mailbox (unit): 1 check(s) failed
+    first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+[ok] mutant step-waits-twice (unit): 1 check(s) failed
+    first: [FAIL] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed: U3 every turn is one pass, and a pass that owed nothing then sleeps
+[ok] mutant whole-field-loses-its-top-bit (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D10LanesAndFieldsAtTheirBounds: D10 and reads whole
+[ok] mutant mmio-offset-as-index (unit): 2 check(s) failed
+    first: [FAIL] MmioPlatform.M1OneWordAtBasePlusOffset: M1 a write lands in the word at base + offset
+mutants: 20 of 20 caught
+slice 1: ALL CAUGHT

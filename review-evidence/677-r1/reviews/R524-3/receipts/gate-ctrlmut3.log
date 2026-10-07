@@ -1,0 +1,41 @@
+slice 3/4: 19 of 79 mutants: departing-keeps-index, second-departing-dropped, discover-drops-owed-available, coalesced-departing-uncounted, down-answers-discover, shutdown-in-down-departs, draw-kinds-merged, latency-extra-read, debug-truncation-uncounted, events-halved, owed-ticks-let-it-sleep, lanes-big-endian, seq-not-stamped, zero-size-refusal-uncounted, pool-cut-list-refuses-outright, enable-not-idempotent, major-unchecked, tx-negative-fill, foreign-frame-uncounted
+[ok] mutant departing-keeps-index (walk): 2 check(s) failed
+    first: [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+[ok] mutant second-departing-dropped (adp): 20 check(s) failed
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+[ok] mutant discover-drops-owed-available (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 so does an ENTITY_DISCOVER
+[ok] mutant coalesced-departing-uncounted (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant down-answers-discover (walk): 14 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN: RCV_ADP_DISCOVER(eid 0) x DOWN: advertise state after
+[ok] mutant shutdown-in-down-departs (walk): 2 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN: SHUTDOWN x DOWN: no cancel where the slot is untouched
+[ok] mutant draw-kinds-merged (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A9DrawKinds: A9 every startup draw is 0..2 s and every other draw 0..4 s
+[ok] mutant latency-extra-read (adp): 5 check(s) failed
+    first: [FAIL] AdpLatency.C0toC6EveryResponsePath: C0 LINK_UP -> TMR_DELAY armed
+[ok] mutant debug-truncation-uncounted (port): 1 check(s) failed
+    first: [FAIL] DebugSink.S2TruncatedToTheLine: S2 the truncation is counted
+[ok] mutant events-halved (adp): 2 check(s) failed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F2 all 16 event records are taken by pass CTRL_LOOP_EVT_PASSES
+[ok] mutant owed-ticks-let-it-sleep (port): 2 check(s) failed
+    first: [FAIL] Loop.L7TickSlices: L7 every one of 40 coalesced centiseconds reaches the consumer
+[ok] mutant lanes-big-endian (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] mutant seq-not-stamped (port): 1 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 ACMP, ACMP, AECP committed by the driver behind a held merge leave in that order
+[ok] mutant zero-size-refusal-uncounted (port): 2 check(s) failed
+    first: [FAIL] Pool.P1ClassesExhaustionAndRefusals: P1 refusals are counted
+[ok] mutant pool-cut-list-refuses-outright (port): 2 check(s) failed
+    first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: P9 a class whose list ends before its count is exhausted, not followed: the next class serves
+[ok] mutant enable-not-idempotent (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A23RepeatedEnableOrDisableChangesNothing: A23 an enable while enabled draws and arms nothing
+[ok] mutant major-unchecked (unit, unit): 36 check(s) failed
+    first: [FAIL] AppComposition.U1AnotherContractOpensNothing:            Actual: called once - over-saturated and active
+[ok] mutant tx-negative-fill (unit): 2 check(s) failed
+    first: [FAIL] DriverUnit.D8TransmitRefusals: D8 a TX_TAIL more than a ring behind TX_HEAD is no room, never a negative fill
+[ok] mutant foreign-frame-uncounted (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B3ForeignInterfaceCounted: B3 a record, a LINK and a GM naming an interface with no instance are counted
+mutants: 19 of 19 caught
+slice 3: ALL CAUGHT

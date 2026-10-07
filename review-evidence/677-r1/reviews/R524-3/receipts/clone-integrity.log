@@ -1,0 +1,47 @@
+HEAD 34475e774dfe1c92c81fa51293668e64dc95fa85
+TREE 46cc939a85be1aa400f15fbd7c72ea983ac88271
+write-tree 46cc939a85be1aa400f15fbd7c72ea983ac88271
+--- status --porcelain --ignored (untracked/ignored listed):
+!! scripts/__pycache__/check_nvm_record_space.cpython-314.pyc
+!! scripts/__pycache__/nvm_allocation_table.cpython-314.pyc
+!! scripts/__pycache__/nvm_contract.cpython-314.pyc
+!! scripts/__pycache__/nvm_klj2.cpython-314.pyc
+!! scripts/__pycache__/nvm_map_checks.cpython-314.pyc
+!! scripts/__pycache__/nvm_shape.cpython-314.pyc
+!! scripts/__pycache__/suite_tally.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_arms.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_build.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_mutants.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_reuse.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_bench.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_fixture.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_mutants.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_rv32.cpython-314.pyc
+!! sw/firmware/gtest/__pycache__/fw_gtest.cpython-314.pyc
+!! sw/firmware/gtest/__pycache__/fw_rv32.cpython-314.pyc
+!! sw/firmware/nvm_hosttest/__pycache__/test_nvm_firmware.cpython-314.pyc
+!! sw/litex/__pycache__/boot_policy.cpython-314.pyc
+!! sw/litex/__pycache__/flash_map.cpython-314.pyc
+--- diff-index vs HEAD (blob bytes/modes):
+rc-diff=0
+--- submodule gitlinks (index vs checkout):
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 ead8036035affd53ef4b29979190f2f4f67084c0 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ ead8036035affd53ef4b29979190f2f4f67084c0 protocol-processor (v2.0-592-gead8036)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor dirty: 0
+gptp-processor dirty: 0
+third_party/verilog-axis dirty: 0
+--- after removing the 20 ignored __pycache__ files this review created at 05:49:17 (one-off --help runs):
+HEAD 34475e774dfe1c92c81fa51293668e64dc95fa85
+write-tree 46cc939a85be1aa400f15fbd7c72ea983ac88271
+status --ignored --untracked-files=all lines: 0
+worktree+index == HEAD
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 ead8036035affd53ef4b29979190f2f4f67084c0 0	protocol-processor
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis

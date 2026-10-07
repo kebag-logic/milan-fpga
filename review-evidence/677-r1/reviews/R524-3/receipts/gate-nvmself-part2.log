@@ -1,0 +1,28 @@
+previously graded 84, grading 25 here, total 109: verify_skips_last_stretch, verify_read_fail_ignored, program_refusal_ignored, no_timeout, same_sequence, refused_slot_overwritten, no_blank_slot_takes_b, erase_authoritative, descending_pages, capture_in_one_step, spin_wait, litespi_no_wren, litespi_status_ignored, litespi_no_guard, phc_time, clock_not_accumulated, ticks_per_us_truncated, xfer_unbounded, open_unbounded, call_deadline_ignored, drain_deadline_ignored, read_runs_past_device, program_across_page, deadline_per_wait, stall_ignored
+unnamed checks against all 109 defects: none
+  self-test OK: same_sequence              caught by change_commit_bytes; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: change commit: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 
+  self-test OK: no_blank_slot_takes_b      caught by first_commit_no_blank_slot; first: [FAIL] Ports/NvmBoth.first_commit_no_blank_slot/model: first commit with both slots refused: {'abandoned': 0, 
+  self-test OK: no_timeout                 caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: spin_wait                  caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant max_call_us=2999900 > 250
+  self-test OK: program_refusal_ignored    caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: program-refuse:1:2: want the first failure 12: {'abandoned': 0, 'abandoned_vd'
+  self-test OK: capture_in_one_step        caught by service_bound; first: [FAIL] Ports/NvmBoth.service_bound/model: model: invariant step_max=6040 > step_bound=278
+  self-test OK: descending_pages           caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/model: model: invariant descending=13
+  self-test OK: verify_skips_last_stretch  caught by verify_tail; first: [FAIL] Ports/NvmBoth.verify_tail/model: program-drop:1:13: want the first failure 13: {'abandoned': 0, 'abando
+  self-test OK: refused_slot_overwritten   caught by refused_slot_kept; first: [FAIL] Ports/NvmBoth.refused_slot_kept/model: refused slot A: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 0
+  self-test OK: litespi_no_wren            caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant ls_no_wel=14
+  self-test OK: litespi_no_guard           caught by port_guard; first: [FAIL] NvmLitespi.port_guard: --litespi: invariant while_busy=3
+  self-test OK: erase_authoritative        caught by change_commit_bytes, powercut; first: [FAIL] Ports/NvmBoth.change_commit_bytes/model: model: invariant protected=3
+  self-test OK: verify_read_fail_ignored   caught by media_verdicts; first: [FAIL] NvmModel.media_verdicts: read-fail:1:21: want the first failure 13: {'abandoned': 0, 'abandoned_vd': 0,
+  self-test OK: litespi_status_ignored     caught by first_commit_bytes; first: [FAIL] Ports/NvmBoth.first_commit_bytes/litespi: --litespi: invariant while_busy=14
+  self-test OK: ticks_per_us_truncated     caught by port_clock, time_base at 83333000 Hz; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase 997402 us after the change
+  self-test OK: phc_time                   caught by time_base; first: [FAIL] NvmLitespi.time_base: PHC -60000 ms in the window: erase -1 us after the change
+  self-test OK: clock_not_accumulated      caught by time_base; first: [FAIL] NvmLitespi.time_base: a window across the counter's wrap: erase 502406 us after the change
+  self-test OK: open_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+  self-test OK: drain_deadline_ignored     caught by port_drain_deadline; first: [FAIL] NvmLitespiPort.port_drain_deadline:            Actual: called 4096 times - over-saturated and active
+  self-test OK: xfer_unbounded             caught by port_stall; first: [FAIL] NvmLitespi.port_stall: --litespi: invariant ls_hung=1
+  self-test OK: call_deadline_ignored      caught by port_deadline, port_drain_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant protected=3
+  self-test OK: read_runs_past_device      caught by port_read_range; first: [FAIL] NvmLitespiPort.port_read_range: a read running past it is refused
+  self-test OK: deadline_per_wait          caught by port_deadline; first: [FAIL] NvmLitespi.port_deadline: --litespi: invariant max_call_us=2231 > 2213
+  self-test OK: stall_ignored              caught by port_stall; first: [FAIL] NvmLitespi.port_stall: stalled master tx:1:10:0: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'at
+  self-test OK: program_across_page        caught by port_write_refusals; first: [FAIL] NvmLitespiPort.port_write_refusals:     Function call: timer(3, 1)
+rest: 25 of 25 caught; unnamed: 0

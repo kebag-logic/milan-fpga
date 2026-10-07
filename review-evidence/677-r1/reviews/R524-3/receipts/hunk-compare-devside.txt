@@ -1,0 +1,11 @@
+551c551
+< -           string or format function or a libgcc helper (no heap, no OS);
+---
+> -           string, format or assertion function or a libgcc helper (no heap, no OS);
+553,554c553,555
+< +           every undefined symbol a named runtime interface or arithmetic
+< +           helper, with ELF ABI and static-frame checks (no heap, no OS);
+---
+> +           every undefined symbol a named runtime interface (string, format
+> +           or assertion) or arithmetic helper, with ELF ABI and static-frame
+> +           checks (no heap, no OS);

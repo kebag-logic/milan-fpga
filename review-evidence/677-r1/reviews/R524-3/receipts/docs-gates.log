@@ -1,0 +1,16 @@
+### docs_check
+docs_check: 0 finding(s) across 198 md files + 1126 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+### gen_toc --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### check_em_dash --base 910f338d
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### check_em_dash --base 6714181d
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+### git diff --check 910f338d
+rc=0
+### git diff --check 6c94e9f5
+rc=0

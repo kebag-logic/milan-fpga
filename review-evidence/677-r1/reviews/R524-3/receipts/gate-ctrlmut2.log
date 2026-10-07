@@ -1,0 +1,43 @@
+slice 2/4: 20 of 79 mutants: reentry-not-ignored, available-passes-owed-departing, gm-change-drops-owed-available, departing-queue-unbounded, own-discover-discarded, delay-ignores-link-down, link-up-draws-startup-kind, stale-tag-accepted, pool-double-free-accepted, poll-owes-nothing, tick-slice-unbounded, tx-overfills, model-rate-unlimited, zero-byte-class-accepted, pool-follows-a-cut-free-list, seed-left-at-zero, app-starts-on-an-uncarved-pool, maap-base-shifted, slots-past-the-bank, wait-without-wfi
+[ok] mutant reentry-not-ignored (reentry_release): 1083 check(s) failed
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: callback leaves core state unchanged
+[ok] mutant available-passes-owed-departing (adp): 10 check(s) failed
+    first: [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+[ok] mutant gm-change-drops-owed-available (adp): 4 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed, no timer started
+[ok] mutant departing-queue-unbounded (adp): 14 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant own-discover-discarded (walk): 4 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING: RCV_ADP_DISCOVER(own eid) x WAITING: advertise state after
+[ok] mutant delay-ignores-link-down (walk): 2 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed: LINK_DOWN x DELAY(timer armed): advertise state after
+[ok] mutant link-up-draws-startup-kind (walk): 1 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN: LINK_UP x DOWN: the draw is the 0..4 s kind
+[ok] mutant stale-tag-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpAdapter.B1StaleTagDiscarded: B1 an expiry of the arm a GM_CHANGE replaced is discarded by its tag
+[ok] mutant pool-double-free-accepted (port): 4 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a double free is refused and counted
+[ok] mutant poll-owes-nothing (adp): 4 check(s) failed
+    first: [FAIL] AdpOwed.E0toE3PendingWake: E1 the loop does not sleep while a frame is owed
+[ok] mutant tick-slice-unbounded (port): 2 check(s) failed
+    first: [FAIL] Loop.L7TickSlices: L7 at most CTRL_LOOP_TICKS_PER_PASS of them per pass
+[ok] mutant tx-overfills (port): 3 check(s) failed
+    first: [FAIL] Driver.D3HeldMergeFillsAndOrderAcrossChannels: D3 a held merge fills the ring to its last whole record
+[ok] mutant model-rate-unlimited (model): 4 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 a burst of the bucket's depth passes
+[ok] mutant zero-byte-class-accepted (port): 1 check(s) failed
+    first: [FAIL] Pool.P5ClassTablesAndArenasRefused: P5 a class of zero-byte blocks is refused
+[ok] mutant pool-follows-a-cut-free-list (port): 1 check(s) failed
+    first: [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: crashed on signal 11
+[ok] mutant seed-left-at-zero (adp): 1 check(s) failed
+    first: [FAIL] AdpCore.A22GeneratorNeverStuckAtZero: A22 an entity id whose words cancel the seed constant starts the generator at 1
+[ok] mutant app-starts-on-an-uncarved-pool (unit): 3 check(s) failed
+    first: [FAIL] AppComposition.U1AnUncarvablePoolStartsNothing:            Actual: called once - over-saturated and active
+[ok] mutant maap-base-shifted (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D6MaapRangeWritten: D6 MAAP_BASE_LO holds the base's low word
+[ok] mutant slots-past-the-bank (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused: B2 slots past the fabric's timer bank are refused
+[ok] mutant wait-without-wfi (unit): 1 check(s) failed
+    first: [FAIL] MmioPlatform.M2WaitIsThePlatformWfi: M2 each mbx_hal_wait() waits once, through CTRL_MBX_WFI
+mutants: 20 of 20 caught
+slice 2: ALL CAUGHT

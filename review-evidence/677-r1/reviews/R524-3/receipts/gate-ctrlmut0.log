@@ -1,0 +1,43 @@
+slice 0/4: 20 of 79 mutants: reentry-guard-removed, departing-sends-zero, second-shutdown-overwrites-index, stray-expiry-drops-owed-available, coalesce-drops-queued-departing, link-down-departs, advertise-expiry-skips-delay, foreign-discover-answered, pool-free-leaks, tick-count-ignored, rx-before-events, filter-opened-before-eid, frame-sources-from-sinks, model-round-robin, foreign-free-uncounted, encoding-failure-swallowed, other-subtype-accepted, evt-words-unchecked, unknown-event-decoded-as-tick, attach-ignores-poll-room
+[ok] mutant reentry-guard-removed (reentry_debug, reentry_debug, reentry_release, reentry_release): 2650 check(s) failed
+    first: [FAIL] AdpReentry.AdvertiseInlineExpiry: inline ADVERTISE expiry asserts
+[ok] mutant departing-sends-zero (adp): 17 check(s) failed
+    first: [FAIL] AdpCore.A6toA8DeferredSends: A8 a link loss does not drop it; the next poll sends it with the index current at SHUTDOWN
+[ok] mutant second-shutdown-overwrites-index (adp): 14 check(s) failed
+    first: [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+[ok] mutant stray-expiry-drops-owed-available (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A19IgnoredInputsKeepTheOwedAvailable: A19 and a stray expiry, which is counted
+[ok] mutant coalesce-drops-queued-departing (adp): 6 check(s) failed
+    first: [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+[ok] mutant link-down-departs (walk): 2 check(s) failed
+    first: [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+[ok] mutant advertise-expiry-skips-delay (walk): 14 check(s) failed
+    first: [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 into DELAY with a 0..4 s draw
+[ok] mutant foreign-discover-answered (adp): 3 check(s) failed
+    first: [FAIL] AdpCore.A3toA5DiscoverAndDiscard: A4 a foreign DISCOVER, an AVAILABLE and a truncated ADPDU are discarded (5.6.3.1)
+[ok] mutant pool-free-leaks (port): 5 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a released block is the next one handed out
+[ok] mutant tick-count-ignored (port): 7 check(s) failed
+    first: [FAIL] Loop.L4TickFanOut: L4 every centisecond reaches the first consumer
+[ok] mutant rx-before-events (adp): 1 check(s) failed
+    first: [FAIL] AdpBacklog.F0toF7FullBacklogs: F1 events first: no event-ring access follows a receive-ring access in a pass
+[ok] mutant filter-opened-before-eid (port): 1 check(s) failed
+    first: [FAIL] LoopBring.L1OpenOrder: L1 OWN_EID is written before any channel opens
+[ok] mutant frame-sources-from-sinks (entity): 1 check(s) failed
+    first: [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+[ok] mutant model-round-robin (model): 5 check(s) failed
+    first: [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+[ok] mutant foreign-free-uncounted (port): 3 check(s) failed
+    first: [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+[ok] mutant encoding-failure-swallowed (port): 1 check(s) failed
+    first: [FAIL] DebugSink.S3UnencodablePrintDiscarded: S3 an encoding failure is returned as the formatter's negative value
+[ok] mutant other-subtype-accepted (adp): 2 check(s) failed
+    first: [FAIL] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded: A24 a DISCOVER under another EtherType or subtype is discarded and counted
+[ok] mutant evt-words-unchecked (unit): 12 check(s) failed
+    first: [FAIL] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words:            Actual: called once - over-saturated and active
+[ok] mutant unknown-event-decoded-as-tick (unit): 1 check(s) failed
+    first: [FAIL] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt: D9 an event of a type the contract does not define is taken with no field decoded
+[ok] mutant attach-ignores-poll-room (unit): 1 check(s) failed
+    first: [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+mutants: 20 of 20 caught
+slice 0: ALL CAUGHT

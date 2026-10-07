@@ -1,0 +1,80 @@
+--- w1-merge rc=1
+  [FAIL] adp.c does not build for RV32I:
+$REVIEWS/677-r524-3-packet/scratch/probes/merge/sw/firmware/ctrl/adp/adp.c:17:10: fatal error: assert.h: No such file or directory
+   17 | #include <assert.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+
+PASS: W1 merge commit 232970db fails rv32 on assert.h: rc=1
+--- w2-head rc=0
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12320 0 171 12491
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: W2 head passes rv32 with __assert_fail open: rc=0
+PASS: W2b RV32_LIBC is exactly four names: ['__assert_fail', 'memcpy', 'memset', 'vsnprintf']
+--- w3-noheader rc=1
+  [FAIL] adp.c does not build for RV32I:
+$REVIEWS/677-r524-3-packet/scratch/probes/noheader/sw/firmware/ctrl/adp/adp.c:17:10: fatal error: assert.h: No such file or directory
+   17 | #include <assert.h>
+      |          ^~~~~~~~~~
+compilation terminated.
+
+PASS: W3 without rv32_include/assert.h rv32 fails: rc=1
+--- w4-noname rc=1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12320 0 171 12491
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: __assert_fail
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+PASS: W4 without the __assert_fail name rv32 fails: rc=1
+--- w5-malloc rc=1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12352 0 171 12523
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, malloc, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: malloc
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+PASS: W5-MALLOC malloc still refused: rc=1
+--- w6-unexpected rc=1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12356 0 171 12527
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, __unexpected_service, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: __unexpected_service
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+PASS: W6-UNEXPECTED __unexpected_service still refused: rc=1
+--- w7-newlib-handler rc=1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12360 0 171 12531
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __assert_func, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: __assert_func
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+PASS: W7-NEWLIB-HANDLER __assert_func still refused: rc=1
+--- w8-prefix-sibling rc=1
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12360 0 171 12531
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __assert_fail2, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: __assert_fail2
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL
+PASS: W8-PREFIX-SIBLING __assert_fail2 still refused: rc=1
+--- w9-ndebug rc=0
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12268 0 178 12446
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: W9 NDEBUG build passes without the name and leaves no __assert_fail: rc=0 undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+PASS: W10 fw_rv32_selftest fails without assert.h: rc=1
+== witness probes: failures 0 ==
