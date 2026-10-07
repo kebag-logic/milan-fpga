@@ -1,0 +1,795 @@
+{
+ "head": "34475e774dfe1c92c81fa51293668e64dc95fa85",
+ "mutants": 109,
+ "caught": 109,
+ "records": [
+  {
+   "name": "no_crc_check",
+   "kills": [
+    "torn_falls_back",
+    "verdict_parity"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_crc_anywhere",
+   "kills": [
+    "powercut"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "pick_older",
+   "kills": [
+    "newer_wins"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "pick_no_wrap",
+   "kills": [
+    "newer_wins"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "tie_picks_b",
+   "kills": [
+    "newer_wins"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "erased_header_only",
+   "kills": [
+    "verdict_parity",
+    "codec_parity"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_ascending",
+   "kills": [
+    "verdict_parity",
+    "codec_parity"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "overrun_as_rec",
+   "kills": [
+    "verdict_parity",
+    "codec_parity"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "incomplete_accepted",
+   "kills": [
+    "verdict_parity",
+    "codec_parity"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "erased_payload_end_bound",
+   "kills": [
+    "codec_erased_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "erased_payload_guard_early",
+   "kills": [
+    "codec_erased_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "erased_payload_guard_late",
+   "kills": [
+    "codec_erased_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "room_unchecked",
+   "kills": [
+    "codec_room"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "short_prefix_read_on",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "short_prefix_as_len",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "header_guard_early",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "header_guard_late",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "payload_guard_early",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "payload_guard_late",
+   "kills": [
+    "codec_loaded_prefix"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "lookup_index_unbounded",
+   "kills": [
+    "codec_lookups"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "long_crc_unchecked",
+   "kills": [
+    "long_container_reads"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "unread_not_counted",
+   "kills": [
+    "long_container_reads"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_version_check",
+   "kills": [
+    "wrong_version_falls_back"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_blank_verdict",
+   "kills": [
+    "blank_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "pad_not_zero",
+   "kills": [
+    "blank_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "header_n_rec",
+   "kills": [
+    "blank_boot",
+    "first_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "frame_crc_init",
+   "kills": [
+    "vector_round_trip",
+    "change_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_blank_stage",
+   "kills": [
+    "blank_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "verdict_not_named",
+   "kills": [
+    "both_torn_blank"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "stage_not_rechecked",
+   "kills": [
+    "read_flip_at_stage"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "stage_seq_unchecked",
+   "kills": [
+    "read_alias_at_stage"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "select_on_unchecked_reread",
+   "kills": [
+    "read_flip_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "slot_read_fail_ignored",
+   "kills": [
+    "read_fail_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "unread_not_held",
+   "kills": [
+    "authority_unknown",
+    "fallback_restage",
+    "read_disagreement"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "read_not_retried",
+   "kills": [
+    "read_fail_boot",
+    "authority_unknown"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "refusal_unconfirmed",
+   "kills": [
+    "authority_unknown",
+    "read_disagreement",
+    "reads_differ_in_verdict",
+    "reads_agree_in_digest_not_length"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "blank_unconfirmed",
+   "kills": [
+    "authority_unknown"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "refusal_by_verdict",
+   "kills": [
+    "read_disagreement"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "agreement_by_digest",
+   "kills": [
+    "reads_agree_in_digest_not_length"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "disagreement_not_counted",
+   "kills": [
+    "reads_differ_in_verdict",
+    "reads_agree_in_digest_not_length"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "restage_not_retried",
+   "kills": [
+    "read_flip_at_stage",
+    "read_alias_at_stage",
+    "read_fail_boot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "fallback_restage_unchecked",
+   "kills": [
+    "fallback_restage"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_rollback",
+   "kills": [
+    "apply_fault_rolls_back",
+    "settle_fault_rolls_back"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "rollback_failure_ignored",
+   "kills": [
+    "rollback_fault_closes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "release_on_closed",
+   "kills": [
+    "rollback_fault_closes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "fault_as_refusal",
+   "kills": [
+    "apply_fault_rolls_back",
+    "binding_walk"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "refusal_aborts",
+   "kills": [
+    "refused_keeps_default"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "settle_fault_ignored",
+   "kills": [
+    "settle_fault_rolls_back"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "settle_after_names",
+   "kills": [
+    "golden_restore"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_settle_without_names",
+   "kills": [
+    "settle_after_the_last_record"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "shape_not_checked",
+   "kills": [
+    "shape_mismatch_disables_persistence"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "shape_mismatch_released_unproven",
+   "kills": [
+    "shape_mismatch_disables_persistence"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "release_before_apply",
+   "kills": [
+    "golden_restore"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "apply_erased",
+   "kills": [
+    "erased_records"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "model_ready_ignored",
+   "kills": [
+    "model_unproven_closes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "bindings_skipped_unproven",
+   "kills": [
+    "model_unproven_closes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "d3_rollback_takes_bindings",
+   "kills": [
+    "apply_fault_rolls_back",
+    "settle_fault_rolls_back"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "bindings_in_d3_walk",
+   "kills": [
+    "binding_walk",
+    "golden_restore"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "binding_fault_aborts_d3",
+   "kills": [
+    "binding_walk"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "binding_fault_keeps_preloads",
+   "kills": [
+    "binding_walk"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "quiet_period",
+   "kills": [
+    "debounce"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_debounce",
+   "kills": [
+    "debounce"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "capture_leaves_window_armed",
+   "kills": [
+    "debounce"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "taken_off_by_one",
+   "kills": [
+    "debounce"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "taken_while_capturing",
+   "kills": [
+    "capture_window_edges"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "taken_after_last_latch",
+   "kills": [
+    "capture_window_edges"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "change_of_no_record",
+   "kills": [
+    "change_unknown_record"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "nothing_to_save_framed",
+   "kills": [
+    "nothing_to_save"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "dr2b_ignores_durability",
+   "kills": [
+    "failed_commit_not_skipped"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_dr2b",
+   "kills": [
+    "unchanged_no_erase"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "console_force_ignored",
+   "kills": [
+    "console_commit_unchanged"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_backoff",
+   "kills": [
+    "media_failures"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "unbounded_attempts",
+   "kills": [
+    "media_failures"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "budget_rearmed_by_change",
+   "kills": [
+    "dr2c_unchanged_set"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "budget_rearmed_by_capture",
+   "kills": [
+    "dr2c_unchanged_set"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "commit_now_overrides_exhaustion",
+   "kills": [
+    "dr2c_console"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "commit_now_ignores_backoff",
+   "kills": [
+    "dr2c_console"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "success_forgives_exhaustion",
+   "kills": [
+    "recovers_after_failure",
+    "dr2c_unchanged_set"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "stale_kept",
+   "kills": [
+    "recovers_after_failure"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "dr2b_keeps_stale",
+   "kills": [
+    "recovers_after_failure"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_blankcheck",
+   "kills": [
+    "media_failures"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "blankcheck_first_stretch_only",
+   "kills": [
+    "blankcheck_tail"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "blankcheck_read_fail_ignored",
+   "kills": [
+    "media_verdicts"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_verify",
+   "kills": [
+    "media_failures",
+    "failed_commit_not_skipped"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "verify_skips_last_stretch",
+   "kills": [
+    "verify_tail"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "verify_read_fail_ignored",
+   "kills": [
+    "media_verdicts"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "program_refusal_ignored",
+   "kills": [
+    "media_verdicts"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_timeout",
+   "kills": [
+    "media_failures"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "same_sequence",
+   "kills": [
+    "change_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "refused_slot_overwritten",
+   "kills": [
+    "refused_slot_kept"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "no_blank_slot_takes_b",
+   "kills": [
+    "first_commit_no_blank_slot"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "erase_authoritative",
+   "kills": [
+    "change_commit_bytes",
+    "powercut"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "descending_pages",
+   "kills": [
+    "first_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "capture_in_one_step",
+   "kills": [
+    "service_bound"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "spin_wait",
+   "kills": [
+    "service_bound"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "litespi_no_wren",
+   "kills": [
+    "first_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "litespi_status_ignored",
+   "kills": [
+    "first_commit_bytes"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "litespi_no_guard",
+   "kills": [
+    "port_guard"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "phc_time",
+   "kills": [
+    "time_base"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "clock_not_accumulated",
+   "kills": [
+    "time_base"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "ticks_per_us_truncated",
+   "kills": [
+    "port_clock",
+    "time_base"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "xfer_unbounded",
+   "kills": [
+    "port_stall"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "open_unbounded",
+   "kills": [
+    "port_stall"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "call_deadline_ignored",
+   "kills": [
+    "port_deadline",
+    "port_drain_deadline"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "drain_deadline_ignored",
+   "kills": [
+    "port_drain_deadline"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "read_runs_past_device",
+   "kills": [
+    "port_read_range"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "program_across_page",
+   "kills": [
+    "port_write_refusals"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "deadline_per_wait",
+   "kills": [
+    "port_deadline"
+   ],
+   "finding": ""
+  },
+  {
+   "name": "stall_ignored",
+   "kills": [
+    "port_stall"
+   ],
+   "finding": ""
+  }
+ ]
+}

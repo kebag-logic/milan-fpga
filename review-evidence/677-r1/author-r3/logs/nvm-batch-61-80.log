@@ -1,0 +1,21 @@
+  self-test OK: no_debounce                caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: an erase inside the debounce window: 1
+  self-test OK: capture_leaves_window_armed caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0xa6): erase 17
+  self-test OK: taken_off_by_one           caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a change after a commit that took one mid-capture (record 0x0): erase 170
+  self-test OK: quiet_period               caught by debounce; first: [FAIL] Ports/NvmBoth.debounce/model: a second change extended the first-dirty window
+  self-test OK: taken_while_capturing      caught by capture_window_edges; first: [FAIL] Ports/NvmBoth.capture_window_edges/model: a change the capture has passed: erase -1 us after it: {'aban
+  self-test OK: taken_after_last_latch     caught by capture_window_edges; first: [FAIL] Ports/NvmBoth.capture_window_edges/model: a change after the capture's last latch: erase -1 us after it
+  self-test OK: change_of_no_record        caught by change_unknown_record; first: [FAIL] NvmModel.change_unknown_record: changes to records the shape does not have: {'abandoned': 0, 'abandoned
+  self-test OK: nothing_to_save_framed     caught by nothing_to_save; first: [FAIL] Ports/NvmBoth.nothing_to_save/model: the staged bytes did not stand
+  self-test OK: dr2b_ignores_durability    caught by failed_commit_not_skipped; first: [FAIL] Ports/NvmBoth.failed_commit_not_skipped/model: retry after a failed attempt: {'abandoned': 0, 'abandone
+  self-test OK: no_dr2b                    caught by unchanged_no_erase; first: [FAIL] Ports/NvmBoth.unchanged_no_erase/model: unchanged value: {'abandoned': 0, 'abandoned_vd': 0, 'applied':
+  self-test OK: console_force_ignored      caught by console_commit_unchanged; first: [FAIL] Ports/NvmBoth.console_commit_unchanged/model: console commit of an unchanged container: {'abandoned': 0
+  self-test OK: no_backoff                 caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-stuck: attempts at 3 erases, want three at least 1,000 ms apa
+  self-test OK: unbounded_attempts         caught by media_failures; first: [FAIL] Ports/NvmBoth.media_failures/model: erase-hang: {'abandoned': 0, 'abandoned_vd': 0, 'applied': 54, 'att
+  self-test OK: budget_rearmed_by_change   caught by dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.dr2c_unchanged_set/model: unchanged set held: {'abandoned': 13, 'abandoned_vd': 13, 'appl
+  self-test OK: budget_rearmed_by_capture  caught by dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.dr2c_unchanged_set/model: unchanged set held: {'abandoned': 0, 'abandoned_vd': 0, 'applie
+  self-test OK: commit_now_overrides_exhaustion caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: model: invariant protected=3
+  self-test OK: commit_now_ignores_backoff caught by dr2c_console; first: [FAIL] Ports/NvmBoth.dr2c_console/model: console inside the backoff: retry 183703 us after the failure: {'aban
+  self-test OK: success_forgives_exhaustion caught by recovers_after_failure, dr2c_unchanged_set; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: new work set after exhaustion: {'abandoned': 0, 'abandoned_
+  self-test OK: stale_kept                 caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: third attempt: {'abandoned': 0, 'abandoned_vd': 0, 'applied
+  self-test OK: dr2b_keeps_stale           caught by recovers_after_failure; first: [FAIL] Ports/NvmBoth.recovers_after_failure/model: a repeated value after recovery: {'abandoned': 0, 'abandone
+Batch 61-80: 20/20 caught

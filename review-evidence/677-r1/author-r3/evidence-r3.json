@@ -1,0 +1,1120 @@
+{
+ "head": "34475e774dfe1c92c81fa51293668e64dc95fa85",
+ "merge": "232970dbb9663abb2a260efda4d2d5abcf034fb5",
+ "dev": "910f338dbd050f4efd2d96991ddcf928a583d55f",
+ "rv32_compiler": "<rv32-sdk>/bin/riscv32-linux-gcc (riscv32-ilp32d--glibc--stable-2025.08-1, receipt verified)",
+ "gates": [
+  {
+   "gate": "assert-witness",
+   "rc": 0,
+   "seconds": 2.0,
+   "memory_peak_bytes": 995819520,
+   "command": [
+    "python3",
+    "<scratch>/assert_witness.py",
+    "<scratch>/assert-witness"
+   ],
+   "raw_log_bytes": 617,
+   "raw_log_sha256": "8b68a2fb8a1186273a2009afa40666dade98a73e93aed1c13a05ae65412f9892",
+   "normalized_log": "logs/r3/assert-witness.log"
+  },
+  {
+   "gate": "bank-01",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 833409024,
+   "command": [
+    "python3",
+    "avdecc/gen_aem_store.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 3596,
+   "raw_log_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+   "normalized_log": "logs/r3/bank-01.log"
+  },
+  {
+   "gate": "bank-02",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 833671168,
+   "command": [
+    "python3",
+    "scripts/pp_srcs.py",
+    "--check",
+    "--selftest"
+   ],
+   "raw_log_bytes": 955,
+   "raw_log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+   "normalized_log": "logs/r3/bank-02.log"
+  },
+  {
+   "gate": "bank-03",
+   "rc": 0,
+   "seconds": 11.0,
+   "memory_peak_bytes": 8854384640,
+   "command": [
+    "python3",
+    "scripts/lint_rtl.py",
+    "--check",
+    "--self-test"
+   ],
+   "raw_log_bytes": 14888,
+   "raw_log_sha256": "fdfaa1c6d9058fd1f1d30ef75e8590d1e633c21b21ff6fb7455e0542dc99123a",
+   "normalized_log": "logs/r3/bank-03.log"
+  },
+  {
+   "gate": "bank-04",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 833671168,
+   "command": [
+    "python3",
+    "scripts/suite_shards.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 1269,
+   "raw_log_sha256": "52039414c215a5a8cf1f3ebe1b830567c059f0a4df09d097926beaa26719316d",
+   "normalized_log": "logs/r3/bank-04.log"
+  },
+  {
+   "gate": "bank-05",
+   "rc": 0,
+   "seconds": 1.5,
+   "memory_peak_bytes": 3572883456,
+   "command": [
+    "python3",
+    "scripts/ci_events.py",
+    "--check"
+   ],
+   "raw_log_bytes": 167,
+   "raw_log_sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+   "normalized_log": "logs/r3/bank-05.log"
+  },
+  {
+   "gate": "bank-06",
+   "rc": 0,
+   "seconds": 10.0,
+   "memory_peak_bytes": 8852054016,
+   "command": [
+    "python3",
+    "scripts/ci_scope.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 6877,
+   "raw_log_sha256": "94cc98b3dc0fc8fc8ddba008723ab266f0b8705762f3b88e14df6f2edf8c3ece",
+   "normalized_log": "logs/r3/bank-06.log"
+  },
+  {
+   "gate": "bank-07",
+   "rc": 0,
+   "seconds": 23.0,
+   "memory_peak_bytes": 8854122496,
+   "command": [
+    "python3",
+    "scripts/ci_events.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 151410,
+   "raw_log_sha256": "3235779f0ce4272b5978ac9d027e3ac5c2dcff6067c7b70acc011a7fdabf472c",
+   "normalized_log": "logs/r3/bank-07.log"
+  },
+  {
+   "gate": "bank-08",
+   "rc": 0,
+   "seconds": 4.5,
+   "memory_peak_bytes": 8844693504,
+   "command": [
+    "python3",
+    "docs/traceability/gen_module_matrix.py",
+    "--check"
+   ],
+   "raw_log_bytes": 118,
+   "raw_log_sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+   "normalized_log": "logs/r3/bank-08.log"
+  },
+  {
+   "gate": "bank-09",
+   "rc": 0,
+   "seconds": 1.0,
+   "memory_peak_bytes": 1493983232,
+   "command": [
+    "python3",
+    "scripts/check_feature_status.py"
+   ],
+   "raw_log_bytes": 29,
+   "raw_log_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+   "normalized_log": "logs/r3/bank-09.log"
+  },
+  {
+   "gate": "bank-10",
+   "rc": 0,
+   "seconds": 1.0,
+   "memory_peak_bytes": 1542287360,
+   "command": [
+    "python3",
+    "scripts/check_submodule_docs.py"
+   ],
+   "raw_log_bytes": 47,
+   "raw_log_sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835",
+   "normalized_log": "logs/r3/bank-10.log"
+  },
+  {
+   "gate": "bank-11",
+   "rc": 0,
+   "seconds": 2.0,
+   "memory_peak_bytes": 1359462400,
+   "command": [
+    "python3",
+    "scripts/check_cpp_idiom.py"
+   ],
+   "raw_log_bytes": 316,
+   "raw_log_sha256": "0527bee3d4642d590b4c79316657a0e32e9f575e152e82951aa8661e5f10e123",
+   "normalized_log": "logs/r3/bank-11.log"
+  },
+  {
+   "gate": "bank-12",
+   "rc": 0,
+   "seconds": 5.0,
+   "memory_peak_bytes": 1084944384,
+   "command": [
+    "python3",
+    "scripts/check_py_idiom.py"
+   ],
+   "raw_log_bytes": 461,
+   "raw_log_sha256": "8fbdb25f66bd352279caaf6ada547bb3b5f3ac375573a97b6df4e8176b5c8c6a",
+   "normalized_log": "logs/r3/bank-12.log"
+  },
+  {
+   "gate": "bank-13",
+   "rc": 0,
+   "seconds": 6.0,
+   "memory_peak_bytes": 1089765376,
+   "command": [
+    "python3",
+    "scripts/docs_check.py"
+   ],
+   "raw_log_bytes": 128,
+   "raw_log_sha256": "3847035b8c77c13d43fbfedc93f7e0b1ec06d5a444a6448ecbef9cddbeb7a2c9",
+   "normalized_log": "logs/r3/bank-13.log"
+  },
+  {
+   "gate": "bank-14",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 935596032,
+   "command": [
+    "python3",
+    "scripts/check_doc_style.py"
+   ],
+   "raw_log_bytes": 47,
+   "raw_log_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+   "normalized_log": "logs/r3/bank-14.log"
+  },
+  {
+   "gate": "bank-15",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 975654912,
+   "command": [
+    "python3",
+    "scripts/check_doc_style.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 33,
+   "raw_log_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+   "normalized_log": "logs/r3/bank-15.log"
+  },
+  {
+   "gate": "bank-16",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 966553600,
+   "command": [
+    "python3",
+    "scripts/check_solution_docs.py"
+   ],
+   "raw_log_bytes": 87,
+   "raw_log_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+   "normalized_log": "logs/r3/bank-16.log"
+  },
+  {
+   "gate": "bank-17",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 959655936,
+   "command": [
+    "python3",
+    "scripts/check_doc_paths.py"
+   ],
+   "raw_log_bytes": 85,
+   "raw_log_sha256": "a34a22b91783fd13cff50a728b782a4260336456542731b5a8f777c17d5c7f87",
+   "normalized_log": "logs/r3/bank-17.log"
+  },
+  {
+   "gate": "bank-18",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1019625472,
+   "command": [
+    "python3",
+    "scripts/check_archive.py"
+   ],
+   "raw_log_bytes": 93,
+   "raw_log_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+   "normalized_log": "logs/r3/bank-18.log"
+  },
+  {
+   "gate": "bank-19",
+   "rc": 0,
+   "seconds": 3.0,
+   "memory_peak_bytes": 1077612544,
+   "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--verify-anchors"
+   ],
+   "raw_log_bytes": 64,
+   "raw_log_sha256": "663c062b4813c6b1e71cce3478dc1fa56e40310046421ce45911c13118a33600",
+   "normalized_log": "logs/r3/bank-19.log"
+  },
+  {
+   "gate": "bank-20",
+   "rc": 0,
+   "seconds": 5.0,
+   "memory_peak_bytes": 1022394368,
+   "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--check"
+   ],
+   "raw_log_bytes": 94,
+   "raw_log_sha256": "35e7e86e67b2d3d3968be2ae5107b946549d31bc8426a393fdae86c12f341b47",
+   "normalized_log": "logs/r3/bank-20.log"
+  },
+  {
+   "gate": "bank-21",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 952205312,
+   "command": [
+    "python3",
+    "scripts/check_hygiene.py",
+    "--check"
+   ],
+   "raw_log_bytes": 2000,
+   "raw_log_sha256": "edd6f37bc84d6986b50bef9e12c214757cc456e20a8f3b6b721b0c6502ab1857",
+   "normalized_log": "logs/r3/bank-21.log"
+  },
+  {
+   "gate": "bank-22",
+   "rc": 0,
+   "seconds": 2.0,
+   "memory_peak_bytes": 1007316992,
+   "command": [
+    "python3",
+    "scripts/check_todo_ownership.py"
+   ],
+   "raw_log_bytes": 161,
+   "raw_log_sha256": "37139ca2ce51db239f7cfdca7a512fe0923d724d76207ab3dcf5cb1e7f2ef81e",
+   "normalized_log": "logs/r3/bank-22.log"
+  },
+  {
+   "gate": "bank-23",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 970133504,
+   "command": [
+    "python3",
+    "scripts/check_sv_idiom.py"
+   ],
+   "raw_log_bytes": 218,
+   "raw_log_sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+   "normalized_log": "logs/r3/bank-23.log"
+  },
+  {
+   "gate": "bank-24",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 992780288,
+   "command": [
+    "python3",
+    "scripts/check_sh_idiom.py"
+   ],
+   "raw_log_bytes": 235,
+   "raw_log_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+   "normalized_log": "logs/r3/bank-24.log"
+  },
+  {
+   "gate": "bank-25",
+   "rc": 0,
+   "seconds": 2.0,
+   "memory_peak_bytes": 1021874176,
+   "command": [
+    "python3",
+    "scripts/check_rtl_source_lists.py"
+   ],
+   "raw_log_bytes": 153,
+   "raw_log_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+   "normalized_log": "logs/r3/bank-25.log"
+  },
+  {
+   "gate": "bank-26",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 985780224,
+   "command": [
+    "python3",
+    "scripts/check_soc_sources.py"
+   ],
+   "raw_log_bytes": 85,
+   "raw_log_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+   "normalized_log": "logs/r3/bank-26.log"
+  },
+  {
+   "gate": "bank-27",
+   "rc": 0,
+   "seconds": 3.0,
+   "memory_peak_bytes": 1009049600,
+   "command": [
+    "python3",
+    "scripts/check_port_contracts.py"
+   ],
+   "raw_log_bytes": 421,
+   "raw_log_sha256": "29fdefe6029503e109385c6c2643ba3c027abdb4731f660fcd929231d86112f5",
+   "normalized_log": "logs/r3/bank-27.log"
+  },
+  {
+   "gate": "bank-28",
+   "rc": 0,
+   "seconds": 2.5,
+   "memory_peak_bytes": 993140736,
+   "command": [
+    "python3",
+    "scripts/check_nvm_record_space.py"
+   ],
+   "raw_log_bytes": 2578,
+   "raw_log_sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+   "normalized_log": "logs/r3/bank-28.log"
+  },
+  {
+   "gate": "bank-29",
+   "rc": 0,
+   "seconds": 19.0,
+   "memory_peak_bytes": 1142169600,
+   "command": [
+    "python3",
+    "scripts/check_baremetal_only.py",
+    "--check"
+   ],
+   "raw_log_bytes": 72,
+   "raw_log_sha256": "7cd75e5d48e48f7558b5b210df3525bbf0056d3c8dc89f25b9bba32ba1afe993",
+   "normalized_log": "logs/r3/bank-29.log"
+  },
+  {
+   "gate": "bank-30",
+   "rc": 0,
+   "seconds": 7.0,
+   "memory_peak_bytes": 1032794112,
+   "command": [
+    "python3",
+    "scripts/check_baremetal_only.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 43,
+   "raw_log_sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+   "normalized_log": "logs/r3/bank-30.log"
+  },
+  {
+   "gate": "bank-31",
+   "rc": 0,
+   "seconds": 77.6,
+   "memory_peak_bytes": 1152462848,
+   "command": [
+    "python3",
+    "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 5189,
+   "raw_log_sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972",
+   "normalized_log": "logs/r3/bank-31.log"
+  },
+  {
+   "gate": "bank-32",
+   "rc": 0,
+   "seconds": 15.5,
+   "memory_peak_bytes": 1148731392,
+   "command": [
+    "python3",
+    "scripts/check_sweep_shape.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 19686,
+   "raw_log_sha256": "078a27ede24456bf915e930ce575fdef8aac423738ac0524ac61a3c7d2ee9db1",
+   "normalized_log": "logs/r3/bank-32.log"
+  },
+  {
+   "gate": "bank-33",
+   "rc": 0,
+   "seconds": 160.1,
+   "memory_peak_bytes": 1137340416,
+   "command": [
+    "python3",
+    "scripts/xvlog_gate.py",
+    "--check"
+   ],
+   "raw_log_bytes": 1025,
+   "raw_log_sha256": "4bf5acfc38c97c5c8e3f36282fb007db13bf83e7cc4a98f097edd9881a7732d3",
+   "normalized_log": "logs/r3/bank-33.log"
+  },
+  {
+   "gate": "bank-34",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1087209472,
+   "command": [
+    "python3",
+    "scripts/measure_control_flow.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 2565,
+   "raw_log_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+   "normalized_log": "logs/r3/bank-34.log"
+  },
+  {
+   "gate": "bank-35",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1046544384,
+   "command": [
+    "python3",
+    "scripts/measure_cohesion.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 728,
+   "raw_log_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+   "normalized_log": "logs/r3/bank-35.log"
+  },
+  {
+   "gate": "bank-36",
+   "rc": 0,
+   "seconds": 4.0,
+   "memory_peak_bytes": 1117646848,
+   "command": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--base",
+    "910f338dbd050f4efd2d96991ddcf928a583d55f"
+   ],
+   "raw_log_bytes": 139,
+   "raw_log_sha256": "e1d85c60e7a3904a7afc81d160627c2a380b39d38cac47c4baf2475a3d7a949d",
+   "normalized_log": "logs/r3/bank-36.log"
+  },
+  {
+   "gate": "bank-37",
+   "rc": 0,
+   "seconds": 2.0,
+   "memory_peak_bytes": 1110843392,
+   "command": [
+    "python3",
+    "scripts/measure_fail_fast.py",
+    "--check"
+   ],
+   "raw_log_bytes": 6085,
+   "raw_log_sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+   "normalized_log": "logs/r3/bank-37.log"
+  },
+  {
+   "gate": "bank-38",
+   "rc": 0,
+   "seconds": 7.5,
+   "memory_peak_bytes": 1111515136,
+   "command": [
+    "python3",
+    "scripts/measure_test_evidence.py",
+    "--check"
+   ],
+   "raw_log_bytes": 14871,
+   "raw_log_sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+   "normalized_log": "logs/r3/bank-38.log"
+  },
+  {
+   "gate": "bank-39",
+   "rc": 0,
+   "seconds": 1.0,
+   "memory_peak_bytes": 1083871232,
+   "command": [
+    "python3",
+    "scripts/measure_naming.py",
+    "--check"
+   ],
+   "raw_log_bytes": 36608,
+   "raw_log_sha256": "4bcb4c9ca27a7ce3752181b5968cc7baff3b5d95883c1e9975dac8b67ecdcf6b",
+   "normalized_log": "logs/r3/bank-39.log"
+  },
+  {
+   "gate": "bank-40",
+   "rc": 0,
+   "seconds": 8.0,
+   "memory_peak_bytes": 1118208000,
+   "command": [
+    "python3",
+    "scripts/measure_test_evidence.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 5895,
+   "raw_log_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+   "normalized_log": "logs/r3/bank-40.log"
+  },
+  {
+   "gate": "bank-41",
+   "rc": 0,
+   "seconds": 1.0,
+   "memory_peak_bytes": 1107353600,
+   "command": [
+    "python3",
+    "scripts/gen_toc.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 38,
+   "raw_log_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+   "normalized_log": "logs/r3/bank-41.log"
+  },
+  {
+   "gate": "bank-42",
+   "rc": 0,
+   "seconds": 4.0,
+   "memory_peak_bytes": 1116950528,
+   "command": [
+    "python3",
+    "scripts/check_em_dash.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 42,
+   "raw_log_sha256": "46aaf33b1a5f1d99dba778a65e86a452bbd5642cde32cf136a7a8e1721f7a19a",
+   "normalized_log": "logs/r3/bank-42.log"
+  },
+  {
+   "gate": "bank-43",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1094938624,
+   "command": [
+    "python3",
+    "scripts/docs_check.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 56,
+   "raw_log_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+   "normalized_log": "logs/r3/bank-43.log"
+  },
+  {
+   "gate": "bank-44",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1066987520,
+   "command": [
+    "git",
+    "diff",
+    "--check",
+    "910f338dbd050f4efd2d96991ddcf928a583d55f"
+   ],
+   "raw_log_bytes": 0,
+   "raw_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "normalized_log": "logs/r3/bank-44.log"
+  },
+  {
+   "gate": "bank-45",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1081749504,
+   "command": [
+    "python3",
+    "scripts/check_wire_accountability.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 4965,
+   "raw_log_sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+   "normalized_log": "logs/r3/bank-45.log"
+  },
+  {
+   "gate": "bank-46",
+   "rc": 0,
+   "seconds": 58.0,
+   "memory_peak_bytes": 1135816704,
+   "command": [
+    "python3",
+    "scripts/check_entity_shape.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 25695,
+   "raw_log_sha256": "3831f74f89f0d80b11100f431139dd0acc791b0dd9f9028059748415ecca149b",
+   "normalized_log": "logs/r3/bank-46.log"
+  },
+  {
+   "gate": "bank-47",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 1077108736,
+   "command": [
+    "python3",
+    "scripts/check_deploy_shape.py",
+    "--self-test"
+   ],
+   "raw_log_bytes": 9272,
+   "raw_log_sha256": "00d8196cf94999f212115dca9192f0c67ce8f4aa23d17a01f8fee9837da54f10",
+   "normalized_log": "logs/r3/bank-47.log"
+  },
+  {
+   "gate": "coverage-check-ci",
+   "rc": 0,
+   "seconds": 136.6,
+   "memory_peak_bytes": 3248300032,
+   "command": [
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--check",
+    "--jobs",
+    "4",
+    "--keep",
+    "<scratch>/coverage-check-ci"
+   ],
+   "raw_log_bytes": 2557,
+   "raw_log_sha256": "a43160a75f1278cf8ca90c82bc7b7dfede27202fd7525933573975c254202fb9",
+   "normalized_log": "logs/r3/coverage-check-ci.log"
+  },
+  {
+   "gate": "coverage-check",
+   "rc": 0,
+   "seconds": 139.1,
+   "memory_peak_bytes": 3222347776,
+   "command": [
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--check",
+    "--jobs",
+    "4",
+    "--lwsrp",
+    "<lwSRP>",
+    "--keep",
+    "<scratch>/coverage-check"
+   ],
+   "raw_log_bytes": 2684,
+   "raw_log_sha256": "4d9e018e8f84ecf5afb6f4c22c71bb44698769eb9ebecd82abb3c1159b59421c",
+   "normalized_log": "logs/r3/coverage-check.log"
+  },
+  {
+   "gate": "coverage-selftest",
+   "rc": 0,
+   "seconds": 0.5,
+   "memory_peak_bytes": 844673024,
+   "command": [
+    "python3",
+    "sw/firmware/gtest/fw_coverage.py",
+    "--selftest"
+   ],
+   "raw_log_bytes": 3710,
+   "raw_log_sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+   "normalized_log": "logs/r3/coverage-selftest.log"
+  },
+  {
+   "gate": "ctrl",
+   "rc": 0,
+   "seconds": 545.4,
+   "memory_peak_bytes": 2160091136,
+   "command": [
+    "python3",
+    "-u",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "--require-rv32",
+    "--self-test",
+    "--jobs",
+    "4",
+    "--build-dir",
+    "<scratch>/ctrl-full"
+   ],
+   "raw_log_bytes": 18417,
+   "raw_log_sha256": "6f4d6b8727f9d60698cc0f14df1953849ddd3ab7a59c9344190f5f6b478a70f2",
+   "normalized_log": "logs/r3/ctrl.log"
+  },
+  {
+   "gate": "erased-end-asan",
+   "rc": 0,
+   "seconds": 34.0,
+   "memory_peak_bytes": 1963479040,
+   "command": [
+    "python3",
+    "<scratch>/asan_witness.py"
+   ],
+   "raw_log_bytes": 6213,
+   "raw_log_sha256": "cee9a494d285cf486de8da43303e3fb0caa38bce5bf79fd0c6dce6ce43a4e93a",
+   "normalized_log": "logs/r3/erased-end-asan.log"
+  },
+  {
+   "gate": "fw-rv32-selftest",
+   "rc": 0,
+   "seconds": 4.5,
+   "memory_peak_bytes": 1013071872,
+   "command": [
+    "python3",
+    "sw/firmware/gtest/fw_rv32_selftest.py",
+    "--require-rv32"
+   ],
+   "raw_log_bytes": 793,
+   "raw_log_sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+   "normalized_log": "logs/r3/fw-rv32-selftest.log"
+  },
+  {
+   "gate": "lwsrp",
+   "rc": 0,
+   "seconds": 4.0,
+   "memory_peak_bytes": 1210486784,
+   "command": [
+    "python3",
+    "<scratch>/lwsrp.py",
+    "<lwSRP>"
+   ],
+   "raw_log_bytes": 1210,
+   "raw_log_sha256": "f8d3cd5e5371e543a498ef7600bcc0b32f0e7f3e72e7b6778a6f5cf7b20eb9cd",
+   "normalized_log": "logs/r3/lwsrp.log"
+  },
+  {
+   "gate": "merge-commit-rv32",
+   "rc": 1,
+   "seconds": 0.5,
+   "memory_peak_bytes": 965386240,
+   "command": [
+    "python3",
+    "<scratch>/rv32_probe.py",
+    "<scratch>/merge-export",
+    "<scratch>/probe-merge"
+   ],
+   "raw_log_bytes": 246,
+   "raw_log_sha256": "1d8414961316b6538b0a0d585db9e211836d142c203bc69b64c5b187688f1cc4",
+   "normalized_log": "logs/r3/merge-commit-rv32.log"
+  },
+  {
+   "gate": "nvm-batch-1-20",
+   "rc": 0,
+   "seconds": 387.3,
+   "memory_peak_bytes": 4004794368,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "1",
+    "20"
+   ],
+   "raw_log_bytes": 3427,
+   "raw_log_sha256": "5ea877c787516e783368cf1112733c1c96e2ed754cb88b8a5ade942d2d6deaff",
+   "normalized_log": "logs/r3/nvm-batch-1-20.log"
+  },
+  {
+   "gate": "nvm-batch-21-40",
+   "rc": 0,
+   "seconds": 399.8,
+   "memory_peak_bytes": 4061712384,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "21",
+    "40"
+   ],
+   "raw_log_bytes": 3977,
+   "raw_log_sha256": "a93163aee6e0b1aa09d6b4b8a576aad67d4e7f550b786bc89e0779c048214450",
+   "normalized_log": "logs/r3/nvm-batch-21-40.log"
+  },
+  {
+   "gate": "nvm-batch-41-60",
+   "rc": 0,
+   "seconds": 401.3,
+   "memory_peak_bytes": 3555074048,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "41",
+    "60"
+   ],
+   "raw_log_bytes": 3897,
+   "raw_log_sha256": "2494b81581d673fb38914223054bc5f3cc1abb3e8bbc886929f3420e6af47c7a",
+   "normalized_log": "logs/r3/nvm-batch-41-60.log"
+  },
+  {
+   "gate": "nvm-batch-61-80",
+   "rc": 0,
+   "seconds": 391.8,
+   "memory_peak_bytes": 3099398144,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "61",
+    "80"
+   ],
+   "raw_log_bytes": 3704,
+   "raw_log_sha256": "904be8d733b82bfc52d4d07b97e018b62885d9f69f5f061de9cc275c222b59d1",
+   "normalized_log": "logs/r3/nvm-batch-61-80.log"
+  },
+  {
+   "gate": "nvm-batch-81-95",
+   "rc": 0,
+   "seconds": 320.2,
+   "memory_peak_bytes": 2894512128,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "81",
+    "95"
+   ],
+   "raw_log_bytes": 2784,
+   "raw_log_sha256": "eedde3d144e74ebe091b73ac97ca17c7e71bfcb4e224a7acfb09d3685846d5a0",
+   "normalized_log": "logs/r3/nvm-batch-81-95.log"
+  },
+  {
+   "gate": "nvm-batch-96-109",
+   "rc": 0,
+   "seconds": 318.2,
+   "memory_peak_bytes": 2905849856,
+   "command": [
+    "python3",
+    "-u",
+    "<scratch>/nvm_batch.py",
+    "96",
+    "109"
+   ],
+   "raw_log_bytes": 2264,
+   "raw_log_sha256": "3f771f9958480966275355e5416c1bfdf7c0abd4714c9f3b05daa3582defa0e1",
+   "normalized_log": "logs/r3/nvm-batch-96-109.log"
+  },
+  {
+   "gate": "nvm-controls",
+   "rc": 0,
+   "seconds": 100.6,
+   "memory_peak_bytes": 2339995648,
+   "command": [
+    "python3",
+    "-u",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "--require-rv32",
+    "--jobs",
+    "4"
+   ],
+   "raw_log_bytes": 3981,
+   "raw_log_sha256": "aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175",
+   "normalized_log": "logs/r3/nvm-controls.log"
+  },
+  {
+   "gate": "probe-rv32-fixed",
+   "rc": 0,
+   "seconds": 1.0,
+   "memory_peak_bytes": 985378816,
+   "command": [
+    "python3",
+    "<scratch>/rv32_probe.py",
+    "<checkout>",
+    "<scratch>/probe-fixed"
+   ],
+   "raw_log_bytes": 368,
+   "raw_log_sha256": "b229678bc4ae7df77d03a9c1f88ac195bbe10122ce55deb1c5ecc6e65a672a94",
+   "normalized_log": "logs/r3/probe-rv32-fixed.log"
+  },
+  {
+   "gate": "tally",
+   "rc": 0,
+   "seconds": 58.0,
+   "memory_peak_bytes": 2338684928,
+   "command": [
+    "python3",
+    "sw/firmware/gtest/tally_selftest.py",
+    "--mutants"
+   ],
+   "raw_log_bytes": 3982,
+   "raw_log_sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+   "normalized_log": "logs/r3/tally.log"
+  }
+ ],
+ "files_changed_against_dev": [
+  {
+   "path": "sw/firmware/ctrl/README.md",
+   "bytes": 8707,
+   "sha256": "afaa794b177933d75e0c79d688df5e3ab73e74c3cd90954a24389428acf85141",
+   "blob": "94046fed727a8e41a322783295a9c27975cebf76"
+  },
+  {
+   "path": "sw/firmware/ctrl/adp/adp.c",
+   "bytes": 10512,
+   "sha256": "2d5e3cca0ed659e39776f59c425618f27ab56d2109257ff4aa15c08ca1665098",
+   "blob": "450eba2b5e933bc02942233843c05bbe917e89f0"
+  },
+  {
+   "path": "sw/firmware/ctrl/adp/adp.h",
+   "bytes": 10769,
+   "sha256": "86ba5211b43cb6507ffd070cff4d2bba8de003a7a6aa290da7bd1c33029d566d",
+   "blob": "85ec96bd272446fcfa8e375b6787e457e514ee49"
+  },
+  {
+   "path": "sw/firmware/ctrl/adp/adp_mbx.h",
+   "bytes": 8617,
+   "sha256": "2c359e801a36b1864a7b490419787a36cc7c3f39d1b2d73d2235ff67ace34dd4",
+   "blob": "842089a08abc6129e6a82796f81222138edad824"
+  },
+  {
+   "path": "sw/firmware/ctrl/mbx/mbx.h",
+   "bytes": 4611,
+   "sha256": "e164dce186ed2f04e5ccb6524a4d4f63b61381a0d2969b5bb8fc4e6b2731a004",
+   "blob": "85d6ed4080158e5b2a65a957430407057f6a7c11"
+  },
+  {
+   "path": "sw/firmware/ctrl/mbx/mbx_hal.h",
+   "bytes": 2221,
+   "sha256": "24d36afba0d2640805e3227b5af43e6aa5d6e10a14546315bc2e1f2d1684f9f6",
+   "blob": "591b80b2905896c3790b6c978afd16b1d4b8a669"
+  },
+  {
+   "path": "sw/firmware/ctrl/port/ctrl_debug.h",
+   "bytes": 1791,
+   "sha256": "388e9026fcbbd73a150a068064b1d0146c21c4d1cabf064c027e795799d3054f",
+   "blob": "6057a89aab452fdc24bfd84bf11c6653438bc3be"
+  },
+  {
+   "path": "sw/firmware/ctrl/port/ctrl_pool.h",
+   "bytes": 3346,
+   "sha256": "f0419f453f3ac99c6de8c1b7764d63dbd10fa82c942ca522303f1f9488a84e96",
+   "blob": "f479759d11a7db1b16dbaeb4bf59aeebc18387b3"
+  },
+  {
+   "path": "sw/firmware/ctrl/port/shlan_port.h",
+   "bytes": 2397,
+   "sha256": "764bbac971bbb9632832aa8d353ce2a61002db508e63914df9c58aeb6db187ec",
+   "blob": "3ff73fa9b84a6397ef32be4cb75fd6b3eb1e9bae"
+  },
+  {
+   "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+   "bytes": 14970,
+   "sha256": "469642ace1e17a369d5dfe739c45a01a197bf2f495a925f304bc64b0d04b2697",
+   "blob": "04f168a3fd060caa821c05411cd79aa03d100344"
+  },
+  {
+   "path": "sw/firmware/ctrl/test/ctrl_build.py",
+   "bytes": 4810,
+   "sha256": "b6734525eaf8ed9de23766e406160663a2396f1790a12e014fc3579d125aebfa",
+   "blob": "7654014083a02f7c47c787a2ff21963eb52a5c7d"
+  },
+  {
+   "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+   "bytes": 29578,
+   "sha256": "cef6f17117627c6bffc54eac365a82c68d5432748360931775c30aaf2540853c",
+   "blob": "66eecba2e3fb4b31377db93968904299ff21dc2c"
+  },
+  {
+   "path": "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+   "bytes": 8205,
+   "sha256": "f5cd67ebeb83278f354bad02466549c5f0f58ece922c41a8fdf9cb350c771b86",
+   "blob": "ad01c94b30563c78132c71333130821ffab3f14f"
+  },
+  {
+   "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+   "bytes": 7525,
+   "sha256": "03c4e42729d5cc88d62134dc238eaeac8092a2aa26fd9c9c647776af549e5ba2",
+   "blob": "e95b965cedafa8afdd7b6ec6d8019327a67c3699"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/README.md",
+   "bytes": 32355,
+   "sha256": "a03b3c5beb27782ff83de55bdc6160843a478d2f89ad9b94e03e941160c373ce",
+   "blob": "e0184b0142c9ceb043015e3e963112accf3f47d2"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/nvm_flash.h",
+   "bytes": 3277,
+   "sha256": "68e4b52faf4c823c30cff611e45785dbcac60718c5775540409d04e2e1a0641f",
+   "blob": "dc9736105e8caf277169067f3950afdaea2347a8"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+   "bytes": 11970,
+   "sha256": "586d6b5fa59da3b1aa809ad99a53cedda348b958562668bf173df38626f10cb3",
+   "blob": "f0f2f0c93175c586545068c6023c541581bc353d"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/nvm_state.h",
+   "bytes": 4423,
+   "sha256": "e3853d4ca8ba7e7e1c24d928c92cf75991af004d47d8f3523a9d5906d4c19ed1",
+   "blob": "25927d85368baac8e6dd0c53e3c40ad1fec2b9f9"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+   "bytes": 1282,
+   "sha256": "4e87fcbfddd2a044b0b60fe2a74ca8638db099fc46c302eb4d9cb964edfbfa5d",
+   "blob": "09042f57c233d534437efee0595aebcd8277fdda"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+   "bytes": 12691,
+   "sha256": "1d39ad0605d33f4d746123351f492a97f99365d0c2c01f3a4e4a6d6c9b218cc7",
+   "blob": "09db982718dfcef3bcca0019c2174feebd5ecfdb"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+   "bytes": 28650,
+   "sha256": "e7c021b6aa784a4b6ebc2b11ad2eed320c5ee65cf2bb03f6912c41c43587f41f",
+   "blob": "9deb3052415c577b0393e1743fded53683fcf09e"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+   "bytes": 7949,
+   "sha256": "90bc200f5da268d5abc7e2472479dac185239094868d0e5c5f4edc1a3d7dc7b5",
+   "blob": "0cb29a8e924fec524558f39436fc11e58149a517"
+  },
+  {
+   "path": "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+   "bytes": 1659,
+   "sha256": "39c48cc297f5dbd2b26a2f68cda762aeb66ae5a3f989e01b2205876188bca50e",
+   "blob": "c5d7e47fee8f328c00951ed5be4ad3c90da651d5"
+  },
+  {
+   "path": "sw/firmware/gtest/README.md",
+   "bytes": 31478,
+   "sha256": "183b69e99599d340fe4804ac57ba92196cda7e7c5b0422e506fcba570bcb89ec",
+   "blob": "2c5ac09bccce3dca726a0cdd66aa3c3a8d11635a"
+  },
+  {
+   "path": "sw/firmware/gtest/coverage.ratchet",
+   "bytes": 1179,
+   "sha256": "86fcab68eb5e3c38799f41409147d249cdf9ed0eb4fcec0f4070180bdd0e3958",
+   "blob": "dec1398bcf0f3feaccef43894028c3eb3f1ff228"
+  },
+  {
+   "path": "sw/firmware/gtest/fw_coverage.py",
+   "bytes": 21748,
+   "sha256": "9ce6452e17b11ced6c0a7eee1cdd5dc60a754023b246a5242a09e5f6e173beec",
+   "blob": "6b18df9e34ceb683acf63aadc8078f1a4d2c0baa"
+  },
+  {
+   "path": "sw/firmware/gtest/fw_gtest.py",
+   "bytes": 9685,
+   "sha256": "3393e3866e169e269bc3f375da285e17b07baef4ab056b3987b31f23a9e9b0b7",
+   "blob": "d147ec44f0e3b123c046a01d1b76abb007098726"
+  },
+  {
+   "path": "sw/firmware/gtest/fw_rv32.py",
+   "bytes": 3267,
+   "sha256": "d6668d68d95bfb1b36e09adfda70e4d8132a0877a877628ce2b333ff9f8ac61b",
+   "blob": "4a0c053138136a31cb8ccb892a7fc387f05a7698"
+  },
+  {
+   "path": "sw/firmware/gtest/fw_rv32_selftest.py",
+   "bytes": 8310,
+   "sha256": "caf11ba221ade3a7fc7d41b4295e59480e8494964f3f2cb5a380b4385a1b3c8e",
+   "blob": "db2ca516782eb292393ce08366fe9773d84c2029"
+  },
+  {
+   "path": "sw/firmware/gtest/rv32_include/assert.h",
+   "bytes": 650,
+   "sha256": "fa32c11b0187fcb3fb6a2dc2238b29d9e4f760a3472d2d3f985c2891b8776196",
+   "blob": "4d67cc9683f8a2120a3bbd55b626fe20a35d4f68"
+  }
+ ]
+}
