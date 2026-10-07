@@ -293,6 +293,11 @@ def _contract_arms() -> list[tuple[str, str, str]]:
         ("bound-talker table past the register space", "interface_bound_registers:\n  base: 0x200",
          "interface_bound_registers:\n  base: 0x380"),
         ("an unknown filter test", "{test: eq_bound, offset: 18,", "{test: eq_bonded, offset: 18,"),
+        # lane F3 round 3: the fabric decodes an entry by bit fields and compares one identity per frame
+        ("bound-talker stride not a power of two", "  stride: 0x100          # bytes per interface",
+         "  stride: 0x180          # bytes per interface"),
+        ("eq_bound terms on two fields", "{test: eq_own, offset: 42, field: listener_entity_id",
+         "{test: eq_bound, offset: 42, field: listener_entity_id"),
     ]
 
 
