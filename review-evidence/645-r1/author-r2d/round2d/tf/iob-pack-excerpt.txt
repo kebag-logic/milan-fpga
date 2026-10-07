@@ -1,0 +1,36 @@
+== ax7101
+CRITICAL WARNING: [Place 30-722] Terminal 'eth0_rx_dv' has IOB constraint set to TRUE, but it is either not connected to a FLOP element or the connected FLOP element could not be brought into the I/O
+IOB-PACK FAIL  eth0_rx_dv: IN, no register reads the pad, only: alinx_ax7101_LUT2_212 (LUT2 @ SLICE_X22Y45), alinx_ax7101_LUT4_98 (LUT4 @ SLICE_X28Y43), alinx_ax7101_LUT5_219 (LUT5 @ SLICE_X29Y31), alinx_ax7101_LUT6_1497 (LUT6 @ SLICE_X28Y43), milansoc_ethact_tgl_i_1 (LUT3 @ SLICE_X28Y43), subfragments_rxdatapath_liteethmacpreamblechecker_state_i_2 (LUT4 @ SLICE_X28Y43)
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_phy_source_payload_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_phy_source_payload_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_phy_source_payload_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_phy_source_payload_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_phy_source_payload_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_phy_source_payload_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_phy_source_payload_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_phy_source_payload_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK FAIL: 1 port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: eth0_rx_dv. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See alinx_ax7101_iob_pack.rpt.
+== ax7101-AltSpreadLogic_high
+CRITICAL WARNING: [Place 30-722] Terminal 'eth0_rx_dv' has IOB constraint set to TRUE, but it is either not connected to a FLOP element or the connected FLOP element could not be brought into the I/O
+IOB-PACK FAIL  eth0_rx_dv: IN, no register reads the pad, only: alinx_ax7101_LUT2_212 (LUT2 @ SLICE_X3Y52), alinx_ax7101_LUT4_98 (LUT4 @ SLICE_X3Y52), alinx_ax7101_LUT5_219 (LUT5 @ SLICE_X8Y26), alinx_ax7101_LUT6_1497 (LUT6 @ SLICE_X8Y26), milansoc_ethact_tgl_i_1 (LUT3 @ SLICE_X7Y27), subfragments_rxdatapath_liteethmacpreamblechecker_state_i_2 (LUT4 @ SLICE_X7Y27)
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_phy_source_payload_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_phy_source_payload_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_phy_source_payload_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_phy_source_payload_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_phy_source_payload_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_phy_source_payload_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_phy_source_payload_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_phy_source_payload_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK FAIL: 1 port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: eth0_rx_dv. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See alinx_ax7101_iob_pack.rpt.
+== ax7101-ExtraTimingOpt
+CRITICAL WARNING: [Place 30-722] Terminal 'eth0_rx_dv' has IOB constraint set to TRUE, but it is either not connected to a FLOP element or the connected FLOP element could not be brought into the I/O
+IOB-PACK FAIL  eth0_rx_dv: IN, no register reads the pad, only: alinx_ax7101_LUT2_212 (LUT2 @ SLICE_X3Y52), alinx_ax7101_LUT4_98 (LUT4 @ SLICE_X3Y52), alinx_ax7101_LUT5_219 (LUT5 @ SLICE_X8Y26), alinx_ax7101_LUT6_1497 (LUT6 @ SLICE_X8Y26), milansoc_ethact_tgl_i_1 (LUT3 @ SLICE_X7Y27), subfragments_rxdatapath_liteethmacpreamblechecker_state_i_2 (LUT4 @ SLICE_X7Y27)
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_phy_source_payload_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_phy_source_payload_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_phy_source_payload_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_phy_source_payload_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_phy_source_payload_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_phy_source_payload_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_phy_source_payload_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_phy_source_payload_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK FAIL: 1 port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: eth0_rx_dv. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See alinx_ax7101_iob_pack.rpt.

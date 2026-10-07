@@ -1,0 +1,50 @@
+{
+  "head": "2525eae9567865a8bc741901914bdf5a1caf2c26",
+  "first_parent": "701b8332b6bd2387471db6d55be55449e770291b",
+  "second_parent_dev": "e21c1ca024d37ea188ad15b5c8f9c2dae18628df",
+  "merge_tree": "a0545d5d4f4e098464fbd6a6a7a21fb4c735a423",
+  "automatic_merge_tree": "a0545d5d4f4e098464fbd6a6a7a21fb4c735a423",
+  "equals_automatic_merge": true,
+  "changed_from_first_parent": [
+    "docs/design/MAILBOX_SPLIT.md",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/app/ctrl_app.c",
+    "sw/firmware/ctrl/app/ctrl_app.h",
+    "sw/firmware/ctrl/maap/README.md",
+    "sw/firmware/ctrl/maap/maap.c",
+    "sw/firmware/ctrl/maap/maap.h",
+    "sw/firmware/ctrl/maap/maap_csr.c",
+    "sw/firmware/ctrl/maap/maap_csr.h",
+    "sw/firmware/ctrl/maap/maap_mbx.c",
+    "sw/firmware/ctrl/maap/maap_mbx.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_build.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/maap_differential.py",
+    "sw/firmware/ctrl/test/maap_mutants.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl/test/test_maap.cpp",
+    "sw/firmware/ctrl/test/test_maap_debug.cpp",
+    "sw/firmware/ctrl/test/test_maap_differential.cpp",
+    "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "tb/verilator/mbx/Makefile"
+  ],
+  "touches_shipping_build_scripts_or_dependency": [],
+  "touches_harness": [
+    "tb/verilator/mbx/Makefile"
+  ],
+  "readers": [
+    "tb/verilator/mbx (its own Makefile and sw/firmware/ctrl)",
+    "dev's rtl-fast firmware-unit job (sw/firmware/ctrl, gtest)",
+    "source and docs gates (docs/design/MAILBOX_SPLIT.md)"
+  ],
+  "rerun_at_head": [
+    "28 source and docs gates",
+    "mbx suite",
+    "dev's rtl-fast firmware-unit job (7 commands)"
+  ],
+  "carried_forward": "every other gate: none of its inputs is in changed_from_first_parent",
+  "diff_sha256": "cdb3482b65abe4b28e4aa20b92c24b2f773944d7330a4ab2ddc1cf28f73aea01"
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "name": "synthesis",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "merged_synth_only.tcl",
+      "-nojournal",
+      "-log",
+      "synthesis-vendor.log"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/tf/route/ax7101/gateware",
+    "rc": 0,
+    "wall_seconds": 1797.7,
+    "peak_memory_bytes": 8750309376,
+    "resource_interruption": false
+  },
+  {
+    "name": "ExtraPostPlacementOpt-implementation",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "merged_implementation.tcl",
+      "-nojournal",
+      "-log",
+      "implementation-vendor.log"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/tf/route/ax7101/gateware",
+    "rc": 1,
+    "wall_seconds": 544.3,
+    "peak_memory_bytes": 8750284800,
+    "resource_interruption": false
+  },
+  {
+    "name": "AltSpreadLogic_high-build",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "qualified_implementation.tcl",
+      "-nojournal",
+      "-log",
+      "implementation-vendor.log"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/tf/route/ax7101-AltSpreadLogic_high/gateware",
+    "rc": 1,
+    "wall_seconds": 500.3,
+    "peak_memory_bytes": 8749965312,
+    "resource_interruption": false
+  },
+  {
+    "name": "ExtraTimingOpt-build",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$WORKSPACE_HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "qualified_implementation.tcl",
+      "-nojournal",
+      "-log",
+      "implementation-vendor.log"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/tf/route/ax7101-ExtraTimingOpt/gateware",
+    "rc": 1,
+    "wall_seconds": 574.6,
+    "peak_memory_bytes": 8750080000,
+    "resource_interruption": false
+  }
+]

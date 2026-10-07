@@ -1,0 +1,44 @@
+[
+  {
+    "name": "sweep-1",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/645-a531/round2d/functional/gates/sweep-1",
+      "--shard",
+      "1/2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/functional/physical",
+    "rc": 0,
+    "wall_seconds": 1861.2,
+    "peak_memory_bytes": 3798528000,
+    "resource_interruption": false
+  },
+  {
+    "name": "render-boundary",
+    "argv": [
+      "make",
+      "-j8",
+      "tdm8render-law-boundary",
+      "LAW_BOUNDARY_JOBS=2",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/functional/tree/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "wall_seconds": 8014.1,
+    "peak_memory_bytes": 3798528000,
+    "resource_interruption": false
+  },
+  {
+    "name": "portability",
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2d/functional/tree",
+    "rc": 0,
+    "wall_seconds": 915.3,
+    "peak_memory_bytes": 4852555776,
+    "resource_interruption": false
+  }
+]

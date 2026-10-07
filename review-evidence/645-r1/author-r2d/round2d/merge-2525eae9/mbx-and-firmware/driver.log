@@ -1,0 +1,16 @@
+17:32:01 START mbx timeout 7200 make -C tb/verilator/mbx
+17:32:32 DONE mbx 0
+17:32:32 START tally-selftest python3 sw/firmware/gtest/tally_selftest.py
+17:32:35 DONE tally-selftest 0
+17:32:35 START rv32-sdk-selftest python3 scripts/ci_rv32_sdk_selftest.py
+17:32:36 DONE rv32-sdk-selftest 0
+17:32:36 START fw-rv32-selftest python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+17:32:41 DONE fw-rv32-selftest 0
+17:32:41 START ctrl-firmware python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+17:33:42 DONE ctrl-firmware 0
+17:33:42 START ctrl-nvm python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+17:35:21 DONE ctrl-nvm 0
+17:35:21 START coverage-selftest python3 sw/firmware/gtest/fw_coverage.py --selftest
+17:35:21 DONE coverage-selftest 0
+17:35:21 START coverage-check python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+17:37:39 DONE coverage-check 0
