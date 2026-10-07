@@ -1,0 +1,374 @@
+{
+  "measured_head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+  "final_head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "changed_paths": [
+    "M\t.github/workflows/rtl-fast.yml",
+    "M\tREQUIREMENTS.md",
+    "M\tdocs/design/MAILBOX_SPLIT.md",
+    "M\tdocs/reference/FR_NFR.md",
+    "M\tdocs/reference/MAILBOX_CONTRACT.md",
+    "M\tdocs/testing/CI_WORKFLOWS.md",
+    "M\thdl/milan/mailbox/KL_mbx.sv",
+    "M\thdl/milan/mailbox/KL_mbx_pkg.sv",
+    "M\thdl/milan/mailbox/KL_mbx_rx.sv",
+    "M\tscripts/ci_events.py",
+    "M\tscripts/port_docs.budget",
+    "M\tsw/firmware/ctrl/README.md",
+    "M\tsw/firmware/ctrl/adp/adp.c",
+    "M\tsw/firmware/ctrl/adp/adp.h",
+    "M\tsw/firmware/ctrl/adp/adp_mbx.h",
+    "M\tsw/firmware/ctrl/app/ctrl_app.c",
+    "M\tsw/firmware/ctrl/app/ctrl_app.h",
+    "M\tsw/firmware/ctrl/host/mbx_model.c",
+    "M\tsw/firmware/ctrl/host/mbx_model.h",
+    "M\tsw/firmware/ctrl/loop/ctrl_loop.c",
+    "M\tsw/firmware/ctrl/loop/ctrl_loop.h",
+    "A\tsw/firmware/ctrl/maap/README.md",
+    "A\tsw/firmware/ctrl/maap/maap.c",
+    "A\tsw/firmware/ctrl/maap/maap.h",
+    "A\tsw/firmware/ctrl/maap/maap_csr.c",
+    "A\tsw/firmware/ctrl/maap/maap_csr.h",
+    "A\tsw/firmware/ctrl/maap/maap_mbx.c",
+    "A\tsw/firmware/ctrl/maap/maap_mbx.h",
+    "M\tsw/firmware/ctrl/mbx/mbx.c",
+    "M\tsw/firmware/ctrl/mbx/mbx.h",
+    "M\tsw/firmware/ctrl/mbx/mbx_contract.h",
+    "M\tsw/firmware/ctrl/mbx/mbx_hal.h",
+    "M\tsw/firmware/ctrl/port/ctrl_debug.h",
+    "M\tsw/firmware/ctrl/port/ctrl_pool.h",
+    "M\tsw/firmware/ctrl/port/shlan_port.h",
+    "M\tsw/firmware/ctrl/test/ctrl_arms.py",
+    "M\tsw/firmware/ctrl/test/ctrl_build.py",
+    "M\tsw/firmware/ctrl/test/ctrl_mutants.py",
+    "M\tsw/firmware/ctrl/test/lwsrp_port.cpp",
+    "A\tsw/firmware/ctrl/test/maap_differential.py",
+    "A\tsw/firmware/ctrl/test/maap_mutants.py",
+    "M\tsw/firmware/ctrl/test/test_adp.cpp",
+    "A\tsw/firmware/ctrl/test/test_adp_reentry.cpp",
+    "M\tsw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "A\tsw/firmware/ctrl/test/test_maap.cpp",
+    "A\tsw/firmware/ctrl/test/test_maap_debug.cpp",
+    "A\tsw/firmware/ctrl/test/test_maap_differential.cpp",
+    "A\tsw/firmware/ctrl/test/test_maap_mbx.cpp",
+    "M\tsw/firmware/ctrl/test/test_port_loop.cpp",
+    "M\tsw/firmware/ctrl/test/test_unit_driver.cpp",
+    "M\tsw/firmware/ctrl/test/test_unit_seams.cpp",
+    "M\tsw/firmware/ctrl_nvm/README.md",
+    "M\tsw/firmware/ctrl_nvm/nvm_flash.h",
+    "M\tsw/firmware/ctrl_nvm/nvm_klj2.c",
+    "M\tsw/firmware/ctrl_nvm/nvm_state.h",
+    "M\tsw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+    "M\tsw/firmware/ctrl_nvm/test/nvm_bench.py",
+    "M\tsw/firmware/ctrl_nvm/test/nvm_mutants.py",
+    "M\tsw/firmware/ctrl_nvm/test/nvm_rv32.py",
+    "M\tsw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "M\tsw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+    "A\tsw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+    "M\tsw/firmware/gtest/README.md",
+    "M\tsw/firmware/gtest/coverage.ratchet",
+    "M\tsw/firmware/gtest/fw_coverage.py",
+    "M\tsw/firmware/gtest/fw_gtest.py",
+    "A\tsw/firmware/gtest/fw_rv32.py",
+    "A\tsw/firmware/gtest/fw_rv32_selftest.py",
+    "A\tsw/firmware/gtest/rv32_include/assert.h",
+    "A\tsw/firmware/gtest/rv32_include/stdio.h",
+    "A\tsw/firmware/gtest/rv32_include/string.h",
+    "M\tsw/mailbox/gen_mailbox.py",
+    "M\tsw/mailbox/mailbox.yaml",
+    "M\tsw/mailbox/mailbox_emit.py",
+    "M\tsw/mailbox/mailbox_model.py",
+    "M\tsw/mailbox/mailbox_skeleton.py",
+    "M\ttb/verilator/mbx/Makefile",
+    "M\ttb/verilator/mbx/README.md",
+    "M\ttb/verilator/mbx/bench.hpp",
+    "M\ttb/verilator/mbx/frames.hpp",
+    "A\ttb/verilator/mbx/model_main.cpp",
+    "M\ttb/verilator/mbx/mutants.py",
+    "M\ttb/verilator/mbx/sim_main.cpp",
+    "M\ttb/verilator/mbx/suite.hpp"
+  ],
+  "scopes": [
+    {
+      "scope": "parent-rtl",
+      "paths": [
+        "hdl"
+      ],
+      "identical": false,
+      "measured_tree_sha256": "f276efd9cefa45e0f7216c2737d4c477023f94ac646c66719823fd21bbd42c43",
+      "final_tree_sha256": "3c3244fc75e561f694b4dc0b5a9fac4423cbe9a5ef66de4aca26d5d10b7fd297",
+      "changes": [
+        "M\thdl/milan/mailbox/KL_mbx.sv",
+        "M\thdl/milan/mailbox/KL_mbx_pkg.sv",
+        "M\thdl/milan/mailbox/KL_mbx_rx.sv"
+      ]
+    },
+    {
+      "scope": "processor-parent-boundary",
+      "paths": [
+        "hdl/milan/KL_pp_shadow.sv",
+        "hdl/milan/milan_datapath.sv"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "dc9ba5d0e2379d728c6650eb5f4b6edc77bc5a0efcaa418fbbadbb55318b4dd0",
+      "final_tree_sha256": "dc9ba5d0e2379d728c6650eb5f4b6edc77bc5a0efcaa418fbbadbb55318b4dd0",
+      "changes": []
+    },
+    {
+      "scope": "processor-pin",
+      "paths": [
+        "protocol-processor"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "44cd2b21f566ffc8e6b7f5d811d88e98dbdb73625a2fe0ce239b26dd8128f4fc",
+      "final_tree_sha256": "44cd2b21f566ffc8e6b7f5d811d88e98dbdb73625a2fe0ce239b26dd8128f4fc",
+      "changes": []
+    },
+    {
+      "scope": "gptp-pin",
+      "paths": [
+        "gptp-processor"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "7deccec989d912a41a15af0da15fadd88db17fc3ce56f2f8c1afd99badebca08",
+      "final_tree_sha256": "7deccec989d912a41a15af0da15fadd88db17fc3ce56f2f8c1afd99badebca08",
+      "changes": []
+    },
+    {
+      "scope": "all-dependency-pins",
+      "paths": [
+        "external",
+        "gptp-processor",
+        "protocol-processor",
+        "third_party/verilog-axis"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "d82bb28664780cf85d7e134781b06337b08da3ac3820bcd3e37e9746e7eeef02",
+      "final_tree_sha256": "d82bb28664780cf85d7e134781b06337b08da3ac3820bcd3e37e9746e7eeef02",
+      "changes": []
+    },
+    {
+      "scope": "render-parent-source-list",
+      "paths": [
+        "hdl/milan/KL_pp_shadow.sv",
+        "hdl/milan/KL_pp_maap_shim.sv",
+        "hdl/milan/KL_nvm_backend.sv",
+        "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
+        "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
+        "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+        "hdl/common/ethernet_packet_pkg.sv",
+        "hdl/common/axi_stream_if.sv",
+        "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+        "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
+        "hdl/common/cdc_pulse.sv",
+        "hdl/common/cdc_handshake.sv",
+        "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
+        "hdl/ieee8021q/filtering/tcam.sv",
+        "hdl/ieee8021q/filtering/rx_mac_filter.sv",
+        "hdl/common/tx_ifg_gasket.sv",
+        "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
+        "hdl/ieee1722/aaf/KL_pcm_route.sv",
+        "hdl/common/KL_link_guard.sv",
+        "hdl/ieee17221/adp/adp_tx_arbiter.sv",
+        "hdl/ieee1722/aaf/aaf_talker_i2s.sv",
+        "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv",
+        "hdl/ieee1722/aaf/KL_tdm_capture.sv",
+        "hdl/ieee1722/aaf/KL_tdm_capture_master.sv",
+        "hdl/ieee1722/aaf/KL_pair_blend.sv",
+        "hdl/ieee1722/aaf/KL_pair_zero_fill.sv",
+        "hdl/ieee1722/aaf/KL_tdm_render.sv",
+        "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
+        "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+        "hdl/ieee1722/aaf/KL_chan_map_render.sv",
+        "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+        "hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
+        "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
+        "hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
+        "hdl/ieee1722/avtp/avtp_stream_parser.sv",
+        "hdl/ieee1722/avtp/KL_stream_table.sv",
+        "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
+        "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+        "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
+        "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
+        "hdl/ieee1722/crf/KL_crf_rx.sv",
+        "hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
+        "hdl/ieee1722/crf/KL_crf_tx.sv",
+        "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
+        "hdl/ieee1722/crf/KL_media_nco.sv",
+        "hdl/ieee1722/crf/KL_media_grid_align.sv",
+        "hdl/ieee1722/maap/KL_maap.sv",
+        "hdl/ieee1722/aaf/KL_i2s_playback.sv",
+        "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
+        "hdl/ieee1722/aaf/KL_tone_gen.sv",
+        "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
+        "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",
+        "hdl/ieee1722/aaf/KL_media_adv.sv",
+        "hdl/common/cdc_pair_fifo.sv",
+        "hdl/common/eth_event_counter/ethernet_events.sv",
+        "hdl/common/eth_event_counter/event_counter.sv",
+        "hdl/common/csr/milan_csr.sv",
+        "hdl/milan/milan_datapath.sv"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "584c44d694106d043db7cdc6e8d9fb01734f7e340aa385c8c58cedbb3ae2462c",
+      "final_tree_sha256": "584c44d694106d043db7cdc6e8d9fb01734f7e340aa385c8c58cedbb3ae2462c",
+      "changes": []
+    },
+    {
+      "scope": "parent-hdl-headers",
+      "paths": [
+        "configs/generated/endstation_arty_4x4/gen/adp_shape_defaults.svh",
+        "configs/generated/endstation_arty_8ch/gen/adp_shape_defaults.svh",
+        "configs/generated/endstation_arty_current/gen/adp_shape_defaults.svh",
+        "configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh",
+        "configs/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh",
+        "hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+        "hdl/common/eth_event_counter/ethernet_events.svh",
+        "hdl/common/gen/adp_shape_defaults.svh",
+        "hdl/common/parameters.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_adp_packet_gen.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_aecp_packet_gen.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_alter_subtype.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_base_packet_gen.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_control_subtype.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_packet_gen_pkg.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_random_subtype.svh",
+        "tb/avtp_packet_gen_sv/tb_classes/avtp_stream_subtype.svh",
+        "tb/common/axi_stream_driver.svh"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "3d2cc7e0463e8efa76f1188808f476a88192d0a88f2fdc7f25e6cde7e3197260",
+      "final_tree_sha256": "3d2cc7e0463e8efa76f1188808f476a88192d0a88f2fdc7f25e6cde7e3197260",
+      "changes": []
+    },
+    {
+      "scope": "render-harness-and-recipes",
+      "paths": [
+        "tb/verilator/milan_dp",
+        "tb/verilator/milan_dp_render",
+        "tb/common",
+        "sw/builder",
+        "syn/ooc/dp_srcs.py",
+        "scripts/pp_srcs.py"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "e2223993adbc514e5dd1b6ebc6a9722b29d672045c6003e07e2924710f485a33",
+      "final_tree_sha256": "e2223993adbc514e5dd1b6ebc6a9722b29d672045c6003e07e2924710f485a33",
+      "changes": []
+    },
+    {
+      "scope": "verilator-test-sources",
+      "paths": [
+        "tb/verilator",
+        "tb/common"
+      ],
+      "identical": false,
+      "measured_tree_sha256": "7fceb9100bf6b0663bee52d56c2c95fa9fdbafe68af4f7123a259cf9c225486c",
+      "final_tree_sha256": "f242440af25af6f75d62410d11ee4f642a13ba4c6dfa872cb4ffb565046e9f6f",
+      "changes": [
+        "M\ttb/verilator/mbx/Makefile",
+        "M\ttb/verilator/mbx/README.md",
+        "M\ttb/verilator/mbx/bench.hpp",
+        "M\ttb/verilator/mbx/frames.hpp",
+        "A\ttb/verilator/mbx/model_main.cpp",
+        "M\ttb/verilator/mbx/mutants.py",
+        "M\ttb/verilator/mbx/sim_main.cpp",
+        "M\ttb/verilator/mbx/suite.hpp"
+      ]
+    },
+    {
+      "scope": "configuration",
+      "paths": [
+        "configs"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "7b839f03c6091435ee06438974ef6bbad160038ad79935be089cd1b144bc0afd",
+      "final_tree_sha256": "7b839f03c6091435ee06438974ef6bbad160038ad79935be089cd1b144bc0afd",
+      "changes": []
+    },
+    {
+      "scope": "synthesis-inputs",
+      "paths": [
+        "syn"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "bc8d29f46b82ffc60336569f164367803d1dbdf557e5112c9a3688acf894ffe6",
+      "final_tree_sha256": "bc8d29f46b82ffc60336569f164367803d1dbdf557e5112c9a3688acf894ffe6",
+      "changes": []
+    },
+    {
+      "scope": "builder-inputs",
+      "paths": [
+        "sw/builder"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "2f6133c651258ad56e9fb08354c309e2882dd447979a86c3cb194fd8a6fb6101",
+      "final_tree_sha256": "2f6133c651258ad56e9fb08354c309e2882dd447979a86c3cb194fd8a6fb6101",
+      "changes": []
+    },
+    {
+      "scope": "integration-image-inputs",
+      "paths": [
+        "sw/litex"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "09c01a194a218e972ca082dce49c722d6f1f17d3e45bb4a96ecb5b42055cbb3e",
+      "final_tree_sha256": "09c01a194a218e972ca082dce49c722d6f1f17d3e45bb4a96ecb5b42055cbb3e",
+      "changes": []
+    },
+    {
+      "scope": "saved-capture",
+      "paths": [
+        "sw/firmware/milan_baremetal",
+        "tb/verilator/nvm_capture_cpu",
+        "scripts/check_nvm_capture.py"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "a3d67df8da2546db6e57a87d291c02bdd5fe657e7c2c98a128e205dfe8f2b79a",
+      "final_tree_sha256": "a3d67df8da2546db6e57a87d291c02bdd5fe657e7c2c98a128e205dfe8f2b79a",
+      "changes": []
+    },
+    {
+      "scope": "remaining-parent-bank-harnesses",
+      "paths": [
+        "tb/verilator/milan_dp_gptp",
+        "tb/verilator/nvm_cosim",
+        "sw/firmware/nvm_hosttest",
+        "scripts/run_litex_sims.sh"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "1500674e200aee53e58e74658b1839cc828f4c5fd030198a1c73d4caceb8d132",
+      "final_tree_sha256": "1500674e200aee53e58e74658b1839cc828f4c5fd030198a1c73d4caceb8d132",
+      "changes": []
+    },
+    {
+      "scope": "constraints",
+      "paths": [
+        "constraints"
+      ],
+      "identical": true,
+      "measured_tree_sha256": "533cf41e58577d5cba116032fb426ebf48c699022aa6a96784d3855aa234c7f8",
+      "final_tree_sha256": "533cf41e58577d5cba116032fb426ebf48c699022aa6a96784d3855aa234c7f8",
+      "changes": []
+    },
+    {
+      "scope": "pin-records",
+      "paths": [
+        "docs/reference/SUBMODULES.md",
+        "docs/diagrams/submodule_boundaries.drawio",
+        "docs/diagrams/submodule_boundaries.svg",
+        "docs/diagrams/submodule_boundaries.png",
+        "docs/diagrams/PNG_MANIFEST.json",
+        "scripts/port_docs.budget",
+        "scripts/naming.budget",
+        "scripts/xvlog.budget"
+      ],
+      "identical": false,
+      "measured_tree_sha256": "552de1d767cb5e8e61b4d665bd82d15421d919982e132b93e819e063aafec089",
+      "final_tree_sha256": "2f6a04146e52544979c06647cc6801cc0083c9994d811dcd68d881de45f398ab",
+      "changes": [
+        "M\tscripts/port_docs.budget"
+      ]
+    }
+  ],
+  "interpretation": "Unchanged scope hashes support retaining earlier evidence only where the full dependency set is unchanged. Changed inputs require their affected gates again; resource and capture readers run at the final head."
+}

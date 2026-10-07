@@ -1,0 +1,29 @@
+{
+  "time": "2026-10-07T06:26:47.592145+00:00",
+  "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+  "result": "Pre-campaign build failure; no render case executed.",
+  "cause": "Direct sudo command resolution selected system GNU Make 4.4.1; nested build used GNU Make 4.3 and rejected its FIFO jobserver.",
+  "correction": "Invoke an explicit shell whose PATH selects GNU Make 4.3; guard its absolute path before executing the unchanged make target.",
+  "records": [
+    {
+      "name": "full.log",
+      "bytes": 119687,
+      "sha256": "aa55789b34e87fa6a4cf3f56a544d4e7c3f9f9ee22ed4e2c45244a529f07ca05"
+    },
+    {
+      "name": "full.rc",
+      "bytes": 2,
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "name": "full.start",
+      "bytes": 26,
+      "sha256": "0ddd29719e0e46e51fd6d1461723058907541060d5beb32719dd9f420fed135d"
+    },
+    {
+      "name": "full.end",
+      "bytes": 26,
+      "sha256": "029239f99738cc742a0971fa6d60cc6d695c5cbbc753bc5f5807a02d43d7661c"
+    }
+  ]
+}

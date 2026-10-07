@@ -1,0 +1,337 @@
+{
+  "observed": "2026-10-07T09:10:31.076402+00:00",
+  "previous": "910f338dbd050f4efd2d96991ddcf928a583d55f",
+  "remote": "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+  "merged": false,
+  "commits": [
+    {
+      "sha": "6c94e9f5f496ac25f8c4e31f9e3685c725de29f3",
+      "subject": "fix firmware erased-record bounds and ADP port re-entry"
+    },
+    {
+      "sha": "4cffa2f973705719dc910fd5c4b7a75fcad6f9f1",
+      "subject": "Mailbox contract 2.0: full-tuple match per channel, per-interface own MAC, two-sided AECP term and FILTER_MISMATCH, regenerated (#665 FC)"
+    },
+    {
+      "sha": "9e1ea2ed344b14deb6f07180ee49d0d4d48f4ce9",
+      "subject": "KL_mbx_rx: classify on the full tuple with the arrival interface's own MAC and count FILTER_MISMATCH (#665 FC)"
+    },
+    {
+      "sha": "f676c23e61e5f1674a20a35d498e7f2bc454f469",
+      "subject": "Firmware and host model: own MAC per interface before a channel opens, FILTER_MISMATCH read, the full tuple on the model (#665 FC)"
+    },
+    {
+      "sha": "e572c1ad96b1fe45d06f3c4aa191842681a209e5",
+      "subject": "Mailbox suite and firmware tests: a check and a planted defect per filter rule, and the two-interface variant (#665 FC)"
+    },
+    {
+      "sha": "5e3c2c8b27a5ce9223954189ee5f76894a5b57b7",
+      "subject": "Describe the full-tuple ingress filter, its checks and its planted defects (#665 FC)"
+    },
+    {
+      "sha": "021b9c1fb966e9a1a4acef6b5233edd3518f32a0",
+      "subject": "Record the out-of-context area the full-tuple filter adds to the mailbox (#665 FC)"
+    },
+    {
+      "sha": "49006984bd0c86798eae2a4780f1ac17f163c925",
+      "subject": "Mailbox contract: a match tuple may name message types, and the MAAP row takes a DEFEND to the own unicast MAC (#665 FC, IEEE 1722-2016 B.2.1)"
+    },
+    {
+      "sha": "a0f9579109357a5e71ca55ef4e75b19ef1118df4",
+      "subject": "KL_mbx_rx: decide the channel at byte 15 so a tuple's message types hold, the MAAP DEFEND to own unicast (#665 FC)"
+    },
+    {
+      "sha": "334b53ccdba6a3acbf9b2ae5aab5c274dfd03736",
+      "subject": "Host mailbox model: a tuple's message types, read as KL_mbx_rx reads them (#665 FC)"
+    },
+    {
+      "sha": "e7b7b55d11f026bb50aa9dac31a5baaceb24b7de",
+      "subject": "Mailbox suite and mutants: the MAAP DEFEND to own unicast, a planted defect per rule through both adapters and on the model (#665 FC)"
+    },
+    {
+      "sha": "dd86e68becc0d88c774a90cba8fd606ba10910b8",
+      "subject": "Requirements and design: the MAAP row takes a DEFEND to own unicast (B.2.1), and PR #685 implements the filter (#665 FC)"
+    },
+    {
+      "sha": "b37e2c44396bf64938c16409ecc987e6f6243c74",
+      "subject": "Record the out-of-context area of the MAAP DEFEND tuple (#665 FC)"
+    },
+    {
+      "sha": "db9aa8c9b135b34ff3d070a979dee70440b37cc6",
+      "subject": "ctrl_mutants: plant the ignored DEFEND message type as an all-types mask, so the planted model compiles (#665 FC)"
+    },
+    {
+      "sha": "232970dbb9663abb2a260efda4d2d5abcf034fb5",
+      "subject": "Merge dev 910f338d into 677-fw-fixes"
+    },
+    {
+      "sha": "34475e774dfe1c92c81fa51293668e64dc95fa85",
+      "subject": "Declare assert for the freestanding RV32 object check and name __assert_fail in the ctrl runtime interfaces"
+    },
+    {
+      "sha": "708e5634f28e6e5a19236a9b0a9a543c3622e52d",
+      "subject": "Record the measured RV32 text sizes of the store after the erased-payload check"
+    },
+    {
+      "sha": "09f1841bd2c6a9dea8eb1994d887f7386ca4f62d",
+      "subject": "Merge PR #685: Mark II FC: mailbox ingress filter contract (full tuple, per-interface own MAC, two-sided AECP identity, FILTER_MISMATCH, MAAP DEFEND to own unicast)"
+    },
+    {
+      "sha": "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+      "subject": "Merge PR #684: Firmware robustness: erased-record bounds in the NVM store and ADP port re-entry guard (#677, #678)"
+    }
+  ],
+  "files": [
+    {
+      "path": "REQUIREMENTS.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/reference/FR_NFR.md",
+      "status": "modified"
+    },
+    {
+      "path": "docs/reference/MAILBOX_CONTRACT.md",
+      "status": "modified"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx.sv",
+      "status": "modified"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_pkg.sv",
+      "status": "modified"
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_rx.sv",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/adp/adp_mbx.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/loop/ctrl_loop.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/loop/ctrl_loop.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_contract.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_hal.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_debug.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/ctrl_pool.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/port/shlan_port.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/lwsrp_port.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_adp.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_adp_reentry.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_port_loop.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_driver.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_seams.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/nvm_flash.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/nvm_klj2.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/nvm_state.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/nvm_bench.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/nvm_mutants.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_coverage.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_gtest.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/fw_rv32_selftest.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/rv32_include/assert.h",
+      "status": "added"
+    },
+    {
+      "path": "sw/mailbox/gen_mailbox.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/mailbox/mailbox.yaml",
+      "status": "modified"
+    },
+    {
+      "path": "sw/mailbox/mailbox_emit.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/mailbox/mailbox_model.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/mailbox/mailbox_skeleton.py",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/Makefile",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/bench.hpp",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/frames.hpp",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/model_main.cpp",
+      "status": "added"
+    },
+    {
+      "path": "tb/verilator/mbx/mutants.py",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/sim_main.cpp",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/suite.hpp",
+      "status": "modified"
+    }
+  ],
+  "capture_firmware_and_harness_changed": false,
+  "image_recipe_mailbox_source_reads": 0,
+  "qualification": "Final merge, exact dependency checks and affected gate reruns remain pending; unchanged broad integration inputs do not waive the mailbox RTL and firmware reruns."
+}

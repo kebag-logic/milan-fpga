@@ -1,0 +1,22 @@
+{
+  "time": "2026-10-07T00:31:37.206124+00:00",
+  "reason": "Fresh unmodified epoch case reproduces the four T30 CRF failures tracked by #657; #682 requires all gates to pass and authorizes no exception or render repair.",
+  "identities": [
+    {
+      "pid": 3481518,
+      "command": "python3 $VALIDATION_STORAGE/682-a554/run-gate-bank.py $VALIDATION_STORAGE/682-a554/bank-parent.json $VALIDATION_STORAGE/682-a554/acceptance/parent --head 1e99ad217f0747c33e03238f7d1c633c07ce572c ",
+      "start_ticks": "47817377"
+    },
+    {
+      "pid": 6068,
+      "command": "python3 $LANES/682-pp-pin3/scripts/owned_process.py -- bash scripts/run_all_suites.sh --owned-sweep $VALIDATION_STORAGE/682-a554/parent-suite-logs ",
+      "start_ticks": "48267766"
+    }
+  ],
+  "owner_state": "Z",
+  "owner_wait_status": 36608,
+  "owner_exit_code": 143,
+  "bank_signal": "SIGTERM after pausing continuation",
+  "remaining_parent_bank_steps": "not run",
+  "complete_images": "not run; retained routed checkpoints only"
+}

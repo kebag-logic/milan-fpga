@@ -1,0 +1,119 @@
+{
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "branch": "682-pp-pin-2ad2f845",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "processor_gitlink": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+  "clean": true,
+  "files": {
+    "docs/design/AREA_BUDGET.md": {
+      "bytes": 17874,
+      "sha256": "a739fde7dbfb1c452a3c3f68221cf2bf12f7be7df45fab04e8c3adfbecd6157f"
+    },
+    "docs/diagrams/PNG_MANIFEST.json": {
+      "bytes": 2147,
+      "sha256": "f5b73632a8ac4f70e98e99facfde6f0c271ea567505dcad96a70621a9fc5cd2c"
+    },
+    "docs/diagrams/submodule_boundaries.drawio": {
+      "bytes": 5404,
+      "sha256": "843f500789f1eaa04a7f083b4b44670a407390ca79b041c28a8b0d764bb0aebe"
+    },
+    "docs/diagrams/submodule_boundaries.png": {
+      "bytes": 323807,
+      "sha256": "9a9dcbcc5072a46bd0c5e996d67bbee6b7673acd70be14ac86b0512f8e695005"
+    },
+    "docs/diagrams/submodule_boundaries.svg": {
+      "bytes": 6277,
+      "sha256": "a1cd1202ee9119ac8213251af5ae11038e888e14c236e682c16135f93accadc5"
+    },
+    "docs/findings/234_PP_SHADOW_AREA_BASELINE.md": {
+      "bytes": 55466,
+      "sha256": "88a6b23c7cad3a8bebc2c591162879442c2b31fdfc2b48f0459f6310251c5475"
+    },
+    "docs/findings/README.md": {
+      "bytes": 11530,
+      "sha256": "2d1646fbc9396a342ee26d340b688bb60160c656b2e3b02edb6cd05205c6c634"
+    },
+    "docs/reference/SUBMODULES.md": {
+      "bytes": 17595,
+      "sha256": "616679d25b647a052162554465f3d6545841cba62ebe9528dafafce24b737442"
+    },
+    "docs/testing/PP_SHADOW_BASELINE_RECIPE.md": {
+      "bytes": 22494,
+      "sha256": "f1cbaffe451f1eda6381dd3d93f5028a1f61f1e7b2d7b2336aeb2ee103c33c4d"
+    },
+    "scripts/port_docs.budget": {
+      "bytes": 5242,
+      "sha256": "077acf838755608b47eba84975137a5264ca856ce57e3132acc037d5d7cbb892"
+    },
+    "scripts/xvlog.budget": {
+      "bytes": 1862,
+      "sha256": "f10b2bef2768300e226c7287dd58a2c5bc1fc82533123df5b2db40eb31a757b4"
+    },
+    "syn/ooc/pp_baseline.py": {
+      "bytes": 30432,
+      "sha256": "76ea2a8fc8ff132c2e5851a2edbd0da07d7cb1fe68c493e1ac7051c10a2a1371"
+    },
+    "syn/ooc/pp_baseline_mutants.py": {
+      "bytes": 5903,
+      "sha256": "d94db9a48b7a307ee3e5714a89e59a435b8e38d935225bc8677763038d6dac0f"
+    },
+    "syn/ooc/pp_resource_baseline.json": {
+      "bytes": 27362,
+      "sha256": "aa8f90e775e76603d6179867abef9ecd7c13c91947c478ffcd12477e443128ef"
+    },
+    "syn/yosys/rom_digests.tsv": {
+      "bytes": 6881,
+      "sha256": "23006432ba99ef81e6347c0f111bacedc5d261103f973e908008ab2b65974a7c"
+    },
+    "tb/verilator/milan_dp/sim_nxn.cpp": {
+      "bytes": 502839,
+      "sha256": "0c4b30fa391e272d34f2dde7ad111af0c1bcbd02317bbc338e898a5e6cdf624a"
+    }
+  },
+  "lane_commits": [
+    {
+      "commit": "7bbb53d798503bf393036fad927ca4eb6425d9ea",
+      "subject": "Adopt protocol processor main 2ad2f845 for issue 682"
+    },
+    {
+      "commit": "166c2185e206e8f8d66a6fa208e49f22adf3dce0",
+      "subject": "Adapt parent frame capture and declaration budget to processor pin"
+    },
+    {
+      "commit": "fcaabb2277624c16107b75714de8706affafb004",
+      "subject": "Refresh processor pin records and parent integration notes"
+    },
+    {
+      "commit": "2a97d4e8874a90a620d2b9234620eff9aec57bcb",
+      "subject": "Tighten adoption documentation wording"
+    },
+    {
+      "commit": "d02c2a3ea2885053132f9adfb198d8a5a22680a3",
+      "subject": "Record optional synthesis worker cap in baseline recipes"
+    },
+    {
+      "commit": "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+      "subject": "Rebaseline adopted processor resources and timing"
+    },
+    {
+      "commit": "4d2538809d739d97c09f3f0bee194fb14e1cec18",
+      "subject": "Merge dev 79b086d4 for processor adoption validation"
+    },
+    {
+      "commit": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+      "subject": "Rebaseline processor adoption after merging dev"
+    },
+    {
+      "commit": "5af03224117ffef089d5031e9bb7e8b348d7abbf",
+      "subject": "Merge dev for final processor adoption validation"
+    },
+    {
+      "commit": "591a5752e6a587b28b501e2d02d6a9d0293f3ba2",
+      "subject": "Refresh port census after final dev merge"
+    },
+    {
+      "commit": "5428b044176f95248e6916dc00dd89c0df154078",
+      "subject": "Merge dev MAAP firmware for processor adoption validation"
+    }
+  ]
+}

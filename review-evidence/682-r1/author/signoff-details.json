@@ -1,0 +1,383 @@
+{
+  "ExtraPostPlacementOpt": {
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.101,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.085,
+        "THS_ns": 0.0
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.101,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.085,
+        "THS_ns": 0.0
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.492,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.031,
+        "THS_ns": 0.0
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.492,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.031,
+        "THS_ns": 0.0
+      }
+    },
+    "critical_warnings": [],
+    "rejected_constraints": [],
+    "ethernet_pairs": [
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout0",
+        "WNS_ns": 6.46,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.46     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout1",
+        "WNS_ns": 6.31,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.31     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout0",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 6.73,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.73     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout1",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 6.95,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.95     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only  "
+      }
+    ],
+    "timing_coverage": {
+      "no_clock": 0,
+      "constant_clock": 0,
+      "pulse_width_clock": 0,
+      "unconstrained_internal_endpoints": 0,
+      "no_input_delay": 46,
+      "no_output_delay": 87,
+      "multiple_clock": 0,
+      "generated_clocks": 0,
+      "loops": 0,
+      "partial_input_delay": 0,
+      "partial_output_delay": 0,
+      "latch_loops": 0
+    },
+    "cdc_summary": [
+      {
+        "id": "CDC-2",
+        "severity": "Warning",
+        "count": 8,
+        "description": "1-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-3",
+        "severity": "Info",
+        "count": 17,
+        "description": "1-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-5",
+        "severity": "Warning",
+        "count": 4,
+        "description": "Multi-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-6",
+        "severity": "Warning",
+        "count": 52,
+        "description": "Multi-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-9",
+        "severity": "Info",
+        "count": 1,
+        "description": "Asynchronous reset synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-10",
+        "severity": "Critical",
+        "count": 10,
+        "description": "Combinational logic detected before a synchronizer"
+      },
+      {
+        "id": "CDC-15",
+        "severity": "Warning",
+        "count": 199,
+        "description": "Clock enable controlled CDC structure detected"
+      },
+      {
+        "id": "CDC-26",
+        "severity": "Warning",
+        "count": 183,
+        "description": "LUTRAM read/write potential collision"
+      }
+    ],
+    "speed_file": "-2  PRODUCTION 1.23 2018-06-13"
+  },
+  "AltSpreadLogic_high": {
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": -0.857,
+        "TNS_ns": -3.155,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0
+      },
+      "Slow_85C": {
+        "WNS_ns": -0.857,
+        "TNS_ns": -3.155,
+        "WHS_ns": 0.102,
+        "THS_ns": 0.0
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.326,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.008,
+        "THS_ns": 0.0
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.326,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.008,
+        "THS_ns": 0.0
+      }
+    },
+    "critical_warnings": [
+      {
+        "log": "$VALIDATION_STORAGE/682-a554/work/ax7101-AltSpreadLogic_high/baseline.log",
+        "line": 3115,
+        "diagnostic": "CRITICAL WARNING: [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports."
+      }
+    ],
+    "rejected_constraints": [],
+    "ethernet_pairs": [
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout0",
+        "WNS_ns": 5.16,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     5.16     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout1",
+        "WNS_ns": 6.17,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.17     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout0",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 6.67,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.67     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout1",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 7.0,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     7.00     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only  "
+      }
+    ],
+    "timing_coverage": {
+      "no_clock": 0,
+      "constant_clock": 0,
+      "pulse_width_clock": 0,
+      "unconstrained_internal_endpoints": 0,
+      "no_input_delay": 46,
+      "no_output_delay": 87,
+      "multiple_clock": 0,
+      "generated_clocks": 0,
+      "loops": 0,
+      "partial_input_delay": 0,
+      "partial_output_delay": 0,
+      "latch_loops": 0
+    },
+    "cdc_summary": [
+      {
+        "id": "CDC-2",
+        "severity": "Warning",
+        "count": 8,
+        "description": "1-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-3",
+        "severity": "Info",
+        "count": 17,
+        "description": "1-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-5",
+        "severity": "Warning",
+        "count": 4,
+        "description": "Multi-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-6",
+        "severity": "Warning",
+        "count": 52,
+        "description": "Multi-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-9",
+        "severity": "Info",
+        "count": 1,
+        "description": "Asynchronous reset synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-10",
+        "severity": "Critical",
+        "count": 10,
+        "description": "Combinational logic detected before a synchronizer"
+      },
+      {
+        "id": "CDC-15",
+        "severity": "Warning",
+        "count": 199,
+        "description": "Clock enable controlled CDC structure detected"
+      },
+      {
+        "id": "CDC-26",
+        "severity": "Warning",
+        "count": 183,
+        "description": "LUTRAM read/write potential collision"
+      }
+    ],
+    "speed_file": "-2  PRODUCTION 1.23 2018-06-13"
+  },
+  "ExtraTimingOpt": {
+    "corners": {
+      "Slow_0C": {
+        "WNS_ns": 0.334,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.056,
+        "THS_ns": 0.0
+      },
+      "Slow_85C": {
+        "WNS_ns": 0.334,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.056,
+        "THS_ns": 0.0
+      },
+      "Fast_0C": {
+        "WNS_ns": 1.633,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.021,
+        "THS_ns": 0.0
+      },
+      "Fast_85C": {
+        "WNS_ns": 1.633,
+        "TNS_ns": 0.0,
+        "WHS_ns": 0.021,
+        "THS_ns": 0.0
+      }
+    },
+    "critical_warnings": [],
+    "rejected_constraints": [],
+    "ethernet_pairs": [
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout0",
+        "WNS_ns": 6.61,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout0         rise - rise     6.61     0.00            0           13             8.00                                           0           13                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "eth_clocks0_rx",
+        "destination": "milansoc_crg_clkout1",
+        "WNS_ns": 6.19,
+        "bound_ns": 8,
+        "report_row": "eth_clocks0_rx               milansoc_crg_clkout1         rise - rise     6.19     0.00            0           50             8.00                                           0           50                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout0",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 6.52,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout0         eth_clocks0_rx               rise - rise     6.52     0.00            0           16             8.00                                           0           16                   Ignored              Max Delay Datapath Only  "
+      },
+      {
+        "source": "milansoc_crg_clkout1",
+        "destination": "eth_clocks0_rx",
+        "WNS_ns": 6.5,
+        "bound_ns": 8,
+        "report_row": "milansoc_crg_clkout1         eth_clocks0_rx               rise - rise     6.50     0.00            0           14             8.00                                           0           14                   Ignored              Max Delay Datapath Only  "
+      }
+    ],
+    "timing_coverage": {
+      "no_clock": 0,
+      "constant_clock": 0,
+      "pulse_width_clock": 0,
+      "unconstrained_internal_endpoints": 0,
+      "no_input_delay": 46,
+      "no_output_delay": 87,
+      "multiple_clock": 0,
+      "generated_clocks": 0,
+      "loops": 0,
+      "partial_input_delay": 0,
+      "partial_output_delay": 0,
+      "latch_loops": 0
+    },
+    "cdc_summary": [
+      {
+        "id": "CDC-2",
+        "severity": "Warning",
+        "count": 8,
+        "description": "1-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-3",
+        "severity": "Info",
+        "count": 17,
+        "description": "1-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-5",
+        "severity": "Warning",
+        "count": 4,
+        "description": "Multi-bit synchronized with missing ASYNC_REG property"
+      },
+      {
+        "id": "CDC-6",
+        "severity": "Warning",
+        "count": 52,
+        "description": "Multi-bit synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-9",
+        "severity": "Info",
+        "count": 1,
+        "description": "Asynchronous reset synchronized with ASYNC_REG property"
+      },
+      {
+        "id": "CDC-10",
+        "severity": "Critical",
+        "count": 10,
+        "description": "Combinational logic detected before a synchronizer"
+      },
+      {
+        "id": "CDC-15",
+        "severity": "Warning",
+        "count": 199,
+        "description": "Clock enable controlled CDC structure detected"
+      },
+      {
+        "id": "CDC-26",
+        "severity": "Warning",
+        "count": 183,
+        "description": "LUTRAM read/write potential collision"
+      }
+    ],
+    "speed_file": "-2  PRODUCTION 1.23 2018-06-13"
+  }
+}

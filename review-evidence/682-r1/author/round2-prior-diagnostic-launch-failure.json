@@ -1,0 +1,12 @@
+{
+  "command": "bash render-cases.sh prior",
+  "rc": 1,
+  "git_rc": 128,
+  "stage": "Initial context reader, before any diagnostic build or test",
+  "cause": "Concurrent Git write-tree calls contended for the index lock",
+  "full_campaign_affected": false,
+  "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/diagnostic-launch-failure/stderr.log",
+  "bytes": 1141,
+  "sha256": "31be32bd9119000c63a33a1fe2eecec548a0324c20b22e428a7506a044cb2b7f",
+  "correction": "Repeat the diagnostic only after the full campaign and its restoration finish; preserve the completed full campaign"
+}

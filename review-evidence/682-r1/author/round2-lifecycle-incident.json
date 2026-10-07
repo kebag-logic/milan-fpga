@@ -1,0 +1,43 @@
+{
+  "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+  "status": "Unresolved intermittent validation failure; no source or expectation changes.",
+  "observations": [
+    {
+      "run": "Full parent sweep",
+      "result": "gptp_shadow FAIL",
+      "finding": "test_mutant_lifecycle.py:387: nested cancellation left private work; functional mutation controls passed."
+    },
+    {
+      "run": "Direct focused lifecycle diagnostic",
+      "rc": 1,
+      "finding": "test_mutant_lifecycle.py:149: normal detect control failed; one missing private-source anchor and one missing completed tally."
+    },
+    {
+      "run": "Exact lifecycle Make target diagnostic",
+      "rc": 0,
+      "finding": "All lifecycle controls passed, including nested SIGINT/SIGTERM cleanup."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/parent-suite-logs/gptp_shadow.log",
+      "bytes": 21714,
+      "sha256": "ca63c4bd3dc38495e1b84ea67f6d90a02dd7d160e40552ffd4f43e7b2f264b43"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/acceptance/lifecycle-diagnostic/01-gptp-lifecycle-recheck.log",
+      "bytes": 1823,
+      "sha256": "163ffaebfffd4d2ab9a5bb3a7f14be879403229e34227ead5b8f9d9e25573222"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/acceptance/lifecycle-make-diagnostic/01-gptp-lifecycle-make-recheck.log",
+      "bytes": 11254,
+      "sha256": "51b614cc066c88a4c346cb2d01a7f7edc3f5c2fd05b7b334b68797cedbd3968c"
+    }
+  ],
+  "retained_fixture_logs": [
+    "$VALIDATION_STORAGE/682-a554/round2/lifecycle-diagnostic-fixtures",
+    "$VALIDATION_STORAGE/682-a554/round2/lifecycle-make-fixtures"
+  ],
+  "checks": "Imported mutation definitions match fresh source, every live source anchor is present, and candidate tracked files are unchanged."
+}

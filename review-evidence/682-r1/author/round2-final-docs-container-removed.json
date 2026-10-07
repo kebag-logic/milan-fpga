@@ -1,0 +1,17 @@
+{
+  "time": "2026-10-07T12:49:10.707874+00:00",
+  "command": [
+    "sudo",
+    "-n",
+    "docker",
+    "inspect",
+    "--format",
+    "{{.State.Pid}}",
+    "milan-682-round2-final-docs-validation"
+  ],
+  "rc": 1,
+  "stdout": "\n",
+  "stderr": "error: no such object: milan-682-round2-final-docs-validation\n",
+  "verified_absent": true,
+  "meaning": "Completed documentation container was removed; remaining validation processes are in the service cgroup."
+}

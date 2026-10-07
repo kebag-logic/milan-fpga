@@ -1,0 +1,19 @@
+{
+  "start": "2026-10-07T13:02:54.481585+00:00",
+  "end": "2026-10-07T13:07:18.686248+00:00",
+  "authority": "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py:169-190; tree removal follows build and all selected test executions",
+  "files": 5044,
+  "bytes": 6136887976,
+  "current_memory_before": 8117198848,
+  "current_memory_after": 6692016128,
+  "retained_paths_and_bytes": true,
+  "source_and_test_changes": false,
+  "index": {
+    "path": "$VALIDATION_STORAGE/682-a554/round2/final/nvm-spill-index.json",
+    "bytes": 2534978,
+    "sha256": "cd4a4074b9f08ede3d35f9fe0f7372bd79241c44551b0fef481d3facf681984a"
+  },
+  "reason": "Completed ELF artifacts in memory-backed temporary storage were causing reclaim pressure; original paths remain byte-identical through links to disk storage.",
+  "rc": 0,
+  "followup": "The copy completed successfully before the attempted stop lookup, which found no matching live helper. No process was interrupted and no alternative executable cleanup was performed."
+}

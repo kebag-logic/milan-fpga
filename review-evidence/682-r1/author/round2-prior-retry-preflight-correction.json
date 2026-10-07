@@ -1,0 +1,10 @@
+{
+  "time": "2026-10-07T10:04:48.199561+00:00",
+  "cause": "The first diagnostic never started, so the final input verifier correctly refused its missing completion receipt. The retry coordinator incorrectly required that final verification before starting the missing diagnostic.",
+  "candidate_restored_and_clean": true,
+  "private_generated_inputs_checked": 18,
+  "private_generated_inputs_equal_committed": true,
+  "final_input_verifier_unchanged": true,
+  "correction": "Validate the unstarted state and unchanged input bytes now; run the diagnostic; then require the unchanged final verifier and differential to pass.",
+  "archive": "$VALIDATION_STORAGE/682-a554/round2/prior-retry-preflight-attempt1"
+}

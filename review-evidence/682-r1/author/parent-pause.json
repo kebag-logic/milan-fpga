@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-07T00:15:55.281262+00:00",
+  "processes": [
+    {
+      "pid": 6071,
+      "command": "bash scripts/run_all_suites.sh --owned-sweep $VALIDATION_STORAGE/682-a554/parent-suite-logs ",
+      "signal": "SIGSTOP"
+    },
+    {
+      "pid": 3481518,
+      "command": "python3 $VALIDATION_STORAGE/682-a554/run-gate-bank.py $VALIDATION_STORAGE/682-a554/bank-parent.json $VALIDATION_STORAGE/682-a554/acceptance/parent --head 1e99ad217f0747c33e03238f7d1c633c07ce572c ",
+      "signal": "SIGSTOP"
+    }
+  ],
+  "resumed": "2026-10-07T00:16:09.523138+00:00",
+  "header": {
+    "path": "hdl/common/csr/gen/lwsrp_csr_defaults.svh",
+    "bytes": 2187,
+    "sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+    "equals_head": true
+  }
+}

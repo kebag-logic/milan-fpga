@@ -1,0 +1,318 @@
+{
+  "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+  "best": "ExtraPostPlacementOpt",
+  "result": "PASS",
+  "threshold": {
+    "WNS_ns": 0.03,
+    "WHS_ns": 0
+  },
+  "corners": {
+    "Slow_0C": {
+      "WNS_ns": 0.124,
+      "WHS_ns": 0.059
+    },
+    "Slow_85C": {
+      "WNS_ns": 0.124,
+      "WHS_ns": 0.059
+    },
+    "Fast_0C": {
+      "WNS_ns": 1.246,
+      "WHS_ns": 0.031
+    },
+    "Fast_85C": {
+      "WNS_ns": 1.246,
+      "WHS_ns": 0.031
+    }
+  },
+  "complete_image": {
+    "manifest": "baremetal",
+    "gptp_owner": "fabric",
+    "cpu_xlen": 32,
+    "entry": null,
+    "complete": false,
+    "images": [
+      {
+        "name": "bitstream",
+        "offset": 0,
+        "addr": 0,
+        "budget": 4194304
+      },
+      {
+        "name": "aem",
+        "offset": 4194304,
+        "addr": 0,
+        "budget": 65536
+      }
+    ],
+    "aem_image_bytes": 7512,
+    "aem_image_crc32": 1537431019,
+    "aem_image_sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d",
+    "bitstream_payload_sha256": "ebc849027a5cc58394cc62dbf08995671b27f3039139c30d828c455ca416875b",
+    "bitstream_fpga_part": "7a100tfgg484"
+  },
+  "preflight": {
+    "directive": "ExtraPostPlacementOpt",
+    "source": "$LANES/682-pp-pin3/sw/litex/deploy.sh",
+    "source_bytes": 25716,
+    "source_sha256": "2e1768262c8b3dd2487d89b4cea5904ce5e572b1954a0ccf03a7f7abc5b48cd7",
+    "functions": [
+      "do_check_images",
+      "materialize_images"
+    ],
+    "invocation": "do_check_images",
+    "script": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight.sh",
+    "script_bytes": 8303,
+    "script_sha256": "30e6cdf3a76fe151d21a0282c3be2493c0a137efbe7a06fb263fbfb46d7663ad",
+    "rc": 0,
+    "hardware_setup_executed": false
+  },
+  "manifest_regeneration": {
+    "command": [
+      "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+      "$LANES/682-pp-pin3/sw/litex/layout_from_soch.py",
+      "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt",
+      "--bit",
+      "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit"
+    ],
+    "before_bytes": 616,
+    "after_bytes": 616,
+    "before_sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774",
+    "after_sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774",
+    "identical": true
+  },
+  "inputs": {
+    "directive": "ExtraPostPlacementOpt",
+    "output": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt",
+    "inputs": {
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101.tcl": {
+        "bytes": 28233,
+        "sha256": "3e42d871d801786c21d35a71a413622db14a9c4f546fb936d3abc943a3a7d4aa"
+      },
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_route.dcp": {
+        "bytes": 41271581,
+        "sha256": "c897eabcc44b7992a40163da1ed6553061557a293dcc5670cc78c8787ff80111"
+      },
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/software/include/generated/soc.h": {
+        "bytes": 11949,
+        "sha256": "8cd719d023b3e493f475bcb1ee3ed5dc560d3edc0d1bf8e317ea78ae649e7ca9"
+      },
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/aem_desc.bin": {
+        "bytes": 7512,
+        "sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d"
+      },
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/route-default.log": {
+        "bytes": 333095,
+        "sha256": "e53ec868447a291841ab6e0c72f22e0c554d5969895d7158e43eeccc747c5a96"
+      },
+      "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/synthesis.log": {
+        "bytes": 610136,
+        "sha256": "36cfdfb1d671f49cfd50287ec0fad66a91df65e334c529adcfc209aa8e4d1110"
+      }
+    },
+    "script_sha256": "6265091ba40d76c6cb363abc6865a7aecd5ad30d8ea7a9eb99a52739e75169f3",
+    "script_bytes": 1203,
+    "implementation_log": "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/route-default.log"
+  },
+  "command": {
+    "id": "ExtraPostPlacementOpt",
+    "command": "flock $VIVADO_LOCK vivado -mode batch -source finish.tcl -nojournal -log bitstream.log\n\"$LITEX_PYTHON\" $VALIDATION_STORAGE/682-a554/round2/finish-image-check.py ExtraPostPlacementOpt\npython3 \"$REPO/sw/litex/layout_from_soch.py\" $VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt --bit $VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit\npython3 $VALIDATION_STORAGE/682-a554/round2/check-image-manifest-repeat.py ExtraPostPlacementOpt\npython3 \"$REPO/sw/litex/check_gptp_owner_pair.py\" --layout $VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/flashboot_layout.json --expected-owner fabric --bit $VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit --aem $VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/aem_desc.bin --expected-fpga-part xc7a100tfgg484\n\"$LITEX_PYTHON\" $VALIDATION_STORAGE/682-a554/round2/run-image-preflight.py ExtraPostPlacementOpt\n",
+    "cwd": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware",
+    "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+    "make": "GNU Make 4.3",
+    "start": "2026-10-07T11:18:42.808458+00:00",
+    "end": "2026-10-07T11:23:50.958589+00:00",
+    "rc": 0,
+    "log": "$VALIDATION_STORAGE/682-a554/round2/acceptance/images/01-ExtraPostPlacementOpt.log",
+    "bytes": 45755,
+    "sha256": "25a9b13fb2248c8eb380e691ed6a787c075f418759d567e1cb5f200992d58e2d"
+  },
+  "artifacts": [
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/acceptance/images/01-ExtraPostPlacementOpt.log",
+      "bytes": 45755,
+      "sha256": "25a9b13fb2248c8eb380e691ed6a787c075f418759d567e1cb5f200992d58e2d"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/aem_desc.bin",
+      "bytes": 7512,
+      "sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight-receipt.json",
+      "bytes": 585,
+      "sha256": "044669f71755ee56b9918a7e8da8353a5d97439d63f890cc335580fcbd4f2437"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight.sh",
+      "bytes": 8303,
+      "sha256": "30e6cdf3a76fe151d21a0282c3be2493c0a137efbe7a06fb263fbfb46d7663ad"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/flashboot_layout.json",
+      "bytes": 616,
+      "sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit",
+      "bytes": 3825992,
+      "sha256": "613a670a15dc7dce29c9cce0a1fc75527229575f7b43968dce6a444ffc80a8bc"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.xdc",
+      "bytes": 19504,
+      "sha256": "81bbf89c34dd0e911c43a66a00533145544e15f2d5b4a45727b954f678793b2d"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_clock_interaction.rpt",
+      "bytes": 5716,
+      "sha256": "18a082e082be616eeaf664f1848c5d3d95c54dc62ad7c73316d4c2d7adfc8160"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_drc.rpt",
+      "bytes": 59399,
+      "sha256": "8709e336115800589541bb86029accd4d40e1ce7a6422d6e258f541dee75a0d9"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_exceptions.rpt",
+      "bytes": 80306,
+      "sha256": "542d02c50c56bb2e4b48ad372369191dfc557edcf5bf5a2fe9b456564a86e866"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_iob_pack.rpt",
+      "bytes": 1924,
+      "sha256": "6dc8b514cd65c80d89c0bd3fbe9e6055a509023db7fe43d571aa82e4499a750d"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_power.rpt",
+      "bytes": 16087,
+      "sha256": "2313da6a5c615f34aea806ffc5f590ab23348adf7330bedecd19cf938d5b4900"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_route_status.rpt",
+      "bytes": 651,
+      "sha256": "443b575d30fe2c652339fea5a434ad08d106b49747ed1dc72eecc8054458aa3a"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_negative.rpt",
+      "bytes": 904,
+      "sha256": "601db153cc80fbdacc7cf77ad5801833506593c0355bbc01508dd58f83bd23ba"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_operating.rpt",
+      "bytes": 1567,
+      "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_timing.rpt",
+      "bytes": 1298911,
+      "sha256": "d737e1b76c1d8491c138d5b1be2e39c465ba21c781d71c2e4b9e05404d29df3b"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_negative.rpt",
+      "bytes": 905,
+      "sha256": "72a96eb4585d3d90f1d4f6442d366a41b989ff5e78f61ab52d7df7239b87b15c"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_operating.rpt",
+      "bytes": 1568,
+      "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_timing.rpt",
+      "bytes": 1298912,
+      "sha256": "89e9bd1039f025be364d403769bb6dc1920a2a4dd9289e64443c50a3f3598a6c"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_negative.rpt",
+      "bytes": 904,
+      "sha256": "d54876be64049d6ab826400062208f617552ff3f8f9e5f5cae20fd00682aed7e"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_operating.rpt",
+      "bytes": 1567,
+      "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_timing.rpt",
+      "bytes": 1355675,
+      "sha256": "4aac7d802c1ed47c6bc1b47ad76d42456e7e251a736df806acbfafec52dc2a56"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_negative.rpt",
+      "bytes": 905,
+      "sha256": "53efce2fcece5460fa73300cd26f8b0059e760130b2bbb9883a66eb07adbcfa5"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_operating.rpt",
+      "bytes": 1568,
+      "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_timing.rpt",
+      "bytes": 1355676,
+      "sha256": "2d1c190acad16cbb37e9eb7a30ae4c9f093517c72ec4d020feff3ed08205a78f"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_all_timing.rpt",
+      "bytes": 1356058,
+      "sha256": "8dd9b14aff2faade59a5ce2005ebfc1f7bbac29e3a5113390f9e0d8ccf0587c8"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_cdc.rpt",
+      "bytes": 139909,
+      "sha256": "e668fec8cef62c0470729f327b1e98c1c74b8254bfb3a9e654f788d05c0a1cd4"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_check_timing.rpt",
+      "bytes": 4828,
+      "sha256": "968eaef9fec3fd21eb3ee955f388fa3ee0d8d265467ddbadcea3f5e50015f525"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_clock_interaction.rpt",
+      "bytes": 5724,
+      "sha256": "ff7ec5519530c95a1c41223ad328f351291bd330112ea781f2f901c1bca37c29"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_grade.txt",
+      "bytes": 210,
+      "sha256": "ea5de95bc0ac0651d2b41deeefd4d61ac5d2a91beeed6a5d33fb8dac965ab492"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_timing.rpt",
+      "bytes": 1318108,
+      "sha256": "c315bc0d2c0ef4e750d86bc77690efc719bcec9e2f1ffe0746c3285ed8f8e96b"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/bitstream.log",
+      "bytes": 44812,
+      "sha256": "4cbb9881214ea5d461c5dd96f87a81db70af42ea303ee79a1959dd6fc0f40961"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/finish.tcl",
+      "bytes": 1203,
+      "sha256": "6265091ba40d76c6cb363abc6865a7aecd5ad30d8ea7a9eb99a52739e75169f3"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/manifest-repeat.json",
+      "bytes": 570,
+      "sha256": "482d5087b6efb1687885c47fb51dcacc7473b795447abce65504a009fef092dc"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/bios/bios.bin",
+      "bytes": 53116,
+      "sha256": "a5f8aad66e6a866046c858b799322c6b05abce127e8bd7c074fed9d3b80f554c"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/bios/bios.elf",
+      "bytes": 510532,
+      "sha256": "88a4d5ae8c08cf3973e952a57aeb3430e1c83bfe5dd107e4ec2bd66a66e208c3"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/include/generated/soc.h",
+      "bytes": 11949,
+      "sha256": "8cd719d023b3e493f475bcb1ee3ed5dc560d3edc0d1bf8e317ea78ae649e7ca9"
+    }
+  ],
+  "scope": "Offline complete-image acceptance; no hardware setup, access, flashing or bench validation",
+  "manifest_schema_note": "The repository bare-metal layout generator emits complete:false at sw/litex/layout_from_soch.py:156. Acceptance uses deploy.sh do_check_images, which materializes and validates the complete bitstream+AEM target set; this field is not its verdict."
+}

@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-06",
+  "heading": "Re-baseline of 2026-10-06, processor 2ad2f845",
+  "anchor": "re-baseline-of-2026-10-06-processor-2ad2f845",
+  "figures": {
+    "LUT": 49888,
+    "FF": 54267,
+    "SLICE": 15805,
+    "BRAM_TILE": 87.5,
+    "RAMB36": 74,
+    "RAMB18": 27,
+    "DSP": 14,
+    "WNS_ns": 0.101,
+    "WHS_ns": 0.031,
+    "CARRY4": 3385
+  },
+  "wrapper": {
+    "LUT": 23094,
+    "FF": 18784,
+    "RAMB36": 16,
+    "RAMB18": 3,
+    "DSP": 8,
+    "CARRY4": 1443
+  },
+  "standalone": {
+    "LUT": 23179,
+    "FF": 19779,
+    "BRAM_TILE": 17.5,
+    "RAMB36": 16,
+    "RAMB18": 3,
+    "DSP": 8,
+    "WNS_ns": -3.562,
+    "WHS_ns": 0.159,
+    "CARRY4": 1494
+  },
+  "datapath": {
+    "LUT": 41356,
+    "logic_LUT": 38092,
+    "LUTRAM": 3264,
+    "SRL": 0,
+    "FF": 43038,
+    "RAMB36": 25,
+    "RAMB18": 12,
+    "DSP": 14
+  },
+  "source": "VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]/C",
+  "destination": "VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/logic_linkEnable_1_reg/D",
+  "logic_levels": 21,
+  "corners": {
+    "Slow_0C": {
+      "WNS_ns": 0.101,
+      "WHS_ns": 0.085
+    },
+    "Slow_85C": {
+      "WNS_ns": 0.101,
+      "WHS_ns": 0.085
+    },
+    "Fast_0C": {
+      "WNS_ns": 1.492,
+      "WHS_ns": 0.031
+    },
+    "Fast_85C": {
+      "WNS_ns": 1.492,
+      "WHS_ns": 0.031
+    }
+  }
+}

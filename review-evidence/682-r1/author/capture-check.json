@@ -1,0 +1,78 @@
+{
+  "head": "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+  "command": [
+    "python3",
+    "scripts/check_nvm_capture.py"
+  ],
+  "rc": 0,
+  "firmware_source_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+  "recorded_firmware_source_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+  "firmware_source_unchanged": true,
+  "measurement_receipt_sha256": "ed871bdd09bde7ebde1ae021cd647e3cad354d3f8682c5b7308cda91e4cbd72a",
+  "measurement_receipt_bytes": 36969,
+  "maxima": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "cpu_hz": 50000000,
+      "maximum_ms": 3.96728,
+      "margin": 12.351031437155935
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "cpu_hz": 50000000,
+      "maximum_ms": 13.86484,
+      "margin": 3.5341193984207537
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "cpu_hz": 100000000,
+      "maximum_ms": 10.42973,
+      "margin": 4.698108196472967
+    }
+  ],
+  "measurement_provenance": {
+    "date": "2026-10-02",
+    "base": "a2f1734283f367d0d522c8c7cda09b79aff60d06",
+    "compiler": "riscv32-linux-gcc 14.3.0, RV32I, ILP32, -Os",
+    "soc_component_revisions": {
+      "litex": "a1e1c3652ec2f1346ebaea7663d2867f393ae2c4",
+      "migen": "4c2ae8dfeea37f235b52acb8166f12acaaae4f7c",
+      "litedram": "f9b75e0347fc43267d083f7ff5965170fe8f9a58",
+      "liteeth": "276c9e37fb4d92a5c0f30d39a51c20f42a59cf93",
+      "litespi": "02d5a209bc0010d33ddb506ba18e736636d4109a",
+      "litex-boards": "9ac53c7a11f2571ba2c9f165f468ae021a4f9bda",
+      "pythondata-cpu-vexiiriscv": "15cfab529a17c473d0fc75edf3f409eb374cef35"
+    },
+    "cpu_generator_revision": "235753e24f2d960e49a0852205bae1400bf22c19",
+    "cpu_generator_note": "Existing product patches retained; generated netlist hashes below identify their output.",
+    "simulator": "Verilator 5.052",
+    "network": "disabled; offline dependency resolution",
+    "timer": "100 MHz system downcounter, before ARM through successful ATTEST",
+    "product_firmware_sha256": "a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f40e67efcc84f0eb3",
+    "assignment": "https://github.com/kebag-logic/milan-fpga/issues/559#issuecomment-5831090112",
+    "python_hash_seed": "0",
+    "phase": "CPU rising edges aligned with sys; audio starts at half-period",
+    "hold_floor_ms": 49,
+    "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946975634",
+    "processor_pins": {
+      "protocol-processor": "b2db3a970cedbbff2f8ba813acb96122c442bc58",
+      "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+      "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    },
+    "tree": "c28595df81fb96ae7cb554216c76a23917105169",
+    "reproduction_environment": {
+      "LITEX_ENV_CC_TRIPLE": "SDK compiler prefix, without -gcc; compiler recorded above",
+      "PYTHONHASHSEED": "0",
+      "COURSIER_MODE": "offline",
+      "SBT_OPTS": "-Dsbt.offline=true",
+      "PATH": "product environment first; host utilities before SDK utilities",
+      "PRODUCT_PYTHON": "absolute path to the product environment interpreter",
+      "PYTHON": "same interpreter as PRODUCT_PYTHON, used for BIOS post-processing",
+      "SCRATCH": "external build directory, outside the repository; one per arm"
+    },
+    "provenance": "All six arms measure the unchanged #70 lane 2 firmware for the census #629 grows (the CLOCK_SOURCE NAME records of the AAF listeners), at processor pin b2db3a97. The census each row must copy is derived from the generated shape through nvm_shape.closed_record_census. The six arms ran in parallel from the tree of a2f17342. A first run at 62822ca6, before the meter's port split and the TX-trace fix, reproduced every capture's cycle count in the five arms it graded; its 8x8 OFF arm could not be graded, a TX trace having split a CAPTURE row, which a2f17342 fixes. The capture SoC has no Milan MAC MDIO CSR, so the PHY path is compiled out. ARM through ATTEST contains no heartbeat or PHY call.",
+    "bios_dispatch_patch_sha256": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f"
+  },
+  "log_sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+  "log_bytes": 324
+}

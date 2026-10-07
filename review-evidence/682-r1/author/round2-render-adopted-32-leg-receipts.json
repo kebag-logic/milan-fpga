@@ -1,0 +1,907 @@
+[
+  {
+    "index": 0,
+    "caller": "run_positive_controls",
+    "name": null,
+    "leg": "multi",
+    "mode": null,
+    "required_failure": null,
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8rm/Vmilan_dp_tdm8rm",
+    "rc": 0,
+    "stdout_file": "00.log",
+    "bytes": 2756,
+    "sha256": "3f87ef97003d15be624108e172d20b8b1a4ad7880de92130bbdddd98b1b5b0dc",
+    "counts": [
+      "== tdm8_render: checks: 71   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 1,
+    "caller": "run_positive_controls",
+    "name": null,
+    "leg": "ship",
+    "mode": "--crf-only",
+    "required_failure": null,
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 0,
+    "stdout_file": "01.log",
+    "bytes": 2285,
+    "sha256": "b427832894b10f9884766fcae872413fcb714c8d27da8fca06b17072d5645071",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 2,
+    "caller": "run_positive_controls",
+    "name": null,
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "02.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "index": 3,
+    "caller": "run_positive_controls",
+    "name": null,
+    "leg": "ship",
+    "mode": "--law-only",
+    "required_failure": null,
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 0,
+    "stdout_file": "03.log",
+    "bytes": 11132,
+    "sha256": "9a6d1c5a50bd929d9964fe00a8c4edd3cb5e681f5e83fb11f3dad3f553799b7c",
+    "counts": [
+      "== tdm8_render: checks: 111   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 4,
+    "caller": "run_positive_controls",
+    "name": null,
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": null,
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 0,
+    "stdout_file": "04.log",
+    "bytes": 1726,
+    "sha256": "c20efcdd95d611f95c59c7fe66a723e9b482057559a95c24981d664647ad8e68",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 5,
+    "caller": "run_leg_defects",
+    "name": "stopped render clock",
+    "leg": "ship",
+    "mode": "--defect-stopped-clock",
+    "required_failure": "T5 FRAMING: the window decoded whole frames",
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "05.log",
+    "bytes": 781,
+    "sha256": "dfb711712f8e48875a38922c7f4b495436f2b7508ab81e6f9c78098f4683e72d",
+    "counts": [
+      "== tdm8_render: checks: 28   failures: 5 =="
+    ],
+    "failures": [
+      "  [FAIL] T6 PREFILL: the window opened at prefill decoded whole frames",
+      "  [FAIL] T6 PREFILL: the lane rendered digital silence before its first eligible event, and then rendered one",
+      "  [FAIL] T5 FRAMING: consecutive fsync rises are exactly 256 bclk rises apart",
+      "  [FAIL] T5 FRAMING: the window decoded whole frames",
+      "  [FAIL] T5 NEGATIVE CONTROL: the late-attribution decoder framed and decoded whole frames"
+    ]
+  },
+  {
+    "index": 6,
+    "caller": "run_leg_defects",
+    "name": "a single changed sample",
+    "leg": "ship",
+    "mode": "--defect-one-sample",
+    "required_failure": "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record",
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "06.log",
+    "bytes": 2417,
+    "sha256": "a85ab4cf6d967d2ea9f4c553895d8573b8ca72a2b93eb868c8299ba530ee2d5c",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 5 =="
+    ],
+    "failures": [
+      "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=838 exp=839",
+      "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=1 exp=0",
+      "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=1 exp=0",
+      "  [FAIL] T6 ORDER: every skipped event is covered by a counted skip got=1 exp=0",
+      "  [FAIL] T7 LATENCY: every decoded frame inside the window paired with the commit that produced it got=790 exp=0"
+    ]
+  },
+  {
+    "index": 7,
+    "caller": "run_leg_defects",
+    "name": "the clock-source selection names INTERNAL",
+    "leg": "ship",
+    "mode": "--defect-internal-select",
+    "required_failure": "T30 CRF: the media plane's one registered resolve reads CRF",
+    "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "07.log",
+    "bytes": 3009,
+    "sha256": "cfa3eaa9d29f8d04dfa0dcc99fa352a062edb1fbf6ff52325a69b6b96f66687c",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 8 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: GET_CLOCK_SOURCE reads the CRF index back got=0 exp=1",
+      "  [FAIL] T30 CRF: the media plane's one registered resolve reads CRF got=0 exp=1",
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T31 DESELECT: the deselect fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T31 DESELECT: ...and the stage executed exactly one recentre got=0 exp=1"
+    ]
+  },
+  {
+    "index": 8,
+    "caller": "run_clean_controls",
+    "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_arrival_skew_one_extra_cycle_on_the_acknowledgement_level/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "08.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "index": 9,
+    "caller": "run_clean_controls",
+    "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_arrival_skew_one_extra_cycle_on_the_serial_reset_level/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "09.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "index": 10,
+    "caller": "run_clean_controls",
+    "name": "modelled bit-arrival skew, gray retained",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": null,
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_bit_arrival_skew_gray_retained/Vmilan_dp_tdm8r",
+    "rc": 0,
+    "stdout_file": "10.log",
+    "bytes": 1726,
+    "sha256": "c20efcdd95d611f95c59c7fe66a723e9b482057559a95c24981d664647ad8e68",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 11,
+    "caller": "run_mutations",
+    "name": "wrong physical base: the identity projection",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T4 PROJECTION: physical keys 2..9 hold the routed sources",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_wrong_physical_base_the_identity_projection/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "11.log",
+    "bytes": 3816,
+    "sha256": "3a4eb3df4ca2fea6bf5dd200fc13f1fab9cfeb45f091cbb324f9789d39fb870d",
+    "counts": [
+      "== tdm8_render: checks: 52   failures: 17 =="
+    ],
+    "failures": [
+      "  [FAIL] T1 POWER-ON: physical keys 2..9 hold stream 0 channel c got=0 exp=8",
+      "  [FAIL] T1 POWER-ON: nothing on the pruned DAC lane keys got=0 exp=2",
+      "  [FAIL] T4 PROJECTION: physical keys 2..9 hold the routed sources got=0 exp=8",
+      "  [FAIL] T4 PROJECTION: nothing reached the pruned DAC lane keys got=0 exp=2",
+      "  [FAIL] T9: the render RAM is bit-identical after both refusals got=0 exp=8",
+      "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+      "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+      "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+      "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: the eight slots carry one media event's identity got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: the eight slots are distinct samples got=839 exp=0",
+      "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+      "  [FAIL] T8 REMOVE: their physical keys read disabled got=134 exp=0",
+      "  [FAIL] T8 REMOVE: no removal aliased the pruned DAC lane got=0 exp=2",
+      "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+      "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+    ]
+  },
+  {
+    "index": 12,
+    "caller": "run_mutations",
+    "name": "wrong slot order: the bank walk runs backwards",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_wrong_slot_order_the_bank_walk_runs_backwards/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "12.log",
+    "bytes": 2742,
+    "sha256": "bfb1953d6dfaf0253d127b9619475b2219c6d15e74d2fd590b24a1c2350383de",
+    "counts": [
+      "== tdm8_render: checks: 52   failures: 8 =="
+    ],
+    "failures": [
+      "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+      "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+      "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+      "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+      "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+      "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+      "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+    ]
+  },
+  {
+    "index": 13,
+    "caller": "run_mutations",
+    "name": "shared identity corruption: one pdu bit of EVERY channel",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_shared_identity_corruption_one_pdu_bit_of_EVERY_channel/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "13.log",
+    "bytes": 2797,
+    "sha256": "218f8951a48a8dcf387ea87fbcb253d92497727234e16947301876b619506bd3",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 2 =="
+    ],
+    "failures": [
+      "  [FAIL] T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips got=100 exp=4",
+      "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=807 exp=0"
+    ]
+  },
+  {
+    "index": 14,
+    "caller": "run_mutations",
+    "name": "one-bit phase slip: the bit for position p, not p + 1",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T6 PADDING: the eight pad bits of every slot are zero",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_one_bit_phase_slip_the_bit_for_position_p_not_p_+_1/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "14.log",
+    "bytes": 2896,
+    "sha256": "80944be6ef9011c295b0ff5990b8360afc60e630f7804f566033a18267cd2f5e",
+    "counts": [
+      "== tdm8_render: checks: 52   failures: 10 =="
+    ],
+    "failures": [
+      "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+      "  [FAIL] T5 NEGATIVE CONTROL: it reproduces NO injected media event got=839 exp=0",
+      "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+      "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+      "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+      "  [FAIL] T6 PADDING: the eight pad bits of every slot are zero got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+      "  [FAIL] T6 STRUCTURAL: the eight slots are distinct samples got=3356 exp=0",
+      "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+      "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+    ]
+  },
+  {
+    "index": 15,
+    "caller": "run_mutations",
+    "name": "uncounted repeat: the underrun counter never increments",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T6 ORDER: every repeat is a counted underrun",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_uncounted_repeat_the_underrun_counter_never_increments/Vmilan_dp_tdm8r",
+    "rc": 0,
+    "stdout_file": "15.log",
+    "bytes": 1726,
+    "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 0 =="
+    ],
+    "failures": []
+  },
+  {
+    "index": 16,
+    "caller": "run_mutations",
+    "name": "drop NEWEST: the prefetch keeps the have-next guard",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T14 SKIP LAW: the forced surplus was COUNTED as skips",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_drop_NEWEST_the_prefetch_keeps_the_have_next_guard/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "16.log",
+    "bytes": 1956,
+    "sha256": "3defe9529da3887cb32c8b2bff2dfd1e27d310221a75b29836cac5ba55c8a544",
+    "counts": [
+      "== tdm8_render: checks: 57   failures: 3 =="
+    ],
+    "failures": [
+      "  [FAIL] T14 SKIP LAW: the forced surplus was COUNTED as skips",
+      "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+      "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+    ]
+  },
+  {
+    "index": 17,
+    "caller": "run_mutations",
+    "name": "the epoch request does not RETAIN across a reset",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T18 RESET: the reset epoch reopened EXACTLY once",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_epoch_request_does_not_RETAIN_across_a_reset/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "17.log",
+    "bytes": 4424,
+    "sha256": "c9f2104e4b2dc49a07a4079e20d4474f3dac45d42f7072c4b41bdff4f9bd262d",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 11 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T18 RESET: the reset epoch reopened EXACTLY once got=1 exp=2",
+      "  [FAIL] T18 RESET: the FIFO write side admitted nothing before the round trip completed got=6 exp=0",
+      "  [FAIL] T21 COMMIT AROUND RELEASE: the window really closed on a counted reopening, so it is a window",
+      "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=16 exp=0",
+      "  [FAIL] T19 RESET IN FLIGHT: the two nested resets reopened the epoch EXACTLY once got=1 exp=2",
+      "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=21 exp=0",
+      "  [FAIL] T19 RESET IN FLIGHT: and none was admitted into a full CDC either got=8 exp=0"
+    ]
+  },
+  {
+    "index": 18,
+    "caller": "run_mutations",
+    "name": "ungated commit: a closed epoch admits frames anyway",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_ungated_commit_a_closed_epoch_admits_frames_anyway/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "18.log",
+    "bytes": 4242,
+    "sha256": "3963070bca0d28e49b63b7ddaa8a461373a28040af5f3ceb629bd60117d40dd1",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 9 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=12 exp=0",
+      "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=12 exp=0",
+      "  [FAIL] T23 BIND LOSS: the adapter commit gate is closed while the epoch is got=1 exp=0",
+      "  [FAIL] T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot got=72 exp=0",
+      "  [FAIL] T25 DOUBLE EVENT: ...and it closed the adapter's commit gate got=1 exp=0"
+    ]
+  },
+  {
+    "index": 19,
+    "caller": "run_mutations",
+    "name": "the serial reset rebuilt from two reconverged levels, with arrival skew",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T18 RESET: the reset epoch reopened EXACTLY once",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_serial_reset_rebuilt_from_two_reconverged_levels_with_arrival_skew/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "19.log",
+    "bytes": 8054,
+    "sha256": "bc764eb1f6fc9ddd6e74d4f3b9c146e06d8ec9850974edfae65dcac6e259a887",
+    "counts": [
+      "== tdm8_render: checks: 120   failures: 25 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: every decoded frame under CRF is a complete 24-bit match against the injection record got=1799 exp=0",
+      "  [FAIL] T30 CRF: each slot's channel field is its routed source under CRF got=1799 exp=0",
+      "  [FAIL] T30 CRF: the eight slots are distinct samples under CRF got=50372 exp=0",
+      "  [FAIL] T30 CRF: the aligned window decoded whole frames",
+      "  [FAIL] T30 CRF ALIGNED: a clock-source change is not a bind fall, so no render epoch closed got=1800 exp=0",
+      "  [FAIL] T30 INTERNAL (A2-a): the commit-to-pin interval does NOT walk at the free-running divider plan's rate",
+      "  [FAIL] T30 CRF ALIGNED: the walk STOPPED once the grids were held together, which is what the aligner buys the lane",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T31 back at INTERNAL (A2-a): the walk stays stopped (under 5 ppm), the grids held together at INTERNAL too",
+      "  [FAIL] T31 DESELECT: the lane is still serializing the record after the deselect",
+      "  [FAIL] T31 DESELECT: identity holds across the second live transition got=239 exp=0",
+      "  [FAIL] T31 DESELECT: no render epoch closed across either transition got=13781 exp=341",
+      "  [FAIL] T18 RESET: the reset epoch reopened EXACTLY once got=14267 exp=14263",
+      "  [FAIL] T19 RESET IN FLIGHT: the two nested resets reopened the epoch EXACTLY once got=15 exp=6",
+      "  [FAIL] T18 POWER-ON: with no map command since the reset, the lane renders injected events",
+      "  [FAIL] T18 RECOVERY: complete fresh frames decode after the epoch reopens",
+      "  [FAIL] T18 RECOVERY: the rebind and remap counted no further reopening got=1291 exp=15",
+      "  [FAIL] T23 BIND LOSS: the one bind fall reopened the epoch EXACTLY once got=1814 exp=1772",
+      "  [FAIL] T27 FLUSH BOUNDARY: the window holds audio and then digital silence, so there IS a last non-silent frame",
+      "  [FAIL] T23 REBIND: the first nonzero frame after the rebind is a post-rebind injected event routed by the NEW map",
+      "  [FAIL] T28 EPOCHS: the loss and its recovery counted EXACTLY one reopening between them got=2426 exp=1772",
+      "  [FAIL] T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one got=2440 exp=2428"
+    ]
+  },
+  {
+    "index": 20,
+    "caller": "run_mutations",
+    "name": "the epoch request races the acknowledgement instead of waiting",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_epoch_request_races_the_acknowledgement_instead_of_waiting/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "20.log",
+    "bytes": 3858,
+    "sha256": "aa1ef29001e8e1c3763956a6ded60f58f17a9b448bc0192db21d2a9999ab1fbb",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 5 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one got=4 exp=5"
+    ]
+  },
+  {
+    "index": 21,
+    "caller": "run_mutations",
+    "name": "the epoch gate reaches the FIFO but not the adapter",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_epoch_gate_reaches_the_FIFO_but_not_the_adapter/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "21.log",
+    "bytes": 4137,
+    "sha256": "34096b6ee81b5bc83ae9ae3faf50e978cc207dad6466580848fdbb9d8c2c4c0b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 8 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=12 exp=0",
+      "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=12 exp=0",
+      "  [FAIL] T23 BIND LOSS: the adapter commit gate is closed while the epoch is got=1 exp=0",
+      "  [FAIL] T25 DOUBLE EVENT: ...and it closed the adapter's commit gate got=1 exp=0"
+    ]
+  },
+  {
+    "index": 22,
+    "caller": "run_mutations",
+    "name": "the graceful flush tears the frame in flight",
+    "leg": "ship",
+    "mode": "--epoch-only",
+    "required_failure": "T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_graceful_flush_tears_the_frame_in_flight/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "22.log",
+    "bytes": 3980,
+    "sha256": "031aa763293dc47b69bb50ec2c9b671c928ebdd186026810bdd1e030c670dd55",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 6 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+      "  [FAIL] T27 FLUSH BOUNDARY: the last frame before digital silence is a COMPLETE frame - no routed slot was zeroed by the flush got=5 exp=0",
+      "  [FAIL] T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity"
+    ]
+  },
+  {
+    "index": 23,
+    "caller": "run_mutations",
+    "name": "the preserved prefill snap keeps a different fill",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_preserved_prefill_snap_keeps_a_different_fill/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "23.log",
+    "bytes": 1877,
+    "sha256": "6acda5e45d5aae3b73305cc7179cd1cf2dd114f986b11920f43911e7893f7ab3",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 1 =="
+    ],
+    "failures": [
+      "  [FAIL] T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips got=3 exp=4"
+    ]
+  },
+  {
+    "index": 24,
+    "caller": "run_mutations",
+    "name": "modelled bit-arrival skew, raw binary transport",
+    "leg": "ship",
+    "mode": "--serial-only",
+    "required_failure": "T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_bit_arrival_skew_raw_binary_transport/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "24.log",
+    "bytes": 1909,
+    "sha256": "c03fcb2c436242b7d9c1bef9c935ba95787cfd111f994aad5039457bbc1e8e68",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 2 =="
+    ],
+    "failures": [
+      "  [FAIL] T28 COUNTERS: no sampled frame count went backwards got=1560503 exp=0",
+      "  [FAIL] T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered got=69 exp=0"
+    ]
+  },
+  {
+    "index": 25,
+    "caller": "run_mutations",
+    "name": "the clock-source trigger dropped from the recentre set",
+    "leg": "ship",
+    "mode": "--crf-only",
+    "required_failure": "T30 CRF: ...as exactly one render recentre pulse",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_clock_source_trigger_dropped_from_the_recentre_set/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "25.log",
+    "bytes": 2514,
+    "sha256": "4932878b22ee4505f06716ae409a29f13a6c348949e83f269715806a893bcc73",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 3 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T31 DESELECT: ...and the stage executed exactly one recentre got=0 exp=1"
+    ]
+  },
+  {
+    "index": 26,
+    "caller": "run_mutations",
+    "name": "A2-a removed: the aligner is not engaged at INTERNAL",
+    "leg": "ship",
+    "mode": "--law-only",
+    "required_failure": [
+      "T30 INTERNAL LAW +0: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +130: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +260: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +391: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +521: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +651: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +781: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +911: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +927: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1042: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1156: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1172: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1302: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1432: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1562: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1693: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1823: the aligner held its settled report through the phase",
+      "T30 INTERNAL LAW +1953: the aligner held its settled report through the phase"
+    ],
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_A2_a_removed_the_aligner_is_not_engaged_at_INTERNAL/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "26.log",
+    "bytes": 12877,
+    "sha256": "8b626db374dcad7e42cb520a1fb3ecad27804f6e1d6e07937c4b59a65e5dde68",
+    "counts": [
+      "== tdm8_render: checks: 111   failures: 19 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 INTERNAL LAW: the aligner reported settled inside the declared 32768-tick ceiling, counted from this wait's start",
+      "  [FAIL] T30 INTERNAL LAW +0: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +130: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +260: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +391: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +521: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +651: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +781: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +911: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +927: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1042: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1156: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1172: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1302: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1432: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1562: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1693: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1823: the aligner held its settled report through the phase",
+      "  [FAIL] T30 INTERNAL LAW +1953: the aligner held its settled report through the phase"
+    ]
+  },
+  {
+    "index": 27,
+    "caller": "run_mutations",
+    "name": "the render setpoint one event low",
+    "leg": "ship",
+    "mode": "--law-only",
+    "required_failure": [
+      "T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end"
+    ],
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_render_setpoint_one_event_low/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "27.log",
+    "bytes": 15161,
+    "sha256": "29b2bbaf276a42d396fc86e1c6bfd9e9ffe62526cda3905f93cc8208db91a027",
+    "counts": [
+      "== tdm8_render: checks: 111   failures: 36 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end got=0 exp=124"
+    ]
+  },
+  {
+    "index": 28,
+    "caller": "run_mutations",
+    "name": "the render setpoint one event high",
+    "leg": "ship",
+    "mode": "--law-only",
+    "required_failure": [
+      "T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events",
+      "T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end",
+      "T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end"
+    ],
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_render_setpoint_one_event_high/Vmilan_dp_tdm8r",
+    "rc": 1,
+    "stdout_file": "28.log",
+    "bytes": 15161,
+    "sha256": "ab0c898abbd4357e2cd706633a5b3273e76a5218452b94f1f8261093be8807f4",
+    "counts": [
+      "== tdm8_render: checks: 111   failures: 36 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+      "  [FAIL] T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end got=0 exp=124"
+    ]
+  },
+  {
+    "index": 29,
+    "caller": "run_mutations",
+    "name": "the bind-fall mask is not stream qualified",
+    "leg": "multi",
+    "mode": null,
+    "required_failure": "M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_bind_fall_mask_is_not_stream_qualified/Vmilan_dp_tdm8rm",
+    "rc": 1,
+    "stdout_file": "29.log",
+    "bytes": 4002,
+    "sha256": "72080b81b543ca2cda80b0e2014a1a1e3e357023a17a71a0d2e6f7e069e14205",
+    "counts": [
+      "== tdm8_render: checks: 71   failures: 6 =="
+    ],
+    "failures": [
+      "  [FAIL] M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle got=1752 exp=0",
+      "  [FAIL] M3 UNRELATED LOSS: no render epoch closed got=2 exp=1",
+      "  [FAIL] M3 UNRELATED LOSS: not one decoded frame fell to digital silence got=1 exp=0",
+      "  [FAIL] M3 UNRELATED LOSS: the lane kept rendering the record",
+      "  [FAIL] M3 UNRELATED LOSS: identity holds through the unrelated loss got=359 exp=0",
+      "  [FAIL] M3 UNRELATED LOSS: ...and so does the per-slot structure got=1 exp=0"
+    ]
+  },
+  {
+    "index": 30,
+    "caller": "run_mutations",
+    "name": "the lane's stream set ignores the mapping's stream field",
+    "leg": "multi",
+    "mode": null,
+    "required_failure": "M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_lanes_stream_set_ignores_the_mappings_stream_field/Vmilan_dp_tdm8rm",
+    "rc": 1,
+    "stdout_file": "30.log",
+    "bytes": 3090,
+    "sha256": "43a1b1b67df2198be8e2f5be033c493bd530c3c1a24a6848806bf1ac7d952d93",
+    "counts": [
+      "== tdm8_render: checks: 71   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] M4 SECOND STREAM: the lane's stream mask now names both streams got=1 exp=3",
+      "  [FAIL] M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did",
+      "  [FAIL] M5 RENDERED LOSS: the lane reached digital silence",
+      "  [FAIL] M5 REOPEN: the one rendered-stream loss reopened the epoch EXACTLY once got=1 exp=2"
+    ]
+  },
+  {
+    "index": 31,
+    "caller": "run_mutations",
+    "name": "the CSR protocol-store mirror gated on the physical projection",
+    "leg": "multi",
+    "mode": null,
+    "required_failure": "M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP",
+    "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_the_CSR_protocol_store_mirror_gated_on_the_physical_projection/Vmilan_dp_tdm8rm",
+    "rc": 1,
+    "stdout_file": "31.log",
+    "bytes": 2895,
+    "sha256": "3998284b409b7915b69e999d33b8b67f17582952647386b0f6301a350985789b",
+    "counts": [
+      "== tdm8_render: checks: 71   failures: 1 =="
+    ],
+    "failures": [
+      "  [FAIL] M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP got=0 exp=1"
+    ]
+  }
+]

@@ -1,0 +1,557 @@
+{
+  "authority": "https://github.com/kebag-logic/milan-fpga/issues/682#issuecomment-6028334443",
+  "acceptance": "unchanged from dev; #657",
+  "result": "PASS",
+  "records": {
+    "adopted": {
+      "context": {
+        "label": "adopted",
+        "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+        "processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+        "capture_source_sha256": "69452e82d035812a5916a4854229bc017a3cfbf465ce7698b677b8e65f44cf5b",
+        "parent_index_tree": "e47721492d929aafbcc009b6110ee0421e58c428",
+        "changed": [],
+        "difference_bytes": 0,
+        "difference_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "header_sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+        "make": "GNU Make 4.3",
+        "command": "make -C tb/verilator/milan_dp_render tdm8render-mutants"
+      },
+      "rc": 2,
+      "summary": "32 checks: 28 PASS, 4 FAIL",
+      "cases": [
+        "[PASS] the unmutated gateware still passes the render lane leg (multi whole)",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)",
+        "[FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --law-only)",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)",
+        "[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks \"T5 FRAMING: the window decoded whole frames\"",
+        "[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks \"T30 CRF: the media plane's one registered resolve reads CRF\"",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[PASS] clean control still passes (ship --serial-only): modelled bit-arrival skew, gray retained",
+        "[PASS] mutant caught (ship --serial-only): wrong physical base: the identity projection - breaks \"T4 PROJECTION: physical keys 2..9 hold the routed sources\"",
+        "[PASS] mutant caught (ship --serial-only): wrong slot order: the bank walk runs backwards - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] mutant caught (ship --serial-only): shared identity corruption: one pdu bit of EVERY channel - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] mutant caught (ship --serial-only): one-bit phase slip: the bit for position p, not p + 1 - breaks \"T6 PADDING: the eight pad bits of every slot are zero\"",
+        "[FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove \"T6 ORDER: every repeat is a counted underrun\".",
+        "[PASS] mutant caught (ship --serial-only): drop NEWEST: the prefetch keeps the have-next guard - breaks \"T14 SKIP LAW: the forced surplus was COUNTED as skips\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch request does not RETAIN across a reset - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\"",
+        "[PASS] mutant caught (ship --epoch-only): ungated commit: a closed epoch admits frames anyway - breaks \"T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot\"",
+        "[PASS] mutant caught (ship --epoch-only): the serial reset rebuilt from two reconverged levels, with arrival skew - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch request races the acknowledgement instead of waiting - breaks \"T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch gate reaches the FIFO but not the adapter - breaks \"T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening\"",
+        "[PASS] mutant caught (ship --epoch-only): the graceful flush tears the frame in flight - breaks \"T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity\"",
+        "[PASS] mutant caught (ship --serial-only): the preserved prefill snap keeps a different fill - breaks \"T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips\"",
+        "[PASS] mutant caught (ship --serial-only): modelled bit-arrival skew, raw binary transport - breaks \"T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered\"",
+        "[PASS] mutant caught (ship --crf-only): the clock-source trigger dropped from the recentre set - breaks \"T30 CRF: ...as exactly one render recentre pulse\"",
+        "[PASS] mutant caught (ship --law-only): A2-a removed: the aligner is not engaged at INTERNAL - breaks \"T30 INTERNAL LAW +0: the aligner held its settled report through the phase\" and 17 more",
+        "[PASS] mutant caught (ship --law-only): the render setpoint one event low - breaks \"T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events\" and 35 more",
+        "[PASS] mutant caught (ship --law-only): the render setpoint one event high - breaks \"T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events\" and 35 more",
+        "[PASS] mutant caught (multi whole): the bind-fall mask is not stream qualified - breaks \"M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle\"",
+        "[PASS] mutant caught (multi whole): the lane's stream set ignores the mapping's stream field - breaks \"M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did\"",
+        "[PASS] mutant caught (multi whole): the CSR protocol-store mirror gated on the physical projection - breaks \"M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP\""
+      ],
+      "failures": [
+        "[FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove \"T6 ORDER: every repeat is a counted underrun\"."
+      ],
+      "details": [
+        {
+          "name": "unmutated epoch",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/obj_0"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/run-0.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/obj_1",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/KL_tdm_render_master_1.sv"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/run-1.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/obj_2",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/KL_tdm_render_master_2.sv"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/run-2.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "uncounted repeat: the underrun counter never increments",
+          "mode": "--serial-only",
+          "required_failure": "T6 ORDER: every repeat is a counted underrun",
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/obj_3",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/KL_tdm_render_master_3.sv"
+          ],
+          "build_rc": 0,
+          "rc": 0,
+          "verdict": "pass",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/adopted/cases/run-3.log",
+          "bytes": 1726,
+          "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+          "counts": [
+            "== tdm8_render: checks: 58   failures: 0 =="
+          ],
+          "failures": []
+        }
+      ],
+      "actual_campaign_cases": [
+        {
+          "index": 2,
+          "caller": "run_positive_controls",
+          "name": null,
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "02.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 8,
+          "caller": "run_clean_controls",
+          "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_arrival_skew_one_extra_cycle_on_the_acknowledgement_level/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "08.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 9,
+          "caller": "run_clean_controls",
+          "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_modelled_arrival_skew_one_extra_cycle_on_the_serial_reset_level/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "09.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 15,
+          "caller": "run_mutations",
+          "name": "uncounted repeat: the underrun counter never increments",
+          "leg": "ship",
+          "mode": "--serial-only",
+          "required_failure": "T6 ORDER: every repeat is a counted underrun",
+          "executable": "/tmp/tdm8-render-mutants-979d0zmn/obj_uncounted_repeat_the_underrun_counter_never_increments/Vmilan_dp_tdm8r",
+          "rc": 0,
+          "stdout_file": "15.log",
+          "bytes": 1726,
+          "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+          "counts": [
+            "== tdm8_render: checks: 58   failures: 0 =="
+          ],
+          "failures": []
+        }
+      ],
+      "full_capture_count": 32,
+      "full_capture_bytes": 53181,
+      "full_capture_sha256": "bab22f5cad05528268efd343fbcf7e971e82f591f7347f0a6601121e1c4758e3",
+      "epoch_bytes": 3746,
+      "epoch_sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "full_log_bytes": 134918,
+      "full_log_sha256": "8d8fb709a0a811ec8a7c619fabcf1de9f2ef4a02733c2e1e87284eca5afc53a0"
+    },
+    "prior": {
+      "context": {
+        "label": "prior",
+        "head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+        "processor": "ead8036035affd53ef4b29979190f2f4f67084c0",
+        "capture_source_sha256": "69452e82d035812a5916a4854229bc017a3cfbf465ce7698b677b8e65f44cf5b",
+        "parent_index_tree": "55eaf2478515d3bc25b71ae5733ac3aea53ad8ef",
+        "changed": [
+          "protocol-processor",
+          "scripts/xvlog.budget",
+          "tb/verilator/milan_dp/sim_nxn.cpp"
+        ],
+        "difference_bytes": 1917,
+        "difference_sha256": "0871c0da9905ce89ff5b9850211b287cb5f56263ef9a16b2880144b76c7a21b3",
+        "header_sha256": "d10ce5559b108f54800b8432b672a0d33379721bf2a4edf0058e185484f3881d",
+        "make": "GNU Make 4.3",
+        "command": "make -C tb/verilator/milan_dp_render tdm8render-mutants"
+      },
+      "rc": 2,
+      "summary": "32 checks: 28 PASS, 4 FAIL",
+      "cases": [
+        "[PASS] the unmutated gateware still passes the render lane leg (multi whole)",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --crf-only)",
+        "[FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --law-only)",
+        "[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)",
+        "[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks \"T5 FRAMING: the window decoded whole frames\"",
+        "[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks \"T30 CRF: the media plane's one registered resolve reads CRF\"",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[PASS] clean control still passes (ship --serial-only): modelled bit-arrival skew, gray retained",
+        "[PASS] mutant caught (ship --serial-only): wrong physical base: the identity projection - breaks \"T4 PROJECTION: physical keys 2..9 hold the routed sources\"",
+        "[PASS] mutant caught (ship --serial-only): wrong slot order: the bank walk runs backwards - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] mutant caught (ship --serial-only): shared identity corruption: one pdu bit of EVERY channel - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\"",
+        "[PASS] mutant caught (ship --serial-only): one-bit phase slip: the bit for position p, not p + 1 - breaks \"T6 PADDING: the eight pad bits of every slot are zero\"",
+        "[FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove \"T6 ORDER: every repeat is a counted underrun\".",
+        "[PASS] mutant caught (ship --serial-only): drop NEWEST: the prefetch keeps the have-next guard - breaks \"T14 SKIP LAW: the forced surplus was COUNTED as skips\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch request does not RETAIN across a reset - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\"",
+        "[PASS] mutant caught (ship --epoch-only): ungated commit: a closed epoch admits frames anyway - breaks \"T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot\"",
+        "[PASS] mutant caught (ship --epoch-only): the serial reset rebuilt from two reconverged levels, with arrival skew - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch request races the acknowledgement instead of waiting - breaks \"T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one\"",
+        "[PASS] mutant caught (ship --epoch-only): the epoch gate reaches the FIFO but not the adapter - breaks \"T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening\"",
+        "[PASS] mutant caught (ship --epoch-only): the graceful flush tears the frame in flight - breaks \"T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity\"",
+        "[PASS] mutant caught (ship --serial-only): the preserved prefill snap keeps a different fill - breaks \"T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips\"",
+        "[PASS] mutant caught (ship --serial-only): modelled bit-arrival skew, raw binary transport - breaks \"T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered\"",
+        "[PASS] mutant caught (ship --crf-only): the clock-source trigger dropped from the recentre set - breaks \"T30 CRF: ...as exactly one render recentre pulse\"",
+        "[PASS] mutant caught (ship --law-only): A2-a removed: the aligner is not engaged at INTERNAL - breaks \"T30 INTERNAL LAW +0: the aligner held its settled report through the phase\" and 17 more",
+        "[PASS] mutant caught (ship --law-only): the render setpoint one event low - breaks \"T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events\" and 35 more",
+        "[PASS] mutant caught (ship --law-only): the render setpoint one event high - breaks \"T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events\" and 35 more",
+        "[PASS] mutant caught (multi whole): the bind-fall mask is not stream qualified - breaks \"M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle\"",
+        "[PASS] mutant caught (multi whole): the lane's stream set ignores the mapping's stream field - breaks \"M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did\"",
+        "[PASS] mutant caught (multi whole): the CSR protocol-store mirror gated on the physical projection - breaks \"M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP\""
+      ],
+      "failures": [
+        "[FAIL] the unmutated gateware does NOT pass (ship --epoch-only: caught) - every mutant result in that mode is meaningless",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the acknowledgement level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] clean control 'modelled arrival skew, one extra cycle on the serial-reset level' did not pass: caught. The modelled fault breaks the sound crossing too, so it discriminates nothing.",
+        "[FAIL] mutant SURVIVED: uncounted repeat: the underrun counter never increments. The leg does not prove \"T6 ORDER: every repeat is a counted underrun\"."
+      ],
+      "details": [
+        {
+          "name": "unmutated epoch",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_0"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-0.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_1",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_1.sv"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-1.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_2",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_2.sv"
+          ],
+          "build_rc": 0,
+          "rc": 1,
+          "verdict": "caught",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-2.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "name": "uncounted repeat: the underrun counter never increments",
+          "mode": "--serial-only",
+          "required_failure": "T6 ORDER: every repeat is a counted underrun",
+          "build_command": [
+            "make",
+            "--no-print-directory",
+            "-s",
+            "-j8",
+            "-C",
+            "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+            "tdm8render-build",
+            "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_3",
+            "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_3.sv"
+          ],
+          "build_rc": 0,
+          "rc": 0,
+          "verdict": "pass",
+          "campaign_case_pass": false,
+          "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-3.log",
+          "bytes": 1726,
+          "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+          "counts": [
+            "== tdm8_render: checks: 58   failures: 0 =="
+          ],
+          "failures": []
+        }
+      ],
+      "actual_campaign_cases": [
+        {
+          "index": 2,
+          "caller": "run_positive_controls",
+          "name": null,
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "$LANES/682-pp-pin3/tb/verilator/milan_dp_render/obj_tdm8r/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "02.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 8,
+          "caller": "run_clean_controls",
+          "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "/tmp/tdm8-render-mutants-gluo3ka4/obj_modelled_arrival_skew_one_extra_cycle_on_the_acknowledgement_level/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "08.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 9,
+          "caller": "run_clean_controls",
+          "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+          "leg": "ship",
+          "mode": "--epoch-only",
+          "required_failure": null,
+          "executable": "/tmp/tdm8-render-mutants-gluo3ka4/obj_modelled_arrival_skew_one_extra_cycle_on_the_serial_reset_level/Vmilan_dp_tdm8r",
+          "rc": 1,
+          "stdout_file": "09.log",
+          "bytes": 3746,
+          "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+          "counts": [
+            "== tdm8_render: checks: 127   failures: 4 =="
+          ],
+          "failures": [
+            "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+            "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+            "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+            "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+          ]
+        },
+        {
+          "index": 15,
+          "caller": "run_mutations",
+          "name": "uncounted repeat: the underrun counter never increments",
+          "leg": "ship",
+          "mode": "--serial-only",
+          "required_failure": "T6 ORDER: every repeat is a counted underrun",
+          "executable": "/tmp/tdm8-render-mutants-gluo3ka4/obj_uncounted_repeat_the_underrun_counter_never_increments/Vmilan_dp_tdm8r",
+          "rc": 0,
+          "stdout_file": "15.log",
+          "bytes": 1726,
+          "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+          "counts": [
+            "== tdm8_render: checks: 58   failures: 0 =="
+          ],
+          "failures": []
+        }
+      ],
+      "full_capture_count": 32,
+      "full_capture_bytes": 53181,
+      "full_capture_sha256": "47101fb442e9062660312c11d211be768dc7424c4621974b24befb9976acb001",
+      "epoch_bytes": 3746,
+      "epoch_sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "full_log_bytes": 141894,
+      "full_log_sha256": "327a984fb0bb8b7424d45de3d4be9e5ed5caf1286c80616ea01493d8f97baf3c"
+    }
+  }
+}

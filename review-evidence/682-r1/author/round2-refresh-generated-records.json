@@ -1,0 +1,61 @@
+{
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "records": [
+    {
+      "path": "scripts/port_docs.budget",
+      "bytes": 5242,
+      "committed_sha256": "077acf838755608b47eba84975137a5264ca856ce57e3132acc037d5d7cbb892",
+      "runs": [
+        {
+          "iteration": 1,
+          "command": [
+            "python3",
+            "scripts/check_port_contracts.py",
+            "--write-budget"
+          ],
+          "rc": 0,
+          "sha256": "077acf838755608b47eba84975137a5264ca856ce57e3132acc037d5d7cbb892"
+        },
+        {
+          "iteration": 2,
+          "command": [
+            "python3",
+            "scripts/check_port_contracts.py",
+            "--write-budget"
+          ],
+          "rc": 0,
+          "sha256": "077acf838755608b47eba84975137a5264ca856ce57e3132acc037d5d7cbb892"
+        }
+      ],
+      "identical": true
+    },
+    {
+      "path": "scripts/naming.budget",
+      "bytes": 8088,
+      "committed_sha256": "45688a406bc5ecc9054ca31d08983af5e4a61dd447ce0633b435fc0fff844ce3",
+      "runs": [
+        {
+          "iteration": 1,
+          "command": [
+            "python3",
+            "scripts/measure_naming.py",
+            "--write-budget"
+          ],
+          "rc": 0,
+          "sha256": "45688a406bc5ecc9054ca31d08983af5e4a61dd447ce0633b435fc0fff844ce3"
+        },
+        {
+          "iteration": 2,
+          "command": [
+            "python3",
+            "scripts/measure_naming.py",
+            "--write-budget"
+          ],
+          "rc": 0,
+          "sha256": "45688a406bc5ecc9054ca31d08983af5e4a61dd447ce0633b435fc0fff844ce3"
+        }
+      ],
+      "identical": true
+    }
+  ]
+}

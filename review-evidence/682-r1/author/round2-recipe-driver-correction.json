@@ -1,0 +1,6 @@
+{
+  "initial_rc": 1,
+  "reason": "The local receipt driver expected zero from main(), whose documented return is None. The command-line generator had not failed.",
+  "original_preparation_hashes_unchanged": true,
+  "correction": "Invoke the repository command-line generator and require process rc 0; retain all byte-equality assertions."
+}

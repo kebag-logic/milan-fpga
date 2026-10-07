@@ -1,0 +1,200 @@
+{
+  "head": "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+  "cases": [
+    {
+      "name": "unmutated epoch",
+      "mode": "--epoch-only",
+      "required_failure": null,
+      "build_command": [
+        "make",
+        "-s",
+        "-C",
+        "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+        "tdm8render-build",
+        "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/render-recheck/obj_0"
+      ],
+      "build_rc": 0,
+      "rc": 1,
+      "verdict": "caught",
+      "campaign_case_pass": false,
+      "log": "$VALIDATION_STORAGE/682-a554/render-recheck/run-0.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "summary_lines": [
+        "== tdm8_render: checks: 127   failures: 4 ==",
+        "RESULT: FAIL"
+      ]
+    },
+    {
+      "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+      "mode": "--epoch-only",
+      "required_failure": null,
+      "build_command": [
+        "make",
+        "-s",
+        "-C",
+        "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+        "tdm8render-build",
+        "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/render-recheck/obj_1",
+        "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_1.sv"
+      ],
+      "build_rc": 0,
+      "rc": 1,
+      "verdict": "caught",
+      "campaign_case_pass": false,
+      "log": "$VALIDATION_STORAGE/682-a554/render-recheck/run-1.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "summary_lines": [
+        "== tdm8_render: checks: 127   failures: 4 ==",
+        "RESULT: FAIL"
+      ]
+    },
+    {
+      "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+      "mode": "--epoch-only",
+      "required_failure": null,
+      "build_command": [
+        "make",
+        "-s",
+        "-C",
+        "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+        "tdm8render-build",
+        "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/render-recheck/obj_2",
+        "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_2.sv"
+      ],
+      "build_rc": 0,
+      "rc": 1,
+      "verdict": "caught",
+      "campaign_case_pass": false,
+      "log": "$VALIDATION_STORAGE/682-a554/render-recheck/run-2.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "summary_lines": [
+        "== tdm8_render: checks: 127   failures: 4 ==",
+        "RESULT: FAIL"
+      ]
+    },
+    {
+      "name": "uncounted repeat: the underrun counter never increments",
+      "mode": "--serial-only",
+      "required_failure": "T6 ORDER: every repeat is a counted underrun",
+      "build_command": [
+        "make",
+        "-s",
+        "-C",
+        "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+        "tdm8render-build",
+        "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/render-recheck/obj_3",
+        "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_3.sv"
+      ],
+      "build_rc": 0,
+      "rc": 0,
+      "verdict": "pass",
+      "campaign_case_pass": false,
+      "log": "$VALIDATION_STORAGE/682-a554/render-recheck/run-3.log",
+      "bytes": 1726,
+      "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+      "failures": [],
+      "summary_lines": [
+        "== tdm8_render: checks: 58   failures: 0 ==",
+        "RESULT: PASS"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_1.sv",
+      "bytes": 29379,
+      "sha256": "16a73ce2c01bba2116432c8d9e91079a3ac8bed4c07b66a870d04dee365c7771"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_2.sv",
+      "bytes": 29379,
+      "sha256": "2e8aa0d683a82dd965a5d3e252bdb7f2dd278b36e555bde9c76856d7ea3a1c0e"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/KL_tdm_render_master_3.sv",
+      "bytes": 29279,
+      "sha256": "b1ad0ba72ef538ad1ed6cf3e84aab7424a15f34db95d728cf61ccd4cf92322ef"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/build-0.log",
+      "bytes": 48877,
+      "sha256": "e6792fae74e6ab3e9192ac28b85200e9b91d8a0963c935681691e09cd2d71b32"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/build-1.log",
+      "bytes": 48877,
+      "sha256": "3ebcbe75ea2411e237cb8db7e1e26d5bc625022a931ab3f3d265bbc9bc3cd709"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/build-2.log",
+      "bytes": 48877,
+      "sha256": "f2dcbb08f6f59f72bae16beabd7424853df72e0f37ddfa608c642bad4fadae2d"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/build-3.log",
+      "bytes": 48877,
+      "sha256": "12798ca58388cd10efa5b83ccbf0f72bf862687d2f3efbf1f16b81c163d882b7"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/obj_0/Vmilan_dp_tdm8r",
+      "bytes": 1126288,
+      "sha256": "9eb51f3826ea4a738fe13cbfb41f6a8694242eed4a1c4527ebf5b1a47b2ff1f9"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/obj_1/Vmilan_dp_tdm8r",
+      "bytes": 1126288,
+      "sha256": "6f8cd1ee5d6c6d4fb3ee46ab6be93d344612eb2effb426cba05042c4824d9050"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/obj_2/Vmilan_dp_tdm8r",
+      "bytes": 1126288,
+      "sha256": "ab35fa8273fe87d8b8ac23b542e22dcc34c3994938d6e9648c1e1285e6141e65"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/obj_3/Vmilan_dp_tdm8r",
+      "bytes": 1126288,
+      "sha256": "39072326d3d044c05f6f441bdc0e74b57d4aa51f1d65c9bdc730acd5565041fe"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/run-0.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/run-1.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/run-2.log",
+      "bytes": 3746,
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/682-a554/render-recheck/run-3.log",
+      "bytes": 1726,
+      "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09"
+    }
+  ]
+}

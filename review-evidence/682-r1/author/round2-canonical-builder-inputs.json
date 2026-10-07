@@ -1,0 +1,28 @@
+{
+  "previous_link_target": "$VALIDATION_STORAGE/682-a554/round2/work/builder",
+  "output": "$LANES/682-pp-pin3/sw/builder/out",
+  "commands": [
+    [
+      "$LITEX_PYTHON",
+      "$LANES/682-pp-pin3/sw/builder/endstation_builder.py",
+      "$LANES/682-pp-pin3/configs/endstation_ax7101_1x1_tdm8.yaml",
+      "-o",
+      "$LANES/682-pp-pin3/sw/builder/out"
+    ],
+    [
+      "$LITEX_PYTHON",
+      "$LANES/682-pp-pin3/sw/builder/endstation_builder.py",
+      "$LANES/682-pp-pin3/configs/endstation_ax7101_8x8.yaml",
+      "-o",
+      "$LANES/682-pp-pin3/sw/builder/out"
+    ]
+  ],
+  "all_measured_image_hashes_unchanged": true,
+  "canonical_csr_header_unchanged": true,
+  "command_notation": "The interpreter path is represented by its validation environment variable; arguments are otherwise unchanged.",
+  "raw_receipt": {
+    "path": "$VALIDATION_STORAGE/682-a554/round2/canonical-builder-inputs.json",
+    "bytes": 797,
+    "sha256": "c46a4f52e40048d88117119c6320374842218d535546e76620ca482beb17ac1d"
+  }
+}

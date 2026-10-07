@@ -1,0 +1,80 @@
+{
+  "observed": "2026-10-07T14:29:00.820784+00:00",
+  "head": "591a5752e6a587b28b501e2d02d6a9d0293f3ba2",
+  "missing_path": "$VALIDATION_STORAGE/667-a551/tsn-gen",
+  "status": "PASS: both field campaigns and both committed-artifact freshness checks executed with no skips.",
+  "sweep_result": "60/60 rc 0, with four explicit field-campaign/freshness skips; those skips are not passing field evidence.",
+  "log": {
+    "path": "$VALIDATION_STORAGE/682-a554/round2/final/parent-suite-logs/tsn_fuzz.log",
+    "bytes": 9668,
+    "sha256": "e8029bc2a26a7ea79d6c52402aac52d14ad3e0547886a7ef920f90a4ceae7e9c"
+  },
+  "exports": {
+    "method": "Public commit archives; all exported blobs verified against immutable commit trees; no Git checkout created.",
+    "exports": [
+      {
+        "repository": "kebag-logic/tsn-gen",
+        "commit": "deca300c9eb4863fa13383b45ba6cb6fd0828671",
+        "archive_bytes": 167581,
+        "archive_sha256": "76575a756123bd4d4aa5e359a8ff329d214ae0170e2c2aaff47e1e9b617c5234",
+        "verified_blobs": 214,
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen",
+        "method": "Public pinned archive; every exported blob verified against the commit tree; no additional Git checkout created."
+      },
+      {
+        "repository": "biojppm/rapidyaml",
+        "commit": "e65999dc4d65368e1b3eb770e28d775885b0f525",
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/external/rapidyaml",
+        "archive_bytes": 8228998,
+        "archive_sha256": "a0cc205d7d02cd7f58e233a4bc29ff734fdcd1ed989d3c36f8e9e68dcc97761b",
+        "verified_blobs": 297
+      },
+      {
+        "repository": "biojppm/c4core",
+        "commit": "6c876ec05a4387c25068cdbd58724828dad1d217",
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/external/rapidyaml/ext/c4core",
+        "archive_bytes": 1453841,
+        "archive_sha256": "e1d003950e29a7e192a26af21a8834345a103187ab4f8bc90bfc14d39008bfcf",
+        "verified_blobs": 288
+      },
+      {
+        "repository": "biojppm/cmake",
+        "commit": "b8e95acb1bdd564e47ac57d903a483604d90cbfa",
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/external/rapidyaml/ext/c4core/cmake",
+        "archive_bytes": 145618,
+        "archive_sha256": "988c5d232c8f6e3e0b49bbf7706375777043013f8bb690abad58ef3be72912e6",
+        "verified_blobs": 42
+      },
+      {
+        "repository": "biojppm/debugbreak",
+        "commit": "328e4abca3384cbd0a69e70f263cc7b2794bff09",
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/debugbreak",
+        "archive_bytes": 7039,
+        "archive_sha256": "063da1bcd8ebc5c4c83250c604d82b04bc6650a665fc00763d5c5883eb96a96e",
+        "verified_blobs": 15
+      },
+      {
+        "repository": "fastfloat/fast_float",
+        "commit": "d28a3320c2de0963b6e469b8ca3bbc36496de684",
+        "root": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/external/rapidyaml/ext/c4core/src/c4/ext/fast_float",
+        "archive_bytes": 120961,
+        "archive_sha256": "8163166f5c5ebedbf04b793424bb7a0426fa2a99e5411f61c8dd9f2fd8830f34",
+        "verified_blobs": 106
+      }
+    ]
+  },
+  "recheck_head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "recheck": {
+    "checks": 899,
+    "failures": 0,
+    "skips": [],
+    "log": "$VALIDATION_STORAGE/682-a554/round2/acceptance/refresh-field/03-tsn-fuzz.log",
+    "bytes": 11269,
+    "sha256": "0af049c53889ad04b84efb97553cfd9bc1fa5e2c0217a9eeaad0a9cf88421c38"
+  },
+  "packet_gen": {
+    "path": "$VALIDATION_STORAGE/682-a554/round2/restored-dependencies/tsn-gen/build/traffic-gen/packet_gen",
+    "bytes": 79840,
+    "sha256": "d938f3a255c1de0ac88048374ae4e3b6f1e9c805792b7ce8b84f800ad13e7548"
+  }
+}

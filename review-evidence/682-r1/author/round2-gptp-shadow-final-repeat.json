@@ -1,0 +1,63 @@
+{
+  "head": "591a5752e6a587b28b501e2d02d6a9d0293f3ba2",
+  "suite": "gptp_shadow",
+  "verdict": "PASS",
+  "path": "$VALIDATION_STORAGE/682-a554/round2/final/parent-suite-logs/gptp_shadow.log",
+  "bytes": 14845,
+  "sha256": "8dfbdb449df72a0f615d3267fd33c4aae433acc7e020a3ee65590b6086e7deb0",
+  "nested_controls": {
+    "SIGINT": {
+      "exit": 130,
+      "handshake": {
+        "child": 272573,
+        "cwd": "/tmp/mutant-lifecycle-vbtx1buc/nested-SIGINT-control/gptp-shadow-mutants-09dvt89a/tb/verilator/gptp_shadow",
+        "identities": {
+          "272553": [
+            "52545977",
+            "S"
+          ],
+          "272573": [
+            "52545980",
+            "S"
+          ]
+        },
+        "mutations": [
+          "abort_counts_as_completion"
+        ],
+        "pid": 272553,
+        "private": "/tmp/mutant-lifecycle-vbtx1buc/nested-SIGINT-control/gptp-shadow-mutants-09dvt89a"
+      },
+      "nested_driver": true,
+      "next_suite": false,
+      "scratch_removed": true,
+      "source_unchanged": true
+    },
+    "SIGTERM": {
+      "exit": 143,
+      "handshake": {
+        "child": 274633,
+        "cwd": "/tmp/mutant-lifecycle-vbtx1buc/nested-SIGTERM-control/gptp-shadow-mutants-ee6p6eva/tb/verilator/gptp_shadow",
+        "identities": {
+          "274618": [
+            "52546391",
+            "S"
+          ],
+          "274633": [
+            "52546394",
+            "S"
+          ]
+        },
+        "mutations": [
+          "abort_counts_as_completion"
+        ],
+        "pid": 274618,
+        "private": "/tmp/mutant-lifecycle-vbtx1buc/nested-SIGTERM-control/gptp-shadow-mutants-ee6p6eva"
+      },
+      "nested_driver": true,
+      "next_suite": false,
+      "scratch_removed": true,
+      "source_unchanged": true
+    }
+  },
+  "interpretation": "The required complete final sweep passed this suite with unchanged lifecycle sources. Earlier failing runs remain recorded; no root cause or code fix is claimed."
+}

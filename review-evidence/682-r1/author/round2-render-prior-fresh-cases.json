@@ -1,0 +1,124 @@
+[
+  {
+    "name": "unmutated epoch",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "build_command": [
+      "make",
+      "--no-print-directory",
+      "-s",
+      "-j8",
+      "-C",
+      "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+      "tdm8render-build",
+      "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_0"
+    ],
+    "build_rc": 0,
+    "rc": 1,
+    "verdict": "caught",
+    "campaign_case_pass": false,
+    "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-0.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "build_command": [
+      "make",
+      "--no-print-directory",
+      "-s",
+      "-j8",
+      "-C",
+      "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+      "tdm8render-build",
+      "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_1",
+      "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_1.sv"
+    ],
+    "build_rc": 0,
+    "rc": 1,
+    "verdict": "caught",
+    "campaign_case_pass": false,
+    "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-1.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+    "mode": "--epoch-only",
+    "required_failure": null,
+    "build_command": [
+      "make",
+      "--no-print-directory",
+      "-s",
+      "-j8",
+      "-C",
+      "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+      "tdm8render-build",
+      "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_2",
+      "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_2.sv"
+    ],
+    "build_rc": 0,
+    "rc": 1,
+    "verdict": "caught",
+    "campaign_case_pass": false,
+    "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-2.log",
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "counts": [
+      "== tdm8_render: checks: 127   failures: 4 =="
+    ],
+    "failures": [
+      "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+      "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+      "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+      "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+    ]
+  },
+  {
+    "name": "uncounted repeat: the underrun counter never increments",
+    "mode": "--serial-only",
+    "required_failure": "T6 ORDER: every repeat is a counted underrun",
+    "build_command": [
+      "make",
+      "--no-print-directory",
+      "-s",
+      "-j8",
+      "-C",
+      "$LANES/682-pp-pin3/tb/verilator/milan_dp_render",
+      "tdm8render-build",
+      "TDM8R_MDIR=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/obj_3",
+      "TDMRM_SRC=$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/KL_tdm_render_master_3.sv"
+    ],
+    "build_rc": 0,
+    "rc": 0,
+    "verdict": "pass",
+    "campaign_case_pass": false,
+    "log": "$VALIDATION_STORAGE/682-a554/round2/render/prior/cases/run-3.log",
+    "bytes": 1726,
+    "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+    "counts": [
+      "== tdm8_render: checks: 58   failures: 0 =="
+    ],
+    "failures": []
+  }
+]

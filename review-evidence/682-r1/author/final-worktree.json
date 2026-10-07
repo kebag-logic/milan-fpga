@@ -1,0 +1,57 @@
+{
+  "time": "2026-10-07T00:40:55.972791+00:00",
+  "head": "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+  "branch": "682-pp-pin-2ad2f845",
+  "origin": "https://github.com/kebag-logic/milan-fpga.git",
+  "worktree_clean": true,
+  "processor_top": "$LANES/682-pp-pin3/protocol-processor",
+  "processor_head": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+  "processor_clean": true,
+  "processor_change": ":160000 160000 ead803603 2ad2f845d M\tprotocol-processor",
+  "commits": [
+    {
+      "head": "7bbb53d798503bf393036fad927ca4eb6425d9ea",
+      "subject": "Adopt protocol processor main 2ad2f845 for issue 682"
+    },
+    {
+      "head": "166c2185e206e8f8d66a6fa208e49f22adf3dce0",
+      "subject": "Adapt parent frame capture and declaration budget to processor pin"
+    },
+    {
+      "head": "fcaabb2277624c16107b75714de8706affafb004",
+      "subject": "Refresh processor pin records and parent integration notes"
+    },
+    {
+      "head": "2a97d4e8874a90a620d2b9234620eff9aec57bcb",
+      "subject": "Tighten adoption documentation wording"
+    },
+    {
+      "head": "d02c2a3ea2885053132f9adfb198d8a5a22680a3",
+      "subject": "Record optional synthesis worker cap in baseline recipes"
+    },
+    {
+      "head": "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+      "subject": "Rebaseline adopted processor resources and timing"
+    }
+  ],
+  "changed_paths": [
+    "docs/design/AREA_BUDGET.md",
+    "docs/diagrams/PNG_MANIFEST.json",
+    "docs/diagrams/submodule_boundaries.drawio",
+    "docs/diagrams/submodule_boundaries.png",
+    "docs/diagrams/submodule_boundaries.svg",
+    "docs/findings/234_PP_SHADOW_AREA_BASELINE.md",
+    "docs/findings/README.md",
+    "docs/reference/SUBMODULES.md",
+    "docs/testing/PP_SHADOW_BASELINE_RECIPE.md",
+    "protocol-processor",
+    "scripts/port_docs.budget",
+    "scripts/xvlog.budget",
+    "syn/ooc/pp_baseline.py",
+    "syn/ooc/pp_baseline_mutants.py",
+    "syn/ooc/pp_resource_baseline.json",
+    "syn/yosys/rom_digests.tsv",
+    "tb/verilator/milan_dp/sim_nxn.cpp"
+  ],
+  "all_campaign_processes_ended": true
+}

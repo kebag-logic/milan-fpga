@@ -1,0 +1,146 @@
+{
+  "observed": "2026-10-07T13:28:46.364842+00:00",
+  "from_dev": "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c",
+  "to_dev": "e21c1ca024d37ea188ad15b5c8f9c2dae18628df",
+  "commits": [
+    {
+      "sha": "1a5d70faba6a9b01aab6bb868c12e4c7023e0c70",
+      "subject": "Add bare-metal MAAP core and mailbox service evidence"
+    },
+    {
+      "sha": "11e195bea81def13274ac6f424f974b3f4cfc0d7",
+      "subject": "Fix MAAP wake and saved-range handling with review regression controls"
+    },
+    {
+      "sha": "938497af1dffd8a87edebf3ab93663914bf85e5e",
+      "subject": "Keep new MAAP test declarations separate"
+    },
+    {
+      "sha": "5901ab0869e0674bb18bbb4df60757f2711e5cd4",
+      "subject": "Merge dev 910f338d into F2 preserving RV32 checks and MAAP coverage"
+    },
+    {
+      "sha": "a71b8c8072c28c3511254484de5dda4e57e91d3f",
+      "subject": "Pin consumed MAAP preference across link bounce after SDK merge"
+    },
+    {
+      "sha": "8b78a8fd36864246336c71c061ac4f21d629952f",
+      "subject": "Keep MAAP release assertions independent of hosted SDK headers"
+    },
+    {
+      "sha": "d4bc335c20ad764fdcda7ebef6a6cd64dc60af93",
+      "subject": "Merge dev d51b373a into F2 preserving MAAP and firmware robustness checks"
+    },
+    {
+      "sha": "24be55fc14f396db631efb49dc4b0d9b2fc4e97a",
+      "subject": "Correct MAAP compiler selector and document debug RV32 evidence"
+    },
+    {
+      "sha": "5968967e19411428b71dde5c4712d4a8fa528cfb",
+      "subject": "Clarify release and debug RV32 assertion evidence"
+    },
+    {
+      "sha": "e21c1ca024d37ea188ad15b5c8f9c2dae18628df",
+      "subject": "Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.c",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/README.md",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap.c",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap.h",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_csr.c",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_csr.h",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_mbx.c",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/maap_mbx.h",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/maap_differential.py",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/maap_mutants.py",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_debug.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_differential.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+      "status": "added"
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "status": "modified"
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "status": "modified"
+    },
+    {
+      "path": "tb/verilator/mbx/Makefile",
+      "status": "modified"
+    }
+  ],
+  "scope": "PR 687 MAAP control firmware, its documentation and mailbox build recipe. Current complete sweep remains uninterrupted; merge and affected validation follow after it finishes."
+}

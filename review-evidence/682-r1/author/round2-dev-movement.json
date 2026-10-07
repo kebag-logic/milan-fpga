@@ -1,0 +1,28 @@
+{
+  "observed": "2026-10-07T03:40:12.208102+00:00",
+  "merged_dev": "79b086d44eb62d007d38e18f5618b98e8e2a33e6",
+  "new_remote_dev": "910f338dbd050f4efd2d96991ddcf928a583d55f",
+  "changed": [
+    ".github/workflows/rtl-fast.yml",
+    "docs/testing/CI_WORKFLOWS.md",
+    "scripts/ci_events.py",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_build.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl_nvm/README.md",
+    "sw/firmware/ctrl_nvm/test/nvm_rv32.py",
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/fw_rv32.py",
+    "sw/firmware/gtest/fw_rv32_selftest.py",
+    "sw/firmware/gtest/rv32_include/stdio.h",
+    "sw/firmware/gtest/rv32_include/string.h"
+  ],
+  "commits": [
+    "910f338db Merge PR #683: Build the ctrl and ctrl_nvm RV32 objects against the pinned ilp32d SDK (#679)",
+    "04e1435a2 fix: exclude local definitions from firmware runtime resolution",
+    "0a004a8cc Fix RV32 firmware object checks for the pinned SDK"
+  ],
+  "action": "Required final --no-ff merge and affected gate reruns remain pending; no resource RTL input appears in this change list."
+}
