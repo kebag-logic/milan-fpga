@@ -2,7 +2,7 @@
 - **File:** `hdl/ieee1722/maap/KL_maap.sv`
 - **Spec:** IEEE 1722-2016 Annex B (MAAP), the authority since #686; the clause-by-clause contract is in [`docs/design/MAAP_FABRIC.md`](../../../../../docs/design/MAAP_FABRIC.md#annex-b-contract)
 
-Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defend/announce machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Four PROBEs, the first at once and then 500 < T < 600 ms apart; the first ANNOUNCE follows the fourth PROBE at once and repeats every 30 < T < 32 s. The claim (`addr_o`) is valid only in ANNOUNCE. Every frame carries `control_data_length` 16, and a DEFEND goes to the source MAC of the PROBE that caused it. A conflicting received PROBE re-randomizes while probing and is DEFENDed (with the exact overlap sub-range) while announced. A conflicting DEFEND (judged on its conflict fields) re-randomizes in either state. A conflicting ANNOUNCE (judged on its requested fields) re-randomizes while probing, and while announced only when compare_MAC says this station is not the lower. Randomness = a station-MAC-seeded 16-bit LFSR (offset choice + interval draws). `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (Table B.7 note a).
+Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defend/announce machine over the `91:E0:F0:00:00:00`/0xFE00 pool. Four PROBEs, the first at once and then 500 < T < 600 ms apart; the first ANNOUNCE follows the fourth PROBE at once and repeats every 30 < T < 32 s. The claim (`addr_o`) is valid only in ANNOUNCE. Every frame carries `control_data_length` 16, and a DEFEND goes to the source MAC of the PROBE that caused it. A conflicting received PROBE re-randomizes while probing and is DEFENDed (with the exact overlap sub-range) while announced. A conflicting DEFEND (judged on its conflict fields) re-randomizes in either state. A conflicting ANNOUNCE (judged on its requested fields) re-randomizes while probing, and while announced only when compare_MAC says this station is not the lower. Randomness = a station-MAC-seeded 16-bit LFSR (offset choice + interval draws) whose seed is never zero, so the draws are random for every station MAC. `seed_offset_i`/`seed_valid_i` let provisioning re-claim the previously won block (Table B.7 note a); that seed is used as given, not range-checked, while a random draw is clipped to the pool.
 
 ## Contents
 
@@ -24,7 +24,7 @@ Dynamic multicast-DMAC allocation for the Milan talker: the Table B.7 probe/defe
 | `enable_i` | in | `wire` | CSR MAAP_CTRL.en |
 | `count_i` | in | `wire [7:0]` | Block size to claim (reference: 8) |
 | `station_mac_i` | in | `wire [47:0]` | Source MAC + LFSR seed |
-| `seed_offset_i` / `seed_valid_i` | in | | Provisioning re-claim seed |
+| `seed_offset_i` / `seed_valid_i` | in | | Provisioning re-claim seed, used as given (not range-checked) |
 | `rx_t*_i` | in | | RX AXIS monitor tap (never driven) |
 | `m_axis_*` | out | | MAAP PDUs (60 B padded) to the low-rate TX arbiter |
 | `addr_o` | out | `logic [47:0]` | Allocated base DMAC (pool + offset) |

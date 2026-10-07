@@ -45,12 +45,16 @@
                 range, not the PROBE's, in requested_* (B.3.6.6); a 16-bit
                 station-MAC-seeded LFSR draws the offset (B.3.6.1); no
                 PortOperational! input; RX parse is untagged-only (a tagged
-                MAAP PDU is ignored).
+                MAAP PDU is ignored); a PROBE parsed while a frame is on
+                the wire is not defended; a supplied seed is not
+                range-checked.
 
                 Persistence (reference load/save_state) is softcore
                 provisioning: software may seed seed_offset_i +
                 seed_valid_i before enable to re-probe the previously won
-                block (Table B.7 note a).
+                block (Table B.7 note a). A random draw is clipped to the
+                pool; the supplied seed is used as given, so provisioning
+                must supply a block that fits inside the 0xFE00 pool.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -215,9 +219,13 @@ module KL_maap #(
   wire mac_lower_w = octet_rev(station_mac_i) < octet_rev(rx_src_r);
 
   // ---- TX frame builder -----------------------------------------------------
-  //! 60-byte padded frame, 8 beats, last keep 0x0F. Every per-frame field is
-  //! latched at the send request, so a Restart! (or the next RX PDU) taken
-  //! while a frame is on the wire cannot rewrite that frame.
+  //! 60-byte padded frame, 8 beats, last keep 0x0F. Every per-frame field a
+  //! protocol event can change (message type, destination, requested offset,
+  //! conflict range) is latched at the send request, so a Restart! (or the
+  //! next RX PDU) taken while a frame is on the wire cannot rewrite that
+  //! frame. requested_count and the source MAC follow count_i and
+  //! station_mac_i and are not protected against reconfiguration during a
+  //! frame.
   logic        tx_busy_r;
   logic [1:0]  tx_msg_r;
   logic [47:0] tx_dst_r;                 //! DEFEND only: the prober's MAC
@@ -269,7 +277,8 @@ module KL_maap #(
                    && (state_r == ANNOUNCE_S) && !tx_busy_r;
 
   // ---- main SM ---------------------------------------------------------------
-  //! generate_address for Begin!: the provisioning seed once (note a)
+  //! generate_address for Begin!: the provisioning seed once (note a), used
+  //! as given (not range-checked); otherwise a random draw clipped to the pool
   wire [15:0] new_off_w = seed_valid_i && !seed_used_r
                           ? seed_offset_i : rand_offset(lfsr_next_w, count_i);
 

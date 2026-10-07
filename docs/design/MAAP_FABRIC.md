@@ -49,7 +49,9 @@ ANNOUNCE = DEFEND.
 **Wire (B.2, B.4).**
 
 - The pool is `91:E0:F0:00:00:00` plus a 16-bit offset, `0xFE00` addresses
-  (Table B.9). The claimed block always fits inside it.
+  (Table B.9). A randomly generated block is clipped to fit inside it. A
+  supplied seed (`seed_offset_i` with `seed_valid_i`) is used as given,
+  without range validation, so provisioning must supply a block that fits.
 - EtherType `0x22F0`, subtype MAAP (`0xFE`), `sv` 0, `version` 0,
   `maap_version` 1 (B.2.3.1), `stream_id` 0 (B.2.4).
 - `control_data_length` is 16 in every MAAP frame (B.2.1).
@@ -59,8 +61,12 @@ ANNOUNCE = DEFEND.
 - PROBE and ANNOUNCE carry this station's range in requested_* and zero
   conflict_* (B.3.6.5, B.3.6.7). A DEFEND carries the overlap of the PROBE's
   range with this station's in conflict_* (B.2.7, B.2.8).
-- Every per-frame field is latched at the send request. A Restart! taken
-  while a frame waits on the wire therefore cannot rewrite that frame.
+- Every per-frame field a protocol event can change (message type,
+  destination, requested offset, conflict range) is latched at the send
+  request. A Restart! or a received PDU taken while a frame waits on the wire
+  therefore cannot rewrite that frame. requested_count and the source MAC
+  follow `count_i` and `station_mac_i` and are not protected against
+  reconfiguration during a frame.
 - Frames are 60 bytes, zero-padded. RX parsing accepts every
   `maap_version` (B.2.3.2 to B.2.3.4) and ignores reserved message types
   (B.2.2).
@@ -82,7 +88,11 @@ ANNOUNCE = DEFEND.
   send can also wait for a frame already on the wire. So the engine draws N
   from a centred sub-range: 518 + 0..63 ms for the probe timer (17 ms of
   margin at each end) and 30488 + 0..1023 ms for the announce timer (487 ms).
-  Both draws use a free-running 16-bit LFSR, so successive intervals differ.
+  Both draws come from a free-running 16-bit LFSR seeded from the station
+  MAC. All-zero is the LFSR's only fixed point, and no other state reaches
+  it. A MAC that folds the seed to zero (`mac[15:0] ^ mac[31:16]` =
+  `0xACE1`, such as `02:00:00:00:AC:E1`) takes a nonzero constant seed
+  instead. So the draws are random for every station MAC.
 - `enable_i` falling acts like Release!: back to IDLE at once.
 
 **Conflict detection (B.3.2, Table B.7 note b).**
@@ -122,9 +132,16 @@ not changed by #686; each needs its own decision.
   into the pool.
 - Table B.7 restarts on PortOperational! (B.3.5.9). `KL_maap` has no link
   input, so a link that returns does not re-probe.
-- A PROBE parsed while any frame is on the wire is not defended. The prober
-  repeats its PROBE within 600 ms.
+- A PROBE parsed while any frame is on the wire is not defended. Under Table
+  B.7 the prober's probetimer! repeats PROBEs one to three within the probe
+  interval, so this station can defend the next one. A missed fourth PROBE
+  is not repeated: the prober's probeCount! sends its ANNOUNCE at once.
+  The overlap is then settled by that ANNOUNCE and compare_MAC (B.3.6.4,
+  note d), which can move this station off the range it already held.
 - RX parsing is untagged only; a tagged MAAP PDU is ignored.
+- A supplied seed (`seed_offset_i`) is not range-checked. Table B.9's pool
+  holds only when provisioning supplies a block that fits. Validating the
+  seed against the pool is a follow-up decision.
 
 **History.** Before #686 the engine followed the byte layout of a
 reference AVB implementation instead. It set `control_data_length` 28, sent
@@ -171,10 +188,13 @@ compared ranges with inclusive ends.
 - TB: [`tb/verilator/maap`](../../tb/verilator/maap) grades the engine
   against Annex B, not against itself. It checks golden Figure B.1 frames,
   the four-PROBE walk at Begin! and Restart!, the DEFEND destination, every
-  conflict cell above with its note b range edges, and strict B.3.4
-  intervals over 150 walks and 24 announcements. Its `mutants.py` plants at
-  least one defect per #686 item and requires the named check to fail. The
-  coverage gate is 95 %, like avtp_rxmon.
+  conflict cell above with its note b range edges, a conflicting PROBE
+  parsed while an ANNOUNCE is part-way out on the wire, and strict B.3.4
+  intervals over 150 walks and 24 announcements. A zero-seed station MAC
+  (`02:00:00:00:AC:E1`) must also draw more than one distinct probe and
+  announce interval. Its `mutants.py` plants at least one defect per #686
+  item and requires the named check to fail. The coverage gate is 95 %,
+  like avtp_rxmon.
 
 ## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
 
