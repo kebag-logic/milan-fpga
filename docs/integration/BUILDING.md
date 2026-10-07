@@ -612,8 +612,23 @@ Control-set remapping therefore cannot put reset before pad capture.
 The patch series supplies this structure for every GMII instance.
 RX-error remains unused; MII RX has no IOB constraint.
 `sw/litex/test_gmii_rx_capture.py` checks the cycle contract.
+It checks direct pad capture and rejects six structural mutations.
 Its `--emit-dir` option generates good and reset-before-D placement fixtures.
-The IOB check must refuse the reset-before-D fixture.
+Run these with the patched pinned interpreter and exclusive implementation lock.
+Set `SCRATCH` outside the checkout; `VIVADO_LOCK` names that lock.
+
+```sh
+REPO="$PWD"
+"$MILAN_LITEX_PYTHON" sw/litex/test_gmii_rx_capture.py --emit-dir "$SCRATCH/capture"
+cd "$SCRATCH/capture"
+flock "$VIVADO_LOCK" vivado -mode batch -nojournal \
+  -source "$REPO/sw/litex/gmii_rx_capture_check.tcl" -tclargs "$PWD"
+```
+
+The driver uses `sw/litex/gmii_rx_capture.xdc` for both fixtures.
+Expect exit zero: nine PASS and nine expected FAIL rows.
+The negative rows must say "no register reads the pad".
+Each fixture's subdirectory retains its constraints and IOB report.
 
 An `INERT` row is not a failure, and exactly two structures reach it: a port
 that carries no net at all, and an output every driver of which is a constant

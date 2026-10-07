@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+# Compact placement fixture using the shipping GMII RX pad locations.
+create_clock -name rx_clk -period 8 [get_ports sys_clk]
+set_property IOSTANDARD LVCMOS33 [get_ports *]
+set_property LOC K18 [get_ports {sys_clk}]
+set_property LOC M22 [get_ports {pads_rx_dv}]
+set_property LOC N22 [get_ports {pads_rx_data[0]}]
+set_property LOC H18 [get_ports {pads_rx_data[1]}]
+set_property LOC H17 [get_ports {pads_rx_data[2]}]
+set_property LOC M21 [get_ports {pads_rx_data[3]}]
+set_property LOC L21 [get_ports {pads_rx_data[4]}]
+set_property LOC N20 [get_ports {pads_rx_data[5]}]
+set_property LOC M20 [get_ports {pads_rx_data[6]}]
+set_property LOC N19 [get_ports {pads_rx_data[7]}]
+set_property IOB TRUE [get_ports {pads_rx_data[*]}]
+set_property IOB TRUE [get_ports pads_rx_dv]

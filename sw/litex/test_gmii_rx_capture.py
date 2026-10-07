@@ -12,6 +12,7 @@ mask using the live reset instead of its sampled value must fail here.
 from collections.abc import Generator
 import argparse
 from pathlib import Path
+import re
 
 from migen import ClockDomain, Instance, Module, Record, Signal
 from migen.fhdl import verilog
@@ -84,18 +85,57 @@ def check_capture() -> int:
     return checked
 
 
+def convert_capture(reset_before_d: bool = False) -> str:
+    """Convert the actual receiver, optionally behind preserved reset LUTs."""
+    dut = CaptureBench(reset_before_d=reset_before_d)
+    ports = {dut.cd_sys.clk, dut.reset, dut.pads.rx_dv, dut.pads.rx_data,
+             dut.rx.source.valid, dut.rx.source.data, dut.rx.source.last}
+    return str(verilog.convert(dut, ios=ports, name="gmii_capture"))
+
+
+def check_structure(converted: str) -> None:
+    """Require nine unconditional direct pad captures in this pinned conversion.
+
+    This deliberately accepts only the converter's known sequential shape.
+    A changed shape needs review, never a silent structural PASS.
+    """
+    blocks = re.findall(r"always @\(posedge sys_clk\) begin\n(.*?)\nend", converted, re.S)
+    expected = r"\s*rx_dv <= pads_rx_dv;\s*rx_data <= pads_rx_data;\s*rx_reset <= sys_rst;"
+    expected += r"\s*(?:if \(sys_rst\) begin\s*end\s*)?"
+    assert len(blocks) == 1 and len(re.findall(r"\balways\b", converted)) == 1, "capture process"
+    assert re.fullmatch(expected, blocks[0]), "pad capture must be unconditional and direct"
+    assert "reg [7:0] rx_data = 8'd0;" in converted, "all eight data captures required"
+
+
+def check_structure_controls(converted: str) -> int:
+    """Prove reset, enable, input logic and missing-bit defects are refused."""
+    controls = [
+        ("valid reset", "if (sys_rst) begin", "if (sys_rst) begin\n rx_dv <= 1'b0;"),
+        ("data reset", "if (sys_rst) begin", "if (sys_rst) begin\n rx_data <= 8'b0;"),
+        ("valid input logic", "rx_dv <= pads_rx_dv;", "rx_dv <= pads_rx_dv & ~sys_rst;"),
+        ("data input logic", "rx_data <= pads_rx_data;", "rx_data <= sys_rst ? 0 : pads_rx_data;"),
+        ("capture enable", "rx_dv <= pads_rx_dv;", "if (!sys_rst) rx_dv <= pads_rx_dv;"),
+        ("missing data bit", "reg [7:0] rx_data = 8'd0;", "reg [6:0] rx_data = 7'd0;"),
+    ]
+    for label, before, after in controls:
+        assert converted.count(before) == 1, (label, "control anchor")
+        try:
+            check_structure(converted.replace(before, after))
+        except AssertionError:
+            print(f"Structure control caught: {label}")
+        else:
+            raise AssertionError(f"structure control survived: {label}")
+    return len(controls)
+
+
 def emit_capture(directory: Path) -> None:
     """Generate the actual capture and a reset-before-D placement control."""
     directory.mkdir(parents=True, exist_ok=True)
     for defect in (False, True):
         # Plant reset before capture through the production receiver.
         # Both fixtures are generated, with no hand-edited output HDL.
-        dut = CaptureBench(reset_before_d=defect)
-        ports = {dut.cd_sys.clk, dut.reset, dut.pads.rx_dv, dut.pads.rx_data,
-                 dut.rx.source.valid, dut.rx.source.data, dut.rx.source.last}
-        converted = verilog.convert(dut, ios=ports, name="gmii_capture")
         name = "reset_before_d" if defect else "capture"
-        converted.write(str(directory / f"{name}.v"))
+        (directory / f"{name}.v").write_text(convert_capture(defect))
 
 
 def main() -> None:
@@ -104,9 +144,13 @@ def main() -> None:
     parser.add_argument("--emit-dir", type=Path)
     args = parser.parse_args()
     checked = check_capture()
+    converted = convert_capture()
+    check_structure(converted)
+    controls = check_structure_controls(converted)
     if args.emit_dir is not None:
         emit_capture(args.emit_dir)
     print(f"GMII capture comparisons: {checked}")
+    print(f"GMII capture structure: nine direct pad flops, {controls}/{controls} controls caught")
     print("RESULT: PASS")
 
 
