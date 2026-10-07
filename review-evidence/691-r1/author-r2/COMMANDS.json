@@ -1,0 +1,650 @@
+{
+  "builder-chunk-01": {
+    "command": [
+      "$PYTHON",
+      "-u",
+      "$SCRATCH/builder_chunk.py"
+    ],
+    "cwd": "$REPO",
+    "rc": -15,
+    "seconds": 570.48,
+    "peak_memory_bytes": 7999758336,
+    "interrupted": "foreground deadline"
+  },
+  "builder": {
+    "command": [
+      "$PYTHON",
+      "sw/builder/test_builder.py"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": -15,
+    "seconds": 570.44,
+    "peak_memory_bytes": 8007163904,
+    "interrupted": "foreground deadline"
+  },
+  "capture-defect-fixed": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "vendor-fixed.log",
+      "-source",
+      "run.tcl"
+    ],
+    "cwd": "$SCRATCH/capture/reset_before_d",
+    "rc": 0,
+    "seconds": 36.52,
+    "peak_memory_bytes": 2226851840,
+    "interrupted": null
+  },
+  "capture-defect-preserved": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "vendor-preserved.log",
+      "-source",
+      "run.tcl"
+    ],
+    "cwd": "$SCRATCH/capture/reset_before_d",
+    "rc": 1,
+    "seconds": 37.03,
+    "peak_memory_bytes": 2267467776,
+    "interrupted": null
+  },
+  "capture-defect": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "vendor.log",
+      "-source",
+      "run.tcl"
+    ],
+    "cwd": "$SCRATCH/capture/reset_before_d",
+    "rc": 1,
+    "seconds": 37.03,
+    "peak_memory_bytes": 2233266176,
+    "interrupted": null
+  },
+  "capture-place": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "vendor.log",
+      "-source",
+      "run.tcl"
+    ],
+    "cwd": "$SCRATCH/capture/capture",
+    "rc": 0,
+    "seconds": 37.53,
+    "peak_memory_bytes": 2202521600,
+    "interrupted": null
+  },
+  "datapath-base-build": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "12",
+      "13",
+      "14"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 127.14,
+    "peak_memory_bytes": 4602675200,
+    "interrupted": null
+  },
+  "datapath-gmstep-controls": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "29"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 396.32,
+    "peak_memory_bytes": 8001171456,
+    "interrupted": null
+  },
+  "datapath-gmstep": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "8",
+      "9",
+      "10",
+      "11"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 79.56,
+    "peak_memory_bytes": 3509874688,
+    "interrupted": null
+  },
+  "datapath-gptp": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 153.11,
+    "peak_memory_bytes": 1839534080,
+    "interrupted": null
+  },
+  "datapath-latency": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "6",
+      "7"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 153.1,
+    "peak_memory_bytes": 4249505792,
+    "interrupted": null
+  },
+  "datapath-nxn-build": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "15",
+      "16"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 93.09,
+    "peak_memory_bytes": 4602675200,
+    "interrupted": null
+  },
+  "datapath-pool": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "25"
+    ],
+    "cwd": "$REPO",
+    "rc": -15,
+    "seconds": 570.43,
+    "peak_memory_bytes": 7995826176,
+    "interrupted": "foreground deadline"
+  },
+  "datapath-protocol-build": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "20",
+      "22",
+      "23",
+      "24"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 155.61,
+    "peak_memory_bytes": 5611642880,
+    "interrupted": null
+  },
+  "datapath-pruned-build": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "17",
+      "18",
+      "19"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 112.6,
+    "peak_memory_bytes": 5611905024,
+    "interrupted": null
+  },
+  "datapath-render-controls": {
+    "command": [
+      "python3",
+      "$SCRATCH/dp_step.py",
+      "27"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 483.41,
+    "peak_memory_bytes": 7994634240,
+    "interrupted": null
+  },
+  "dev-elaborate": {
+    "command": [
+      "python3",
+      "$SCRATCH/prepare_build.py",
+      "dev"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 6.51,
+    "peak_memory_bytes": 1035583488,
+    "interrupted": null
+  },
+  "dev-synthesis": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "$SYNTH",
+      "-mode",
+      "batch",
+      "-nojournal",
+      "-notrace",
+      "-log",
+      "synthesis-vendor.log",
+      "-source",
+      "synth.tcl"
+    ],
+    "cwd": "$SCRATCH/dev-build/gateware",
+    "rc": -15,
+    "seconds": 570.14,
+    "peak_memory_bytes": 8000000000,
+    "interrupted": "foreground deadline"
+  },
+  "doc-paths": {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 753135616,
+    "interrupted": null
+  },
+  "doc-style": {
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 2077949952,
+    "interrupted": null
+  },
+  "docs": {
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 6.0,
+    "peak_memory_bytes": 473604096,
+    "interrupted": null
+  },
+  "em-dash": {
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 3.5,
+    "peak_memory_bytes": 524963840,
+    "interrupted": null
+  },
+  "ethernet-filter": {
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/rx_filter",
+      "-j8",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 17.52,
+    "peak_memory_bytes": 1565474816,
+    "interrupted": null
+  },
+  "ethernet-reset": {
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/eth_tx_reset",
+      "-j8",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 5.5,
+    "peak_memory_bytes": 1883123712,
+    "interrupted": null
+  },
+  "ethernet-rmon": {
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/mac_rmon",
+      "-j8",
+      "VERILATOR_JOBS=2",
+      "--eval=.NOTPARALLEL:"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 16.51,
+    "peak_memory_bytes": 809713664,
+    "interrupted": null
+  },
+  "evidence": {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 7.51,
+    "peak_memory_bytes": 555945984,
+    "interrupted": null
+  },
+  "fail-fast": {
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 2.0,
+    "peak_memory_bytes": 550105088,
+    "interrupted": null
+  },
+  "final-style": {
+    "command": [
+      "python3",
+      "-c",
+      "import subprocess; commands=[[\"python3\",\"scripts/check_py_idiom.py\"],[\"python3\",\"scripts/check_sh_idiom.py\"],[\"python3\",\"scripts/check_doc_style.py\"],[\"python3\",\"scripts/measure_naming.py\",\"--check\"]];\nfor c in commands: print(c,flush=True); subprocess.run(c,check=True)"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 5.0,
+    "peak_memory_bytes": 2171985920,
+    "interrupted": null
+  },
+  "hardware-hygiene": {
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 754900992,
+    "interrupted": null
+  },
+  "iob-selftest": {
+    "command": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 2.5,
+    "peak_memory_bytes": 346796032,
+    "interrupted": null
+  },
+  "link-guard": {
+    "command": [
+      "make",
+      "-C",
+      "tb/verilator/link_guard",
+      "-j8",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 6.5,
+    "peak_memory_bytes": 2134618112,
+    "interrupted": null
+  },
+  "lint": {
+    "command": [
+      "python3",
+      "scripts/lint_rtl.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 9.03,
+    "peak_memory_bytes": 8009785344,
+    "interrupted": null
+  },
+  "litex-sims-final": {
+    "command": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "$SCRATCH/litex-sim-final"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 181.12,
+    "peak_memory_bytes": 3001368576,
+    "interrupted": null
+  },
+  "litex-sims": {
+    "command": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "$SCRATCH/litex-sim-logs"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 1,
+    "seconds": 195.19,
+    "peak_memory_bytes": 8014589952,
+    "interrupted": null
+  },
+  "patch-contract": {
+    "command": [
+      "$PYTHON",
+      "-c",
+      "import sys; sys.path.insert(0,\"sw/builder\"); import test_builder as t; t.test_toolchain_patches_are_applied(); t.test_toolchain_patch_gate_bites()"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 3.5,
+    "peak_memory_bytes": 736043008,
+    "interrupted": null
+  },
+  "placement-control-verdict": {
+    "command": [
+      "python3",
+      "-c",
+      "import json,pathlib; w=pathlib.Path(\"$SCRATCH\"); a=json.loads((w/\"logs/capture-place.json\").read_text()); b=json.loads((w/\"logs/capture-defect-preserved.json\").read_text()); good=(w/\"capture/capture/capture_iob_pack.rpt\").read_text(); bad=(w/\"capture/reset_before_d/capture_iob_pack.rpt\").read_text(); log=(w/\"logs/capture-defect-preserved.log\").read_text(); assert a[\"rc\"]==0 and good.count(\"PASS \")==9; assert b[\"rc\"]==1 and bad.count(\"FAIL \")==9; assert \"ROUTING WOULD START\" not in log; print(\"PASS: 9 packed captures; reset-before-D plant refused on 9 pins before routing\")"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 749350912,
+    "interrupted": null
+  },
+  "py-idiom": {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 4.0,
+    "peak_memory_bytes": 2267467776,
+    "interrupted": null
+  },
+  "ring-elaborate": {
+    "command": [
+      "python3",
+      "$SCRATCH/prepare_build.py",
+      "ring"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 6.5,
+    "peak_memory_bytes": 1035583488,
+    "interrupted": null
+  },
+  "rx-equivalence": {
+    "command": [
+      "$PYTHON",
+      "sw/litex/test_gmii_rx_capture.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 860463104,
+    "interrupted": null
+  },
+  "rx-negative-controls": {
+    "command": [
+      "python3",
+      "$SCRATCH/rx_controls.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 862625792,
+    "interrupted": null
+  },
+  "rx-prepatch-control": {
+    "command": [
+      "env",
+      "PYTHONPATH=$BASE_PHY",
+      "$PYTHON",
+      "sw/litex/test_gmii_rx_capture.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 3030687744,
+    "interrupted": null
+  },
+  "shell-idiom": {
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 362545152,
+    "interrupted": null
+  },
+  "sim-inventory": {
+    "command": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "--selftest"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 3.0,
+    "peak_memory_bytes": 409018368,
+    "interrupted": null
+  },
+  "source-lists": {
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 523640832,
+    "interrupted": null
+  },
+  "source-selftests": {
+    "command": [
+      "python3",
+      "-c",
+      "import subprocess; commands=[[\"python3\",\"scripts/check_soc_sources.py\",\"--selftest\"],[\"python3\",\"scripts/check_rtl_source_lists.py\"],[\"python3\",\"scripts/check_rtl_source_lists.py\",\"--selftest\"],[\"python3\",\"scripts/ci_events.py\",\"--check\"],[\"python3\",\"scripts/pp_srcs.py\",\"--check\",\"--selftest\"]];\nfor command in commands: print(command,flush=True); subprocess.run(command,check=True)"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 6.0,
+    "peak_memory_bytes": 790495232,
+    "interrupted": null
+  },
+  "source-shape": {
+    "command": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "cwd": "$SCRATCH/gates",
+    "rc": 0,
+    "seconds": 16.01,
+    "peak_memory_bytes": 2667626496,
+    "interrupted": null
+  },
+  "source-style": {
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/check_python_style.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 2,
+    "seconds": 0.5,
+    "peak_memory_bytes": 2040385536,
+    "interrupted": null
+  },
+  "toc": {
+    "command": [
+      "$DOC_PYTHON",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 5.0,
+    "peak_memory_bytes": 413306880,
+    "interrupted": null
+  },
+  "vendor-parser": {
+    "command": [
+      "flock",
+      "$SYNTH_LOCK",
+      "python3",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$REPO",
+    "rc": 0,
+    "seconds": 163.13,
+    "peak_memory_bytes": 3108397056,
+    "interrupted": null
+  }
+}

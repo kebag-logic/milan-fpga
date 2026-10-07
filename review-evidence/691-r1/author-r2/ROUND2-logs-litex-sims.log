@@ -1,0 +1,9 @@
+PASS     test_cpu_memory_port_cdc
+PASS     test_gmii_rx_capture
+PASS     test_gptp_tx_timestamp
+PASS     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge
+----------------------------------------------------------------
+simulations: 5   passed: 5   failed: 0   skipped: 0   timed out: 0
+logs: $SCRATCH/round2/litex-sim-logs
+{"label": "litex-sims", "command": ["bash", "scripts/run_litex_sims.sh", "$SCRATCH/round2/litex-sim-logs"], "cwd": "$SCRATCH/round2/test-tree", "pid": 291922, "rc": 0, "seconds": 184.63, "peak_memory_bytes": 1677606912, "min_free_bytes": 172984045568, "interrupted": null}

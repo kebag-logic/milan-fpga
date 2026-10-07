@@ -1,0 +1,5 @@
+STALE: the generated MAC transmit chain is not the chain the product builds. Regenerate it with sw/litex/gen_mac_tx_model.py and review the diff.
+  re-converting the product chain does not reproduce the artifact byte for byte
+generated MAC transmit chain: OK (2683 lines, region 1875a2eb2163, checked by re-converted from the product source)
+Stale RX control: refused; regenerated chain: PASS
+{"label": "model-control", "command": ["$MILAN_LITEX_PYTHON", "$SCRATCH/round2/model_control.py"], "cwd": "$SCRATCH/round2/test-tree", "pid": 298628, "rc": 0, "seconds": 0.5, "peak_memory_bytes": 1077207040, "min_free_bytes": 173595054080, "interrupted": null}

@@ -1,0 +1,12 @@
+[A564] REVIEW READY - round 2
+
+Local head: `ba080007a402dced74fa74656338710e0b6cb880`. Parent: `35fb2a95007ce6dd1ec4f51c2dcb793800623cfd`. Not pushed.
+
+- F1: regenerated the committed MAC chain and manifest with the complete five-patch stack. The diff is confined to GMII RX. Strong reconstruction passes; the exact old artifact is refused. The default timestamp target passes 85 checks and catches all six controls. No other stale committed RX conversion was found.
+- F2: committed the compact constraints and placement driver, with the exact command in BUILDING.md. The new live run gives 9 ILOGIC PASS / 9 expected FAIL, each negative naming "no register reads the pad"; driver rc 0.
+- R1/R2: exact header and prepared PR-body wording applied. S1: six permanent structural controls added and caught. S2: complete six-row historical IOB summary regenerated separately.
+- Validation: five standalone simulations pass without skips; runner self-test 10/10; IOB checker 22 arms / 21 mutants; complete builder --require-rv32 rc 0; 76 documentation/source/policy commands each rc 0. The builder's saved retired-board calibration arm remains explicitly NOT RUN. The initial missing-parser environment refusal was corrected in isolated scratch; the unchanged gate then passed.
+
+The capture fix, product source, default configuration and register map are unchanged in this round. The lane is clean. All jobs have ended. HANDOFF.md and PR-BODY.md retain earlier rounds and contain the Round 2 changes, planted-defect coverage, commands, exits and compact receipts; large artifacts remain in scratch with hashes/sizes.
+
+Independent re-review is required. The manager retains the full candidate bank, workflow evidence and merge duties under ruling 6045752839. No push, PR edit, merge, rebase, amend, hardware access or deployment occurred.
