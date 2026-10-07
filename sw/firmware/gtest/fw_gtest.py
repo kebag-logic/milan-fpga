@@ -56,6 +56,7 @@ class Build:
     """How a gate builds: the compilers, coverage or not, and the jobs."""
 
     coverage: bool = False
+    address_sanitizer: bool = False
     jobs: int = os.cpu_count() or 4
     #: compiled C++ objects by content key, shared by every arm of one run
     cache: dict[str, Path] = field(default_factory=dict)
@@ -77,9 +78,12 @@ class Build:
 
     def c_flags(self, flags: Sequence[str]) -> list[str]:
         """A module's C flags, with its optimisation replaced in a coverage build."""
-        if not self.coverage:
-            return list(flags)
-        return [f for f in flags if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
+        use = list(flags)
+        if self.coverage:
+            use = [f for f in use if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
+        if self.address_sanitizer:
+            use += ["-fsanitize=address", "-fno-omit-frame-pointer", "-fno-pie"]
+        return use
 
 
 def run(argv: Sequence[str], cwd: Path | None = None, timeout: int | None = None,
@@ -159,6 +163,8 @@ def main_object(build: Build, out: Path) -> Path:
 def link(build: Build, objects: Sequence[Path], exe: Path) -> Path:
     """Link test and firmware objects with the harness's main into exe."""
     flags = ["--coverage"] if build.coverage else []
+    if build.address_sanitizer:
+        flags += ["-fsanitize=address", "-no-pie"]
     res = run([build.cxx, *flags, *map(str, objects), "-o", str(exe), *TEST_LIBS])
     if res.returncode != 0:
         raise BuildError(f"{exe.name} does not link:\n{res.stderr}")
