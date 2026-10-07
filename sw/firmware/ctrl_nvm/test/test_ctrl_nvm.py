@@ -152,6 +152,7 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
               f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
+        print(f"  largest static frame: {sizes.get('stack_frame')} bytes (not a call-chain bound)")
     return found
 
 

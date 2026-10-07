@@ -291,10 +291,14 @@ def _arms_runner_contract(ck):
     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
-                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
+                     ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-1800"),
+                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-1800"),
+                     ("SUITE_TIMEOUT:-4800", "SUITE_TIMEOUT:-3600"),
                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
+                     ("capture_coherence)", "capture_coherence_typo)"),
                      ("milan_dp_gptp)", "milan_dp)"),
-                     ("    milan_dp)      ", "    milan_dp_render) "),
+                     ("milan_dp_mclk)", "milan_dp_render)"),
+                     ("milan_dp)", "milan_dp_render)"),
                      ('TMO=$(suite_timeout "$suite")', 'TMO=2400')):
         ck(f"a changed suite budget is rejected: {old}",
            bool(runner_contract(runner.replace(old, new))))
