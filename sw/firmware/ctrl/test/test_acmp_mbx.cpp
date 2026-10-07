@@ -16,7 +16,8 @@
 //       its change reported only after its TX_HEAD commit (#653), and the
 //       pass in which it is committed with k frames owed ahead of it;
 //   F   the bound with full legal backlogs: both rings full, every pass and
-//       path held to the stated figures, events first in every pass;
+//       path held to the stated figures, events first in every pass; with
+//       lane F2's MAAP composed too, every pass held to CTRL_APP_PASS_MAX;
 //   U   the composition: ACMP after ADP, nothing read before the contract
 //       check, the boot order's two halves; ADP, ACMP and lane F2's MAAP in
 //       one app (the attach order, every channel and its interrupt opened,
@@ -901,6 +902,73 @@ TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
         << "F5 the ENTITY_AVAILABLE is taken by pass CTRL_LOOP_RX_PASSES(256)";
     bound("F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)", at != 0u ? spent : UINT64_MAX,
           ACMP_MBX_ADP_RX_ACCESSES);
+}
+
+// A MAAP PROBE from another station for `count` addresses at kMaapBase: it
+// overlaps the range MAAP claims, so the maap channel's filter passes it.
+std::array<std::uint8_t, 60> maap_probe(std::uint16_t count) {
+    std::array<std::uint8_t, 60> f{};
+    wire_put_be(f.data(), MAAP_MULTICAST, 6);
+    wire_put_be(f.data() + 6, 0x060000000040ull, 6);
+    f[12] = 0x22;
+    f[13] = 0xF0;
+    f[14] = 0xFE;                                   // the MAAP subtype
+    f[15] = MAAP_MSG_PROBE;
+    f[17] = 16;                                     // control_data_length
+    wire_put_be(f.data() + 26, kMaapBase, 6);
+    wire_put_be(f.data() + 32, count, 2);
+    return f;
+}
+
+TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
+    mbx_model_reset(&model);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        mbx_model_set_gm(&model, i, kGm0, 0);
+        mbx_model_set_link(&model, i, true);
+    }
+    const ctrl_app_config cfg = three_way();
+    ASSERT_TRUE(ctrl_app_start(&app, &cfg));
+    settle();
+    for (unsigned k = 0; k < acfg.n_sinks; ++k) {
+        bind(k);
+    }
+    mbx_tick_enable(false);
+    for (unsigned t = 0; t < MBX_N_TIMERS; ++t) {
+        if ((t < slot(0) || t >= slot(MBX_N_IF)) && (t < app.maap.ifs[0].slot || t > app.maap.ifs[MBX_N_IF - 1u].slot)) {
+            mbx_timer_arm(t, 0x77u, mbx_now_ms());      // every slot but ACMP's and MAAP's
+        }
+    }
+    to_deadline();                                   // every sink's TMR_NO_RESP, last
+    unsigned acmp_stored = 0;
+    for (unsigned j = 0; j < 100000u && model.ch[MBX_CH_ACMP].rx_drop == 0u; ++j) {
+        Pdu q = command(spec::MSG_BIND_RX_COMMAND, j % acfg.n_sinks, kCtl1, static_cast<std::uint16_t>(j));
+        q.talker = kTkB + j;
+        acmp_stored += offer(q) ? 1u : 0u;
+    }
+    unsigned maap_stored = 0;
+    for (unsigned j = 0; j < 1000u && model.ch[MBX_CH_MAAP].rx_drop == 0u; ++j) {
+        const auto f = maap_probe(static_cast<std::uint16_t>(1u + j % 8u));
+        maap_stored += mbx_model_rx(&model, f.data(), f.size(), 0) ? 1u : 0u;
+    }
+    const unsigned events = static_cast<std::uint16_t>(model.evt_head - model.evt_tail) / MBX_EV_WORDS;
+    ASSERT_TRUE(events > 0u && acmp_stored > 0u && maap_stored > 0u) << "F6 events, acmp and maap records wait";
+    std::uint64_t worst = 0;
+    std::uint32_t rx0 = app.loop.stats.rx_records;
+    std::uint32_t events0 = app.loop.stats.events;
+    unsigned at = 0;
+    for (unsigned q = 1; q <= 64u && at == 0u; ++q) {
+        std::uint64_t n = pass();
+        worst = n > worst ? n : worst;
+        at = app.loop.stats.rx_records - rx0 >= acmp_stored + maap_stored && app.loop.stats.events - events0 >= events
+                 ? q
+                 : 0u;
+    }
+    std::printf("  three-way backlog: %u event records, %u acmp and %u maap records; worst pass %u accesses\n", events,
+                acmp_stored, maap_stored, static_cast<unsigned>(worst));
+    EXPECT_TRUE(at != 0u && at <= ACMP_MBX_RX_PASSES) << "F6 every record and event is taken, by ACMP_MBX_RX_PASSES";
+    EXPECT_EQ(model.ch[MBX_CH_MAAP].rx_tail, model.ch[MBX_CH_MAAP].rx_head) << "F6 the maap ring is drained";
+    bound("F6 the worst pass of the three-way backlog", worst, CTRL_APP_PASS_MAX);
+    settle();
 }
 
 // ---- U: the composition ---------------------------------------------------------------------

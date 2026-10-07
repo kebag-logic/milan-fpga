@@ -52,6 +52,19 @@ extern "C" {
 #define CTRL_APP_ACMP_FIRST_SLOT (CTRL_APP_ADP_FIRST_SLOT + MBX_N_IF)
 #define CTRL_APP_MAAP_FIRST_SLOT (CTRL_APP_ACMP_FIRST_SLOT + MBX_N_IF)
 
+// A pass of the three-way composition costs at most CTRL_APP_PASS_MAX mailbox
+// accesses: a pass of ADP and ACMP (ACMP_MBX_PASS_MAX, acmp_mbx.h), whose
+// terms already hold every event record's own words, plus MAAP's share
+// (maap_mbx.h): its costliest action on each of the pass's events, its two
+// records of the maap channel (the largest, 64 bytes) with its costliest
+// handler, and its poll on every interface. Each pass count of acmp_mbx.h and
+// maap/README.md holds in the composed loop with this pass in place of its own.
+#define CTRL_APP_MAAP_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + MBX_CH_MAAP_MAX_FRAME_BYTES / 4u)
+#define CTRL_APP_MAAP_PASS_SHARE                                                                                   \
+	(CTRL_LOOP_EVENTS_PER_PASS * MAAP_MBX_EVENT_MAX +                                                          \
+	 CTRL_LOOP_RX_PER_PASS * (CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)
+#define CTRL_APP_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
+
 struct ctrl_app {
 	struct ctrl_pool pool;
 	struct ctrl_loop loop;

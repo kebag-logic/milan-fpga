@@ -38,6 +38,7 @@ MAAP_INIT = ("\treturn maap_mbx_init(&app->maap, mac, count, CTRL_APP_MAAP_FIRST
              "cfg->maap_ctx) &&\n\t       maap_mbx_attach(&app->maap, &app->loop);\n")
 U6 = "AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen"
 U7 = "AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened"
+F6 = "AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound"
 EXPLICIT = "MaapHost.ExplicitAppComposition"
 
 MUTANTS = (
@@ -364,6 +365,10 @@ MUTANTS = (
            "acmp", U6, "U6 composing the three touches no mailbox register"),
     Mutant("app-maap-never-started", APP, "\t\t(void)maap_mbx_start(&app->maap, cfg->maap_preferred);\n", "",
            "acmp", U6, "U6 MAAP probes from the open", (("maap", EXPLICIT, ""),)),
+    Mutant("app-maap-channel-unbound", "maap/maap_mbx.c",
+           "\t(void)ctrl_loop_bind_rx(loop, MBX_CH_MAAP, receive, m);\n", "\t(void)receive;\n",
+           "acmp", F6, "F6 events, acmp and maap records wait",
+           (("acmp", U6, "U6 ACMP still stands in front of ADP's handler, and MAAP holds its own channel"),)),
     # round 6: the refusals
     Mutant("app-maap-preferred-unchecked", APP, "\tif (preferred != 0u && (preferred < MAAP_POOL_BASE ||\n",
            "\tif (false && (preferred < MAAP_POOL_BASE ||\n",
@@ -389,4 +394,9 @@ MUTANTS = (
            "acmp", U7, "U7 the explicit MAAP entry refuses a missing stream-address port", (("maap", EXPLICIT, ""),)),
     Mutant("app-maap-entry-drops-preferred", APP, "\twith.maap_preferred = preferred;\n", "\t(void)preferred;\n",
            "maap", EXPLICIT, ""),
+    # round 6: the three-way pass bound (CTRL_APP_PASS_MAX)
+    Mutant("app-three-way-pass-overrun", "maap/maap_mbx.c", "\tmaap_rx(&m->ifs[f->interface].core",
+           "\tfor (unsigned k = 0; k < 2000u; ++k) {\n\t\t(void)mbx_now_ms();\n\t}\n"
+           "\tmaap_rx(&m->ifs[f->interface].core",
+           "acmp", F6, "F6 the worst pass of the three-way backlog"),
 )
