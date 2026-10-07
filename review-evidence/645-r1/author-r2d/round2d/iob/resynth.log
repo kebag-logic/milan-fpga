@@ -1,0 +1,17 @@
+r2c
+  0
+  PROBE ff pin: Q net: milansoc_phy_source_valid driver: milansoc_phy_source_valid_reg FDRE
+  PROBE ff pin: C net: eth_rx_clk driver: BUFG_7 BUFG
+  PROBE ff pin: CE net: <const1> driver: VCC VCC
+  PROBE ff pin: D net: eth0_rx_dv_IBUF driver: eth0_rx_dv_IBUF_inst IBUF
+  PROBE ff pin: R net: eth_rx_rst driver: FDPE_15 FDPE
+r2d
+  0
+  PROBE ff pin: Q net: milansoc_phy_source_valid driver: milansoc_phy_source_valid_reg FDRE
+  PROBE ff pin: C net: eth_rx_clk driver: BUFG_7 BUFG
+  PROBE ff pin: CE net: <const1> driver: VCC VCC
+  PROBE ff pin: D net: milansoc_phy_source_valid_i_1_n_0 driver: milansoc_phy_source_valid_i_1 LUT2
+  PROBE ff pin: R net: <const0> driver: GND GND
+  PROBE lut INIT: 4'h2
+  PROBE lut pin: I0 net: eth0_rx_dv_IBUF driver: eth0_rx_dv_IBUF_inst IBUF fanout: 6
+  PROBE lut pin: I1 net: eth_rx_rst driver: FDPE_15 FDPE fanout: 10
