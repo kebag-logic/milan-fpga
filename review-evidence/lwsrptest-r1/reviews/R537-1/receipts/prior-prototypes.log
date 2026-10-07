@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: cc -fsyntax-only -std=c11 -Wall -Wextra -Wpedantic -Wmissing-prototypes -Wstrict-prototypes -I $SCRATCH/sdk/include -I $REPOSITORY/src/include $REPOSITORY/tests/features/switch_bindings.c $REPOSITORY/tests/unit/main.c $REPOSITORY/tests/unit/mrp_pdu_test.c
+Working directory: $SCRATCH
+
+$REPOSITORY/tests/features/switch_bindings.c:6:5: warning: no previous prototype for 'shlan_test_connect' [-Wmissing-prototypes]
+    6 | int shlan_test_connect(struct shlan_switch *sw)
+      |     ^~~~~~~~~~~~~~~~~~
+$REPOSITORY/tests/features/switch_bindings.c:11:6: warning: no previous prototype for 'shlan_test_disconnect' [-Wmissing-prototypes]
+   11 | void shlan_test_disconnect(struct shlan_switch *sw)
+      |      ^~~~~~~~~~~~~~~~~~~~~
+$REPOSITORY/tests/features/switch_bindings.c:16:5: warning: no previous prototype for 'shlan_test_port_enable' [-Wmissing-prototypes]
+   16 | int shlan_test_port_enable(struct shlan_switch *sw, uint8_t port_id)
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+$REPOSITORY/tests/features/switch_bindings.c:21:5: warning: no previous prototype for 'shlan_test_port_disable' [-Wmissing-prototypes]
+   21 | int shlan_test_port_disable(struct shlan_switch *sw, uint8_t port_id)
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+$REPOSITORY/tests/unit/mrp_pdu_test.c:139:12: warning: no previous prototype for 'mrp_pdu_suite' [-Wmissing-prototypes]
+  139 | TestSuite *mrp_pdu_suite(void)
+      |            ^~~~~~~~~~~~~

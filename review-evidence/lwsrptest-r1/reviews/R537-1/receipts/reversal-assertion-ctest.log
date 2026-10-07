@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: ctest --test-dir build --verbose --output-on-failure
+Working directory: $SCRATCH/reversal-assertion
+
+UpdateCTestConfiguration  from :$SCRATCH/reversal-assertion/build/DartConfiguration.tcl
+Test project $SCRATCH/reversal-assertion/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: $SCRATCH/reversal-assertion/build/unit_tests
+1: Working Directory: $SCRATCH/reversal-assertion/build
+1: Test timeout computed to be: 10000000
+1: Running "mrp_pdu_suite" (9 tests)...
+1: $SCRATCH/reversal-assertion/tests/unit/mrp_pdu_test.c:41: Failure: three_pack_uses_single_byte 
+1: 	Expected [packed] to [equal] [214]
+1: 		actual value:			[215]
+1: 		expected value:			[214]
+1: 
+1:   "mrp_pdu_suite": 1689 passes, 1 failure in 83ms.
+1: Completed "mrp_pdu_suite": 1689 passes, 1 failure in 83ms.
+1/1 Test #1: unit .............................***Failed    0.09 sec
+Running "mrp_pdu_suite" (9 tests)...
+$SCRATCH/reversal-assertion/tests/unit/mrp_pdu_test.c:41: Failure: three_pack_uses_single_byte 
+	Expected [packed] to [equal] [214]
+		actual value:			[215]
+		expected value:			[214]
+
+  "mrp_pdu_suite": 1689 passes, 1 failure in 83ms.
+Completed "mrp_pdu_suite": 1689 passes, 1 failure in 83ms.
+
+Errors while running CTest
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.10 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)

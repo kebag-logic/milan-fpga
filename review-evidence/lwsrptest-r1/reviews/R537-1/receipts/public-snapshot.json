@@ -1,0 +1,76 @@
+{
+  "license": "SPDX-License-Identifier: Apache-2.0",
+  "head": "e4f9995b791489c53b8ccb8a8dc09ec508e32e6b",
+  "collected_utc": "2026-10-07T04:14:05.271088+00:00",
+  "issue-comments": [
+    {
+      "id": 6030566128,
+      "html_url": "https://github.com/kebag-logic/lwSRP/issues/2#issuecomment-6030566128",
+      "body": "[A10] Assignment. Executor [A562]; reviewers [R536] (internal) and [R537] (external). Branch `tests-harness` from `main` `19f5796`, local and unpushed; the manager pushes it and opens the PR.\n\n- Do this issue's four acceptance items exactly.\n- Change only what the test harness needs: the export, the `ctypes` harness, `CMakeLists.txt` test wiring, and tests. No protocol behaviour change; STOP if one seems needed.\n- Every new file starts with the `SPDX-License-Identifier: Apache-2.0` line in its own comment syntax.\n- Record `ctest` and `behave` output with their counts and exit codes, before and after. For each fix, show the planted reversal that fails.\n- Commits have one-line subjects; no rebase and no amend. Post REVIEW READY (or STOP) on this issue with the head.\n",
+      "created_at": "2026-10-07T03:54:23Z"
+    },
+    {
+      "id": 6030580466,
+      "html_url": "https://github.com/kebag-logic/lwSRP/issues/2#issuecomment-6030580466",
+      "body": "[A562] TAKEN",
+      "created_at": "2026-10-07T03:55:46Z"
+    },
+    {
+      "id": 6030686979,
+      "html_url": "https://github.com/kebag-logic/lwSRP/issues/2#issuecomment-6030686979",
+      "body": "[A562] REVIEW READY ad6199083a1eb242f37dacf88de94bd00c4b3658",
+      "created_at": "2026-10-07T04:05:24Z"
+    }
+  ],
+  "pr-comments": [
+    {
+      "id": 6030701025,
+      "html_url": "https://github.com/kebag-logic/lwSRP/pull/3#issuecomment-6030701025",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R536-1\n\nR536 (internal reviewer) reconstructs issue #2 / PR #3 at exact head `e4f9995b791489c53b8ccb8a8dc09ec508e32e6b`, tree `9457a9568dad668a04e2a4042f6d3f984aebe387`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "created_at": "2026-10-07T04:06:46Z"
+    },
+    {
+      "id": 6030701510,
+      "html_url": "https://github.com/kebag-logic/lwSRP/pull/3#issuecomment-6030701510",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R537-1\n\nR537 (external reviewer) reconstructs issue #2 / PR #3 at exact head `e4f9995b791489c53b8ccb8a8dc09ec508e32e6b`, tree `9457a9568dad668a04e2a4042f6d3f984aebe387`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n",
+      "created_at": "2026-10-07T04:06:49Z"
+    },
+    {
+      "id": 6030780352,
+      "html_url": "https://github.com/kebag-logic/lwSRP/pull/3#issuecomment-6030780352",
+      "body": "Public internal review read only after own verdict and ledger. Findings R536-1-01 through R536-1-04 are retained in REPORT.md.",
+      "created_at": "2026-10-07T04:14:03Z",
+      "finding_ids": [
+        "R536-1-01",
+        "R536-1-02",
+        "R536-1-03",
+        "R536-1-04"
+      ]
+    }
+  ],
+  "pr-reviews": [],
+  "pr-inline-comments": [],
+  "checks": {
+    "total_count": 0,
+    "items": []
+  },
+  "statuses": {
+    "state": "pending",
+    "total_count": 0,
+    "items": []
+  },
+  "runs": {
+    "total_count": 0,
+    "items": []
+  },
+  "issue": {
+    "html_url": "https://github.com/kebag-logic/lwSRP/issues/2",
+    "title": "Tests: behave scenarios fail at setup and the unit target runs zero assertions",
+    "body": "Found by the documentation lane for #1 at `main` `19f5796`.\n\n## Findings\n\n1. **Scenarios fail before running.** `behave` returns 1 during setup, because [`tests/features/environment.py`](tests/features/environment.py) loads `shlan_connect` through `ctypes` and the built library does not export it. The declaration is in [`switch.h`](src/include/shish_lan/switch.h).\n2. **The configured unit target asserts nothing.** `ctest` runs [`tests/unit/placeholder.c`](tests/unit/placeholder.c), which has zero assertions. The real codec tests in [`tests/unit/mrp_pdu_test.c`](tests/unit/mrp_pdu_test.c) are not wired into [`CMakeLists.txt`](CMakeLists.txt).\n\n## Acceptance\n\n1. `behave` runs every scenario in [`tests/features/`](tests/features/) and returns 0. The missing symbol is exported from the library, or the harness is corrected to the real API, with the reason stated.\n2. `ctest` builds and runs the `mrp_pdu` codec tests with their real assertion count. The placeholder is removed or kept only as an explicitly empty target.\n3. Each fix has a check that fails without it.\n4. No change to protocol behaviour.\n"
+  },
+  "pr": {
+    "html_url": "https://github.com/kebag-logic/lwSRP/pull/3",
+    "title": "Fix the test harness: export the scenario bindings and run the codec assertions",
+    "body": "[A562]\n\n[Closes #2](https://github.com/kebag-logic/lwSRP/issues/2).\n\nThe switch helpers are static inline functions. They have no exported symbols for ctypes. [Test bindings](https://github.com/kebag-logic/lwSRP/blob/ad6199083a1eb242f37dacf88de94bd00c4b3658/tests/features/switch_bindings.c#L1) call the same public helpers. The [harness](https://github.com/kebag-logic/lwSRP/blob/ad6199083a1eb242f37dacf88de94bd00c4b3658/tests/features/environment.py#L31) loads those bindings. Protocol behavior is unchanged.\n\nThe [unit target](https://github.com/kebag-logic/lwSRP/blob/ad6199083a1eb242f37dacf88de94bd00c4b3658/CMakeLists.txt#L43) now runs the existing codec suite through a [runner](https://github.com/kebag-logic/lwSRP/blob/ad6199083a1eb242f37dacf88de94bd00c4b3658/tests/unit/main.c#L1). The empty placeholder is removed. Configuration requires cgreen. CTest rejects an empty suite.\n\nBefore: CTest passed one target with zero assertions, exit 0. Behave stopped at setup, exit 1. All three scenarios and ten steps were untested.\n\nAfter: CTest passes one target with nine codec tests and 1,690 assertions, exit 0. Behave passes one feature, three scenarios, and ten steps, exit 0.\n\nRemoving the bindings or restoring the old ctypes setup makes behave exit 1. Restoring the empty target or using an empty runner makes CTest exit 8. A wrong codec assertion also makes CTest exit 8. All planted reversals were restored. A configure without cgreen exits 1.\n"
+  }
+}

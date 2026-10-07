@@ -1,0 +1,10 @@
+SPDX-License-Identifier: Apache-2.0
+Independent source pass completed before author executable evidence or prior review findings.
+Head e4f9995b791489c53b8ccb8a8dc09ec508e32e6b
+Tree 9457a9568dad668a04e2a4042f6d3f984aebe387
+Conformance: four frozen acceptance items mapped to CMake unit registration, exported wrappers, Python prototypes and unchanged src tree. Two new files have required first-line SPDX headers.
+RTL: not applicable; standalone C11 library, no RTL changed.
+Robustness: binding prototypes and forwarding match public inline API. Zephyr early return avoids test dependencies; standalone shared library unconditionally includes test bindings and requires cgreen. Verify release/library-only consequences before verdict.
+Tests: nine registered codec tests; calculated assertions 648+1+1024+4+1+2+3+6+1=1690. CTest rejects the empty-suite diagnostic; check five reversals and actual baseline behavior. Existing scenario state checks use return-code proxies.
+Docs: new inline-binding explanation is accurate. Existing architecture test section is stale: lists placeholder and parser/scenario coverage absent from existing tests. Distinguish inherited gaps from changes in scope. PR body states exact before/after and reversal counts to verify.
+No verdict assigned until executable checks and public evidence reconstruction complete.

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: python3 $PACKET/binding_probe.py $SCRATCH/head/build/libshlan.so
+Working directory: $SCRATCH
+
+PASS: four wrappers dispatch the correct vtable member and preserve pointer and return value.
+PASS: both port wrappers preserve every uint8_t value (0 through 255).
+PASS: 100 real-adapter create/connect/port-boundary/disconnect/destroy cycles.

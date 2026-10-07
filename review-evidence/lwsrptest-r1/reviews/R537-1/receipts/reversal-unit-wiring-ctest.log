@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: ctest --test-dir build --verbose --output-on-failure
+Working directory: $SCRATCH/reversal-unit-wiring
+
+UpdateCTestConfiguration  from :$SCRATCH/reversal-unit-wiring/build/DartConfiguration.tcl
+Test project $SCRATCH/reversal-unit-wiring/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: $SCRATCH/reversal-unit-wiring/build/unit_tests
+1: Working Directory: $SCRATCH/reversal-unit-wiring/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (0 tests)...
+1: Completed "main": No assertions.
+1/1 Test #1: unit .............................***Failed  Error regular expression found in output. Regex=[No assertions]  0.01 sec
+Running "main" (0 tests)...
+Completed "main": No assertions.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

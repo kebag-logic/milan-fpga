@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: cmake -S $SCRATCH/head-no-dependency -B $SCRATCH/head-no-dependency/build -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_FIND_ROOT_PATH=$SCRATCH/empty-root -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+Working directory: $SCRATCH/head-no-dependency
+
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $SYSTEM_PATH - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+CMake Error at CMakeLists.txt:45 (find_library):
+  Could not find CGREEN_LIB using the following names: cgreen
+
+
+-- Configuring incomplete, errors occurred!

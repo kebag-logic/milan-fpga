@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: nm -g --defined-only build/component/liblwsrp.a
+Working directory: $SCRATCH/zephyr-glue/wrapper
+
+
+mrp_mad.c.o:
+0000000000000bbc T mrp_app_create
+0000000000000dba T mrp_app_destroy
+0000000000000012 T mrp_app_n_ports
+00000000000014f5 T mrp_appl_state_name
+000000000000002f T mrp_attr_registered_ports
+000000000000137d T mrp_attr_visit
+0000000000001551 T mrp_event_name
+0000000000000e6e T mrp_mad_join
+0000000000000f25 T mrp_mad_leave
+0000000000001205 T mrp_port_role_change
+000000000000146b T mrp_port_status
+0000000000001523 T mrp_reg_state_name
+0000000000001140 T mrp_rx
+000000000000133e T mrp_set_observer
+0000000000001296 T mrp_set_periodic
+00000000000011ed T mrp_tick
+
+mrp_pdu.c.o:
+0000000000000265 T mrpdu_encode_begin
+0000000000000291 T mrpdu_encode_end
+00000000000002bb T mrpdu_encode_vector
+0000000000000a25 T mrpdu_parse
+
+mvrp.c.o:
+000000000000022e T mvrp_app_create
+00000000000002fa T mvrp_app_destroy
+0000000000000315 T mvrp_declare
+0000000000000382 T mvrp_withdraw
+
+mmrp.c.o:
+00000000000002e0 T mmrp_app_create
+00000000000003ac T mmrp_app_destroy
+00000000000003c7 T mmrp_declare_mac
+0000000000000431 T mmrp_declare_svc
+00000000000003ff T mmrp_withdraw_mac
+0000000000000468 T mmrp_withdraw_svc
+
+msrp.c.o:
+00000000000007a6 T msrp_app_create
+0000000000000897 T msrp_app_destroy
+00000000000008ee T msrp_declare_listener
+00000000000008b2 T msrp_declare_talker
+00000000000009dd T msrp_withdraw_listener
+000000000000095d T msrp_withdraw_talker
+
+alloc.c.o:
+000000000000001a T shlan_calloc
+000000000000003f T shlan_free
+0000000000000000 T shlan_malloc
+000000000000005a T shlan_printf
+
+timer.c.o:
+000000000000004f T shlan_timer_arm
+0000000000000067 T shlan_timer_disarm
+0000000000000000 T shlan_timer_init
+000000000000007d T shlan_timer_tick

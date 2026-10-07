@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: make -C $SCRATCH/base-no-dependency/build -j16 shlan
+Working directory: $SCRATCH/base-no-dependency
+
+make: Entering directory '$SCRATCH/base-no-dependency/build'
+[ 11%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 33%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 33%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 44%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 77%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 77%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 77%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 88%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[100%] Linking C shared library libshlan.so
+[100%] Built target shlan
+make: Leaving directory '$SCRATCH/base-no-dependency/build'

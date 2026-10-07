@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: make -C $SCRATCH/release-library/build -j16 shlan
+Working directory: $SCRATCH/release-library
+
+make: Entering directory '$SCRATCH/release-library/build'
+[ 10%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 60%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 70%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 80%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 90%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[100%] Linking C shared library libshlan.so
+[100%] Built target shlan
+make: Leaving directory '$SCRATCH/release-library/build'

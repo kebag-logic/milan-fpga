@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: make -C $SCRATCH/reversal-unit-wiring/build -j16
+Working directory: $SCRATCH/reversal-unit-wiring
+
+make: Entering directory '$SCRATCH/reversal-unit-wiring/build'
+[  8%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 16%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 25%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 41%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 41%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 58%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 66%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 75%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 83%] Linking C shared library libshlan.so
+[ 83%] Built target shlan
+[ 91%] Building C object CMakeFiles/unit_tests.dir/tests/unit/placeholder.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory '$SCRATCH/reversal-unit-wiring/build'

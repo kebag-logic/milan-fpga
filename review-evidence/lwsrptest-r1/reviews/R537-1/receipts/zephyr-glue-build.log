@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: make -C $SCRATCH/zephyr-glue/wrapper/build -j16
+Working directory: $SCRATCH/zephyr-glue/wrapper
+
+make: Entering directory '$SCRATCH/zephyr-glue/wrapper/build'
+[ 12%] Building C object component/CMakeFiles/lwsrp.dir/src/core/mrp_mad.c.o
+[ 25%] Building C object component/CMakeFiles/lwsrp.dir/src/ports/timer.c.o
+[ 50%] Building C object component/CMakeFiles/lwsrp.dir/src/modules/mmrp.c.o
+[ 50%] Building C object component/CMakeFiles/lwsrp.dir/src/core/mrp_pdu.c.o
+[ 62%] Building C object component/CMakeFiles/lwsrp.dir/src/modules/msrp.c.o
+[ 87%] Building C object component/CMakeFiles/lwsrp.dir/src/ports/alloc.c.o
+[ 87%] Building C object component/CMakeFiles/lwsrp.dir/src/modules/mvrp.c.o
+[100%] Linking C static library liblwsrp.a
+[100%] Built target lwsrp
+make: Leaving directory '$SCRATCH/zephyr-glue/wrapper/build'

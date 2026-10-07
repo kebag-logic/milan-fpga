@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+Command: cmake -S $SCRATCH/cgreen-1.7.0 -B $SCRATCH/cgreen-build -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$SCRATCH/sdk -DCGREEN_WITH_UNIT_TESTS=OFF -DCGREEN_WITH_LIBXML2=OFF
+Working directory: $SCRATCH
+
+-- The C compiler identification is GNU 16.2.1
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: $SYSTEM_PATH - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: $SYSTEM_PATH - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Performing Test WITH_FPIC
+-- Performing Test WITH_FPIC - Success
+-- Performing Test WITH_FORTIFY_SOURCE
+-- Performing Test WITH_FORTIFY_SOURCE - Success
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+CMake Warning at src/CMakeLists.txt:15 (message):
+  -- Unable to find git, or not a repo.  Setting git revision to 'unknown'.
+
+
+-- Configuring done (1.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: $SCRATCH/cgreen-build
