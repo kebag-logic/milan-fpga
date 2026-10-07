@@ -1,0 +1,110 @@
+{
+  "build": {
+    "command": "make -C build -j16",
+    "exit": 0,
+    "path_redacted": true,
+    "raw_sha256": "4a03f7402196415c36d28045060ca01c9424555f22be705c49abc56f3a041e99"
+  },
+  "configure": {
+    "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCGREEN_LIB=$PACKET/scratch/unit-dependency-build/src/libcgreen.so -DCGREEN_INCLUDE=$PACKET/scratch/unit-dependency/include",
+    "exit": 0,
+    "path_redacted": true,
+    "raw_sha256": "e076e7e84c0cd9ea14fbc94d4a98c53df26ff669abd1e51901ad1595d026613a"
+  },
+  "ctest": {
+    "command": "ctest --test-dir build -V --output-on-failure",
+    "exit": 0,
+    "path_redacted": true,
+    "raw_sha256": "fd0be6ef98145cae5003e0a4604c2a5043f7c69f6ca5505c41b664e13f0edf1b"
+  },
+  "graph-script-help": {
+    "command": "python3 doc/tools/render_mermaid.py --help",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "29528c1f822cfbb2e60dfd7cbfe374705203701b30dfb430106e30922f454b98"
+  },
+  "kconfig-parse": {
+    "command": "python3 -c import kconfiglib; k=kconfiglib.Kconfig('Kconfig.zephyr'); s=k.syms['LWSRP']; assert s.type==kconfiglib.BOOL; assert s.str_value=='n'; s.set_value('y'); assert s.str_value=='y'; print('Kconfig parse and LWSRP n/y selection: PASS')",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "65198540e4ddf522ed2ac187dc40e751b15c8c3d616b68094dc034201451d335"
+  },
+  "local-links": {
+    "command": "python3 doc/tools/check_links.py --local-only",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "7e67b66bbc8e410b3ee0e603119d818170716d005da49608e49c94162859216a"
+  },
+  "module-parse": {
+    "command": "python3 -c from pathlib import Path; import yaml; p=Path('zephyr/module.yml'); x=yaml.safe_load(p.read_text()); assert x == {'name':'lwsrp','build':{'cmake':'.','kconfig':'Kconfig.zephyr'}}; assert Path(x['build']['kconfig']).is_file(); assert (Path(x['build']['cmake'])/'CMakeLists.txt').is_file(); print('Module YAML parse and referenced paths: PASS')",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "e70dc44d1b0e9048ddc051b7fb438c8c7837d6d97c2e915c00d0c6858eacd36c"
+  },
+  "parser-dependency": {
+    "command": "python3 -m pip install --target $PACKET/scratch/parser-deps kconfiglib==14.1.0",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "4ef999ff5f3cc1809caaf63d2bd20d5d3770a7ea3b326fb0fc9965255843faea"
+  },
+  "prerequisite-configure": {
+    "command": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "exit": 1,
+    "path_redacted": false,
+    "raw_sha256": "21fa790a09a823ab336fd45cdf16484e210ffb3d635804da15019f8cd0600e39"
+  },
+  "python-parse": {
+    "command": "python3 -c from pathlib import Path; fs=sorted(Path('.').rglob('*.py')); [compile(p.read_bytes(), str(p), 'exec') for p in fs if 'build' not in p.parts]; print('Tracked Python syntax: PASS')",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "3dcc3a1ffc56693583a898d681e796d51bbc536d9e3ae417c02ef4009bee89c3"
+  },
+  "reference-self-test": {
+    "command": "python3 doc/tools/check_references.py --self-test",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "7e68a151a2a780cf539294ed60b0be326c24af9329a53af527c0acdfa479b6f6"
+  },
+  "references": {
+    "command": "python3 doc/tools/check_references.py",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "19e47fd371ca597279e9fb06ec9dace575a6dddac6118cc9c568658844b9772b"
+  },
+  "scenario-parse": {
+    "command": "python3 -m behave --dry-run",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "5c51f51a1ce735a76bcd514c8a7588d53b6a20625c15f3e7d15db6e175103371"
+  },
+  "scenarios": {
+    "command": "python3 -m behave",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "5028e77862e79ead5f2f66f4789515f311e881e79db25d4c5207b58d1ff51428"
+  },
+  "sentences": {
+    "command": "python3 doc/tools/check_sentences.py",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "23bdbf7cd904235cf12952d50e32811d9be4b03c501d5749ed92eb07ec3c9293"
+  },
+  "shell-execute": {
+    "command": "bash build.sh",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "shell-parse": {
+    "command": "bash -n build.sh",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "unit-direct": {
+    "command": "./build/unit_tests",
+    "exit": 0,
+    "path_redacted": false,
+    "raw_sha256": "5596226b23a15dd6236aed7f07c12413f4ed669c97ec528ab83ae5e4a51a64ac"
+  }
+}
