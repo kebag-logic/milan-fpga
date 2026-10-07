@@ -173,6 +173,7 @@ class MaapHarness {
     void announce_intervals_and_destination();
     void defend_to_the_prober(uint16_t off0);
     void announce_conflict_detection(uint16_t off0);
+    void probe_mid_frame_is_not_defended();
     void frame_on_the_wire_keeps_its_range();
     void defend_and_probe_reception();
     void ignore_disjoint_and_non_pool_pdus();
@@ -415,6 +416,30 @@ void MaapHarness::announce_conflict_detection(uint16_t off0){
     check_walk("Restart!", walk("Restart!", restart2, off2, true));
 }
 
+void MaapHarness::probe_mid_frame_is_not_defended(){
+    printf("\n[6a] a conflicting PROBE parsed while an ANNOUNCE is part-way out on the\n"
+           "     wire leaves that frame byte-identical and gets no DEFEND\n");
+    const uint16_t off=dut->offset_o;
+    const long defends=dut->defends_o;
+    const long c0=dut->conflicts_o;
+    dut->m_axis_tready=0;
+    for(long i=0;i<kAnnounceBudgetCyc && !dut->m_axis_tvalid;i++) cyc();
+    ck("ANNOUNCE requested under backpressure", dut->m_axis_tvalid, 1);
+    dut->m_axis_tready=1; cyc(2); dut->m_axis_tready=0;   // two beats out, then stall
+    const size_t before=frames.size();
+    inject(1, kPeerAbove, off, 8, 0, 0);          // conflicting PROBE, mid-frame
+    cyc(kSettleCyc);
+    dut->m_axis_tready=1;
+    Frame f;
+    next(f, kDefendBudgetCyc);
+    ck("PROBE mid-frame: frame on the wire byte-identical", frame_is(f,3) && f.b==golden(3,off), 1);
+    cyc(kSettleCyc);
+    ck("PROBE mid-frame: no DEFEND",
+       static_cast<long>(frames.size()-before)==1 && dut->defends_o==defends, 1);
+    ck("PROBE mid-frame: range kept",
+       dut->state_o==2 && dut->offset_o==off && dut->conflicts_o==c0, 1);
+}
+
 void MaapHarness::frame_on_the_wire_keeps_its_range(){
     printf("\n[6] a Restart! while an ANNOUNCE waits on the wire leaves it intact\n");
     const uint16_t off=dut->offset_o;
@@ -463,6 +488,13 @@ void MaapHarness::ignore_disjoint_and_non_pool_pdus(){
     cyc(kSettleCyc);
     ck("offset stable", dut->offset_o, off2);
     ck("conflicts unchanged", dut->conflicts_o, c0);
+    // note b holds for this station's own block too: count_i 0 claims nothing
+    dut->count_i=0;
+    inject(1, kPeerBelow, static_cast<uint16_t>(off2>=4 ? off2-4 : 0), 8, 0, 0);  // straddles off2
+    cyc(kSettleCyc);
+    dut->count_i=kCount;
+    ck("note b: this station's empty range never conflicts",
+       dut->offset_o==off2 && dut->conflicts_o==c0, 1);
 }
 
 void MaapHarness::honour_conflicts_from_any_maap_version(){
@@ -596,6 +628,7 @@ int MaapHarness::run(){
     announce_intervals_and_destination();
     defend_to_the_prober(off0);
     announce_conflict_detection(off0);
+    probe_mid_frame_is_not_defended();
     frame_on_the_wire_keeps_its_range();
     defend_and_probe_reception();
     ignore_disjoint_and_non_pool_pdus();

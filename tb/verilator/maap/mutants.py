@@ -7,7 +7,9 @@ Every #686 item has at least one mutant: item 1 is B.2.1 (DEFEND destination,
 control_data_length), item 2 B.3.4 (probe and announce timer draws, random
 for every station MAC), item 3 B.3.2 Table B.7 notes b and d (ANNOUNCE
 conflict detection), item 4 Table B.7 (four PROBEs, the first at once, the
-ANNOUNCE at once). Each mutant is
+ANNOUNCE at once). Item 0 marks a supporting change that grades no item's
+own clause (frame integrity on the wire, the DEFEND overlap, this station's
+empty range); it does not count toward the item guard. Each mutant is
 an exact source replacement whose anchor must occur exactly once, applied to
 a scratch copy: no checkout file is edited. A mutant counts as killed only
 when its build succeeds, the harness exits 1, and the named check is among
@@ -30,8 +32,9 @@ RESTART_TIMER = ("            timer_ms_r   <= '0;                 //! sProbe at 
                  "            state_r      <= PROBE_S;\n            conflicts_o")
 CELL = "((state_r == PROBE_S) || !mac_lower_w)"
 SEED = "(mac_seed_w == 16'h0) ? 16'hACE1 : mac_seed_w"
+SUPPORTING = 0
 
-#: (name, #686 item, anchor, replacement, the check that must fail)
+#: (name, #686 item or SUPPORTING, anchor, replacement, the check that must fail)
 MUTANTS = (
     ("cdl_28", 1, "CDL_C          = 8'd16;", "CDL_C          = 8'd28;",
      "B.2.1 cdl 16 (Begin! PROBE 1)"),
@@ -80,11 +83,16 @@ MUTANTS = (
     ("announce_after_a_timer", 4, "                timer_ms_r <= '0;\n",
      "                timer_ms_r <= announce_iv_w;\n",
      "T.B7 probeCount!: ANNOUNCE at once (Begin!)"),
-    ("restart_rewrites_the_frame_on_the_wire", 3,
+    ("restart_rewrites_the_frame_on_the_wire", SUPPORTING,
      "f[30] = tx_off_r[15:8]; f[31] = tx_off_r[7:0];",
      "f[30] = offset_r[15:8]; f[31] = offset_r[7:0];", "frame on the wire keeps its offset"),
-    ("overlap_count_to_our_end", 1, "16'(conf_end_w - {1'b0, conf_start_w})",
+    ("overlap_count_to_our_end", SUPPORTING, "16'(conf_end_w - {1'b0, conf_start_w})",
      "16'(our_end_w - {1'b0, conf_start_w})", "B.2.8 conflict_count = overlap (below)"),
+    ("defend_rewrites_the_frame_on_the_wire", SUPPORTING,
+     "&& (state_r == ANNOUNCE_S) && !tx_busy_r;", "&& (state_r == ANNOUNCE_S);",
+     "PROBE mid-frame: frame on the wire byte-identical"),
+    ("own_empty_range_conflicts", SUPPORTING, " && (count_i != 8'd0)", "",
+     "note b: this station's empty range never conflicts"),
 )
 
 
@@ -126,7 +134,7 @@ def main() -> int:
 
     signal.signal(signal.SIGTERM, interrupted)
     source = RTL.read_text()
-    items = {item for _, item, _, _, _ in MUTANTS}
+    items = {item for _, item, _, _, _ in MUTANTS} - {SUPPORTING}
     if items != {1, 2, 3, 4}:
         print(f"[ESCAPED] campaign: #686 items without a mutant: {sorted({1, 2, 3, 4} - items)}")
         return 1
