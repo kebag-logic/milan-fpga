@@ -608,9 +608,42 @@ DEFECTS = (
            'mbx_now_ms() >= m->pending_rx.arrival_ms + SRP_RX_RETRY_MS',
            'adapter.rx_discarded', suite='srp_rx_retry.cpp'),
 
+    Defect('four-way-srp-irq-missing',
+           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
+           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'mbx_place(channels & ~(1u << MBX_CH_SRP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'U6 exact four-channel receive and event interrupt mask',
+           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-srp-wake-missing',
+           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
+           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'mbx_place(channels & ~(1u << MBX_CH_SRP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'U6 idle loop wakes for SRP alone',
+           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-acmp-enable-lost',
+           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
+           'channels |= 1u << MBX_CH_ACMP;', 'channels |= 0u;',
+           'U6 four receive channels and no others', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-unbound-irq-enabled',
+           'AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen',
+           'mbx_place(channels,MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'mbx_place(channels | (1u << MBX_CH_AECP),MBX_IRQ_ENABLE_RX_LSB,MBX_IRQ_ENABLE_RX_WIDTH)',
+           'U6 exact four-channel receive and event interrupt mask',
+           path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-bound-drops-srp',
+           'AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound',
+           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX -',
+           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + 0u -',
+           'F6 four modules count each shared event record once', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
+    Defect('four-way-bound-duplicates-events',
+           'AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound',
+           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX -',
+           '#define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX +',
+           'F6 four modules count each shared event record once', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
+
 )
 
-def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
+def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""
     build=fw_gtest.Build(jobs=jobs)
     failed=False
@@ -626,7 +659,7 @@ def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:
         target.write_text(source.replace(d.old,d.new))
         selected=d.test if "." in d.test else "Srp."+d.test
         try:
-            result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,2,
+            result=arm_srp(Tree(src,out/"build",out/"reuse",build),lwsrp,interfaces,
                            debug=d.debug,test=(d.suite, selected))
             ok=caught(selected,d.needle,result)
             (root/(d.name+".log")).write_text(result.log)

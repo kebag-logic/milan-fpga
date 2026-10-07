@@ -5,6 +5,8 @@ Status: **F0 implemented behind a default-off build switch.** The all-fabric
 build is unchanged and remains the shipping image. This page is the design
 of the contract between the fabric and the bare-metal control-plane firmware.
 The split integrates before P3; milestone 13 retains the hard-core port.
+Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
+tests and the co-simulation build; no image links that firmware yet.
 The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
 All-fabric stays the shipping default until F2 to F5 acceptance.
 That acceptance covers all streams, counters and the audio soak.
@@ -24,10 +26,11 @@ define the interface. The numbers live in one place, the generated
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
-- **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walk and the planted defects.
+- **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four differences from the processor.
+- **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
-- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter added, and the recipe.
-- **[Open items](#open-items)** -- The datapath tap, the listener's ADP terms, lwSRP's transmit hook, the CPU-cycle measurement and MMRP.
+- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter and the bound-talker term added, the term in distributed RAM against its target, and the recipe.
+- **[Open items](#open-items)** -- The datapath tap, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip, the bound-talker term's area and MMRP.
 
 ## What moves, and what the fabric keeps
 
@@ -175,7 +178,7 @@ token.
 
 | Channel | Destination MAC | EtherType | Subtype | Passes | Clause |
 |---|---|---|---|---|---|
-| `adp` | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or this entity | IEEE 1722.1-2021 6.2, Table B.1; Milan v1.2 5.6.3.1 |
+| `adp` | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or this entity; ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving interface | IEEE 1722.1-2021 6.2, Table B.1; Milan v1.2 5.6.3.1, 5.6.4.1 |
 | `acmp` | `91:E0:F0:01:00:00`, or own unicast (the owner's receive tolerance) | `0x22F0` | `0xFC` | a command or response naming this entity as talker or listener | IEEE 1722.1-2021 8.2.1, Table B.1 |
 | `aecp` | own unicast | `0x22F0` | `0xFB` | a command for this target, or a response for this controller | IEEE 1722.1-2021 9.2.2.4 (Table 9-1), 9.2.2.7, 9.2.2.8; Milan v1.2 5.4.5.3 |
 | `maap` | `91:E0:F0:00:FF:00`; or own unicast for a DEFEND (message_type 2) only | `0x22F0` | `0xFE` | a PROBE, DEFEND or ANNOUNCE overlapping this entity's range | IEEE 1722-2016 B.2.1, Table B.1, Table B.10 |
@@ -215,6 +218,13 @@ token.
   addressed to this entity and is dropped uncounted. So is a frame that ends
   before byte 14. A size or space drop counts in `RX_DROP`, a rate drop in
   `RATE_DROP`.
+- **The adp channel takes its bound talkers' announcements.** Its third
+  accept term (`eq_bound`, message types 0 and 1) compares entity_id with the
+  enabled entries of the arrival interface's bound-talker table
+  (`0x200 + 0x100 * i`, entry e at `0x10 * e`), which the ACMP firmware keeps
+  equal to its bindings (lane F3 round 2,
+  [below](#discovery-and-the-adp-channels-filter)). This only adds, so the
+  contract went to 2.1.
 - **The token buckets stay.** Only a committed frame takes a token, so a
   frame the filter refuses spends none.
 
@@ -398,9 +408,10 @@ expiry already in the event ring when the firmware stopped or re-armed the
 slot carries the old tag and is discarded by it: the mailbox form of Table
 5.51's "x" cells.
 
-The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3. Its
-ENTITY_AVAILABLE and ENTITY_DEPARTING from bound talkers need an accept term
-the ADP channel does not carry yet; adding one is a minor contract change.
+The listener's discovery machine (5.6.4) feeds ACMP and belongs to F3
+([The ACMP module](#the-acmp-module)). Its ENTITY_AVAILABLE and
+ENTITY_DEPARTING from bound talkers reach it through the ADP channel's
+bound-talker term ([its filter](#discovery-and-the-adp-channels-filter)).
 
 F3 must also meet the listener-discovery timing requirement.
 [H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP expiry.
@@ -421,6 +432,8 @@ F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md)
 Its H-MAAP tests use the FC channel and the existing AAF/CRF CSR allocation output.
 The page records Annex B coverage, per-event work and host timing assumptions.
 The shipping all-fabric placement remains unchanged.
+F3 composes it with ADP and ACMP in one app
+([the composition](../../sw/firmware/ctrl/README.md#the-composition)).
 
 The figures below are F0's conditional mailbox-access evidence.
 [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
@@ -496,19 +509,289 @@ most 16 per pass, and no sleep before the backlog is gone. A measurement in
 CPU cycles on the shipping core needs the switch-on SoC in the CPU
 simulation and is left open (see [Open items](#open-items)).
 
+## The ACMP module
+
+Lane F3 runs Milan v1.2 5.5 (connection management) and 5.6.4 (the listener's
+discovery machine) on the core, over IEEE 1722.1-2021's ACMPDU (8.2.1) at
+Milan's 56 bytes (5.5.2.2). It is three units in
+[`sw/firmware/ctrl/acmp`](../../sw/firmware/ctrl/acmp), each citing its
+clauses in its header ([module page](../../sw/firmware/ctrl/README.md#the-acmp-module)):
+
+- **The core** ([`acmp.h`](../../sw/firmware/ctrl/acmp/acmp.h)) knows no
+  mailbox. It implements every listener transition of Table 5.30 (5.5.3.5.1
+  to 5.5.3.5.48) per sink, the talker's answers of 5.5.4, the discovery
+  machine of Table 5.54 (5.6.4.5.1 to 5.6.4.5.4), the timers of Tables 5.26
+  and 5.29, the lock (5.5.2.4) and the saved binding record. Its transport
+  is a port set like ADP's (frames, the clock, one timer per AVB interface,
+  the gPTP pair, a seed). The entity's other owners (the lock, the talker's
+  sources, the listener's SRP, the saved-state store, the notifier) form an
+  env the integrator provides.
+- **The adapter** ([`acmp_mbx.h`](../../sw/firmware/ctrl/acmp/acmp_mbx.h))
+  binds the acmp channel and one fabric timer slot per AVB interface. The
+  slot is armed at the earliest deadline among the interface's sinks, with
+  a fresh tag, so a raced expiry is discarded as ADP's is. It reaches F0's
+  ADP module through the loop's public binding only: it stands in front of
+  the adp channel's handler, hands each ENTITY_AVAILABLE and ENTITY_DEPARTING
+  record to discovery, and passes every other record to ADP's handler
+  unchanged. It keeps the adp channel's bound-talker table equal to the
+  sinks' bindings ([below](#discovery-and-the-adp-channels-filter)).
+- **The binding owner** ([`acmp_nvm.h`](../../sw/firmware/ctrl/acmp/acmp_nvm.h))
+  serves lane F1's state port for the binding group and forwards every other
+  group to the integrator's owners. At boot the store's walk restores each
+  saved binding into PRB_W_AVAIL with discovery running (5.5.3.5.2, fast
+  connect); a roll-back drops every one. While a slot the store could not
+  read holds its writer, nothing is persisted, as F1 rules.
+
+The protocol state is keyed per AVB interface: a sink's probes leave on its
+interface, a source answers only probes that arrived on its own, and a sink
+takes ADPDUs only from its own interface. Responses key on the consumer's
+unique ID: a PROBE_TX_RESPONSE belongs to the sink its listener_unique_id
+names, and only when its controller, talker, talker_unique_id and
+sequence_id are those of the probe that sink sent (5.5.3.5.18 step 1). Each
+new PROBE_TX_COMMAND takes the next sequence_id (IEEE 1722.1-2021 8.2.1.15);
+the duplicate sent on the first TMR_NO_RESP repeats it (5.5.3.5.16).
+TMR_NO_RESP runs 200 ms from the send the transmit ring accepts, for the
+probe and for its duplicate: a probe owed behind other frames holds its
+timer until it leaves (5.5.3.5.3 steps 5 to 7, 5.5.3.5.16 steps 1 and 2).
+Its deadline is taken from a clock read after that send returns, so neither
+the time the send takes nor a clock the entry read before it (a timer
+expiry's) shortens the 200 ms.
+Only AVTP version 0 is read: an ACMPDU or ADPDU of another version is
+discarded before it is decoded (IEEE 1722-2016 4.4.3.4; IEEE 1722.1-2021
+8.2.1.3, 6.2.2.3). The fabric's filter does not read the version, so the core
+does.
+
+A change of a sink's Table 5.22 items is reported through the env's
+`changed` port only after the response of the command that caused it has
+been taken by the transmit ring (#653). A response that finds no room is
+owed, in order (at most eight frames), and its change waits with it. The
+AECP notification that will key on that port lands in F5. Every port call is
+bracketed by a flag, and an entry while it is set does nothing but count
+(#678); the host tests' build also reports it to the test.
+
+### Discovery and the adp channel's filter
+
+Milan v1.2 5.6.4.1 needs every ENTITY_AVAILABLE and ENTITY_DEPARTING of a
+bound talker at the listener. The term is decided on
+[#665 (6029368753)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6029368753):
+ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving
+interface; F3 round 2 adds the term. Admitting every AVAILABLE instead would
+share the channel's token bucket with every entity on the network, so
+foreign announcements could crowd out the bound talker's and cause a false
+TMR_NO_ADP (5.6.4). The core still filters exactly.
+
+The term is the adp channel's third accept term in the contract (`eq_bound`,
+message types 0 and 1, entity_id at wire byte 18; contract 2.1). It reads a
+bound-talker table in the mailbox block: per AVB interface, one entry per
+listener stream (16, the firmware's `ACMP_MAX_SINKS` and the saved-state
+binding block's), each `BOUND_EID_LO`, `BOUND_EID_HI` and `BOUND_EN`
+([reference](../reference/MAILBOX_CONTRACT.md#interface-bound-talker-registers)).
+`KL_mbx_rx` compares the entity_id with the table of the interface the frame
+arrived on, never another's. The change only adds, so the contract's minor
+moves: a firmware built against 2.0 leaves the table empty and sees the 2.0
+filter.
+
+The table is held in distributed RAM and compared byte by byte as wire bytes
+18 to 25 arrive (lane F3 round 3, the area ruling on
+[#665 (6032450078)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6032450078)).
+Each entry's eight identity bytes sit in a shift register of its own, byte b
+at tap b, so identity byte b of a frame is compared with byte b of every
+entry of its interface at once, and each entry's match flag keeps the AND;
+the verdict at the frame's end reads the flags, where it always did. The
+host's `BOUND_EID` words live in a read-back memory, two words an entry. A
+copier shifts an entry's bytes in from it when `BOUND_EN` is set, or a word is
+written while it is set, one byte in each cycle the host leaves that memory.
+An entry takes part only while `BOUND_EN` is set and no copy of it is owed,
+from the frame's first identity byte to its verdict, so:
+
+- a frame whose identity passes while its entry is cleared and set again, or
+  copied again, never matches that entry, even when the rewrite is over by
+  the verdict, and a half-written identity never matches;
+- an entry takes part once its copy is made: from the RTL, at most 176
+  clocks (1.76 us at the 100 MHz system clock) after the last write that owes
+  one, for all sixteen entries of one interface owed at once, plus a clock for
+  each host access to the tables meanwhile. That is nothing to discovery,
+  whose announcements are seconds apart, and the suite waits for it.
+
+Distributed RAM keeps its contents through a reset, so a word not written
+since the reset reads 0 and is copied as 0, by one flag a word, and a reset
+still clears the table as the contract says.
+
+The firmware keeps the table. The core's `admit` port is called whenever a
+sink is bound, unbound or bound to another talker; the adapter writes sink
+k's talker into entry k of its interface's table, clearing `BOUND_EN` before
+it writes an identity, so a half-written entry never matches. The bindings
+the store restores at boot are written by `acmp_open`, which
+`ctrl_app_open` calls after the contract check. The co-simulation shows the
+bound talker's ENTITY_AVAILABLE crossing the RTL's filter into discovery, and
+another talker's refused by both filters.
+
+### ACMP service latency
+
+Each response path's own cost, in the pass that takes the input, with
+nothing else pending, in the composition of ADP and ACMP. The bounds are
+`ACMP_MBX_LAT_*` in [`acmp_mbx.h`](../../sw/firmware/ctrl/acmp/acmp_mbx.h),
+with their derivation. The host test counts every access of each path on the
+model and fails one that exceeds its bound. Each bound also has a planted
+defect that adds accesses to its path.
+
+| Path | Bound | Measured | Response |
+|---|---:|---:|---|
+| BIND_RX | 76 | 76 | response, PROBE_TX, TMR_NO_RESP armed, the talker admitted |
+| UNBIND_RX | 49 | 49 | response, timer stopped, the talker withdrawn |
+| GET_RX_STATE | 47 | 47 | response |
+| PROBE_TX_RESPONSE | 28 | 28 | TMR_NO_TK or TMR_RETRY armed |
+| PROBE_TX, GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 47 | 47 | response |
+| TMR_DELAY, or the first TMR_NO_RESP | 35 | 35 | PROBE_TX, the clock read after it, TMR_NO_RESP armed |
+| the second TMR_NO_RESP, TMR_RETRY, TMR_NO_TK | 13 | 12 to 13 | the next timer armed |
+| ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 35 | 35 | TMR_DELAY armed |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 30 | 29 | timer stopped or re-armed |
+| TMR_NO_ADP (H-DISC) | 12 | 12 | TK_NOT_DISCOVERED, timer re-armed |
+
+The H-DISC rows are measured from the record the model's filter commits (its
+RX_HEAD), through the bound-talker term, at one interface and, in the
+`acmpif2` arm, at each of two.
+
+A pass of the composition costs at most 1,012 accesses (`ACMP_MBX_PASS_MAX`).
+That covers 8 events at 6 + 31 + 4, sixteen sinks' due timers at one probe
+each and the clock read after it (23), 2 adp records at 36 + 7, 2 acmp
+records at 36 + 51, ADP's poll at 31 and one owed ACMP frame at 25 (a
+probe's: the clock and its TMR_NO_RESP). ADP's records and events are served
+by the same passes, so the ADP figures above (407 a pass) hold for ADP alone.
+With ACMP composed, ADP's figures take the same pass count at 1,012.
+
+The bound with a backlog counts from a pass already running when the input
+arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
+200 ms transaction timeout (Table 5.26), which also bounds a discovery
+input's resulting ACMP action
+([3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+The access times are the bound's time over its accesses, rounded down.
+
+| Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
+|---|---:|---:|---:|---:|---|
+| an event behind 15 others | 2 | 3,036 | 3.29 us | 6.58 us | every event by pass 2; worst pass 193 accesses |
+| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,132 | 0.89 us | 1.79 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,264 | 0.44 us | 0.89 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 9,108 | 1.09 us | 2.19 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
+
+The access time is not measured (A4). At F0's assumed 1 us per access every
+path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
+The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
+that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
+9,108 accesses (8,865 before round 2 added the probe's timer to a poll, and
+8,964 before round 4 added the clock read after each probe sent at once),
+fits T_svc at that figure: 9.108 ms, the time waiting for room excluded. The
+bounds charge every pass with every term at its maximum at once (sixteen
+sinks each probing, eight events each at ADP's costliest action), which the
+measured backlogs stay far below. Whether these paths meet T_svc on the
+shipping core is open until the access time is measured (see
+[Open items](#open-items)). Meeting it may need a tighter per-pass
+composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
+with margin) needs the datapath tap and is not measured here.
+
+With lane F2's MAAP composed as well, a pass costs at most 1,580 accesses
+(`CTRL_APP_THREE_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
+action on each of the 8 events (48), its 2 records of the maap channel
+(20 + 48) and its poll (48). Each input is taken by the same pass as above,
+so each bound is that pass count, plus one, times 1,580:
+
+| Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
+|---|---:|---:|---:|---:|
+| an event behind 15 others | 2 | 4,740 | 2.10 us | 4.21 us |
+| an ACMP command behind a full acmp ring | 10 | 17,380 | 0.57 us | 1.15 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 34,760 | 0.28 us | 0.57 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 14,220 | 0.70 us | 1.40 us |
+
+On the model, 15 events, 12 acmp records and 7 maap records behind them
+take a worst pass of 231 accesses (233 at two interfaces), every record and
+event within 10 passes (`test_acmp_mbx.cpp` F6).
+
+At F0's assumed 1 us per access, only the event bound still fits T_svc
+(4.74 ms). The owed-frame bound, which fits it without MAAP, no longer does
+(14.22 ms, under the ceiling); the bound behind a full acmp ring stays
+under the ceiling (17.38 ms), and the one behind a full adp ring exceeds it
+(34.76 ms).
+
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,128
+accesses at one interface and 3,977 at two. `ACMP_MBX_PASS_MAX` already
+includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
+sets of event-record reads: the eight shared records are each read once.
+`srp_bounds.h` derives SRP's 1,596 / 2,366 accesses from the maximum frame,
+two transmit calls per interface, bounded reception, link reconciliation and
+retry clocks. lwSRP sends at most one frame per call. Its centisecond callbacks
+make no mailbox access. CPU work and external port costs require separate
+measurement; this table bounds mailbox accesses only.
+
+| Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
+|---|---:|---:|---:|
+| an event behind 15 others | 2 | 9,384 / 11,931 | 1.06 / 0.83 us |
+| an ACMP command behind a full acmp ring | 10 | 34,408 / 43,747 | 0.29 / 0.22 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 68,816 / 87,494 | 0.14 / 0.11 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 28,152 / 35,793 | 0.35 / 0.27 us |
+
+At 1 us per access, only the one-interface event envelope fits T_svc = 10 ms;
+the two-interface event envelope and the other rows do not. The 20 ms ACMP
+ceiling still covers both event envelopes, but none of the other rows.
+No target timing acceptance is claimed. Backpressure and retained SRP input
+consume their original service interval; a retry or a normative wait never
+starts a new allowance. SRP can defer its own reception behind events or owed
+output, so these inherited ACMP/ADP pass counts are not SRP delivery bounds.
+The H-SRP tests separately measure that adapter's conditional service envelope.
+The U6/F6 SRP variants in `test_acmp_mbx.cpp` exercise all four modules at one
+and two interfaces, with an exact IRQ mask and an SRP-only wake from idle.
+SRP takes the shared tick, leaving ADP, ACMP and MAAP's timer slots disjoint.
+
+### Differences from the processor
+
+The `acmpwalk` arm runs the processor's own expectations against the
+firmware: its F05.3 model of Table 5.30 in lock step (88 cells), its Table
+5.54 transcription (33 cells) and its talker suite's F05.11 constants. The
+first three differences below (LD1 to LD3) are asserted field for field
+against that model and transcription, each with the clause the firmware
+follows. The fourth (TD1) is asserted on the firmware's half only: the talker
+arm reuses constants, not a model, and the processor's suite has no
+unknown-source DISCONNECT_TX check, so its half is read from source, not
+walked.
+
+- UNBIND_RX_RESPONSE's talker fields: the processor echoes them; Milan v1.2
+  Table 5.36 gives 0.
+- The ACMP status after a TMR_RETRY with the talker discovered: the
+  processor zeroes it; 5.5.3.5.30 step 2 sets none.
+- The lock's refusal: the processor sends 13, TALKER_MISBEHAVING in IEEE
+  1722.1-2021 Table 8-3; the firmware sends 16, CONTROLLER_NOT_AUTHORIZED
+  (`pp_acmp_pkg.sv:123` in the submodule).
+- DISCONNECT_TX for a source that does not exist: the processor answers
+  SUCCESS (`KL_acmp_talker.sv:1301-1306`, read from source: the DISCONNECT_TX
+  arm answers SUCCESS without reading `uid_valid_w`); the firmware answers
+  TALKER_UNKNOWN_ID (5.5.4.2 step 1, Table 5.44). Milan v1.2 5.5.2.7 says
+  that DISCONNECT_TX "always returns SUCCESS without modifying the state of
+  the Talker", which is the processor's answer. 5.5.4.2 governs: 5.5.2.7 is
+  an overview that ends "The complete specification of the talker's behavior
+  is defined in Section 5.5.4", and 5.5.4.2 is the "shall" procedure, which
+  validates the source first. SUCCESS without a state change applies to a
+  valid source (the ruling on #665, comment 6030067436).
+
+Each is the processor's to fix; F3 changes nothing in the submodule. They are
+filed as processor issue
+[#168](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/168).
+
 ## Verification
 
 | Evidence | What it shows |
 |---|---|
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 316 checks through the Wishbone adapter and the same 316 through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 382 checks through the Wishbone adapter and the same 382 through the AXI4-Lite adapter (384 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
-| the same suite on the host model | the 316 checks the RTL passes, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
-| the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS |
-| [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the latency bounds, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
+| the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
+| the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
+| the same suite on the host model | the 369 of the RTL's 382 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
+| [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
 | the processor's ADP walk, reused | 36 cells of the processor suite's own Table 5.51 transcription and its own frame builder, cut from the pinned submodule at build time, drive the firmware through the model |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; five of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| the processor's ACMP expectations, reused | its F05.3 model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, cut from the pinned submodule at build time; four differences asserted ([above](#differences-from-the-processor)) |
+| the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; five of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build
 
@@ -601,6 +884,79 @@ and the second MAAP tuple's compares. The block RAM is unchanged, with no
 DSP. WNS is +0.186 ns at 10 ns (+0.271 ns before), with all 5,630 nets
 routed.
 
+The adp channel's bound-talker term (lane F3 round 2, contract 2.1) was
+measured with the same recipe on 2026-10-07, beside FC round 2's head
+`db9aa8c9`, whose figures repeated the "after" column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,151 | 1,951 | 1,069 | 1,076 |
+| `KL_mbx` registers, decode, read mux | 295 | 752 | 532 | 1,572 |
+| `KL_mbx_evt` | 682 | 727 | 978 | 978 |
+| `KL_mbx_tx` | 529 | 481 | 280 | 280 |
+| `KL_mbx_wb` | 67 | 93 | 1 | 1 |
+| **Total** | **2,745** | **4,025** | **2,860** | **3,907** |
+
+It costs 1,280 LUT and 1,047 FF. The table is 1,040 of those FF: sixteen
+65-bit entries (`BOUND_EID`, `BOUND_EN`) for the one interface, in `KL_mbx`,
+with their write decode and read-back (457 LUT). `KL_mbx_rx` carries the
+sixteen 64-bit entity_id comparators of the one `eq_bound` term and the
+third term slot every channel's verdict now reads (800 LUT). The block RAM
+is unchanged, with no DSP. WNS is +0.283 ns at 10 ns, with all 7,907 nets
+routed. A first version compared every term position with the table, since
+the verdict reads the term by the frame's channel; it cost 2,142 LUT, and
+building the comparators only for the term whose test is `eq_bound` (a
+constant of the term) saved 862 of them. The obvious further lever is the
+table itself: in distributed RAM, scanned one entry per cycle once the
+entity_id has arrived, it would hold most of those flip-flops and comparators.
+
+The table moved to distributed RAM, compared byte by byte as the identity
+arrives (lane F3 round 3, the area ruling on
+[#665 (6032450078)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6032450078),
+[above](#discovery-and-the-adp-channels-filter)), and was measured with the
+same recipe on 2026-10-07, beside the same `db9aa8c9`. The "after" column is
+round 2's, then round 3's:
+
+| Block | LUT before | LUT round 2 | LUT round 3 | FF before | FF round 2 | FF round 3 |
+|---|---:|---:|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,151 | 1,951 | 1,481 | 1,069 | 1,076 | 1,155 |
+| `KL_mbx` registers, decode, read mux | 295 | 752 | 294 | 532 | 1,572 | 532 |
+| `KL_mbx_evt` | 682 | 727 | 702 | 978 | 978 | 978 |
+| `KL_mbx_tx` | 529 | 481 | 488 | 280 | 280 | 280 |
+| `KL_mbx_wb` | 67 | 93 | 122 | 1 | 1 | 1 |
+| **Total** | **2,745** | **4,025** | **3,102** | **2,860** | **3,907** | **2,946** |
+
+The term now costs 357 LUT and 86 FF, against the ruling's target of at most
+300 LUT and 120 FF: the flip-flops meet it and the LUTs do not, by 57 (the
+round's STOP on #665). The block RAM is unchanged, with no DSP. WNS is +0.402
+ns at 10 ns, with all 6,041 nets routed. Of the LUTs, 64 hold the sixteen
+entries' 128 shift registers (SRL16E, two to a LUT) and 22 the read-back
+memory (six RAM32M); the other 271 are logic: per entry the byte compare and
+its match flag, `BOUND_EN`, the owed copy and the two written-since-reset
+flags with their write decode, then the copier and the read-back's select.
+Synthesis alone, with the byte compare tied off in an earlier version of
+the same structure, put the compare and its flags at about 108 of them. The
+flip-flops are those five per-entry flags (80) and the copier's pointer, step
+and busy flag (8), less two Vivado merged. The `KL_mbx_wb` and `KL_mbx_evt`
+rows moved though their RTL did not: Vivado combines LUTs across the
+hierarchy, and the register read is spread over it. Two variants of the head, measured with the
+same recipe and kept out of the tree, show what the remaining LUTs buy:
+
+| Variant | LUT | FF | Contract change |
+|---|---:|---:|---|
+| the head | +357 | +86 | none |
+| `BOUND_EID` not cleared by a reset (no written-since-reset flags) | +337 | +56 | `BOUND_EID` keeps its value through a reset; 0 after configuration only |
+| that, and `BOUND_EID` write-only | +300 | +56 | and `BOUND_EID` reads 0 |
+
+The read-back memory stays in either variant, since it is what the copier
+copies from. An earlier version copied an entry at every `BOUND_EID` write: a
+burst of sixteen rewrites left a frame 40 clocks later behind the copies, so
+the copy waits for `BOUND_EN`. In the first version, single-port
+distributed RAM mapped one bit to a LUT (RAM16X1S): 160 LUTs for the two
+memories, hence the shift registers. Routing the read-back through the
+answer multiplexer the rings use, from a register, saved 15 LUTs for 34
+flip-flops in an earlier version and was not kept.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
@@ -620,11 +976,20 @@ report_timing_summary -delay_type max
 - **The datapath tap.** The skeleton's ingress and egress byte streams, link
   levels and grandmaster inputs are held idle; the lanes that move a protocol
   connect them, with the clock crossing the datapath needs.
-- **The listener's ADP terms** (above), for F3.
 - **lwSRP's transmit path.** lwSRP schedules a transmission per attribute but
-  has no PDU transmit hook yet; F4 adds one as a lwSRP pull request, and its
-  frames then enter the SRP channel's transmit ring as header plus MRPDU.
+  has a PDU transmit hook in the public pin used by F4; its frames enter
+  the SRP channel's transmit ring as header plus MRPDU. Target integration
+  of the stream owners remains separate from the host composition.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
-  simulation.
+  simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
+  less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
+  times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
+  composed as well they are 0.57 us and 0.28 us. With SRP they are 0.29 us
+  and 0.14 us at one interface, or 0.22 us and 0.11 us at two interfaces.
+- **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
+  datapath tap.
+- **The bound-talker term's area** is 57 LUTs over its target of 300
+  ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
+  the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.

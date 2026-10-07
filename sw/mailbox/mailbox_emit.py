@@ -266,6 +266,11 @@ def emit_doc(contract: Contract) -> str:
         "Interface filter registers", contract.iff_registers,
         f"Interface i's filter block starts at `0x{contract.iff_base:03X} + 0x{contract.iff_stride:X} * i`.")
     lines += _register_section(
+        "Interface bound-talker registers", contract.bnd_registers,
+        f"Interface i's bound-talker table starts at `0x{contract.bnd_base:03X} + 0x{contract.bnd_stride:X} * i`, "
+        f"and its entry e at `0x{contract.bnd_entry_stride:X} * e` inside it, for {contract.bound_talkers} entries "
+        "(one per listener stream). An `eq_bound` term reads the table of the interface the frame arrived on.")
+    lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")
     lines += ["## Records", "", contract.rx_doc, "", contract.tx_doc, "", contract.ev_doc, "",

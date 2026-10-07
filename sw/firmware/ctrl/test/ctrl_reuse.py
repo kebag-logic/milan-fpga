@@ -1,14 +1,17 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""ctrl_reuse.py - the processor's ADP stimulus, cut out of the pinned submodule.
+"""ctrl_reuse.py - the processor's ADP and ACMP stimulus, cut out of the pinned submodule.
 
-adp_walk.cpp includes pp_adp_reuse.inc. This module writes it, at build time,
-from protocol-processor/tb/adp_engine/sim_main.cpp, after proving that the
-submodule is checked out at the superproject's gitlink and that the file's
-bytes are the blob that pin records: the walk reuses the processor's own
-entity constants, its model_frame builder and its Table 5.51 transcription,
-never a copy of them. A marker that is missing or repeated refuses the run, so
-a reshaped harness is noticed rather than half-cut.
+adp_walk.cpp includes pp_adp_reuse.inc and acmp_walk.cpp includes
+pp_acmp_reuse.inc, pp_disc_reuse.inc and pp_talker_reuse.inc. This module
+writes them, at build time, from the processor's own suites, after proving
+that the submodule is checked out at the superproject's gitlink and that each
+file's bytes are the blob that pin records: the walks reuse the processor's
+own constants, frame builders, Table 5.51 transcription (tb/adp_engine), its
+F05.3 matrix model of Milan Table 5.30 (tb/acmp_listener), its Table 5.54
+transcription (tb/adp_engine) and its F05.11 constants (tb/acmp_talker),
+never a copy of them. A marker that is missing or repeated refuses the run,
+so a reshaped harness is noticed rather than half-cut.
 """
 
 from __future__ import annotations
@@ -27,6 +30,21 @@ REUSE_SLICES = (
     ("the Table 5.51 transcription ADV", "enum AdvCol {", "constexpr AdvCell ADV[N_AROW][N_ACOL] = {", True),
 )
 
+#: Every file cut, and the slices each output takes from it: (output, the
+#: suite's file, its slices).
+REUSE = (
+    ("pp_adp_reuse.inc", PP_ADP_SIM, REUSE_SLICES),
+    ("pp_acmp_reuse.inc", "tb/acmp_listener/sim_main.cpp", (
+        ("the doc's constants, the ACMPDU and record transcriptions, the stimulus and the F05.3 matrix model",
+         "// ---- constants shared with the doc (not with the RTL)",
+         "// Harness: cycle-exact emulation of the landed faces + collectors", False),)),
+    ("pp_disc_reuse.inc", PP_ADP_SIM, (
+        ("the Table 5.54 transcription DISC", "// The listener's discovery SM, one per sink", "namespace {", False),)),
+    ("pp_talker_reuse.inc", "tb/acmp_talker/sim_main.cpp", (
+        ("the F05.11 constants", "// ---- 05 §3 / F05.11 constants (the document, not the DUT)",
+         "// the RX-slot model backing", False),)),
+)
+
 
 def git(*args: str, cwd: Path = ROOT) -> str:
     """One git answer, with replace refs ignored; a failure refuses."""
@@ -40,7 +58,7 @@ def git(*args: str, cwd: Path = ROOT) -> str:
     return res.stdout.strip()
 
 
-def prove_pin() -> tuple[str, str]:
+def prove_pin(path: str = PP_ADP_SIM) -> tuple[str, str]:
     """The processor's gitlink, its checkout at that commit, and the reused file's blob."""
     record = git("ls-files", "-s", "--", "protocol-processor").split()
     if len(record) != 4 or record[0] != "160000" or record[2] != "0":
@@ -50,9 +68,9 @@ def prove_pin() -> tuple[str, str]:
         raise Refusal("protocol-processor is not its own checkout")
     if git("rev-parse", "HEAD", cwd=PP) != pin:
         raise Refusal(f"protocol-processor is not at its pin {pin}")
-    blob = git("ls-tree", pin, PP_ADP_SIM, cwd=PP).split()
-    if len(blob) < 3 or git("hash-object", PP_ADP_SIM, cwd=PP) != blob[2]:
-        raise Refusal(f"{PP_ADP_SIM} differs from the blob the pin records")
+    blob = git("ls-tree", pin, path, cwd=PP).split()
+    if len(blob) < 3 or git("hash-object", path, cwd=PP) != blob[2]:
+        raise Refusal(f"{path} differs from the blob the pin records")
     return pin, blob[2]
 
 
@@ -72,14 +90,14 @@ def cut(lines: list[str], what: str, first: str, end: str, inclusive: bool) -> l
 
 
 def cut_reuse(dest: Path) -> Path:
-    """Write pp_adp_reuse.inc, the processor's ADP stimulus, from the pinned file."""
-    pin, blob = prove_pin()
-    lines = (PP / PP_ADP_SIM).read_text(encoding="utf-8").splitlines()
-    out = [f"// CUT by sw/firmware/ctrl/test/test_ctrl_firmware.py from protocol-processor/{PP_ADP_SIM}",
-           f"// at the pin {pin} (blob {blob}); DO NOT EDIT, it is rewritten on every run."]
-    for what, first, end, inclusive in REUSE_SLICES:
-        out += ["", f"// ---- {what}"] + cut(lines, what, first, end, inclusive)
+    """Write every reused slice, each from its pinned file; returns pp_adp_reuse.inc."""
     dest.mkdir(parents=True, exist_ok=True)
-    inc = dest / "pp_adp_reuse.inc"
-    inc.write_text("\n".join(out) + "\n", encoding="utf-8")
-    return inc
+    for name, path, slices in REUSE:
+        pin, blob = prove_pin(path)
+        lines = (PP / path).read_text(encoding="utf-8").splitlines()
+        out = [f"// CUT by sw/firmware/ctrl/test/test_ctrl_firmware.py from protocol-processor/{path}",
+               f"// at the pin {pin} (blob {blob}); DO NOT EDIT, it is rewritten on every run."]
+        for what, first, end, inclusive in slices:
+            out += ["", f"// ---- {what}"] + cut(lines, what, first, end, inclusive)
+        (dest / name).write_text("\n".join(out) + "\n", encoding="utf-8")
+    return dest / "pp_adp_reuse.inc"

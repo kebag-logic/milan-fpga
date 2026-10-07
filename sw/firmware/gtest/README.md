@@ -163,7 +163,15 @@ it.
 
 The table records the port as FT landed it. Lane FC (the full-tuple ingress
 filter) then added eight `model` groups, D12 to `port`, and D11 and U4 to
-`unit`, so those arms run 22, 31 and 25 tests.
+`unit`, so those arms run 22, 31 and 25 tests. Lane F3 (ACMP) added four
+arms written on GoogleTest from the start: `acmp` (81 tests), `acmpwalk`
+(127: 88 cells of the processor's Table 5.30 model, 33 of its Table 5.54
+transcription, six scenarios), `acmpnvm` (7) and `acmpif2` (19: the
+adapter's tests on the contract's two-interface variant), each test with a
+planted defect of its own; its round 2 added the `model` group
+AdpBoundTalkers (23) and D13 to `unit` (26). The ACMP core is guarded by #678's rule (`acmp.h`): its
+host tests build it with `CTRL_REENTRY_ASSERT`, which reports each refused
+re-entrant call to the test, and a release build only counts it.
 
 The saved-state store's checks kept their names: a check that ran on both
 flash ports is two tests, `Ports/NvmBoth.<check>/model` and `.../litespi`.
@@ -179,7 +187,8 @@ with the container the reference encoder assembles for the same records.
 `test_check.h` and `test_check.c`, the hand-rolled framework, are gone:
 nothing used them once the port was done.
 
-Every planted defect of `ctrl_mutants.py` and `nvm_mutants.py` is now killed
+Every planted defect of `ctrl_mutants.py` (lane F3's in `acmp_mutants.py`)
+and `nvm_mutants.py` is now killed
 by a named GoogleTest test: a mutant names the test (and, for `ctrl`, the
 check's words) whose `[FAIL]` line must appear. Each test added here has a
 planted defect of its own.
@@ -220,7 +229,7 @@ header states; a static function is judged through the public functions that
 call it. A row's proof does not rest on what today's callers happen to pass.
 Where it rests on a generated constant of the contract, the row says so, and
 the row stops matching (so the gate fails) when the constant changes.
-All fourteen rows meet that standard through their public headers.
+All sixteen rows meet that standard through their public headers.
 The five `adp.c` rows cite the no-callback rule in
 [`adp.h`](../ctrl/adp/adp.h), enforced by the core guard (#678).
 
@@ -294,7 +303,9 @@ The adapter still delivers inputs only from the event loop.
 | `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4 | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching. |
 | `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6 | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
-| `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;` | The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
+| `sw/firmware/ctrl/app/ctrl_app.c` | `maap_compose` | `return maap_mbx_init(` | arc 4 of 4 | The MAAP adapter refusing its attach (#665 lane F3 round 6, on lane F2's adapter). `maap_mbx_attach` refuses only a full sink or poll table and a maap channel already bound. The composition reaches it after ADP and ACMP, each holding one sink and one poll of `CTRL_LOOP_MAX_SINKS` and `CTRL_LOOP_MAX_POLLS` (8 each) in the loop it initialised empty, and neither binds the maap channel. Each refusal is tested on the adapter itself (`MaapHost.AttachRefusalsAndTimerWrap`). |
+| `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_compose` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;` | The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
+| `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_compose` | `if (cfg->acmp != NULL &&` | arc 5 of 6 | The ACMP adapter refusing its attach (#665 lane F3). `acmp_mbx_attach` refuses only an adp channel with no handler bound, and a full sink or poll table. The statement above bound ADP into the loop the composition had just initialised empty: ADP's handler is on the adp channel, and ADP took one sink and one poll of `CTRL_LOOP_MAX_SINKS` and `CTRL_LOOP_MAX_POLLS` (8 each). Each refusal is tested on the adapter itself (`AcmpAdapterUnit.B7RefusalsOfTheAdapter`). |
 | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `(int)r.id <= last` | arcs 2, 4, 5 of 6; line `return 0;` | The walk out of order, an offset off its sum, or a payload past `NVM_PAYLOAD_MAX` (each operand true). The function takes no argument: it walks the shape the build was generated for. Ids ascend: the walk takes the groups in `nvm_blocks` order, and the `_Static_assert`s at the top of the file keep every block inside its id range. `nvm_rec_next` adds each record's framed length to the offset, as `bytes` does. `NVM_PAYLOAD_MAX` is the largest of the same lengths, a map's from its entry count, and the walk's map length is that count through a byte table that can only be smaller. The refusal this function exists for, the walk's bytes against the sizes, is tested by a doctored build (`test_nvm_shapes.cpp`). |
 | `sw/firmware/ctrl_nvm/nvm_klj2.c` | `nvm_shape_consistent` | `return count == NVM_N_REC && bytes == NVM_AREA_RAW;` | arc 2 of 4 | The record count off. `NVM_N_REC` sums the group counts the walk visits, each from the same `MILAN_NVM_N_*` constant. |
 | `sw/firmware/ctrl_nvm/nvm_store.c` | `nvm_idle` | `due = nvm.dirty_armed && nvm_any(nvm.dirty) &&` | arc 4 of 6 | The first-dirty window open with nothing dirty (`nvm_any(nvm.dirty)` false). `nvm_store_changed` opens the window only with the bit it sets, and returns before both for a record the shape does not have. Every capture start closes the window, and only a capture clears a dirty bit, after that start. A change behind the capture's cursor reopens the window, and its bit stays set because the capture does not go back. |
@@ -351,6 +362,7 @@ Debug variants may reference the named `__assert_fail` interface.
 Those declarations supply no runtime implementations or replacement behavior.
 The product supplies its runtime through the bare-metal build.
 The SDK pin remains unchanged.
+The ctrl tree's [linked size](../ctrl/README.md#linked-size) is measured apart, by linking.
 
 Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
 Its architecture attribute must specify RV32I without extensions.

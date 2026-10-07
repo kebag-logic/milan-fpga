@@ -98,7 +98,8 @@ class Walk {
         mbx_model_bind(m(), nullptr, nullptr);
         mbx_model_set_gm(m(), 0, pp::GM0, pp::DOM0);
         mbx_model_set_link(m(), 0, link_up);
-        ctrl_app_config cfg{&entity_, pp::CFGIX, arena_.data(), arena_.size(), classes_, 1, nullptr, nullptr};
+        ctrl_app_config cfg{&entity_, pp::CFGIX, arena_.data(), arena_.size(), classes_, 1, nullptr, nullptr, nullptr, nullptr,
+                            nullptr, nullptr, 0};
         EXPECT_TRUE(ctrl_app_start(app_.get(), &cfg)) << "boot: the app starts on the model";
         settle();
     }

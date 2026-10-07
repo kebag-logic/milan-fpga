@@ -6,7 +6,7 @@ import shutil
 import sys
 from pathlib import Path
 from ctrl_build import (CTRL, ROOT, HERE, HARNESS, C_FLAGS, HOST, INCLUDE_DIRS,
-                        PORTABLE, RV32_FLAGS, RV32_LIBC, Outcome, Refusal, Tree, run)
+                        PORTABLE, NVM_DIR, RV32_FLAGS, RV32_LIBC, Outcome, Refusal, Tree, run)
 import fw_gtest
 import fw_rv32
 from ctrl_arms import lwsrp_pin, symbols, fabric_view
@@ -35,7 +35,7 @@ def prepared(tree: Tree, interface_count: int, out: Path, config: Path) -> tuple
             raise Refusal(f"mailbox variant findings: {findings}")
         shutil.copyfile(out / "contract/mbx_contract.h",include_tree / "mbx/mbx_contract.h")
     inc = [f"-I{include_tree / d}" for d in (*INCLUDE_DIRS,"srp")]
-    return include_tree, [*inc,f"-I{HARNESS}","-include",str(header)]
+    return include_tree, [*inc,f"-I{NVM_DIR}",f"-I{HARNESS}","-include",str(header)]
 
 
 def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
@@ -47,6 +47,11 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
     name = f"srp-{'debug' if debug else test.removesuffix('.cpp')}-if{interfaces}-{config.stem}"
     out = tree.out / name
     variant, inc = prepared(tree,interfaces,out,config)
+    if test == "test_acmp_mbx.cpp":
+        inc += ["-DCTRL_APP_TEST_SRP"]
+        from ctrl_reuse import cut_reuse
+        cut_reuse(tree.reuse)
+        inc.append(f"-I{tree.reuse}")
     if test == "srp_shape.cpp":
         expected = fabric_view(config)
         inc += [f"-DSRP_EXPECT_SOURCES={expected['talker_stream_sources']}",

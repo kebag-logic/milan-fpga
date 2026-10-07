@@ -35,6 +35,7 @@ The arena includes conservative allocator overhead for each block.
 Receive-interest filters retain every valid Class A Domain value, output Listener
 IDs, bound input Talker IDs and required VLANs.
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
+`refused` counts unsuccessful attempts, including retries, rather than records.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
 The pool is a finite capacity, not a claim that arbitrary peer churn always fits.
 
@@ -43,7 +44,11 @@ link rate, and a licence output callback.
 The explicit application composition starts with `ctrl_app_start_maap`.
 Initialize SRP on that application's pool using the same interface MACs.
 Then call `ctrl_app_attach_srp` before servicing the loop.
-It preserves ADP/MAAP, opens SRP reception and enables centisecond delivery.
+Supply ACMP through the application configuration when composing all four modules.
+Attachment follows ADP, ACMP and MAAP, retaining each receive and event enable.
+It opens SRP reception and its interrupt, and enables centisecond delivery.
+SRP owns no one-shot fabric timer slot: lwSRP timers use the shared tick.
+The other three modules retain disjoint runs of `MBX_N_IF` slots.
 The isolated adapter uses `srp_mbx_attach` before opening its loop.
 Only one adapter may own the library's global centisecond dispatch.
 Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
@@ -56,7 +61,7 @@ A held DOWN record can disappear when the level recovers.
 
 F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
 A null identity removes a binding; false leaves the old binding unchanged.
-Retry after owed transmission commits and retained reception completes.
+Retry after owed transmission commits and retained reception completes or expires.
 Bindings may share a StreamID while differing in destination or VID.
 The interface reconciles one Listener declaration from all eligible bindings:
 Ready contributes 2, AskingFailed contributes 1, and their union is ReadyFailed.
@@ -167,8 +172,8 @@ The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
 Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.
-`ctrl_image.py` also links a size fixture containing the reachable control loop,
-ADP, MAAP, mailbox, SRP, binding entry and their static storage.
+`ctrl_srp_image.py` also links a size fixture containing the reachable control loop,
+ADP, ACMP, MAAP, mailbox, SRP, binding entry and their static storage.
 `ctrl_image_runtime.py` builds its memory primitives and integer helpers with the
 same compiler from externally provisioned Picolibc, compiler-rt and LiteX sources.
 Their hashes, commands, ELF sections and symbol sizes accompany the measurement.
@@ -178,7 +183,7 @@ It is size evidence, not a boot or routed-resource result.
 ```sh
 python3 sw/firmware/ctrl/test/ctrl_image_runtime.py --picolibc "$PICOLIBC" \
   --compiler-rt "$COMPILER_RT" --litex-software "$LITEX_SOFTWARE" --output "$RUNTIME"
-python3 sw/firmware/ctrl/test/ctrl_image.py \
+python3 sw/firmware/ctrl/test/ctrl_srp_image.py \
   --config configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --output "$IMAGE" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
@@ -247,9 +252,9 @@ conflicting New registrations retain Failed precedence until replacement/expiry.
 
 ## Integration still owed
 
-F3 is absent from the assigned F2 merge base.
-The application therefore does not call the binding port yet.
-The explicit composition now runs ADP, MAAP and SRP.
+F3 is present in the Round 8 merge base.
+The explicit composition now runs ADP, ACMP, MAAP and SRP.
+The integrator's ACMP environment still owns binding-port delivery and retries.
 Target integration still supplies live stream configuration and MAAP allocation changes.
 It also connects the existing fabric licence output.
 The desk callback proves output ordering, not a connected target licence register.

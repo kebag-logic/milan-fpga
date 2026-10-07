@@ -5,11 +5,12 @@
 from __future__ import annotations
 
 import re
+import shutil
 import sys
 from pathlib import Path
 from subprocess import CompletedProcess
 
-from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+from ctrl_build import (CTRL, HERE, HOST, NVM_DIR, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
                         run, sources)
 import fw_rv32
@@ -31,6 +32,89 @@ def arm_adp(tree: Tree) -> Outcome:
     """The ADP core, its adapter and the latency bounds."""
     objs = firmware(tree, PORTABLE, "adp") + compile_tests(tree, ("test_adp.cpp",), "adp/tests")
     return execute("adp", link(tree, "test_adp", objs))
+
+
+#: The ACMP binary's tests: the core over fake ports, then the adapter, the
+#: latency bounds and the composition on the model.
+ACMP_TESTS = ("test_acmp.cpp", "test_acmp_mbx.cpp")
+#: The host tests' build asserts the no-callback rule (#678, acmp.h).
+REENTRY_ASSERT = ("-DCTRL_REENTRY_ASSERT",)
+
+
+def arm_acmp(tree: Tree) -> Outcome:
+    """The ACMP core over fake ports, its adapter and the latency bounds on the model."""
+    objs = (compile_c(tree, sources(tree, PORTABLE), "acmp", REENTRY_ASSERT) +
+            compile_c(tree, sources(tree, HOST), "acmp/host", measured=False) +
+            compile_tests(tree, ACMP_TESTS, "acmp/tests"))
+    return execute("acmp", link(tree, "test_acmp", objs))
+
+
+#: The two-interface arm: the adapter's tests again, and its own label (R530-1-F1).
+IF2_TESTS = ("test_acmp_mbx.cpp", "acmp_if2.cpp")
+GEN_MAILBOX = ROOT / "sw/mailbox/gen_mailbox.py"
+
+
+def arm_acmpif2(tree: Tree) -> Outcome:
+    """The ACMP adapter, its latency paths and the composition on the contract
+    elaborated for two AVB interfaces. mbx.h includes the contract by quotes, so
+    its own directory's copy always wins: the arm builds a copy of the tree being
+    built (a planted defect included) whose mbx/mbx_contract.h is the variant's,
+    which the generator writes into the build. Unmeasured: coverage is the tracked
+    contract's arms'."""
+    work = tree.out / "acmpif2"
+    gen = work / "gen"
+    res = run([sys.executable, "-B", str(GEN_MAILBOX), "--variant-interfaces", "2", "--out", str(gen)])
+    if res.returncode != 0:
+        raise Refusal(f"the two-interface contract was refused: {res.stdout.strip()} {res.stderr.strip()}")
+    src = work / "ctrl"
+    if src.exists():
+        shutil.rmtree(src)
+    shutil.copytree(tree.src, src, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copyfile(gen / "mbx_contract.h", src / "mbx" / "mbx_contract.h")
+    if2 = Tree(src, work / "build", tree.reuse, tree.build)
+    objs = (compile_c(if2, sources(if2, PORTABLE), "fw", REENTRY_ASSERT, measured=False) +
+            compile_c(if2, sources(if2, HOST), "host", measured=False) +
+            compile_tests(if2, IF2_TESTS, "tests"))
+    return execute("acmpif2", link(if2, "test_acmp_if2", objs))
+
+
+def arm_acmpwalk(tree: Tree) -> Outcome:
+    """The processor's ACMP stimulus and models, reused: its Table 5.30 matrix model, its Table 5.54
+    transcription and its talker constants, against the firmware's ACMP core. The processor's
+    harness helpers the walk does not call are cut with it, so they may go unused."""
+    extra = (f"-I{tree.reuse}", "-Wno-unused-function")
+    objs = firmware(tree, PORTABLE, "acmpwalk") + compile_tests(tree, ("acmp_walk.cpp",), "acmpwalk/tests", extra)
+    return execute("acmpwalk", link(tree, "acmp_walk", objs))
+
+
+#: The shape the bindings are saved at: the shipping 1x1 (lane F1's self-test shape).
+NVM_SHAPE = "endstation_ax7101_1x1_tdm8"
+#: The store as it ships and the host models behind its two ports: another lane's
+#: code and test equipment, built here unmeasured.
+NVM_STORE = ("nvm_klj2.c", "nvm_store.c", "host/nvm_fmodel.c", "host/nvm_smodel.c")
+#: The builder's answer for a shape, computed once per run.
+_NVM_INPUTS: dict = {}
+
+
+def arm_acmpnvm(tree: Tree) -> Outcome:
+    """The ACMP core and its binding owner on lane F1's store, over the flash model, at the 1x1 shape."""
+    sys.path.insert(0, str(NVM_DIR / "test"))
+    import nvm_bench  # noqa: E402
+
+    work = tree.out / "acmpnvm"
+    if NVM_SHAPE not in _NVM_INPUTS:
+        try:
+            _NVM_INPUTS[NVM_SHAPE] = nvm_bench.shape_inputs(ROOT / "configs" / f"{NVM_SHAPE}.yaml", work / "shape")
+        except nvm_bench.Refusal as exc:
+            raise Refusal(str(exc)) from exc
+    inputs = _NVM_INPUTS[NVM_SHAPE]
+    gen = work / "gen"
+    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
+    nvm_inc = (f"-I{gen}", f"-I{NVM_DIR / 'host'}")
+    store = compile_c(tree, [NVM_DIR / n for n in NVM_STORE], "acmpnvm/store", nvm_inc, measured=False)
+    objs = (firmware(tree, PORTABLE, "acmpnvm") + store +
+            compile_tests(tree, ("test_acmp_nvm.cpp",), "acmpnvm/tests", nvm_inc))
+    return execute("acmpnvm", link(tree, "test_acmp_nvm", objs))
 
 
 def arm_maap(tree: Tree) -> Outcome:

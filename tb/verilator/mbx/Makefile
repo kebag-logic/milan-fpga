@@ -37,14 +37,16 @@ VFLAGS = --cc --exe --build -j $(VBUILD_JOBS) --top-module $(TOP) \
          -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$(CONTRACT_INC)"
 
 # The firmware the co-simulation links: the mailbox driver, the event loop,
-# the port layer, the ADP slice and the app, compiled as C11 exactly as the
+# the port layer, the ADP slice, the ACMP module and the app, compiled as C11 exactly as the
 # target builds them, plus the host model the same scenario also runs on.
 # mbx_hal.h is answered by cosim_main.cpp, never by the host platform file.
 FW_DIR := $(abspath $(ROOT)/sw/firmware/ctrl)
 FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c port/ctrl_debug.c \
             port/shlan_port.c adp/adp.c adp/adp_mbx.c maap/maap.c maap/maap_mbx.c maap/maap_csr.c \
-            app/ctrl_app.c host/mbx_model.c)
-FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap app)
+            acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c app/ctrl_app.c host/mbx_model.c)
+FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp maap acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+# Every header those sources can include, so a header-only change rebuilds them.
+FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
 CC     ?= cc
 AR     ?= ar
 
@@ -61,12 +63,18 @@ run-axil:
 	@echo "======================================================================"
 	./obj_axil/Vmbx_axil 1
 
-obj_fw/libctrlfw.a: $(FW_SRC)
+obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
 	@mkdir -p obj_fw
+	rm -f obj_fw/*.o obj_fw/libctrlfw.a
 	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
 	cd obj_fw && $(AR) crs libctrlfw.a *.o
 
+# Verilator's own build relinks Vmbx_cosim only when one of its objects
+# changed, and the firmware library is not one of them: the binary goes
+# whenever the library is newer, so a firmware-only change is never run stale.
 run-cosim: obj_fw/libctrlfw.a
+	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
+	  rm -f obj_cosim/Vmbx_cosim; fi
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
 	  -CFLAGS "-Wall -Wextra $(FW_INC)" -LDFLAGS "$(abspath obj_fw/libctrlfw.a)" -o Vmbx_cosim
 	@echo "======================================================================"

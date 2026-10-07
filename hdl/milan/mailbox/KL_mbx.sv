@@ -105,6 +105,34 @@ module KL_mbx
   logic                     evt_pending_w;
   logic [15:0]              filter_mismatch_w;
   logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination
+  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word an access names, as KL_mbx_rx stores it
+  logic                     bnd_eid_vld_w;  //! that word was written since the reset (else it reads 0)
+  logic                     bnd_en_w;       //! the BOUND_EN of the entry an access names
+
+  // ---- the bound-talker tables: decoded here, held by KL_mbx_rx -------------------
+  // The strides are powers of two, so an offset's interface and entry are
+  // its bit fields; a hole between the registers names none.
+  logic                  bnd_at_w;      //! the offset names a bound-talker register
+  logic [MBX_IF_W_C-1:0] bnd_if_w;      //! its interface
+  logic [4:0]            bnd_entry_w;   //! its entry (bound_talkers is at most 32)
+  logic [1:0]            bnd_reg_w;     //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN
+  always_comb begin : bound_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_entry;
+    logic [AW2_C-1:0] entry;
+    rel         = off_w - AW2_C'(MBX_BND_BASE_C);
+    in_entry    = rel & AW2_C'(MBX_BND_ENTRY_STRIDE_C - 1);
+    entry       = (rel & AW2_C'(MBX_BND_STRIDE_C - 1)) >> $clog2(MBX_BND_ENTRY_STRIDE_C);
+    bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));
+    bnd_entry_w = 5'(entry);
+    bnd_reg_w   = '0;
+    if (in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_HI_C)) bnd_reg_w = 2'd1;
+    if (in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C)) bnd_reg_w = 2'd2;
+    bnd_at_w    = off_w >= AW2_C'(MBX_BND_BASE_C)
+                  && (rel >> $clog2(MBX_BND_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                  && entry < AW2_C'(MBX_N_BOUND_C)
+                  && (in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_LO_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EID_HI_C) || in_entry == AW2_C'(MBX_BND_REG_BOUND_EN_C));
+  end : bound_decode
 
   // ---- what the host writes -----------------------------------------------------
   logic [31:0] irq_enable_r;   //! IRQ_ENABLE
@@ -215,6 +243,8 @@ module KL_mbx
     if (off_w == AW2_C'(MBX_IF_BASE_C + 0 * MBX_IF_STRIDE_C + MBX_IF_REG_DOMAIN_C)) reg_rdata_w = mbx_place_f(32'(domain_snap_r[0]), MBX_DOMAIN_NUMBER_LSB_C, MBX_DOMAIN_NUMBER_WIDTH_C);
     if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_LO_C)) reg_rdata_w = 32'(own_mac_lo_r[0]);
     if (off_w == AW2_C'(MBX_IFF_BASE_C + 0 * MBX_IFF_STRIDE_C + MBX_IFF_REG_OWN_MAC_HI_C)) reg_rdata_w = 32'(own_mac_hi_r[0]);
+    if (bnd_at_w && bnd_reg_w == 2'd2) reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);
+    if (bnd_at_w && bnd_reg_w != 2'd2 && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;
     for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
@@ -479,6 +509,15 @@ module KL_mbx
     .now_ms_i        (now_ms_r),
     .own_eid_i       ({own_eid_hi_r, own_eid_lo_r}),
     .own_mac_i       (own_mac_w),
+    .bnd_req_i       (host_req_i && bnd_at_w),
+    .bnd_we_i        (wr_w && bnd_at_w),
+    .bnd_if_i        (bnd_if_w),
+    .bnd_entry_i     (bnd_entry_w),
+    .bnd_reg_i       (bnd_reg_w),
+    .bnd_wdata_i     (host_wdata_i),
+    .bnd_eid_o       (bnd_eid_w),
+    .bnd_eid_vld_o   (bnd_eid_vld_w),
+    .bnd_en_o        (bnd_en_w),
     .open_i          (filter_en_r[MBX_N_CH_C-1:0]),
     .maap_base_i     ({maap_base_hi_r[15:0], maap_base_lo_r}),
     .maap_count_i    (maap_count_r[15:0]),

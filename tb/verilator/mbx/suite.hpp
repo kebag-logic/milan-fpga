@@ -52,6 +52,10 @@ inline std::uint32_t field(std::uint32_t word, std::uint32_t lsb, std::uint32_t 
 
 inline std::uint32_t ch_reg(std::uint32_t ch, std::uint32_t reg) { return MBX_CH_BASE + MBX_CH_STRIDE * ch + reg; }
 inline std::uint32_t iff_reg(std::uint32_t i, std::uint32_t reg) { return MBX_IFF_BASE + MBX_IFF_STRIDE * i + reg; }
+//! Register `reg` of entry e of interface i's bound-talker table.
+inline std::uint32_t bnd_reg(std::uint32_t i, std::uint32_t e, std::uint32_t reg) {
+    return MBX_BND_BASE + MBX_BND_STRIDE * i + MBX_BND_ENTRY_STRIDE * e + reg;
+}
 
 //! The interface indices the ingress stream can name: every configured
 //! interface and, where the index is wider, ones with no interface behind them.
@@ -67,7 +71,7 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 22;
+    static constexpr unsigned kGroups = 23;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
@@ -76,13 +80,26 @@ class Suite {
         "TupleControls", "TupleRejections", "StreamDataNeverDelivered", "AecpBothDirections",
         "OwnMacPerInterface", "FilterMismatchCount", "TokensApartFromTheFilter",
         // lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1)
-        "MaapDefendToOwnUnicast"};
+        "MaapDefendToOwnUnicast",
+        // lane F3 round 2: the adp channel's bound talkers (#665, comment 6029368753)
+        "AdpBoundTalkers"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
             run_group(g);
         }
         ck_.dec("no bus access went unanswered", b_.bus_timeouts, 0);
+    }
+
+    //! The fabric's own timing around the bound-talker table (lane F3 round 3):
+    //! a frame stalled inside its identity, and the copier beside the host,
+    //! which only a cycle-by-cycle bench shows. sim_main runs it after run();
+    //! the model, whose frames arrive whole, never does.
+    void run_bound_timing() {
+        restart();
+        check_bound_timing();
+        check_bound_verdict_interface();
+        ck_.dec("no bus access went unanswered in the timing checks", b_.bus_timeouts, 0);
     }
 
     //! One group: the first on the bench's reset, every later one on a restart.
@@ -115,7 +132,8 @@ class Suite {
         case 18: check_own_mac_per_interface(); break;
         case 19: check_filter_mismatch_count(); break;
         case 20: check_tokens_apart(); break;
-        default: check_maap_defend(); break;
+        case 21: check_maap_defend(); break;
+        default: check_adp_bound_talkers(); break;
         }
     }
 
@@ -136,6 +154,15 @@ class Suite {
     void set_own_mac(std::uint32_t i, std::uint64_t mac) {
         wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO), static_cast<std::uint32_t>(mac));
         wr(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI), static_cast<std::uint32_t>(mac >> 32) & 0xFFFFu);
+    }
+
+    //! Entry e of interface i's bound-talker table, as the firmware writes it:
+    //! BOUND_EN cleared first, then the identity, then BOUND_EN.
+    void set_bound(std::uint32_t i, std::uint32_t e, std::uint64_t eid, bool en) {
+        wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EN), 0u);
+        wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_LO), static_cast<std::uint32_t>(eid));
+        wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_HI), static_cast<std::uint32_t>(eid >> 32));
+        wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EN), en ? 1u : 0u);
     }
 
     //! The firmware's bring-up order: identities first (OWN_EID, and interface
@@ -180,6 +207,38 @@ class Suite {
         for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
             if (rx_pass(c) != pass[c] || rx_head(c) != head[c]) {
                 v.channel = v.channel == MBX_N_CH ? c : MBX_N_CH + 1u;   // two channels: never a channel
+            }
+        }
+        if (v.channel < MBX_N_CH) {
+            v.record = peek(v.channel);
+            release(v.channel, v.record);
+        }
+        b_.ms(kRefillMs);
+        return v;
+    }
+
+    //! offer() on interface `iface`, with the stream stalled after the
+    //! frame's first `cut` bytes while `during` runs (the cycle-by-cycle bench
+    //! only).
+    template <class During>
+    Verdict offer_stalled(const std::vector<std::uint8_t>& f, std::size_t cut, During during, unsigned iface = 0) {
+        std::vector<std::uint32_t> pass;
+        std::vector<std::uint32_t> head;
+        for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
+            pass.push_back(rx_pass(c));
+            head.push_back(rx_head(c));
+        }
+        const std::uint32_t before = mismatches();
+        b_.send_bytes(std::vector<std::uint8_t>(f.begin(), f.begin() + static_cast<std::ptrdiff_t>(cut)), iface, false);
+        b_.drain_rx();
+        during();
+        b_.send_bytes(std::vector<std::uint8_t>(f.begin() + static_cast<std::ptrdiff_t>(cut), f.end()), iface, true);
+        b_.drain_rx();
+        Verdict v;
+        v.mismatched = (mismatches() - before) & 0xFFFFu;
+        for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
+            if (rx_pass(c) != pass[c] || rx_head(c) != head[c]) {
+                v.channel = v.channel == MBX_N_CH ? c : MBX_N_CH + 1u;
             }
         }
         if (v.channel < MBX_N_CH) {
@@ -248,6 +307,13 @@ class Suite {
     void check_filter_mismatch_count();
     void check_tokens_apart();
     void check_maap_defend();
+    void check_adp_bound_talkers();
+    void check_bound_table_per_interface();
+    void check_bound_identity_bytes();
+    void check_bound_reset();
+    void check_bound_timing();
+    void check_bound_verdict_interface();
+    void clear_bound();
 
     //! One row of the owner's table (REQUIREMENTS.md section 1): its valid
     //! frame, the channel it must reach, and whether it carries an AVTP subtype.
@@ -298,6 +364,15 @@ void Suite<Bench, Check>::check_reset_and_identity() {
         mac_zero = mac_zero && rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_LO)) == 0u && rd(iff_reg(i, MBX_IFF_REG_OWN_MAC_HI)) == 0u;
     }
     ck_.that("R0 every interface's OWN_MAC reads 0 after reset", mac_zero);
+    bool bound_zero = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            bound_zero = bound_zero && rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_LO)) == 0u &&
+                         rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_HI)) == 0u &&
+                         rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EN)) == 0u;
+        }
+    }
+    ck_.that("R0 every entry of every interface's bound-talker table reads 0 after reset", bound_zero);
     bool ch_zero = true;
     for (std::uint32_t c = 0; c < MBX_N_CH; ++c) {
         for (std::uint32_t r = 0; r < MBX_CH_STRIDE; r += 4u) {
@@ -354,6 +429,28 @@ void Suite<Bench, Check>::check_register_masks() {
         set_own_mac(i, 0);
     }
     ck_.that("R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface", own);
+    // each bound-talker entry in its own registers: entry (i, e)'s write lands
+    // there only, BOUND_EID keeps every bit and BOUND_EN keeps EN only
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            const std::uint32_t k = i * MBX_N_BOUND + e;
+            wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_LO), 0xA5A50000u + k);
+            wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_HI), 0x5A5A0000u + k);
+            wr(bnd_reg(i, e, MBX_BND_REG_BOUND_EN), 0xFFFFFFFEu | (k & 1u));
+        }
+    }
+    bool bound = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            const std::uint32_t k = i * MBX_N_BOUND + e;
+            bound = bound && rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_LO)) == 0xA5A50000u + k &&
+                    rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_HI)) == 0x5A5A0000u + k &&
+                    rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EN)) == (k & 1u);
+            set_bound(i, e, 0, false);
+        }
+    }
+    ck_.that("R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry",
+             bound);
 }
 
 template <class Bench, class Check>
@@ -1216,6 +1313,304 @@ void Suite<Bench, Check>::check_maap_defend() {
     ck_.dec("Q11 the DEFEND after them still reaches the MAAP ring", offer(defend).channel, MBX_CH_MAAP);
     ck_.dec("Q11 no frame was refused for size, space or rate",
             rd(ch_reg(MBX_CH_MAAP, MBX_CH_REG_RX_DROP)) + rd(ch_reg(MBX_CH_MAAP, MBX_CH_REG_RATE_DROP)), 0);
+}
+
+// The adp channel's bound talkers (#665, comment 6029368753; Milan v1.2
+// 5.6.4.1): an ENTITY_AVAILABLE or ENTITY_DEPARTING passes when its
+// entity_id is an enabled entry of the arrival interface's bound-talker
+// table. Anything else the term refuses is dropped uncounted, as every
+// identity refusal is: the tuple held.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_adp_bound_talkers() {
+    filter_up();
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;
+    const std::uint64_t other = 0x0A0B0C0D0E0F1012ull;
+    check_rejected("Q12 with the bound-talker table empty, an ENTITY_AVAILABLE", mbx_tb::adpdu(0, talker), 0);
+    set_bound(0, 0, talker, true);
+    const auto available = mbx_tb::adpdu(0, talker);
+    const Verdict a = offer(available);
+    ck_.dec("Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring", a.channel, kAdp);
+    ck_.that("Q12 its record is the ADPDU, byte for byte", same_bytes(a.record.bytes, available));
+    ck_.dec("Q12 and FILTER_MISMATCH does not count it", a.mismatched, 0);
+    ck_.dec("Q12 an ENTITY_DEPARTING of a bound talker reaches the adp ring", offer(mbx_tb::adpdu(1, talker)).channel,
+            kAdp);
+    check_rejected("Q12 an ENTITY_AVAILABLE of a talker no entry holds", mbx_tb::adpdu(0, other), 0);
+    check_rejected("Q12 an ENTITY_DEPARTING of a talker no entry holds", mbx_tb::adpdu(1, other), 0);
+    check_rejected("Q12 an entity_id differing from the entry in [63:32] only",
+                   mbx_tb::adpdu(0, talker ^ 0x0000000100000000ull), 0);
+    check_rejected("Q12 an entity_id differing from the entry in [31:0] only", mbx_tb::adpdu(0, talker ^ 1u), 0);
+    std::uint32_t reached = 0;
+    for (std::uint8_t mt = 2; mt < 16u; ++mt) {
+        reached += offer(mbx_tb::adpdu(mt, talker)).channel != MBX_N_CH ? 1u : 0u;
+    }
+    ck_.dec("Q12 no other message_type of a bound talker passes on its entity_id, ENTITY_DISCOVER included", reached,
+            0);
+    ck_.dec("Q12 ENTITY_DISCOVER for every entity and for this one still pass",
+            (offer(mbx_tb::adpdu(2, 0)).channel == kAdp ? 1u : 0u) +
+                (offer(mbx_tb::adpdu(2, kOwnEid)).channel == kAdp ? 1u : 0u),
+            2);
+    // the field must be whole: a frame that ends inside entity_id has none,
+    // even when the bytes it carries, right-aligned, are an enabled entry
+    set_bound(0, 1, talker >> 8, true);
+    check_rejected("Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id",
+                   mbx_tb::adpdu(0, talker, MBX_CH_ADP_T2_OFFSET + MBX_TERM_FIELD_BYTES - 1u), 0);
+    set_bound(0, 1, 0, false);
+    ck_.dec("Q12 one that ends with its entity_id passes",
+            offer(mbx_tb::adpdu(0, talker, MBX_CH_ADP_T2_OFFSET + MBX_TERM_FIELD_BYTES)).channel, kAdp);
+    // an entry takes part only while BOUND_EN is set, and every entry does
+    set_bound(0, 0, talker, false);
+    check_rejected("Q12 an entry with BOUND_EN clear, its identity still written", available, 0);
+    set_bound(0, MBX_N_BOUND - 1u, talker, true);
+    ck_.dec("Q12 the last entry passes its talker", offer(available).channel, kAdp);
+    set_bound(0, MBX_N_BOUND - 1u, other, true);
+    check_rejected("Q12 rewritten, the entry's old talker", available, 0);
+    ck_.dec("Q12 rewritten, the entry's new talker passes", offer(mbx_tb::adpdu(0, other)).channel, kAdp);
+    std::uint32_t every = 0;
+    for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+        set_bound(0, e, talker + 0x100u * e, true);
+    }
+    for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+        every += offer(mbx_tb::adpdu(e & 1u, talker + 0x100u * e)).channel == kAdp ? 1u : 0u;
+    }
+    ck_.dec("Q12 with every entry enabled, each entry's talker passes", every, MBX_N_BOUND);
+    ck_.dec("Q12 no frame was refused for size, space or rate",
+            rd(ch_reg(kAdp, MBX_CH_REG_RX_DROP)) + rd(ch_reg(kAdp, MBX_CH_REG_RATE_DROP)), 0);
+    check_bound_table_per_interface();
+    check_bound_identity_bytes();
+    check_bound_reset();
+}
+
+// The table read is the arrival interface's: a talker bound on interface i
+// passes only on i, and an index with no interface behind it has no table.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_table_per_interface() {
+    const std::uint64_t talker = 0x0A0B0C0D0E0F2000ull;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            set_bound(i, e, 0, false);
+        }
+    }
+    std::uint32_t right = 0;
+    std::uint32_t wrong = 0;
+    std::uint32_t indexed = 0;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        set_bound(i, i, talker + i, true);
+    }
+    for (std::uint32_t r = 0; r < kIfIndices; ++r) {
+        for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+            const Verdict v = offer(mbx_tb::adpdu(0, talker + i), r);
+            if (r == i) {
+                right += v.channel == kAdp ? 1u : 0u;
+                indexed += field(v.record.w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) == r ? 1u : 0u;
+            } else {
+                wrong += (v.channel != MBX_N_CH ? 1u : 0u) + v.mismatched;
+            }
+        }
+    }
+    ck_.dec("Q13 a talker bound on interface i passes on interface i", right, MBX_N_IF);
+    ck_.dec("Q13 with the record's IF the arrival interface", indexed, MBX_N_IF);
+    ck_.dec("Q13 on another interface, or an index with no interface, it reaches no ring and counts nothing", wrong, 0);
+}
+
+//! Every entry of every interface's table cleared, as the firmware unbinds.
+template <class Bench, class Check>
+void Suite<Bench, Check>::clear_bound() {
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            set_bound(i, e, 0, false);
+        }
+    }
+}
+
+// The match is the frame's own, byte by byte (lane F3 round 3: the table is
+// compared as the identity arrives): each identity byte is compared at its own
+// position, nothing of one frame's comparison carries into the next, and a
+// word rewritten while BOUND_EN stays set takes effect as well.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_identity_bytes() {
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;   // eight distinct bytes
+    clear_bound();
+    set_bound(0, 0, talker, true);
+    check_rejected("Q14 another talker's ENTITY_AVAILABLE", mbx_tb::adpdu(0, talker ^ 0x0101010101010101ull), 0);
+    ck_.dec("Q14 the bound talker's right after it passes", offer(mbx_tb::adpdu(0, talker)).channel, kAdp);
+    check_rejected("Q14 right after that, one differing from it in the first identity byte only",
+                   mbx_tb::adpdu(0, talker ^ 0xFF00000000000000ull), 0);
+    ck_.dec("Q14 and the bound talker's after that passes", offer(mbx_tb::adpdu(0, talker)).channel, kAdp);
+    std::uint32_t refused = 0;
+    for (std::uint32_t b = 0; b < MBX_TERM_FIELD_BYTES; ++b) {
+        const std::uint64_t one = talker ^ (0xA5ull << (8u * (MBX_TERM_FIELD_BYTES - 1u - b)));
+        refused += offer(mbx_tb::adpdu(0, one)).channel == MBX_N_CH ? 1u : 0u;
+    }
+    ck_.dec("Q15 an entity_id differing from the entry in one identity byte is refused, for each of the eight",
+            refused, MBX_TERM_FIELD_BYTES);
+    const std::uint64_t low = (talker & 0xFFFFFFFF00000000ull) | 0x21222324u;
+    wr(bnd_reg(0, 0, MBX_BND_REG_BOUND_EID_LO), static_cast<std::uint32_t>(low));
+    check_rejected("Q16 BOUND_EID_LO rewritten while BOUND_EN stays set: the old talker", mbx_tb::adpdu(0, talker), 0);
+    ck_.dec("Q16 the new talker passes", offer(mbx_tb::adpdu(0, low)).channel, kAdp);
+    const std::uint64_t high = 0x3132333400000000ull | (low & 0xFFFFFFFFu);
+    wr(bnd_reg(0, 0, MBX_BND_REG_BOUND_EID_HI), static_cast<std::uint32_t>(high >> 32));
+    check_rejected("Q16 then BOUND_EID_HI rewritten: the talker before", mbx_tb::adpdu(0, low), 0);
+    ck_.dec("Q16 the newest talker passes", offer(mbx_tb::adpdu(0, high)).channel, kAdp);
+}
+
+// A reset clears the table, wherever the fabric keeps it: every entry reads
+// 0 again, an entry enabled with no identity written since holds talker 0,
+// and one with one word written holds that word and 0.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_reset() {
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            set_bound(i, e, talker + e, true);
+        }
+    }
+    restart();
+    filter_up();
+    bool zero = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        for (std::uint32_t e = 0; e < MBX_N_BOUND; ++e) {
+            zero = zero && rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_LO)) == 0u &&
+                   rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EID_HI)) == 0u && rd(bnd_reg(i, e, MBX_BND_REG_BOUND_EN)) == 0u;
+        }
+    }
+    ck_.that("Q17 after a reset every entry of every interface's table reads 0 again", zero);
+    wr(bnd_reg(0, 0, MBX_BND_REG_BOUND_EN), 1u);
+    check_rejected("Q17 an entry enabled after the reset with no identity written: its old talker",
+                   mbx_tb::adpdu(0, talker), 0);
+    ck_.dec("Q17 it holds talker 0, whose ENTITY_AVAILABLE passes", offer(mbx_tb::adpdu(0, 0)).channel, kAdp);
+    wr(bnd_reg(0, 0, MBX_BND_REG_BOUND_EN), 0u);
+    const std::uint64_t old = talker + 1u;
+    wr(bnd_reg(0, 1, MBX_BND_REG_BOUND_EID_HI), static_cast<std::uint32_t>(old >> 32));
+    wr(bnd_reg(0, 1, MBX_BND_REG_BOUND_EN), 1u);
+    ck_.hex("Q17 with BOUND_EID_HI alone written since, BOUND_EID_LO reads 0",
+            rd(bnd_reg(0, 1, MBX_BND_REG_BOUND_EID_LO)), 0u);
+    ck_.dec("Q17 and the entry holds that word and 0, whose ENTITY_AVAILABLE passes",
+            offer(mbx_tb::adpdu(0, old & 0xFFFFFFFF00000000ull)).channel, kAdp);
+    check_rejected("Q17 its old talker", mbx_tb::adpdu(0, old), 0);
+}
+
+// The fabric copies an entry into its compare bytes when BOUND_EN is set, or
+// a word written while it is (lane F3 round 3); an entry takes part only
+// while it is set and no copy is owed, from the frame's first identity byte
+// to its verdict. A frame stalled inside its identity shows that, and the
+// copier must give way to the host's reads and start over on a rewrite.
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_timing() {
+    // enough clocks for every entry's copy, ten clocks each at most
+    const unsigned settle = 16u * MBX_N_IF * MBX_N_BOUND;
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;
+    const std::uint64_t other = 0x1112131415161718ull;
+    const std::uint32_t en = bnd_reg(0, 0, MBX_BND_REG_BOUND_EN);
+    const auto available = mbx_tb::adpdu(0, talker);
+    const std::size_t cut = MBX_CH_ADP_T2_OFFSET + 2u;   // two identity bytes taken, then the stream stalls
+    filter_up();
+    set_bound(0, 0, talker, true);
+    b_.idle(settle);
+    ck_.dec("Q18 a bound talker's ENTITY_AVAILABLE stalled inside its identity passes",
+            offer_stalled(available, cut, [&] { b_.idle(settle); }).channel, kAdp);
+    ck_.dec("Q18 one stalled while BOUND_EN is cleared and set again, the identity unchanged, reaches no ring",
+            offer_stalled(available, cut, [&] {
+                wr(en, 0u);
+                wr(en, 1u);
+                b_.idle(settle);
+            }).channel,
+            MBX_N_CH);
+    ck_.dec("Q18 the next one passes", offer(available).channel, kAdp);
+    ck_.dec("Q19 one stalled while BOUND_EN is set again alone, its copy made meanwhile, reaches no ring",
+            offer_stalled(available, cut, [&] {
+                wr(en, 1u);
+                b_.idle(settle);
+            }).channel,
+            MBX_N_CH);
+    ck_.dec("Q19 the next one passes", offer(available).channel, kAdp);
+    // the host's reads of the table come first; the copy waits for them
+    set_bound(0, 1, other, true);
+    b_.idle(settle);
+    set_bound(0, 0, talker, true);
+    bool read = true;
+    for (unsigned k = 0; k < 2u * MBX_TERM_FIELD_BYTES; ++k) {
+        read = read && rd(bnd_reg(0, 1, MBX_BND_REG_BOUND_EID_LO)) == static_cast<std::uint32_t>(other) &&
+               rd(bnd_reg(0, 1, MBX_BND_REG_BOUND_EID_HI)) == static_cast<std::uint32_t>(other >> 32);
+    }
+    ck_.that("Q20 another entry's words read back while an entry is copied", read);
+    b_.idle(settle);
+    ck_.dec("Q20 the entry copied meanwhile passes its talker", offer(available).channel, kAdp);
+    ck_.dec("Q20 and the entry read meanwhile its own", offer(mbx_tb::adpdu(0, other)).channel, kAdp);
+    // a word rewritten at each clock of a running copy: the copy starts over
+    const std::uint64_t low = (talker & 0xFFFFFFFF00000000ull) | 0x21222324u;
+    std::uint32_t newer = 0;
+    std::uint32_t older = 0;
+    for (unsigned d = 0; d < 32u; ++d) {
+        set_bound(0, 0, talker, true);
+        b_.idle(settle);
+        wr(en, 1u);
+        b_.idle(d);
+        wr(bnd_reg(0, 0, MBX_BND_REG_BOUND_EID_LO), static_cast<std::uint32_t>(low));
+        b_.idle(settle);
+        newer += offer(mbx_tb::adpdu(0, low)).channel == kAdp ? 1u : 0u;
+        older += offer(available).channel == MBX_N_CH ? 1u : 0u;
+    }
+    ck_.dec("Q21 BOUND_EID_LO rewritten at each of 32 clocks after BOUND_EN is set again: the new talker passes",
+            newer, 32);
+    ck_.dec("Q21 and the old one never does", older, 32);
+}
+
+// The verdict reads the table of the interface the frame arrived on while the
+// next frame is already presented, and the owed copy gates the entries of
+// that interface, every interface's (lane F3 round 4, R530-2-F1).
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_verdict_interface() {
+    const unsigned settle = 16u * MBX_N_IF * MBX_N_BOUND;
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;
+    const std::uint64_t other = 0x1112131415161718ull;
+    const auto available = mbx_tb::adpdu(0, talker);
+    // the next frame, another talker's on another index, right behind a bound
+    // talker's: the verdict, after the last identity byte, reads the table of
+    // the interface the first frame arrived on
+    clear_bound();
+    std::uint32_t alone = 0;
+    std::uint32_t own_if = 0;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        set_bound(i, 0, talker, true);
+        b_.idle(settle);
+        const std::uint32_t before = rx_pass(kAdp);
+        b_.send_frame(available, i);
+        b_.send_frame(mbx_tb::adpdu(0, other), (i + 1u) % kIfIndices);
+        b_.drain_rx();
+        const std::uint32_t got = (rx_pass(kAdp) - before) & 0xFFFFu;
+        alone += got == 1u ? 1u : 0u;
+        for (std::uint32_t k = 0; k < got; ++k) {
+            const Record r = peek(kAdp);
+            own_if += k == 0u && field(r.w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH) == i ? 1u : 0u;
+            release(kAdp, r);
+        }
+        b_.ms(kRefillMs);
+        set_bound(i, 0, 0, false);
+    }
+    ck_.dec("Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone",
+            alone, MBX_N_IF);
+    ck_.dec("Q22 its record's IF the arrival interface", own_if, MBX_N_IF);
+#if MBX_N_IF >= 2
+    // the owed copy gates the entry of the frame's own interface: Q19 on
+    // every interface past the first
+    const std::size_t cut = MBX_CH_ADP_T2_OFFSET + 2u;
+    std::uint32_t stalled = 0;
+    std::uint32_t next = 0;
+    for (std::uint32_t i = 1; i < MBX_N_IF; ++i) {
+        clear_bound();
+        set_bound(i, 0, talker, true);
+        b_.idle(settle);
+        const std::uint32_t en_i = bnd_reg(i, 0, MBX_BND_REG_BOUND_EN);
+        stalled += offer_stalled(available, cut, [&] {
+                       wr(en_i, 1u);
+                       b_.idle(settle);
+                   }, i).channel == MBX_N_CH ? 1u : 0u;
+        next += offer(available, i).channel == kAdp ? 1u : 0u;
+    }
+    ck_.dec("Q23 on each interface past the first, one stalled while BOUND_EN is set again alone reaches no ring",
+            stalled, MBX_N_IF - 1u);
+    ck_.dec("Q23 the next one on that interface passes", next, MBX_N_IF - 1u);
+#endif
 }
 
 }  // namespace mbx_tb

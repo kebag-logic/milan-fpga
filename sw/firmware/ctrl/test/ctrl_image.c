@@ -12,6 +12,14 @@ static struct ctrl_app image_app;
 static const struct adp_entity image_entity = ADP_ENTITY_GEN_INIT;
 #ifdef CTRL_IMAGE_SRP
 static struct srp_mbx image_srp;
+static struct acmp_config image_acmp;
+static bool locked(void *ctx, uint64_t *owner) { (void)ctx; *owner=0; return false; }
+static void source(void *ctx, unsigned n, struct acmp_source_state *out)
+{ (void)ctx; (void)n; out->dest_mac_valid=false; }
+static void stream(void *ctx, unsigned n, const struct acmp_stream *value)
+{ (void)ctx; (void)n; (void)value; }
+static void notice(void *ctx, unsigned n) { (void)ctx; (void)n; }
+static const struct acmp_env image_env = {NULL,locked,source,stream,notice,notice};
 static struct srp_source image_sources[MBX_N_IF][CTRL_SRP_SOURCES];
 static volatile bool image_licences[MBX_N_IF][CTRL_SRP_SOURCES];
 static volatile uint64_t image_allocation[MBX_N_IF];
@@ -44,11 +52,19 @@ int main(void)
         .entity=&image_entity, .arena=image_arena, .arena_bytes=sizeof(image_arena),
 #ifdef CTRL_IMAGE_SRP
         .classes=srp_pool_classes, .n_classes=SRP_POOL_N_CLASSES,
+        .acmp=&image_acmp, .acmp_env=&image_env,
 #else
         .classes=image_classes, .n_classes=1,
 #endif
     };
 #ifdef CTRL_IMAGE_SRP
+    image_acmp.entity_id=image_entity.entity_id;
+    image_acmp.n_interfaces=MBX_N_IF;
+    image_acmp.n_sinks=CTRL_SRP_SINKS;
+    image_acmp.n_sources=CTRL_SRP_SOURCES;
+    for (unsigned i=0;i<MBX_N_IF;++i) image_acmp.mac[i]=image_entity.mac;
+    for (unsigned n=0;n<CTRL_SRP_SINKS;++n) image_acmp.sink_interface[n]=n%MBX_N_IF;
+    for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) image_acmp.source_interface[n]=n%MBX_N_IF;
     if (!ctrl_app_start_maap(&image_app,&cfg,allocation,NULL,0)) {
 #else
     if (!ctrl_app_start(&image_app,&cfg)) {

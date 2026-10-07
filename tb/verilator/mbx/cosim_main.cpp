@@ -2,13 +2,19 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // cosim_main.cpp - the control-plane firmware (the mailbox driver, the event
-// loop, the lwSRP port layer and the ADP slice, compiled as C11 exactly as the
-// target builds them) run twice on one scenario: once on the RTL, KL_mbx
-// behind KL_mbx_wb with every mbx_hal.h access a Wishbone transaction, and
-// once on the host model the firmware's own tests use (#665 lane F0).
+// loop, the lwSRP port layer, the ADP slice and the ACMP module, compiled as
+// C11 exactly as the target builds them) run twice on one scenario: once on
+// the RTL, KL_mbx behind KL_mbx_wb with every mbx_hal.h access a Wishbone
+// transaction, and once on the host model the firmware's own tests use (#665
+// lanes F0 and F3).
 //
 // THE ORACLE IS THE OTHER FABRIC. Both runs see the same stimulus at the same
-// NOW_MS (a link rise, an ENTITY_DISCOVER, a grandmaster change, a shutdown),
+// NOW_MS (a link rise, an ENTITY_DISCOVER, a grandmaster change, a shutdown;
+// a BIND_RX left unanswered through its probe, duplicate and retry; the bound
+// talker's ENTITY_AVAILABLE, which both filters pass through the bound-talker
+// table the firmware wrote (#665 lane F3 round 2), so TMR_RETRY probes again;
+// the talker's and the listener's other commands; a command for another
+// listener and another talker's ENTITY_AVAILABLE, which both filters refuse),
 // and the firmware's random delays are seeded from NOW_MS, so the two runs
 // must put the same frames on the wire at the same millisecond. A frame that
 // differs, or leaves at another time, is a difference between the model and
@@ -33,6 +39,10 @@ namespace {
 
 constexpr std::uint64_t kGm0 = 0xA1A2A3A4A5A6A7A8ull;
 constexpr std::uint64_t kGm1 = 0x5150515051505150ull;
+constexpr std::uint64_t kEntityId = 0x0011223344556677ull;
+constexpr std::uint64_t kMac = 0x001B92000077ull;
+constexpr std::uint64_t kTalker = 0x0202DEADBEEF0001ull;
+constexpr std::uint64_t kController = 0x1111222233334444ull;
 
 //! One fabric the firmware can run on.
 class Fabric {
@@ -75,9 +85,16 @@ class RtlFabric final : public Fabric {
         // a record committed by the last access starts within a few clocks of
         // its doorbell (IDLE, the commit-order scan's N_CH + 1 steps, PICK,
         // W0, W1, LOAD: 11 with five channels); give it those, then let it
-        // finish
-        b_.idle(16);
-        (void)b_.wait_tx(b_.tx_frames.size(), 400);
+        // finish. Repeat while a frame finished: a pass can commit two (an
+        // ACMP BIND_RX's response and its probe), and the second starts only
+        // after the first has left, which may already be on the stream here
+        const auto finished = [this] { return b_.tx_frames.size() - (b_.tx_open() ? 1u : 0u); };
+        std::size_t before = 0;
+        do {
+            before = finished();
+            b_.idle(16);
+            (void)b_.wait_tx(b_.tx_frames.size(), 400);
+        } while (finished() != before);
         std::vector<std::vector<std::uint8_t>> out;
         for (const auto& t : b_.tx_frames) {
             out.push_back(t.bytes);
@@ -138,26 +155,92 @@ std::vector<std::uint8_t> discover0() {
     return f;
 }
 
-//! The scenario: boot, link rise, two advertising cycles, a DISCOVER, a GM change, a shutdown.
+void put_be(std::vector<std::uint8_t>& f, std::size_t at, std::uint64_t v, unsigned n) {
+    for (unsigned k = 0; k < n; ++k) {
+        f[at + k] = static_cast<std::uint8_t>(v >> (8u * (n - 1u - k)));
+    }
+}
+
+//! A 70-byte ACMP frame (Milan v1.2 5.5.2.2; IEEE 1722.1-2021 Figure 8-1) to the ACMP multicast address.
+std::vector<std::uint8_t> acmp_frame(std::uint8_t msg, std::uint64_t talker, std::uint64_t listener, std::uint16_t seq) {
+    std::vector<std::uint8_t> f(70, 0);
+    put_be(f, 0, 0x91E0F0010000ull, 6);
+    put_be(f, 6, 0x001B92000099ull, 6);
+    put_be(f, 12, 0x22F0u, 2);
+    f[14] = 0xFC;
+    f[15] = msg;
+    put_be(f, 16, 44u, 2);
+    put_be(f, 26, kController, 8);
+    put_be(f, 34, talker, 8);
+    put_be(f, 42, listener, 8);
+    put_be(f, 62, seq, 2);
+    return f;
+}
+
+//! A talker's ENTITY_AVAILABLE (IEEE 1722.1-2021 Figure 6-1, valid_time 10).
+std::vector<std::uint8_t> available(std::uint64_t talker = kTalker) {
+    std::vector<std::uint8_t> f = discover0();
+    f[15] = 0x00;
+    put_be(f, 16, (10u << 11) | 56u, 2);
+    put_be(f, 18, talker, 8);
+    put_be(f, 50, 1u, 4);
+    put_be(f, 54, kGm0, 8);
+    return f;
+}
+
+bool env_locked(void*, std::uint64_t*) { return false; }
+void env_source(void*, unsigned, acmp_source_state* out) {
+    *out = acmp_source_state{true, {0x001B920000770000ull, 0x91E0FE000001ull, 2u}, false};
+}
+void env_srp(void*, unsigned, const acmp_stream*) {}
+void env_note(void*, unsigned) {}
+
+//! The ACMP stimulus: message_type and frame per NOW_MS.
+std::vector<std::uint8_t> acmp_at(std::uint32_t t) {
+    switch (t) {
+        case 1000u: return acmp_frame(6, kTalker, kEntityId, 0x0101);    // BIND_RX: response, probe, duplicate, retry
+        case 2000u: return available();                                  // the bound talker's: discovered
+        case 2500u: return available(kTalker + 1u);                      // another talker's: refused
+        case 3000u: return acmp_frame(4, kEntityId, kTalker, 0x0102);    // GET_TX_STATE
+        case 3500u: return acmp_frame(0, kEntityId, kTalker, 0x0103);    // PROBE_TX
+        case 4000u: return acmp_frame(6, kTalker, kTalker, 0x0104);      // another listener's: refused
+        case 6000u: return acmp_frame(10, kTalker, kEntityId, 0x0105);   // GET_RX_STATE, in PRB_W_AVAIL
+        case 7000u: return acmp_frame(8, kTalker, kEntityId, 0x0106);    // UNBIND_RX
+        default: return {};
+    }
+}
+
+//! The scenario: boot, link rise, two advertising cycles, a DISCOVER, a GM
+//! change, a shutdown, and the ACMP stimulus of acmp_at().
 std::vector<Sent> scenario(Fabric& fab) {
     current() = &fab;
-    const adp_entity entity{0x0011223344556677ull, 0x99AABBCCDDEEFF01ull, 0x001B92000077ull, 0x0000C588u, 2, 0x4801,
-                            2, 0x4801, 0};
+    const adp_entity entity{kEntityId, 0x99AABBCCDDEEFF01ull, kMac, 0x0000C588u, 2, 0x4801, 2, 0x4801, 0};
+    acmp_config acmp_cfg{};
+    acmp_cfg.entity_id = kEntityId;
+    acmp_cfg.n_interfaces = 1;
+    acmp_cfg.mac[0] = kMac;
+    acmp_cfg.n_sinks = 1;
+    acmp_cfg.n_sources = 1;
+    const acmp_env acmp_env_{nullptr, env_locked, env_source, env_srp, env_note, env_note};
     const ctrl_pool_class classes[1] = {{32u, 8u}};
     std::vector<std::uint8_t> arena(1024);
     const auto app = std::make_unique<ctrl_app>();
-    const ctrl_app_config cfg{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr};
+    const ctrl_app_config cfg{&entity, 0, arena.data(), arena.size(), classes, 1, nullptr, nullptr, &acmp_cfg,
+                              &acmp_env_, nullptr, nullptr, 0};
     std::vector<Sent> out;
     if (!ctrl_app_start(app.get(), &cfg)) {
         return out;
     }
     for (std::uint32_t t = 0; t < 21000u; ++t) {
+        const std::vector<std::uint8_t> acmp = acmp_at(t);
         if (t == 50u) {
             fab.link(true);
         } else if (t == 12000u) {
             fab.frame(discover0());
         } else if (t == 16000u) {
             fab.gm_change(kGm1);
+        } else if (!acmp.empty()) {
+            fab.frame(acmp);
         }
         fab.ms();
         while (ctrl_loop_service(&app->loop) != 0u) {
@@ -189,7 +272,23 @@ int main(int argc, char** argv) {
     const std::vector<Sent> on_model = scenario(host);
     RtlFabric rtl(model.get());
     const std::vector<Sent> on_rtl = scenario(rtl);
-    check.that("the firmware advertised on the model (AVAILABLE x4 or more, then DEPARTING)", on_model.size() >= 5u);
+    unsigned adp = 0;
+    std::vector<unsigned> acmp;
+    for (const auto& s : on_model) {
+        adp += s.bytes.size() > 15 && s.bytes[14] == 0xFA ? 1u : 0u;
+        if (s.bytes.size() > 15 && s.bytes[14] == 0xFC) {
+            acmp.push_back(s.bytes[15] & 0x0Fu);
+        }
+    }
+    check.that("the firmware advertised on the model (AVAILABLE x4 or more, then DEPARTING)", adp >= 5u);
+    // BIND_RX_RESPONSE, PROBE_TX_COMMAND and its duplicate (Milan v1.2
+    // 5.5.3.5.3, 5.5.3.5.16), GET_TX_STATE_RESPONSE, PROBE_TX_RESPONSE; at
+    // TMR_RETRY with the talker discovered, TMR_DELAY then a new
+    // PROBE_TX_COMMAND and its duplicate (5.5.3.5.30 step 2, 5.5.3.5.10,
+    // 5.5.3.5.16) around the GET_RX_STATE_RESPONSE, and the UNBIND_RX_RESPONSE;
+    // nothing for the refused two
+    const std::vector<unsigned> want{7, 0, 0, 5, 1, 0, 0, 11, 9};
+    check.that("the firmware answered ACMP on the model, each frame of the scenario in order", acmp == want);
     check.dec("the RTL put as many frames on the wire as the model", on_rtl.size(), on_model.size());
     for (std::size_t k = 0; k < on_model.size() && k < on_rtl.size(); ++k) {
         char what[96];
@@ -199,9 +298,12 @@ int main(int argc, char** argv) {
         check.that(what, on_rtl[k].bytes == on_model[k].bytes);
     }
     for (std::size_t k = 0; k < on_rtl.size(); ++k) {
-        std::printf("  frame %zu: NOW_MS %u, message_type %u, available_index %u\n", k, on_rtl[k].ms,
+        const bool is_acmp = on_rtl[k].bytes.size() > 15 && on_rtl[k].bytes[14] == 0xFC;
+        std::printf("  frame %zu: NOW_MS %u, %s message_type %u, %s %u\n", k, on_rtl[k].ms, is_acmp ? "ACMP" : "ADP",
                     on_rtl[k].bytes.size() > 15 ? on_rtl[k].bytes[15] & 0x0Fu : 99u,
-                    on_rtl[k].bytes.size() > 53 ? static_cast<unsigned>(on_rtl[k].bytes[53]) : 99u);
+                    is_acmp ? "sequence_id" : "available_index",
+                    is_acmp ? (on_rtl[k].bytes[62] << 8 | on_rtl[k].bytes[63])
+                            : on_rtl[k].bytes.size() > 53 ? static_cast<unsigned>(on_rtl[k].bytes[53]) : 99u);
     }
     check.dec("every Wishbone access was answered", rtl.timeouts(), 0);
     return check.report();

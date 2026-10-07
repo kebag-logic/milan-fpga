@@ -26,7 +26,7 @@ TEST(SrpApp, AllThreeProtocolsShareTheLoopAndWakeSources) {
     adp_entity entity{};
     entity.mac=0x020304050600ull; entity.entity_id=0x020304fffe050600ull;
     entity.talker_stream_sources=CTRL_SRP_SOURCES;
-    ctrl_app_config cfg{&entity,0,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES,nullptr,nullptr};
+    ctrl_app_config cfg{&entity,0,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,0};
     unsigned allocations=0;
     auto allocation=[](void *ctx,unsigned,uint64_t,uint16_t,bool valid) {
         if(valid) ++*static_cast<unsigned*>(ctx);

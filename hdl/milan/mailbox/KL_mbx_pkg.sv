@@ -17,7 +17,7 @@ package KL_mbx_pkg;
   //! contract major version
   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
   //! contract minor version
-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd0;
+  localparam int unsigned MBX_VERSION_MINOR_C = 32'd1;
   //! ID.MAGIC
   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
   //! host window size
@@ -28,6 +28,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_N_IF_C = 32'd1;
   //! timer slots
   localparam int unsigned MBX_N_TIMERS_C = 32'd16;
+  //! bound-talker entries per interface (listener streams)
+  localparam int unsigned MBX_N_BOUND_C = 32'd16;
   //! NOW_MS milliseconds per TICK (one centisecond)
   localparam int unsigned MBX_TICK_MS_C = 32'd10;
   //! channels
@@ -35,7 +37,7 @@ package KL_mbx_pkg;
   //! ring counter width
   localparam int unsigned MBX_INDEX_BITS_C = 32'd16;
   //! accept terms per channel
-  localparam int unsigned MBX_MAX_TERMS_C = 32'd2;
+  localparam int unsigned MBX_MAX_TERMS_C = 32'd3;
   //! match tuples per channel
   localparam int unsigned MBX_MAX_TUPLES_C = 32'd2;
   //! bytes a filter term reads
@@ -64,6 +66,8 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TEST_EQ_ZERO_C = 32'd3;
   //! the 6-byte start and 2-byte count overlap [MAAP_BASE, MAAP_BASE + MAAP_COUNT - 1]
   localparam int unsigned MBX_TEST_RANGE_OVERLAP_C = 32'd4;
+  //! the 8-byte big-endian field equals an enabled entry (BOUND_EID, BOUND_EN) of the arrival interface's bound-talker table
+  localparam int unsigned MBX_TEST_EQ_BOUND_C = 32'd5;
   //! TMR_CMD.OP arm
   localparam int unsigned MBX_TMR_OP_ARM_C = 32'd1;
   //! TMR_CMD.OP cancel
@@ -264,6 +268,30 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_OWN_MAC_HI_MAC_LSB_C = 32'd0;
   //! OWN_MAC_HI: MAC[47:32], destination wire bytes 0 and 1
   localparam int unsigned MBX_OWN_MAC_HI_MAC_WIDTH_C = 32'd16;
+  //! first interface's bound-talker table
+  localparam int unsigned MBX_BND_BASE_C = 32'h00000200;
+  //! bytes per interface's bound-talker table
+  localparam int unsigned MBX_BND_STRIDE_C = 32'h00000100;
+  //! bytes per bound-talker entry
+  localparam int unsigned MBX_BND_ENTRY_STRIDE_C = 32'h00000010;
+  //! An entry's talker_entity_id, low word. Reset 0.
+  localparam int unsigned MBX_BND_REG_BOUND_EID_LO_C = 32'h00000000;
+  //! BOUND_EID_LO: talker_entity_id[31:0], ADPDU wire bytes 22 to 25
+  localparam int unsigned MBX_BOUND_EID_LO_EID_LSB_C = 32'd0;
+  //! BOUND_EID_LO: talker_entity_id[31:0], ADPDU wire bytes 22 to 25
+  localparam int unsigned MBX_BOUND_EID_LO_EID_WIDTH_C = 32'd32;
+  //! An entry's talker_entity_id, high word. Reset 0.
+  localparam int unsigned MBX_BND_REG_BOUND_EID_HI_C = 32'h00000004;
+  //! BOUND_EID_HI: talker_entity_id[63:32], ADPDU wire bytes 18 to 21
+  localparam int unsigned MBX_BOUND_EID_HI_EID_LSB_C = 32'd0;
+  //! BOUND_EID_HI: talker_entity_id[63:32], ADPDU wire bytes 18 to 21
+  localparam int unsigned MBX_BOUND_EID_HI_EID_WIDTH_C = 32'd32;
+  //! The entry holds a bound talker. Reset 0. The firmware clears EN before it rewrites the entry's BOUND_EID, so a half-written identity never matches.
+  localparam int unsigned MBX_BND_REG_BOUND_EN_C = 32'h00000008;
+  //! BOUND_EN: the entry takes part in the eq_bound test
+  localparam int unsigned MBX_BOUND_EN_EN_LSB_C = 32'd0;
+  //! BOUND_EN: the entry takes part in the eq_bound test
+  localparam int unsigned MBX_BOUND_EN_EN_WIDTH_C = 32'd1;
   //! first channel register block
   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
   //! bytes per channel block
@@ -486,6 +514,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ADP_T1_OFFSET_C = 32'd18;
   //! adp term 1 message types
   localparam int unsigned MBX_CH_ADP_T1_MSG_MASK_C = 32'h00000004;
+  //! adp term 2: ENTITY_AVAILABLE and ENTITY_DEPARTING of a talker bound on the receiving interface (Milan v1.2 5.6.4.1; #665, comment 6029368753)
+  localparam int unsigned MBX_CH_ADP_T2_TEST_C = 32'd5;
+  //! adp term 2 field byte
+  localparam int unsigned MBX_CH_ADP_T2_OFFSET_C = 32'd18;
+  //! adp term 2 message types
+  localparam int unsigned MBX_CH_ADP_T2_MSG_MASK_C = 32'h00000003;
   //! channel acmp
   localparam int unsigned MBX_CH_ACMP_C = 32'd1;
   //! acmp receive ring byte offset
@@ -542,6 +576,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_ACMP_T1_OFFSET_C = 32'd42;
   //! acmp term 1 message types
   localparam int unsigned MBX_CH_ACMP_T1_MSG_MASK_C = 32'h0000FFFF;
+  //! acmp term 2: unused
+  localparam int unsigned MBX_CH_ACMP_T2_TEST_C = 32'd0;
+  //! acmp term 2 field byte
+  localparam int unsigned MBX_CH_ACMP_T2_OFFSET_C = 32'd0;
+  //! acmp term 2 message types
+  localparam int unsigned MBX_CH_ACMP_T2_MSG_MASK_C = 32'h00000000;
   //! channel aecp
   localparam int unsigned MBX_CH_AECP_C = 32'd2;
   //! aecp receive ring byte offset
@@ -598,6 +638,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_AECP_T1_OFFSET_C = 32'd26;
   //! aecp term 1 message types
   localparam int unsigned MBX_CH_AECP_T1_MSG_MASK_C = 32'h0000AAAA;
+  //! aecp term 2: unused
+  localparam int unsigned MBX_CH_AECP_T2_TEST_C = 32'd0;
+  //! aecp term 2 field byte
+  localparam int unsigned MBX_CH_AECP_T2_OFFSET_C = 32'd0;
+  //! aecp term 2 message types
+  localparam int unsigned MBX_CH_AECP_T2_MSG_MASK_C = 32'h00000000;
   //! channel maap
   localparam int unsigned MBX_CH_MAAP_C = 32'd3;
   //! maap receive ring byte offset
@@ -654,6 +700,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_MAAP_T1_OFFSET_C = 32'd0;
   //! maap term 1 message types
   localparam int unsigned MBX_CH_MAAP_T1_MSG_MASK_C = 32'h00000000;
+  //! maap term 2: unused
+  localparam int unsigned MBX_CH_MAAP_T2_TEST_C = 32'd0;
+  //! maap term 2 field byte
+  localparam int unsigned MBX_CH_MAAP_T2_OFFSET_C = 32'd0;
+  //! maap term 2 message types
+  localparam int unsigned MBX_CH_MAAP_T2_MSG_MASK_C = 32'h00000000;
   //! channel srp
   localparam int unsigned MBX_CH_SRP_C = 32'd4;
   //! srp receive ring byte offset
@@ -710,6 +762,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_CH_SRP_T1_OFFSET_C = 32'd0;
   //! srp term 1 message types
   localparam int unsigned MBX_CH_SRP_T1_MSG_MASK_C = 32'h00000000;
+  //! srp term 2: unused
+  localparam int unsigned MBX_CH_SRP_T2_TEST_C = 32'd0;
+  //! srp term 2 field byte
+  localparam int unsigned MBX_CH_SRP_T2_OFFSET_C = 32'd0;
+  //! srp term 2 message types
+  localparam int unsigned MBX_CH_SRP_T2_MSG_MASK_C = 32'h00000000;
   //! interface index bits
   localparam int unsigned MBX_IF_W_C = 32'd1;
   //! channel index bits
@@ -750,11 +808,11 @@ package KL_mbx_pkg;
   //! by channel id * MAX_TUPLES + tuple
   localparam int unsigned MBX_TUPLE_MSG_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TUPLES_C] = '{MBX_CH_ADP_M0_MSG_MASK_C, MBX_CH_ADP_M1_MSG_MASK_C, MBX_CH_ACMP_M0_MSG_MASK_C, MBX_CH_ACMP_M1_MSG_MASK_C, MBX_CH_AECP_M0_MSG_MASK_C, MBX_CH_AECP_M1_MSG_MASK_C, MBX_CH_MAAP_M0_MSG_MASK_C, MBX_CH_MAAP_M1_MSG_MASK_C, MBX_CH_SRP_M0_MSG_MASK_C, MBX_CH_SRP_M1_MSG_MASK_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_TEST_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_TEST_C, MBX_CH_ADP_T1_TEST_C, MBX_CH_ACMP_T0_TEST_C, MBX_CH_ACMP_T1_TEST_C, MBX_CH_AECP_T0_TEST_C, MBX_CH_AECP_T1_TEST_C, MBX_CH_MAAP_T0_TEST_C, MBX_CH_MAAP_T1_TEST_C, MBX_CH_SRP_T0_TEST_C, MBX_CH_SRP_T1_TEST_C};
+  localparam int unsigned MBX_TERM_TEST_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_TEST_C, MBX_CH_ADP_T1_TEST_C, MBX_CH_ADP_T2_TEST_C, MBX_CH_ACMP_T0_TEST_C, MBX_CH_ACMP_T1_TEST_C, MBX_CH_ACMP_T2_TEST_C, MBX_CH_AECP_T0_TEST_C, MBX_CH_AECP_T1_TEST_C, MBX_CH_AECP_T2_TEST_C, MBX_CH_MAAP_T0_TEST_C, MBX_CH_MAAP_T1_TEST_C, MBX_CH_MAAP_T2_TEST_C, MBX_CH_SRP_T0_TEST_C, MBX_CH_SRP_T1_TEST_C, MBX_CH_SRP_T2_TEST_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_OFFSET_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_OFFSET_C, MBX_CH_ADP_T1_OFFSET_C, MBX_CH_ACMP_T0_OFFSET_C, MBX_CH_ACMP_T1_OFFSET_C, MBX_CH_AECP_T0_OFFSET_C, MBX_CH_AECP_T1_OFFSET_C, MBX_CH_MAAP_T0_OFFSET_C, MBX_CH_MAAP_T1_OFFSET_C, MBX_CH_SRP_T0_OFFSET_C, MBX_CH_SRP_T1_OFFSET_C};
+  localparam int unsigned MBX_TERM_OFFSET_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_OFFSET_C, MBX_CH_ADP_T1_OFFSET_C, MBX_CH_ADP_T2_OFFSET_C, MBX_CH_ACMP_T0_OFFSET_C, MBX_CH_ACMP_T1_OFFSET_C, MBX_CH_ACMP_T2_OFFSET_C, MBX_CH_AECP_T0_OFFSET_C, MBX_CH_AECP_T1_OFFSET_C, MBX_CH_AECP_T2_OFFSET_C, MBX_CH_MAAP_T0_OFFSET_C, MBX_CH_MAAP_T1_OFFSET_C, MBX_CH_MAAP_T2_OFFSET_C, MBX_CH_SRP_T0_OFFSET_C, MBX_CH_SRP_T1_OFFSET_C, MBX_CH_SRP_T2_OFFSET_C};
   //! by channel id * MAX_TERMS + term
-  localparam int unsigned MBX_TERM_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_MSG_MASK_C, MBX_CH_ADP_T1_MSG_MASK_C, MBX_CH_ACMP_T0_MSG_MASK_C, MBX_CH_ACMP_T1_MSG_MASK_C, MBX_CH_AECP_T0_MSG_MASK_C, MBX_CH_AECP_T1_MSG_MASK_C, MBX_CH_MAAP_T0_MSG_MASK_C, MBX_CH_MAAP_T1_MSG_MASK_C, MBX_CH_SRP_T0_MSG_MASK_C, MBX_CH_SRP_T1_MSG_MASK_C};
+  localparam int unsigned MBX_TERM_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_MSG_MASK_C, MBX_CH_ADP_T1_MSG_MASK_C, MBX_CH_ADP_T2_MSG_MASK_C, MBX_CH_ACMP_T0_MSG_MASK_C, MBX_CH_ACMP_T1_MSG_MASK_C, MBX_CH_ACMP_T2_MSG_MASK_C, MBX_CH_AECP_T0_MSG_MASK_C, MBX_CH_AECP_T1_MSG_MASK_C, MBX_CH_AECP_T2_MSG_MASK_C, MBX_CH_MAAP_T0_MSG_MASK_C, MBX_CH_MAAP_T1_MSG_MASK_C, MBX_CH_MAAP_T2_MSG_MASK_C, MBX_CH_SRP_T0_MSG_MASK_C, MBX_CH_SRP_T1_MSG_MASK_C, MBX_CH_SRP_T2_MSG_MASK_C};
 
   //! `value` placed into the field [lsb +: width] of a 32-bit word
   function automatic logic [31:0] mbx_place_f(input logic [31:0] value, input int unsigned lsb,
