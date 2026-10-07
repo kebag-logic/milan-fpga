@@ -1,0 +1,84 @@
+a29f8d13ff4869e54997d9adf05d83a4ace4b8bd 0a45695db537badb8d7e9cbf578925fe5b89d647
+Preserve pending Flush withdrawals across receive dispatch
+
+0a45695db537badb8d7e9cbf578925fe5b89d647 82422d6ffe38d430576cd9d874a45b9e124e6c63
+Retain failed topology withdrawals and order replacement retries
+
+82422d6ffe38d430576cd9d874a45b9e124e6c63 a9cd5ef58a2478cb2ce4899b31aa02d5c2072646
+Preserve registration updates, extension parsing, and propagation retries
+
+a9cd5ef58a2478cb2ce4899b31aa02d5c2072646 23d9a8173b07503a0ee6e8528f922fceab4e67f0
+Fix atomic receive validation and retained propagation
+
+23d9a8173b07503a0ee6e8528f922fceab4e67f0 a45b885ce90e300fb46f163c297708d65f5aa07d
+Add opt-in Milan MSRP rapid withdrawal
+
+a45b885ce90e300fb46f163c297708d65f5aa07d 4eba61b7b1c49fc9b7260a487240ca86f9d38168 fa46a0645be203423118235268bff0fa0ee11cef
+Merge bare-metal support with the test harness and public guides
+
+fa46a0645be203423118235268bff0fa0ee11cef 967201bcdb664c5335f362340b825941769991f5
+docs: describe asynchronous transmit in Zephyr help
+
+4eba61b7b1c49fc9b7260a487240ca86f9d38168 e59b21f2ee8cb32ee07b3fc4f0799f0197743d5e
+Shift documentation source anchors past the added licence headers
+
+e59b21f2ee8cb32ee07b3fc4f0799f0197743d5e bc6687afb17b0e190cbb9db4b335aeca91e99477 1401654530ce7d9275de9b901e67df47e5bbc536
+Merge main into the Apache-2.0 licence branch
+
+967201bcdb664c5335f362340b825941769991f5 0ab6eeacf7f31974b052cb73b383bc5a1d864cb6
+Redeclare changed Listener parameters through the New applicant path
+
+0ab6eeacf7f31974b052cb73b383bc5a1d864cb6 e44491bc77eb5332ee658368db7067c1a4e6ea93
+Document the serialized bare-metal MRP integration contract
+
+e44491bc77eb5332ee658368db7067c1a4e6ea93 4af7e79452e4a0443bed4d61548da81641d811f4
+Replace opposite Talker registrations on received joins
+
+4af7e79452e4a0443bed4d61548da81641d811f4 7c83d6b4fbbf187f995541a143064fd59a96eab6
+Append the Domain callback after existing MSRP context members
+
+7c83d6b4fbbf187f995541a143064fd59a96eab6 52f04495934eb2c7a440eaf473b1489912484c9b
+Retain registered values during MRP withdrawal and aging
+
+52f04495934eb2c7a440eaf473b1489912484c9b dddba2ffbc426f953dfccc42c72a0700e07af00a
+Split full MRP PDUs without losing or starving pending attributes
+
+dddba2ffbc426f953dfccc42c72a0700e07af00a 09ae813f311d100374612952ac153122b8cdd3a6
+Bound receive interests and reclaim inactive MRP attribute storage
+
+09ae813f311d100374612952ac153122b8cdd3a6 75eefa61149dc8fdebd6a0270c6381b091d47fa5
+Request transmit opportunities for received MRP state changes
+
+75eefa61149dc8fdebd6a0270c6381b091d47fa5 3af7b61de556bb9f9da36e4585ee84cb9dad5070
+Initialize the bounded vector header read for strict host builds
+
+3af7b61de556bb9f9da36e4585ee84cb9dad5070 b49c985729031b0c54f493e154ef271d5944ac89
+Notify applications when registered Listener declarations change
+
+b49c985729031b0c54f493e154ef271d5944ac89 b6604ed11252794d0d6d6f610f32b02443d4fe44
+Retain refused MRP transmissions while registrar timers continue
+
+b6604ed11252794d0d6d6f610f32b02443d4fe44 39e947634bbcd6eabfe70055cac2a0f7de0ce513
+Keep hosted allocation and errno headers out of the protocol core
+
+39e947634bbcd6eabfe70055cac2a0f7de0ce513 ce3ce8d15f6a2f03276ff9ed1f0e3a54858a9f4b
+Poll transactional MRP transmissions with clause-based applicant and timer behavior
+
+ce3ce8d15f6a2f03276ff9ed1f0e3a54858a9f4b bd3ce04d34b2c61209f7060029e7355d1d3cc532
+Accept complete vectors terminated by the end of an MRPDU
+
+bd3ce04d34b2c61209f7060029e7355d1d3cc532 b883b2070d6080a4964b8d2188e74a792104fe69
+Validate MRP vectors before indications and scope received LeaveAll
+
+b883b2070d6080a4964b8d2188e74a792104fe69 3cf6a5b12d7092737a1677f0015e88bb64ee7f4d
+Encode MSRP Domain and increment vector identities per clause 35
+
+3cf6a5b12d7092737a1677f0015e88bb64ee7f4d 5f1202ca12c6d5caf1145d609d91bef481af9628
+Unlink application timers before releasing their storage
+
+5f1202ca12c6d5caf1145d609d91bef481af9628 bc6687afb17b0e190cbb9db4b335aeca91e99477
+Run existing cgreen and behavior suites through exported entry points
+
+bc6687afb17b0e190cbb9db4b335aeca91e99477 92647aaf38e4b2809043d195269dc101c044443e
+License lwSRP under Apache-2.0
+

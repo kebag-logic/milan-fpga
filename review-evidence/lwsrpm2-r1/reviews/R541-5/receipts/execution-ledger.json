@@ -1,0 +1,935 @@
+[
+  {
+    "label": "OFF-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "77e6675c74442f46390cd32557ceb80d5b892edad3e6f00a0ac8d8c7124030a2"
+  },
+  {
+    "label": "OFF-callback-order-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-callback-order",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> propagation_policy_observes_completed_host_indications "
+    ],
+    "sha256": "dc7eabc364c95cbdbb75c45ffda6c506b01f4078947d66aa20fd1aa3a89d5bdc"
+  },
+  {
+    "label": "OFF-configure",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "3c8cee59f5e05b772e0b1b3daadc4f12233f3b52da44d1f0b3c6a4e421d5aa49"
+  },
+  {
+    "label": "OFF-cross-port-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "OFF-cross-port",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "0a5c70e4faf1eb6a16650f78ece481b9d262c8b98a3457c54120dde60a007b09"
+  },
+  {
+    "label": "OFF-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "cd2f629a5dedb48cadf5db9499ab88feafe151b1129edea967a1063d87342b26"
+  },
+  {
+    "label": "OFF-edges-restored-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-edges-restored-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "09ee488c73441b105d3369c1d6aaf91c5b9d42136fa7ce37252a925174ede0df"
+  },
+  {
+    "label": "OFF-edges-restored-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "OFF-final-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "OFF-final-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "OFF-flush-before-refresh-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-flush-before-refresh-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "d71605e6b7e32592338fb1feb08c52af5770675a28e6b10ffaf1a64b23b3232f"
+  },
+  {
+    "label": "OFF-flush-before-refresh",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "4012258996878a67717d8a1e35bc8da6f3c9b6bfe7d5cce6d2a1c8083fb4a9c7"
+  },
+  {
+    "label": "OFF-flush-completion-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-flush-completion",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "271e523cdabe1860ab817b7d3296d0a301e6697a5b60a960030e8e0d6910390e"
+  },
+  {
+    "label": "OFF-flush-deadline-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-flush-deadline-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "77cb84bee0f99bc592cb825500d9b1e012c4d7de344159e1c3ec99ffdb432096"
+  },
+  {
+    "label": "OFF-flush-deadline",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick "
+    ],
+    "sha256": "3d4b36d99b66732fbef81fab1b0ef193b1668d9840566fa95d44de0ca9c95718"
+  },
+  {
+    "label": "OFF-flush-observer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-flush-observer-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "b43cdb620598dc9d01682ce8f17486054b53119b30bfc7c9430761e28318f751"
+  },
+  {
+    "label": "OFF-flush-observer",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions "
+    ],
+    "sha256": "459423051d65b22c30c61375d5b2c48cea45e00b9437546fd8f8c73e7b3bf94f"
+  },
+  {
+    "label": "OFF-flush-retry-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-flush-retry",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "b2581156611956dd702cbdcc00e9a3bdffae390b7bbd04875244b3cde0f99093"
+  },
+  {
+    "label": "OFF-milan-delayed-in-leave-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-milan-delayed-in-leave",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: milan_suite -> listener_leave_in_is_immediate ",
+      "Failure: milan_suite -> talker_leave_in_is_immediate "
+    ],
+    "sha256": "f4005dd84cf60fb8c7477c2d237ceae51d0755b2862b2fb3d4b281277f7471d5"
+  },
+  {
+    "label": "OFF-milan-restarted-lv-deadline-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-milan-restarted-lv-deadline",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline "
+    ],
+    "sha256": "ff8b3ce971073b6f8c40aade37a4aab18c30469d8a1feac724a36642dd0fb4aa"
+  },
+  {
+    "label": "OFF-own-edges-receive-instance-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-own-edges-receive-instance-stop",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "393b581f942eaf72681fe54d740da1850b80d640f917cf51bed9f658fea33b6d"
+  },
+  {
+    "label": "OFF-own-edges-replacement-leave-timer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-own-edges-replacement-leave-timer",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "df12cf1572ea317a146cc6f64157dba472864d2d38880d348c19ff72543daa1f"
+  },
+  {
+    "label": "OFF-own-edges-replacement-lv-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-own-edges-replacement-lv",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "df12cf1572ea317a146cc6f64157dba472864d2d38880d348c19ff72543daa1f"
+  },
+  {
+    "label": "OFF-own-joinmt-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-own-joinmt-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "1b85a393ff65aca5ed6382f8c5f59240d70ec82691ef6d91463f7dda7c269453"
+  },
+  {
+    "label": "OFF-own-joinmt",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration "
+    ],
+    "sha256": "3c04ed4f747d523431bb16535163a8121b8e94e81e348b7b7e1edbd46e2a568a"
+  },
+  {
+    "label": "OFF-pending-flush-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-pending-flush-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "d71605e6b7e32592338fb1feb08c52af5770675a28e6b10ffaf1a64b23b3232f"
+  },
+  {
+    "label": "OFF-pending-flush",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "6288d90afc8da0b0d8b3d5f1870757d309a91138e2db48087ded5bdf65eb72a8"
+  },
+  {
+    "label": "OFF-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "124e3eff64cb904b38ad08fe6d0ec4a93138f42d9f7f00bcc1d4e286dc4ad451"
+  },
+  {
+    "label": "OFF-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "960874f9c7c33f98fcf884f49892ad36110f512c008b6a38f9d12abb96d63044"
+  },
+  {
+    "label": "OFF-propagation-retention-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-propagation-retention",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> destroy_releases_all_queued_allocations ",
+      "Failure: boundaries_suite -> failed_commit_replay_is_retried_by_the_next_poll ",
+      "Failure: boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation ",
+      "Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order "
+    ],
+    "sha256": "5cad4f32becb62a42f6c08951f7f10cb4e0f71bb79cc3eb314309701cbd16a83"
+  },
+  {
+    "label": "OFF-receive-instance-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-receive-instance-stop",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages "
+    ],
+    "sha256": "9917376b894204276e9d7da1ec470d1304f748815e625868837a6a926b9b1026"
+  },
+  {
+    "label": "OFF-receive-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-receive-stop",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages "
+    ],
+    "sha256": "c7a3c367430f90cafa25d114332b7caa5fbff021a4afc0370bb0368ff388e34d"
+  },
+  {
+    "label": "OFF-registrar-recovery-indication-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-registrar-recovery-indication",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map "
+    ],
+    "sha256": "a1556e15b278c2e5d2fc718b92363e9bed6778ceb1d330236d0a89331665cac6"
+  },
+  {
+    "label": "OFF-replacement-leave-timer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-replacement-leave-timer",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join ",
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation ",
+      "Failure: receive_suite -> talker_join_replaces_the_other_type_on_the_same_port "
+    ],
+    "sha256": "8647b39649d4e9b40b56ab3c897e8aba3b8c10dd1117a069a54243a45b2fae82"
+  },
+  {
+    "label": "OFF-replacement-lv-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-replacement-lv",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join ",
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation "
+    ],
+    "sha256": "e4471351677e9c5175a4927bdd2bdc81be08f204165b38636289dfba4f25e069"
+  },
+  {
+    "label": "OFF-replacement-order-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-replacement-order",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join ",
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation "
+    ],
+    "sha256": "42bfbf26659f61ce6dee0daebf45e984d88b9dfd805b6b1160a098c734c4c12b"
+  },
+  {
+    "label": "OFF-restored-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "OFF-restored-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "cd2f629a5dedb48cadf5db9499ab88feafe151b1129edea967a1063d87342b26"
+  },
+  {
+    "label": "OFF-restored-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "960874f9c7c33f98fcf884f49892ad36110f512c008b6a38f9d12abb96d63044"
+  },
+  {
+    "label": "OFF-san-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "4466b67c6bd5324f12dbec3de6442f34e3ebda21ffcd326897985f74f4c51a24"
+  },
+  {
+    "label": "OFF-san-configure",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "2f4fc93e1f563503296e7f88d51ac2d1f42cccc75c0aefcdb405c8282f1547f8"
+  },
+  {
+    "label": "OFF-san-cross-port",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "0a5c70e4faf1eb6a16650f78ece481b9d262c8b98a3457c54120dde60a007b09"
+  },
+  {
+    "label": "OFF-san-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "OFF-san-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "OFF-san-units",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "8f3e36294f1354a965ab463446b0f8cc78f30ff90086fed8d180037a09ff1ebf"
+  },
+  {
+    "label": "OFF-scenarios",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "5028e77862e79ead5f2f66f4789515f311e881e79db25d4c5207b58d1ff51428"
+  },
+  {
+    "label": "OFF-units",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "525da0a4997987abbfd71f26b81d37b96c01adfbcd06b562f9dd66890691b311"
+  },
+  {
+    "label": "ON-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "a012bf4bf68c83f73420976a59d941852240ad8861d2a383218e4a9845a5f977"
+  },
+  {
+    "label": "ON-callback-order-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-callback-order",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> propagation_policy_observes_completed_host_indications "
+    ],
+    "sha256": "2d4c507c0472ce304c787f7f235f76725cf162fb7b14c58c4777aa7cf3626638"
+  },
+  {
+    "label": "ON-configure",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "117c5cd5a7802d585d0a623a648792bb426b2bf53d9687d439e29f551746e741"
+  },
+  {
+    "label": "ON-cross-port-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "ON-cross-port",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "0a5c70e4faf1eb6a16650f78ece481b9d262c8b98a3457c54120dde60a007b09"
+  },
+  {
+    "label": "ON-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "7e3dadb56464776e41385840b1b03ae9956001b7b47351b5abf7e78c646de7a6"
+  },
+  {
+    "label": "ON-edges-restored-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-edges-restored-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "804bbf8c969eea9f6941915b45ebcf8daf6a92c0dc76c682ac4d3448e306819d"
+  },
+  {
+    "label": "ON-edges-restored-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "ON-final-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "ON-final-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "ON-flush-before-refresh-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-flush-before-refresh-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "d71605e6b7e32592338fb1feb08c52af5770675a28e6b10ffaf1a64b23b3232f"
+  },
+  {
+    "label": "ON-flush-before-refresh",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "94bf68fb787c51c9aa0fdc1536470c13ba755e918633d1fad379096e7fa26ebf"
+  },
+  {
+    "label": "ON-flush-completion-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-flush-completion",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "b419f8c9fbd6a042982c8c0716619c68d02b6a2f26caa0eb31c199f689c7fa3c"
+  },
+  {
+    "label": "ON-flush-deadline-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-flush-deadline-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "77cb84bee0f99bc592cb825500d9b1e012c4d7de344159e1c3ec99ffdb432096"
+  },
+  {
+    "label": "ON-flush-deadline",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick "
+    ],
+    "sha256": "84e51d4dd988efde43bd654d4ab755474693090c12b1557d5fd81e85e1530d0f"
+  },
+  {
+    "label": "ON-flush-observer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-flush-observer-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "b43cdb620598dc9d01682ce8f17486054b53119b30bfc7c9430761e28318f751"
+  },
+  {
+    "label": "ON-flush-observer",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions "
+    ],
+    "sha256": "9e0e0910e57d910bfae94b12ca76d526f7a0c04be9e9e19c506a09f5ef65d4a4"
+  },
+  {
+    "label": "ON-flush-retry-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-flush-retry",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> flush_allocation_failures_retry_withdrawal_on_the_next_tick ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "2a0117b5072b4bfd25f3db9988226c970e0fd5b19351ad18c9a5bab4bacd68e9"
+  },
+  {
+    "label": "ON-milan-delayed-in-leave-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-milan-delayed-in-leave",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: milan_suite -> listener_leave_in_is_immediate ",
+      "Failure: milan_suite -> msrp_constructor_selects_the_build_profile ",
+      "Failure: milan_suite -> talker_leave_in_is_immediate "
+    ],
+    "sha256": "6ec292e6d43f1caf50c41672f8940f679e48aafc2ec8f09e2da3334aed65a085"
+  },
+  {
+    "label": "ON-milan-restarted-lv-deadline-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-milan-restarted-lv-deadline",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline ",
+      "Failure: transmit_suite -> leaveall_then_withdrawal_retains_until_leave_expiry "
+    ],
+    "sha256": "9598701f61275ce8b9ddc08bfc29b6a61a7c2697acc0ee508f9c7806e29729cf"
+  },
+  {
+    "label": "ON-own-edges-receive-instance-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-own-edges-receive-instance-stop",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "393b581f942eaf72681fe54d740da1850b80d640f917cf51bed9f658fea33b6d"
+  },
+  {
+    "label": "ON-own-edges-replacement-leave-timer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-own-edges-replacement-leave-timer",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "df12cf1572ea317a146cc6f64157dba472864d2d38880d348c19ff72543daa1f"
+  },
+  {
+    "label": "ON-own-edges-replacement-lv-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-own-edges-replacement-lv",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "df12cf1572ea317a146cc6f64157dba472864d2d38880d348c19ff72543daa1f"
+  },
+  {
+    "label": "ON-own-joinmt-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-own-joinmt-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "1b85a393ff65aca5ed6382f8c5f59240d70ec82691ef6d91463f7dda7c269453"
+  },
+  {
+    "label": "ON-own-joinmt",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration "
+    ],
+    "sha256": "bef12c22e82f4525b944716f63d9296dfda9b751f2d2ef1c5465723fe768963c"
+  },
+  {
+    "label": "ON-pending-flush-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-pending-flush-probe",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "d71605e6b7e32592338fb1feb08c52af5770675a28e6b10ffaf1a64b23b3232f"
+  },
+  {
+    "label": "ON-pending-flush",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions ",
+      "Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values ",
+      "Failure: boundaries_suite -> pending_flush_precedes_received_registration ",
+      "Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values "
+    ],
+    "sha256": "2d1ca511db896ca4de91da6824f5f8e41834e01be8c34180c5df972dc3255416"
+  },
+  {
+    "label": "ON-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "124e3eff64cb904b38ad08fe6d0ec4a93138f42d9f7f00bcc1d4e286dc4ad451"
+  },
+  {
+    "label": "ON-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "960874f9c7c33f98fcf884f49892ad36110f512c008b6a38f9d12abb96d63044"
+  },
+  {
+    "label": "ON-propagation-retention-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-propagation-retention",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> destroy_releases_all_queued_allocations ",
+      "Failure: boundaries_suite -> failed_commit_replay_is_retried_by_the_next_poll ",
+      "Failure: boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation ",
+      "Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order "
+    ],
+    "sha256": "4db32e0fdd6d718306e3efc5155dd83f6cb76403de8cbce4284f327be088389f"
+  },
+  {
+    "label": "ON-receive-instance-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-receive-instance-stop",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages "
+    ],
+    "sha256": "8a68b7187601d2f8535f731a473f1ba84a63880138a40492d58a59544ee7445a"
+  },
+  {
+    "label": "ON-receive-stop-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-receive-stop",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages "
+    ],
+    "sha256": "4e4325665e0e2ef5a9d80fce7617dd3fc3ad27514725b3eac2171726ddd4d429"
+  },
+  {
+    "label": "ON-registrar-recovery-indication-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-registrar-recovery-indication",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map "
+    ],
+    "sha256": "42baa3e1991cae96e7f085b56897a581677a1442402f1cd8ef1e9721d9364f7e"
+  },
+  {
+    "label": "ON-replacement-leave-timer-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-replacement-leave-timer",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation "
+    ],
+    "sha256": "50c12f754578344ed14e86ec81f26e0f66b934fdd99f351f35096684228b14cf"
+  },
+  {
+    "label": "ON-replacement-lv-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-replacement-lv",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation "
+    ],
+    "sha256": "cadaea3ccfa121980068050bb4e2b628ae0525d6863a70c0ce8da1d2862e6907"
+  },
+  {
+    "label": "ON-replacement-order-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-replacement-order",
+    "rc": 1,
+    "failure_lines": [
+      "Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join ",
+      "Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation "
+    ],
+    "sha256": "78d588ec5a04a90f202ac8b396d9a7e75fb2a755ec96996f39b682791899044d"
+  },
+  {
+    "label": "ON-restored-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e1d464b27a812ffa56a2f20210c26beb458fbfc0ac8ad3419cfd0edb6fa8906f"
+  },
+  {
+    "label": "ON-restored-ctest",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "7e3dadb56464776e41385840b1b03ae9956001b7b47351b5abf7e78c646de7a6"
+  },
+  {
+    "label": "ON-restored-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "960874f9c7c33f98fcf884f49892ad36110f512c008b6a38f9d12abb96d63044"
+  },
+  {
+    "label": "ON-san-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "9bfd0f405ccf8bd1864b4842b3380d6e73666c11fbe6ebd91934bc7cde2cb93a"
+  },
+  {
+    "label": "ON-san-configure",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "da0b44fa823bc31fb9c43d0c796df4e129785d207c76af8b9fe78a54a7d5ca3a"
+  },
+  {
+    "label": "ON-san-cross-port",
+    "rc": 1,
+    "failure_lines": [],
+    "sha256": "0a5c70e4faf1eb6a16650f78ece481b9d262c8b98a3457c54120dde60a007b09"
+  },
+  {
+    "label": "ON-san-probe-build",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "ON-san-probe",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "64d42dab021a49dcae2db9c8c82c9a5928596310afd2bbeea30404e9ae83f275"
+  },
+  {
+    "label": "ON-san-units",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "d96a64b5d0e0cedda0736318d857f268967bbe1c8ed02b1050c25bc3477a9798"
+  },
+  {
+    "label": "ON-scenarios",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "5028e77862e79ead5f2f66f4789515f311e881e79db25d4c5207b58d1ff51428"
+  },
+  {
+    "label": "ON-units",
+    "rc": 0,
+    "failure_lines": [],
+    "sha256": "ce77b28e4a49ed45e231edca1779574e604f2c6b874bc74225767eeb2167f131"
+  }
+]

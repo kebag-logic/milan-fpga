@@ -1,0 +1,30 @@
+Running "main" (81 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+$REVIEW_PACKET/scratch/source-OFF/tests/unit/review_test.c:303: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [joins] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-OFF/tests/unit/review_test.c:303: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [maps] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-OFF/tests/unit/review_test.c:303: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [joins] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-OFF/tests/unit/review_test.c:303: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [maps] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "boundaries_suite": 13581 passes, 4 failures in 68ms.
+Completed "main": 16310 passes, 4 failures in 109ms.

@@ -1,0 +1,45 @@
+Running "main" (81 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+$REVIEW_PACKET/scratch/source-ON/tests/unit/transmit_test.c:81: Failure: transmit_suite -> leaveall_then_withdrawal_retains_until_leave_expiry 
+	Expected [left] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "transmit_suite": 105 passes, 1 failure in 4ms.
+  "integration_suite": 371 passes in 10ms.
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEW_PACKET/scratch/source-ON/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+  "milan_suite": 424 passes, 6 failures in 8ms.
+  "boundaries_suite": 13585 passes in 67ms.
+Completed "main": 16295 passes, 7 failures in 107ms.

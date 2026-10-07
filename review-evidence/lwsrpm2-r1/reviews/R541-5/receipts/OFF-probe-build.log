@@ -1,0 +1,20 @@
+$REVIEW_PACKET/scripts/probe.c: In function ‘interleave’:
+$REVIEW_PACKET/scripts/probe.c:72:9: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   72 |         for(unsigned k=0;k<61;k++) shlan_timer_tick();CHECK(count==1+declaring);
+      |         ^~~
+$REVIEW_PACKET/scripts/probe.c:14:18: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   14 | #define CHECK(x) do { ++checks; if (!(x)) { fprintf(stderr,"FAIL scenario=%u line=%u: %s\n",scenario,__LINE__,#x); exit(1); } } while (0)
+      |                  ^~
+$REVIEW_PACKET/scripts/probe.c:72:55: note: in expansion of macro ‘CHECK’
+   72 |         for(unsigned k=0;k<61;k++) shlan_timer_tick();CHECK(count==1+declaring);
+      |                                                       ^~~~~
+$REVIEW_PACKET/scripts/probe.c: In function ‘recovery’:
+$REVIEW_PACKET/scripts/probe.c:82:9: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   82 |         for(unsigned k=0;k<61;k++) shlan_timer_tick();CHECK(count==1);finish(a);
+      |         ^~~
+$REVIEW_PACKET/scripts/probe.c:14:18: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   14 | #define CHECK(x) do { ++checks; if (!(x)) { fprintf(stderr,"FAIL scenario=%u line=%u: %s\n",scenario,__LINE__,#x); exit(1); } } while (0)
+      |                  ^~
+$REVIEW_PACKET/scripts/probe.c:82:55: note: in expansion of macro ‘CHECK’
+   82 |         for(unsigned k=0;k<61;k++) shlan_timer_tick();CHECK(count==1);finish(a);
+      |                                                       ^~~~~
