@@ -1,0 +1,23 @@
+compiler: $PACKET/scratch/sdk/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "$PACKET/scratch/plants/H12-umoddi3-returns-quotient/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 431, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/plants/H12-umoddi3-returns-quotient/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/plants/H12-umoddi3-returns-quotient/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __umoddi3(0000000000000001, 0000000000000001): 0000000000000001, not 0000000000000000
+MISMATCH __umoddi3(0000000000000001, 0000000000000002): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 0000000000000003): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 0000000000000007): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 000000000000007f): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 0000000000000080): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 00000000000000ff): 0000000000000000, not 0000000000000001
+MISMATCH __umoddi3(0000000000000001, 000000007fffffff): 0000000000000000, not 0000000000000001
+195657 mismatches
+
+
+rc=1

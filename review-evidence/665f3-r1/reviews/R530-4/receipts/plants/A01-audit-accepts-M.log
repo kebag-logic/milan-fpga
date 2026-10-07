@@ -1,0 +1,22 @@
+compiler: $PACKET/scratch/sdk/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+PASS: arith: every helper against the host's arithmetic, 0 mismatches
+PASS: leaves: the helpers define fw_rv32.HELPERS, leave nothing open and call no helper
+PASS: leaves: refused mulsi3-star: mulsi3-star.o calls helpers: __mulsi3
+PASS: leaves: refused udivsi3-out: udivsi3-out.o leaves symbols open: image_elsewhere
+PASS: audit: the probe linked as the image is passes (RV32I audit: e_flags 0, rv32i2p1, 159 words all RV32I base instructions, nothing undefined)
+PASS: audit: every RV32I base instruction form passes
+PASS: audit: refused an RV32IM object with no M instruction: architecture attribute ['rv32i2p1_m2p0_zmmul1p0'], not RV32I alone
+PASS: audit: refused a weak symbol left undefined: symbols left undefined: image_probe_hook
+Traceback (most recent call last):
+  File "$PACKET/scratch/plants/A01-audit-accepts-M/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 431, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/plants/A01-audit-accepts-M/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 421, in main
+    probe_cases(cc, work / "audit") + word_cases(cc, work / "audit") +
+                                      ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/plants/A01-audit-accepts-M/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 343, in word_cases
+    assert len(found) == 1 and f"1 words outside RV32I, the first {word:#010x}" in found[0], (name, found)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('mul a0, a0, a1 (M)', [])
+
+rc=1

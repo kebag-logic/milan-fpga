@@ -1,0 +1,23 @@
+compiler: $PACKET/scratch/sdk/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+Traceback (most recent call last):
+  File "$PACKET/scratch/plants/H10-ashldi3-carry-bits/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 431, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/plants/H10-ashldi3-carry-bits/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+              ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/plants/H10-ashldi3-carry-bits/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 287, in arith_cases
+    assert res.returncode == 0 and res.stdout.strip().endswith("0 mismatches"), res.stdout
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: MISMATCH __ashldi3(0000000000000001, 000000000000001f): 0000000180000000, not 0000000080000000
+MISMATCH __ashldi3(0000000000000002, 000000000000001e): 0000000180000000, not 0000000080000000
+MISMATCH __ashldi3(0000000000000002, 000000000000001f): 0000000200000000, not 0000000100000000
+MISMATCH __ashldi3(0000000000000003, 000000000000001e): 00000001c0000000, not 00000000c0000000
+MISMATCH __ashldi3(0000000000000003, 000000000000001f): 0000000380000000, not 0000000180000000
+MISMATCH __ashldi3(0000000000000007, 000000000000001d): 00000001e0000000, not 00000000e0000000
+MISMATCH __ashldi3(0000000000000007, 000000000000001e): 00000003c0000000, not 00000001c0000000
+MISMATCH __ashldi3(0000000000000007, 000000000000001f): 0000000780000000, not 0000000380000000
+73030 mismatches
+
+
+rc=1

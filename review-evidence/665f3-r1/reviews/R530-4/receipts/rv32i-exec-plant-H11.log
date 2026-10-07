@@ -1,0 +1,14 @@
+OK  __ashldi3: 2412 cases executed on RV32I, max 10 instructions
+BAD __ashrdi3: 2412 cases executed on RV32I, max 10 instructions; __ashrdi3(0x8000000000000000, 0x3f) = 0xffffffff, want 0xffffffffffffffff; __ashrdi3(0x8000000000000000, 0x3f) = 0xffffffff, want 0xffffffffffffffff; __ashrdi3(0x8000000000000000, 0x3f) = 0xffffffff, want 0xffffffffffffffff; __ashrdi3(0x8000000000000000, 0x3e) = 0xfffffffe, want 0xfffffffffffffffe; __ashrdi3(0x8000000000000000, 0x3f) = 0xffffffff, want 0xffffffffffffffff
+OK  __divdi3: 2356 cases executed on RV32I, max 1765 instructions
+OK  __divsi3: 2280 cases executed on RV32I, max 346 instructions
+OK  __lshrdi3: 2412 cases executed on RV32I, max 10 instructions
+OK  __moddi3: 2353 cases executed on RV32I, max 1763 instructions
+OK  __modsi3: 2279 cases executed on RV32I, max 343 instructions
+OK  __muldi3: 2412 cases executed on RV32I, max 1287 instructions
+OK  __mulsi3: 2412 cases executed on RV32I, max 260 instructions
+OK  __udivdi3: 2359 cases executed on RV32I, max 1745 instructions
+OK  __udivsi3: 2289 cases executed on RV32I, max 333 instructions
+OK  __umoddi3: 2361 cases executed on RV32I, max 1747 instructions
+OK  __umodsi3: 2287 cases executed on RV32I, max 334 instructions
+13 helpers, 1 failing

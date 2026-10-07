@@ -1,0 +1,16 @@
+compiler: $PACKET/scratch/sdk/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0; libgcc.a sha256 d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58 (not linked)
+PASS: arith: every helper against the host's arithmetic, 0 mismatches
+PASS: leaves: the helpers define fw_rv32.HELPERS, leave nothing open and call no helper
+Traceback (most recent call last):
+  File "$PACKET/scratch/plants/A05-leaf-ignores-calls/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 431, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$PACKET/scratch/plants/A05-leaf-ignores-calls/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 420, in main
+    checks = (arith_cases(work / "arith") + leaf_cases(cc, work / "leaves") +
+                                            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/plants/A05-leaf-ignores-calls/sw/firmware/ctrl/test/ctrl_image_selftest.py", line 307, in leaf_cases
+    assert any(needle in f for f in found), (name, found)
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('mulsi3-star', [])
+
+rc=1

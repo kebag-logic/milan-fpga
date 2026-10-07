@@ -1,0 +1,68 @@
+== ./base/endstation_ax7101_1x1_tdm8/ctrl_app.elf
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Flags:                             0x0
+  Tag_RISCV_arch: "rv32i2p1"
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 0041d0 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        000041d0 0051d0 0002bc 00   A  0   0  8
+  [ 3] .bss              NOBITS          00004490 00548c 001920 00  WA  0   0 16
+  [ 4] .riscv.attributes RISCV_ATTRIBUTES 00000000 00548c 00001c 00      0   0  1
+  [ 5] .symtab           SYMTAB          00000000 0054a8 001350 10      6 233  4
+  [ 6] .strtab           STRTAB          00000000 0067f8 00088e 00      0   0  1
+  [ 7] .shstrtab         STRTAB          00000000 007086 000040 00      0   0  1
+addi:1231 lw:621 sw:578 jal:351 lui:183 bne:157 jalr:140 add:131 sb:115 beq:107 slli:94 lbu:91 srli:66 andi:54 lhu:46 bltu:46 sub:37 or:36 bgeu:26 sh:21 sltu:16 xor:13 and:12 sltiu:8 srl:6 ori:6 xori:5 sll:5 bge:4 auipc:3 ebreak:2 blt:1 
+== ./base/endstation_ax7101_8x8/ctrl_app.elf
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Flags:                             0x0
+  Tag_RISCV_arch: "rv32i2p1"
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 0041d4 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        000041d8 0051d8 0002bc 00   A  0   0  8
+  [ 3] .bss              NOBITS          000044a0 005494 004190 00  WA  0   0 16
+  [ 4] .riscv.attributes RISCV_ATTRIBUTES 00000000 005494 00001c 00      0   0  1
+  [ 5] .symtab           SYMTAB          00000000 0054b0 001350 10      6 233  4
+  [ 6] .strtab           STRTAB          00000000 006800 00088e 00      0   0  1
+  [ 7] .shstrtab         STRTAB          00000000 00708e 000040 00      0   0  1
+addi:1232 lw:621 sw:578 jal:351 lui:183 bne:157 jalr:140 add:131 sb:115 beq:107 slli:94 lbu:91 srli:66 andi:54 lhu:46 bltu:46 sub:37 or:36 bgeu:26 sh:21 sltu:16 xor:13 and:12 sltiu:8 srl:6 ori:6 xori:5 sll:5 bge:4 auipc:3 ebreak:2 blt:1 
+== ./head/endstation_ax7101_1x1_tdm8/ctrl_app.elf
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Flags:                             0x0
+  Tag_RISCV_arch: "rv32i2p1"
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 006c34 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00006c38 007c38 0002e0 00   A  0   0  8
+  [ 3] .bss              NOBITS          00006f20 007f18 002c10 00  WA  0   0 16
+  [ 4] .riscv.attributes RISCV_ATTRIBUTES 00000000 007f18 00001c 00      0   0  1
+  [ 5] .symtab           SYMTAB          00000000 007f34 001af0 10      6 338  4
+  [ 6] .strtab           STRTAB          00000000 009a24 000a7a 00      0   0  1
+  [ 7] .shstrtab         STRTAB          00000000 00a49e 000040 00      0   0  1
+addi:1946 lw:1072 sw:936 jal:544 lui:267 add:241 bne:240 sb:235 lbu:212 jalr:210 slli:181 beq:168 srli:95 lhu:81 or:78 bltu:72 andi:70 sub:61 sh:55 bgeu:37 xor:31 sltu:20 and:16 sltiu:14 sll:9 srl:8 ori:7 xori:5 bge:5 blt:4 auipc:3 ebreak:2 
+== ./head/endstation_ax7101_8x8/ctrl_app.elf
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Type:                              EXEC (Executable file)
+  Machine:                           RISC-V
+  Flags:                             0x0
+  Tag_RISCV_arch: "rv32i2p1"
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        00000000 001000 006c38 00  AX  0   0  4
+  [ 2] .rodata           PROGBITS        00006c38 007c38 0002e0 00   A  0   0  8
+  [ 3] .bss              NOBITS          00006f20 007f18 005490 00  WA  0   0 16
+  [ 4] .riscv.attributes RISCV_ATTRIBUTES 00000000 007f18 00001c 00      0   0  1
+  [ 5] .symtab           SYMTAB          00000000 007f34 001af0 10      6 338  4
+  [ 6] .strtab           STRTAB          00000000 009a24 000a7a 00      0   0  1
+  [ 7] .shstrtab         STRTAB          00000000 00a49e 000040 00      0   0  1
+addi:1947 lw:1072 sw:936 jal:544 lui:267 add:241 bne:240 sb:235 lbu:212 jalr:210 slli:181 beq:168 srli:95 lhu:81 or:78 bltu:72 andi:70 sub:61 sh:55 bgeu:37 xor:31 sltu:20 and:16 sltiu:14 sll:9 srl:8 ori:7 xori:5 bge:5 blt:4 auipc:3 ebreak:2 
