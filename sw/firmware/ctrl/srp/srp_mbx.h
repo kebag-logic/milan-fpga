@@ -68,6 +68,7 @@ struct srp_mbx {
     struct srp_mbx_config config;
     uint8_t frame[MBX_FRAME_BYTES_MAX];
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
+    struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint16_t owed_len;
     unsigned owed_if;
     uint16_t owed_ethertype;
@@ -93,7 +94,7 @@ bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);
 void srp_mbx_destroy(struct srp_mbx *m);
 // ACMP-facing port. A false result leaves the binding unchanged; retry
-// after the owed transmit record commits. Null identity removes a binding.
+// after owed transmission and retained reception finish. Null identity unbinds.
 bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid);
 #ifdef __cplusplus

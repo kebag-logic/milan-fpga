@@ -40,7 +40,11 @@ The pool is a finite capacity, not a claim that arbitrary peer churn always fits
 
 Initialize the adapter with interface MACs, source TSpecs/allocation state,
 link rate, and a licence output callback.
-Call `srp_mbx_attach` before opening the loop's channels.
+The explicit application composition starts with `ctrl_app_start_maap`.
+Initialize SRP on that application's pool using the same interface MACs.
+Then call `ctrl_app_attach_srp` before servicing the loop.
+It preserves ADP/MAAP, opens SRP reception and enables centisecond delivery.
+The isolated adapter uses `srp_mbx_attach` before opening its loop.
 Only one adapter may own the library's global centisecond dispatch.
 Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
 millisecond timestamp. Coalesced ticks are drained without dropping elapsed time.
@@ -52,7 +56,7 @@ A held DOWN record can disappear when the level recovers.
 
 F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
 A null identity removes a binding; false leaves the old binding unchanged.
-Retry after owed transmission commits.
+Retry after owed transmission commits and retained reception completes.
 Bindings may share a StreamID while differing in destination or VID.
 The interface reconciles one Listener declaration from all eligible bindings:
 Ready contributes 2, AskingFailed contributes 1, and their union is ReadyFailed.
@@ -74,6 +78,17 @@ Each physical interface has independent MSRP and MVRP participants.
 The adapter accepts the FC SRP mailbox channel's untagged Ethernet records,
 validates destination, EtherType, length and interface, and preserves interface
 identity on transmission. The library validates a whole PDU before applying events.
+Malformed PDUs increment `malformed`; local allocation refusals increment `refused`.
+A refusal retains the complete record in one static buffer.
+Its interface, arrival timestamp and payload remain unchanged.
+Later SRP records and binding changes wait behind it.
+Each poll retries after earlier events, ticks and owed output.
+Earlier applied attributes remain applied; replay includes every later attribute.
+Repeated refusal retains the same record.
+Each poll attempts reception once.
+The fabric centisecond event supplies another service opportunity.
+Storage recovery completes the payload on the next eligible poll.
+Destroy cancels it; link reset cancels only its interface's record.
 
 Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
 Admission charges Ethernet overhead and a 75% link-rate ceiling.
@@ -102,6 +117,11 @@ The corresponding Talker licence or Listener request is revoked in that pass.
 MVRP retains the generic IEEE 802.1Q Table 10-4 Registrar behavior.
 A withdrawal in LV does not restart LeaveTime (#608 and processor #134).
 The original five-second deadline revokes the Talker licence.
+Temporary storage refusal defers application until capacity returns.
+Timer withdrawals retry at each centisecond; retained RX retries at polls.
+That delay is measured from the original deadline or arrival.
+Exhaustion never grants a fresh service or protocol timing budget.
+An over-budget recovery remains a timing failure.
 Expiry processing precedes later RX, including a tick still in the event ring.
 A subsequent same-pass registration cannot erase the owed stop notification.
 
@@ -136,7 +156,7 @@ Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.
 `ctrl_image.py` also links a size fixture containing the reachable control loop,
-ADP, mailbox, SRP, binding entry and their static storage.
+ADP, MAAP, mailbox, SRP, binding entry and their static storage.
 `ctrl_image_runtime.py` builds its memory primitives and integer helpers with the
 same compiler from externally provisioned Picolibc, compiler-rt and LiteX sources.
 Their hashes, commands, ELF sections and symbol sizes accompany the measurement.
@@ -163,14 +183,16 @@ allocation failures, malformed inputs, declaration changes, reset, reentry,
 backpressure and timer ordering. The adapter has no coverage exclusions.
 `srp_mutants.py` ties each named case to a defect and its failed observable;
 build failures do not count as catches.
-Allocation tests exhaust the pool after accepted mailbox reception.
-This preserves receive-time propagation storage before testing adapter poll refusals.
+Poll-allocation tests exhaust storage after successful reception.
+Separate receive tests exhaust it before accepting a mailbox record.
+They cover mixed attributes, partial completion, repeated refusal and recovery.
+They also cover interface ordering, link fences and destruction.
+The retry-removal plant must fail the retained-payload regressions.
+Higher-version messages and atomic invalid-value rejection have wire cases.
 
-The published lwSRP
-[applicant test follow-up](https://github.com/kebag-logic/lwSRP/tree/72209a53a241cd5de4786d3e1b3aefcbdf5fa5d9)
-is branch `f4-applicant-notes`, following PR #12.
-Its round-5 local merge adopts the current public dependency pin.
-The handoff records that local branch and its exact merge commit.
+The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)
+merged through branch `f4-applicant-notes` at `ced667d8`.
+Public main `9197193e` includes that merged follow-up.
 `applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
 `pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
 The `point-to-point-condition`, `pending-point-to-point-condition` and
@@ -209,14 +231,17 @@ conflicting New registrations retain Failed precedence until replacement/expiry.
 
 ## Integration still owed
 
-F3 is absent from the assigned FC base, so `ctrl_app` does not call the binding
-port yet. Application composition must supply the actual generated stream
-configuration, MAAP allocation changes and the existing fabric licence output.
+F3 is absent from the assigned F2 merge base.
+The application therefore does not call the binding port yet.
+The explicit composition now runs ADP, MAAP and SRP.
+Target integration still supplies live stream configuration and MAAP allocation changes.
+It also connects the existing fabric licence output.
 The desk callback proves output ordering, not a connected target licence register.
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
-The lwSRP pin is public `main` at `a4cbe41d`, including PR #12.
-Round 5 adopts its reviewed receive, propagation and Flush corrections.
+The lwSRP pin is public `main` at `9197193e`.
+Round 6 adapts to its recoverable receive-allocation contract.
+The earlier claim that production needed no adaptation was incorrect.
 Two independent reviews, candidate-merge gates and deployment
 remain separate obligations; this lane changes neither shipping ownership nor RTL.

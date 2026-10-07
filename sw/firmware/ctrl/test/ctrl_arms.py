@@ -14,8 +14,6 @@ from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32
                         run, sources)
 import fw_rv32
 
-import fw_rv32
-
 def arm_model(tree: Tree) -> Outcome:
     """The RTL's mailbox checks, on the host model."""
     objs = (compile_c(tree, sources(tree, ("host/mbx_model.c",)), "model", measured=False) +
@@ -274,10 +272,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
 #: The lwSRP revision port/shlan_port.h is written against (it restates that
 #: revision's src/ports/alloc.h). Fetch it with
 #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
-#:     git -C lwSRP checkout a4cbe41de1c80d43f26e0d348cbdb45075273a4f
+#:     git -C lwSRP checkout 9197193e47a6bb1c45a56d90a18c1784123aba44
 #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
 LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
-LWSRP_REV = "a4cbe41de1c80d43f26e0d348cbdb45075273a4f"
+LWSRP_REV = "9197193e47a6bb1c45a56d90a18c1784123aba44"
 #: Every source and header the arm compiles lives under this directory.
 LWSRP_TREE = "src"
 

@@ -138,4 +138,32 @@ TEST_F(SrpLatency, FullRingRetainsOriginalOriginAndElevenMillisecondStallFails) 
     EXPECT_GT(commits.front()-origin+ns_per_ms+100,service_limit)
         <<"11 ms stall must fail the original event-to-commit budget";
 }
+
+TEST_F(SrpLatency, ReceiveRecoveryKeepsOriginalArrivalBudget) {
+    settle(); at(400);
+    for(unsigned delay : {1u,11u}) {
+        EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),0,2));
+        std::vector<void*> held;
+        while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
+        const uint64_t origin=now_ns;
+        offer(frame(3,identity(),5,2));
+        ASSERT_NE(adapter.pending_rx.len,0u);
+        const unsigned arrival=adapter.pending_rx.arrival_ms;
+        at(model.now_ms+delay);
+        EXPECT_EQ(adapter.pending_rx.arrival_ms,arrival);
+        for(void *p:held) ctrl_pool_free(&pool,p);
+        EXPECT_CALL(licence,Change(0,0,false)).WillOnce([&](unsigned,unsigned,bool) {
+            if(delay==1u) {
+                bound("RX storage recovery",origin,now_ns);
+            } else {
+                EXPECT_GT(now_ns-origin+ns_per_ms+100,service_limit)
+                    <<"11 ms allocation stall must fail the original arrival budget";
+            }
+        });
+        ctrl_loop_service(&loop);
+        EXPECT_EQ(adapter.pending_rx.len,0u);
+        EXPECT_FALSE(adapter.ifs[0].active[0]);
+    }
+    EXPECT_EQ(adapter.stops,2u);
+}
 } // namespace

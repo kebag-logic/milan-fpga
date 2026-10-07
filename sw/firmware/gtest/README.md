@@ -412,10 +412,9 @@ Both measure the same per-file coverage, and every row of
 
 ## Not in this lane
 
-lwSRP's own upstream suites are not run here. They run with lane F4, when
-lwSRP is vendored at its pin, and a coverage gap in lwSRP is fixed upstream.
-The `lwsrp` arm covers only this firmware's port layer under lwSRP's MRP
-core. lwSRP's timer port keeps every timer it was given in one list with no
-removal, so an application destroyed and created again leaves its timers, in
-freed blocks, on the list `shlan_timer_tick` walks; the arm creates one
-application for its run, as a boot does, and F4 inherits that constraint.
+lwSRP's own upstream suites belong to the dependency's validation.
+Coverage gaps there are fixed upstream.
+The `lwsrp` arm covers this firmware's port layer.
+The pinned dependency removes timers when participants are destroyed.
+F4 tests destruction, recreation and link resets through the adapter.
+See the [SRP evidence](../ctrl/srp/README.md#evidence).

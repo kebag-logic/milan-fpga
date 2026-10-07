@@ -59,7 +59,8 @@ def main() -> int:
             lw=ROOT/"third_party/lwSRP"; lwsrp_pin(lw)
             inc += [f"-I{tree.src/'srp'}",f"-I{lw/'src/include'}",f"-I{lw/'src'}"]
             flags += ["-DCTRL_IMAGE_SRP","-DLWSRP_MILAN=1"]
-            sources += [tree.src/"srp/srp_mbx.c",*[lw/"src"/name for name in LWSRP_SOURCES]]
+            sources += [tree.src/"app/ctrl_app_srp.c",tree.src/"srp/srp_mbx.c",
+                        *[lw/"src"/name for name in LWSRP_SOURCES]]
         objects=[]
         for index,src in enumerate(sources):
             obj=out/f"{index}-{src.stem}.o"
@@ -92,7 +93,8 @@ def main() -> int:
             raise Refusal("heap dependency in composed image")
         required={"ctrl_app_start","ctrl_loop_run","image_app","image_arena"}
         if not args.without_srp:
-            required |= {"srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
+            required |= {"ctrl_app_start_maap","ctrl_app_attach_srp","maap_rx","maap_poll",
+                         "srp_mbx_init","srp_mbx_attach","srp_mbx_bind","mrp_rx",
                          "mrp_transmit","image_srp","image_sources"}
         if required-names:
             raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")

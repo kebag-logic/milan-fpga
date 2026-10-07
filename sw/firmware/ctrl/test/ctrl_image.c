@@ -14,6 +14,12 @@ static const struct adp_entity image_entity = ADP_ENTITY_GEN_INIT;
 static struct srp_mbx image_srp;
 static struct srp_source image_sources[MBX_N_IF][CTRL_SRP_SOURCES];
 static volatile bool image_licences[MBX_N_IF][CTRL_SRP_SOURCES];
+static volatile uint64_t image_allocation[MBX_N_IF];
+static void allocation(void *ctx, unsigned interface, uint64_t base, uint16_t count, bool valid)
+{
+    (void)ctx; (void)count;
+    image_allocation[interface] = valid ? base : 0;
+}
 _Alignas(max_align_t) static unsigned char image_arena[SRP_POOL_ARENA_BYTES];
 static void licence(void *ctx, unsigned interface, unsigned source, bool active)
 {
@@ -42,7 +48,11 @@ int main(void)
         .classes=image_classes, .n_classes=1,
 #endif
     };
+#ifdef CTRL_IMAGE_SRP
+    if (!ctrl_app_start_maap(&image_app,&cfg,allocation,NULL,0)) {
+#else
     if (!ctrl_app_start(&image_app,&cfg)) {
+#endif
         return 1;
     }
 #ifdef CTRL_IMAGE_SRP
@@ -58,12 +68,11 @@ int main(void)
             s->value.max_frame_size=224;
             s->value.max_interval_frames=1;
             s->value.priority_and_rank=0x60;
-            // No allocator is composed: startup correctly declares Failed.
+            // Live allocation-to-stream updates remain target integration.
             s->allocated=false;
         }
     }
-    if (!srp_mbx_init(&image_srp,&srp) || !srp_mbx_attach(&image_srp,&image_app.loop) ||
-        !ctrl_loop_open(&image_app.loop,image_entity.entity_id,srp.mac)) {
+    if (!srp_mbx_init(&image_srp,&srp) || !ctrl_app_attach_srp(&image_app,&image_srp)) {
         return 2;
     }
 #endif

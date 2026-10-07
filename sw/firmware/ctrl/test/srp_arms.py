@@ -12,7 +12,7 @@ import fw_rv32
 from ctrl_arms import lwsrp_pin, symbols, fabric_view
 
 LWSRP_SOURCES = ("core/mrp_mad.c", "core/mrp_pdu.c", "ports/timer.c", "modules/msrp.c", "modules/mvrp.c")
-SRP_SOURCES = PORTABLE[:5] + ("srp/srp_mbx.c",)
+SRP_SOURCES = PORTABLE + ("srp/srp_mbx.c", "app/ctrl_app_srp.c")
 DEFAULT_ENTITY = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
 
 
@@ -58,7 +58,7 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
     lw = lwsrp / "src"
     inc += ["-DLWSRP_MILAN=1",f"-I{lw / 'include'}",f"-I{lw}"]
     build = fw_gtest.Build(coverage=tree.build.coverage and not debug,jobs=tree.build.jobs,cache=tree.build.cache)
-    flags = [*C_FLAGS] + ([] if debug else ["-DNDEBUG"])
+    flags = [*C_FLAGS, "-UNDEBUG" if debug else "-DNDEBUG"]
     sources = [(variant if p.startswith("mbx/") else tree.src) / p for p in SRP_SOURCES]
     try:
         ours = fw_gtest.compile_c(build,flags,inc,sources,out / "firmware")

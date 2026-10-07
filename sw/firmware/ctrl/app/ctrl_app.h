@@ -61,6 +61,13 @@ bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg,
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 
+struct srp_mbx;
+// After start_maap, initialize SRP on app's pool and attach it here before
+// servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
+// do. A refusal leaves the ADP/MAAP composition running and SRP unattached.
+// The caller owns SRP storage and destroys it before releasing app's pool.
+bool ctrl_app_attach_srp(struct ctrl_app *app, struct srp_mbx *srp);
+
 #ifdef __cplusplus
 }
 #endif

@@ -263,6 +263,7 @@ void srp_mbx_destroy(struct srp_mbx *m)
         timer_owner = NULL;
     }
     m->owed_len = 0;
+    m->pending_rx.len = 0;
     m->initialized = false;
     m->busy = false;
 }
@@ -287,7 +288,7 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
         return false;
     }
     if (interface >= MBX_N_IF || sink >= CTRL_SRP_SINKS ||
-        (identity && (!dest_mac || vid == 0 || vid >= 4095)) || m->owed_len) {
+        (identity && (!dest_mac || vid == 0 || vid >= 4095)) || m->owed_len || m->pending_rx.len) {
         m->busy = false;
         return false;
     }
@@ -339,11 +340,45 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
     return true;
 }
 
+static bool rx_order_ready(struct srp_mbx *m)
+{
+    return m->owed_len == 0 && m->loop->ticks_owed == 0 &&
+           !(mbx_irq_status() & (1u << MBX_IRQ_STATUS_EVT_LSB));
+}
+
 static bool rx_ready(void *ctx)
 {
     struct srp_mbx *m = ctx;
-    return m->owed_len == 0 && m->loop->ticks_owed == 0 &&
-           !(mbx_irq_status() & (1u << MBX_IRQ_STATUS_EVT_LSB));
+    return m->pending_rx.len == 0 && rx_order_ready(m);
+}
+
+// Return false only for recoverable local storage refusal. Earlier events
+// may already have applied; lwSRP requires replay of the identical payload.
+static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
+{
+    struct srp_interface *i = &m->ifs[frame->interface];
+    uint16_t type = wire_be16(frame->bytes + 12);
+    uint64_t da = ((uint64_t)wire_be32(frame->bytes) << 16) | wire_be16(frame->bytes + 4);
+    struct mrp_app *app;
+    if (type == MRP_ETHERTYPE_MSRP && da == 0x0180c200000eull) {
+        app = i->msrp;
+    } else if (type == MRP_ETHERTYPE_MVRP && da == 0x0180c2000021ull) {
+        app = i->mvrp;
+    } else {
+        ++m->malformed;
+        return true;
+    }
+    int result = app ? mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) : -SHLAN_ERROR_NO_MEMORY;
+    if (result == -SHLAN_ERROR_NO_MEMORY) {
+        ++m->refused;
+        return false;
+    }
+    if (result != 0) {
+        ++m->malformed;
+    } else {
+        ++m->received;
+    }
+    return true;
 }
 
 static void receive(void *ctx, const struct mbx_frame *frame)
@@ -362,18 +397,8 @@ static void receive(void *ctx, const struct mbx_frame *frame)
         m->busy = false;
         return;
     }
-    uint16_t type = wire_be16(frame->bytes + 12);
-    uint64_t da = ((uint64_t)wire_be32(frame->bytes) << 16) | wire_be16(frame->bytes + 4);
-    struct mrp_app *app = NULL;
-    if (type == MRP_ETHERTYPE_MSRP && da == 0x0180c200000eull) {
-        app = i->msrp;
-    } else if (type == MRP_ETHERTYPE_MVRP && da == 0x0180c2000021ull) {
-        app = i->mvrp;
-    }
-    if (!app || mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) != 0) {
-        ++m->malformed;
-    } else {
-        ++m->received;
+    if (!apply_receive(m,frame)) {
+        m->pending_rx = *frame;
     }
     m->busy = false;
 }
@@ -549,6 +574,9 @@ static void reset_interface(struct srp_interface *i)
     if (m->owed_len && m->owed_if == i->index) {
         m->owed_len = 0;
     }
+    if (m->pending_rx.len && m->pending_rx.interface == i->index) {
+        m->pending_rx.len = 0;
+    }
     i->rx_mark = mbx_rx_mark(MBX_CH_SRP);
     i->discard_prefix = true;
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
@@ -614,6 +642,13 @@ static bool poll(void *ctx)
             if (!open_interface(i)) {
                 ++m->refused; owed = true;
                 continue;
+            }
+        }
+        // Retry only after lifecycle reconciliation and older output/events.
+        // One attempt per poll; the fabric tick also wakes an idle loop.
+        if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m)) {
+            if (apply_receive(m,&m->pending_rx)) {
+                m->pending_rx.len = 0;
             }
         }
         memset(i->registered,0,sizeof(i->registered));
