@@ -1,0 +1,29 @@
+[A566] REVIEW READY
+Commit: d6b6ca899ae4c248a1342867bb89060e24febcd5
+Tree: 4080c70435bc8dc06e157eb3e46671aab9f83912
+Branch: 654-soc-option-refusals
+Base: e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+
+Changed: shared early CPU-option validation in sw/litex/milan_soc.py, a focused recipe test registered in the builder bank, and docs/integration/BUILDING.md. VexiiRiscv FPU and nonzero L2 requests now fail with reasons. Explicit NaxRiscv L2 zero is refused because it retained the upstream default; its existing FPU and positive-size L2 effects remain supported. Invalid fractional, negative and nonfinite byte counts are also refused. Defaults, CPU generator sources, RTL, register maps, filters and mailboxes are unchanged.
+
+Measurements: all 16 baseline exports returned 0: both CPU families, RV32/RV64, options omitted, FPU enabled, L2=8192 and explicit L2=0. At both widths, VexiiRiscv FPU leaves raw bytes identical and L2=8192 changes only names/comments. NaxRiscv FPU and L2=8192 change normalized RTL, including cache geometry; explicit zero leaves the default netlist identical.
+
+Validation (all commands returned 0):
+- python3 sw/builder/test_soc_options.py --netlists: 36 constructor cases, 11 CLI cases, six killed refusal controls, four real netlist effects and four killed forwarding controls. Every refusal precedes setup; probe failures cannot masquerade as killed controls.
+- python3 sw/builder/test_builder.py --require-elaboration --require-rv32: required elaboration and compiler arms ran. One historical Arty mf48 utilization-report calibration arm is explicitly NOT RUN because its report is absent; the gate returns 0 and does not claim that coverage.
+- scripts/run_litex_sims.sh: 4/4 passed, zero skips or timeouts.
+- python3 scripts/lint_rtl.py --check: PASS, no ratchet increase.
+- Documentation, style, source/feature checks, generated TOC/traceability checks, and sweep/deploy/entity shape gates: all rc 0. Exact commands and log digests are in HANDOFF.md and ARTIFACTS.json.
+
+Both product configurations meet the resume ruling's byte-identity check:
+
+| Configuration | Generated artifacts | Shared manifest SHA-256 |
+|---|---:|---|
+| ax7101_8x8 | 32 | `5e691b10158760c80072f6b8eda42fb222d888281cee3f6a2498c612db64ff6a` |
+| ax7101_1x1_tdm8 | 32 | `6f2ad2b855a96e3e746aeb85beaa2dcd2014c754935d1e70944674cd92c7869b` |
+
+The comparison fixes the timestamp input and diagnostic Instance ordering equally before generation, then compares every artifact's raw bytes. No generated artifact is normalized afterward. Diagnostic litex.log files, whose live timestamps and stream interleaving vary, are recorded separately. Exports include gateware, firmware headers, memory/descriptor images, constraints and manifests; no synthesis, implementation or hardware claim is made. The portable comparison harness was rerun successfully for both configurations. Arty is excluded under ruling 6045774790.
+
+Acceptance: all scoped items met; the historical calibration limitation above remains explicit. HANDOFF.md includes file:line changes, planted-defect coverage, gate and independent-review tables. PR-BODY.md follows the repository template. Both are updated in the assigned output directory, alongside raw measurement and artifact manifests.
+
+The committed worktree is clean and all owned jobs have completed. No push, PR operation or merge was performed. Independent reviews remain pending with [R550] and [R551]; no author approval or review coverage is claimed.

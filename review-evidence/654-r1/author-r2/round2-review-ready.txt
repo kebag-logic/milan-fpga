@@ -1,0 +1,11 @@
+[A566] REVIEW READY
+Commit: 853a7357ba86d758a0e38f65db89a6187fb547bc
+PR #694 round 2, assignment 6046709819. Two local commits from d6b6ca899ae4c248a1342867bb89060e24febcd5; not pushed.
+
+Changed: CLI L2 tokens retain exact decimal values through whole-byte validation; unknown constructor CPU names are refused before setup. Added both underflow regressions and their float-parser controls, plus the unknown-CPU guard control. Corrected the section 2.1 reference and documented isolated generator data.
+
+Validation: all final commands return 0. Focused bank: 52 constructor cases, 18 CLI cases, nine refusal controls killed. Netlist mode: four supported effects and four forwarding controls killed. The unchanged R551-1 byte_count_underflow.py returns 0; both underflow tokens exit 2 with the whole-byte reason. Both AX7101 comparisons retain 32/32 raw artifacts. Full builder, four LiteX simulations, lint, documentation gates and three shape self-tests return 0. The builder still declares its unavailable historical Arty report arm NOT RUN; all required elaboration and RV32 compiler arms ran.
+
+Acceptance: R551-1-F1 and R550-1 RESIDUE/S2 are addressed; optional S1 is also included. Defaults, CPU forwarding, generator sources, configurations, RTL and gitlinks are unchanged. HANDOFF.md and PR-BODY.md retain round 1 and add the round 2 changes, test controls, coverage and gate receipts. The worktree is clean and all owned jobs have finished.
+
+Open review work: independent re-review at this head. This is implementation evidence, not a review verdict. Publication, hosted checks and candidate-merge validation remain with the manager. No push, PR edit, merge, rebase, amend or hardware access was performed.

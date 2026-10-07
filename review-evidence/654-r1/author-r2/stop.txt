@@ -1,0 +1,13 @@
+[A566] STOP
+Head: e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+Branch: 654-soc-option-refusals
+
+Stopped before implementation under the assignment's out-of-scope-change condition. The unmodified tracked Arty full gateware export exits 1 during PLL finalization: `ValueError: No PLL config found`.
+
+All three Arty configurations request `sys_clk_hz: 83333000` (`configs/endstation_arty_current.yaml:107`, `endstation_arty_4x4.yaml:66`, `endstation_arty_8ch.yaml:101`). `sw/litex/milan_soc.py:248` requires exact PLL division (`margin=0`), as do the DDR outputs at lines 452/454. A standalone reproduction using the pinned, unchanged clock implementation confirms the same refusal for all three configurations. No vendor implementation was launched.
+
+Acceptance item 4 requires tracked configurations to build unchanged. Resolving this baseline failure requires a clock/configuration change outside option validation, its tests, and BUILDING.md. No such change was made. The maintainer must resolve the baseline failure or amend acceptance publicly before this lane can continue.
+
+Completed baseline evidence: VexiiRiscv RV32/RV64 FPU requests produce identical raw CPU netlists; L2=8192 changes the generated name/comments but leaves normalized RTL identical. The completed NaxRiscv RV32 FPU pair changes netlist bytes. Ten CPU exports returned 0; remaining measurements were stopped. The full builder, simulation, lint, and documentation gate stage was not entered, and no acceptance pass is claimed.
+
+HANDOFF.md and PR-BODY.md are prepared with measurements, artifact hashes, gate status, and outstanding coverage. The repository is clean, the head is unchanged, and measurement jobs have been terminated. No commit, push, or PR was made.

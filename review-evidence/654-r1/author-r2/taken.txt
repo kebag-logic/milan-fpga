@@ -1,0 +1,8 @@
+[A566] TAKEN
+Branch: 654-soc-option-refusals
+Base: e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+Authoritative references: issue #654, its first comment, and assignment https://github.com/kebag-logic/milan-fpga/issues/654#issuecomment-6045462105; CONTRIBUTING.md; REQUIREMENTS.md; docs/integration/BUILDING.md.
+Interpreted scope: measure both options on every accepted CPU path, add early reasoned refusals where the options have no effect, cover refusals and effects with planted controls, and prove tracked generated outputs including the shipping recipe remain byte-identical. Only recipe validation, its tests, and listed build documentation are in scope.
+Roles: author [A566]; internal reviewer [R550]; external reviewer [R551].
+Validation plan: baseline and candidate output digests, builder test, LiteX simulations, lint, and documentation gates, with commands and return codes recorded in the handoff.
+Blockers: none identified; stop if changing defaults, the shipping image, a CPU generator, or another scope is required.
