@@ -1,0 +1,26 @@
+[CONTROL-PASS] CONTROL  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[ESCAPED] A01-overhead-no-tag  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A02-priority-shift  srp_mbx.cpp: rc=1 Srp.DomainUsesPeerPriorityAndVlan,Srp.StartupDeclaresTalkersDomainAndVlan; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A03-failure-codes-swapped  srp_mbx.cpp: rc=1 Srp.StartupDeclaresTalkersDomainAndVlan; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A04-msrp-da-unchecked  srp_mbx.cpp: rc=1 Srp.InvalidFramesHaveNoReservationSideEffects; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A05-domain-vid-4095  srp_mbx.cpp: rc=1 Srp.DomainFilterAndDuplicateDoNotGrowDeclarations; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A06-bind-vid-4095  srp_mbx.cpp: rc=1 Srp.InvalidBindingsAndDuplicateBindingsPreserveState; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] A07-domain-change-keeps-vlan-sent  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=1 SrpLatency.ReceiveStateMalformedDomainAndListenerPaths; srp_walk.cpp: rc=0 
+[CAUGHT] A08-listener-cb-no-stop  srp_mbx.cpp: rc=1 Srp.ExpiryBacklogPrecedesSamePassReceive; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[ESCAPED] A09-readyfailed-cb-not-ready  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[ESCAPED] A10-link-not-required  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[ESCAPED] A11-admission-90pct  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[ESCAPED] A12-ifg-preamble-dropped  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] P01-loop-ready-ignored  srp_mbx.cpp: rc=1 Srp.ExpiryBacklogPrecedesSamePassReceive,Srp.RefusedMailboxRetainsOwedFrameAndDefersInput; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] L01-threepacked-216  srp_mbx.cpp: rc=1 Srp.InvalidFramesHaveNoReservationSideEffects; srp_latency.cpp: rc=1 SrpLatency.ReceiveStateMalformedDomainAndListenerPaths; srp_walk.cpp: rc=0 
+[CAUGHT] L02-msrp-da-0x21  srp_mbx.cpp: rc=1 Srp.BoundOldDomainVlanSurvivesDomainChange,Srp.DomainUsesPeerPriorityAndVlan,Srp.MvrpAcceptsOnlyCurrentDomainVid,Srp.PriorityOnlyDomainChangeKeepsVlanMembership,Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind,Srp.SinkMembershipCommitsBeforeReadyAtStartup,Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer,Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent,Srp.StartupDeclaresTalkersDomainAndVlan; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=1 SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA,SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire,SrpWalk.StreamMatcherNearMissSwapAndDelayedWithdrawal
+[ESCAPED] L03-talker-da-not-incremented  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] L04-leaveall-draw-wide  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=1 SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget; srp_walk.cpp: rc=0 
+[BUILD-ERROR] L05-leaveall-all-types  srp_mbx.cpp: rc=BUILD mrp_mad.c does not compile:
+[CAUGHT] L06-lv-rlv-restarts-timer  srp_mbx.cpp: rc=1 Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline; srp_latency.cpp: rc=1 SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog; srp_walk.cpp: rc=1 SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener
+[ESCAPED] L07-ignore-subtype-registers  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] L08-an-note8-removed  srp_mbx.cpp: rc=1 Srp.StartupDeclaresTalkersDomainAndVlan; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=1 SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire
+[CAUGHT] L09-reclaim-lv  srp_mbx.cpp: rc=1 Srp.ExpiryBacklogPrecedesSamePassReceive,Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline; srp_latency.cpp: rc=1 SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog; srp_walk.cpp: rc=1 SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener,SrpWalk.StreamMatcherNearMissSwapAndDelayedWithdrawal
+[CAUGHT] L10-refused-send-commits  srp_mbx.cpp: rc=1 Srp.RefusedMailboxRetainsOwedFrameAndDefersInput; srp_latency.cpp: rc=1 SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails; srp_walk.cpp: rc=0 
+[ESCAPED] L11-p2p-note4-ignored  srp_mbx.cpp: rc=0 ; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=0 
+[CAUGHT] L12-endmark-optional  srp_mbx.cpp: rc=1 Srp.BoundOldDomainVlanSurvivesDomainChange,Srp.DomainUsesPeerPriorityAndVlan,Srp.MvrpAcceptsOnlyCurrentDomainVid,Srp.PriorityOnlyDomainChangeKeepsVlanMembership,Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind,Srp.SinkMembershipCommitsBeforeReadyAtStartup,Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer,Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent,Srp.StartupDeclaresTalkersDomainAndVlan; srp_latency.cpp: rc=0 ; srp_walk.cpp: rc=1 SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA,SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire,SrpWalk.StreamMatcherNearMissSwapAndDelayedWithdrawal

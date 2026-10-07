@@ -1,0 +1,16 @@
+# lwSRP cgreen unit suite, L03-talker-da-not-incremented (copy of pin ef8a28b9; mutated except CONTROL)
+  "timer_suite": 14 passes in 2ms.
+$REVIEWS/665f4-r532-1-packet/scratch/lwunit/L03-talker-da-not-incremented/tests/unit/msrp_values_test.c:34: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [failed.talker.dest_mac[4]] to [equal] [0x35]
+		actual value:			[52]
+		expected value:			[53]
+
+$REVIEWS/665f4-r532-1-packet/scratch/lwunit/L03-talker-da-not-incremented/tests/unit/msrp_values_test.c:35: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [failed.talker.dest_mac[5]] to [equal] [1]
+		actual value:			[255]
+		expected value:			[1]
+
+  "msrp_values_suite": 21 passes, 2 failures in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 5ms.
+Completed "main": 1912 passes, 2 failures in 23ms.

@@ -1,0 +1,13 @@
+# lwSRP cgreen unit suite, L07-ignore-subtype-registers (copy of pin ef8a28b9; mutated except CONTROL)
+Running "main" (24 tests)...
+  "mrp_pdu_suite": 1690 passes in 19ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+$REVIEWS/665f4-r532-1-packet/scratch/lwunit/L07-ignore-subtype-registers/tests/unit/receive_test.c:41: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "receive_suite": 82 passes, 1 failure in 13ms.
+  "transmit_suite": 104 passes in 5ms.
+Completed "main": 1913 passes, 1 failure in 41ms.

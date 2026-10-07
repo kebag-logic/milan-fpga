@@ -1,0 +1,20 @@
+[ RUN      ] Srp.R532MilanListenerLeaveFromInStopsTalkerPromptly
+R532 talker licence revoked 5000 ms after Listener Lv from IN
+$REVIEWS/665f4-r532-1-packet/scratch/probe/sw/firmware/ctrl/test/probe_r532.cpp:18: Failure
+Expected: (ms) <= (10u), actual: 5000 vs 10
+  [FAIL] Srp.R532MilanListenerLeaveFromInStopsTalkerPromptly: Milan 4.2.7.2.2 requires IN/rLv! -> MT without LeaveTime
+[  FAILED  ] Srp.R532MilanListenerLeaveFromInStopsTalkerPromptly (0 ms)
+[ RUN      ] Srp.R532MilanTalkerLeaveFromInWithdrawsListenerPromptly
+R532 listener declaration withdrawn 5000 ms after Talker Lv from IN
+$REVIEWS/665f4-r532-1-packet/scratch/probe/sw/firmware/ctrl/test/probe_r532.cpp:37: Failure
+Expected: (ms) <= (10u), actual: 5000 vs 10
+  [FAIL] Srp.R532MilanTalkerLeaveFromInWithdrawsListenerPromptly: Milan 4.2.7.2.2 requires IN/rLv! -> MT without LeaveTime
+[  FAILED  ] Srp.R532MilanTalkerLeaveFromInWithdrawsListenerPromptly (0 ms)
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Srp.R532MilanListenerLeaveFromInStopsTalkerPromptly
+[  FAILED  ] Srp.R532MilanTalkerLeaveFromInWithdrawsListenerPromptly
+ 2 FAILED TESTS
+== R532 probe: checks: 2   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 2 checks, exit 1)
+PROBE_RC 1
