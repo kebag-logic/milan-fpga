@@ -28,8 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
 The reference machine uses an EPYC 9554P with 128 logical CPUs.
 Measurements restrict each job to four cores under background load.
 Completed hosted physical evidence remains required to validate that deadline.
-The historical `milan_dp` suite has its own 3600-second budget.
-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
+Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 
 The accounting verifier retains each failing DUT control transcript.
 They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.

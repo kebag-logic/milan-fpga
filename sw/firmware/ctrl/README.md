@@ -108,11 +108,14 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
 python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
 ```
 
-Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
-and `libgmock-dev`), PyYAML, and for `rv32` an RV32 compiler for
-`-mabi=ilp32` with its C headers (the CI-pinned SDK of
-`scripts/ci_rv32_sdk.py` is `ilp32d` and carries no `gnu/stubs-ilp32.h`, so
-`firmware-unit` runs this gate with the arm skipped). lwSRP is referenced, never vendored, at the
+Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML.
+RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
+Both firmware gates require RV32 in `firmware-unit`.
+Freestanding declarations avoid the SDK's hosted C headers.
+GCC supplies its own freestanding integer and varargs headers.
+`MILAN_RV32_CC` selects an explicit compiler for local validation.
+See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
+lwSRP is referenced, never vendored, at the
 revision `ctrl_arms.LWSRP_REV` records,
 `19f5796b63652eb1151906de73cb827d4980a53f`:
 

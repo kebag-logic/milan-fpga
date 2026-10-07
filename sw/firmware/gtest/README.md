@@ -21,6 +21,7 @@ binaries and grade each one by the tally it prints.
 - **[The port](#the-port)** -- Every hand-rolled check moved onto GoogleTest, arm by arm, with the counts.
 - **[Coverage](#coverage)** -- Line and branch coverage of the firmware's sources with gcc's gcov, the ratchet that refuses a drop, and each branch no input can reach, with its proof.
 - **[Run](#run)** -- The commands, and what each needs.
+- **[RV32 object builds](#rv32-object-builds)** -- Freestanding compilation, dependency checks, and evidence limits.
 - **[CI](#ci)** -- The hosted job, the arms it leaves to the local gates, and the versions it runs with.
 - **[Not in this lane](#not-in-this-lane)** -- lwSRP's own suites.
 
@@ -326,15 +327,53 @@ python3 sw/firmware/gtest/fw_coverage.py --selftest
 They need a C11 and a C++20 compiler (gcc), `gcov`, GoogleTest and
 GoogleMock with their pkg-config files (`libgtest-dev` and `libgmock-dev` on
 Debian and Ubuntu, `gtest` on Arch), PyYAML, and for the RV32 arms an RV32
-compiler. The store's arm builds with the pinned SDK
-(`scripts/ci_rv32_sdk.py`). The ctrl arm compiles against the SDK's C
-headers for `-mabi=ilp32`, and that SDK is `ilp32d` with no
-`gnu/stubs-ilp32.h`, so the ctrl arm needs an `ilp32` SDK at
-`~/br-milan-rv32/host` or a bare-metal compiler. The ctrl gate, the store's
+compiler. Both arms use the SDK from `scripts/ci_rv32_sdk.py`.
+Their headers exclude the SDK's hosted C library.
+`MILAN_RV32_CC` selects an explicit local compiler.
+The ctrl gate, the store's
 gate, the coverage gate and the tally's self-test each print a `toolchain:`
 line first: the C and C++ compilers, gcov and GoogleTest and GoogleMock
 they ran with. A gate's coverage mode does not; the coverage gate that
 drives it prints the line for the run.
+
+## RV32 object builds
+
+Both arms compile RV32I objects using ILP32.
+`-ffreestanding` selects GCC's freestanding C headers.
+`-nostdinc` excludes the SDK's hosted include directories.
+`rv32_include` declares memory functions and the bounded formatter.
+Those declarations supply no runtime implementations or replacement behavior.
+The product supplies its runtime through the bare-metal build.
+The SDK pin remains unchanged.
+
+Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
+Its architecture attribute must specify RV32I without extensions.
+Compressed instructions and double-float ABI flags are refused.
+The dependency check matches names across the compiled objects.
+Only global or weak definitions remove names from undefined references.
+Same-name local definitions leave those references unresolved.
+Remaining undefined symbols allow only named interfaces and arithmetic helpers.
+Both builds disable stack-protector instrumentation, matching bare-metal compilation.
+Heap, OS, and unexpected double-underscore dependencies fail.
+
+The outputs are objects, not linked firmware images.
+Text, data, BSS, and static buffers are reported.
+The largest compiler-reported static frame is reported separately.
+It does not bound nested calls, interrupts, or runtime functions.
+Dynamic or missing frame reports cannot pass.
+Shipping firmware sources and image construction remain unchanged.
+
+```sh
+python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+```
+
+The self-test compiles against a deliberately hostile hosted-header tree.
+Restoring hosted headers or disabling freestanding compilation fails.
+RV64, hard-float, extended-ISA, and malformed objects are refused.
+A dynamic stack report and absent required compiler fail.
+Both real firmware arms reject planted heap and unknown dependencies.
+Same-name static definitions cannot hide the planted unknown dependencies.
+The store also rejects restored stack-protector dependencies.
 
 ## CI
 
@@ -344,15 +383,13 @@ runs on every change the classifier calls relevant (`scripts/ci_scope.py`;
 every path under `sw/firmware/` is). It installs `libgtest-dev` and
 `libgmock-dev` from the runner's distribution, prints their versions and the
 gcc and gcov it measures with, then runs the tally's planted cases, the ctrl
-gate, the store's gate at every shape with its RV32 build on the pinned SDK,
+gate, and the store's gate at every shape. Both require RV32.
+The SDK installation precedes both, followed by the RV32 self-test,
 and this coverage gate with its planted cases. `scripts/ci_events.py` pins
 the job's steps and the `rtl-fast` aggregate's verdict on it, and
 `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
 
-Three arms stay with the local gates, and the job names each:
-
-- the ctrl gate's `rv32` arm, for the SDK reason above: the job runs that
-  gate before it installs the SDK, so the arm reports SKIPPED;
+Two groups stay with local gates:
 - the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
   token cannot read. The coverage ratchet reads the same with and without
   it;
