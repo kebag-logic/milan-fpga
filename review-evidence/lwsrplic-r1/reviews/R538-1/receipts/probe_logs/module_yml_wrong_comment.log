@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import yaml; d=yaml.safe_load(open("zephyr/module.yml")); assert set(d)=={"name","build"} and d["build"]["kconfig"]=="Kconfig.zephyr", sorted(d)
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['/* SPDX-License-Identifier', 'build', 'name']

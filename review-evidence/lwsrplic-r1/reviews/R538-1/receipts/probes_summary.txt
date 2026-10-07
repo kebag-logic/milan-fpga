@@ -1,0 +1,12 @@
+PROBE control_links expect=pass rc=0 OK
+PROBE no_license_links expect=fail rc=1 OK
+PROBE no_notice_links expect=fail rc=1 OK
+PROBE control_kconfig expect=pass rc=0 OK
+PROBE kconfig_wrong_comment expect=fail rc=1 OK
+PROBE control_module_yml expect=pass rc=0 OK
+PROBE module_yml_wrong_comment expect=fail rc=1 OK
+PROBE control_gherkin expect=pass rc=0 OK
+PROBE gherkin_wrong_comment expect=fail rc=1 OK
+PROBE control_c_header expect=pass rc=0 OK
+PROBE c_wrong_comment expect=fail rc=1 OK
+PROBE control_build_sh_shebang expect=pass rc=0 OK

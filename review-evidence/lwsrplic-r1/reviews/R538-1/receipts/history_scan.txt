@@ -1,0 +1,210 @@
+# Run with EXTRA_TERMS set to a private list of account, tool and model names (not published).
+# Tool and product names in matched lines are redacted to [TOOL].
+# commits: 13
+# blobs:
+109
+# paths ever tracked:
+behave.ini
+build.sh
+[TOOL].md
+CMakeLists.txt
+CONTRIBUTING.md
+doc/architecture.drawio
+doc/architecture.md
+doc/developer.md
+doc/integrator.md
+doc/manager.md
+doc/tester.md
+doc/tools/check_links.py
+doc/tools/check_references.py
+doc/tools/check_sentences.py
+doc/tools/common.py
+doc/tools/README.md
+doc/tools/render_mermaid.py
+Kconfig.zephyr
+LICENSE
+NOTICE
+README.md
+src/core/mrp_mad.c
+src/core/mrp_pdu.c
+src/core/switch_ctrl.c
+src/include/shish_lan/mmrp.h
+src/include/shish_lan/mrp.h
+src/include/shish_lan/mrp_pdu.h
+src/include/shish_lan/msrp.h
+src/include/shish_lan/mvrp.h
+src/include/shish_lan/switch_ctrl.h
+src/include/shish_lan/switch.h
+src/modules/mmrp.c
+src/modules/msrp.c
+src/modules/mvrp.c
+src/modules/sim_adapter.c
+src/modules/sim_adapter.h
+src/ports/alloc.c
+src/ports/alloc.h
+src/ports/timer.c
+src/ports/timer.h
+tests/features/environment.py
+tests/features/steps/switch_steps.py
+tests/features/switch_bindings.c
+tests/features/switch.feature
+tests/unit/main.c
+tests/unit/mrp_pdu_test.c
+tests/unit/placeholder.c
+zephyr/module.yml
+026cb239d84de087020d7840a64abb536ab2fd5b src/ports/timer.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+02eb52f55a201fef87a6ba764e2e1dd868a2de9d tests/features/environment.py:1:# SPDX-License-Identifier: Apache-2.0
+040d346f3043826080f99cb21472d2f0d2452c15 tests/unit/mrp_pdu_test.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+04ff6e11d00922381615e37c0c1657459fc0c797 doc/tools/check_references.py:1:# SPDX-License-Identifier: Apache-2.0
+04ff6e11d00922381615e37c0c1657459fc0c797 doc/tools/check_references.py:20:    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature|zephyr)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
+08c87439e1451f364c42d8bb6f8b16a86cf0eec0 Kconfig.zephyr:1:# SPDX-License-Identifier: Apache-2.0
+1494bd453e30eee7f6d563c683d2e6983b0ac2e8 README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+1494bd453e30eee7f6d563c683d2e6983b0ac2e8 README.md:56:## Licence
+1494bd453e30eee7f6d563c683d2e6983b0ac2e8 README.md:58:lwSRP is licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 kebag-logic. See [NOTICE](NOTICE). Individuals and companies may contribute under the same licence.
+15c280e507823c5399b4d0e7a318b0adda0495e5 doc/tools/README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+15c280e507823c5399b4d0e7a318b0adda0495e5 doc/tools/README.md:30:The required [licence](../../LICENSE) and [notice](../../NOTICE) links fail until the separate licence change is present.
+1c287e85b96440e0439cd2e7c98b47b2b72d8821 tests/unit/main.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+21654351bd62a20125f6c9209b55bdf9a8ce7f57 [TOOL].md:1:# [TOOL].md
+21654351bd62a20125f6c9209b55bdf9a8ce7f57 [TOOL].md:3:This file provides guidance to [TOOL] Code ([TOOL-URL]) when working with code in this repository.
+21a01d911df6346de23b45cccfff7ea5dfd0428c src/ports/alloc.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+25bcfa2277dee4a4856ba097caf577755874b10e doc/tester.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+29bb2320f10f46a48f320a5b6fd53af7a94d4569 src/include/shish_lan/mmrp.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+2eee7fbfd26799cce1d1851143034bd972d1ddb4 doc/tools/common.py:1:# SPDX-License-Identifier: Apache-2.0
+2f1039dc56b8e0952f04e9bb8ed7c5e9ba60043e doc/tools/check_links.py:1:# SPDX-License-Identifier: Apache-2.0
+3961e7fd63bd2ce68f5a938cd3cd3cb9970b436a doc/tools/render_mermaid.py:1:# SPDX-License-Identifier: Apache-2.0
+396d6fe887b6fb807a1939e14eb6f144b95c6e9c doc/architecture.md:36:├── [TOOL].md                      AI assistant guidelines and coding style
+4d327a9f04f56483a77afd9867ab21b1e067a5f2 src/include/shish_lan/msrp.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+4e11ecd62b6dac13fe477536bcd80af812512daa src/core/mrp_pdu.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+4f837634f766b5f2c40cad178000854b1271400b doc/tools/check_references.py:1:# SPDX-License-Identifier: Apache-2.0
+4f837634f766b5f2c40cad178000854b1271400b doc/tools/check_references.py:15:    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
+585e3f6a3c239da700af72385b82e29a80dee35b behave.ini:1:# SPDX-License-Identifier: Apache-2.0
+59240f5811c430b50395bef5b987eaf8eddf314e doc/tools/README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+59240f5811c430b50395bef5b987eaf8eddf314e doc/tools/README.md:30:The required [licence](../../LICENSE) and [notice](../../NOTICE) links fail until the separate licence change is present.
+5d02af5360546ad2c26d889a228c04d60dad041d doc/developer.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:67:| Manager | Review [release scope](https://github.com/kebag-logic/lwSRP/issues/1). | Known gaps, licence readiness, and approval criteria. |
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:69:## Licence and contributions
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:71:The public-release licence is [Apache License, Version 2.0](../LICENSE).
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:73:The [release issue](https://github.com/kebag-logic/lwSRP/issues/1) requires the separate licence work and documentation before publication.
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:74:Licence files are supplied by that separate change.
+5d4719cbae642e0e43e3030dd8e24e466c51e035 doc/manager.md:77:Individuals and companies contribute under the same licence.
+612e4b808fe3e6c738335adf654a0041af15cd17 src/include/shish_lan/mrp.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+68579b5ae9d88a0470f213c4c18fd3c5da0f3e4a src/include/shish_lan/switch.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+6c55d12a3999711de4ff8208e97b783f57475e9f tests/features/switch.feature:1:# SPDX-License-Identifier: Apache-2.0
+6f68cf8ce7b3682970f148f5c73be8b8a137b2bb tests/unit/placeholder.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+6fa182359b31fbc740d00f7ddc4baf7e02f92c60 src/modules/msrp.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+70a93e26124256ee5898e1ee492ab0b12293dee5 zephyr/module.yml:1:# SPDX-License-Identifier: Apache-2.0
+73688d431d7431b73c532eca218fcb7b052c0b6c src/modules/mvrp.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+73a9f18b9cae7f8d8de5520646975423e50b0f28 doc/architecture.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+73ddfa920a29114877f5bf59c9b9ce14c6494a66 tests/features/switch_bindings.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+75c71fc62dacc2e3d9b4222da0117252e54bc16e CONTRIBUTING.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+75c71fc62dacc2e3d9b4222da0117252e54bc16e CONTRIBUTING.md:4:Individuals and companies may contribute under the [Apache License, Version 2.0](LICENSE).
+75c71fc62dacc2e3d9b4222da0117252e54bc16e CONTRIBUTING.md:5:Contributions use the same licence as the project.
+75c71fc62dacc2e3d9b4222da0117252e54bc16e CONTRIBUTING.md:63:Maintainers review scope, evidence, and licence compatibility before merging.
+79d6bf84d0592e1ee55aa8f516b391bebe8ef358 doc/developer.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+7b4e1e789f446abe027145b77e3470363bfd85c2 CMakeLists.txt:1:# SPDX-License-Identifier: Apache-2.0
+7cb3bb26bf0d79560ab7529f39f4df891e3de70f src/modules/sim_adapter.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+8311ba9e98991d4411b7640b0164aee180f9fac9 CONTRIBUTING.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+8311ba9e98991d4411b7640b0164aee180f9fac9 CONTRIBUTING.md:4:Individuals and companies may contribute under the [Apache License, Version 2.0](LICENSE).
+8311ba9e98991d4411b7640b0164aee180f9fac9 CONTRIBUTING.md:5:Contributions use the same licence as the project.
+8311ba9e98991d4411b7640b0164aee180f9fac9 CONTRIBUTING.md:64:Maintainers review scope, evidence, and licence compatibility before merging.
+8371f0e75a1d7b9d7b8d78e9129b1f7fb7e9e0af doc/architecture.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+84e5729abc35ef2829a3304e2aa30763093f9216 build.sh:2:# SPDX-License-Identifier: Apache-2.0
+871a9d3ed3f039a8d212ded47e3cc769e0ad57e9 src/modules/mmrp.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+8ae4b340b2ea3ad8737a78c561e08e1a80f3c59f doc/developer.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+8cc72471dc4218747ce655d04b93549a3f279a58 CMakeLists.txt:1:# SPDX-License-Identifier: Apache-2.0
+948878ead1f2fc5d1b08338777c49c91dff47793 src/include/shish_lan/mrp_pdu.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+9c1388b412be1f8254063b85cc62119a9b56cff8 README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+9c1388b412be1f8254063b85cc62119a9b56cff8 README.md:56:## Licence
+9c1388b412be1f8254063b85cc62119a9b56cff8 README.md:58:lwSRP is licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 kebag-logic. See [NOTICE](NOTICE). Individuals and companies may contribute under the same licence.
+9c2fe86416f9374a3573f9ab4042fb10482039e3 src/core/mrp_mad.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+a3ab81d2fbc85062ff4a0d32760db2b743ab42e3 src/ports/timer.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+a3fe0d1f9c373649a53fdd8bcbd122856f66f0ad doc/tools/README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+a3fe0d1f9c373649a53fdd8bcbd122856f66f0ad doc/tools/README.md:31:The required [licence](../../LICENSE) and [notice](../../NOTICE) links fail until the separate licence change is present.
+a5eea04d17e9b165c58b05ff0e3854562fee86d2 tests/features/environment.py:1:# SPDX-License-Identifier: Apache-2.0
+a8048569edbf950d33a8dcf790e2c36b4fbf726d README.md:63:## Licence
+a8048569edbf950d33a8dcf790e2c36b4fbf726d README.md:65:lwSRP is licensed under the [Apache License, Version 2.0](LICENSE).
+a8048569edbf950d33a8dcf790e2c36b4fbf726d README.md:66:Copyright 2026 kebag-logic. See [NOTICE](NOTICE).
+a8048569edbf950d33a8dcf790e2c36b4fbf726d README.md:68:Individuals and companies may contribute under the same licence.
+ab5112ea6b65581f74ff7342153464ac6e4c5297 src/include/shish_lan/mvrp.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:79:| Manager | Review [release scope](https://github.com/kebag-logic/lwSRP/issues/1). | Known gaps, licence readiness, and approval criteria. |
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:81:## Licence and contributions
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:83:The public-release licence is [Apache License, Version 2.0](../LICENSE).
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:85:The [release issue](https://github.com/kebag-logic/lwSRP/issues/1) requires the separate licence work and documentation before publication.
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:86:Licence files are supplied by that separate change.
+acad597959f4d64c3b65a64c7febfbe6084c91ae doc/manager.md:89:Individuals and companies contribute under the same licence.
+b487c3bab070b3059f4e44a520e8b74659ec6ceb doc/integrator.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+b80a0b45623acf160e492ab2840b995df4c288ce src/ports/alloc.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+bf6153696d72bc2d9173c60eabc24a35731587a2 doc/tester.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+c90dba1c0576508b6ec9ac182be85f29939be46f doc/integrator.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+ca5a1c3779576ad854e2fd2553f713538d9e13f5 doc/tester.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+d2ce78e663541f6e1c3b43e263ac2242cb548732 NOTICE:2:Copyright 2026 kebag-logic
+d2ce78e663541f6e1c3b43e263ac2242cb548732 NOTICE:4:Licensed under the Apache License, Version 2.0.
+d46f9970d49c63252fc658fda716e5313295c053 tests/features/steps/switch_steps.py:1:# SPDX-License-Identifier: Apache-2.0
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:2:                                 Apache License
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:4:                        http://www.apache.org/licenses/
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:10:      "License" shall mean the terms and conditions for use, reproduction,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:13:      "Licensor" shall mean the copyright owner or entity authorized by
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:14:      the copyright owner that is granting the License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:25:      exercising permissions granted by this License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:37:      Object form, made available under the License, as indicated by a
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:38:      copyright notice that is included in or attached to the work
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:42:      form, that is based on (or derived from) the Work and for which the
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:45:      of this License, Derivative Works shall not include works that remain
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:52:      submitted to Licensor for inclusion in the Work by the copyright owner
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:54:      the copyright owner. For the purposes of this definition, "submitted"
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:61:      designated in writing by the copyright owner as "Not a Contribution."
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:67:   2. Grant of Copyright License. Subject to the terms and conditions of
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:68:      this License, each Contributor hereby grants to You a perpetual,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:70:      copyright license to reproduce, prepare Derivative Works of,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:71:      publicly display, publicly perform, sublicense, and distribute the
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:74:   3. Grant of Patent License. Subject to the terms and conditions of
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:75:      this License, each Contributor hereby grants to You a perpetual,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:77:      (except as stated in this section) patent license to make, have made,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:79:      where such license applies only to those patent claims licensable
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:86:      or contributory patent infringement, then any patent licenses
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:87:      granted to You under this License for that Work shall terminate
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:96:          Derivative Works a copy of this License; and
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:102:          that You distribute, all copyright, patent, trademark, and
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:118:          do not modify the License. You may add Your own attribution
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:122:          as modifying the License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:124:      You may add Your own copyright statement to Your modifications and
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:125:      may provide additional or different license terms and conditions
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:129:      the conditions stated in this License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:134:      this License, without any additional terms or conditions.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:136:      the terms of any separate license agreement you may have executed
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:139:   6. Trademarks. This License does not grant permission to use the trade
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:152:      risks associated with Your exercise of permissions under this License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:160:      result of this License or out of the use or inability to use the
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:170:      License. However, in accepting such obligations, You may act only
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:179:   APPENDIX: How to apply the Apache License to your work.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:181:      To apply the Apache License to your work, attach the following
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:187:      same "printed page" as the copyright notice for easier
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:190:   Copyright [yyyy] [name of copyright owner]
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:192:   Licensed under the Apache License, Version 2.0 (the "License");
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:193:   you may not use this file except in compliance with the License.
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:194:   You may obtain a copy of the License at
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:196:       http://www.apache.org/licenses/LICENSE-2.0
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:199:   distributed under the License is distributed on an "AS IS" BASIS,
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:201:   See the License for the specific language governing permissions and
+d645695673349e3947e8e5ae42332d0ac3164cd7 LICENSE:202:   limitations under the License.
+ee4b0e1d912de96db72b3af5b1bc8061d921b0a3 doc/tools/check_sentences.py:1:# SPDX-License-Identifier: Apache-2.0
+f0913a7e10cf2ca5792d2dc25e0ce90919613384 src/include/shish_lan/switch_ctrl.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:72:| Manager | Review [release scope](https://github.com/kebag-logic/lwSRP/issues/1). | Known gaps, licence readiness, and approval criteria. |
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:74:## Licence and contributions
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:76:The public-release licence is [Apache License, Version 2.0](../LICENSE).
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:78:The [release issue](https://github.com/kebag-logic/lwSRP/issues/1) requires the separate licence work and documentation before publication.
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:79:Licence files are supplied by that separate change.
+f144b1bf89e69abf59565493fc567390a0d20720 doc/manager.md:82:Individuals and companies contribute under the same licence.
+f5660f1e1ec929e7244a904050da07a9d618cbf9 doc/tools/check_links.py:1:# SPDX-License-Identifier: Apache-2.0
+f5e4f45fe350dd5b587d49bf6faaf488cadd1fe0 src/modules/sim_adapter.h:1:/* SPDX-License-Identifier: Apache-2.0 */
+f6e2d5fb048963a6b13eeb79ca7ca77d0c308753 README.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+f6e2d5fb048963a6b13eeb79ca7ca77d0c308753 README.md:56:## Licence
+f6e2d5fb048963a6b13eeb79ca7ca77d0c308753 README.md:58:lwSRP is licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 kebag-logic. See [NOTICE](NOTICE). Individuals and companies may contribute under the same licence.
+f7182c7e23537c1ff09c8257730c6ea3d9b07abb src/core/switch_ctrl.c:1:/* SPDX-License-Identifier: Apache-2.0 */
+fbf3a7e9a0f2d051117b907d1973431f806a5f8f doc/integrator.md:1:<!-- SPDX-License-Identifier: Apache-2.0 -->
+# commit messages:
+1:375dbe132c6f1498f2f3e714ce5905d34456c9d5 Merge main into the Apache-2.0 licence branch
+19:fed1a0d0a08e1f9682ce1fca3bb4b9985d846e5b License lwSRP under Apache-2.0

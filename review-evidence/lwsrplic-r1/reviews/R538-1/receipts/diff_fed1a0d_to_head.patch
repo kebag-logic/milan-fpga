@@ -1,0 +1,3536 @@
+diff --git a/[TOOL].md b/[TOOL].md
+deleted file mode 100644
+index 2165435..0000000
+--- a/[TOOL].md
++++ /dev/null
+@@ -1,59 +0,0 @@
+-# [TOOL].md
+-
+-This file provides guidance to [TOOL] Code ([TOOL-URL]) when working with code in this repository.
+-
+-## Coding Style Rules
+-
+-### Braces Required
+-All `if`, `while`, and `for` control flow statements MUST use braces `{}`, even for single-line or two-line bodies. Never write braceless control flow.
+-
+-Bad:
+-```c
+-if (x) do_something();
+-
+-if (x)
+-    do_something();
+-
+-for (int i = 0; i < n; i++)
+-    do_something(i);
+-
+-while (cond)
+-    do_something();
+-```
+-
+-Good:
+-```c
+-if (x) {
+-    do_something();
+-}
+-
+-for (int i = 0; i < n; i++) {
+-    do_something(i);
+-}
+-
+-while (cond) {
+-    do_something();
+-}
+-```
+-
+-### No typedef enums — multi-line — prefixed elements
+-Do not use `typedef enum`. Declare enums with a tag name and without typedef.
+-Every enum must span multiple lines (one element per line).
+-Each element must be named `ENUM_NAME_ELEMENT` (uppercase enum name, underscore, element name).
+-
+-Bad:
+-```c
+-typedef enum { FOO_A, FOO_B } foo_t;
+-typedef enum { FOO_A, FOO_B } foo_t;  /* single line */
+-enum foo { A, B };                      /* elements not prefixed */
+-```
+-
+-Good:
+-```c
+-enum foo_state {
+-    FOO_STATE_IDLE = 0,
+-    FOO_STATE_RUNNING,
+-    FOO_STATE_DONE,
+-};
+-```
+-
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8cc7247..7b4e1e7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -36,18 +36,19 @@ add_library(shlan SHARED
+     src/modules/mvrp.c
+     src/modules/mmrp.c
+     src/modules/msrp.c
++    tests/features/switch_bindings.c
+     # src/core/hw_adapter.c    (add when hardware driver exists)
+ )
+ target_include_directories(shlan PUBLIC src/include src/modules src)
+ 
+ # ---------- unit tests (cgreen, C-only, for core/ internals) ----------
+ enable_testing()
+-find_library(CGREEN_LIB cgreen)
+-find_path(CGREEN_INCLUDE cgreen/cgreen.h)
++find_library(CGREEN_LIB cgreen REQUIRED)
++find_path(CGREEN_INCLUDE cgreen/cgreen.h REQUIRED)
+ 
+-if(CGREEN_LIB AND CGREEN_INCLUDE)
+-    add_executable(unit_tests tests/unit/placeholder.c)
+-    target_include_directories(unit_tests PRIVATE ${CGREEN_INCLUDE} src/include)
+-    target_link_libraries(unit_tests PRIVATE shlan ${CGREEN_LIB})
+-    add_test(NAME unit COMMAND unit_tests)
+-endif()
++add_executable(unit_tests tests/unit/main.c tests/unit/mrp_pdu_test.c)
++target_include_directories(unit_tests PRIVATE ${CGREEN_INCLUDE} src/include)
++target_link_libraries(unit_tests PRIVATE shlan ${CGREEN_LIB})
++add_test(NAME unit COMMAND unit_tests)
++# An empty cgreen suite exits successfully; it must not pass CTest.
++set_tests_properties(unit PROPERTIES FAIL_REGULAR_EXPRESSION "No assertions")
+diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+new file mode 100644
+index 0000000..8311ba9
+--- /dev/null
++++ b/CONTRIBUTING.md
+@@ -0,0 +1,64 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Contributing
++
++Individuals and companies may contribute under the [Apache License, Version 2.0](LICENSE).
++Contributions use the same licence as the project.
++Read the [notice](NOTICE) and the [implementation status](doc/manager.md#implementation-status).
++
++## Coding rules
++
++Use braces for every conditional and loop body.
++This includes bodies with one statement.
++Apply this rule to new and changed lines; existing sources may predate it.
++Declare enums with tags.
++Do not use typedef enums.
++Put each enum element on its own line.
++Prefix each element with the uppercase enum name and an underscore.
++
++~~~c
++enum port_state {
++    PORT_STATE_IDLE = 0,
++    PORT_STATE_ACTIVE,
++};
++
++if (ready) {
++    state = PORT_STATE_ACTIVE;
++}
++~~~
++
++Use the [allocation and print port](src/ports/alloc.h) for platform services.
++Use the [timer port](src/ports/timer.h) for scheduled callbacks.
++Keep application policy behind the [application interface](src/include/shish_lan/mrp.h).
++See the [extension steps](doc/developer.md#add-an-application) before adding protocol behavior.
++
++## Documentation rules
++
++Keep each sentence at 25 words or fewer.
++Make every standard, file, function, issue, and tool reference a link.
++Use small graphs with short labels.
++Keep each graph to about 15 nodes or fewer.
++Give each graph one purpose and nearby links to its evidence.
++Start each new Markdown page with the existing [SPDX](https://spdx.dev/) comment.
++Keep machine syntax inside fenced examples.
++Link its references in the surrounding prose.
++Do not include private infrastructure details or generated assets.
++
++## Pull requests
++
++~~~mermaid
++flowchart TD
++    Scope[Describe scope] --> Change[Make focused changes]
++    Change --> Check[Run checks]
++    Check --> Review[Submit evidence]
++    Review --> Decision[Maintainer review]
++~~~
++
++Discuss scope through the [issue tracker](https://github.com/kebag-logic/lwSRP/issues).
++Use a focused branch and explain the resulting behavior.
++Link the affected requirement and the relevant source.
++Run the [test commands](doc/tester.md#run-the-suites) and [documentation checks](doc/tools/README.md).
++Record exit codes and failures in the pull request.
++Do not describe an empty suite as protocol coverage.
++Use one-line commit subjects without bodies or trailers.
++Submit through the [pull request list](https://github.com/kebag-logic/lwSRP/pulls).
++Maintainers review scope, evidence, and licence compatibility before merging.
+diff --git a/README.md b/README.md
+index a804856..f6e2d5f 100644
+--- a/README.md
++++ b/README.md
+@@ -1,68 +1,58 @@
+-# Shish Lan soft
+-
+-Tools and functionalities to leverage switch capabilities, built around two "-ilities": testability and flexibility.
+-
+-
+-## Dependencies
+-
+-- C11 compiler, CMake >= 3.20
+-- [cgreen](https://github.com/cgreen-devs/cgreen) — C unit test framework (`apt install libcgreen-dev`)
+-- [behave](https://behave.readthedocs.io) — Gherkin BDD runner (`pip install behave`)
+-
+-
+-## Build
+-
+-```sh
+-cmake -B build -DCMAKE_BUILD_TYPE=Debug
+-cmake --build build
+-```
+-
+-
+-## Testing
+-
+-BDD scenarios (natural language, Gherkin):
+-```sh
+-behave
+-```
+-
+-C unit tests:
+-```sh
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# lwSRP
++
++lwSRP is a C library for Multiple Registration Protocol state and attribute handling.
++It includes VLAN, MAC, and stream registration applications.
++Its reference is [IEEE 802.1Q-2018, clauses 10, 11.2, and 35](https://standards.ieee.org/ieee/802.1Q/6844/).
++
++The library is an early integration base.
++It has no complete transmit path or hardware adapter.
++Read the [implementation status](doc/manager.md#implementation-status) before planning deployment.
++
++## Architecture
++
++~~~mermaid
++flowchart TD
++    Host[Host application] --> Apps[VLAN / MAC / stream applications]
++    Apps --> Core[MRP state and codec]
++    Core --> Ports[Allocation and timers]
++    Host --> Switch[Switch interface]
++    Switch --> Sim[Port simulation]
++~~~
++
++The [protocol core](src/core/mrp_mad.c) and [switch interface](src/include/shish_lan/switch.h) are separate integration surfaces.
++The [simulation adapter](src/modules/sim_adapter.c) models port enablement only.
++See the [architecture guide](doc/architecture.md) for the boundaries.
++
++## Quick start
++
++Use a [C11](https://www.iso.org/standard/57853.html) compiler and [CMake](https://cmake.org/cmake/help/latest/) version 3.20 or newer.
++Install [cgreen](https://github.com/cgreen-devs/cgreen) headers and libraries for the required host unit target.
++Install [behave](https://behave.readthedocs.io/en/stable/) for scenarios.
++Run these commands from the repository root.
++
++~~~sh
++cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
++cmake --build build --parallel 2
+ ctest --test-dir build --output-on-failure
+-```
+-
+-
+-# Architecture
+-
+-The project follows a **Ports & Adapters** pattern. The public C headers define abstract interfaces ("ports"); concrete adapters plug in underneath without changing the interface or the tests above it.
+-
+-```
+-src/
+-  include/shish_lan/   # public API — abstract switch interface
+-  core/                # low-level hardware drivers ("the metal")
+-  modules/             # high-level adapters (sim, hw, ...)
+-tests/
+-  features/            # Gherkin scenarios + Python/ctypes harness
+-  unit/                # C unit tests (cgreen)
+-```
+-
+-
+-## Testability
+-
+-Scenarios are written in plain English using Gherkin (`tests/features/*.feature`) so that non-developers can read and write them. The `behave` runner loads the compiled C library at runtime via `ctypes` and maps each GIVEN / WHEN / THEN step to a call into the public C API — no test code knows about internals.
+-
+-A software simulation adapter (`sim_adapter`) implements the full switch interface in memory, so all scenarios run without physical hardware attached.
+-
+-C unit tests (`tests/unit/`, cgreen) cover isolated `core/` logic that does not need a full switch context. These are compiled by CMake and run via `ctest`.
++behave
++~~~
+ 
++The configured unit target runs nine codec tests with 1690 assertions.
++The scenario suite passes three scenarios and ten steps.
++The [tester guide](doc/tester.md) explains their coverage and limits.
+ 
+-## Flexibility
++## Choose your guide
+ 
+-The switch interface (`shlan_switch_t`) is a vtable struct. Swapping from the simulation adapter to a real hardware driver requires no changes to the public API or any test. New capabilities are added by extending the vtable and implementing the new operation in each adapter.
++| Reader | Start here |
++| --- | --- |
++| Developer | [Understand the code and extend an application](doc/developer.md). |
++| Integrator | [Connect platform services and plan an adapter](doc/integrator.md). |
++| Manager | [Assess scope, gaps, and release readiness](doc/manager.md). |
++| Tester | [Run checks and understand coverage](doc/tester.md). |
+ 
++See the [contribution guide](CONTRIBUTING.md) before submitting changes.
+ 
+ ## Licence
+ 
+-lwSRP is licensed under the [Apache License, Version 2.0](LICENSE).
+-Copyright 2026 kebag-logic. See [NOTICE](NOTICE).
+-
+-Individuals and companies may contribute under the same licence.
++lwSRP is licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 kebag-logic. See [NOTICE](NOTICE). Individuals and companies may contribute under the same licence.
+diff --git a/doc/architecture.drawio b/doc/architecture.drawio
+deleted file mode 100644
+index 36c2196..0000000
+--- a/doc/architecture.drawio
++++ /dev/null
+@@ -1,700 +0,0 @@
+-<mxfile host="app.diagrams.net" version="24.0">
+-
+-  <!-- ================================================================
+-       Page 1 — Layer Architecture (static view)
+-       ================================================================ -->
+-  <diagram name="Layer Architecture" id="layer-arch">
+-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+-                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+-                  pageScale="1" pageWidth="1200" pageHeight="900"
+-                  math="0" shadow="0">
+-      <root>
+-        <mxCell id="0"/>
+-        <mxCell id="1" parent="0"/>
+-
+-        <!-- Title -->
+-        <mxCell id="title" value="lwSRP — Layer Architecture"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;
+-                 verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="100" y="20" width="1000" height="40" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── Layer: Application ── -->
+-        <mxCell id="L_app" value="Application (user code)"
+-          style="swimlane;startSize=28;fillColor=#dae8fc;strokeColor=#6c8ebf;
+-                 fontStyle=1;fontSize=11;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="80" width="1040" height="70" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="app_mmrp" value="mmrp_declare_mac / withdraw_mac&#xa;mmrp_declare_svc / withdraw_svc"
+-          style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+-          vertex="1" parent="L_app">
+-          <mxGeometry x="10" y="28" width="290" height="30" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="app_mvrp" value="mvrp_declare(vid) / mvrp_withdraw(vid)"
+-          style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+-          vertex="1" parent="L_app">
+-          <mxGeometry x="375" y="28" width="290" height="30" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="app_msrp" value="msrp_declare_talker / declare_listener&#xa;msrp_withdraw_talker / withdraw_listener"
+-          style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;"
+-          vertex="1" parent="L_app">
+-          <mxGeometry x="740" y="28" width="290" height="30" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── Layer: MRP Application Adapters ── -->
+-        <mxCell id="L_mod" value="MRP Application Adapters  (src/modules/)"
+-          style="swimlane;startSize=28;fillColor=#d5e8d4;strokeColor=#82b366;
+-                 fontStyle=1;fontSize=11;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="175" width="1040" height="90" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mod_mmrp" value="mmrp.c&#xa;MMRP Adapter&#xa;Type 1: SVC (1 B)&#xa;Type 2: MAC (6 B)"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="L_mod">
+-          <mxGeometry x="10" y="28" width="200" height="52" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mod_mvrp" value="mvrp.c&#xa;MVRP Adapter&#xa;Type 1: VID (2 B)&#xa;range 1–4094"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="L_mod">
+-          <mxGeometry x="420" y="28" width="200" height="52" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mod_msrp" value="msrp.c — MSRP Adapter + MAP §35.2.3&#xa;Type 1: TalkerAdv (25 B)&#xa;Type 2: TalkerFailed (34 B)&#xa;Type 3: Listener (8 B stream ID)"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="L_mod">
+-          <mxGeometry x="740" y="28" width="290" height="52" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── vtable box ── -->
+-        <mxCell id="vtable" value="mrp_app_ops vtable  (interface contract between adapters and MRP base)"
+-          style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="230" y="285" width="740" height="22" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="vtable2"
+-          value="join_ind  |  leave_ind  |  map_join  |  map_leave  |  encode_attr  |  decode_attr  |  attr_len  |  attr_cmp  |  ctx"
+-          style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="230" y="307" width="740" height="20" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── Layer: MRP Base ── -->
+-        <mxCell id="L_core" value="MRP Base  (src/core/)"
+-          style="swimlane;startSize=28;fillColor=#ffe6cc;strokeColor=#d79b00;
+-                 fontStyle=1;fontSize=11;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="345" width="1040" height="160" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="core_mad"
+-          value="mrp_mad.c — State Machines  (IEEE 802.1Q-2018 §10.7)"
+-          style="swimlane;startSize=22;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;"
+-          vertex="1" parent="L_core">
+-          <mxGeometry x="10" y="28" width="570" height="122" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sm_appl"
+-          value="Applicant SM (per attribute)&#xa;12 states × 20 events&#xa;appl_table[EVENT][STATE]"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_mad">
+-          <mxGeometry x="10" y="28" width="170" height="84" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sm_reg"
+-          value="Registrar SM (per attribute)&#xa;3 states (IN / LV / MT)&#xa;reg_table[EVENT][STATE]"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_mad">
+-          <mxGeometry x="195" y="28" width="170" height="84" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sm_la"
+-          value="LeaveAll SM (per port)&#xa;ACTIVE / PASSIVE&#xa;leavealltimer"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_mad">
+-          <mxGeometry x="380" y="28" width="90" height="84" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sm_pt"
+-          value="PeriodicTx SM (per port)&#xa;ACTIVE / PASSIVE&#xa;periodictimer"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_mad">
+-          <mxGeometry x="480" y="28" width="80" height="84" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="core_pdu"
+-          value="mrp_pdu.c — MRPDU Codec  (IEEE 802.1Q-2018 §10.8)"
+-          style="swimlane;startSize=22;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;fontStyle=1;"
+-          vertex="1" parent="L_core">
+-          <mxGeometry x="600" y="28" width="430" height="122" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="pdu_enc"
+-          value="mrpdu_encode_begin&#xa;mrpdu_encode_end&#xa;mrpdu_encode_vector"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_pdu">
+-          <mxGeometry x="10" y="28" width="190" height="84" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="pdu_dec"
+-          value="mrpdu_parse&#xa;ThreePacked helpers&#xa;FourPacked helpers"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;"
+-          vertex="1" parent="core_pdu">
+-          <mxGeometry x="220" y="28" width="190" height="84" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── Layer: Switch Abstraction ── -->
+-        <mxCell id="L_sw" value="Switch Abstraction  (src/include/shish_lan/)"
+-          style="swimlane;startSize=28;fillColor=#e1d5e7;strokeColor=#9673a6;
+-                 fontStyle=1;fontSize=11;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="525" width="1040" height="80" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sw_vtable"
+-          value="switch.h — shlan_switch_ops vtable&#xa;connect | disconnect | port_enable | port_disable"
+-          style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;"
+-          vertex="1" parent="L_sw">
+-          <mxGeometry x="10" y="28" width="380" height="38" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="sw_ctrl"
+-          value="switch_ctrl.h — Lock-free MPSC Queue (Vyukov)&#xa;shlan_ctrl_enqueue (ISR-safe)  |  shlan_ctrl_dispatch  |  atomic chains"
+-          style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;"
+-          vertex="1" parent="L_sw">
+-          <mxGeometry x="650" y="28" width="380" height="38" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── Layer: Adapters / Ports ── -->
+-        <mxCell id="L_adapt" value="Adapters / Ports  (src/modules/ + src/ports/)"
+-          style="swimlane;startSize=28;fillColor=#f8cecc;strokeColor=#b85450;
+-                 fontStyle=1;fontSize=11;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="625" width="1040" height="70" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="adapt_sim"
+-          value="sim_adapter.c&#xa;In-memory switch (CI/test)"
+-          style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;"
+-          vertex="1" parent="L_adapt">
+-          <mxGeometry x="10" y="28" width="220" height="32" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="adapt_hw"
+-          value="hw_adapter&#xa;(future / platform-specific)"
+-          style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;dashed=1;"
+-          vertex="1" parent="L_adapt">
+-          <mxGeometry x="250" y="28" width="220" height="32" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="adapt_rstp"
+-          value="RSTP (TODO)&#xa;port-role gate for MAP"
+-          style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;dashed=1;"
+-          vertex="1" parent="L_adapt">
+-          <mxGeometry x="490" y="28" width="220" height="32" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="adapt_alloc"
+-          value="alloc.c — Memory port&#xa;shlan_malloc/calloc/free/printf"
+-          style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;"
+-          vertex="1" parent="L_adapt">
+-          <mxGeometry x="810" y="28" width="220" height="32" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- ── vertical arrows between layers ── -->
+-        <mxCell id="arr1" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="L_app" target="L_mod" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="arr2" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="L_mod" target="vtable" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="arr3" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="vtable2" target="L_core" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="arr4" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="L_core" target="L_sw" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="arr5" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="L_sw" target="L_adapt" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-      </root>
+-    </mxGraphModel>
+-  </diagram>
+-
+-  <!-- ================================================================
+-       Page 2 — Rx / Event Data Flow
+-       ================================================================ -->
+-  <diagram name="Rx Data Flow" id="rx-flow">
+-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+-                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+-                  pageScale="1" pageWidth="1400" pageHeight="900"
+-                  math="0" shadow="0">
+-      <root>
+-        <mxCell id="0"/>
+-        <mxCell id="1" parent="0"/>
+-
+-        <!-- Title -->
+-        <mxCell id="t" value="lwSRP — Rx Data Flow (received MRPDU → state machines → MAP)"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;
+-                 verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="100" y="20" width="1200" height="36" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Step boxes — left to right -->
+-        <mxCell id="net" value="Network&#xa;(Ethernet / LLC)"
+-          style="shape=cylinder3;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="30" y="200" width="100" height="80" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="mrp_rx" value="mrp_rx()&#xa;mrp_mad.c"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="175" y="210" width="120" height="50" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="parse" value="mrpdu_parse()&#xa;mrp_pdu.c&#xa;§10.8 decode"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="350" y="210" width="120" height="50" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="rx_on_attr" value="rx_on_attr()&#xa;(internal callback)&#xa;map wire event → MRP_EVENT_R*"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="530" y="210" width="160" height="50" as="geometry"/>
+-        </mxCell>
+-
+-        <mxCell id="deliver" value="deliver_event()&#xa;mrp_mad.c"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="750" y="210" width="120" height="50" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Applicant branch -->
+-        <mxCell id="appl_sm" value="appl_event()&#xa;Applicant SM&#xa;appl_table lookup"
+-          style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="930" y="130" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="tx_sched" value="pending_tx set&#xa;→ Tx scheduler&#xa;picks up Join/Leave/New"
+-          style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="1130" y="130" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Registrar branch -->
+-        <mxCell id="reg_sm" value="reg_event()&#xa;Registrar SM&#xa;reg_table lookup"
+-          style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="930" y="260" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- join_ind -->
+-        <mxCell id="join_ind_box" value="join_ind() / leave_ind()&#xa;ops vtable callback&#xa;→ application notified"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="930" y="380" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- map_apply -->
+-        <mxCell id="map_apply" value="map_apply_join()&#xa;mrp_mad.c&#xa;call ops→map_join()"
+-          style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="930" y="490" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- msrp_map_join -->
+-        <mxCell id="msrp_map" value="msrp_map_join()&#xa;§35.2.3 rules&#xa;returns port bitmask"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="1130" y="490" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_mad_join other ports -->
+-        <mxCell id="mad_join_other" value="mrp_mad_join(port=N,&#xa;is_new=false)&#xa;→ Applicant only, no loop"
+-          style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="930" y="600" width="150" height="60" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Edges -->
+-        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="net" target="mrp_rx" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_rx" target="parse" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e2b" value="per attr event"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="parse" target="rx_on_attr" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="rx_on_attr" target="deliver" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e4a" value="parallel"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="deliver" target="appl_sm" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e4b" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="deliver" target="reg_sm" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="appl_sm" target="tx_sched" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e6" value="REG_IND_NEW/JOIN/LV"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="reg_sm" target="join_ind_box" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e7" value="after ind callback"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="join_ind_box" target="map_apply" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e8" value="ops→map_join()"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="map_apply" target="msrp_map" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="e9" value="port bitmask"
+-          style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="msrp_map" target="mad_join_other" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Timer path annotation -->
+-        <mxCell id="timer_note"
+-          value="Timer path: mrp_tick() decrements la_cs / pt_cs / leave_cs&#xa;→ fires LEAVEALLTIMER / PERIODICTIMER / LEAVETIMER events into same deliver_event() path"
+-          style="text;html=1;strokeColor=#d79b00;fillColor=#ffe6cc;align=left;
+-                 verticalAlign=middle;spacingLeft=8;fontSize=10;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="175" y="370" width="560" height="40" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Local join annotation -->
+-        <mxCell id="local_note"
+-          value="Local join path: mrp_mad_join(is_new) → MRP_EVENT_NEW/JOIN → same deliver_event() path"
+-          style="text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=left;
+-                 verticalAlign=middle;spacingLeft=8;fontSize=10;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="175" y="420" width="560" height="30" as="geometry"/>
+-        </mxCell>
+-      </root>
+-    </mxGraphModel>
+-  </diagram>
+-
+-  <!-- ================================================================
+-       Page 3 — MSRP MAP Propagation (§35.2.3)
+-       ================================================================ -->
+-  <diagram name="MSRP MAP Propagation" id="map-prop">
+-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+-                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+-                  pageScale="1" pageWidth="1200" pageHeight="800"
+-                  math="0" shadow="0">
+-      <root>
+-        <mxCell id="0"/>
+-        <mxCell id="1" parent="0"/>
+-
+-        <!-- Title -->
+-        <mxCell id="t" value="MSRP MAP Propagation — §35.2.3  (bridge, not end-station)"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;
+-                 verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="100" y="20" width="1000" height="36" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Bridge box -->
+-        <mxCell id="bridge" value="Bridge"
+-          style="swimlane;startSize=28;fillColor=#f5f5f5;strokeColor=#666666;
+-                 fontStyle=1;fontSize=14;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="300" y="250" width="600" height="300" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Internal bridge labels -->
+-        <mxCell id="bridge_mad"
+-          value="mrp_mad.c — Applicant/Registrar SM per (port, stream)&#xa;MAP bitmask computed by msrp_map_join() / msrp_map_leave()"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=10;"
+-          vertex="1" parent="bridge">
+-          <mxGeometry x="100" y="120" width="400" height="40" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="bridge_ports" value="port 0       port 1       port 2       port 3"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="bridge">
+-          <mxGeometry x="10" y="250" width="580" height="24" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- External devices -->
+-        <mxCell id="talker"
+-          value="Talker&#xa;(stream source)&#xa;sends TalkerAdv&#xa;on port 0"
+-          style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="350" width="130" height="80" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="listener1"
+-          value="Listener A&#xa;sends Listener(Ready)&#xa;on port 2"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="880" y="290" width="130" height="70" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="listener2"
+-          value="Listener B&#xa;sends Listener(Ready)&#xa;on port 3"
+-          style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="880" y="420" width="130" height="70" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="bridge_dev"
+-          value="Other bridge&#xa;(receives TalkerAdv)"
+-          style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;dashed=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="880" y="160" width="130" height="70" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- TalkerAdv flood arrows -->
+-        <mxCell id="ta_in"
+-          value="① TalkerAdv IN on port 0"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;fontColor=#6c8ebf;
+-                 fontSize=9;fontStyle=1;"
+-          edge="1" source="talker" target="bridge" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="210" y="390"/><mxPoint x="300" y="390"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-        <mxCell id="ta_p1"
+-          value="② msrp_map_join: flood TalkerAdv to port 1"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;fontColor=#d79b00;
+-                 fontSize=9;fontStyle=1;dashed=1;"
+-          edge="1" source="bridge" target="bridge_dev" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="900" y="310"/><mxPoint x="945" y="200"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-        <mxCell id="ta_p2"
+-          value="② flood TalkerAdv to port 2"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;fontColor=#d79b00;
+-                 fontSize=9;fontStyle=1;dashed=1;"
+-          edge="1" source="bridge" target="listener1" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="900" y="360"/><mxPoint x="945" y="325"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-        <mxCell id="ta_p3"
+-          value="② flood TalkerAdv to port 3"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d79b00;fontColor=#d79b00;
+-                 fontSize=9;fontStyle=1;dashed=1;"
+-          edge="1" source="bridge" target="listener2" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="900" y="440"/><mxPoint x="945" y="455"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-
+-        <!-- Listener arrows (toward talker only) -->
+-        <mxCell id="li_p2_in"
+-          value="③ Listener IN on port 2"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;fontColor=#82b366;
+-                 fontSize=9;fontStyle=1;"
+-          edge="1" source="listener1" target="bridge" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="880" y="345"/><mxPoint x="900" y="380"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-        <mxCell id="li_p3_in"
+-          value="③ Listener IN on port 3"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;fontColor=#82b366;
+-                 fontSize=9;fontStyle=1;"
+-          edge="1" source="listener2" target="bridge" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="880" y="455"/><mxPoint x="900" y="470"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-        <mxCell id="li_toward_talker"
+-          value="④ msrp_map_join: Listener → port 0 only&#xa;(mrp_attr_registered_ports finds TalkerAdv on port 0)"
+-          style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;fontColor=#b85450;
+-                 fontSize=9;fontStyle=1;dashed=1;"
+-          edge="1" source="bridge" target="talker" parent="1">
+-          <mxGeometry relative="1" as="geometry">
+-            <Array as="points"><mxPoint x="300" y="430"/><mxPoint x="210" y="430"/></Array>
+-          </mxGeometry>
+-        </mxCell>
+-
+-        <!-- Legend -->
+-        <mxCell id="leg" value="Legend"
+-          style="swimlane;startSize=22;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="80" y="590" width="500" height="130" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="leg1" value="→ (solid blue) Talker Advertise received from device"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;" vertex="1" parent="leg">
+-          <mxGeometry x="10" y="25" width="480" height="20" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="leg2" value="- - → (dashed orange) MAP: TalkerAdv flooded to all other ports"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;" vertex="1" parent="leg">
+-          <mxGeometry x="10" y="45" width="480" height="20" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="leg3" value="→ (solid green) Listener received on port"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;" vertex="1" parent="leg">
+-          <mxGeometry x="10" y="65" width="480" height="20" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="leg4" value="- - → (dashed red) MAP: Listener routed toward talker port only"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;" vertex="1" parent="leg">
+-          <mxGeometry x="10" y="85" width="480" height="20" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="leg5" value="Domain attributes (type 4+): NOT propagated (map_join returns 0)"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;fontStyle=2;" vertex="1" parent="leg">
+-          <mxGeometry x="10" y="105" width="480" height="20" as="geometry"/>
+-        </mxCell>
+-      </root>
+-    </mxGraphModel>
+-  </diagram>
+-
+-  <!-- ================================================================
+-       Page 4 — Internal Data Structures
+-       ================================================================ -->
+-  <diagram name="Data Structures" id="data-structs">
+-    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+-                  tooltips="1" connect="1" arrows="1" fold="1" page="1"
+-                  pageScale="1" pageWidth="1300" pageHeight="900"
+-                  math="0" shadow="0">
+-      <root>
+-        <mxCell id="0"/>
+-        <mxCell id="1" parent="0"/>
+-
+-        <mxCell id="t" value="lwSRP — Key Data Structures"
+-          style="text;html=1;strokeColor=none;fillColor=none;align=center;
+-                 verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="100" y="20" width="1100" height="36" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_app -->
+-        <mxCell id="mrp_app_s" value="struct mrp_app"
+-          style="swimlane;startSize=24;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="30" y="80" width="240" height="80" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mrp_app_f"
+-          value="const struct mrp_app_ops  *ops&#xa;void                      *priv  → mrp_priv"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="mrp_app_s">
+-          <mxGeometry x="0" y="24" width="240" height="46" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_app_ops -->
+-        <mxCell id="mrp_app_ops_s" value="struct mrp_app_ops  (vtable)"
+-          style="swimlane;startSize=24;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="320" y="80" width="340" height="230" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mrp_app_ops_f"
+-          value="join_ind(app, port, type, val, is_new)&#xa;leave_ind(app, port, type, val)&#xa;map_join(app, src_port, type, val) → u32 mask&#xa;map_leave(app, src_port, type, val) → u32 mask&#xa;encode_attr(type, val, buf, len) → bytes&#xa;decode_attr(type, offset, buf, len, out) → bytes&#xa;attr_len(type) → uint8&#xa;attr_cmp(type, a, b) → int&#xa;ethertype  |  proto_version&#xa;group_addr[6]  |  ctx"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="mrp_app_ops_s">
+-          <mxGeometry x="0" y="24" width="340" height="196" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_priv -->
+-        <mxCell id="mrp_priv_s" value="struct mrp_priv  (private)"
+-          style="swimlane;startSize=24;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="30" y="220" width="240" height="80" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mrp_priv_f"
+-          value="uint8_t               n_ports&#xa;struct mrp_port_state  ports[]  (flex)"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="mrp_priv_s">
+-          <mxGeometry x="0" y="24" width="240" height="46" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_port_state -->
+-        <mxCell id="mrp_ps_s" value="struct mrp_port_state  (per port)"
+-          style="swimlane;startSize=24;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="30" y="360" width="260" height="150" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mrp_ps_f"
+-          value="enum mrp_la_state    la&#xa;enum mrp_pt_state    pt&#xa;uint32_t             la_cs  (leavealltimer)&#xa;uint32_t             pt_cs  (periodictimer)&#xa;bool                 tx_pending&#xa;struct mrp_attr_inst *attrs  (linked list)"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="mrp_ps_s">
+-          <mxGeometry x="0" y="24" width="260" height="116" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- mrp_attr_inst -->
+-        <mxCell id="mrp_ai_s" value="struct mrp_attr_inst  (per attribute instance)"
+-          style="swimlane;startSize=24;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="30" y="570" width="300" height="170" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="mrp_ai_f"
+-          value="uint8_t               attr_type&#xa;uint8_t               attr_val[32]&#xa;enum mrp_appl_state   appl   (Applicant SM state)&#xa;enum mrp_reg_state    reg    (Registrar SM state)&#xa;uint32_t              leave_cs&#xa;enum tx_msg           pending_tx&#xa;struct mrp_attr_inst *next"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="mrp_ai_s">
+-          <mxGeometry x="0" y="24" width="300" height="136" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- msrp structs -->
+-        <mxCell id="msrp_ctx_s" value="struct msrp_ctx  (application callbacks)"
+-          style="swimlane;startSize=24;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="720" y="80" width="360" height="150" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="msrp_ctx_f"
+-          value="on_talker_advertise(ctx, port, attr, is_new)&#xa;on_talker_failed(ctx, port, attr, is_new)&#xa;on_listener(ctx, port, stream_id, decl, is_new)&#xa;on_leave(ctx, port, attr_type, attr_val)"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="msrp_ctx_s">
+-          <mxGeometry x="0" y="24" width="360" height="116" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- msrp_talker_adv -->
+-        <mxCell id="msrp_ta_s" value="struct msrp_talker_adv  (25 B)"
+-          style="swimlane;startSize=24;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="720" y="270" width="340" height="130" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="msrp_ta_f"
+-          value="struct msrp_stream_id  stream_id  (8 B)&#xa;uint8_t  data_frame_params[2]&#xa;uint16_t max_frame_size&#xa;uint16_t max_interval_frames&#xa;uint8_t  priority_and_rank&#xa;uint32_t accumulated_latency"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=left;spacingLeft=6;"
+-          vertex="1" parent="msrp_ta_s">
+-          <mxGeometry x="0" y="24" width="340" height="96" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- enum tables -->
+-        <mxCell id="enums_s" value="Key Enumerations"
+-          style="swimlane;startSize=24;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;fontStyle=1;"
+-          vertex="1" parent="1">
+-          <mxGeometry x="720" y="440" width="460" height="290" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="enums_f"
+-          value="enum mrp_appl_state   { VO VP VN AN AA QA LA AO QO AP QP LO COUNT }   (12)&#xa;enum mrp_reg_state    { IN LV MT COUNT }                                              (4)&#xa;enum mrp_la_state     { LA_STATE_ACTIVE  LA_STATE_PASSIVE }                           (2)&#xa;enum mrp_pt_state     { PT_STATE_ACTIVE  PT_STATE_PASSIVE }                           (2)&#xa;enum mrp_event        { BEGIN NEW JOIN LV TX TXLA TXLAF                              (21)&#xa;                        RNEW RJOININ RJOINMT RIN RMT RLV RLA&#xa;                        FLUSH REDECLARE PERIODIC&#xa;                        LEAVETIMER LEAVEALLTIMER PERIODICTIMER COUNT }&#xa;enum mrp_attr_event   { NEW JOININ IN JOINMT MT LV }                                  (6)&#xa;enum msrp_listener_decl { IGNORE ASKING_FAILED READY READY_FAILED }                  (4)&#xa;enum tx_msg           { NONE NEW JOIN LEAVE IN }                                      (5)&#xa;enum reg_ind          { NONE NEW JOIN LV }                                            (4)&#xa;enum reg_timer        { NONE START STOP }                                             (3)"
+-          style="text;html=1;strokeColor=none;fillColor=none;fontSize=9;align=left;spacingLeft=6;"
+-          vertex="1" parent="enums_s">
+-          <mxGeometry x="0" y="24" width="460" height="256" as="geometry"/>
+-        </mxCell>
+-
+-        <!-- Relationship edges -->
+-        <mxCell id="r1" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_app_s" target="mrp_app_ops_s" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="r2" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_app_s" target="mrp_priv_s" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="r3" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_priv_s" target="mrp_ps_s" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="r4" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_ps_s" target="mrp_ai_s" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-        <mxCell id="r5" value="ctx →" style="edgeStyle=orthogonalEdgeStyle;"
+-          edge="1" source="mrp_app_ops_s" target="msrp_ctx_s" parent="1">
+-          <mxGeometry relative="1" as="geometry"/>
+-        </mxCell>
+-      </root>
+-    </mxGraphModel>
+-  </diagram>
+-
+-</mxfile>
+diff --git a/doc/architecture.md b/doc/architecture.md
+index 396d6fe..8371f0e 100644
+--- a/doc/architecture.md
++++ b/doc/architecture.md
+@@ -1,1038 +1,75 @@
+-# lwSRP Architecture
+-
+-lwSRP (lightweight Shish-Lan Soft MRP) is a C implementation of the IEEE 802.1Q-2018
+-Multiple Registration Protocol (MRP) base and its three standard application adapters:
+-MVRP, MMRP, and MSRP. The library targets embedded bridge and switch firmware but is
+-also fully exercisable in simulation on a standard workstation.
+-
+-See `doc/architecture.drawio` for visual diagrams (Layer Architecture, Rx Data Flow,
+-MSRP MAP Propagation, and Data Structures).
+-
+----
+-
+-## Table of Contents
+-
+-1. [Directory Layout](#1-directory-layout)
+-2. [Layered Architecture](#2-layered-architecture)
+-3. [MRP Base — State Machines](#3-mrp-base--state-machines)
+-4. [MRPDU Codec](#4-mrpdu-codec)
+-5. [The `mrp_app_ops` Vtable](#5-the-mrp_app_ops-vtable)
+-6. [MAP Propagation Design](#6-map-propagation-design)
+-7. [MRP Applications](#7-mrp-applications)
+-8. [Switch Abstraction](#8-switch-abstraction)
+-9. [Allocation Port](#9-allocation-port)
+-10. [Testing](#10-testing)
+-11. [Known TODOs and Future Work](#11-known-todos-and-future-work)
+-
+----
+-
+-## 1. Directory Layout
+-
+-```
+-lwSRP/
+-├── CMakeLists.txt                 Build definition (shared lib + tests)
+-├── build.sh                       Convenience build wrapper
+-├── behave.ini                     BDD test runner configuration
+-├── [TOOL].md                      AI assistant guidelines and coding style
+-│
+-├── doc/
+-│   ├── architecture.drawio        Visual architecture diagrams (4 pages)
+-│   └── architecture.md            This document
+-│
+-├── src/
+-│   ├── core/
+-│   │   ├── mrp_mad.c              MRP state machines and public base API
+-│   │   ├── mrp_pdu.c              MRPDU encode/decode
+-│   │   └── switch_ctrl.c         Lock-free MPSC register queue
+-│   │
+-│   ├── include/shish_lan/
+-│   │   ├── mrp.h                  MRP base public API + mrp_app_ops vtable
+-│   │   ├── mrp_pdu.h              PDU utilities (pack/unpack helpers, encode/parse)
+-│   │   ├── mvrp.h                 MVRP application public API
+-│   │   ├── mmrp.h                 MMRP application public API
+-│   │   ├── msrp.h                 MSRP application public API
+-│   │   ├── switch.h               Abstract switch operations vtable
+-│   │   └── switch_ctrl.h          Register queue interface
+-│   │
+-│   ├── modules/
+-│   │   ├── mvrp.c                 MVRP adapter implementation
+-│   │   ├── mmrp.c                 MMRP adapter implementation
+-│   │   ├── msrp.c                 MSRP adapter + §35.2.3 MAP rules
+-│   │   ├── sim_adapter.c          In-memory simulation adapter
+-│   │   └── sim_adapter.h          Simulation adapter header
+-│   │
+-│   └── ports/
+-│       ├── alloc.h                Allocator / printf abstraction declarations
+-│       └── alloc.c                Default implementation (stdlib malloc/printf)
+-│
+-└── tests/
+-    ├── unit/
+-    │   ├── mrp_pdu_test.c         cgreen unit tests for PDU pack/unpack
+-    │   └── placeholder.c
+-    └── features/
+-        ├── switch.feature          BDD scenarios (Gherkin)
+-        ├── environment.py          behave environment hooks
+-        └── steps/
+-            └── switch_steps.py    Python/ctypes step definitions
+-```
+-
+----
+-
+-## 2. Layered Architecture
+-
+-The library is organized in strict layers following a Ports and Adapters pattern.
+-Each boundary is an abstract interface (vtable); concrete implementations plug in
+-from below without touching the layer above.
+-
+-```
+-┌──────────────────────────────────────────────────────────────┐
+-│                   Application Layer                          │
+-│          MVRP            MMRP            MSRP                │
+-│   (mvrp.c / mvrp.h) (mmrp.c / mmrp.h) (msrp.c / msrp.h)   │
+-└────────────────────────┬─────────────────────────────────────┘
+-                         │  struct mrp_app_ops  (mrp.h)
+-┌────────────────────────┴─────────────────────────────────────┐
+-│                     MRP Base                                 │
+-│     MAD state machines (mrp_mad.c)  PDU codec (mrp_pdu.c)   │
+-└────────────────────────┬─────────────────────────────────────┘
+-                         │
+-┌────────────────────────┴─────────────────────────────────────┐
+-│               Switch Abstraction                             │
+-│   struct shlan_switch_ops (switch.h)                         │
+-│   struct shlan_ctrl_queue (switch_ctrl.h)                    │
+-└────────────────────────┬─────────────────────────────────────┘
+-                         │
+-┌────────────────────────┴─────────────────────────────────────┐
+-│                Concrete Adapters                             │
+-│   sim_adapter.c (simulation)   hw_adapter.c (hardware, TBD) │
+-└──────────────────────────────────────────────────────────────┘
+-```
+-
+-Allocation and I/O are similarly abstracted via `ports/alloc.h` so embedded targets
+-can substitute their own heap and logging without modifying any library source file.
+-
+----
+-
+-## 3. MRP Base — State Machines
+-
+-All state machine logic lives in `src/core/mrp_mad.c`. This is the largest and most
+-complex file in the library.
+-
+-### 3.1 Public Handle
+-
+-```c
+-/* mrp.h */
+-struct mrp_app {
+-    const struct mrp_app_ops *ops;  /* application vtable */
+-    void                     *priv; /* internal state (struct mrp_priv *) */
+-};
+-```
+-
+-`struct mrp_app` is an opaque handle. Callers receive it from `mrp_app_create()` and
+-pass it to every MRP base API function.
+-
+-### 3.2 Internal Data Structures
+-
+-These types are private to `mrp_mad.c`.
+-
+-#### Per-attribute instance
+-
+-```c
+-struct mrp_attr_inst {
+-    uint8_t              attr_type;
+-    uint8_t              attr_val[32]; /* max attribute value storage */
+-    enum mrp_appl_state  appl;         /* Applicant state machine state */
+-    enum mrp_reg_state   reg;          /* Registrar state machine state */
+-    uint32_t             leave_cs;     /* leavetimer countdown (centiseconds) */
+-    enum tx_msg          pending_tx;   /* message scheduled for next PDU */
+-    struct mrp_attr_inst *next;        /* singly-linked list per port */
+-};
+-```
+-
+-One instance exists for every unique `(attr_type, attr_val)` pair that has been
+-declared or received on a port. Instances are heap-allocated and chained on
+-`mrp_port_state.attrs`.
+-
+-#### Per-port participant state
+-
+-```c
+-struct mrp_port_state {
+-    enum mrp_la_state    la;          /* LeaveAll SM state */
+-    enum mrp_pt_state    pt;          /* PeriodicTransmission SM state */
+-    uint32_t             la_cs;       /* leavealltimer countdown */
+-    uint32_t             pt_cs;       /* periodictimer countdown */
+-    bool                 tx_pending;  /* transmission opportunity needed */
+-    struct mrp_attr_inst *attrs;      /* head of attribute instance list */
+-};
+-```
+-
+-#### Private application state
+-
+-```c
+-struct mrp_priv {
+-    uint8_t              n_ports;
+-    struct mrp_port_state ports[]; /* flexible array, one entry per port */
+-};
+-```
+-
+-`struct mrp_priv` is allocated by `mrp_app_create()` as a single block
+-(`sizeof(struct mrp_priv) + n_ports * sizeof(struct mrp_port_state)`).
+-
+-#### Pending transmit message type (internal)
+-
+-```c
+-enum tx_msg {
+-    TX_MSG_NONE  = 0,
+-    TX_MSG_NEW,    /* §10.7.6.2 sN  */
+-    TX_MSG_JOIN,   /* §10.7.6.3 sJ  (JoinIn or JoinMt depending on Registrar) */
+-    TX_MSG_LEAVE,  /* §10.7.6.4 sL  */
+-    TX_MSG_IN,     /* §10.7.6.5 s   (In or Mt depending on Registrar) */
+-};
+-```
+-
+-### 3.3 The Four State Machines
+-
+-Each MRP Participant manages four state machines. Three are per-port (LeaveAll,
+-PeriodicTransmission) or per-attribute (Applicant, Registrar). All transitions are
+-encoded as static lookup tables.
+-
+-#### a) Applicant State Machine — §10.7.7 Table 10-3
+-
+-Tracks the local declaration state for one attribute on one port.
+-
+-```
+-States (enum mrp_appl_state):
+-  MRP_APPL_STATE_VO   Very anxious Observer: not declaring, no JoinIn seen
+-  MRP_APPL_STATE_VP   Very anxious Passive:  declaring, not yet sent Join
+-  MRP_APPL_STATE_VN   Very anxious New:      new decl pending
+-  MRP_APPL_STATE_AN   Anxious New:           sent one New
+-  MRP_APPL_STATE_AA   Anxious Active:        sent Join, not quietened
+-  MRP_APPL_STATE_QA   Quiet Active:          sent Join, confirmed
+-  MRP_APPL_STATE_LA   Leaving Active:        Leave pending
+-  MRP_APPL_STATE_AO   Anxious Observer:      not decl, saw one JoinIn
+-  MRP_APPL_STATE_QO   Quiet Observer:        not decl, saw two JoinIns
+-  MRP_APPL_STATE_AP   Anxious Passive:       declaring, observer-level msgs
+-  MRP_APPL_STATE_QP   Quiet Passive:         declaring, quiet observer msgs
+-  MRP_APPL_STATE_LO   Leaving Observer:      saw Leave / LeaveAll
+-```
+-
+-The table is:
+-
+-```c
+-static const struct appl_entry appl_table[MRP_EVENT_COUNT][MRP_APPL_STATE_COUNT];
+-```
+-
+-Each entry `{tx_msg, next_state}` carries the message to schedule and the state to
+-transition to. A sentinel value `MRP_APPL_STATE_COUNT` in `next_state` means "no
+-transition" (stay in current state). The `TX_MSG_NONE` value means "no transmission
+-action".
+-
+-#### b) Registrar State Machine — §10.7.8 Table 10-4
+-
+-Tracks whether remote participants have registered the attribute.
+-
+-```
+-States (enum mrp_reg_state):
+-  MRP_REG_STATE_IN   Registered (at least one peer declares it)
+-  MRP_REG_STATE_LV   Leaving (leavetimer running)
+-  MRP_REG_STATE_MT   Empty (no peer declaration)
+-```
+-
+-```c
+-static const struct reg_entry reg_table[MRP_EVENT_COUNT][MRP_REG_STATE_COUNT];
+-```
+-
+-Each entry carries `{next_reg_state, reg_ind}` where `reg_ind` is one of:
+-
+-```
+-REG_IND_NONE  — no indication
+-REG_IND_NEW   — fire join_ind(is_new=true)
+-REG_IND_JOIN  — fire join_ind(is_new=false)
+-REG_IND_LV    — fire leave_ind
+-```
+-
+-The Registrar is the only machine that drives `join_ind` and `leave_ind` callbacks.
+-The Applicant is purely local.
+-
+-#### c) LeaveAll State Machine — §10.7.9 Table 10-5
+-
+-One per port. Controls mass-deregistration behavior.
+-
+-```
+-States (enum mrp_la_state):
+-  MRP_LA_STATE_ACTIVE   leavealltimer running; sends LeaveAll in PDU
+-  MRP_LA_STATE_PASSIVE  waiting for leavealltimer
+-```
+-
+-Transitions on `MRP_EVENT_LEAVEALLTIMER` and `MRP_EVENT_RLA` (received LeaveAll).
+-
+-#### d) PeriodicTransmission State Machine — §10.7.10 Table 10-6
+-
+-One per port. Controls periodic re-announcement.
+-
+-```
+-States (enum mrp_pt_state):
+-  MRP_PT_STATE_ACTIVE   periodictimer running; fires PERIODIC event on expiry
+-  MRP_PT_STATE_PASSIVE  periodic transmission disabled
+-```
+-
+-Controlled via `mrp_set_periodic(app, port_id, bool enable)`.
+-
+-### 3.4 Events
+-
+-```c
+-enum mrp_event {
+-    MRP_EVENT_BEGIN,          /* initialise / reinitialise            §10.7.5.1 */
+-    MRP_EVENT_NEW,            /* MAD_Join.request (is_new=true)       §10.7.5.4 */
+-    MRP_EVENT_JOIN,           /* MAD_Join.request (is_new=false)      §10.7.5.5 */
+-    MRP_EVENT_LV,             /* MAD_Leave.request                    §10.7.5.6 */
+-    MRP_EVENT_TX,             /* tx opportunity, no LeaveAll          §10.7.5.7 */
+-    MRP_EVENT_TXLA,           /* tx opportunity, with LeaveAll        §10.7.5.8 */
+-    MRP_EVENT_TXLAF,          /* tx opportunity, LA + PDU full        §10.7.5.9 */
+-    MRP_EVENT_RNEW,           /* received New                         §10.7.5.14 */
+-    MRP_EVENT_RJOININ,        /* received JoinIn                      §10.7.5.15 */
+-    MRP_EVENT_RJOINMT,        /* received JoinMt                      §10.7.5.16 */
+-    MRP_EVENT_RIN,            /* received In                          §10.7.5.18 */
+-    MRP_EVENT_RMT,            /* received Mt                          §10.7.5.19 */
+-    MRP_EVENT_RLV,            /* received Lv                          §10.7.5.17 */
+-    MRP_EVENT_RLA,            /* received LeaveAll                    §10.7.5.20 */
+-    MRP_EVENT_FLUSH,          /* port: Root/Alt → Designated          §10.7.5.2 */
+-    MRP_EVENT_REDECLARE,      /* port: Designated → Root/Alt          §10.7.5.3 */
+-    MRP_EVENT_PERIODIC,       /* periodictimer fired                  §10.7.5.10 */
+-    MRP_EVENT_LEAVETIMER,     /* leavetimer expired                   §10.7.5.21 */
+-    MRP_EVENT_LEAVEALLTIMER,  /* leavealltimer expired                §10.7.5.22 */
+-    MRP_EVENT_PERIODICTIMER,  /* periodictimer expired                §10.7.5.23 */
+-};
+-```
+-
+-### 3.5 Timer Defaults
+-
+-```c
+-#define MRP_JOIN_TIME_CS      20u    /* JoinTime     — centiseconds */
+-#define MRP_LEAVE_TIME_CS     60u    /* LeaveTime    — centiseconds */
+-#define MRP_LEAVEALL_TIME_CS  1000u  /* LeaveAllTime — centiseconds */
+-```
+-
+-`mrp_tick(app, port_id)` must be called at ≤1 cs resolution. It decrements all
+-countdown counters and fires the corresponding `MRP_EVENT_LEAVETIMER`,
+-`MRP_EVENT_LEAVEALLTIMER`, or `MRP_EVENT_PERIODICTIMER` events when any counter
+-reaches zero.
+-
+-### 3.6 Public MRP Base API
+-
+-All functions are declared in `src/include/shish_lan/mrp.h`.
+-
+-```c
+-/* Lifecycle */
+-struct mrp_app *mrp_app_create(const struct mrp_app_ops *ops, uint8_t n_ports);
+-void            mrp_app_destroy(struct mrp_app *app);
+-
+-/* Query */
+-uint8_t  mrp_app_n_ports(const struct mrp_app *app);
+-uint32_t mrp_attr_registered_ports(const struct mrp_app *app,
+-                                   uint8_t attr_type, const void *attr_val);
+-
+-/* Local declaration */
+-int  mrp_mad_join(struct mrp_app *app, uint8_t port_id,
+-                  uint8_t attr_type, const void *attr_val, bool is_new);
+-int  mrp_mad_leave(struct mrp_app *app, uint8_t port_id,
+-                   uint8_t attr_type, const void *attr_val);
+-
+-/* Receive path */
+-int  mrp_rx(struct mrp_app *app, uint8_t port_id,
+-            const uint8_t *pdu, size_t pdu_len);
+-
+-/* Timer tick */
+-void mrp_tick(struct mrp_app *app, uint8_t port_id);
+-
+-/* Topology events */
+-void mrp_port_role_change(struct mrp_app *app, uint8_t port_id, bool flush);
+-
+-/* Periodic transmission control */
+-void mrp_set_periodic(struct mrp_app *app, uint8_t port_id, bool enable);
+-```
+-
+-`mrp_attr_registered_ports` returns a `uint32_t` bitmask where bit N is set if port N
+-has `Registrar == IN` for the given attribute. It is intended for use inside
+-`map_join` / `map_leave` callbacks.
+-
+----
+-
+-## 4. MRPDU Codec
+-
+-Implemented in `src/core/mrp_pdu.c`. The public interface is `src/include/shish_lan/mrp_pdu.h`.
+-
+-### 4.1 Wire Format
+-
+-Per §10.8.1.2 BNF:
+-
+-```
+-MRPDU           ::= ProtocolVersion, Message {, Message}, EndMark
+-Message         ::= AttributeType, AttributeLength
+-                    [, AttributeListLength], AttributeList
+-AttributeList   ::= VectorAttribute {, VectorAttribute}, EndMark
+-VectorAttribute ::= VectorHeader, FirstValue {, Vector}
+-VectorHeader    ::= (LeaveAllEvent * 8192) + NumberOfValues  [2 octets]
+-Vector          ::= ThreePackedEvents {, ThreePackedEvents}
+-                  | FourPackedEvents  {, FourPackedEvents}
+-EndMark SHORT   ::= 0x0000
+-```
+-
+-Key differences between MSRP and MVRP/MMRP:
+-- `AttributeListLength` is present in the Message header for MSRP (§10.8.2.4);
+-  absent for MVRP and MMRP.
+-- Listener attributes in MSRP use FourPackedEvents; all others use ThreePackedEvents.
+-
+-### 4.2 Event Packing
+-
+-#### ThreePackedEvents — §10.8.2.10.1
+-
+-Three `AttributeEvent` values packed into one octet:
+-
+-```c
+-static inline uint8_t mrp_three_pack(uint8_t e1, uint8_t e2, uint8_t e3)
+-{
+-    return (uint8_t)(((e1 * 6u + e2) * 6u) + e3);
+-}
+-static inline void mrp_three_unpack(uint8_t b, uint8_t *e1, uint8_t *e2, uint8_t *e3)
+-{
+-    *e3 = b % 6u;  b /= 6u;
+-    *e2 = b % 6u;  b /= 6u;
+-    *e1 = b;
+-}
+-```
+-
+-#### FourPackedEvents — §10.8.2.10.2
+-
+-Four `FourPackedType` values packed into one octet (used by MSRP Listener):
+-
+-```c
+-static inline uint8_t mrp_four_pack(uint8_t e1, uint8_t e2, uint8_t e3, uint8_t e4)
+-{
+-    return (uint8_t)(((e1 * 64u + e2) * 16u) + (e3 * 4u) + e4);
+-}
+-static inline void mrp_four_unpack(uint8_t b, uint8_t *e1, uint8_t *e2,
+-                                   uint8_t *e3, uint8_t *e4)
+-{
+-    *e4 = b % 4u;  b /= 4u;
+-    *e3 = b % 4u;  b /= 4u;
+-    *e2 = b % 4u;  b /= 4u;
+-    *e1 = b;
+-}
+-```
+-
+-#### VectorHeader — §10.8.2.8
+-
+-```c
+-/* VectorHeader = (LeaveAllEvent << 13) | NumberOfValues */
+-#define MRP_VH_LEAVEALL_SHIFT 13u
+-#define MRP_VH_NVALUES_MASK   0x1FFFu
+-
+-static inline uint16_t mrp_vh_encode(uint8_t la_event, uint16_t n_values);
+-static inline uint8_t  mrp_vh_la(uint16_t vh);
+-static inline uint16_t mrp_vh_nv(uint16_t vh);
+-```
+-
+-### 4.3 Encode Functions
+-
+-The encode side is intentionally minimal — it encodes one VectorAttribute at a time:
+-
+-```c
+-/* Write ProtocolVersion byte */
+-int mrpdu_encode_begin(uint8_t *buf, size_t buf_len, uint8_t proto_version);
+-
+-/* Write trailing EndMark (0x0000) */
+-int mrpdu_encode_end(uint8_t *buf, size_t buf_len);
+-
+-/* Encode one VectorAttribute: VectorHeader + FirstValue + one ThreePacked byte */
+-int mrpdu_encode_vector(uint8_t *buf, size_t buf_len,
+-                        uint8_t la_event,
+-                        enum mrp_attr_event attr_event,
+-                        const uint8_t *first_value, uint8_t fv_len);
+-```
+-
+-The Message header (`AttributeType`, `AttributeLength`, and for MSRP
+-`AttributeListLength`) is the caller's responsibility to write around calls to
+-`mrpdu_encode_vector`.
+-
+-### 4.4 Parse Function
+-
+-```c
+-typedef void (*mrpdu_on_attr_fn)(void *ctx, uint8_t attr_type,
+-                                 enum mrp_attr_event attr_event,
+-                                 const void *attr_val);
+-typedef void (*mrpdu_on_leaveall_fn)(void *ctx, uint8_t attr_type);
+-
+-int mrpdu_parse(const uint8_t *pdu, size_t pdu_len,
+-                const struct mrp_app_ops *ops,
+-                mrpdu_on_attr_fn on_attr,
+-                mrpdu_on_leaveall_fn on_leaveall,
+-                void *ctx);
+-```
+-
+-`mrpdu_parse` iterates over every Message and VectorAttribute. For each decoded
+-`(attr_type, attr_event, attr_val)` triple it calls `on_attr`. For each VectorAttribute
+-carrying a LeaveAll it calls `on_leaveall`. The `ops` pointer is used to detect MSRP
+-(for the `AttributeListLength` field) and to call `ops->decode_attr` to compute the
+-concrete attribute value from `FirstValue + vector offset`.
+-
+-### 4.5 AttributeEvent Values
+-
+-```c
+-enum mrp_attr_event {
+-    MRP_ATTR_EVENT_NEW    = 0,
+-    MRP_ATTR_EVENT_JOININ = 1,
+-    MRP_ATTR_EVENT_IN     = 2,
+-    MRP_ATTR_EVENT_JOINMT = 3,
+-    MRP_ATTR_EVENT_MT     = 4,
+-    MRP_ATTR_EVENT_LV     = 5,
+-};
+-```
+-
+----
+-
+-## 5. The `mrp_app_ops` Vtable
+-
+-`struct mrp_app_ops` in `src/include/shish_lan/mrp.h` is the sole boundary between the
+-MRP base and any application. Each MRP adapter (MVRP, MMRP, MSRP) fills in a static
+-constant of this type and passes it to `mrp_app_create`.
+-
+-```c
+-struct mrp_app_ops {
+-    /* MAD_Join.indication — §10.7.6.12 (is_new=true) / §10.7.6.13 (false) */
+-    void    (*join_ind)(struct mrp_app *app, uint8_t port_id,
+-                        uint8_t attr_type, const void *attr_val, bool is_new);
+-
+-    /* MAD_Leave.indication — §10.7.6.14 */
+-    void    (*leave_ind)(struct mrp_app *app, uint8_t port_id,
+-                         uint8_t attr_type, const void *attr_val);
+-
+-    /* MAP policy — §10.3 (see Section 6) */
+-    uint32_t (*map_join) (const struct mrp_app *app, uint8_t src_port,
+-                          uint8_t attr_type, const void *attr_val);
+-    uint32_t (*map_leave)(const struct mrp_app *app, uint8_t src_port,
+-                          uint8_t attr_type, const void *attr_val);
+-
+-    /* Encode FirstValue into buf — §10.8.2.7 */
+-    int     (*encode_attr)(uint8_t attr_type, const void *attr_val,
+-                           uint8_t *buf, size_t buf_len);
+-
+-    /* Decode attribute value from buf given FirstValue + vector offset */
+-    int     (*decode_attr)(uint8_t attr_type, uint32_t offset,
+-                           const uint8_t *buf, size_t buf_len,
+-                           void *attr_val_out);
+-
+-    /* Return FirstValue field length in octets for attr_type */
+-    uint8_t (*attr_len)(uint8_t attr_type);
+-
+-    /* Compare two attribute values; return 0 if equal */
+-    int     (*attr_cmp)(uint8_t attr_type, const void *a, const void *b);
+-
+-    uint16_t ethertype;      /* §10.5 Table 10-2 */
+-    uint8_t  proto_version;  /* §10.8.2.1 — always 0 */
+-    uint8_t  group_addr[6];  /* §10.5 Table 10-1 multicast MAC */
+-    void    *ctx;            /* opaque application context returned in callbacks */
+-};
+-```
+-
+-Summary of each field:
+-
+-| Field | Direction | Description |
+-|---|---|---|
+-| `join_ind` | base → app | Attribute registered (Registrar transitions to IN) |
+-| `leave_ind` | base → app | Attribute deregistered (Registrar leaves IN) |
+-| `map_join` | base → app | Return port bitmask to re-declare on after join |
+-| `map_leave` | base → app | Return port bitmask to withdraw from after leave |
+-| `encode_attr` | base → app | Serialize attribute value for MRPDU FirstValue |
+-| `decode_attr` | base → app | Deserialize FirstValue + offset into attribute value |
+-| `attr_len` | base → app | Byte length of FirstValue for a given attr_type |
+-| `attr_cmp` | base → app | Equality check for attribute instance lookup |
+-| `ethertype` | config | EtherType for outgoing/incoming frames |
+-| `proto_version` | config | Protocol version byte (0 per §10.8.2.1) |
+-| `group_addr` | config | Destination multicast MAC address |
+-| `ctx` | config | Application-specific context pointer |
+-
+-NULL `map_join` / `map_leave` callbacks mean end-station behaviour — no cross-port
+-propagation.
+-
+----
+-
+-## 6. MAP Propagation Design
+-
+-MAP (MRP Attribute Propagation) is the mechanism by which a bridge port that receives
+-a registration on one port re-declares that attribute on other ports, propagating it
+-across the bridge fabric. Without MAP, attributes received on port 0 would be visible
+-only to port 0's state machine; no other port would know about them.
+-
+-### 6.1 Where MAP is Applied
+-
+-MAP is applied inside `mrp_mad.c` in the `reg_event()` function, immediately after
+-each Registrar indication fires:
+-
+-```c
+-case REG_IND_NEW:
+-    app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, true);
+-    map_apply_join(app, port_id, ai->attr_type, ai->attr_val);
+-    break;
+-case REG_IND_JOIN:
+-    app->ops->join_ind(app, port_id, ai->attr_type, ai->attr_val, false);
+-    map_apply_join(app, port_id, ai->attr_type, ai->attr_val);
+-    break;
+-case REG_IND_LV:
+-    app->ops->leave_ind(app, port_id, ai->attr_type, ai->attr_val);
+-    map_apply_leave(app, port_id, ai->attr_type, ai->attr_val);
+-    break;
+-```
+-
+-### 6.2 MAP Helpers
+-
+-```c
+-static void map_apply_join(struct mrp_app *app, uint8_t src_port,
+-                           uint8_t attr_type, const void *attr_val)
+-{
+-    if (!app->ops->map_join) { return; }
+-    uint32_t ports = app->ops->map_join(app, src_port, attr_type, attr_val);
+-    if (!ports) { return; }
+-    uint8_t n = priv_of(app)->n_ports;
+-    for (uint8_t p = 0; p < n && p < 32u; p++) {
+-        if (ports & (1u << p)) {
+-            mrp_mad_join(app, p, attr_type, attr_val, false);
+-        }
+-    }
+-}
+-```
+-
+-`map_apply_leave` is symmetric, calling `mrp_mad_leave` on each set port bit.
+-
+-### 6.3 Loop Prevention
+-
+-MAP always passes `is_new=false` to `mrp_mad_join`. This drives `MRP_EVENT_JOIN`
+-rather than `MRP_EVENT_NEW`. Looking at the Registrar table:
+-
+-- If the attribute is already IN on the target port (because another peer declared it),
+-  the Registrar ignores a JOIN event — no indication fires, no further MAP call.
+-- If the attribute is MT on the target port, the Registrar transitions to IN and fires
+-  `REG_IND_JOIN` (not `REG_IND_NEW`). This then triggers `map_apply_join` again —
+-  but the `map_join` callback on the target port will return a bitmask excluding
+-  `src_port`, so propagation terminates at the boundary of the bridge.
+-
+-The invariant is: MAP propagation from port A causes `join_ind` on ports B, C, …
+-which in turn triggers MAP from each of those ports — but because each `map_join`
+-excludes its own `src_port`, the source port is never re-visited, and since all ports
+-are finite the loop terminates.
+-
+-### 6.4 Port Bitmask
+-
+-The bitmask is a `uint32_t`, limiting MAP to a maximum of 32 ports. Bit N represents
+-port N. This is adequate for all standard bridge configurations.
+-
+-### 6.5 RSTP Integration (Future)
+-
+-Per §10.3, MAP must only propagate to Designated ports. When RSTP is integrated, the
+-bitmask returned by `map_join` / `map_leave` must be gated on port role so that only
+-Designated ports are included. Root and Alternate ports must be excluded to prevent
+-bridging loops. This is marked with TODO comments in `msrp.c` and `mrp.h`.
+-
+----
+-
+-## 7. MRP Applications
+-
+-### 7.1 MVRP — Multiple VLAN Registration Protocol
+-
+-**Standard:** IEEE 802.1Q-2018 §11.2
+-
+-**Files:** `src/modules/mvrp.c`, `src/include/shish_lan/mvrp.h`
+-
+-| Property | Value |
+-|---|---|
+-| EtherType | 0x88F5 |
+-| Group MAC | 01-80-C2-00-00-21 |
+-| Attribute types | 1 (VID) |
+-| Value size | 2 octets (big-endian VID, 12-bit) |
+-| `is_new` | Used — triggers FDB flush per §11.2.5 |
+-| MAP | Flood to all ports except source |
+-
+-**Attribute encoding:** VID values increment across vector offsets (standard integer
+-big-endian increment), so a single VectorAttribute can announce a range of VIDs.
+-
+-**Context callbacks:**
+-
+-```c
+-struct mvrp_ctx {
+-    void (*on_vlan_registered)  (struct mvrp_ctx *, uint8_t port_id,
+-                                 uint16_t vid, bool is_new);
+-    void (*on_vlan_deregistered)(struct mvrp_ctx *, uint8_t port_id,
+-                                 uint16_t vid);
+-};
+-```
+-
+-**API:**
+-
+-```c
+-struct mrp_app *mvrp_app_create(uint8_t n_ports, struct mvrp_ctx *ctx);
+-void            mvrp_app_destroy(struct mrp_app *app);
+-int  mvrp_declare (struct mrp_app *app, uint8_t port_id, uint16_t vid);
+-int  mvrp_withdraw(struct mrp_app *app, uint8_t port_id, uint16_t vid);
+-```
+-
+----
+-
+-### 7.2 MMRP — Multiple MAC Registration Protocol
+-
+-**Standard:** IEEE 802.1Q-2018 §10.9–10.12
+-
+-**Files:** `src/modules/mmrp.c`, `src/include/shish_lan/mmrp.h`
+-
+-| Property | Value |
+-|---|---|
+-| EtherType | 0x88F6 |
+-| Group MAC | 01-80-C2-00-00-20 |
+-| Attribute types | 1 (Service), 2 (MAC address) |
+-| Value sizes | 1 octet (SVC), 6 octets (MAC) |
+-| `is_new` | Never used — §10.3 NOTE |
+-| MAP | Flood to all ports except source |
+-| Mode | Extended Filtering Mode only |
+-
+-**Attribute encoding:**
+-- Type 2 (MAC): values increment across vector offsets (big-endian 6-byte addition).
+-- Type 1 (Service): each value is independent; offset is ignored.
+-
+-**Context callbacks:**
+-
+-```c
+-struct mmrp_ctx {
+-    void (*on_mac_registered)    (struct mmrp_ctx *, uint8_t port_id,
+-                                  const struct mmrp_mac *mac);
+-    void (*on_mac_deregistered)  (struct mmrp_ctx *, uint8_t port_id,
+-                                  const struct mmrp_mac *mac);
+-    void (*on_svc_registered)    (struct mmrp_ctx *, uint8_t port_id,
+-                                  uint8_t svc);
+-    void (*on_svc_deregistered)  (struct mmrp_ctx *, uint8_t port_id,
+-                                  uint8_t svc);
+-};
+-```
+-
+-**API:**
+-
+-```c
+-struct mrp_app *mmrp_app_create(uint8_t n_ports, struct mmrp_ctx *ctx);
+-void            mmrp_app_destroy(struct mrp_app *app);
+-int  mmrp_declare_mac (struct mrp_app *app, uint8_t port_id,
+-                       const struct mmrp_mac *mac);
+-int  mmrp_withdraw_mac(struct mrp_app *app, uint8_t port_id,
+-                       const struct mmrp_mac *mac);
+-int  mmrp_declare_svc (struct mrp_app *app, uint8_t port_id, uint8_t svc);
+-int  mmrp_withdraw_svc(struct mrp_app *app, uint8_t port_id, uint8_t svc);
+-```
+-
+----
+-
+-### 7.3 MSRP — Multiple Stream Reservation Protocol
+-
+-**Standard:** IEEE 802.1Q-2018 §35 (AVB/TSN stream reservation)
+-
+-**Files:** `src/modules/msrp.c`, `src/include/shish_lan/msrp.h`
+-
+-| Property | Value |
+-|---|---|
+-| EtherType | 0x22EA |
+-| Group MAC | 91-E0-F0-00-0E-80 |
+-| Attribute types | 3 |
+-| `AttributeListLength` | Present in Message header (unlike MVRP/MMRP) |
+-| Listener events | FourPackedEvents (not ThreePacked) |
+-
+-#### Attribute Types
+-
+-**Type 1 — Talker Advertise (25 octets)**
+-
+-Announces a data stream and its characteristics.
+-
+-```c
+-struct msrp_talker_adv {
+-    struct msrp_stream_id stream_id;            /* 8 octets */
+-    uint8_t               data_frame_params[2]; /* dest MAC + VLAN priority */
+-    uint16_t              max_frame_size;        /* octets */
+-    uint16_t              max_interval_frames;   /* frames per class interval */
+-    uint8_t               priority_and_rank;
+-    uint32_t              accumulated_latency;   /* nanoseconds */
+-};
+-```
+-
+-**Type 2 — Talker Failed (34 octets)**
+-
+-Extends Talker Advertise to include failure information from a bridge that could not
+-reserve resources.
+-
+-```c
+-struct msrp_talker_failed {
+-    struct msrp_talker_adv talker;          /* 25 octets */
+-    uint8_t                failure_info[9]; /* bridge ID + failure code */
+-};
+-```
+-
+-**Type 3 — Listener (8 octets on wire + declaration byte)**
+-
+-Announces listener interest and reservation status for a stream. The stream is
+-identified by 8-byte StreamID; the declaration type is conveyed via FourPackedEvents.
+-
+-```c
+-enum msrp_listener_decl {
+-    MSRP_LISTENER_DECL_IGNORE        = 0,
+-    MSRP_LISTENER_DECL_ASKING_FAILED = 1,
+-    MSRP_LISTENER_DECL_READY         = 2,
+-    MSRP_LISTENER_DECL_READY_FAILED  = 3,
+-};
+-```
+-
+-Internally the library stores a Listener attribute as 9 bytes: the 8-byte StreamID
+-followed by the declaration byte decoded from the FourPackedEvents field.
+-
+-#### MAP Rules — §35.2.3
+-
+-MSRP implements the most complex MAP policy:
+-
+-```c
+-static uint32_t msrp_map_join(const struct mrp_app *app, uint8_t src_port,
+-                              uint8_t attr_type, const void *attr_val)
+-{
+-    switch (attr_type) {
+-    case MSRP_ATTR_TYPE_TALKER_ADV:
+-    case MSRP_ATTR_TYPE_TALKER_FAILED:
+-        return all_ports_except(app, src_port);
+-
+-    case MSRP_ATTR_TYPE_LISTENER: {
+-        uint32_t talker_ports =
+-            mrp_attr_registered_ports(app, MSRP_ATTR_TYPE_TALKER_ADV,    attr_val) |
+-            mrp_attr_registered_ports(app, MSRP_ATTR_TYPE_TALKER_FAILED,  attr_val);
+-        return talker_ports & all_ports_except(app, src_port);
+-    }
+-
+-    default:
+-        return 0u;  /* Domain / unknown: not propagated */
+-    }
+-}
+-```
+-
+-Rules:
+-- **Talker Advertise / Failed:** flood to every port except the ingress port. This
+-  ensures all bridge ports learn about available streams.
+-- **Listener:** propagate only toward the talker. The target set is the intersection
+-  of (ports where a Talker for that StreamID is registered) with (all ports except
+-  the ingress port). This routes the listener declaration back toward the stream source
+-  along the existing talker path.
+-- **Domain (type 4) / Unknown:** not propagated. Domain attributes are per-port
+-  administrative state.
+-
+-For `msrp_map_leave`, the Listener case intentionally uses `all_ports_except` rather
+-than looking up the current talker set. This avoids a stale-talker-set problem: if
+-the Talker deregistered before the Listener, `mrp_attr_registered_ports` would return
+-0, leaving orphaned MAP declarations on other ports. Calling `mrp_mad_leave`
+-unconditionally is safe because `mrp_mad_leave` is a no-op when the attribute is not
+-registered on a port.
+-
+-#### Stream ID Matching
+-
+-`msrp_attr_cmp` compares only the first 8 bytes (the StreamID) regardless of attribute
+-type. This allows `msrp_map_join` to pass a Listener's `attr_val` pointer directly to
+-`mrp_attr_registered_ports` with a Talker type: the StreamID occupies the same leading
+-8 bytes in all three attribute value layouts.
+-
+-#### Context Callbacks
+-
+-```c
+-struct msrp_ctx {
+-    void (*on_talker_advertise)(struct msrp_ctx *, uint8_t port_id,
+-                                const struct msrp_talker_adv *, bool is_new);
+-    void (*on_talker_failed)   (struct msrp_ctx *, uint8_t port_id,
+-                                const struct msrp_talker_failed *, bool is_new);
+-    void (*on_listener)        (struct msrp_ctx *, uint8_t port_id,
+-                                const struct msrp_stream_id *,
+-                                enum msrp_listener_decl, bool is_new);
+-    void (*on_leave)           (struct msrp_ctx *, uint8_t port_id,
+-                                uint8_t attr_type, const void *attr_val);
+-};
+-```
+-
+-#### API
+-
+-```c
+-struct mrp_app *msrp_app_create(uint8_t n_ports, struct msrp_ctx *ctx);
+-void            msrp_app_destroy(struct mrp_app *app);
+-int  msrp_declare_talker  (struct mrp_app *, uint8_t port_id,
+-                            const struct msrp_talker_adv *, bool is_new);
+-int  msrp_declare_listener(struct mrp_app *, uint8_t port_id,
+-                            const struct msrp_stream_id *,
+-                            enum msrp_listener_decl decl);
+-int  msrp_withdraw_talker  (struct mrp_app *, uint8_t port_id,
+-                             const struct msrp_stream_id *);
+-int  msrp_withdraw_listener(struct mrp_app *, uint8_t port_id,
+-                             const struct msrp_stream_id *);
+-```
+-
+----
+-
+-## 8. Switch Abstraction
+-
+-Two independent abstraction layers decouple the protocol library from switch hardware.
+-
+-### 8.1 Switch Operations — `switch.h`
+-
+-```c
+-struct shlan_switch_ops {
+-    int  (*connect)     (struct shlan_switch *sw);
+-    void (*disconnect)  (struct shlan_switch *sw);
+-    int  (*port_enable) (struct shlan_switch *sw, uint8_t port_id);
+-    int  (*port_disable)(struct shlan_switch *sw, uint8_t port_id);
+-};
+-
+-struct shlan_switch {
+-    const struct shlan_switch_ops *ops;
+-    void                          *priv; /* adapter-private data */
+-};
+-```
+-
+-Inline forwarding wrappers (`shlan_connect`, `shlan_disconnect`, `shlan_port_enable`,
+-`shlan_port_disable`) hide the vtable dispatch from call sites.
+-
+-### 8.2 Register Queue — `switch_ctrl.h`
+-
+-Provides a lock-free MPSC (Multiple-Producer, Single-Consumer) queue for submitting
+-register read/write transfers to a single driver task.
+-
+-**Transfer descriptor:**
+-
+-```c
+-enum shlan_ctrl_op {
+-    SHLAN_CTRL_READ  = 0,
+-    SHLAN_CTRL_WRITE = 1,
+-};
+-
+-struct shlan_ctrl_xfer {
+-    enum shlan_ctrl_op  op;
+-    uint32_t            reg;     /* register address */
+-    uint32_t            data;    /* write value / read result */
+-    bool                linked;  /* true = atomic chain with next transfer */
+-    void (*done)(struct shlan_ctrl_xfer *xfer, int err); /* completion callback */
+-    _Atomic(struct shlan_ctrl_xfer *) q_next;            /* queue internal */
+-};
+-```
+-
+-**Queue:**
+-
+-```c
+-struct shlan_ctrl_queue {
+-    _Atomic(struct shlan_ctrl_xfer *) q_tail;
+-    struct shlan_ctrl_xfer           *q_head;
+-    struct shlan_ctrl_xfer            q_stub; /* embedded sentinel node */
+-};
+-```
+-
+-**Algorithm:** Dmitry Vyukov's intrusive MPSC node-based queue. `q_tail` is updated
+-by producers with an atomic exchange; only the single consumer reads `q_head`. No
+-spinlock or interrupt disable is needed for `shlan_ctrl_enqueue`.
+-
+-**Atomic chains:** Setting `linked = true` on a transfer binds it atomically with the
+-next queued transfer. The dispatcher brackets the chain with `begin_atomic` /
+-`end_atomic` hardware callbacks (chip-select hold for SPI, repeated START for I²C, etc.).
+-
+-**Hardware adapter operations:**
+-
+-```c
+-struct shlan_ctrl_ops {
+-    int  (*read)        (void *ctx, uint32_t reg, uint32_t *data);
+-    int  (*write)       (void *ctx, uint32_t reg,  uint32_t  data);
+-    void (*begin_atomic)(void *ctx);
+-    void (*end_atomic)  (void *ctx);
+-};
+-```
+-
+-**Dispatcher:** `shlan_ctrl_dispatch(queue, ops, ctx)` drains the queue in FIFO order,
+-executing reads and writes through the adapter ops and invoking each `done` callback.
+-
+----
+-
+-## 9. Allocation Port
+-
+-All heap operations and diagnostic output in the library go through wrappers declared
+-in `src/ports/alloc.h`:
+-
+-```c
+-void *shlan_malloc(size_t size);
+-void *shlan_calloc(size_t nmemb, size_t size);
+-void  shlan_free(void *ptr);
+-int   shlan_printf(const char *fmt, ...);
+-```
+-
+-The default implementation in `src/ports/alloc.c` calls `malloc`, `calloc`, `free`,
+-and `printf` from the C standard library. Embedded targets or test harnesses replace
+-the translation unit with an alternative implementation — no call sites need changing.
+-
+----
+-
+-## 10. Testing
+-
+-### 10.1 Unit Tests — cgreen
+-
+-`tests/unit/mrp_pdu_test.c` covers the PDU helper functions exhaustively using the
+-cgreen test framework. Nine test cases verify:
+-
+-- `mrp_three_pack` / `mrp_three_unpack` round-trips across the full 0–5 event range
+-- `mrp_four_pack` / `mrp_four_unpack` round-trips across the full 0–3 range
+-- `mrp_vh_encode` / `mrp_vh_la` / `mrp_vh_nv` encode and decode correctness
+-- `mrpdu_encode_vector` output byte layout
+-- `mrpdu_parse` with a hand-crafted single-attribute MVRP PDU
+-
+-These tests have no external dependencies beyond cgreen and the library itself. They
+-are built and run via CMake / ctest:
+-
+-```sh
+-cmake -B build && cmake --build build && ctest --test-dir build
+-```
+-
+-### 10.2 BDD Tests — behave
+-
+-`tests/features/switch.feature` defines integration scenarios in Gherkin. The Python
+-step definitions in `tests/features/steps/switch_steps.py` load `libshlan.so` via
+-`ctypes` and call through the public C API.
+-
+-The BDD harness runs entirely in simulation using `sim_adapter.c` — an in-memory
+-adapter that models port state, frame forwarding, and register accesses without
+-hardware. This allows full end-to-end coverage of scenarios such as:
+-
+-- Talker Advertise received on port 0 floods to all other ports
+-- Listener declaration routes back to the port where the Talker is registered
+-- VID registration propagates across all ports
+-
+-Run with:
+-
+-```sh
+-behave tests/features/
+-```
+-
+----
+-
+-## 11. Known TODOs and Future Work
+-
+-### MSRP Listener FourPackedEvents decoding
+-
+-`mrpdu_parse` in `mrp_pdu.c` currently uses `mrp_three_unpack` for all attribute
+-types, including MSRP Listener attributes. MSRP Listener attributes use
+-`FourPackedEvents` (§35.2.1.4 / §10.8.2.10.2), not ThreePacked. The parser must
+-detect the MSRP Listener attribute type and call `mrp_four_unpack` instead. This is
+-marked with a NOTE comment at the top of `msrp.c` and in `mrp_pdu.c`.
+-
+-The encode side (`mrpdu_encode_vector`) similarly only writes ThreePacked bytes and
+-will need a FourPacked variant for Listener attributes.
+-
+-### RSTP port-role gating
+-
+-Per §10.3, MAP propagation must be restricted to Designated ports. When RSTP is
+-integrated, the `map_join` and `map_leave` callbacks in each application must gate
+-the returned port bitmask on RSTP port role. Root and Alternate ports must be
+-excluded to prevent bridging loops. TODO comments are present in `msrp.c` and `mrp.h`.
+-
+-### Hardware adapter
+-
+-Only `sim_adapter.c` (simulation) is currently implemented. A `hw_adapter.c` backed
+-by the register queue in `switch_ctrl.c` is needed for production use. The
+-`shlan_switch_ops` and `shlan_ctrl_ops` vtables define the interface it must satisfy.
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Architecture
++
++This page gives developers and integrators a map of the current boundaries.
++Start with the [developer guide](developer.md) for extension work.
++Use the [integrator guide](integrator.md) for platform work.
++
++## Ports and adapters
++
++~~~mermaid
++flowchart TD
++    Host[Host policy] --> Apps[Protocol applications]
++    Apps --> Vtable[Application callbacks]
++    Vtable --> MAD[Declaration state]
++    MAD --> Codec[PDU codec]
++    MAD --> Clock[Timer port]
++    MAD --> Heap[Allocation port]
++    Host --> Switch[Switch operations]
++    Switch --> Sim[Simulation adapter]
++    Driver[Future hardware driver] -.-> Queue[Register queue]
++~~~
++
++The [application callbacks](../src/include/shish_lan/mrp.h) connect applications to the [declaration state](../src/core/mrp_mad.c).
++The [codec](../src/core/mrp_pdu.c) parses payloads and provides encoding helpers.
++The [timer port](../src/ports/timer.h) and [allocation port](../src/ports/alloc.h) isolate platform services.
++
++The [switch operations](../src/include/shish_lan/switch.h) control ports independently of MRP.
++The [simulation adapter](../src/modules/sim_adapter.c) implements those operations in memory.
++The [register queue](../src/core/switch_ctrl.c) is separate and excluded from the current [build](../CMakeLists.txt).
++No hardware driver connects these pieces yet.
++
++## Receive path
++
++~~~mermaid
++flowchart TD
++    Payload[MRP payload] --> Parse[Parse vectors]
++    Parse --> Decode[Decode value]
++    Decode --> State[Apply event]
++    State --> Notify[Notify host]
++    Notify --> Policy[Choose propagation ports]
++    Policy --> Declare[Declare on target ports]
++~~~
++
++The host passes payloads to [mrp_rx](../src/core/mrp_mad.c).
++The [parser](../src/core/mrp_pdu.c) calls the application's [decode callback](../src/include/shish_lan/mrp.h).
++The [state engine](../src/core/mrp_mad.c) then delivers indications and applies propagation policy.
++Only the [stream application](../src/modules/msrp.c) currently supplies propagation callbacks.
++
++Propagation updates target Applicants through [mrp_mad_join](../src/core/mrp_mad.c) with the new flag false.
++The Registrar ignores that local Join event.
++This prevents recursive indications on target ports.
++It does not establish network loop safety.
++
++## Missing boundary
++
++~~~mermaid
++flowchart LR
++    Declare[Local declaration] --> Pending[Pending state]
++    Pending -.-> Assembly[Missing transmit assembly]
++    Assembly -.-> Frame[Missing frame transport]
++~~~
++
++The [state engine](../src/core/mrp_mad.c) stores pending transmit actions.
++No public API drains them into frames.
++The [encoding helpers](../src/include/shish_lan/mrp_pdu.h) do not complete this boundary.
++See the [scope matrix](manager.md#implementation-status) before making interoperability claims.
++
++## Test layout
++
++| Entry | Purpose |
++| --- | --- |
++| [Unit runner](../tests/unit/main.c) | Codec suite runner. |
++| [Scenario bindings](../tests/features/switch_bindings.c) | Switch wrapper bindings. |
++
++Use the [tester guide](tester.md) to run these checks and interpret their limits.
+diff --git a/doc/developer.md b/doc/developer.md
+new file mode 100644
+index 0000000..5d02af5
+--- /dev/null
++++ b/doc/developer.md
+@@ -0,0 +1,311 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Developer guide
++
++Use this guide to change protocol behavior or add an application.
++Read the [architecture](architecture.md) and [coding rules](../CONTRIBUTING.md#coding-rules) first.
++Run the [codec tests](tester.md#run-the-existing-codec-tests) before and after changes.
++
++## Code map
++
++| Boundary | Source | Responsibility |
++| --- | --- | --- |
++| Public MRP API | [MRP interface](../src/include/shish_lan/mrp.h) | Application callbacks, events, state names, and observation. |
++| Declaration engine | [MRP state implementation](../src/core/mrp_mad.c) | State transitions, timers, attribute storage, and propagation. |
++| Wire codec | [Codec interface](../src/include/shish_lan/mrp_pdu.h), [implementation](../src/core/mrp_pdu.c) | Payload parsing and small encoding helpers. |
++| VLAN application | [VLAN interface](../src/include/shish_lan/mvrp.h), [implementation](../src/modules/mvrp.c) | VLAN values and registration callbacks. |
++| MAC application | [MAC interface](../src/include/shish_lan/mmrp.h), [implementation](../src/modules/mmrp.c) | MAC and service values. |
++| Stream application | [Stream interface](../src/include/shish_lan/msrp.h), [implementation](../src/modules/msrp.c) | Talker and Listener values, plus propagation policy. |
++| Platform services | [Allocation](../src/ports/alloc.h), [timers](../src/ports/timer.h) | Replaceable platform boundaries. |
++| Switch control | [Switch operations](../src/include/shish_lan/switch.h), [register queue](../src/include/shish_lan/switch_ctrl.h) | Independent hardware integration surfaces. |
++| Host tests | [Runner](../tests/unit/main.c), [codec suite](../tests/unit/mrp_pdu_test.c), [scenario bindings](../tests/features/switch_bindings.c), [steps](../tests/features/steps/switch_steps.py) | Codec assertions and switch-operation scenarios. |
++
++The layers use ports and adapters.
++The [mrp_app_ops](../src/include/shish_lan/mrp.h) interface separates application meaning from protocol events.
++It does not provide a frame transport.
++The [switch operations](../src/include/shish_lan/switch.h) interface does not transport MRPDUs either.
++
++## Data structures
++
++~~~mermaid
++flowchart TD
++    App[Application handle] --> Ops[Copied callbacks]
++    Ops --> Context[Borrowed host context]
++    App --> Private[Private state]
++    Private --> Port[Port array]
++    Port --> List[Attribute list]
++    Port --> Timers[Port timers]
++    List --> Value[Value and identity]
++    List --> Machines[Applicant and Registrar]
++    List --> Leave[Leave timer]
++~~~
++
++The [application handle](../src/include/shish_lan/mrp.h) owns a copied callback table and private state.
++The [private structures](../src/core/mrp_mad.c) allocate a flexible port array and linked attribute lists.
++Port timers drive LeaveAll and periodic events; each attribute has its own Leave timer.
++Each attribute stores up to 48 bytes.
++The [parser](../src/core/mrp_pdu.c) uses a 64-byte temporary value buffer.
++Keep decoded values within both limits.
++
++The [attr_len](../src/include/shish_lan/mrp.h) callback gives the wire length.
++The optional [attr_mem_len](../src/include/shish_lan/mrp.h) callback gives the stored length.
++The [stream adapter](../src/modules/msrp.c) uses host-endian Talker structures and nine stored bytes for Listeners.
++The [attr_cmp](../src/include/shish_lan/mrp.h) callback defines identity.
++Existing values are refreshed when that identity matches.
++
++The [host context](../src/include/shish_lan/mrp.h) remains caller-owned.
++Keep it valid for the application lifetime.
++Attribute instances remain allocated until destruction.
++Read the [timer lifetime limitation](integrator.md#lifetime-and-concurrency) before destroying an application.
++
++## State machines
++
++The reference is [IEEE 802.1Q-2018, clause 10.7](https://standards.ieee.org/ieee/802.1Q/6844/).
++Applicant and Registrar state belong to each attribute on each port.
++LeaveAll and PeriodicTransmission state belong to each port.
++The [implementation](../src/core/mrp_mad.c) uses two lookup tables and two event handlers.
++
++The graphs below show selected paths checked against the normative tables.
++Each comparison states its scope and links implementation differences.
++They describe full participants unless a condition says otherwise.
++They omit other event paths and most unchanged transitions.
++They are not a complete conformance model or evidence of tested behavior.
++
++### Applicant declarations
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [declaration rows](../src/core/mrp_mad.c#L124-L173) and [Applicant handler](../src/core/mrp_mad.c#L495-L505).
++
++~~~mermaid
++stateDiagram-v2
++    [*] --> VO: Begin
++    VO --> VP: Join
++    VO --> VN: New
++    VN --> AN: tx / New
++    AN --> QA: tx / New, Registrar IN
++    AN --> AA: tx / New, Registrar not IN
++    VP --> AA: tx / Join
++    AA --> QA: tx / Join
++    QA --> QA: Join
++~~~
++
++These abbreviations name [Applicant states](../src/include/shish_lan/mrp.h).
++VO means Very anxious Observer; VP means Very anxious Passive.
++VN means Very anxious New; AN means Anxious New.
++AA means Anxious Active; QA means Quiet Active.
++Transmit labels describe required protocol actions.
++The [implementation](../src/core/mrp_mad.c#L495-L505) only records pending messages.
++
++Comparison: matches the table for the displayed transitions, including the Registrar condition.
++Transmission assumes sufficient frame space, as required by [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, note 7](https://standards.ieee.org/ieee/802.1Q/6844/).
++
++| Implementation difference | Code evidence |
++| --- | --- |
++| Transmitting from AN always reaches QA; the Registrar condition is absent. | [Transmit row](../src/core/mrp_mad.c#L155-L156). |
++| Join moves QA to AA; the table keeps QA. Join leaves LA unchanged; the table requires AA. | [Join row](../src/core/mrp_mad.c#L132-L139). |
++| New leaves AA, QA, and LA unchanged; the table requires VN. | [New row](../src/core/mrp_mad.c#L124-L131). |
++| Transmission from QA schedules In or Mt; the table permits an optional Join. | [Transmit row](../src/core/mrp_mad.c#L159-L160). |
++
++The [Applicant handler](../src/core/mrp_mad.c#L495-L505) has no frame-space check or transmit-opportunity request on state entry.
++No public operation completes the transmit cycle.
++
++### Applicant observation
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [receive-event rows](../src/core/mrp_mad.c#L212-L238).
++
++~~~mermaid
++stateDiagram-v2
++    direction LR
++    VO --> AO: rJoinIn, shared
++    AO --> QO: rJoinIn
++    QO --> AO: rJoinMt
++    VP --> AP: rJoinIn, shared
++    AP --> QP: rJoinIn
++    QP --> AP: rJoinMt
++~~~
++
++AO means Anxious Observer; QO means Quiet Observer.
++AP means Anxious Passive; QP means Quiet Passive.
++These names come from the [state enum](../src/include/shish_lan/mrp.h).
++The prefix r marks a received event.
++Shared means the point-to-point subset is disabled and the operational MAC is not point-to-point.
++Comparison: matches the table for the displayed transitions with that condition.
++Local Join moves AO to AP and QO to QP in the [Applicant table](../src/core/mrp_mad.c#L132-L139).
++
++| Implementation difference | Code evidence |
++| --- | --- |
++| The VO and VP receive transitions ignore the shared-link condition. | [Receive row](../src/core/mrp_mad.c#L212-L219), [handler](../src/core/mrp_mad.c#L495-L505). |
++| Received JoinIn moves LA to QO; the table keeps LA. | [Receive row](../src/core/mrp_mad.c#L216-L218). |
++| Received In moves AA to QA without the required operational point-to-point condition. | [Received In row](../src/core/mrp_mad.c#L228-L232). |
++
++The conditions come from [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 3–5](https://standards.ieee.org/ieee/802.1Q/6844/).
++
++### Applicant withdrawal
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [withdrawal row](../src/core/mrp_mad.c#L140-L147) and [transmit rows](../src/core/mrp_mad.c#L148-L209).
++
++~~~mermaid
++stateDiagram-v2
++    VN --> LA: Leave
++    AN --> LA: Leave
++    AA --> LA: Leave
++    QA --> LA: Leave
++    LA --> VO: tx / Leave
++    LO --> VO: tx / In or Mt
++~~~
++
++LA means Leaving Active; LO means Leaving Observer.
++See the [state enum](../src/include/shish_lan/mrp.h) for all twelve states.
++Comparison: matches the table for the displayed transitions when the frame has space.
++The [implementation](../src/core/mrp_mad.c#L161-L162) instead sends LA to LO on ordinary transmission.
++
++Other recovery paths also differ from [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/).
++
++| Event | Implementation difference | Code evidence |
++| --- | --- | --- |
++| Transmit with LeaveAll | VP enters LO, not AA, and schedules Join instead of In or Mt. | [VP entry](../src/core/mrp_mad.c#L177-L178). |
++| Transmit with LeaveAll | AN and AA enter VP, not QA. | [AN and AA entries](../src/core/mrp_mad.c#L181-L184). |
++| Transmit with LeaveAll | LA schedules Leave instead of optional In or Mt. | [LA entry](../src/core/mrp_mad.c#L187-L188). |
++| Transmit with LeaveAll | QP enters LO with In or Mt; the table requires QA with Join. | [QP entry](../src/core/mrp_mad.c#L195-L196). |
++| Full frame with LeaveAll | QP stays QP instead of entering VP. | [Full-frame row](../src/core/mrp_mad.c#L200-L209). |
++| Received Leave, LeaveAll, or re-declaration | AN enters VP instead of VN; QA stays QA instead of entering VP; LA enters LO instead of staying LA. | [Recovery rows](../src/core/mrp_mad.c#L239-L260). |
++| Periodic event | QA and QP remain quiet instead of becoming AA and AP. AA and AP schedule Join without a table action. | [Periodic row](../src/core/mrp_mad.c#L261-L268). |
++
++Participant variants also require event filtering and state restrictions.
++The [unconditional handler](../src/core/mrp_mad.c#L495-L505) does not implement those rules.
++Reference: [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3, notes 1–4 and 12](https://standards.ieee.org/ieee/802.1Q/6844/).
++
++### Registrar
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [Registrar table](../src/core/mrp_mad.c#L311-L395) and [indication handler](../src/core/mrp_mad.c#L550-L582).
++
++~~~mermaid
++stateDiagram-v2
++    [*] --> MT: Begin
++    MT --> IN: rNew or rJoin
++    IN --> IN: rNew
++    IN --> LV: rLv or rLA
++    LV --> IN: rNew or rJoin
++    LV --> MT: leave timer
++    IN --> MT: Flush
++    LV --> MT: Flush
++~~~
++
++IN means registered; LV means leaving; MT means empty.
++The prefix r marks reception; Join includes JoinIn and JoinMt.
++Comparison: matches the table for the displayed state transitions.
++The graph omits indication and timer actions.
++The [Registrar table](../src/core/mrp_mad.c#L330-L334) also enters LV on transmit-with-LeaveAll.
++Its [re-declaration row](../src/core/mrp_mad.c#L377-L382) does the same.
++Local Join and Leave events do not change Registrar state.
++
++| Implementation difference | Code evidence |
++| --- | --- |
++| Local New drives registration, although the table defines received New only. | [Local New row](../src/core/mrp_mad.c#L318-L323), [event delivery](../src/core/mrp_mad.c#L614-L625). |
++| Received Join in LV emits an extra Join indication. The table stops the Leave timer and enters IN without that indication. | [Join rows](../src/core/mrp_mad.c#L343-L354), [callback](../src/core/mrp_mad.c#L571-L574). |
++| Received LeaveAll delivers rLA! across all attribute types on the port. It affects both Applicants and Registrars. | [Receive handler](../src/core/mrp_mad.c#L835-L841), [issue #7](https://github.com/kebag-logic/lwSRP/issues/7). |
++
++The extra indication also invokes propagation policy.
++The standard limits received LeaveAll to the message's attribute type: [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/).
++A Listener LeaveAll therefore also moves Talker registrations from IN to LV in the current implementation.
++The [parser](../src/core/mrp_pdu.c#L154-L155) delivers LeaveAll once per marked vector.
++
++### LeaveAll
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [la_event](../src/core/mrp_mad.c#L639-L673).
++
++~~~mermaid
++stateDiagram-v2
++    direction LR
++    [*] --> Passive: Begin
++    Passive --> Active: timer
++    Active --> Passive: tx or rLA
++    Active --> Active: timer
++    Passive --> Passive: rLA
++~~~
++
++Comparison: matches the table for the displayed state transitions.
++Begin resets either state to Passive.
++Begin, reception, and expiry restart the timer; expiry requests transmission.
++Active transmission requires a LeaveAll message and local LeaveAll processing.
++
++| Implementation difference | Code evidence |
++| --- | --- |
++| Active transmission restarts the timer; the table does not specify that action. | [Transmit branch](../src/core/mrp_mad.c#L648-L656). |
++| Transmission broadcasts a local event but sends no LeaveAll message. It lacks a public caller. | [Transmit branch](../src/core/mrp_mad.c#L648-L656), [public operations](../src/core/mrp_mad.c#L735-L882). |
++| The timer interval is fixed instead of randomized. | [Timer arming](../src/core/mrp_mad.c#L639-L668). |
++
++The interval rule is in [IEEE 802.1Q-2018, clause 10.7.4.3](https://standards.ieee.org/ieee/802.1Q/6844/).
++An active state does not prove that a LeaveAll frame was sent.
++
++### PeriodicTransmission
++
++Reference: [IEEE 802.1Q-2018, clause 10.7.10, Table 10-6](https://standards.ieee.org/ieee/802.1Q/6844/).
++Evidence: [pt_event](../src/core/mrp_mad.c#L679-L700) and [mrp_set_periodic](../src/core/mrp_mad.c#L871-L882).
++
++~~~mermaid
++stateDiagram-v2
++    direction LR
++    [*] --> Active: Begin
++    Active --> Active: timer
++    Active --> Passive: disable
++    Passive --> Active: enable
++~~~
++
++Comparison: matches the table for the displayed state transitions.
++Begin activates either state and arms the timer.
++Enable arms the timer when Passive; Active expiry rearms it and generates a periodic event.
++
++| Implementation difference | Code evidence |
++| --- | --- |
++| The periodic interval is 20 centiseconds instead of one second. | [Begin and expiry](../src/core/mrp_mad.c#L683-L693), [enable](../src/core/mrp_mad.c#L875-L877). |
++| Disable additionally stops the timer; the table only changes state. | [Disable branch](../src/core/mrp_mad.c#L878-L881). |
++
++The interval is specified by [IEEE 802.1Q-2018, clause 10.7.4.4](https://standards.ieee.org/ieee/802.1Q/6844/).
++The [expiry handler](../src/core/mrp_mad.c#L688-L694) broadcasts the periodic event and marks transmission pending.
++The [Applicant periodic row](../src/core/mrp_mad.c#L261-L268) then diverges as listed above.
++No frame is emitted.
++Read the [timer integration sequence](integrator.md#drive-time) before using this API.
++
++## Add an application
++
++~~~mermaid
++flowchart TD
++    Identity[Define identity] --> Codec[Encode and decode]
++    Codec --> Indicate[Handle indications]
++    Indicate --> Policy[Choose propagation]
++    Policy --> Create[Create application]
++    Create --> Verify[Exercise events]
++~~~
++
++1. Define attribute types, wire lengths, and in-memory layouts beside a [public application interface](../src/include/shish_lan/mvrp.h).
++2. Implement [encode_attr, decode_attr, attr_len, and attr_cmp](../src/include/shish_lan/mrp.h).
++3. Provide [attr_mem_len](../src/include/shish_lan/mrp.h) when wire and stored sizes differ.
++4. Provide [attr_has_subtype](../src/include/shish_lan/mrp.h) when reception includes a subtype vector.
++5. Implement [join_ind and leave_ind](../src/include/shish_lan/mrp.h) with a valid host context.
++6. Set optional [map_join and map_leave](../src/include/shish_lan/mrp.h) callbacks only when propagation is required.
++7. Set protocol identifiers and call [mrp_app_create](../src/core/mrp_mad.c).
++8. Add the application to the appropriate [build source list](../CMakeLists.txt).
++9. Add meaningful [tests](tester.md#coverage) for values, malformed payloads, timers, and state transitions.
++
++Return propagation masks using at most 32 bits.
++The [VLAN](../src/modules/mvrp.c) and [MAC](../src/modules/mmrp.c) adapters currently leave propagation callbacks unset.
++The [stream adapter](../src/modules/msrp.c) supplies them, but lacks topology filtering.
++It ignores vector offsets when decoding stream values.
++Include multi-value wire cases when extending it.
++
++## Add an adapter
++
++Implement the [switch operations](../src/include/shish_lan/switch.h) and allocate a handle with adapter state.
++Use the [simulation adapter](../src/modules/sim_adapter.c) as a lifecycle example.
++There is no generic switch factory despite the interface comment.
++Define your own create and destroy operations.
++Follow the [integration sequences](integrator.md#switch-adapter-sequence) for initialization and teardown.
++
++Hardware register access can use the [queue interface](../src/include/shish_lan/switch_ctrl.h).
++Include its [implementation](../src/core/switch_ctrl.c) explicitly in the platform build.
++Add frame transport and transmit assembly separately.
++Neither operation is supplied by the current switch interface.
+diff --git a/doc/integrator.md b/doc/integrator.md
+new file mode 100644
+index 0000000..b487c3b
+--- /dev/null
++++ b/doc/integrator.md
+@@ -0,0 +1,248 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Integrator guide
++
++Use this guide to connect platform services and plan hardware integration.
++Start with the [scope matrix](manager.md#implementation-status).
++The current library supports state and receive-path experiments.
++It cannot yet provide complete network registration or resource reservation.
++
++## Build choices
++
++The [root build definition](../CMakeLists.txt) selects between host and embedded module builds.
++
++| Setting | Current behavior |
++| --- | --- |
++| Host build | Produces a shared library with applications, ports, and simulation. |
++| C language | Requires [C11](https://www.iso.org/standard/57853.html). |
++| [CMAKE_BUILD_TYPE](https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html) set to Debug | Adds compiler debugging information through [CMake](https://cmake.org/cmake/help/latest/). |
++| Export compile commands | Enabled by the [build definition](../CMakeLists.txt). |
++| Unit dependency found | Builds the [codec test runner](../tests/unit/main.c) with nine tests. |
++| Unit dependency absent | Host configuration fails. Headers and library are required. |
++| [ZEPHYR_BASE](../CMakeLists.txt) defined | Selects the module branch and returns before host configuration. |
++| [CONFIG_LWSRP](../Kconfig.zephyr) enabled | Builds protocol sources and default allocation and timer ports. |
++
++There are no project options for hardware selection, coverage, or transmit assembly.
++The [register queue](../src/core/switch_ctrl.c) is absent from both source lists.
++The [build wrapper](../build.sh) only creates an environment and sets variables inside its process.
++It does not build the library.
++Use the [quick start commands](../README.md#quick-start).
++
++## Port platform services
++
++| Service | Replace or drive | Contract |
++| --- | --- | --- |
++| Allocation | [Allocation implementation](../src/ports/alloc.c) | Supply allocation, zeroed allocation, and matching release. |
++| Printing | [shlan_printf](../src/ports/alloc.h) | Preserve formatted output and return behavior. |
++| Timing | [Timer implementation](../src/ports/timer.c) | Advance once per centisecond, or supply an equivalent callback service. |
++
++Replace each default translation unit in your platform build.
++Do not link duplicate definitions.
++The [allocation interface](../src/ports/alloc.h) declares [shlan_malloc, shlan_calloc, and shlan_free](../src/ports/alloc.h).
++The default implementation uses the C library.
++The [timer interface](../src/ports/timer.h) defines initialization, one-shot arming, cancellation, and ticking.
++
++## Create and declare
++
++~~~mermaid
++sequenceDiagram
++    participant Host
++    participant App as Protocol application
++    participant Core as MRP state
++    participant Timer as Timer service
++    Host->>App: Create with ports and callbacks
++    App->>Core: Copy operations and allocate state
++    Core->>Timer: Register and arm port timers
++    App-->>Host: Handle or null
++    Host->>App: Declare a value
++    App->>Core: Apply local event
++    Core-->>Host: Status code
++~~~
++
++Use zero-based port identifiers within the created port count.
++Validate them before calls; most [MRP operations](../src/core/mrp_mad.c) do not check bounds.
++Limit propagation to 32 ports.
++Keep a non-null callback context alive throughout the application lifetime.
++Check creation for null and declarations for negative results.
++
++| Application | Create | Declare | Withdraw |
++| --- | --- | --- | --- |
++| VLAN | [mvrp_app_create](../src/modules/mvrp.c) | [mvrp_declare](../src/modules/mvrp.c) | [mvrp_withdraw](../src/modules/mvrp.c) |
++| MAC | [mmrp_app_create](../src/modules/mmrp.c) | [mmrp_declare_mac or mmrp_declare_svc](../src/modules/mmrp.c) | [mmrp_withdraw_mac or mmrp_withdraw_svc](../src/modules/mmrp.c) |
++| Stream | [msrp_app_create](../src/modules/msrp.c) | [msrp_declare_talker or msrp_declare_listener](../src/modules/msrp.c) | [msrp_withdraw_talker or msrp_withdraw_listener](../src/modules/msrp.c) |
++
++VLAN identifiers must be between 1 and 4094.
++The [receive decoder](../src/modules/mvrp.c) checks this range; the declaration wrapper does not.
++The [MAC adapter](../src/modules/mmrp.c) accepts MAC addresses or service requirements.
++The [stream interface](../src/include/shish_lan/msrp.h) defines Talker structures and Listener declaration values.
++Local declarations update state without sending frames.
++
++## Receive and observe
++
++~~~mermaid
++sequenceDiagram
++    participant Host
++    participant Core as MRP state
++    participant Codec
++    participant Policy as Host callbacks
++    Host->>Core: Submit payload and ingress port
++    Core->>Codec: Parse attribute vectors
++    Codec->>Core: Deliver decoded events
++    Core->>Policy: Registration indication
++    Core->>Core: Apply optional propagation
++    Core->>Host: Report state transition
++    Core-->>Host: Parse result
++~~~
++
++Pass an MRPDU payload to [mrp_rx](../src/core/mrp_mad.c), starting at the protocol version byte.
++Strip Ethernet framing and select the matching application first.
++The [application interface](../src/include/shish_lan/mrp.h) supplies protocol identifiers.
++The library does not receive network frames itself.
++
++For transmit integration, the [stream destination constant](../src/modules/msrp.c#L352-L353) is currently 91-E0-F0-00-0E-80.
++MSRPDUs require 01-80-C2-00-00-0E under [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/).
++Do not use the current constant for conforming transmission.
++Track the correction in [issue #6](https://github.com/kebag-logic/lwSRP/issues/6).
++
++Register [mrp_set_observer](../src/include/shish_lan/mrp.h) before events when transition records are needed.
++Use [mrp_attr_visit](../src/include/shish_lan/mrp.h) for current attribute state.
++Use [mrp_port_status](../src/include/shish_lan/mrp.h) for LeaveAll and periodic state.
++The observer reports changed Applicant or Registrar states only.
++Callbacks run synchronously.
++Copy values that must survive the callback.
++
++The [parser](../src/core/mrp_pdu.c) can deliver earlier events before rejecting later malformed data.
++A negative return does not roll back state.
++The parser ignores protocol version differences and does not enforce the stream attribute-list length.
++Validate untrusted inputs and review the [coverage gaps](tester.md#coverage).
++
++The [LeaveAll handler](../src/core/mrp_mad.c#L835-L841) ignores attribute type and delivers rLA! to every attribute instance on the port.
++This affects both Applicants and Registrars, including unrelated types.
++A Listener LeaveAll can therefore move Talker registrations from IN to LV.
++The [parser](../src/core/mrp_pdu.c#L154-L155) invokes that handler once per marked vector.
++The standard requires type-specific delivery: [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/).
++Track this receive-path limitation in [issue #7](https://github.com/kebag-logic/lwSRP/issues/7).
++
++## Drive time
++
++~~~mermaid
++sequenceDiagram
++    participant Platform
++    participant Timer as Global timer list
++    participant Core as All applications
++    loop Once per centisecond
++        Platform->>Timer: Advance one tick
++        Timer->>Core: Run expired callbacks
++        Core->>Core: Apply events and rearm
++    end
++~~~
++
++Call [shlan_timer_tick](../src/ports/timer.c) once per centisecond for the whole library.
++Alternatively, one call to [mrp_tick](../src/core/mrp_mad.c) advances that same global list.
++Do not call both.
++The [module help text](../Kconfig.zephyr#L5-L6) conflicts with this requirement by requesting both calls.
++Do not call the latter once per port or application.
++It ignores its arguments and advances all timers.
++
++The [port timer handlers](../src/core/mrp_mad.c#L639-L700) use 20 centiseconds for periodic events and 1000 for LeaveAll.
++The [Registrar timer action](../src/core/mrp_mad.c#L560-L564) arms Leave for 60 centiseconds using the [Leave interval](../src/include/shish_lan/mrp.h#L118).
++Periodic timing differs from the one-second interval in [IEEE 802.1Q-2018, clause 10.7.4.4](https://standards.ieee.org/ieee/802.1Q/6844/).
++LeaveAll lacks the randomization required by [IEEE 802.1Q-2018, clause 10.7.4.3](https://standards.ieee.org/ieee/802.1Q/6844/).
++See the [state comparison](developer.md#state-machines) before relying on timer behavior.
++
++Use [mrp_set_periodic](../src/include/shish_lan/mrp.h) to enable or disable periodic events on a port.
++Use [mrp_port_role_change](../src/include/shish_lan/mrp.h) to deliver Flush or Re-declare events.
++These calls do not implement topology discovery or propagation filtering.
++
++## Lifetime and concurrency
++
++~~~mermaid
++sequenceDiagram
++    participant Host
++    participant Core as MRP state
++    participant Timer as Global timer service
++    Host->>Core: Withdraw local declarations
++    Note over Host,Core: Withdrawal does not send a frame
++    Host->>Timer: Stop all future ticks and callbacks
++    Host->>Core: Destroy application
++    Note over Host,Timer: Current timer list retains freed links
++~~~
++
++Call the matching [application destroy operation](../src/include/shish_lan/mrp.h) only after all callbacks and accesses have stopped.
++The [destructor](../src/core/mrp_mad.c) frees embedded timers without unlinking them from the [global list](../src/ports/timer.c).
++Any later tick can access freed memory.
++Avoid application destruction and recreation while the timer service remains usable.
++A timer lifetime fix is required for dynamic deployment.
++
++Serialize receive, declaration, timer, and destruction operations.
++The [protocol state](../src/core/mrp_mad.c) and [timer list](../src/ports/timer.c) provide no locks.
++Keep callbacks short and avoid reentry into the same application.
++Do not mistake the separate register queue's concurrency contract for protocol thread safety.
++
++## Switch adapter sequence
++
++~~~mermaid
++sequenceDiagram
++    participant Host
++    participant Adapter
++    Host->>Adapter: Create
++    Adapter-->>Host: Switch handle
++    Host->>Adapter: Connect
++    Host->>Adapter: Enable or disable port
++    Adapter-->>Host: Status code
++    Host->>Adapter: Disconnect
++    Host->>Adapter: Destroy
++~~~
++
++Use [shlan_sim_adapter_create](../src/modules/sim_adapter.c) and [shlan_sim_adapter_destroy](../src/modules/sim_adapter.c) for simulation.
++Call [shlan_connect, shlan_port_enable, shlan_port_disable, and shlan_disconnect](../src/include/shish_lan/switch.h) through the switch handle.
++These wrappers are inline C functions.
++They are not exported entry points for dynamic foreign-function loading.
++The host [scenario bindings](../tests/features/switch_bindings.c) export separate test entry points that call these wrappers.
++The [scenario setup](../tests/features/environment.py) loads those bindings.
++
++| Simulation provides | A real adapter must provide |
++| --- | --- |
++| 48 in-memory port flags. | Hardware port configuration and error handling. |
++| Connection resets flags. | Hardware initialization and shutdown. |
++| Range checks for port operations. | Platform limits and synchronization. |
++| No forwarding or register model. | Frame transport and any register bus access. |
++
++The [simulation implementation](../src/modules/sim_adapter.c) supplies only the left column.
++No real adapter is included.
++
++## Register queue sequence
++
++~~~mermaid
++sequenceDiagram
++    participant Producer
++    participant Queue
++    participant Driver as Single consumer
++    participant Bus
++    Producer->>Queue: Enqueue descriptor
++    Driver->>Queue: Dispatch
++    Driver->>Bus: Read or write
++    Bus-->>Driver: Result
++    Driver->>Producer: Completion callback
++~~~
++
++Initialize with [shlan_ctrl_queue_init](../src/include/shish_lan/switch_ctrl.h).
++Prepare descriptors with [shlan_ctrl_xfer_set](../src/include/shish_lan/switch_ctrl.h), then call [shlan_ctrl_enqueue](../src/include/shish_lan/switch_ctrl.h).
++One consumer calls [shlan_ctrl_dispatch](../src/include/shish_lan/switch_ctrl.h) with hardware callbacks.
++Follow the [descriptor lifetime and linked-chain contract](../src/include/shish_lan/switch_ctrl.h).
++A missing linked successor can block dispatch forever.
++Do not reuse a descriptor until a later dequeue releases its queue link.
++
++## Embedded module and bare metal
++
++The [Zephyr module](../zephyr/module.yml) points to the [root build definition](../CMakeLists.txt) and [configuration](../Kconfig.zephyr).
++Add the repository through the platform's [module mechanism](https://docs.zephyrproject.org/latest/develop/modules.html).
++Enable [CONFIG_LWSRP](../Kconfig.zephyr) in the application configuration.
++The module builds protocol sources with default platform ports.
++It supplies no application entry point, network driver, or board example.
++Target execution has not been verified here.
++
++Freestanding headers are planned.
++No pull request is available yet.
++For a custom integration, select the protocol sources from the [module source list](../CMakeLists.txt).
++Provide allocation, printing, and serialized timing.
++Resolve the lifetime and transmit gaps before production use.
+diff --git a/doc/manager.md b/doc/manager.md
+new file mode 100644
+index 0000000..acad597
+--- /dev/null
++++ b/doc/manager.md
+@@ -0,0 +1,92 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Manager guide
++
++Use lwSRP to explore protocol integration and attribute handling in C firmware.
++The current library is an early implementation base.
++It is not a complete bridge, reservation engine, or certified protocol stack.
++Use the matrix below to scope engineering work and acceptance evidence.
++
++## Implementation status
++
++Each row links the relevant standard area and implementation evidence.
++The status describes inspected code, not demonstrated standards conformance.
++The [state graphs](developer.md#state-machines) were checked against the normative tables.
++Their displayed transitions match the tables; the implementation differences below remain.
++
++| Standard area | Present in code | Missing or limited | Evidence |
++| --- | --- | --- | --- |
++| [IEEE 802.1Q-2018, clause 10.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Declaration requests and registration indications. | No complete network transmit path. | [State engine](../src/core/mrp_mad.c). |
++| [IEEE 802.1Q-2018, clause 10.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Optional propagation callbacks and 32-bit port masks. | No topology gating; VLAN and MAC callbacks are unset. | [Core](../src/core/mrp_mad.c), [VLAN](../src/modules/mvrp.c), [MAC](../src/modules/mmrp.c). |
++| [IEEE 802.1Q-2018, clause 10.5](https://standards.ieee.org/ieee/802.1Q/6844/) | Protocol identifiers and group addresses. | No link-layer send or receive adapter. | [Application interface](../src/include/shish_lan/mrp.h). |
++| [IEEE 802.1Q-2018, clause 10.7.5.20](https://standards.ieee.org/ieee/802.1Q/6844/) | Received LeaveAll dispatches rLA! to Applicants and Registrars. | Delivery crosses all attribute types on the port; the standard limits it to the message's type. | [Receive handler](../src/core/mrp_mad.c#L835-L841), [parser callback](../src/core/mrp_pdu.c#L154-L155), [issue #7](https://github.com/kebag-logic/lwSRP/issues/7). |
++| [IEEE 802.1Q-2018, clause 10.7.7, Table 10-3](https://standards.ieee.org/ieee/802.1Q/6844/) | Three graphs match the selected table paths. | Implementation differs on declaration, receive, withdrawal, recovery, and periodic events. Conditions and transmit scheduling are incomplete. | [Comparison](developer.md#applicant-declarations), [table](../src/core/mrp_mad.c#L116-L275), [handler](../src/core/mrp_mad.c#L495-L505). |
++| [IEEE 802.1Q-2018, clause 10.7.8, Table 10-4](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed state transitions. | Local New registers; received Join in LV emits an extra indication. | [Comparison](developer.md#registrar), [New row](../src/core/mrp_mad.c#L318-L323), [Join rows](../src/core/mrp_mad.c#L343-L354). |
++| [IEEE 802.1Q-2018, clause 10.7.9, Table 10-5](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed state transitions. | Transmit additionally restarts the timer. No LeaveAll frame is emitted. | [Comparison](developer.md#leaveall), [handler](../src/core/mrp_mad.c#L639-L673). |
++| [IEEE 802.1Q-2018, clause 10.7.10, Table 10-6](https://standards.ieee.org/ieee/802.1Q/6844/) | Graph matches the displayed state transitions. | Disable additionally stops the timer. Periodic interval and Applicant handling differ. | [Comparison](developer.md#periodictransmission), [expiry](../src/core/mrp_mad.c#L679-L700), [disable](../src/core/mrp_mad.c#L871-L882). |
++| [IEEE 802.1Q-2018, clauses 10.7.4.3, 10.7.4.4, and 10.7.11](https://standards.ieee.org/ieee/802.1Q/6844/) | Centisecond callback timers. | Periodic interval is 20 centiseconds instead of one second. LeaveAll lacks randomization; destroyed timers remain linked. | [Timer port](../src/ports/timer.c), [timer handlers](../src/core/mrp_mad.c#L639-L700). |
++| [IEEE 802.1Q-2018, clause 10.8.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Vector parsing and basic encoding helpers. | Encoder handles one value and no Listener subtype vector. | [Codec](../src/core/mrp_pdu.c). |
++| [IEEE 802.1Q-2018, clause 10.8.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Length checks for several input fields. | Version and stream attribute-list length are ignored; callbacks can precede a later error. | [Parser](../src/core/mrp_pdu.c). |
++| [IEEE 802.1Q-2018, clauses 10.9–10.12](https://standards.ieee.org/ieee/802.1Q/6844/) | MAC and service codecs with host callbacks. | No filtering database, mode enforcement, or propagation policy. | [MAC adapter](../src/modules/mmrp.c). |
++| [IEEE 802.1Q-2018, clause 11.2](https://standards.ieee.org/ieee/802.1Q/6844/) | VLAN codec and registration callbacks. | No VLAN table, database flush, or propagation policy. | [VLAN adapter](../src/modules/mvrp.c). |
++| [IEEE 802.1Q-2018, clauses 35.2.1.3, 35.2.2.4, and 35.2.2.8](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker Advertise, Talker Failed, and Listener values. | Domain attributes and resource admission are absent. | [Stream adapter](../src/modules/msrp.c). |
++| [IEEE 802.1Q-2018, clause 35.2.2.1 and Table 8-1](https://standards.ieee.org/ieee/802.1Q/6844/) | Stream destination constant is 91-E0-F0-00-0E-80. | MSRPDUs require 01-80-C2-00-00-0E. The current constant deviates from the standard. | [Destination constant](../src/modules/msrp.c#L352-L353), [issue #6](https://github.com/kebag-logic/lwSRP/issues/6). |
++| [IEEE 802.1Q-2018, clause 35.2.2.7.2](https://standards.ieee.org/ieee/802.1Q/6844/) | Listener subtype decoding after event vectors. | Stream decoding ignores vector offsets; subtype encoding is absent. | [Codec](../src/core/mrp_pdu.c), [stream adapter](../src/modules/msrp.c). |
++| [IEEE 802.1Q-2018, clause 35.2.3](https://standards.ieee.org/ieee/802.1Q/6844/) | Local declaration wrappers only. | Stream registration and attachment service primitives are absent. | [Public stream interface](../src/include/shish_lan/msrp.h#L78-L89). |
++| [IEEE 802.1Q-2018, clause 35.2.4](https://standards.ieee.org/ieee/802.1Q/6844/) | Talker flooding and Listener propagation toward registered Talkers. | No topology gating, bandwidth checks, or hardware reservation. | [Stream propagation policy](../src/modules/msrp.c#L132-L185). |
++
++No broader conformance claim follows from these rows.
++The [MAC interface comments](../src/include/shish_lan/mmrp.h) disagree with its constants about attribute type numbers.
++The [implementation](../src/modules/mmrp.c) uses service type 1 and MAC type 2.
++Treat interoperability verification as required work.
++
++## Maturity and evidence
++
++~~~mermaid
++flowchart TD
++    Review[Inspect implementation] --> Host[Run host checks]
++    Host --> Gaps[Resolve protocol gaps]
++    Gaps --> Target[Validate target integration]
++    Target --> Network[Run interoperability tests]
++    Network --> Release[Approve deployment]
++~~~
++
++The [host build](../CMakeLists.txt) succeeds.
++Its configured [unit runner](../tests/unit/main.c) passes nine codec tests with 1690 assertions.
++The [scenario harness](../tests/features/environment.py) passes three scenarios and ten steps through [test bindings](../tests/features/switch_bindings.c).
++Both [active-state and inactive-state assertions](../tests/features/steps/switch_steps.py#L26-L36) only repeat the operation and check its return code.
++Neither independently reads port state.
++A wrong disable binding that calls enable still passes all three scenarios.
++Track the coverage defect in [issue #4](https://github.com/kebag-logic/lwSRP/issues/4).
++The [tester guide](tester.md#coverage) describes what those checks cover.
++There is no measured coverage percentage.
++
++The [integration guide](integrator.md) documents a timer lifetime defect and global tick behavior.
++Hardware deployment, target builds, and network interoperability remain unverified.
++A passing build alone does not establish release readiness.
++
++## Planned work
++
++The transmit path, receive validation, registration updates, and freestanding headers are planned.
++Their pull requests are not available yet.
++
++## Plan work by role
++
++| Role | Action | Evidence to request |
++| --- | --- | --- |
++| Developer | Complete [protocol gaps](developer.md#state-machines). | State transitions, malformed-input cases, and transmit tests. |
++| Integrator | Implement [platform boundaries](integrator.md#port-platform-services). | Target build, lifetime checks, and network captures. |
++| Tester | Expand [coverage](tester.md#coverage). | Executed assertions and reproducible failure reports. |
++| Manager | Review [release scope](https://github.com/kebag-logic/lwSRP/issues/1). | Known gaps, licence readiness, and approval criteria. |
++
++## Licence and contributions
++
++The public-release licence is [Apache License, Version 2.0](../LICENSE).
++Read the [notice](../NOTICE).
++The [release issue](https://github.com/kebag-logic/lwSRP/issues/1) requires the separate licence work and documentation before publication.
++Licence files are supplied by that separate change.
++Verify their presence in the combined release tree.
++
++Individuals and companies contribute under the same licence.
++The [contribution guide](../CONTRIBUTING.md) defines coding rules, checks, and review expectations.
++Use the [issue tracker](https://github.com/kebag-logic/lwSRP/issues) to scope work.
++Use the [pull request process](../CONTRIBUTING.md#pull-requests) to submit evidence.
+diff --git a/doc/tester.md b/doc/tester.md
+new file mode 100644
+index 0000000..bf61536
+--- /dev/null
++++ b/doc/tester.md
+@@ -0,0 +1,123 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Tester guide
++
++Use this guide to reproduce the current checks and extend coverage.
++Read the [implementation status](manager.md#implementation-status) before interpreting a passing result.
++Keep each command's exit code in your test report.
++
++## Run the suites
++
++Install a [C11](https://www.iso.org/standard/57853.html) compiler, [CMake](https://cmake.org/cmake/help/latest/), [cgreen](https://github.com/cgreen-devs/cgreen), and [behave](https://behave.readthedocs.io/en/stable/).
++Make the unit framework's headers and library discoverable by the compiler and build system.
++Run these commands from the repository root.
++
++~~~sh
++cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
++cmake --build build --parallel 2
++ctest --test-dir build --output-on-failure
++./build/unit_tests
++behave
++behave --dry-run
++~~~
++
++| Check | Current result | Meaning |
++| --- | --- | --- |
++| Configure and build | Exit 0. | The host library and required unit target compile. |
++| Configured unit target | Exit 0; nine tests and 1690 assertions. | The [runner](../tests/unit/main.c) executes the [codec suite](../tests/unit/mrp_pdu_test.c). |
++| Scenario execution | Exit 0; three scenarios and ten steps pass. | The [setup hook](../tests/features/environment.py) loads the [test bindings](../tests/features/switch_bindings.c). |
++| Scenario dry run | Validates step matching only. | It does not execute setup or verify behavior. |
++
++The [build definition](../CMakeLists.txt) requires the unit framework's headers and library for host configuration.
++It rejects an empty suite through an output-based failure rule.
++The scenario hook loads the shared library from the root build directory.
++The [switch wrappers](../src/include/shish_lan/switch.h) are static inline functions.
++The [test bindings](../tests/features/switch_bindings.c) expose them through separate dynamic symbols.
++
++## Run the existing codec tests
++
++The [codec test source](../tests/unit/mrp_pdu_test.c) contains nine tests.
++The configured unit target includes them through the [suite runner](../tests/unit/main.c).
++For an isolated codec run, this command uses the same tests and the [codec implementation](../src/core/mrp_pdu.c).
++The [public headers](../src/include/shish_lan/mrp_pdu.h) define the tested helpers.
++Use a [C compiler](https://gcc.gnu.org/onlinedocs/gcc/) with the unit dependency available.
++
++~~~sh
++cc -std=c11 -Isrc/include tests/unit/mrp_pdu_test.c src/core/mrp_pdu.c -xc - -lcgreen -o build/mrp_pdu_tests <<'C'
++#include <cgreen/cgreen.h>
++TestSuite *mrp_pdu_suite(void);
++int main(void)
++{
++    return run_test_suite(mrp_pdu_suite(), create_text_reporter());
++}
++C
++./build/mrp_pdu_tests
++~~~
++
++The observed result is exit 0, with nine tests and 1690 passing assertions.
++This exercises packed events, vector headers, framing helpers, vector encoding, and one short-buffer rejection.
++It does not test parsing or state-machine behavior.
++
++## Write a scenario
++
++~~~mermaid
++flowchart TD
++    Behavior[Choose behavior] --> Given[Define starting state]
++    Given --> When[Perform one action]
++    When --> Then[Check observable result]
++    Then --> Match[Check step matching]
++    Match --> Execute[Run with working setup]
++~~~
++
++Start with the [switch feature](../tests/features/switch.feature).
++Use its [step definitions](../tests/features/steps/switch_steps.py) and [lifecycle hooks](../tests/features/environment.py).
++The following example uses existing step phrases.
++
++~~~gherkin
++Scenario: Enable a port
++  Given the switch is connected
++  When port 0 is enabled
++  Then port 0 should be active
++~~~
++
++Place new scenarios in the existing feature directory configured by [the runner settings](../behave.ini).
++Reuse matching steps or add a precise new step definition.
++Keep setup, action, and assertion separate.
++Run the dry-run command above to check matching.
++Run the real suite to execute setup and assertions.
++Both [active-state and inactive-state assertions](../tests/features/steps/switch_steps.py#L26-L36) only repeat the operation and check its return code.
++Neither independently reads port state.
++
++## Coverage
++
++~~~mermaid
++flowchart LR
++    Checks[Current checks] --> Codec[Nine codec tests]
++    Checks --> Scenarios[Three switch scenarios]
++    Scenarios --> Steps[Ten passing steps]
++    Missing[Coverage gaps] --> State[State and timer behavior]
++    Missing --> Wire[Parser and interoperability]
++    Missing --> Target[Hardware and lifecycle]
++~~~
++
++| Area | Current evidence | Next useful cases |
++| --- | --- | --- |
++| Packed values and encoding | [Nine codec tests](../tests/unit/mrp_pdu_test.c). | Multi-value encoding and malformed lengths. |
++| Switch operations | [Three passing scenarios](../tests/features/switch.feature); a wrong disable binding also passes all three. | Independent state queries and adapter failures; see [issue #4](https://github.com/kebag-logic/lwSRP/issues/4). |
++| Parser | No parser test in the current suite. | Truncation, version handling, subtype vectors, and list boundaries. |
++| MRP state | No wired state-machine suite. | Event tables, propagation masks, and callback order. |
++| Timers | No timer tests. | Global ticking, expiry, cancellation, and destruction. |
++| Hardware and network | No adapter or interoperability suite. | Target timing and packet captures after transmit implementation. |
++
++A [disable binding](../tests/features/switch_bindings.c) redirected to enable still passes all three scenarios.
++The active-state and inactive-state assertions repeat operations; they cannot establish port state.
++The defect is tracked in [issue #4](https://github.com/kebag-logic/lwSRP/issues/4).
++
++The [build definition](../CMakeLists.txt) has no coverage target or instrumentation option.
++No line or branch coverage percentage has been measured.
++Passing codec assertions do not demonstrate protocol conformance.
++
++## Documentation checks
++
++Run the [link, sentence, reference, and graph checks](tools/README.md).
++Report missing dependencies and failed links separately from successful checks.
++Include every graph render result and any unverified target behavior.
+diff --git a/doc/tools/README.md b/doc/tools/README.md
+new file mode 100644
+index 0000000..a3fe0d1
+--- /dev/null
++++ b/doc/tools/README.md
+@@ -0,0 +1,57 @@
++<!-- SPDX-License-Identifier: Apache-2.0 -->
++# Documentation checks
++
++These checks support authors, reviewers, and testers.
++Run them from the repository root with [Python](https://docs.python.org/3/).
++The scripts use its standard library.
++Install [Mermaid CLI](https://github.com/mermaid-js/mermaid-cli) for graph rendering.
++Its browser dependency must also be available.
++
++Set DOC_SCRATCH to a writable directory outside the checkout before rendering.
++Keep generated images and dependency installations there.
++
++~~~sh
++python3 doc/tools/check_sentences.py
++python3 doc/tools/check_references.py
++python3 doc/tools/check_references.py --self-test
++python3 doc/tools/check_links.py --github-auth
++python3 doc/tools/render_mermaid.py --output "$DOC_SCRATCH/graphs"
++~~~
++
++| Check | Scope and result |
++| --- | --- |
++| [Sentence checker](check_sentences.py) | Joins wrapped paragraphs and checks sentences, list items, headings, and table cells. |
++| [Reference checker](check_references.py) | Finds unlinked standards, clauses, files, issues, API identifiers, and known documentation tools. |
++| [Link checker](check_links.py) | Checks relative paths, local headings, source line ranges, and external responses. |
++| [Graph renderer](render_mermaid.py) | Extracts graphs, counts nodes, renders each graph, and reports each command's exit code. |
++| [Shared parser](common.py) | Scans root and documentation Markdown pages, including inline code in prose. |
++
++All checks return zero on success and nonzero on failure.
++No broken link is silently exempted.
++The required [licence](../../LICENSE) and [notice](../../NOTICE) links fail until the separate licence change is present.
++External access failures remain failures.
++
++While the repository is private, the link command uses authenticated access for repository URLs only.
++Sign in with the [GitHub CLI](https://cli.github.com/manual/) before running it.
++The checker derives the repository from the HTTPS origin remote and labels each authenticated result.
++It checks issue-comment fragments through the comment endpoint.
++Unsupported repository URLs fail explicitly.
++All other external URLs use anonymous HTTP requests.
++After publication, omit the authentication option to verify anonymous access.
++
++The sentence and reference checks list every fenced block as a syntax exception.
++Commands, graph labels, and code need literal syntax.
++Their file, API, standard, and tool references belong in nearby links.
++[SPDX](https://spdx.dev/) comments are metadata.
++There are no prose sentence exemptions.
++
++The parser supports the inline links and fences used by these pages.
++It does not implement every Markdown extension.
++The reference finder is a heuristic; reviewers must also read the prose.
++Its self-test checks bare standard names, inline code, linked references, and identifier boundaries.
++The graph counter supports these pages' explicit nodes and participants.
++Rendering checks syntax.
++Review the resulting images for readable labels and clear layout.
++
++An optional browser configuration can be passed through the renderer's help-documented option.
++Keep that environment-specific configuration outside the checkout.
+diff --git a/doc/tools/check_links.py b/doc/tools/check_links.py
+new file mode 100644
+index 0000000..f5660f1
+--- /dev/null
++++ b/doc/tools/check_links.py
+@@ -0,0 +1,132 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Check local paths, local heading fragments, and unique external URLs."""
++
++import argparse
++from concurrent.futures import ThreadPoolExecutor
++from functools import partial
++import re
++import subprocess
++import sys
++from urllib.error import HTTPError, URLError
++from urllib.parse import unquote, urlsplit
++from urllib.request import Request, urlopen
++
++sys.dont_write_bytecode = True
++from common import LINK, ROOT, anchors, pages, sections
++
++
++def repository_endpoint(url, repository):
++    """Map supported repository links to API endpoints without sending credentials elsewhere."""
++    parts = urlsplit(url)
++    prefix = f"/{repository}"
++    if parts.scheme != "https" or parts.netloc != "github.com":
++        return None
++    if parts.path != prefix and not parts.path.startswith(prefix + "/"):
++        return None
++    suffix = parts.path[len(prefix):].rstrip("/")
++    if parts.fragment:
++        comment = re.fullmatch(r"issuecomment-(\d+)", parts.fragment)
++        if comment and re.fullmatch(r"/(?:issues|pull)/\d+", suffix):
++            return f"repos/{repository}/issues/comments/{comment[1]}"
++        return ""
++    if suffix == "" or re.fullmatch(r"/(?:issues|pulls)(?:/\d+)?", suffix):
++        return f"repos/{repository}{suffix}"
++    if re.fullmatch(r"/pull/\d+", suffix):
++        return f"repos/{repository}/pulls/{suffix.rsplit('/', 1)[1]}"
++    return ""
++
++
++def authenticated_repository():
++    result = subprocess.run(
++        ["git", "remote", "get-url", "origin"], capture_output=True, text=True, timeout=30, check=True
++    )
++    match = re.fullmatch(r"https://github\.com/([\w.-]+/[\w.-]+?)(?:\.git)?", result.stdout.strip())
++    if not match:
++        raise ValueError("Authenticated checks require an HTTPS origin on github.com")
++    return match[1]
++
++
++def external(url, repository=None):
++    try:
++        endpoint = repository_endpoint(url, repository) if repository else None
++        if endpoint is not None:
++            if not endpoint:
++                return url, "authenticated: unsupported repository URL", False
++            result = subprocess.run(
++                ["gh", "api", "--hostname", "github.com", endpoint, "--silent"],
++                capture_output=True, text=True, timeout=60,
++            )
++            return url, f"authenticated; API rc={result.returncode}", result.returncode == 0
++        request = Request(url, headers={"User-Agent": "documentation-link-check/1.0"})
++        with urlopen(request, timeout=30) as response:
++            status = response.status
++            return url, f"anonymous; HTTP {status}", 200 <= status < 400
++    except HTTPError as error:
++        return url, f"anonymous; HTTP {error.code}", False
++    except (URLError, TimeoutError, OSError, subprocess.TimeoutExpired) as error:
++        return url, str(error), False
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--local-only", action="store_true", help="Skip external requests explicitly")
++    parser.add_argument("--github-auth", action="store_true", help="Authenticate origin repository links with the GitHub CLI")
++    args = parser.parse_args()
++    if args.local_only and args.github_auth:
++        parser.error("--local-only and --github-auth are mutually exclusive")
++    repository = None
++    if args.github_auth:
++        try:
++            repository = authenticated_repository()
++        except (OSError, ValueError, subprocess.SubprocessError) as error:
++            parser.error(str(error))
++    errors = 0
++    local_count = 0
++    urls = set()
++    for path in pages():
++        for kind, number, text in sections(path):
++            if kind != "prose":
++                continue
++            for match in LINK.finditer(text):
++                href = match[2]
++                parts = urlsplit(href)
++                if parts.scheme in ("http", "https"):
++                    urls.add(href)
++                    continue
++                if parts.scheme or parts.netloc:
++                    errors += 1
++                    print(f"FAIL {path.relative_to(ROOT)}:{number}: unsupported link {href}")
++                    continue
++                local_count += 1
++                target = (path.parent / unquote(parts.path)).resolve() if parts.path else path
++                reason = ""
++                if not target.is_relative_to(ROOT):
++                    reason = "outside repository"
++                elif not target.exists():
++                    reason = "missing target"
++                elif parts.fragment:
++                    fragment = unquote(parts.fragment)
++                    lines = re.fullmatch(r"L([1-9]\d*)(?:-L([1-9]\d*))?", fragment)
++                    if lines and target.is_file():
++                        first = int(lines[1])
++                        last = int(lines[2] or lines[1])
++                        if not first <= last <= len(target.read_text(encoding="utf-8").splitlines()):
++                            reason = "invalid line range"
++                    elif target.suffix != ".md" or fragment not in anchors(target):
++                        reason = "missing heading"
++                if reason:
++                    errors += 1
++                    print(f"FAIL {path.relative_to(ROOT)}:{number}: {href}: {reason}")
++    if not args.local_only:
++        with ThreadPoolExecutor(max_workers=4) as pool:
++            for url, status, okay in pool.map(partial(external, repository=repository), sorted(urls)):
++                print(f"{'PASS' if okay else 'FAIL'} {url}: {status}")
++                errors += not okay
++    else:
++        print(f"SKIP external URLs: {len(urls)}; requested local-only check")
++    print(f"Local links: {local_count}; external URLs: {len(urls)}; failures: {errors}")
++    return int(errors != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/doc/tools/check_references.py b/doc/tools/check_references.py
+new file mode 100644
+index 0000000..04ff6e1
+--- /dev/null
++++ b/doc/tools/check_references.py
+@@ -0,0 +1,87 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Find unlinked references in prose, including inline code."""
++
++import argparse
++import re
++import sys
++
++sys.dont_write_bytecode = True
++from common import ROOT, pages, plain, prose_units, syntax_exceptions
++
++PATTERNS = {
++    "standard": (
++        r"\b(?:IEEE|ISO(?:/IEC)?|IEC|SPDX|POSIX)\b|\b802\.1[A-Za-z0-9.-]+"
++        r"|\bC(?:89|90|95|99|11|17|18|23|2x|2y)\b"
++        r"|\bC\+\+(?:98|03|11|14|17|20|23|26)\b"
++    ),
++    "clause": r"(?:\bclauses?\s+|§\s*)\d+(?:\.\d+)*",
++    "table": r"\bTable\s+\d+-\d+",
++    "issue": r"\b(?:issue|PR|pull request)\s*#?\d+|(?<!\w)#\d+",
++    "file": r"\b[\w./-]+\.(?:md|c|h|py|sh|yml|yaml|ini|drawio|svg|feature|zephyr)\b|\bCMakeLists\.txt\b|\b(?:LICENSE|NOTICE)\b",
++    "function": r"\b[a-zA-Z_]\w*\([^\n)]*\)|\b(?:mrp|mrpdu|mvrp|mmrp|msrp|shlan)_[a-zA-Z0-9_]+\b",
++    "tool": r"\b(?:CMake|ctest|cgreen|behave|Mermaid|mermaid-cli|mmdc|Zephyr|Python|GCC|GitHub)\b",
++    "URL": r"https?://\S+",
++}
++
++
++def references(text):
++    text = plain(text, keep_labels=False)
++    for kind, pattern in PATTERNS.items():
++        flags = re.IGNORECASE if kind in ("clause", "issue", "table") else 0
++        for match in re.finditer(pattern, text, flags):
++            yield kind, match[0]
++
++
++def self_test():
++    """Exercise the same prose path as the checker without writing fixtures."""
++    cases = []
++    standards = (
++        "C89", "C90", "C95", "C99", "C11", "C17", "C18", "C23", "C2x", "C2y",
++        "C++98", "C++03", "C++11", "C++14", "C++17", "C++20", "C++23", "C++26",
++        "IEEE", "802.1Q-2018", "ISO/IEC 9899:2011", "IEC 61508", "POSIX", "SPDX",
++    )
++    for name in standards:
++        cases.extend([
++            (f"Use {name}.", "standard"),
++            (f"Use `{name}`.", "standard"),
++            (f"Use [{name}](https://example.org/reference).", None),
++        ])
++    cases.extend([
++        ("Use Kconfig.zephyr.", "file"),
++        ("Use `Kconfig.zephyr`.", "file"),
++        ("Use [Kconfig.zephyr](../../Kconfig.zephyr).", None),
++        ("The AC11 and C110 identifiers are ordinary prose.", None),
++        ("The C11_mode identifier is ordinary prose.", None),
++        ("Use [C11](https://www.iso.org/standard/57853.html) and C23.", "standard"),
++        ("Use [a compiler](https://example.org/C11).", None),
++    ])
++    failures = 0
++    for text, expected in cases:
++        found = list(references(text))
++        passed = (not found) if expected is None else len(found) == 1 and found[0][0] == expected
++        if not passed:
++            failures += 1
++            print(f"FAIL self-test: {text!r}: expected {expected!r}; found {found!r}")
++    print(f"Reference self-test: {len(cases)} cases; failures: {failures}")
++    return int(failures != 0)
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--self-test", action="store_true", help="check detection and link exclusion")
++    if parser.parse_args().self_test:
++        return self_test()
++    errors = 0
++    for path in pages():
++        for exception in syntax_exceptions(path):
++            print(f"SYNTAX {exception}")
++        for number, text in prose_units(path):
++            for kind, reference in references(text):
++                errors += 1
++                print(f"FAIL {path.relative_to(ROOT)}:{number}: unlinked {kind}: {reference}")
++    print(f"Unlinked references: {errors}; prose exceptions: 0")
++    return int(errors != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/doc/tools/check_sentences.py b/doc/tools/check_sentences.py
+new file mode 100644
+index 0000000..ee4b0e1
+--- /dev/null
++++ b/doc/tools/check_sentences.py
+@@ -0,0 +1,30 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Check prose sentences, including wrapped paragraphs, against 25 words."""
++
++import re
++import sys
++
++sys.dont_write_bytecode = True
++from common import ROOT, pages, plain, prose_units, syntax_exceptions
++
++
++def main():
++    errors = 0
++    checked = 0
++    for path in pages():
++        for exception in syntax_exceptions(path):
++            print(f"SYNTAX {exception}")
++        for number, text in prose_units(path):
++            text = plain(text)
++            for sentence in re.split(r"(?<=[.!?])\s+(?=[A-Z0-9])", text):
++                words = re.findall(r"\S+", sentence)
++                checked += 1
++                if len(words) > 25:
++                    errors += 1
++                    print(f"FAIL {path.relative_to(ROOT)}:{number}: {len(words)} words: {sentence}")
++    print(f"Sentences/fragments: {checked}; over limit: {errors}; prose exceptions: 0")
++    return int(errors != 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/doc/tools/common.py b/doc/tools/common.py
+new file mode 100644
+index 0000000..2eee7fb
+--- /dev/null
++++ b/doc/tools/common.py
+@@ -0,0 +1,92 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Shared parsing for the repository's deliberately small Markdown subset."""
++
++import re
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++LINK = re.compile(r"!?\[([^\]\n]+)\]\(([^\s)]+)(?:\s+['\"][^\n]*?['\"])?\)")
++FENCE = re.compile(r"^\s*(`{3,}|~{3,})(\w*)\s*$")
++
++
++def pages(root=ROOT):
++    return sorted(set(root.glob("*.md")) | set((root / "doc").rglob("*.md")))
++
++
++def sections(path):
++    """Yield prose lines and fenced blocks with their starting line numbers."""
++    lines = path.read_text(encoding="utf-8").splitlines()
++    fence = None
++    block = []
++    start = 0
++    language = ""
++    for number, line in enumerate(lines, 1):
++        match = FENCE.match(line)
++        if fence is None:
++            if match:
++                fence = match[1]
++                language = match[2]
++                start = number
++                block = []
++            else:
++                yield "prose", number, line
++        elif match and match[1][0] == fence[0] and len(match[1]) >= len(fence):
++            yield language or "code", start, "\n".join(block)
++            fence = None
++        else:
++            block.append(line)
++    if fence is not None:
++        raise ValueError(f"{path.relative_to(ROOT)}:{start}: unclosed fence")
++
++
++def plain(text, keep_labels=True):
++    text = LINK.sub(lambda m: m[1] if keep_labels else " ", text)
++    text = re.sub(r"[`*]", "", text)
++    return re.sub(r"(?<!\w)_+|_+(?!\w)", "", text)
++
++
++def prose_units(path):
++    """Join wrapped paragraphs; check list items and table cells separately."""
++    paragraph = []
++    start = 0
++    for kind, number, line in sections(path):
++        separate = kind != "prose" or not line.strip()
++        separate = separate or bool(re.match(r"^\s*(?:#{1,6}\s|[-*+]\s|\d+\.\s|\|)", line))
++        if separate and paragraph:
++            yield start, " ".join(paragraph)
++            paragraph = []
++        if kind != "prose" or not line.strip() or line.startswith("<!--"):
++            continue
++        if line.lstrip().startswith("|"):
++            for cell in line.strip().strip("|").split("|"):
++                if not re.fullmatch(r"[\s:-]*", cell):
++                    yield number, cell.strip()
++        elif separate:
++            yield number, re.sub(r"^\s*(?:#{1,6}\s+|[-*+]\s+|\d+\.\s+)", "", line)
++        else:
++            if not paragraph:
++                start = number
++            paragraph.append(line.strip())
++    if paragraph:
++        yield start, " ".join(paragraph)
++
++
++def syntax_exceptions(path):
++    for kind, number, _ in sections(path):
++        if kind != "prose":
++            yield f"{path.relative_to(ROOT)}:{number}: {kind} fence: literal machine syntax; nearby reference links require review"
++
++
++def anchors(path):
++    found = set()
++    counts = {}
++    for kind, _, line in sections(path):
++        if kind != "prose":
++            continue
++        match = re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", line)
++        if match:
++            slug = re.sub(r"[^\w\- ]", "", plain(match[1]).lower()).replace(" ", "-")
++            count = counts.get(slug, 0)
++            counts[slug] = count + 1
++            found.add(slug if count == 0 else f"{slug}-{count}")
++    return found
+diff --git a/doc/tools/render_mermaid.py b/doc/tools/render_mermaid.py
+new file mode 100644
+index 0000000..3961e7f
+--- /dev/null
++++ b/doc/tools/render_mermaid.py
+@@ -0,0 +1,84 @@
++# SPDX-License-Identifier: Apache-2.0
++"""Render every graph outside the checkout and reject graphs over 15 nodes."""
++
++import argparse
++import re
++import shlex
++import subprocess
++import sys
++import xml.etree.ElementTree as ET
++from pathlib import Path
++
++sys.dont_write_bytecode = True
++from common import ROOT, pages, sections
++
++
++def nodes(source):
++    identifiers = set()
++    for line in source.splitlines()[1:]:
++        line = line.strip()
++        if not line or line.startswith("%%"):
++            continue
++        if source.startswith("sequenceDiagram"):
++            match = re.match(r"participant\s+(\w+)", line)
++            if match:
++                identifiers.add(match[1])
++        elif source.startswith("stateDiagram"):
++            match = re.match(r"(\w+|\[\*\])\s*-->\s*(\w+|\[\*\])", line)
++            if match:
++                identifiers.update(value for value in match.groups() if value != "[*]")
++        else:
++            identifiers.update(re.findall(r"(\w+)\[", line))
++    return len(identifiers)
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    parser.add_argument("--puppeteer-config", type=Path)
++    args = parser.parse_args()
++    output = args.output.resolve()
++    if output.is_relative_to(ROOT):
++        parser.error("Render output must be outside the checkout")
++    output.mkdir(parents=True, exist_ok=True)
++    failures = 0
++    count = 0
++    for path in pages():
++        for kind, line, source in sections(path):
++            if kind != "mermaid":
++                continue
++            count += 1
++            label = f"{path.relative_to(ROOT)}:{line}"
++            size = nodes(source)
++            if not 0 < size <= 15:
++                print(f"FAIL {label}: {size} nodes; expected 1 through 15")
++                failures += 1
++                continue
++            stem = f"{path.relative_to(ROOT).as_posix().replace('/', '-')}-{line}"
++            input_path = output / f"{stem}.mmd"
++            svg_path = output / f"{stem}.svg"
++            input_path.write_text(source + "\n", encoding="utf-8")
++            command = ["mmdc", "-i", str(input_path), "-o", str(svg_path), "-b", "white"]
++            if args.puppeteer_config:
++                command.extend(["-p", str(args.puppeteer_config.resolve())])
++            try:
++                result = subprocess.run(command, timeout=60, capture_output=True, text=True)
++                rc = result.returncode
++                print(f"COMMAND {shlex.join(command)}; rc={rc}")
++                if rc != 0:
++                    print(result.stderr.strip() or result.stdout.strip())
++                else:
++                    root = ET.parse(svg_path).getroot()
++                    if not root.tag.endswith("svg"):
++                        rc = 1
++            except (OSError, subprocess.TimeoutExpired, ET.ParseError) as error:
++                rc = 1
++                print(f"COMMAND {shlex.join(command)}; rc={rc}; {error}")
++            print(f"{'PASS' if rc == 0 else 'FAIL'} {label}: {size} nodes; render rc={rc}", flush=True)
++            failures += rc != 0
++    print(f"Graphs: {count}; failures: {failures}")
++    return int(failures != 0 or count == 0)
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tests/features/environment.py b/tests/features/environment.py
+index a5eea04..02eb52f 100644
+--- a/tests/features/environment.py
++++ b/tests/features/environment.py
+@@ -29,21 +29,18 @@ def before_all(context):
+     lib.shlan_sim_adapter_destroy.restype = None
+     lib.shlan_sim_adapter_destroy.argtypes = [ctypes.c_void_p]
+ 
+-    # shlan_connect(void*) -> int
+-    lib.shlan_connect.restype = ctypes.c_int
+-    lib.shlan_connect.argtypes = [ctypes.c_void_p]
+-
+-    # shlan_disconnect(void*)
+-    lib.shlan_disconnect.restype = None
+-    lib.shlan_disconnect.argtypes = [ctypes.c_void_p]
+-
+-    # shlan_port_enable(void*, uint8_t) -> int
+-    lib.shlan_port_enable.restype = ctypes.c_int
+-    lib.shlan_port_enable.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
+-
+-    # shlan_port_disable(void*, uint8_t) -> int
+-    lib.shlan_port_disable.restype = ctypes.c_int
+-    lib.shlan_port_disable.argtypes = [ctypes.c_void_p, ctypes.c_uint8]
++    # switch.h implements these as static inline functions, so ctypes uses
++    # thin C test bindings that call the same public helpers.
++    for name, restype, argtypes in (
++        ("connect", ctypes.c_int, [ctypes.c_void_p]),
++        ("disconnect", None, [ctypes.c_void_p]),
++        ("port_enable", ctypes.c_int, [ctypes.c_void_p, ctypes.c_uint8]),
++        ("port_disable", ctypes.c_int, [ctypes.c_void_p, ctypes.c_uint8]),
++    ):
++        binding = getattr(lib, f"shlan_test_{name}")
++        binding.restype = restype
++        binding.argtypes = argtypes
++        setattr(lib, f"shlan_{name}", binding)
+ 
+     context.lib = lib
+ 
+diff --git a/tests/features/switch_bindings.c b/tests/features/switch_bindings.c
+new file mode 100644
+index 0000000..73ddfa9
+--- /dev/null
++++ b/tests/features/switch_bindings.c
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++
++#include "shish_lan/switch.h"
++
++/* ctypes needs external symbols for the public header's inline helpers. */
++int shlan_test_connect(struct shlan_switch *sw)
++{
++    return shlan_connect(sw);
++}
++
++void shlan_test_disconnect(struct shlan_switch *sw)
++{
++    shlan_disconnect(sw);
++}
++
++int shlan_test_port_enable(struct shlan_switch *sw, uint8_t port_id)
++{
++    return shlan_port_enable(sw, port_id);
++}
++
++int shlan_test_port_disable(struct shlan_switch *sw, uint8_t port_id)
++{
++    return shlan_port_disable(sw, port_id);
++}
+diff --git a/tests/unit/main.c b/tests/unit/main.c
+new file mode 100644
+index 0000000..1c287e8
+--- /dev/null
++++ b/tests/unit/main.c
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: Apache-2.0 */
++
++#include <cgreen/cgreen.h>
++
++TestSuite *mrp_pdu_suite(void);
++
++int main(void)
++{
++    TestSuite *suite = mrp_pdu_suite();
++    TestReporter *reporter = create_text_reporter();
++    int result = run_test_suite(suite, reporter);
++    destroy_test_suite(suite);
++    destroy_reporter(reporter);
++    return result;
++}
+diff --git a/tests/unit/placeholder.c b/tests/unit/placeholder.c
+deleted file mode 100644
+index 6f68cf8..0000000
+--- a/tests/unit/placeholder.c
++++ /dev/null
+@@ -1,11 +0,0 @@
+-/* SPDX-License-Identifier: Apache-2.0 */
+-#include <cgreen/cgreen.h>
+-
+-/* Unit tests for core/ internals go here.
+- * BDD scenarios live in tests/features/ and are run with behave. */
+-
+-int main(void)
+-{
+-    TestSuite *suite = create_test_suite();
+-    return run_test_suite(suite, create_text_reporter());
+-}

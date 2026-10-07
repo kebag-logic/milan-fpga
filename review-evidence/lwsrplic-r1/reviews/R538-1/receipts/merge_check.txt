@@ -1,0 +1,132 @@
+## added/removed lines main(02700d9)->head excluding LICENSE/NOTICE
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -1,0 +2 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+@@ -0,0 +1 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+@@ -0,0 +1 @@
++# SPDX-License-Identifier: Apache-2.0
+## numstat
+1	0	CMakeLists.txt
+202	0	LICENSE
+4	0	NOTICE
+1	0	behave.ini
+1	0	build.sh
+1	0	src/core/mrp_mad.c
+1	0	src/core/mrp_pdu.c
+1	0	src/core/switch_ctrl.c
+1	0	src/include/shish_lan/mmrp.h
+1	0	src/include/shish_lan/mrp.h
+1	0	src/include/shish_lan/mrp_pdu.h
+1	0	src/include/shish_lan/msrp.h
+1	0	src/include/shish_lan/mvrp.h
+1	0	src/include/shish_lan/switch.h
+1	0	src/include/shish_lan/switch_ctrl.h
+1	0	src/modules/mmrp.c
+1	0	src/modules/msrp.c
+1	0	src/modules/mvrp.c
+1	0	src/modules/sim_adapter.c
+1	0	src/modules/sim_adapter.h
+1	0	src/ports/alloc.c
+1	0	src/ports/alloc.h
+1	0	src/ports/timer.c
+1	0	src/ports/timer.h
+1	0	tests/features/environment.py
+1	0	tests/features/steps/switch_steps.py
+1	0	tests/features/switch.feature
+1	0	tests/unit/mrp_pdu_test.c
+1	0	zephyr/module.yml
+## replayed merge-tree of fed1a0d + 02700d9
+6be87cef4362e5daae891e1281fead5d39ddf135
+100644 039a86ba8bc489ccb7d8ec00c6085b32441b44f4 1	README.md
+100644 a8048569edbf950d33a8dcf790e2c36b4fbf726d 2	README.md
+100644 f6e2d5fb048963a6b13eeb79ca7ca77d0c308753 3	README.md
+100644 71bd3dec7fd386af2c952979933760873fa4cbed 1	tests/unit/placeholder.c
+100644 6f68cf8ce7b3682970f148f5c73be8b8a137b2bb 2	tests/unit/placeholder.c
+
+Auto-merging CMakeLists.txt
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Auto-merging tests/features/environment.py
+CONFLICT (modify/delete): tests/unit/placeholder.c deleted in 02700d9 and modified in fed1a0d.  Version fed1a0d of tests/unit/placeholder.c left in tree.
+rc=1
+## head README blob vs main README blob
+f6e2d5fb048963a6b13eeb79ca7ca77d0c308753
+f6e2d5fb048963a6b13eeb79ca7ca77d0c308753
+## replayed tree vs head tree (raw)
+:100644 100644 c35feec2c62e799aea6f5bb5ca0006aab6f3320c f6e2d5fb048963a6b13eeb79ca7ca77d0c308753 M	README.md
+:100644 000000 6f68cf8ce7b3682970f148f5c73be8b8a137b2bb 0000000000000000000000000000000000000000 D	tests/unit/placeholder.c
+## fed1a0d README licence section
+The switch interface (`shlan_switch_t`) is a vtable struct. Swapping from the simulation adapter to a real hardware driver requires no changes to the public API or any test. New capabilities are added by extending the vtable and implementing the new operation in each adapter.
+
+
+## Licence
+
+lwSRP is licensed under the [Apache License, Version 2.0](LICENSE).
+Copyright 2026 kebag-logic. See [NOTICE](NOTICE).
+
+Individuals and companies may contribute under the same licence.
+## fed1a0d placeholder change
+diff --git a/tests/unit/placeholder.c b/tests/unit/placeholder.c
+index 71bd3de..6f68cf8 100644
+--- a/tests/unit/placeholder.c
++++ b/tests/unit/placeholder.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #include <cgreen/cgreen.h>
+ 
+ /* Unit tests for core/ internals go here.
+## files lacking SPDX at fed1a0d
+[TOOL].md
+LICENSE
+NOTICE
+README.md
+doc/architecture.drawio
+doc/architecture.md

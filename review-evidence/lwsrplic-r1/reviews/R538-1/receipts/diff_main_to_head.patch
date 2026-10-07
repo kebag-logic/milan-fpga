@@ -1,0 +1,462 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 20bc48f..7b4e1e7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ if(DEFINED ZEPHYR_BASE)
+   if(CONFIG_LWSRP)
+     zephyr_library_named(lwsrp)
+diff --git a/LICENSE b/LICENSE
+new file mode 100644
+index 0000000..d645695
+--- /dev/null
++++ b/LICENSE
+@@ -0,0 +1,202 @@
++
++                                 Apache License
++                           Version 2.0, January 2004
++                        http://www.apache.org/licenses/
++
++   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
++
++   1. Definitions.
++
++      "License" shall mean the terms and conditions for use, reproduction,
++      and distribution as defined by Sections 1 through 9 of this document.
++
++      "Licensor" shall mean the copyright owner or entity authorized by
++      the copyright owner that is granting the License.
++
++      "Legal Entity" shall mean the union of the acting entity and all
++      other entities that control, are controlled by, or are under common
++      control with that entity. For the purposes of this definition,
++      "control" means (i) the power, direct or indirect, to cause the
++      direction or management of such entity, whether by contract or
++      otherwise, or (ii) ownership of fifty percent (50%) or more of the
++      outstanding shares, or (iii) beneficial ownership of such entity.
++
++      "You" (or "Your") shall mean an individual or Legal Entity
++      exercising permissions granted by this License.
++
++      "Source" form shall mean the preferred form for making modifications,
++      including but not limited to software source code, documentation
++      source, and configuration files.
++
++      "Object" form shall mean any form resulting from mechanical
++      transformation or translation of a Source form, including but
++      not limited to compiled object code, generated documentation,
++      and conversions to other media types.
++
++      "Work" shall mean the work of authorship, whether in Source or
++      Object form, made available under the License, as indicated by a
++      copyright notice that is included in or attached to the work
++      (an example is provided in the Appendix below).
++
++      "Derivative Works" shall mean any work, whether in Source or Object
++      form, that is based on (or derived from) the Work and for which the
++      editorial revisions, annotations, elaborations, or other modifications
++      represent, as a whole, an original work of authorship. For the purposes
++      of this License, Derivative Works shall not include works that remain
++      separable from, or merely link (or bind by name) to the interfaces of,
++      the Work and Derivative Works thereof.
++
++      "Contribution" shall mean any work of authorship, including
++      the original version of the Work and any modifications or additions
++      to that Work or Derivative Works thereof, that is intentionally
++      submitted to Licensor for inclusion in the Work by the copyright owner
++      or by an individual or Legal Entity authorized to submit on behalf of
++      the copyright owner. For the purposes of this definition, "submitted"
++      means any form of electronic, verbal, or written communication sent
++      to the Licensor or its representatives, including but not limited to
++      communication on electronic mailing lists, source code control systems,
++      and issue tracking systems that are managed by, or on behalf of, the
++      Licensor for the purpose of discussing and improving the Work, but
++      excluding communication that is conspicuously marked or otherwise
++      designated in writing by the copyright owner as "Not a Contribution."
++
++      "Contributor" shall mean Licensor and any individual or Legal Entity
++      on behalf of whom a Contribution has been received by Licensor and
++      subsequently incorporated within the Work.
++
++   2. Grant of Copyright License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      copyright license to reproduce, prepare Derivative Works of,
++      publicly display, publicly perform, sublicense, and distribute the
++      Work and such Derivative Works in Source or Object form.
++
++   3. Grant of Patent License. Subject to the terms and conditions of
++      this License, each Contributor hereby grants to You a perpetual,
++      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
++      (except as stated in this section) patent license to make, have made,
++      use, offer to sell, sell, import, and otherwise transfer the Work,
++      where such license applies only to those patent claims licensable
++      by such Contributor that are necessarily infringed by their
++      Contribution(s) alone or by combination of their Contribution(s)
++      with the Work to which such Contribution(s) was submitted. If You
++      institute patent litigation against any entity (including a
++      cross-claim or counterclaim in a lawsuit) alleging that the Work
++      or a Contribution incorporated within the Work constitutes direct
++      or contributory patent infringement, then any patent licenses
++      granted to You under this License for that Work shall terminate
++      as of the date such litigation is filed.
++
++   4. Redistribution. You may reproduce and distribute copies of the
++      Work or Derivative Works thereof in any medium, with or without
++      modifications, and in Source or Object form, provided that You
++      meet the following conditions:
++
++      (a) You must give any other recipients of the Work or
++          Derivative Works a copy of this License; and
++
++      (b) You must cause any modified files to carry prominent notices
++          stating that You changed the files; and
++
++      (c) You must retain, in the Source form of any Derivative Works
++          that You distribute, all copyright, patent, trademark, and
++          attribution notices from the Source form of the Work,
++          excluding those notices that do not pertain to any part of
++          the Derivative Works; and
++
++      (d) If the Work includes a "NOTICE" text file as part of its
++          distribution, then any Derivative Works that You distribute must
++          include a readable copy of the attribution notices contained
++          within such NOTICE file, excluding those notices that do not
++          pertain to any part of the Derivative Works, in at least one
++          of the following places: within a NOTICE text file distributed
++          as part of the Derivative Works; within the Source form or
++          documentation, if provided along with the Derivative Works; or,
++          within a display generated by the Derivative Works, if and
++          wherever such third-party notices normally appear. The contents
++          of the NOTICE file are for informational purposes only and
++          do not modify the License. You may add Your own attribution
++          notices within Derivative Works that You distribute, alongside
++          or as an addendum to the NOTICE text from the Work, provided
++          that such additional attribution notices cannot be construed
++          as modifying the License.
++
++      You may add Your own copyright statement to Your modifications and
++      may provide additional or different license terms and conditions
++      for use, reproduction, or distribution of Your modifications, or
++      for any such Derivative Works as a whole, provided Your use,
++      reproduction, and distribution of the Work otherwise complies with
++      the conditions stated in this License.
++
++   5. Submission of Contributions. Unless You explicitly state otherwise,
++      any Contribution intentionally submitted for inclusion in the Work
++      by You to the Licensor shall be under the terms and conditions of
++      this License, without any additional terms or conditions.
++      Notwithstanding the above, nothing herein shall supersede or modify
++      the terms of any separate license agreement you may have executed
++      with Licensor regarding such Contributions.
++
++   6. Trademarks. This License does not grant permission to use the trade
++      names, trademarks, service marks, or product names of the Licensor,
++      except as required for reasonable and customary use in describing the
++      origin of the Work and reproducing the content of the NOTICE file.
++
++   7. Disclaimer of Warranty. Unless required by applicable law or
++      agreed to in writing, Licensor provides the Work (and each
++      Contributor provides its Contributions) on an "AS IS" BASIS,
++      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
++      implied, including, without limitation, any warranties or conditions
++      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
++      PARTICULAR PURPOSE. You are solely responsible for determining the
++      appropriateness of using or redistributing the Work and assume any
++      risks associated with Your exercise of permissions under this License.
++
++   8. Limitation of Liability. In no event and under no legal theory,
++      whether in tort (including negligence), contract, or otherwise,
++      unless required by applicable law (such as deliberate and grossly
++      negligent acts) or agreed to in writing, shall any Contributor be
++      liable to You for damages, including any direct, indirect, special,
++      incidental, or consequential damages of any character arising as a
++      result of this License or out of the use or inability to use the
++      Work (including but not limited to damages for loss of goodwill,
++      work stoppage, computer failure or malfunction, or any and all
++      other commercial damages or losses), even if such Contributor
++      has been advised of the possibility of such damages.
++
++   9. Accepting Warranty or Additional Liability. While redistributing
++      the Work or Derivative Works thereof, You may choose to offer,
++      and charge a fee for, acceptance of support, warranty, indemnity,
++      or other liability obligations and/or rights consistent with this
++      License. However, in accepting such obligations, You may act only
++      on Your own behalf and on Your sole responsibility, not on behalf
++      of any other Contributor, and only if You agree to indemnify,
++      defend, and hold each Contributor harmless for any liability
++      incurred by, or claims asserted against, such Contributor by reason
++      of your accepting any such warranty or additional liability.
++
++   END OF TERMS AND CONDITIONS
++
++   APPENDIX: How to apply the Apache License to your work.
++
++      To apply the Apache License to your work, attach the following
++      boilerplate notice, with the fields enclosed by brackets "[]"
++      replaced with your own identifying information. (Don't include
++      the brackets!)  The text should be enclosed in the appropriate
++      comment syntax for the file format. We also recommend that a
++      file or class name and description of purpose be included on the
++      same "printed page" as the copyright notice for easier
++      identification within third-party archives.
++
++   Copyright [yyyy] [name of copyright owner]
++
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
+diff --git a/NOTICE b/NOTICE
+new file mode 100644
+index 0000000..d2ce78e
+--- /dev/null
++++ b/NOTICE
+@@ -0,0 +1,4 @@
++lwSRP
++Copyright 2026 kebag-logic
++
++Licensed under the Apache License, Version 2.0.
+diff --git a/behave.ini b/behave.ini
+index a9a43ee..585e3f6 100644
+--- a/behave.ini
++++ b/behave.ini
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ [behave]
+ paths = tests/features
+ show_skipped = false
+diff --git a/build.sh b/build.sh
+index a897a63..84e5729 100755
+--- a/build.sh
++++ b/build.sh
+@@ -1,4 +1,5 @@
+ #!/bin/bash
++# SPDX-License-Identifier: Apache-2.0
+ # Get the path of the script
+ SCRIPTPATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+ 
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index e5292fc..9c2fe86 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * MRP Attribute Declaration (MAD) state machine implementation.
+  * IEEE 802.1Q-2018, §10.7 — Tables 10-3 through 10-6.
+diff --git a/src/core/mrp_pdu.c b/src/core/mrp_pdu.c
+index 48494e6..4e11ecd 100644
+--- a/src/core/mrp_pdu.c
++++ b/src/core/mrp_pdu.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * MRPDU encode / decode — IEEE 802.1Q-2018 §10.8.
+  *
+diff --git a/src/core/switch_ctrl.c b/src/core/switch_ctrl.c
+index 41a4d03..f7182c7 100644
+--- a/src/core/switch_ctrl.c
++++ b/src/core/switch_ctrl.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * Switch register control — MPSC queue and dispatcher.
+  * See include/shish_lan/switch_ctrl.h for interface documentation.
+diff --git a/src/include/shish_lan/mmrp.h b/src/include/shish_lan/mmrp.h
+index 91d2218..29bb232 100644
+--- a/src/include/shish_lan/mmrp.h
++++ b/src/include/shish_lan/mmrp.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_MMRP_H
+ #define SHISH_LAN_MMRP_H
+ 
+diff --git a/src/include/shish_lan/mrp.h b/src/include/shish_lan/mrp.h
+index 2e211e5..612e4b8 100644
+--- a/src/include/shish_lan/mrp.h
++++ b/src/include/shish_lan/mrp.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_MRP_H
+ #define SHISH_LAN_MRP_H
+ 
+diff --git a/src/include/shish_lan/mrp_pdu.h b/src/include/shish_lan/mrp_pdu.h
+index 176aa15..948878e 100644
+--- a/src/include/shish_lan/mrp_pdu.h
++++ b/src/include/shish_lan/mrp_pdu.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_MRP_PDU_H
+ #define SHISH_LAN_MRP_PDU_H
+ 
+diff --git a/src/include/shish_lan/msrp.h b/src/include/shish_lan/msrp.h
+index 8fbcabf..4d327a9 100644
+--- a/src/include/shish_lan/msrp.h
++++ b/src/include/shish_lan/msrp.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_MSRP_H
+ #define SHISH_LAN_MSRP_H
+ 
+diff --git a/src/include/shish_lan/mvrp.h b/src/include/shish_lan/mvrp.h
+index ded8ba7..ab5112e 100644
+--- a/src/include/shish_lan/mvrp.h
++++ b/src/include/shish_lan/mvrp.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_MVRP_H
+ #define SHISH_LAN_MVRP_H
+ 
+diff --git a/src/include/shish_lan/switch.h b/src/include/shish_lan/switch.h
+index 4f47397..68579b5 100644
+--- a/src/include/shish_lan/switch.h
++++ b/src/include/shish_lan/switch.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_SWITCH_H
+ #define SHISH_LAN_SWITCH_H
+ 
+diff --git a/src/include/shish_lan/switch_ctrl.h b/src/include/shish_lan/switch_ctrl.h
+index 8105c13..f0913a7 100644
+--- a/src/include/shish_lan/switch_ctrl.h
++++ b/src/include/shish_lan/switch_ctrl.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_SWITCH_CTRL_H
+ #define SHISH_LAN_SWITCH_CTRL_H
+ 
+diff --git a/src/modules/mmrp.c b/src/modules/mmrp.c
+index 35e1ab8..871a9d3 100644
+--- a/src/modules/mmrp.c
++++ b/src/modules/mmrp.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * MMRP application adapter — IEEE 802.1Q-2018, §10.9–10.12.
+  *
+diff --git a/src/modules/msrp.c b/src/modules/msrp.c
+index 96ad979..6fa1823 100644
+--- a/src/modules/msrp.c
++++ b/src/modules/msrp.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * MSRP application adapter — IEEE 802.1Q-2018, §35.
+  *
+diff --git a/src/modules/mvrp.c b/src/modules/mvrp.c
+index c914be2..73688d4 100644
+--- a/src/modules/mvrp.c
++++ b/src/modules/mvrp.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * MVRP application adapter — IEEE 802.1Q-2018, §11.2.
+  *
+diff --git a/src/modules/sim_adapter.c b/src/modules/sim_adapter.c
+index 85236d1..7cb3bb2 100644
+--- a/src/modules/sim_adapter.c
++++ b/src/modules/sim_adapter.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #include <string.h>
+ #include "sim_adapter.h"
+ #include "ports/alloc.h"
+diff --git a/src/modules/sim_adapter.h b/src/modules/sim_adapter.h
+index 757b1f9..f5e4f45 100644
+--- a/src/modules/sim_adapter.h
++++ b/src/modules/sim_adapter.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHISH_LAN_SIM_ADAPTER_H
+ #define SHISH_LAN_SIM_ADAPTER_H
+ 
+diff --git a/src/ports/alloc.c b/src/ports/alloc.c
+index 758c75c..21a01d9 100644
+--- a/src/ports/alloc.c
++++ b/src/ports/alloc.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+diff --git a/src/ports/alloc.h b/src/ports/alloc.h
+index b8195c3..b80a0b4 100644
+--- a/src/ports/alloc.h
++++ b/src/ports/alloc.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHLAN_PROTS_ALLOC_H
+ #define SHLAN_PROTS_ALLOC_H
+ 
+diff --git a/src/ports/timer.c b/src/ports/timer.c
+index 81ea113..026cb23 100644
+--- a/src/ports/timer.c
++++ b/src/ports/timer.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #include "timer.h"
+ 
+ static struct shlan_timer *g_head;
+diff --git a/src/ports/timer.h b/src/ports/timer.h
+index dd4c7b5..a3ab81d 100644
+--- a/src/ports/timer.h
++++ b/src/ports/timer.h
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ #ifndef SHLAN_PORTS_TIMER_H
+ #define SHLAN_PORTS_TIMER_H
+ 
+diff --git a/tests/features/environment.py b/tests/features/environment.py
+index e0e1539..02eb52f 100644
+--- a/tests/features/environment.py
++++ b/tests/features/environment.py
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ import ctypes
+ import os
+ import pathlib
+diff --git a/tests/features/steps/switch_steps.py b/tests/features/steps/switch_steps.py
+index 133e51d..d46f997 100644
+--- a/tests/features/steps/switch_steps.py
++++ b/tests/features/steps/switch_steps.py
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ import ctypes
+ from behave import given, when, then
+ 
+diff --git a/tests/features/switch.feature b/tests/features/switch.feature
+index 7b9ffaa..6c55d12 100644
+--- a/tests/features/switch.feature
++++ b/tests/features/switch.feature
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ Feature: Switch port management
+ 
+   Background:
+diff --git a/tests/unit/mrp_pdu_test.c b/tests/unit/mrp_pdu_test.c
+index 36f4ffd..040d346 100644
+--- a/tests/unit/mrp_pdu_test.c
++++ b/tests/unit/mrp_pdu_test.c
+@@ -1,3 +1,4 @@
++/* SPDX-License-Identifier: Apache-2.0 */
+ /*
+  * Unit tests for MRPDU encode / decode helpers (§10.8.2.10).
+  *
+diff --git a/zephyr/module.yml b/zephyr/module.yml
+index c057838..70a93e2 100644
+--- a/zephyr/module.yml
++++ b/zephyr/module.yml
+@@ -1,3 +1,4 @@
++# SPDX-License-Identifier: Apache-2.0
+ name: lwsrp
+ build:
+   cmake: .

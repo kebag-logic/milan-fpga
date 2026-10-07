@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import kconfiglib; kconfiglib.Kconfig("Kconfig.zephyr")
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 947, in __init__
+    self._init(filename, warn, warn_to_stderr, encoding)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 1085, in _init
+    self._parse_block(None, self.top_node, self.top_node).next = None
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 2914, in _parse_block
+    while self._next_line():
+          ~~~~~~~~~~~~~~~^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 2236, in _next_line
+    self._tokens = self._tokenize(line)
+                   ~~~~~~~~~~~~~~^^^^^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 2354, in _tokenize
+    self._parse_error("unknown token at start of line")
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$SCRATCH/venv/lib/python3.14/site-packages/kconfiglib.py", line 3879, in _parse_error
+    raise KconfigError("{}error: couldn't parse '{}': {}".format(
+    ...<2 lines>...
+        self._line.strip(), msg))
+kconfiglib.KconfigError: Kconfig.zephyr:1: error: couldn't parse '// SPDX-License-Identifier: Apache-2.0': unknown token at start of line
