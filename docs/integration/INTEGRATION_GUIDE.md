@@ -1,5 +1,10 @@
 # Datapath integration contract
 
+This contract describes the current all-fabric shipping control plane.
+
+The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) selects each control owner.
+It preserves media and gPTP interfaces.
+
 Use this contract when wiring `milan_datapath`.
 
 - RTL remains the final interface authority.

@@ -1,5 +1,12 @@
 # LiteX bare-metal SoC
 
+This page describes the all-fabric shipping placement.
+[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+
+
 `sw/litex/milan_soc.py` builds the supported target: a cacheless RV32
 VexiiRiscv control CPU, LiteEth MAC/PHY glue, optional DDR3 and QSPI, the Milan
 fabric datapath, board audio I/O, and one AXI-Lite CSR bridge. The target runs

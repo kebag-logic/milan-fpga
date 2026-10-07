@@ -56,6 +56,14 @@ Firmware VERSION `0x0002_0060` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
+[Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) selects each control function at build time.
+ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.
+AECP includes descriptor serving, unsolicited notifications and counter serving.
+Framing, timestamps, ingress filtering, gPTP and media remain in fabric.
+All-fabric stays supported and the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+F0/F1 are merged foundations; no shipping placement changes here.
+
 Machine-checked status rows are defined by the
 [Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
 

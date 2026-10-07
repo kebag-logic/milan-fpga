@@ -1,22 +1,24 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""nvm_bench.py - build and run the saved-state store's host suite for one shape.
+"""nvm_bench.py - build and run the saved-state store's GoogleTest suite for one shape.
 
 One `Bench` per shipped shape: the builder's shape and identity, the Python
-encoder's frames for that shape (scripts/nvm_klj2.py, the reference), the
-generated constants header the C store compiles against (the SAME derivation
-sw/litex/milan_soc.py publishes for the shipping writer), the shape's system
-clock as LiteX's generated/soc.h carries it, and the compiled scenario
-runner. A `Run` is one execution of that runner, parsed.
+encoder's frames for that shape (scripts/nvm_klj2.py, the reference) and the
+shape's system clock as LiteX's generated/soc.h carries it. nvm_fixture.py
+writes the suite's oracle from it. `build_suite` compiles the store against
+the generated constants header (the SAME derivation sw/litex/milan_soc.py
+publishes for the shipping writer) into a GoogleTest binary, and `run_suite`
+runs it over a fixture.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import re
-import subprocess
 import sys
-from dataclasses import dataclass, field
+from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
@@ -24,8 +26,12 @@ import yaml
 HERE = Path(__file__).resolve().parent
 TREE = HERE.parent
 ROOT = HERE.parents[3]
+HARNESS = ROOT / "sw/firmware/gtest"
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "sw/litex"))
+sys.path.insert(0, str(HARNESS))
+
+import fw_gtest                                                         # noqa: E402
 
 from nvm_contract import REC_HDR, Donor, Ident, Shape                  # noqa: E402
 from nvm_klj2 import (erased_record, frame_record, klj2_assemble,      # noqa: E402
@@ -35,10 +41,43 @@ from nvm_shape import (binding_base, build, firmware_constants,        # noqa: E
 from check_nvm_record_space import expected_payloads                   # noqa: E402
 from flash_map import literal                                          # noqa: E402
 
-#: The store as it ships, both flash ports, both host models and the runner.
-SOURCES = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c",
-           "host/nvm_fmodel.c", "host/nvm_smodel.c", "host/litespi_model.c",
-           "test/nvm_test.c")
+#: The store as it ships and its two flash ports: the firmware, measured.
+STORE_SOURCES = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
+#: The host models behind the ports: test equipment, never measured.
+MODEL_SOURCES = ("host/nvm_fmodel.c", "host/nvm_smodel.c", "host/litespi_model.c")
+
+
+@dataclass(frozen=True)
+class Binary:
+    """One GoogleTest binary of a shape: its tests, the firmware and models it
+    links, and the shape-header constants it is built with instead of the
+    builder's (`edit`: a doctored build no shipped shape is)."""
+
+    name: str
+    tests: tuple[str, ...]
+    store: tuple[str, ...] = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
+    models: tuple[str, ...] = ("host/nvm_fmodel.c", "host/nvm_smodel.c", "host/litespi_model.c")
+    edit: tuple[tuple[str, int], ...] = ()
+    cflags: tuple[str, ...] = ()
+    defines: tuple[str, ...] = ()
+    vector: bool = False
+
+
+RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
+#: Every shape: the boot and write paths, the codec and the extra store paths.
+SUITE = Binary("suite", (*RIG, "test_nvm_boot.cpp", "test_nvm_write.cpp", "test_nvm_codec.cpp", "test_nvm_more.cpp",
+                         "test_nvm_flashmock.cpp"))
+#: The shapes tb/verilator/nvm_backend records a vector of, under its identity.
+VECTOR = Binary("vector", (*RIG, "test_nvm_vector.cpp"), vector=True)
+#: The shipping 1x1 shape only: two doctored builds (a map the codec's byte
+#: table cannot hold, which only the -Woverflow it then raises is let pass;
+#: no name record) and the LiteSPI port alone on its mocked command master.
+UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_MAPIN_ENTRIES_0", 0x100),),
+                cflags=("-Wno-overflow",), defines=("-DNVM_DOCTORED_MAPIN",)),
+         Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_N_NAME", 0),),
+                defines=("-DNVM_DOCTORED_NONAME",)),
+         Binary("litespi", ("mock_litespi_csr.cpp", "test_nvm_litespi.cpp"), store=("plat/nvm_flash_litespi.c",),
+                models=("host/nvm_fmodel.c",)))
 #: The journal, read out of the SoC source the way every other consumer reads it.
 JOURNAL = literal("FLASHBOOT_RESERVED")["journal"]
 SLOT = JOURNAL["size"] // 2
@@ -49,14 +88,6 @@ CFLAGS = ("-std=c11", "-O1", "-g", "-Wall", "-Wextra", "-Werror", "-pedantic")
 #: The system clock milan_soc.py builds when the builder passes no
 #: --sys-clk-freq (that option's default, sw/litex/milan_soc.py).
 SOC_DEFAULT_HZ = 100_000_000
-SUMMARY_RE = re.compile(r"^SUMMARY (.*)$", re.M)
-POWERCUT_RE = re.compile(r"^POWERCUT (.*)$", re.M)
-GUARD_RE = re.compile(r"^GUARD took=(\d+)$", re.M)
-ERASES_RE = re.compile(r"^ERASES(.*)$", re.M)
-FAILS_RE = re.compile(r"^FAILS(.*)$", re.M)
-OKS_RE = re.compile(r"^OKS(.*)$", re.M)
-MARK_RE = re.compile(r"^MARK (\d+)$", re.M)
-CLOCK_RE = re.compile(r"^CLOCK (\d+) (\d+)$", re.M)
 
 
 class Refusal(Exception):
@@ -64,45 +95,17 @@ class Refusal(Exception):
 
 
 @dataclass
-class Run:
-    """One execution of the scenario runner, parsed."""
-
-    out: str
-    s: dict[str, int]
-    powercut: dict[str, int]
-    guard: int | None
-    erases: list[int]
-    fails: list[str]
-    #: model-clock times (us) of each failed attempt, each verified commit,
-    #: and each --mark
-    fail_at: list[int]
-    ok_at: list[int]
-    marks: list[int]
-    #: each --clock: (the port's elapsed time, the model's time), in us
-    clocks: list[tuple[int, int]]
-
-
-@dataclass
 class Bench:
-    """One shape's compiled store and the Python side of its images."""
+    """One shape's reference side: its frames and how nvm_klj2.py packs them."""
 
     cfg: Path
     shape: Shape
     donor: Donor
     ident: Ident
-    work: Path
-    binary: Path
     frames: dict[int, bytes]
     expect: dict
     #: the system clock timer0 counts, in hertz, as the shape's config sets it
     clock_hz: int
-    runs: int = 0
-    #: the same store compiled under the recorded vectors' identity, for the
-    #: shapes tb/verilator/nvm_backend records a vector of
-    vector: Bench | None = None
-    #: the longest service call of any run, in model time (us): "nominal"
-    #: with no command-master stall armed, "stalled" with one
-    call_max: dict[str, int] = field(default_factory=dict)
 
     @property
     def stem(self) -> str:
@@ -126,43 +129,6 @@ class Bench:
     def erased_frames(self) -> dict[int, bytes]:
         """Every record of the shape erased."""
         return {rid: erased_record(len(fr) - REC_HDR) for rid, fr in self.frames.items()}
-
-    def file(self, name: str, blob: bytes) -> str:
-        """Write `blob` into the bench's directory; its path."""
-        path = self.work / name
-        path.write_bytes(blob)
-        return str(path)
-
-    def run(self, *args: str) -> Run:
-        """Run the scenario script `args`; the parsed result."""
-        self.runs += 1
-        r = subprocess.run([str(self.binary), *args], capture_output=True, text=True,
-                           cwd=self.work, check=False)
-        if r.returncode:
-            raise Refusal(f"{self.stem}: runner exit {r.returncode} for {' '.join(args)}\n"
-                          f"{r.stdout}\n{r.stderr}")
-        summary: dict[str, int] = {}
-        for line in SUMMARY_RE.findall(r.stdout):
-            summary.update({k: int(v) for k, v in (kv.split("=") for kv in line.split())})
-        kind = "stalled" if summary.get("ls_stalled") else "nominal"
-        self.call_max[kind] = max(self.call_max.get(kind, 0), summary.get("max_call_us", 0))
-        cut = POWERCUT_RE.search(r.stdout)
-        guard = GUARD_RE.search(r.stdout)
-        return Run(out=r.stdout, s=summary,
-                   powercut={k: int(v) for k, v in (kv.split("=") for kv in cut.group(1).split())}
-                   if cut else {},
-                   guard=int(guard.group(1)) if guard else None,
-                   erases=_times(ERASES_RE, r.stdout),
-                   fails=re.findall(r"^FAIL .*$", r.stdout, re.M),
-                   fail_at=_times(FAILS_RE, r.stdout), ok_at=_times(OKS_RE, r.stdout),
-                   marks=[int(x) for x in MARK_RE.findall(r.stdout)],
-                   clocks=[(int(p), int(m)) for p, m in CLOCK_RE.findall(r.stdout)])
-
-
-def _times(pattern: re.Pattern[str], out: str) -> list[int]:
-    """The numbers on the runner's line `pattern` matches."""
-    m = pattern.search(out)
-    return [int(x) for x in m.group(1).split()] if m else []
 
 
 def shape_header(shape: Shape, donor: Donor, ident: Ident) -> str:
@@ -197,19 +163,49 @@ def write_headers(gen: Path, header: str, clock_hz: int) -> None:
     (gen / "generated" / "soc.h").write_text(soc_header(clock_hz))
 
 
-def compile_runner(tree: Path, work: Path, header: str, clock_hz: int) -> Path:
-    """Build the scenario runner from `tree`: the store with every warning an
-    error, or a planted copy, where a defect may leave a variable unused."""
+def includes(tree: Path, gen: Path) -> list[str]:
+    """The store's include path: the shape's generated headers first, then the
+    tree's own directories and the host stubs of LiteX's CSR and memory map."""
+    return [f"-I{gen}", f"-I{tree}", f"-I{tree / 'host'}", f"-I{tree / 'plat'}", f"-I{tree / 'host/stubs'}",
+            f"-I{HARNESS}", f"-I{HERE}"]
+
+
+def doctor(header: str, edit: tuple[tuple[str, int], ...]) -> str:
+    """The shape header with each named constant replaced."""
+    for name, value in edit:
+        header, n = re.subn(rf"^#define {name} .*$", f"#define {name} 0x{value:x}u", header, flags=re.M)
+        if n != 1:
+            raise Refusal(f"the shape header defines {name} {n} times, not once")
+    return header
+
+
+def build_suite(inputs: ShapeInputs, work: Path, b: fw_gtest.Build, binary: Binary, tree: Path = TREE) -> Path:
+    """One GoogleTest binary of one shape, from `tree`: the store with every
+    warning an error (a planted copy may leave a variable unused), the host
+    models, and the tests compiled from this directory against the tree's
+    headers."""
     gen = work / "gen"
-    write_headers(gen, header, clock_hz)
-    binary = work / "nvm_test"
-    flags = CFLAGS if tree == TREE else tuple(x for x in CFLAGS if x != "-Werror")
-    cmd = ["gcc", *flags, f"-I{gen}", f"-I{tree / 'host/stubs'}",
-           *(str(tree / s) for s in SOURCES), "-o", str(binary)]
-    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    if r.returncode:
-        raise Refusal(f"host build failed in {work}:\n{r.stderr}")
-    return binary
+    header = shape_header(inputs.shape, inputs.donor, VECTOR_IDENT if binary.vector else inputs.ident)
+    write_headers(gen, doctor(header, binary.edit), inputs.clock_hz)
+    flags = (*(CFLAGS if tree == TREE else tuple(x for x in CFLAGS if x != "-Werror")), *binary.cflags)
+    inc = includes(tree, gen)
+    try:
+        objects = fw_gtest.compile_c(b, flags, inc, [tree / s for s in binary.store], work / "store")
+        objects += fw_gtest.compile_c(b, flags, inc, [tree / s for s in binary.models], work / "models",
+                                      measured=False)
+        objects += fw_gtest.compile_tests(b, inc, [HERE / s for s in binary.tests], work / "tests",
+                                          (f'-DNVM_TALLY_SHAPE="{inputs.cfg.stem}"', *binary.defines))
+        objects.append(fw_gtest.main_object(b, work / "harness"))
+        return fw_gtest.link(b, objects, work / f"nvm_{binary.name}")
+    except fw_gtest.BuildError as exc:
+        raise Refusal(f"{inputs.cfg.stem}: {exc}") from exc
+
+
+def run_suite(exe: Path, fixture: Path, only: Sequence[str] = ()) -> tuple[bool, str]:
+    """Run a suite binary over its fixture, all of its tests or `only` these
+    (GoogleTest test names); (passed, the log)."""
+    args = [f"--gtest_filter={':'.join(f'*.{name}:*.{name}/*' for name in only)}"] if only else []
+    return fw_gtest.run_binary(exe, args, env={**os.environ, "NVM_FIXTURE": str(fixture)})
 
 
 @dataclass(frozen=True)
@@ -249,29 +245,11 @@ def shape_inputs(cfg: Path, work: Path) -> ShapeInputs:
                        clock_hz=sys_clock(cfg, work / "builder"))
 
 
-def make_bench(inputs: ShapeInputs, work: Path, tree: Path = TREE,
-               ident: Ident | None = None) -> Bench:
-    """Compile the store from `tree` for one shape (under `ident`, the shape's
-    own identity unless given) and frame its golden records."""
+def make_bench(inputs: ShapeInputs, ident: Ident | None = None) -> Bench:
+    """The reference side of one shape (under `ident`, the shape's own identity
+    unless given): its golden records framed by nvm_klj2.py."""
     who = ident or inputs.ident
-    binary = compile_runner(tree, work, shape_header(inputs.shape, inputs.donor, who),
-                            inputs.clock_hz)
     frames = {r: frame_record(r, payload_bytes(g, i, r, p), inputs.donor.layout)
               for g, i, r, p, _b in inventory(inputs.shape, inputs.donor.base) if r is not None}
-    return Bench(cfg=inputs.cfg, shape=inputs.shape, donor=inputs.donor, ident=who, work=work,
-                 binary=binary, frames=frames, expect=expected_payloads(inputs.shape),
-                 clock_hz=inputs.clock_hz)
-
-
-def read_state(path: Path) -> dict[int, tuple[int, bytes]]:
-    """The runner's --dump-state file: record id -> (valid, payload)."""
-    out = {}
-    for line in path.read_text().splitlines():
-        _tag, rid, valid, *rest = line.split()
-        out[int(rid)] = (int(valid), bytes.fromhex(rest[0]) if rest else b"")
-    return out
-
-
-def default_payload(rid: int, plen: int) -> bytes:
-    """The state model's image default for a record (host/nvm_smodel.c)."""
-    return bytes((rid * 7 + j * 3 + 0x5A) & 0xFF for j in range(plen))
+    return Bench(cfg=inputs.cfg, shape=inputs.shape, donor=inputs.donor, ident=who, frames=frames,
+                 expect=expected_payloads(inputs.shape), clock_hz=inputs.clock_hz)
