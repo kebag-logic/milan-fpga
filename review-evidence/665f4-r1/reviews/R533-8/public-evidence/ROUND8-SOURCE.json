@@ -1,0 +1,431 @@
+{
+  "head": "a6e6916826448f81de2b779ca61a87a9f8c47278",
+  "parents": [
+    "f74b9403b330ce316eeec6f724846f16def98443",
+    "d8b355fe0f41d49dca6cae1cd8b3826e2edde364"
+  ],
+  "merge_subject": "Merge dev F3 and retain four protocol application composition",
+  "merge_delta_files": [
+    {
+      "path": "docs/design/MAILBOX_SPLIT.md",
+      "size": 66018,
+      "sha256": "a14a9cc2bf4ffe90448e37b09ac9cbd544cd132bde5110d40443e4e4f5069efb",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "docs/reference/MAILBOX_CONTRACT.md",
+      "size": 33895,
+      "sha256": "991a44ea2fd85f82b0594e4091c09cc90864ad01692ef39a83b6d05b6d8c5a7a",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx.sv",
+      "size": 32788,
+      "sha256": "abeb8c589e070eb28cd01eeaab68bbfdb07fdbe9ee0205ecf6239ca561d4ebe2",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_pkg.sv",
+      "size": 48241,
+      "sha256": "06fecd24481f9e43f7563381daaf063597e64736dcc1a7ae896e8c6f3ecc993d",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "hdl/milan/mailbox/KL_mbx_rx.sv",
+      "size": 32599,
+      "sha256": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/README.md",
+      "size": 29892,
+      "sha256": "35cd272ad664494fdc8f835c9e176a21f5b80b3c063fe9fd781c3c0b06e8ffc2",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.c",
+      "size": 39320,
+      "sha256": "81bb2b8a75df7020b479361a6508978124965322178162b1d8dfbb377a6a0023",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp.h",
+      "size": 22703,
+      "sha256": "fc34028fced08447ade9f0dab2a616002852d007dc2ed77acdb3b6643faed6d3",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_mbx.c",
+      "size": 4635,
+      "sha256": "e16bc03bdfa756508e5871ebdb2fcc82d86489724c57f8d41c4e41cbbe0100bc",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_mbx.h",
+      "size": 11666,
+      "sha256": "a1b65de762753f16575fc1e6c96776f06fbe5b531379936b9e4789a80e273125",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_nvm.c",
+      "size": 1815,
+      "sha256": "1d686432833d6c8e512bdbbf6d4110a073c8cda85d6a848804174f7fe73d9bf8",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/acmp/acmp_nvm.h",
+      "size": 2456,
+      "sha256": "4002e5fdc4f6289500f4e288ce876eae4eb17c67312966b51c9b8670d6c3315d",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.c",
+      "size": 3308,
+      "sha256": "d83586dfec54a1073c4e6d6ed9e9740c718e7f54ae512f1a36bfbd3f12bf7ad2",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app.h",
+      "size": 6352,
+      "sha256": "56665c4ea32626cf12cb2d23bc60664a942dec334383be0c18436a7c6af96d8f",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/app/ctrl_app_srp.c",
+      "size": 819,
+      "sha256": "faf516d79e0a55ed84f2b66c18b490702d8ecad66cf175beb0092a5600650403",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.c",
+      "size": 27821,
+      "sha256": "5b0c556890b234514519ff3c46e841d2dfd5b5e2be369287f009ddfae618d9e4",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/host/mbx_model.h",
+      "size": 5888,
+      "sha256": "7ae1a722902c0cae70bb84d9e5226b05686b23c61025ff55ec91fd223d83cb3e",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/maap/README.md",
+      "size": 10949,
+      "sha256": "86bda1d3fdd0fa15ca76614244a8f933ee65b2b3f35aa2ce1ad670f1d38714cf",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.c",
+      "size": 12720,
+      "sha256": "89e7da44a51eeb44075c388a0f70370f226e39810942f0e027f5f4714ed7cfe9",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx.h",
+      "size": 5974,
+      "sha256": "4bfe98d197bd74a0964fc416860c21c5b0faf66432ab4ce3bee21899929ad919",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/mbx/mbx_contract.h",
+      "size": 35482,
+      "sha256": "cddaa237cb6efd264d09ca422a67b7617b8e0f895cc38cfc877f1885eebac016",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/README.md",
+      "size": 16302,
+      "sha256": "6272897c2cea6bc19be4843553b166af6618a16db0509dfe35ed46f4b7f7da3e",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/srp/srp_bounds.h",
+      "size": 1065,
+      "sha256": "5520ddff609f7dea2fc63214d2d2b46266e4d0e859f9719e14253322528c28ec",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_fake.hpp",
+      "size": 12836,
+      "sha256": "3a9d7a79bc1b9e9760ecb43a4100c22fcc079343ee9c115734670a25dedc914e",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_if2.cpp",
+      "size": 895,
+      "sha256": "2ade9f507abb60757a2c64ee60afc8ee5cbc4ec32f859f66906c4deda911d16b",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_mutants.py",
+      "size": 76828,
+      "sha256": "23641591e20706ba10291ccaa9f00368529817d4aa5a4808bb82270882253f66",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_review_mutants.py",
+      "size": 33269,
+      "sha256": "6a943f89786071ef2fafd6bc83e5ba36322f9cc1afc86b8d1e00ec6d0f39259e",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/acmp_walk.cpp",
+      "size": 34426,
+      "sha256": "9fea8e7af29c485c57493a033058bdf2259c7b52534c1b96535d0dbdf0613fc4",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/adp_walk.cpp",
+      "size": 19941,
+      "sha256": "c7e5fded4ef98bfda7843dd88d8ec5dd1c3e0fb274ab568a369158314f368075",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_arms.py",
+      "size": 21336,
+      "sha256": "24a12ffce4b3834b9a65b0fc62dd32b15ab7752074ad4ecc9f55ed3508ecaf78",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_build.py",
+      "size": 5168,
+      "sha256": "85774f60b90a3a21bca6d542ab834702ddf80d92eb735a9b0231e40ec7fe3d86",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image.c",
+      "size": 3918,
+      "sha256": "0295abd3f397ed137659f2cc4aba7c9b4301d88c30c62ae4d1a0350340c19744",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image.py",
+      "size": 21651,
+      "sha256": "04e499a83e1134f6b0ff9c4653e5c1908b3c884f02d647e3eeca587d66d14d29",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_image_selftest.py",
+      "size": 19771,
+      "sha256": "6d50a57b5da0aff1a2b76974cb0a7df76fd8559caf956571a11225a2fedacbf1",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutant.py",
+      "size": 701,
+      "sha256": "f5b1ecb91e7140dde81178d4e76b21d7154be2750ee0363f0e0984499ca953d5",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_mutants.py",
+      "size": 42105,
+      "sha256": "710511c3c12f01d08c51f395e2b0ae6ef350191329198c68920ad4ea5f9af5c3",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_reuse.py",
+      "size": 5423,
+      "sha256": "859a2909be1ac4051881d78e76f2ebd2f7db0613b2ac7f126aeb46c7f131ab1c",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/ctrl_srp_image.py",
+      "size": 6756,
+      "sha256": "677e8f18a2636760222df5066dffb885555c727645ae9c8276ea64fae737e25b",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/maap_mutants.py",
+      "size": 16372,
+      "sha256": "107bcc5aacdab0105906700a0a5839e101905c9973b552232f2a3aedbb27dbd8",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image.ld",
+      "size": 862,
+      "sha256": "b6e8c6a05d21f43ef7f43c1aeba0e94b9ad209a409408dc37c2d8c29b138ac0b",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_arith.c",
+      "size": 5509,
+      "sha256": "d98468134fe3883d96f57bf98a90ed73fe3874f22b2bcc89fb5fc96c629e442e",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_main.c",
+      "size": 5992,
+      "sha256": "ad6a316dc06868b54fdca19e57473c43c63c975f1b4b7c0bd8b5d1481b953c6f",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_rt.c",
+      "size": 1767,
+      "sha256": "97f14dd09e4573a636e52ec36177259523877abf0894596be711a89450cff252",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/rv32_image/image_start.S",
+      "size": 486,
+      "sha256": "98c0580f584d48fdb6e00c554700568e1bc44979eb00f6e07e1894e2b0105cdd",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_app.cpp",
+      "size": 3662,
+      "sha256": "68c9553b51d22ccf3cd1b1bfcd155b5c6e4639f18cf34083f718367f592d4f62",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_arms.py",
+      "size": 6897,
+      "sha256": "b1065c0923a506d9c7f0e5705d8fe8bea2568c7e8165757fc5b10a8f375f5c8b",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/srp_mutants.py",
+      "size": 31182,
+      "sha256": "980e54a7360d1050933a13fbdbdd65564a8f47743381f29b81518d2ad2a4b9ac",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp.cpp",
+      "size": 90029,
+      "sha256": "c6bb95b07c45e14a5d254ae0eb839d1353759a5dc6dfdcc37354e95dbba8b4ff",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_mbx.cpp",
+      "size": 59363,
+      "sha256": "233f8b1be83babb30910162f952ac1d7a92dce48d83b3e2e6c3aa4724ec2c306",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_acmp_nvm.cpp",
+      "size": 13829,
+      "sha256": "e1528816b1a89300088585f25ccb9809a11546fd9269fcbaee76615ef9d16fd1",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_adp.cpp",
+      "size": 51149,
+      "sha256": "f422265b3ec2dd949972cc0f0cce918b1e1d3ff2ab7b35932dd5b9a02406261b",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "size": 12666,
+      "sha256": "3aef730347feec9a6b9c6badac61d8d2c2a1a60a42d9fe495bfa26d7b8f1a5dd",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+      "size": 21771,
+      "sha256": "81fc5268fc0d09e2999e1e6c5c09b56f6b1f154b99afb5897114319090a15aa7",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_driver.cpp",
+      "size": 11155,
+      "sha256": "dbb53e09d7fab34cf20376794f0fe51548347ea8fe9c8645fc8f700c794243ee",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl/test/test_unit_seams.cpp",
+      "size": 6992,
+      "sha256": "6af1619fc7bffaec26607522c93b3f2bfc5947432d71720e93699503ec166c97",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/ctrl_nvm/README.md",
+      "size": 32534,
+      "sha256": "72775f0d8d5e102c4a490e48a13fcb572a8a2c8b14204d593aa5d002443fa6b4",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/firmware/gtest/README.md",
+      "size": 33414,
+      "sha256": "00d829d6d6dbeb379f4f18586f39117db4290d7c1a1c6a78ff2a1eeba641942f",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/firmware/gtest/coverage.ratchet",
+      "size": 1682,
+      "sha256": "24fba0bcfdfae604af6151bdf50c88b779d8646c899a24ec75e929977433c9c7",
+      "assigned_dev_import_unchanged": false
+    },
+    {
+      "path": "sw/mailbox/gen_mailbox.py",
+      "size": 21422,
+      "sha256": "f9a5ba39aee4a5e685729227ed2d3a8f63f29a483487623384ba2869d99be6b6",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/mailbox/mailbox.yaml",
+      "size": 25932,
+      "sha256": "f5426123685b30ee63f03663874940d2cee593f68c08b23c8949d68692373624",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/mailbox/mailbox_emit.py",
+      "size": 16672,
+      "sha256": "eef8df971e829d472bfc77f4beadec7fda7183ad215c24a9d32d7241501c49c6",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/mailbox/mailbox_model.py",
+      "size": 31270,
+      "sha256": "a237e28b8b47db25de6731369db568963e7a5ae6f84abfbde456ea94976d3a34",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "sw/mailbox/mailbox_skeleton.py",
+      "size": 32783,
+      "sha256": "58f4ca7d5ede7aa6300d5ade29fe638241a58746f3bfacfd860184f09fedeef5",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/Makefile",
+      "size": 6191,
+      "sha256": "fb608d0729c33dfbad37af3429ec81e0de06bf21ce2cd6752554002aed6b5226",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/README.md",
+      "size": 26204,
+      "sha256": "1220e39759fe0e4b8da13ff950609e68f45237efdce93bf0c88e682d7715d031",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/bench.hpp",
+      "size": 11996,
+      "sha256": "a547cf1eab7684a52a896c40cbb9a402a39886df7404c57198023005af93b68c",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/cosim_main.cpp",
+      "size": 12960,
+      "sha256": "43b406ee913c814040b6d46d01469975b4e2bd697dea946a065ad996acce2d0a",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/mutants.py",
+      "size": 36158,
+      "sha256": "37bcbc8adc18a925a7c18e84250225d3620889cf7912e2d01542dfd54660e1c4",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/sim_main.cpp",
+      "size": 2013,
+      "sha256": "cdfc096db9c025e471ec9ba9feff15d7f4b5efb96a1cfaacefcf315c3d2c5f5d",
+      "assigned_dev_import_unchanged": true
+    },
+    {
+      "path": "tb/verilator/mbx/suite.hpp",
+      "size": 80806,
+      "sha256": "90ff48a946d2667dbf8877df66d463437131d82ba7c7ac220c3c964a80139381",
+      "assigned_dev_import_unchanged": true
+    }
+  ],
+  "new_hdl_or_mailbox_delta_against_dev": []
+}

@@ -1,0 +1,67 @@
+Note: Google Test filter = AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+R533 interface=0 ACMP_requested=1 SRP_bound=0
+$PACKET/scratch/binding-probe/test_acmp_mbx.cpp:1257: Failure
+Value of: srp_adapter.ifs[i].sinks[i].bound
+  Actual: false
+Expected: true
+R533 required composed delivery is absent
+
+  [FAIL] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp: R533 required composed delivery is absent
+R533 interface=0 direct_delivery_bound=1
+[  FAILED  ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+R533 interface=0 ACMP_requested=1 SRP_bound=0
+$PACKET/scratch/binding-probe/test_acmp_mbx.cpp:1257: Failure
+Value of: srp_adapter.ifs[i].sinks[i].bound
+  Actual: false
+Expected: true
+R533 required composed delivery is absent
+
+  [FAIL] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp: R533 required composed delivery is absent
+R533 interface=0 direct_delivery_bound=1
+R533 interface=1 ACMP_requested=1 SRP_bound=0
+$PACKET/scratch/binding-probe/test_acmp_mbx.cpp:1257: Failure
+Value of: srp_adapter.ifs[i].sinks[i].bound
+  Actual: false
+Expected: true
+R533 required composed delivery is absent
+
+  [FAIL] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp: R533 required composed delivery is absent
+R533 interface=1 direct_delivery_bound=1
+[  FAILED  ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+REPRODUCED: accepted ACMP requests do not reach the attached SRP adapter; direct port control passes

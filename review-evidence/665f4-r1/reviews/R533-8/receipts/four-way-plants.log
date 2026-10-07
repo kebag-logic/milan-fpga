@@ -1,0 +1,127 @@
+{
+  "control_plants": 469,
+  "srp_if2_plants": 108,
+  "srp_if1_additional_plants": 6,
+  "four_way": [
+    {
+      "interfaces": 2,
+      "plant": "four-way-srp-irq-missing",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 exact four-channel receive and event interrupt mask"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-srp-irq-missing.log",
+      "raw_sha256": "e30349aacb9807fa8fec919381ade86cf52266570607295ba1274bdb1e743b0a",
+      "published_sha256": "7e0bddf722b2ebc06906e0189d07a984d856b9db716b5a03bf7ed87a8d23dee0"
+    },
+    {
+      "interfaces": 2,
+      "plant": "four-way-srp-wake-missing",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 idle loop wakes for SRP alone"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-srp-wake-missing.log",
+      "raw_sha256": "e30349aacb9807fa8fec919381ade86cf52266570607295ba1274bdb1e743b0a",
+      "published_sha256": "7e0bddf722b2ebc06906e0189d07a984d856b9db716b5a03bf7ed87a8d23dee0"
+    },
+    {
+      "interfaces": 2,
+      "plant": "four-way-acmp-enable-lost",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 four receive channels and no others"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-acmp-enable-lost.log",
+      "raw_sha256": "c984a92234e6c25ebe7d53da80601b004a343a1942770c04100b5ca5b38f329f",
+      "published_sha256": "ff9ded50557743169ad7a3761a00cefeb130045d61cb56a42d1c6aaf967ec476"
+    },
+    {
+      "interfaces": 2,
+      "plant": "four-way-unbound-irq-enabled",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 exact four-channel receive and event interrupt mask"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-unbound-irq-enabled.log",
+      "raw_sha256": "eb6c37d2eebc16b884daf05f81d4f1fb601d051450fb8a9b8770a2f7f2f9f883",
+      "published_sha256": "755920dbb42e415b3efc5302ec99f8ab79c2f9106f33475490a362469fe39e3d"
+    },
+    {
+      "interfaces": 2,
+      "plant": "four-way-bound-drops-srp",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 four modules count each shared event record once"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-bound-drops-srp.log",
+      "raw_sha256": "e1096f71d8896c1cdc6adee8e1c5c0ef6edfbce3bef1e87d5b71ae0976398af3",
+      "published_sha256": "c36efeb6bf165950975c885b20be2e2613b0774ce83048f07da7633fbb8fbaef"
+    },
+    {
+      "interfaces": 2,
+      "plant": "four-way-bound-duplicates-events",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 four modules count each shared event record once"
+      ],
+      "receipt": "receipts/four-way-if2/four-way-bound-duplicates-events.log",
+      "raw_sha256": "d1d996d87d6106f0953e94a4c5e6a63bea4e69302956973811b1ebdff36e99e0",
+      "published_sha256": "35be53354a5443b77e7923982541723347f61bd0ed4a332d7e5a00a7afb64f9c"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-srp-irq-missing",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 exact four-channel receive and event interrupt mask"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-srp-irq-missing.log",
+      "raw_sha256": "e30349aacb9807fa8fec919381ade86cf52266570607295ba1274bdb1e743b0a",
+      "published_sha256": "7e0bddf722b2ebc06906e0189d07a984d856b9db716b5a03bf7ed87a8d23dee0"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-srp-wake-missing",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 idle loop wakes for SRP alone"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-srp-wake-missing.log",
+      "raw_sha256": "e30349aacb9807fa8fec919381ade86cf52266570607295ba1274bdb1e743b0a",
+      "published_sha256": "7e0bddf722b2ebc06906e0189d07a984d856b9db716b5a03bf7ed87a8d23dee0"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-acmp-enable-lost",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 four receive channels and no others"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-acmp-enable-lost.log",
+      "raw_sha256": "c984a92234e6c25ebe7d53da80601b004a343a1942770c04100b5ca5b38f329f",
+      "published_sha256": "ff9ded50557743169ad7a3761a00cefeb130045d61cb56a42d1c6aaf967ec476"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-unbound-irq-enabled",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 exact four-channel receive and event interrupt mask"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-unbound-irq-enabled.log",
+      "raw_sha256": "eb6c37d2eebc16b884daf05f81d4f1fb601d051450fb8a9b8770a2f7f2f9f883",
+      "published_sha256": "755920dbb42e415b3efc5302ec99f8ab79c2f9106f33475490a362469fe39e3d"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-bound-drops-srp",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 four modules count each shared event record once"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-bound-drops-srp.log",
+      "raw_sha256": "51620ec902d0a8a818e65c2c32bbeffe5e619f0acbd275178107c8129d860af0",
+      "published_sha256": "d4c67ba439ad24c2baec99df6521016ba3679073097c5d44cb29f414a9e9941d"
+    },
+    {
+      "interfaces": 1,
+      "plant": "four-way-bound-duplicates-events",
+      "failed_observable": [
+        "[FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 four modules count each shared event record once"
+      ],
+      "receipt": "receipts/four-way-if1/four-way-bound-duplicates-events.log",
+      "raw_sha256": "7c28e717a70609f3e786321163ef46e2fb7a174daa5885b02dfaccaeafbb41b2",
+      "published_sha256": "91b6d7ae8bb5573cbd2ff7a5f9ecc3a3a4b76cb8a85ebc522aadad9d9d41edcf"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "srp": [
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "interfaces": 1,
+      "sections_storage_span_and_elf_match": true,
+      "elf_sha256": "f8d5e2377f9b471f9b06c2fe38e660ddcec1fa1aba5e613c044e209e0d509822"
+    },
+    {
+      "shape": "endstation_ax7101_1x1_tdm8",
+      "interfaces": 2,
+      "sections_storage_span_and_elf_match": true,
+      "elf_sha256": "c6a4c1420f7d1c721ea98727db3f9098aa1061c041d762e01b537a3d88ea9bd8"
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "interfaces": 1,
+      "sections_storage_span_and_elf_match": true,
+      "elf_sha256": "7b8830fd214b62fa0531be54c566697ac5986592ee17ec4b0340d19a5553eeac"
+    },
+    {
+      "shape": "endstation_ax7101_8x8",
+      "interfaces": 2,
+      "sections_storage_span_and_elf_match": true,
+      "elf_sha256": "9b358645aa5610f11c9949ca6be8f59951229dc6fac986fcb0c6047346a31109"
+    }
+  ],
+  "f3": [
+    {
+      "path": "$SCRATCH/f3-images/head/endstation_ax7101_1x1_tdm8/ctrl_app.elf",
+      "sha256": "e0e128a16bc5e8e48197ed4cc34c881c1fbacdfe5bdc252b95c3ae3035576954",
+      "equal": true
+    },
+    {
+      "path": "$SCRATCH/f3-images/head/endstation_ax7101_8x8/ctrl_app.elf",
+      "sha256": "c3bd230041792eb122c25472671225ba5408829ccc7187af83903272457750e0",
+      "equal": true
+    }
+  ],
+  "verified_runtime_inputs": [
+    "$RUNTIME/picolibc.h",
+    "$USER_HOME/litex-milan/litex/litex/soc/software/libc/picolibc-minimal.h",
+    "$USER_HOME/litex-milan/litex/litex/soc/software/libcompiler_rt/mulsi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/ashldi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/ashrdi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/clzdi2.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/clzsi2.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/ctzdi2.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/ctzsi2.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/divdi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/divsi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/int_endianness.h",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/int_lib.h",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/int_types.h",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/int_util.h",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/lshrdi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/moddi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/modsi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/muldi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/ucmpdi2.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/udivdi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/udivmoddi4.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/udivsi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/umoddi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data/lib/builtins/umodsi3.c",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/alloca.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/ctype.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/errno.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/limits.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/locale.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/machine/_default_types.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/machine/_types.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/machine/ieeefp.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/machine/stdlib.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/stdint.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/stdlib.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/string.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/strings.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/_intsup.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/_locale.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/_stdint.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/_types.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/_wait.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/cdefs.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/config.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/errno.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/features.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/string.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/sys/syslimits.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/wchar.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/include/wctype.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/locale/locale_private.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/../ctype/local.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/local.h",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/memcmp.c",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/memcpy.c",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/memmove.c",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data/libc/string/memset.c"
+  ],
+  "archive_digests": [
+    {
+      "path": "$RUNTIME/libc.a",
+      "local_sha256": "a163977d6a8b005b3a95deeadd0b312ff80d305e9db35458944738f9c48c064e",
+      "published_sha256": "488f3ee5be208e51fee0a5536fc2c7a690354627bdf0de41d3aa8e41d14fd294"
+    },
+    {
+      "path": "$RUNTIME/libcompiler_rt.a",
+      "local_sha256": "cc998b17a11b5a3efe2dbfda644aa1033c57a4ed3dbe99fd9dbd762e55ca4850",
+      "published_sha256": "ad58aefcca43955cf230f42fbc18d9352ec7caea57c68a0a3f7416c271604c97"
+    }
+  ],
+  "limits": "Archive container bytes differ; linked ELF bytes and all measured sections match. Link maps include local paths."
+}

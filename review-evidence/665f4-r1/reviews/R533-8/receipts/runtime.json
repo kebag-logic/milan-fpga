@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "sw/firmware/ctrl/test/ctrl_image_runtime.py",
+    "--picolibc",
+    "$USER_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data",
+    "--compiler-rt",
+    "$USER_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data",
+    "--litex-software",
+    "$USER_HOME/litex-milan/litex/litex/soc/software",
+    "--output",
+    "$PACKET/scratch/runtime"
+  ],
+  "cwd": "$CHECKOUT",
+  "rc": 0,
+  "seconds": 0.901,
+  "raw_bytes": 0,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "published_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

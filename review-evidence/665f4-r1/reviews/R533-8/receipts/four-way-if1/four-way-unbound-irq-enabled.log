@@ -1,0 +1,27 @@
+Note: Google Test filter = AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+$CHECKOUT/sw/firmware/ctrl/test/test_acmp_mbx.cpp:1149: Failure
+Expected equality of these values:
+  model.irq_enable
+    Which is: 287
+  mbx_place(four_channels, 0u, 8u) | mbx_place(1u, 8u, 1u)
+    Which is: 283
+U6 exact four-channel receive and event interrupt mask
+
+  [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 exact four-channel receive and event interrupt mask
+[  FAILED  ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+
+ 1 FAILED TEST
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
