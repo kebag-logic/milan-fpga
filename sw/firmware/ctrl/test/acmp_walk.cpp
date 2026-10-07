@@ -39,7 +39,8 @@
 // state names its one timer) and is reported, not walked; in a state with no
 // timer the processor injects a spurious expiry and so does this walk.
 //
-// THE DIFFERENCES, each asserted to be exactly what it is, field for field:
+// THE DIFFERENCES. LD1 to LD3 are asserted to be exactly what they are, field
+// for field, against the processor's own model; TD1 on the firmware's half:
 //   LD1  UNBIND_RX_RESPONSE: the processor echoes the command's
 //        talker_entity_id and talker_unique_id; Milan v1.2 Table 5.36 gives
 //        both 0, and the firmware sends 0;
@@ -50,8 +51,15 @@
 //   LD3  CONTROLLER_NOT_AUTHORIZED: the processor sends status 13
 //        (TALKER_MISBEHAVING in IEEE 1722.1-2021 Table 8-3); the firmware
 //        sends 16, the table's CONTROLLER_NOT_AUTHORIZED;
-//   TD1  DISCONNECT_TX of an unknown source: the processor answers SUCCESS;
-//        Milan v1.2 5.5.4.2 step 1 and Table 5.44 answer TALKER_UNKNOWN_ID.
+//   TD1  DISCONNECT_TX of an unknown source: the firmware answers
+//        TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44). The
+//        processor's SUCCESS is read from source (hdl/acmp/KL_acmp_talker.sv,
+//        lines 1301 to 1306), not walked: this arm reuses the talker suite's
+//        constants, and that suite has no unknown-source DISCONNECT_TX check.
+//        5.5.2.7 says DISCONNECT_TX "always returns SUCCESS"; it is an
+//        overview that defers to 5.5.4, and 5.5.4.2, the "shall" procedure,
+//        validates the source first, so it governs (#665, comment
+//        6030067436). The four are processor issue #168.
 // Everything else agrees.
 //
 // THE DISCOVERY WALK (DW) drives every cell of the processor's Table 5.54

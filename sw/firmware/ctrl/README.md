@@ -49,7 +49,7 @@ machine), in three units, each stating its clauses in its header:
 | Unit | What it is |
 |---|---|
 | [`acmp.h`](acmp/acmp.h), [`acmp.c`](acmp/acmp.c) | the core, with no mailbox: every listener transition of Table 5.30, the talker's answers of 5.5.4, the discovery machine of Table 5.54, the timers of Tables 5.26 and 5.29, the lock, the saved binding record, and the no-callback guard of #678 |
-| [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, and the service-latency figures per path |
+| [`acmp_mbx.h`](acmp/acmp_mbx.h), [`acmp_mbx.c`](acmp/acmp_mbx.c) | the mailbox adapter: the acmp channel, one fabric timer slot per AVB interface armed at the earliest deadline of its sinks, the tap that hands the adp channel's ENTITY_AVAILABLE and ENTITY_DEPARTING to discovery and everything else to ADP, the adp channel's bound-talker table kept equal to the bindings, and the service-latency figures per path |
 | [`acmp_nvm.h`](acmp/acmp_nvm.h), [`acmp_nvm.c`](acmp/acmp_nvm.c) | the binding group on lane F1's state port (`ctrl_nvm/nvm_state.h`), every other group forwarded to the integrator's owners |
 
 The protocol state is keyed per AVB interface: a sink's probes leave on its
@@ -58,11 +58,17 @@ takes ADPDUs only from its own interface. A change of a sink's Table 5.22
 items is reported through the env's `changed` port only once the response of
 the command that caused it has been taken by the transmit ring (#653).
 
-The tree's contract passes no ENTITY_AVAILABLE or ENTITY_DEPARTING into the
-adp channel, so until it carries the term the
-[design page](../../../docs/design/MAILBOX_SPLIT.md#the-acmp-module) records
-as an open decision, the tap's discovery half receives nothing from the
-fabric, and a restored binding waits in PRB_W_AVAIL.
+The adp channel's term is decided on #665 (6029368753): ENTITY_AVAILABLE and
+ENTITY_DEPARTING of a talker bound on the receiving interface; F3 round 2 adds
+the term. The contract's `eq_bound` term reads a per-interface bound-talker
+table in the mailbox block, which the core's `admit` port keeps equal to each
+bound sink's talker (sink k is entry k), and which `ctrl_app_open()` fills
+with the bindings the store restored
+([design page](../../../docs/design/MAILBOX_SPLIT.md#discovery-and-the-adp-channels-filter)).
+Only AVTP version 0 is read: the core discards an ACMPDU or ADPDU of another
+version before decoding it (IEEE 1722-2016 4.4.3.4). TMR_NO_RESP runs from
+the send the transmit ring accepts, so a probe owed behind other frames
+holds its timer until it leaves.
 
 A platform that restores bindings boots in this order: `ctrl_app_compose()`,
 `acmp_nvm_init()` on the app's ACMP core, `nvm_store_boot()` with its port,
@@ -87,7 +93,8 @@ hand-rolled checks and the coverage ratchet are described in
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
 | `acmp` | `test_acmp.cpp`, `test_acmp_mbx.cpp` | the ACMP core over fake ports (every listener command, response, timer and SRP event in every state Table 5.30 gives it, each response field by field; the talker's answers; the lock; responses keyed on the consumer's unique ID; sequence IDs; one timer per interface; owed frames and the response before its notification; the discovery machine cell by cell; the saved record; the no-callback guard), then the adapter on the model: the channel and its filter, the timer slot and the tag rule, the ADP channel's tap, the gPTP pair, the adapter's refusals, every path's service cost (the H-ACMP and H-DISC hooks), an owed response behind a full ring under a HAL that sleeps, full backlogs and the composition |
 | `acmpwalk` | `acmp_walk.cpp` | the processor's own ACMP expectations, reused: its F05.3 matrix model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, each difference between the two asserted to be what it is |
-| `acmpnvm` | `test_acmp_nvm.cpp` | the core and its binding owner on lane F1's store over the host flash model, at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, the started flags, an unread slot refusing persistence, a refused record, the roll-back and every other group forwarded |
+| `acmpnvm` | `test_acmp_nvm.cpp` | the core and its binding owner on lane F1's store over the host flash model, at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, the started flags, an unread slot refusing persistence, a refused record, the roll-back and every other group forwarded, and a D3 roll-back (at the port and at a boot) leaving the bindings applied |
+| `acmpif2` | `test_acmp_mbx.cpp`, `acmp_if2.cpp` | the adapter's tests again with the firmware and the model compiled against the contract elaborated for two AVB interfaces (written into the build by `gen_mailbox.py`): each interface's timer slot, tag, gPTP pair, bound-talker table and every latency path |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
@@ -117,15 +124,19 @@ and `tb/acmp_talker/sim_main.cpp`'s F05.11 constants
 (`pp_talker_reuse.inc`). `acmp_walk.cpp` runs the processor's model and the
 firmware's core in lock step through every Table 5.30 cell a stimulus can
 reach, and grades the frames byte for byte, the sink's timer, its record, the
-SRP start and stop, discovery, the store's mark and the notification. Four
+SRP start and stop, discovery, the store's mark and the notification. Three
 differences are asserted, field for field, to be exactly what they are:
 UNBIND_RX_RESPONSE's talker fields (the processor echoes them; Milan Table
 5.36 gives 0), the ACMP status after a TMR_RETRY with the talker discovered
-(the processor zeroes it; 5.5.3.5.30 step 2 sets none), the lock's refusal
+(the processor zeroes it; 5.5.3.5.30 step 2 sets none), and the lock's refusal
 status (the processor sends 13, TALKER_MISBEHAVING in IEEE 1722.1-2021 Table
-8-3; the firmware 16, CONTROLLER_NOT_AUTHORIZED), and DISCONNECT_TX of an
-unknown source (the processor answers SUCCESS; Milan 5.5.4.2 step 1,
-TALKER_UNKNOWN_ID).
+8-3; the firmware 16, CONTROLLER_NOT_AUTHORIZED). A fourth, DISCONNECT_TX of
+an unknown source, is asserted on the firmware's half only (TALKER_UNKNOWN_ID,
+Milan 5.5.4.2 step 1); the processor's SUCCESS is read from source
+(`KL_acmp_talker.sv:1301-1306`), not walked. Milan 5.5.2.7 says DISCONNECT_TX
+"always returns SUCCESS"; 5.5.4.2 governs, since 5.5.2.7 is an overview that
+defers to 5.5.4 and 5.5.4.2 is the "shall" procedure. The four are processor
+issue #168.
 
 ### Planted defects
 
@@ -155,15 +166,20 @@ a byte early, a tuple's message types ignored, a message_type refusal left
 uncounted, a DEFEND taken to any unicast), and the firmware's side has its
 own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
 `port`), the own MACs written after the channels open (`port`) and the app's
-own MAC not the entity's (`unit`). Lane F3 adds 195 defects for the
-`acmp`, `acmpwalk` and `acmpnvm` arms: a defect in each clause step, each
+own MAC not the entity's (`unit`). Lane F3 adds 251 defects for the
+`acmp`, `acmpwalk`, `acmpnvm` and `acmpif2` arms (with the driver's and the
+model's for the bound-talker table in `unit` and `model`): a defect in each clause step, each
 response field, each guard term, each timer, the owed queue and the #653
 release, discovery's every guard, each port's re-entry flag, the saved
 record, the adapter's slot, tag and tap, extra mailbox accesses on each
 measured path, each backlog figure understated, and the binding owner's
-forwarding; and seven wrong numbers in `acmp.h` itself, which the tests
+forwarding; round 2's AVTP version check, TMR_NO_RESP from the accepted send,
+the slot range, the per-interface wiring at two interfaces, the binding
+record's flags and length, the D3 roll-back, each timer across the
+millisecond wrap and the bound-talker table; and eight wrong numbers in `acmp.h` itself, which the tests
 catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
-never the header's. They are `acmp_mutants.py`'s table. Every test of those
+never the header's. They are `acmp_mutants.py`'s table, round 2's in
+`acmp_review_mutants.py`. Every test of those
 arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
 store suite does. Some FC filter defects in the host model also name
 lane F3's own-unicast and FILTER_MISMATCH checks. With
