@@ -3,8 +3,9 @@
 """acmp_review_mutants.py - lane F3's round-2 planted defects (#665, issue
 comment 6030067436): one or more for each finding of the R531-1 and R530-1
 reviews and for the adp channel's bound-talker term (comment 6029368753),
-on the core, the adapter, the binding owner, the driver and the host model.
-acmp_mutants.py appends this table to its own.
+on the core, the adapter, the binding owner, the driver and the host model;
+and round 4's (comment 6034423349) for R531-2-F1. acmp_mutants.py appends
+this table to its own.
 """
 
 from __future__ import annotations
@@ -33,7 +34,8 @@ MUTANTS = (
            "A1 BIND_RX sends two frames: the response and the probe"),
     # R531-1-F2: TMR_NO_RESP from the accepted send of each attempt
     Mutant("acmp-owed-probe-timer-runs", "acmp/acmp.c",
-           "\tif (sent == OWED) {\n\t\ts->timer_held = true;\n\t} else if", "\tif (sent == SENT) {\n\t} else if",
+           "\t} else if (sent == OWED) {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n",
+           "\t} else if (sent == OWED) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held",
            (("acmp", "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval",
@@ -42,14 +44,14 @@ MUTANTS = (
              "A23 and the outer call completes as if it had not been made"))),
     Mutant("acmp-owed-probe-never-starts", "acmp/acmp.c",
            "\tif (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {\n"
-           "\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t}",
+           "\t\tno_resp_from_send(a, s);\n\t}",
            "\t(void)s;",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send",
            (("acmp", "AcmpCore.A27AStalledDuplicateGetsItsWholeInterval", "A27 the duplicate, the first probe's"),)),
     Mutant("acmp-owed-probe-no-resp-2s", "acmp/acmp.c",
-           "== s->probe_seq) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
-           "== s->probe_seq) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS * 10u);",
+           "== s->probe_seq) {\n\t\tno_resp_from_send(a, s);",
+           "== s->probe_seq) {\n\t\tno_resp_from_send(a, s);\n\t\ts->timer_deadline += 9u * ACMP_TMR_NO_RESP_MS;",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"),
     Mutant("acmp-owed-probe-sequence-unchecked", "acmp/acmp.c",
@@ -64,8 +66,39 @@ MUTANTS = (
            "transmit(a, s->interface, frame, 0u, k + 2u);",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send"),
-    Mutant("acmp-held-timer-expires", "acmp/acmp.c", "\t\twhile (sm_running(s) && due(s->timer_deadline, t)) {",
-           "\t\twhile (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, t)) {",
+    # R531-2-F1: TMR_NO_RESP from the clock after the port took the probe, whatever the entry read before
+    Mutant("acmp-probe-timer-before-its-send", "acmp/acmp.c",
+           "\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n"
+           "\t\tno_resp_from_send(a, s);",
+           "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n"
+           "\tenum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);\n\tif (sent == SENT) {\n"
+           "\t\ts->timer_held = false;",
+           "acmp", "AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend",
+           "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send",
+           (("acmp", "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+             "A30 the duplicate taken at once"),)),
+    Mutant("acmp-taken-probe-timer-from-the-entry-clock", "acmp/acmp.c",
+           "\tif (sent == SENT) {\n\t\tno_resp_from_send(a, s);",
+           "\tif (sent == SENT) {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
+           "acmp", "AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend",
+           "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's"),
+    Mutant("acmp-expiry-due-at-its-first-read", "acmp/acmp.c",
+           "\ta->timer_armed[interface] = false;                      // the port's timer has fired\n"
+           "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n"
+           "\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n"
+           "\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {      // 5.6.4.5.4\n"
+           "\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n"
+           "\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {",
+           "\ta->timer_armed[interface] = false;\n\tconst uint32_t t = now(a);\n"
+           "\tfor (unsigned k = 0; k < a->cfg.n_sinks; ++k) {\n\t\tstruct acmp_sink *s = &a->sinks[k];\n"
+           "\t\tif (s->interface != interface) {\n\t\t\tcontinue;\n\t\t}\n"
+           "\t\tif (s->adp_armed && due(s->adp_deadline, t)) {\n"
+           "\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);\n\t\t}\n"
+           "\t\twhile (sm_running(s) && due(s->timer_deadline, t)) {",
+           "acmp", "AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry",
+           "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock"),
+    Mutant("acmp-held-timer-expires", "acmp/acmp.c", "\t\twhile (sm_running(s) && due(s->timer_deadline, now(a))) {",
+           "\t\twhile (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, now(a))) {",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 an expiry of the interface while the probe is owed takes nothing"),
     Mutant("acmp-held-timer-armed", "acmp/acmp.c",
@@ -73,8 +106,9 @@ MUTANTS = (
            "\t\t\t\tearliest(&any, &at, s->timer != ACMP_TIMER_NONE, s->timer_deadline);",
            "acmp", "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
            "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed"),
-    Mutant("acmp-lost-probe-held", "acmp/acmp.c", "\tif (sent == OWED) {\n\t\ts->timer_held = true;",
-           "\tif (sent != SENT) {\n\t\ts->timer_held = true;",
+    Mutant("acmp-lost-probe-held", "acmp/acmp.c",
+           "\t} else {\n\t\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\t\ta->probes_lost++;",
+           "\t} else {\n\t\ts->timer = ACMP_TIMER_NO_RESP;\n\t\ts->timer_held = true;\n\t\ta->probes_lost++;",
            "acmp", "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered", "A19 and it does"),
     Mutant("acmp-stop-keeps-the-hold", "acmp/acmp.c",
            "\ts->timer = ACMP_TIMER_NONE;\n\ts->timer_held = false;\n}", "\ts->timer = ACMP_TIMER_NONE;\n}",
@@ -131,8 +165,8 @@ MUTANTS = (
            "(!*any || deadline < *at)",
            "acmp", "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
            "A28 the interface timer holds the earlier deadline"),
-    Mutant("acmp-no-adp-due-unsigned", "acmp/acmp.c", "\t\tif (s->adp_armed && due(s->adp_deadline, t)) {",
-           "\t\tif (s->adp_armed && s->adp_deadline <= t) {",
+    Mutant("acmp-no-adp-due-unsigned", "acmp/acmp.c", "\t\tif (s->adp_armed && due(s->adp_deadline, now(a))) {",
+           "\t\tif (s->adp_armed && s->adp_deadline <= now(a)) {",
            "acmp", "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap", "A28 TMR_NO_ADP: nothing before"),
     *[Mutant(f"acmp-{name}-deadline-saturates", "acmp/acmp.c", "\ts->timer_deadline = now(a) + delay_ms;",
              f"\ts->timer_deadline = kind == {kind} && now(a) > 0xFFFFFFFFu - delay_ms ? 0xFFFFFFFFu : "

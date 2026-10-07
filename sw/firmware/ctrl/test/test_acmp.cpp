@@ -11,7 +11,8 @@
 //       the discovery machine of 5.6.4 cell by cell; the saved binding record,
 //       byte for byte against the processor's payload; the no-callback guard
 //       (#678); AVTP versions other than 0 discarded before they are read;
-//       TMR_NO_RESP from the accepted send of each attempt; every timer across
+//       TMR_NO_RESP from the accepted send of each attempt, timed from the
+//       clock after that send even when it moves inside it; every timer across
 //       the 32-bit millisecond wrap; the admit port behind the adp channel's
 //       bound-talker term.
 //
@@ -1779,6 +1780,97 @@ TEST_F(AcmpCore, A29RestoredBindingsAreAdmittedWhenTheTransportOpens) {
     ASSERT_EQ(v.size(), 1u) << "A29 a sink the store resets is withdrawn at the next open";
     EXPECT_TRUE(!v[0].flag && v[0].index == 0u)
         << "A29 a sink the store resets is withdrawn at the next open: what the port holds outlives the reset";
+}
+
+// ---- A30: TMR_NO_RESP from the clock after the port took the probe (R531-2-F1; 5.5.3.5.3 steps 5 to 7,
+// 5.5.3.5.16 steps 1 and 2), with the clock moving inside every send ------------------------------------
+
+TEST_F(AcmpCore, A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend) {
+    fk.send_ms = 5u;
+    bind(0);                                             // the response, then the probe: each moves the clock
+    const acmp_sink& s = a.sinks[0];
+    ASSERT_TRUE(fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND)
+        << "A30 BIND_RX sends the response and the probe at once";
+    std::uint32_t taken = fk.sent[1].at;
+    EXPECT_TRUE(s.timer_deadline == taken + spec::TMR_NO_RESP_MS && !s.timer_held && fk.armed[0] &&
+                fk.at[0] == s.timer_deadline)
+        << "A30 the probe taken at once: TMR_NO_RESP 200 ms from the clock after its send";
+    fk.now = taken + spec::TMR_NO_RESP_MS - 1u;
+    acmp_timer_expired(&a, 0);
+    EXPECT_EQ(s.state, ACMP_PRB_W_RESP) << "A30 no expiry 199 ms after the probe was taken";
+    rx(probe_answer(0));
+    EXPECT_EQ(s.state, ACMP_SETTLED_NO_RSV) << "A30 a success 199 ms after the probe was taken settles";
+    SetUp();
+    fk.send_ms = 5u;
+    bind(0);
+    taken = fk.sent[1].at;
+    fk.now = taken + spec::TMR_NO_RESP_MS;
+    acmp_timer_expired(&a, 0);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_RESP2) << "A30 the duplicate at the full 200 ms after the probe was taken";
+    SetUp();
+    fk.room = false;
+    bind(0);
+    fk.room = true;
+    fk.send_ms = 5u;
+    static_cast<void>(acmp_poll(&a));                    // the response
+    static_cast<void>(acmp_poll(&a));                    // the probe
+    ASSERT_TRUE(fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND)
+        << "A30 an owed probe leaves after its response";
+    EXPECT_EQ(a.sinks[0].timer_deadline, fk.sent[1].at + spec::TMR_NO_RESP_MS)
+        << "A30 an owed probe: TMR_NO_RESP 200 ms from the clock after the poll's send";
+}
+
+TEST_F(AcmpCore, A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend) {
+    bind(0);
+    const acmp_sink& s = a.sinks[0];
+    const auto first = fk.sent.back();
+    const std::uint16_t seq = s.probe_seq;
+    fk.send_ms = 5u;
+    fk.clear();
+    fire(0);                                             // the expiry reads the clock, then sends the duplicate
+    ASSERT_TRUE(fk.sent.size() == 1u && fk.sent[0].bytes == first.bytes && s.probe_seq == seq &&
+                s.state == ACMP_PRB_W_RESP2)
+        << "A30 the first TMR_NO_RESP sends one duplicate, the first probe's exact copy and sequence_id";
+    std::uint32_t taken = fk.sent[0].at;
+    EXPECT_TRUE(s.timer_deadline == taken + spec::TMR_NO_RESP_MS && fk.at[0] == s.timer_deadline)
+        << "A30 the duplicate taken at once: TMR_NO_RESP 200 ms from the clock after its send, not the expiry's";
+    fk.now = taken + spec::TMR_NO_RESP_MS - 1u;
+    acmp_timer_expired(&a, 0);
+    EXPECT_EQ(s.state, ACMP_PRB_W_RESP2) << "A30 no second expiry 199 ms after the duplicate was taken";
+    rx(probe_answer(0));
+    EXPECT_EQ(s.state, ACMP_SETTLED_NO_RSV) << "A30 a success 199 ms after the duplicate was taken settles (5.5.3.5.25)";
+    SetUp();
+    bind(0);
+    fk.send_ms = 5u;
+    fire(0);
+    taken = fk.sent.back().at;
+    fk.clear();
+    fk.now = taken + spec::TMR_NO_RESP_MS;
+    acmp_timer_expired(&a, 0);
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RETRY && fk.sent.empty() &&
+                a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT)
+        << "A30 the second expiry at the full 200 ms after the duplicate was taken: no third probe, the timeout";
+}
+
+TEST_F(AcmpCore, A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry) {
+    bind(1);                                             // sink 1 on interface 0: failed, TMR_RETRY, talker discovered
+    adp(Adp{});
+    rx(probe_answer(1, 5u));
+    const std::uint32_t retry_at = a.sinks[1].timer_deadline;
+    fk.now = retry_at - spec::TMR_NO_RESP_MS;
+    bind(0);                                             // sink 0's TMR_NO_RESP falls due with it
+    ASSERT_TRUE(a.sinks[0].timer_deadline == retry_at && a.sinks[1].state == ACMP_PRB_W_RETRY &&
+                a.sinks[1].discovered)
+        << "A30 two sinks of interface 0 due at one expiry";
+    a.rng = state_drawing(0);
+    a.seeded = true;
+    fk.send_ms = 5u;
+    fk.clear();
+    fk.now = retry_at;
+    acmp_timer_expired(&a, 0);
+    EXPECT_TRUE(fk.sent.size() == 2u && a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP &&
+                a.sinks[1].timer_deadline == fk.sent[1].at + spec::TMR_NO_RESP_MS)
+        << "A30 sink 1's 0 ms TMR_DELAY, drawn after sink 0's duplicate moved the clock, probes in the same expiry";
 }
 
 }  // namespace

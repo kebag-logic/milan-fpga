@@ -101,11 +101,15 @@ struct Call {
 struct Sent {
     unsigned interface;
     std::array<std::uint8_t, spec::FRAME_BYTES> bytes;
+    std::uint32_t at = 0;       // the clock once the port has taken it
 };
 
 struct Fake {
     bool room = true;
     std::uint32_t now = 50000;
+    // the clock moves this much inside each send the port takes, as a send
+    // that stalls on the bus moves it (R531-2-F1)
+    std::uint32_t send_ms = 0;
     std::uint64_t gm[ACMP_MAX_INTERFACES] = {kGm0, kGm0, kGm0, kGm0};
     std::uint8_t domain[ACMP_MAX_INTERFACES] = {};
     std::uint32_t seed = 0x5EEDu;
@@ -158,7 +162,8 @@ inline bool f_send(void*, unsigned interface, const std::uint8_t* frame, std::si
     if (!fk.room || len != spec::FRAME_BYTES) {
         return false;
     }
-    Sent s{interface, {}};
+    fk.now += fk.send_ms;
+    Sent s{interface, {}, fk.now};
     std::memcpy(s.bytes.data(), frame, len);
     fk.sent.push_back(s);
     return true;
