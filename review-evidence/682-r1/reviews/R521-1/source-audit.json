@@ -1,0 +1,146 @@
+{
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "integrity": {
+    "parent": {
+      "blobs": 1164,
+      "tree": "4a12e8029325593169fa91dbbf855dc3d5efee9d",
+      "index_tree": "4a12e8029325593169fa91dbbf855dc3d5efee9d",
+      "byte_mode_errors": [],
+      "hidden_index_flags": [],
+      "gitlinks": {
+        "external": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+        "gptp-processor": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d",
+        "protocol-processor": "2ad2f845dd583f8310075fa2380cb60a04fd091a",
+        "third_party/verilog-axis": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      }
+    },
+    "protocol-processor": {
+      "blobs": 562,
+      "tree": "224aadfa2ffc348ad3123bd4580b573a7d97c098",
+      "index_tree": "224aadfa2ffc348ad3123bd4580b573a7d97c098",
+      "byte_mode_errors": [],
+      "hidden_index_flags": [],
+      "gitlinks": {}
+    },
+    "gptp-processor": {
+      "blobs": 104,
+      "tree": "9669a0460e926a3d0c2911918cba793288f69216",
+      "index_tree": "9669a0460e926a3d0c2911918cba793288f69216",
+      "byte_mode_errors": [],
+      "hidden_index_flags": [],
+      "gitlinks": {}
+    },
+    "third_party/verilog-axis": {
+      "blobs": 214,
+      "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+      "index_tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+      "byte_mode_errors": [],
+      "hidden_index_flags": [],
+      "gitlinks": {}
+    }
+  },
+  "merges": [
+    {
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "parents": [
+        "591a5752e6a587b28b501e2d02d6a9d0293f3ba2",
+        "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+      ],
+      "computed_tree": "4a12e8029325593169fa91dbbf855dc3d5efee9d",
+      "conflict_free": true
+    },
+    {
+      "head": "5af03224117ffef089d5031e9bb7e8b348d7abbf",
+      "parents": [
+        "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+        "d51b373ad7e8e8381af2797be3ebb8ee45c62e3c"
+      ],
+      "computed_tree": "d11dc71ce0d7035ce1ebd5c8ac24c8006ad43d7c",
+      "conflict_free": true
+    },
+    {
+      "head": "4d2538809d739d97c09f3f0bee194fb14e1cec18",
+      "parents": [
+        "1e99ad217f0747c33e03238f7d1c633c07ce572c",
+        "79b086d44eb62d007d38e18f5618b98e8e2a33e6"
+      ],
+      "computed_tree": "3057d67b5ec21f6fb03927600dddf557f0cc2979",
+      "conflict_free": true
+    }
+  ],
+  "processor_top_sha256": "84d89afb652b3db646fd86a13e301c9de89005607b9d8fa896eb38f365a0e170",
+  "processor_changed_rtl": [
+    "hdl/aecp/KL_aecp_notify.sv",
+    "hdl/packet_engine/KL_pp_originator.sv",
+    "hdl/packet_engine/KL_pp_rx_validator.sv",
+    "hdl/packet_engine/KL_pp_side_port.sv",
+    "hdl/packet_engine/KL_pp_trace_ring.sv",
+    "hdl/packet_engine/KL_pp_tx_slots.sv",
+    "hdl/srp/KL_srp_listener_fsm.sv",
+    "hdl/srp/KL_srp_talker_fsm.sv"
+  ],
+  "imported_paths_unchanged_from_dev": [
+    "docs/design/MAILBOX_SPLIT.md",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/app/ctrl_app.c",
+    "sw/firmware/ctrl/app/ctrl_app.h",
+    "sw/firmware/ctrl/maap/README.md",
+    "sw/firmware/ctrl/maap/maap.c",
+    "sw/firmware/ctrl/maap/maap.h",
+    "sw/firmware/ctrl/maap/maap_csr.c",
+    "sw/firmware/ctrl/maap/maap_csr.h",
+    "sw/firmware/ctrl/maap/maap_mbx.c",
+    "sw/firmware/ctrl/maap/maap_mbx.h",
+    "sw/firmware/ctrl/test/ctrl_arms.py",
+    "sw/firmware/ctrl/test/ctrl_build.py",
+    "sw/firmware/ctrl/test/ctrl_mutants.py",
+    "sw/firmware/ctrl/test/maap_differential.py",
+    "sw/firmware/ctrl/test/maap_mutants.py",
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    "sw/firmware/ctrl/test/test_maap.cpp",
+    "sw/firmware/ctrl/test/test_maap_debug.cpp",
+    "sw/firmware/ctrl/test/test_maap_differential.cpp",
+    "sw/firmware/ctrl/test/test_maap_mbx.cpp",
+    "sw/firmware/gtest/README.md",
+    "sw/firmware/gtest/coverage.ratchet",
+    "tb/verilator/mbx/Makefile"
+  ],
+  "parent_lane_delta": [
+    "docs/design/AREA_BUDGET.md",
+    "docs/diagrams/PNG_MANIFEST.json",
+    "docs/diagrams/submodule_boundaries.drawio",
+    "docs/diagrams/submodule_boundaries.png",
+    "docs/diagrams/submodule_boundaries.svg",
+    "docs/findings/234_PP_SHADOW_AREA_BASELINE.md",
+    "docs/findings/README.md",
+    "docs/reference/SUBMODULES.md",
+    "docs/testing/PP_SHADOW_BASELINE_RECIPE.md",
+    "protocol-processor",
+    "scripts/port_docs.budget",
+    "scripts/xvlog.budget",
+    "syn/ooc/pp_baseline.py",
+    "syn/ooc/pp_baseline_mutants.py",
+    "syn/ooc/pp_resource_baseline.json",
+    "syn/yosys/rom_digests.tsv",
+    "tb/verilator/milan_dp/sim_nxn.cpp"
+  ],
+  "adoption_patch_replay": {
+    "patches": [
+      {
+        "name": "parent-adoption-148-6c22d3ca.patch",
+        "sha256": "bbd0301dc7e576f51f92d24c8d140eda0666f9c6699806649365110e7ecfea83"
+      },
+      {
+        "name": "parent-adoption-22-28f9666f.patch",
+        "sha256": "8acf2b12f4cd67ffff19cc668c9d74cbf77f203f116a13f3f22db4e08b28e94f"
+      }
+    ],
+    "exact_final_blobs": true
+  },
+  "resource_baseline_keys": [
+    "schema",
+    "description",
+    "endpoints"
+  ],
+  "resource_policies_unchanged": true
+}

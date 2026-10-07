@@ -1,0 +1,119 @@
+{
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "group": "static",
+  "records": [
+    {
+      "name": "baseline-selftest",
+      "command": [
+        "python3",
+        "syn/ooc/pp_baseline.py",
+        "--selftest"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.11,
+      "bytes": 3604,
+      "sha256": "dc339f77a40c94a9a8c564a15f3aadda4cdc3474c2c0481011ad019c07592c52"
+    },
+    {
+      "name": "baseline-mutants",
+      "command": [
+        "python3",
+        "syn/ooc/pp_baseline_mutants.py"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 3.27,
+      "bytes": 1262,
+      "sha256": "c61da14188c61f28ddce19916a58bcf07e368851751321f9f498dcc6385d2dc4"
+    },
+    {
+      "name": "resource-baseline",
+      "command": [
+        "python3",
+        "syn/ooc/pp_resource_gate.py",
+        "check-baseline"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.07,
+      "bytes": 27,
+      "sha256": "2114d909e60add091220b415987d4409a611d70c9e84f1bb9e0ae12d6a2f14a0"
+    },
+    {
+      "name": "capture",
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 1.02,
+      "bytes": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+    },
+    {
+      "name": "ports",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 2.85,
+      "bytes": 421,
+      "sha256": "3c1a34d3169cf6f071f2cbb62a8ddca7591338e9f45ee665e1c66758f22c5524"
+    },
+    {
+      "name": "naming",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.51,
+      "bytes": 36608,
+      "sha256": "1cf945250501b5b0267ea1d21f976938536502d765b18d75110bfb3bffbc4508"
+    },
+    {
+      "name": "submodule-docs",
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.48,
+      "bytes": 47,
+      "sha256": "dffc750855c2574e23bad0174564fcde9dc0d351b65e2f5e954f2dc64e894835"
+    },
+    {
+      "name": "integrator-params",
+      "command": [
+        "python3",
+        "protocol-processor/scripts/check-integrator-params.py"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.08,
+      "bytes": 45,
+      "sha256": "7831c029b649a14264c7fd8538beefe1a35ccdc5a82d195f08223475bc874e41"
+    },
+    {
+      "name": "source-list",
+      "command": [
+        "python3",
+        "scripts/pp_srcs.py",
+        "--check"
+      ],
+      "cwd": "$CANDIDATE",
+      "rc": 0,
+      "seconds": 0.27,
+      "bytes": 936,
+      "sha256": "3decd2797992d8fffaf3de766d2656710ea52ff224e459eeebb49ed444c0132a"
+    }
+  ]
+}

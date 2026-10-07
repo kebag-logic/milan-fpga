@@ -1,0 +1,246 @@
+{
+  "generator_runs": [
+    {
+      "name": "records-1-1",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--write-budget"
+      ],
+      "rc": 0,
+      "sha256": "53f37514f216172d4c920c98eaa564d63229d0e1c89fa9aa35939bda552a1327"
+    },
+    {
+      "name": "records-1-2",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--write-budget"
+      ],
+      "rc": 0,
+      "sha256": "42952028bb1ef735ba9baf33a694222cd8f09abab9fbd2d7694dabb33344d5a6"
+    },
+    {
+      "name": "records-1-3",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py"
+      ],
+      "rc": 0,
+      "sha256": "d27511608a6f9eb40f2755a8c3a947dc700330b7ab3fde979b5c0349eaa5edc5"
+    },
+    {
+      "name": "records-1-4",
+      "command": [
+        "bash",
+        "syn/yosys/ooc.sh",
+        "--record-rom-digests"
+      ],
+      "rc": 0,
+      "sha256": "fecea21b275c24cdf5056353279175f8263cf52bf72c48f30ce519832d839244"
+    },
+    {
+      "name": "records-2-1",
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--write-budget"
+      ],
+      "rc": 0,
+      "sha256": "53f37514f216172d4c920c98eaa564d63229d0e1c89fa9aa35939bda552a1327"
+    },
+    {
+      "name": "records-2-2",
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--write-budget"
+      ],
+      "rc": 0,
+      "sha256": "42952028bb1ef735ba9baf33a694222cd8f09abab9fbd2d7694dabb33344d5a6"
+    },
+    {
+      "name": "records-2-3",
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py"
+      ],
+      "rc": 0,
+      "sha256": "d27511608a6f9eb40f2755a8c3a947dc700330b7ab3fde979b5c0349eaa5edc5"
+    },
+    {
+      "name": "records-2-4",
+      "command": [
+        "bash",
+        "syn/yosys/ooc.sh",
+        "--record-rom-digests"
+      ],
+      "rc": 0,
+      "sha256": "fecea21b275c24cdf5056353279175f8263cf52bf72c48f30ce519832d839244"
+    }
+  ],
+  "repeated_bytes_identical_to_head": {
+    "scripts/port_docs.budget": "077acf838755608b47eba84975137a5264ca856ce57e3132acc037d5d7cbb892",
+    "scripts/naming.budget": "45688a406bc5ecc9054ca31d08983af5e4a61dd447ce0633b435fc0fff844ce3",
+    "syn/yosys/rom_digests.tsv": "23006432ba99ef81e6347c0f111bacedc5d261103f973e908008ab2b65974a7c",
+    "docs/diagrams/submodule_boundaries.svg": "a1cd1202ee9119ac8213251af5ae11038e888e14c236e682c16135f93accadc5",
+    "docs/diagrams/submodule_boundaries.drawio": "843f500789f1eaa04a7f083b4b44670a407390ca79b041c28a8b0d764bb0aebe",
+    "docs/diagrams/submodule_boundaries.png": "9a9dcbcc5072a46bd0c5e996d67bbee6b7673acd70be14ac86b0512f8e695005",
+    "docs/diagrams/PNG_MANIFEST.json": "f5b73632a8ac4f70e98e99facfde6f0c271ea567505dcad96a70621a9fc5cd2c"
+  },
+  "resource_policy_probes": [
+    {
+      "name": "unchanged",
+      "expected": 0,
+      "actual": 0,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: PASS"
+      ]
+    },
+    {
+      "name": "LUT-growth",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       50458       501  REGRESSION: grew by more than 500",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "slice-growth",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15815        81  REGRESSION: grew by more than 80",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "new-RAMB36",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          75         1  REGRESSION: grew by more than 0",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "setup-floor",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.029    -0.095  REGRESSION: below the floor 0.03",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "hold-floor",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031      -0.001    -0.032  REGRESSION: below the floor 0.0",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "BRAM-reserve",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "BRAM_TILE  REGRESSION: 122 exceeds the ceiling 121.5",
+        "route status: complete, no unrouted net and no routing error",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    },
+    {
+      "name": "unrecorded-worker-setting",
+      "expected": 2,
+      "actual": 2,
+      "diagnostic": [
+        "NOT COMPARABLE: tool or recipe change in flow; measure the baseline again under the new identity instead of comparing across it"
+      ]
+    },
+    {
+      "name": "unrouted-net",
+      "expected": 1,
+      "actual": 1,
+      "diagnostic": [
+        "figure        baseline   candidate     delta  verdict",
+        "LUT              49957       49957         0  ok",
+        "FF               54274       54274         0  ok",
+        "SLICE            15734       15734         0  ok",
+        "RAMB36              74          74         0  ok",
+        "RAMB18              27          27         0  ok",
+        "DSP                 14          14         0  ok",
+        "WNS_ns           0.124       0.124       0.0  ok",
+        "WHS_ns           0.031       0.031       0.0  ok",
+        "ROUTE INCOMPLETE: 1 unrouted net; the image does not fit",
+        "RESULT: MATERIAL REGRESSION"
+      ]
+    }
+  ]
+}

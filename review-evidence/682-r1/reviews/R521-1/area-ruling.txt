@@ -1,0 +1,9 @@
+https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270
+[A10] Owner decision, 2026-10-03, on item (a) of the #234 rulings (the NFR-RES-01 allocation):
+
+- **The target stays at 60 %.** NFR-RES-01 is not relaxed.
+- **How it is met:** a redesign in the new milestone **Optimisations Mark II**, which starts once every other milestone is reached. The redesign is tracked as #640. #233 moves to that milestone.
+- **Until then:** the #638 resource gate holds every resource at its recorded value.
+- **Current levers:** #232, #230 and #639 keep their order, before the second pin adoption.
+
+**For PR #638:** `AREA_BUDGET.md` should cite this decision where it says the allocation "needs an owner decision". This is wording only: it goes in the next round if there is one, otherwise to #495 at merge.

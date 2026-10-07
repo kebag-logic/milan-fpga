@@ -1,0 +1,39 @@
+[
+  {
+    "name": "parent-notify",
+    "command": [
+      "make",
+      "-j16",
+      "notify",
+      "VERILATOR_JOBS=4"
+    ],
+    "rc": 0,
+    "expected": 0,
+    "seconds": 121.57,
+    "sha256": "541b85dd9c0301afae4258e29d0323642372d866e6b4ac651f9e63bf03e2b368"
+  },
+  {
+    "name": "notify-old-rtl",
+    "command": [
+      "make",
+      "-j16",
+      "run"
+    ],
+    "rc": 2,
+    "expected": 2,
+    "seconds": 5.77,
+    "sha256": "38de039e91fdf20fa744e8f4f376a9b7b649b35749a38edf7dc4835650d79d27"
+  },
+  {
+    "name": "srp-old-rtl",
+    "command": [
+      "make",
+      "-j16",
+      "run"
+    ],
+    "rc": 2,
+    "expected": 2,
+    "seconds": 7.64,
+    "sha256": "7e7307ef3b7ecb1d1a0700032b621669a88f98c1e0f4f711a4781b853137a73c"
+  }
+]

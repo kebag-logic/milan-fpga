@@ -1,0 +1,33 @@
+{
+  "version": "Verilator 5.050 2026-07-01 rev v5.050",
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "group": "units",
+  "records": [
+    {
+      "name": "notify-unit",
+      "command": [
+        "make",
+        "-j16",
+        "run"
+      ],
+      "cwd": "$SCRATCH/processor-focused/tb/aecp_notify",
+      "rc": 0,
+      "seconds": 31.37,
+      "bytes": 8910,
+      "sha256": "82c84d9cb2ce9213fc2d1d611cb252a1f72e82496a8106b0ca3dbd6b2ef718f0"
+    },
+    {
+      "name": "srp-unit",
+      "command": [
+        "make",
+        "-j16",
+        "run"
+      ],
+      "cwd": "$SCRATCH/processor-focused/tb/srp_stream_fsms",
+      "rc": 0,
+      "seconds": 7.09,
+      "bytes": 9357,
+      "sha256": "6af135a9d640b48d994bfed0ce6c4223ce5584756f90bccbde4407031b182d34"
+    }
+  ]
+}

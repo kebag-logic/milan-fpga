@@ -1,0 +1,4 @@
+$PINNED_VERILATOR --cc --exe --build --jobs 4 --top-module srp_stream_fsms_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$SCRATCH/processor-focused/tb/srp_stream_fsms -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/srp/KL_srp_talker_fsm.sv ../../hdl/srp/KL_srp_listener_fsm.sv srp_stream_fsms_wrap.sv sim_main.cpp -o Vsrp_stream_fsms_sim
+%Error: Invalid option: --jobs
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+make: *** [Makefile:48: run] Error 1

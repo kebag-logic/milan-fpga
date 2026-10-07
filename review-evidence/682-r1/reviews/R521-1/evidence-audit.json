@@ -1,0 +1,2376 @@
+{
+  "head": "5428b044176f95248e6916dc00dd89c0df154078",
+  "evidence_commit": "8d4e0732588d09f1f94f41aea7c7c39110da09a2",
+  "public_payload_hashes_verified": 130,
+  "render_reconstruction": {
+    "measured_head": "342f20ef1fb29167c388b6f1fa3bc9851c3876e3",
+    "reverted_tree": "55eaf2478515d3bc25b71ae5733ac3aea53ad8ef",
+    "changed_paths": [
+      "protocol-processor",
+      "scripts/xvlog.budget",
+      "tb/verilator/milan_dp/sim_nxn.cpp"
+    ],
+    "diff_sha256": "0871c0da9905ce89ff5b9850211b287cb5f56263ef9a16b2880144b76c7a21b3"
+  },
+  "render_32_legs": [
+    {
+      "index": 0,
+      "caller": "run_positive_controls",
+      "name": null,
+      "mode": null,
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 71   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "3f87ef97003d15be624108e172d20b8b1a4ad7880de92130bbdddd98b1b5b0dc",
+      "campaign_pass": true
+    },
+    {
+      "index": 1,
+      "caller": "run_positive_controls",
+      "name": null,
+      "mode": "--crf-only",
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "b427832894b10f9884766fcae872413fcb714c8d27da8fca06b17072d5645071",
+      "campaign_pass": true
+    },
+    {
+      "index": 2,
+      "caller": "run_positive_controls",
+      "name": null,
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 4 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "campaign_pass": false
+    },
+    {
+      "index": 3,
+      "caller": "run_positive_controls",
+      "name": null,
+      "mode": "--law-only",
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 111   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "9a6d1c5a50bd929d9964fe00a8c4edd3cb5e681f5e83fb11f3dad3f553799b7c",
+      "campaign_pass": true
+    },
+    {
+      "index": 4,
+      "caller": "run_positive_controls",
+      "name": null,
+      "mode": "--serial-only",
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "c20efcdd95d611f95c59c7fe66a723e9b482057559a95c24981d664647ad8e68",
+      "campaign_pass": true
+    },
+    {
+      "index": 5,
+      "caller": "run_leg_defects",
+      "name": "stopped render clock",
+      "mode": "--defect-stopped-clock",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 28   failures: 5 =="
+      ],
+      "failures": [
+        "  [FAIL] T6 PREFILL: the window opened at prefill decoded whole frames",
+        "  [FAIL] T6 PREFILL: the lane rendered digital silence before its first eligible event, and then rendered one",
+        "  [FAIL] T5 FRAMING: consecutive fsync rises are exactly 256 bclk rises apart",
+        "  [FAIL] T5 FRAMING: the window decoded whole frames",
+        "  [FAIL] T5 NEGATIVE CONTROL: the late-attribution decoder framed and decoded whole frames"
+      ],
+      "sha256": "dfb711712f8e48875a38922c7f4b495436f2b7508ab81e6f9c78098f4683e72d",
+      "campaign_pass": true
+    },
+    {
+      "index": 6,
+      "caller": "run_leg_defects",
+      "name": "a single changed sample",
+      "mode": "--defect-one-sample",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 5 =="
+      ],
+      "failures": [
+        "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=838 exp=839",
+        "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=1 exp=0",
+        "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=1 exp=0",
+        "  [FAIL] T6 ORDER: every skipped event is covered by a counted skip got=1 exp=0",
+        "  [FAIL] T7 LATENCY: every decoded frame inside the window paired with the commit that produced it got=790 exp=0"
+      ],
+      "sha256": "a85ab4cf6d967d2ea9f4c553895d8573b8ca72a2b93eb868c8299ba530ee2d5c",
+      "campaign_pass": true
+    },
+    {
+      "index": 7,
+      "caller": "run_leg_defects",
+      "name": "the clock-source selection names INTERNAL",
+      "mode": "--defect-internal-select",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 8 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: GET_CLOCK_SOURCE reads the CRF index back got=0 exp=1",
+        "  [FAIL] T30 CRF: the media plane's one registered resolve reads CRF got=0 exp=1",
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T31 DESELECT: the deselect fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T31 DESELECT: ...and the stage executed exactly one recentre got=0 exp=1"
+      ],
+      "sha256": "cfa3eaa9d29f8d04dfa0dcc99fa352a062edb1fbf6ff52325a69b6b96f66687c",
+      "campaign_pass": true
+    },
+    {
+      "index": 8,
+      "caller": "run_clean_controls",
+      "name": "modelled arrival skew, one extra cycle on the acknowledgement level",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 4 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "campaign_pass": false
+    },
+    {
+      "index": 9,
+      "caller": "run_clean_controls",
+      "name": "modelled arrival skew, one extra cycle on the serial-reset level",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 4 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1"
+      ],
+      "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+      "campaign_pass": false
+    },
+    {
+      "index": 10,
+      "caller": "run_clean_controls",
+      "name": "modelled bit-arrival skew, gray retained",
+      "mode": "--serial-only",
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "c20efcdd95d611f95c59c7fe66a723e9b482057559a95c24981d664647ad8e68",
+      "campaign_pass": true
+    },
+    {
+      "index": 11,
+      "caller": "run_mutations",
+      "name": "wrong physical base: the identity projection",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 52   failures: 17 =="
+      ],
+      "failures": [
+        "  [FAIL] T1 POWER-ON: physical keys 2..9 hold stream 0 channel c got=0 exp=8",
+        "  [FAIL] T1 POWER-ON: nothing on the pruned DAC lane keys got=0 exp=2",
+        "  [FAIL] T4 PROJECTION: physical keys 2..9 hold the routed sources got=0 exp=8",
+        "  [FAIL] T4 PROJECTION: nothing reached the pruned DAC lane keys got=0 exp=2",
+        "  [FAIL] T9: the render RAM is bit-identical after both refusals got=0 exp=8",
+        "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+        "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+        "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+        "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: the eight slots carry one media event's identity got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: the eight slots are distinct samples got=839 exp=0",
+        "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+        "  [FAIL] T8 REMOVE: their physical keys read disabled got=134 exp=0",
+        "  [FAIL] T8 REMOVE: no removal aliased the pruned DAC lane got=0 exp=2",
+        "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+        "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+      ],
+      "sha256": "3a4eb3df4ca2fea6bf5dd200fc13f1fab9cfeb45f091cbb324f9789d39fb870d",
+      "campaign_pass": true
+    },
+    {
+      "index": 12,
+      "caller": "run_mutations",
+      "name": "wrong slot order: the bank walk runs backwards",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 52   failures: 8 =="
+      ],
+      "failures": [
+        "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+        "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+        "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+        "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+        "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+        "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+        "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+      ],
+      "sha256": "bfb1953d6dfaf0253d127b9619475b2219c6d15e74d2fd590b24a1c2350383de",
+      "campaign_pass": true
+    },
+    {
+      "index": 13,
+      "caller": "run_mutations",
+      "name": "shared identity corruption: one pdu bit of EVERY channel",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 2 =="
+      ],
+      "failures": [
+        "  [FAIL] T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips got=100 exp=4",
+        "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=807 exp=0"
+      ],
+      "sha256": "218f8951a48a8dcf387ea87fbcb253d92497727234e16947301876b619506bd3",
+      "campaign_pass": true
+    },
+    {
+      "index": 14,
+      "caller": "run_mutations",
+      "name": "one-bit phase slip: the bit for position p, not p + 1",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 52   failures: 10 =="
+      ],
+      "failures": [
+        "  [FAIL] T6 PREFILL: the first rendered frame is an injected media event",
+        "  [FAIL] T5 NEGATIVE CONTROL: it reproduces NO injected media event got=839 exp=0",
+        "  [FAIL] T5 NEGATIVE CONTROL: every frame it decodes is an injected one read ONE BIT LATE got=0 exp=839",
+        "  [FAIL] T6 IDENTITY: the first decoded frame is an injected media event",
+        "  [FAIL] T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record got=839 exp=0",
+        "  [FAIL] T6 PADDING: the eight pad bits of every slot are zero got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: each slot's channel field is its routed source got=839 exp=0",
+        "  [FAIL] T6 STRUCTURAL: the eight slots are distinct samples got=3356 exp=0",
+        "  [FAIL] T7 LATENCY: too few correlated frames to measure the commit-to-pin interval",
+        "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+      ],
+      "sha256": "80944be6ef9011c295b0ff5990b8360afc60e630f7804f566033a18267cd2f5e",
+      "campaign_pass": true
+    },
+    {
+      "index": 15,
+      "caller": "run_mutations",
+      "name": "uncounted repeat: the underrun counter never increments",
+      "mode": "--serial-only",
+      "rc": 0,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 0 =="
+      ],
+      "failures": [],
+      "sha256": "226d109a5c34f78c7fe84a6ea73e77d989d9d1c8cfaab891e7f0614e9979eb09",
+      "campaign_pass": false
+    },
+    {
+      "index": 16,
+      "caller": "run_mutations",
+      "name": "drop NEWEST: the prefetch keeps the have-next guard",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 57   failures: 3 =="
+      ],
+      "failures": [
+        "  [FAIL] T14 SKIP LAW: the forced surplus was COUNTED as skips",
+        "  [FAIL] T8 REMOVE: the two removed slots carry 24'h000000 in every decoded frame",
+        "  [FAIL] T8 REMOVE: the six surviving slots still grade against the injection record"
+      ],
+      "sha256": "3defe9529da3887cb32c8b2bff2dfd1e27d310221a75b29836cac5ba55c8a544",
+      "campaign_pass": true
+    },
+    {
+      "index": 17,
+      "caller": "run_mutations",
+      "name": "the epoch request does not RETAIN across a reset",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 11 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T18 RESET: the reset epoch reopened EXACTLY once got=1 exp=2",
+        "  [FAIL] T18 RESET: the FIFO write side admitted nothing before the round trip completed got=6 exp=0",
+        "  [FAIL] T21 COMMIT AROUND RELEASE: the window really closed on a counted reopening, so it is a window",
+        "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=16 exp=0",
+        "  [FAIL] T19 RESET IN FLIGHT: the two nested resets reopened the epoch EXACTLY once got=1 exp=2",
+        "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=21 exp=0",
+        "  [FAIL] T19 RESET IN FLIGHT: and none was admitted into a full CDC either got=8 exp=0"
+      ],
+      "sha256": "c9f2104e4b2dc49a07a4079e20d4474f3dac45d42f7072c4b41bdff4f9bd262d",
+      "campaign_pass": true
+    },
+    {
+      "index": 18,
+      "caller": "run_mutations",
+      "name": "ungated commit: a closed epoch admits frames anyway",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 9 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=12 exp=0",
+        "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=12 exp=0",
+        "  [FAIL] T23 BIND LOSS: the adapter commit gate is closed while the epoch is got=1 exp=0",
+        "  [FAIL] T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot got=72 exp=0",
+        "  [FAIL] T25 DOUBLE EVENT: ...and it closed the adapter's commit gate got=1 exp=0"
+      ],
+      "sha256": "3963070bca0d28e49b63b7ddaa8a461373a28040af5f3ceb629bd60117d40dd1",
+      "campaign_pass": true
+    },
+    {
+      "index": 19,
+      "caller": "run_mutations",
+      "name": "the serial reset rebuilt from two reconverged levels, with arrival skew",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 120   failures: 25 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: every decoded frame under CRF is a complete 24-bit match against the injection record got=1799 exp=0",
+        "  [FAIL] T30 CRF: each slot's channel field is its routed source under CRF got=1799 exp=0",
+        "  [FAIL] T30 CRF: the eight slots are distinct samples under CRF got=50372 exp=0",
+        "  [FAIL] T30 CRF: the aligned window decoded whole frames",
+        "  [FAIL] T30 CRF ALIGNED: a clock-source change is not a bind fall, so no render epoch closed got=1800 exp=0",
+        "  [FAIL] T30 INTERNAL (A2-a): the commit-to-pin interval does NOT walk at the free-running divider plan's rate",
+        "  [FAIL] T30 CRF ALIGNED: the walk STOPPED once the grids were held together, which is what the aligner buys the lane",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T31 back at INTERNAL (A2-a): the walk stays stopped (under 5 ppm), the grids held together at INTERNAL too",
+        "  [FAIL] T31 DESELECT: the lane is still serializing the record after the deselect",
+        "  [FAIL] T31 DESELECT: identity holds across the second live transition got=239 exp=0",
+        "  [FAIL] T31 DESELECT: no render epoch closed across either transition got=13781 exp=341",
+        "  [FAIL] T18 RESET: the reset epoch reopened EXACTLY once got=14267 exp=14263",
+        "  [FAIL] T19 RESET IN FLIGHT: the two nested resets reopened the epoch EXACTLY once got=15 exp=6",
+        "  [FAIL] T18 POWER-ON: with no map command since the reset, the lane renders injected events",
+        "  [FAIL] T18 RECOVERY: complete fresh frames decode after the epoch reopens",
+        "  [FAIL] T18 RECOVERY: the rebind and remap counted no further reopening got=1291 exp=15",
+        "  [FAIL] T23 BIND LOSS: the one bind fall reopened the epoch EXACTLY once got=1814 exp=1772",
+        "  [FAIL] T27 FLUSH BOUNDARY: the window holds audio and then digital silence, so there IS a last non-silent frame",
+        "  [FAIL] T23 REBIND: the first nonzero frame after the rebind is a post-rebind injected event routed by the NEW map",
+        "  [FAIL] T28 EPOCHS: the loss and its recovery counted EXACTLY one reopening between them got=2426 exp=1772",
+        "  [FAIL] T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one got=2440 exp=2428"
+      ],
+      "sha256": "bc764eb1f6fc9ddd6e74d4f3b9c146e06d8ec9850974edfae65dcac6e259a887",
+      "campaign_pass": true
+    },
+    {
+      "index": 20,
+      "caller": "run_mutations",
+      "name": "the epoch request races the acknowledgement instead of waiting",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 5 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one got=4 exp=5"
+      ],
+      "sha256": "aa1ef29001e8e1c3763956a6ded60f58f17a9b448bc0192db21d2a9999ab1fbb",
+      "campaign_pass": true
+    },
+    {
+      "index": 21,
+      "caller": "run_mutations",
+      "name": "the epoch gate reaches the FIFO but not the adapter",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 8 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=12 exp=0",
+        "  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=12 exp=0",
+        "  [FAIL] T23 BIND LOSS: the adapter commit gate is closed while the epoch is got=1 exp=0",
+        "  [FAIL] T25 DOUBLE EVENT: ...and it closed the adapter's commit gate got=1 exp=0"
+      ],
+      "sha256": "34096b6ee81b5bc83ae9ae3faf50e978cc207dad6466580848fdbb9d8c2c4c0b",
+      "campaign_pass": true
+    },
+    {
+      "index": 22,
+      "caller": "run_mutations",
+      "name": "the graceful flush tears the frame in flight",
+      "mode": "--epoch-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 127   failures: 6 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: the selection under the running stream fired the settled-grid trigger ONCE got=0 exp=1",
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T30 CRF: no second recentre followed the settled one got=0 exp=1",
+        "  [FAIL] T27 FLUSH BOUNDARY: the last frame before digital silence is a COMPLETE frame - no routed slot was zeroed by the flush got=5 exp=0",
+        "  [FAIL] T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity"
+      ],
+      "sha256": "031aa763293dc47b69bb50ec2c9b671c928ebdd186026810bdd1e030c670dd55",
+      "campaign_pass": true
+    },
+    {
+      "index": 23,
+      "caller": "run_mutations",
+      "name": "the preserved prefill snap keeps a different fill",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 1 =="
+      ],
+      "failures": [
+        "  [FAIL] T6 PREFILL: the first event the lane renders is the one the preserved prefill snap leaves at the head, plus its own counted skips got=3 exp=4"
+      ],
+      "sha256": "6acda5e45d5aae3b73305cc7179cd1cf2dd114f986b11920f43911e7893f7ab3",
+      "campaign_pass": true
+    },
+    {
+      "index": 24,
+      "caller": "run_mutations",
+      "name": "modelled bit-arrival skew, raw binary transport",
+      "mode": "--serial-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 2 =="
+      ],
+      "failures": [
+        "  [FAIL] T28 COUNTERS: no sampled frame count went backwards got=1560503 exp=0",
+        "  [FAIL] T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered got=69 exp=0"
+      ],
+      "sha256": "c03fcb2c436242b7d9c1bef9c935ba95787cfd111f994aad5039457bbc1e8e68",
+      "campaign_pass": true
+    },
+    {
+      "index": 25,
+      "caller": "run_mutations",
+      "name": "the clock-source trigger dropped from the recentre set",
+      "mode": "--crf-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 58   failures: 3 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 CRF: ...as exactly one render recentre pulse got=0 exp=1",
+        "  [FAIL] T30 CRF: ...and the stage executed exactly one recentre got=0 exp=1",
+        "  [FAIL] T31 DESELECT: ...and the stage executed exactly one recentre got=0 exp=1"
+      ],
+      "sha256": "4932878b22ee4505f06716ae409a29f13a6c348949e83f269715806a893bcc73",
+      "campaign_pass": true
+    },
+    {
+      "index": 26,
+      "caller": "run_mutations",
+      "name": "A2-a removed: the aligner is not engaged at INTERNAL",
+      "mode": "--law-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 111   failures: 19 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 INTERNAL LAW: the aligner reported settled inside the declared 32768-tick ceiling, counted from this wait's start",
+        "  [FAIL] T30 INTERNAL LAW +0: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +130: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +260: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +391: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +521: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +651: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +781: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +911: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +927: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1042: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1156: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1172: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1302: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1432: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1562: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1693: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1823: the aligner held its settled report through the phase",
+        "  [FAIL] T30 INTERNAL LAW +1953: the aligner held its settled report through the phase"
+      ],
+      "sha256": "8b626db374dcad7e42cb520a1fb3ecad27804f6e1d6e07937c4b59a65e5dde68",
+      "campaign_pass": true
+    },
+    {
+      "index": 27,
+      "caller": "run_mutations",
+      "name": "the render setpoint one event low",
+      "mode": "--law-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 111   failures: 36 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end got=0 exp=124"
+      ],
+      "sha256": "29b2bbaf276a42d396fc86e1c6bfd9e9ffe62526cda3905f93cc8208db91a027",
+      "campaign_pass": true
+    },
+    {
+      "index": 28,
+      "caller": "run_mutations",
+      "name": "the render setpoint one event high",
+      "mode": "--law-only",
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 111   failures: 36 =="
+      ],
+      "failures": [
+        "  [FAIL] T30 INTERNAL LAW +0: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +0: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +130: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +130: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +260: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +260: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +391: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +391: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +521: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +521: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +651: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +651: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +781: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +781: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +911: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +911: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +927: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +927: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1042: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1042: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1156: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1156: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1172: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1172: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1302: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1302: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1432: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1432: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1562: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1562: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1693: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1693: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1823: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1823: every PDU's first event is inside the law band from its PDU end got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1953: the fill at every PDU end is the setpoint plus that PDU, 14 events got=0 exp=124",
+        "  [FAIL] T30 INTERNAL LAW +1953: every PDU's first event is inside the law band from its PDU end got=0 exp=124"
+      ],
+      "sha256": "ab0c898abbd4357e2cd706633a5b3273e76a5218452b94f1f8261093be8807f4",
+      "campaign_pass": true
+    },
+    {
+      "index": 29,
+      "caller": "run_mutations",
+      "name": "the bind-fall mask is not stream qualified",
+      "mode": null,
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 71   failures: 6 =="
+      ],
+      "failures": [
+        "  [FAIL] M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle got=1752 exp=0",
+        "  [FAIL] M3 UNRELATED LOSS: no render epoch closed got=2 exp=1",
+        "  [FAIL] M3 UNRELATED LOSS: not one decoded frame fell to digital silence got=1 exp=0",
+        "  [FAIL] M3 UNRELATED LOSS: the lane kept rendering the record",
+        "  [FAIL] M3 UNRELATED LOSS: identity holds through the unrelated loss got=359 exp=0",
+        "  [FAIL] M3 UNRELATED LOSS: ...and so does the per-slot structure got=1 exp=0"
+      ],
+      "sha256": "72080b81b543ca2cda80b0e2014a1a1e3e357023a17a71a0d2e6f7e069e14205",
+      "campaign_pass": true
+    },
+    {
+      "index": 30,
+      "caller": "run_mutations",
+      "name": "the lane's stream set ignores the mapping's stream field",
+      "mode": null,
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 71   failures: 4 =="
+      ],
+      "failures": [
+        "  [FAIL] M4 SECOND STREAM: the lane's stream mask now names both streams got=1 exp=3",
+        "  [FAIL] M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did",
+        "  [FAIL] M5 RENDERED LOSS: the lane reached digital silence",
+        "  [FAIL] M5 REOPEN: the one rendered-stream loss reopened the epoch EXACTLY once got=1 exp=2"
+      ],
+      "sha256": "43a1b1b67df2198be8e2f5be033c493bd530c3c1a24a6848806bf1ac7d952d93",
+      "campaign_pass": true
+    },
+    {
+      "index": 31,
+      "caller": "run_mutations",
+      "name": "the CSR protocol-store mirror gated on the physical projection",
+      "mode": null,
+      "rc": 1,
+      "counts": [
+        "== tdm8_render: checks: 71   failures: 1 =="
+      ],
+      "failures": [
+        "  [FAIL] M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP got=0 exp=1"
+      ],
+      "sha256": "3998284b409b7915b69e999d33b8b67f17582952647386b0f6301a350985789b",
+      "campaign_pass": true
+    }
+  ],
+  "epoch": {
+    "bytes": 3746,
+    "sha256": "3ef42e34ca3874e90fd2929f869dd0f37343e04b9cb2cb0c5f294262448c1c6b",
+    "campaign_result": "28/32 on both pins"
+  },
+  "independently_checked_dependency_scopes": [
+    {
+      "scope": "parent-rtl",
+      "identical": false,
+      "changes": [
+        "M\thdl/milan/mailbox/KL_mbx.sv",
+        "M\thdl/milan/mailbox/KL_mbx_pkg.sv",
+        "M\thdl/milan/mailbox/KL_mbx_rx.sv"
+      ]
+    },
+    {
+      "scope": "processor-parent-boundary",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "processor-pin",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "gptp-pin",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "all-dependency-pins",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "render-parent-source-list",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "parent-hdl-headers",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "render-harness-and-recipes",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "verilator-test-sources",
+      "identical": false,
+      "changes": [
+        "M\ttb/verilator/mbx/Makefile",
+        "M\ttb/verilator/mbx/README.md",
+        "M\ttb/verilator/mbx/bench.hpp",
+        "M\ttb/verilator/mbx/frames.hpp",
+        "A\ttb/verilator/mbx/model_main.cpp",
+        "M\ttb/verilator/mbx/mutants.py",
+        "M\ttb/verilator/mbx/sim_main.cpp",
+        "M\ttb/verilator/mbx/suite.hpp"
+      ]
+    },
+    {
+      "scope": "configuration",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "synthesis-inputs",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "builder-inputs",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "integration-image-inputs",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "saved-capture",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "remaining-parent-bank-harnesses",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "constraints",
+      "identical": true,
+      "changes": []
+    },
+    {
+      "scope": "pin-records",
+      "identical": false,
+      "changes": [
+        "M\tscripts/port_docs.budget"
+      ]
+    }
+  ],
+  "resource_records_exactly_match_committed_baseline": true,
+  "resource": {
+    "route-1x1": {
+      "inputs_sha256": "fe05182f7b303a175afa44006cd6098d34b8887b3b9296aaffda9415ea928b63",
+      "figures": {
+        "LUT": 49957,
+        "FF": 54274,
+        "SLICE": 15734,
+        "BRAM_TILE": 87.5,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14,
+        "WNS_ns": 0.124,
+        "WHS_ns": 0.031,
+        "CARRY4": 3385
+      },
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "alinx_ax7101",
+        "state": "Physopt postRoute",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top alinx_ax7101 -part xc7a100t-fgg484-2",
+          "opt_design -directive ExploreArea",
+          "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}",
+          "place_design -directive ExtraPostPlacementOpt",
+          "phys_opt_design -directive AggressiveExplore",
+          "route_design -directive AggressiveExplore",
+          "phys_opt_design -directive AggressiveExplore"
+        ],
+        "standalone_clock_ns": []
+      }
+    },
+    "ooc-1x1": {
+      "inputs_sha256": "949b816238370a52d9b9aa89c7d77e004c7d019479e88085172ddf793fc3fe7a",
+      "figures": {
+        "LUT": 23179,
+        "FF": 19779,
+        "BRAM_TILE": 17.5,
+        "RAMB36": 16,
+        "RAMB18": 3,
+        "DSP": 8,
+        "WNS_ns": -3.562,
+        "WHS_ns": 0.159,
+        "CARRY4": 1494
+      },
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "KL_pp_shadow",
+        "state": "Synthesized",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+        ],
+        "standalone_clock_ns": [
+          "20.000"
+        ]
+      }
+    },
+    "ooc-8x8": {
+      "inputs_sha256": "53980010e27e5caca27d026414fab6ee7db387b3adeaddb6433d74d8339cffa5",
+      "figures": {
+        "LUT": 30135,
+        "FF": 27380,
+        "BRAM_TILE": 23.5,
+        "RAMB36": 21,
+        "RAMB18": 5,
+        "DSP": 8,
+        "WNS_ns": -2.278,
+        "WHS_ns": 0.159,
+        "CARRY4": 1889
+      },
+      "identity": {
+        "tool": "Vivado v.2026.1 (lin64) Build 6511674",
+        "device": "xc7a100tfgg484-2",
+        "design": "KL_pp_shadow",
+        "state": "Synthesized",
+        "flow": [
+          "set_param synth.maxThreads 1",
+          "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+          "set_param general.maxThreads 32",
+          "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+        ],
+        "standalone_clock_ns": [
+          "20.000"
+        ]
+      }
+    }
+  },
+  "timing": {
+    "ExtraPostPlacementOpt": {
+      "corners": {
+        "Slow_0C": {
+          "WNS_ns": 0.124,
+          "WHS_ns": 0.059
+        },
+        "Slow_85C": {
+          "WNS_ns": 0.124,
+          "WHS_ns": 0.059
+        },
+        "Fast_0C": {
+          "WNS_ns": 1.246,
+          "WHS_ns": 0.031
+        },
+        "Fast_85C": {
+          "WNS_ns": 1.246,
+          "WHS_ns": 0.031
+        }
+      },
+      "worst": {
+        "WNS_ns": 0.124,
+        "WHS_ns": 0.031
+      },
+      "artifacts": {
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "bytes": 1355675,
+          "sha256": "63653f1fb2dd23ebbadedd37165344335bef9d19954a06a0b39ef220520d298c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "bytes": 1355676,
+          "sha256": "d24fd79a8fd082a6d93ad61460103abf1537fb8f508a86786ac200fe8c3c3ee8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "bytes": 1298911,
+          "sha256": "72b135ca3b9b452b39625a8e6050be30f6874821fc932ac4ca6e8fafe43e427f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "bytes": 1298912,
+          "sha256": "c71962b16742f8cafed21dd8ef253c7dfeb7ef32e6b3e7ffb859dfe1d18544f8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101.tcl": {
+          "bytes": 28233,
+          "sha256": "3e42d871d801786c21d35a71a413622db14a9c4f546fb936d3abc943a3a7d4aa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_clock_interaction.rpt": {
+          "bytes": 5716,
+          "sha256": "686fb8984033188704fb21088fbdcab262bfea5d0f52517db185b5e26d73423b"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_clock_utilization.rpt": {
+          "bytes": 56250,
+          "sha256": "768cfc406b862096de568ec7877df5fb95eb8323a006a15a74b84208a99b27ad"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_control_sets.rpt": {
+          "bytes": 870520,
+          "sha256": "4f7e1a3c918524567c50c820f52086b4ae7eb4950b67739e42f3541ed5bad7ab"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_drc.rpt": {
+          "bytes": 59399,
+          "sha256": "e9e15b358e78ad253f5161c4c1d23a12de6a8389659e447fa54fa8972021e82e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_exceptions.rpt": {
+          "bytes": 80306,
+          "sha256": "80ff1677d472ac41ed7017dd5545d78cef3acb307b2c0b580d2fcffa2cc7f82f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_io.rpt": {
+          "bytes": 151695,
+          "sha256": "2db69066c1820cbbc7a371ce0edb78a922a2daf48c61507d0bf225ac8af6df4b"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_iob_pack.rpt": {
+          "bytes": 1924,
+          "sha256": "6dc8b514cd65c80d89c0bd3fbe9e6055a509023db7fe43d571aa82e4499a750d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_place.dcp": {
+          "bytes": 32550252,
+          "sha256": "763278ece25befe9898292ae1e85cdff333594e9a5b653e1664362695c1a6fbc"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_power.rpt": {
+          "bytes": 16087,
+          "sha256": "7ad3846bdac5c5cdde7769ebd0001486aa5c665b1e5ebc848ebbefdb4cabe41c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_route.dcp": {
+          "bytes": 41271581,
+          "sha256": "c897eabcc44b7992a40163da1ed6553061557a293dcc5670cc78c8787ff80111"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_route_status.rpt": {
+          "bytes": 651,
+          "sha256": "443b575d30fe2c652339fea5a434ad08d106b49747ed1dc72eecc8054458aa3a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "20caf9ed484960e5c553b0df2e5480314f67094b24d550171020fa87c2aa45a4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "31ca8201eff4de09fdd99550644118d2dfe68fafa44d828ee2ebdbb8c8cf5cd7"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Fast_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "85d1797b02c14f28f473964a58ed247e275c6488e9ab258b4d505b42de242b0f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "2e48d59b49c3a27f709a74df97dc6f1cdb926568f17533703a3cc3506cc9b34d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_Slow_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_all_timing.rpt": {
+          "bytes": 1356058,
+          "sha256": "1630f6ce1e1d231481f64171741da42a261e3c09c9f6184e41fc272a333a4649"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_cdc.rpt": {
+          "bytes": 139909,
+          "sha256": "4efa64f3e2f7762db45333ec62c4744026017b6239c2cdc73e517714a1273a8d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_check_timing.rpt": {
+          "bytes": 4828,
+          "sha256": "24c55559af66301912633fa39e82d6e07ae34630776eaccbb0ea37b003378156"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_signoff_clock_interaction.rpt": {
+          "bytes": 5724,
+          "sha256": "0d85664791c0dfabd3c0589475c98d04cb2d872f81f60b74cc7c3e350b4b28a5"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_synth.dcp": {
+          "bytes": 89274603,
+          "sha256": "7ee32b030f5769ebc9b8aa62cb7fac9cf01a9e0fee032e6b7e5b9b6ddb1a8e3a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_timing.rpt": {
+          "bytes": 1318108,
+          "sha256": "91a0285c54baf9d388ceb4f9fb449482e2cd634e106721d38cf83efcae190f98"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_timing_synth.rpt": {
+          "bytes": 200786,
+          "sha256": "6c73daca85ab36f87c081a1fdbfeed247425533736bae58a95ec061d2c12f6a8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_utilization_hierarchical_place.rpt": {
+          "bytes": 30075,
+          "sha256": "0220b0ec34dc281f57251b5cc5b779aefc6665a89781b82f26fc0cd5f7dfa66c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_utilization_hierarchical_synth.rpt": {
+          "bytes": 29950,
+          "sha256": "5262b914f721c6eea01efa1e971172da0020afb127cf31e739ad2e2335102532"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_utilization_place.rpt": {
+          "bytes": 13329,
+          "sha256": "7a591b406ddc82ae0b328e1cc66ec68a309cb5b40c19502e7d379e304a53731e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/alinx_ax7101_utilization_synth.rpt": {
+          "bytes": 10781,
+          "sha256": "b228bce1e02b2cada1f120078b72365a8fedbf3ef6feaf4297e235678a6e9be4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_cells.tsv": {
+          "bytes": 8280276,
+          "sha256": "df2e8cba77e1a1d5b6fb57690b0a6da798c74aa477ad695b3fdbbea7b21ea5b9"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_hierarchy.rpt": {
+          "bytes": 46405,
+          "sha256": "ab0c576dabc4223e7c2866a0dbd7ab5b56e49bc6f2413894d78edc71ed86f12e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_images.json": {
+          "bytes": 1462,
+          "sha256": "ce710e20193d3698b015f06e0dca725262cb7330eaa9d6263ed2eb1120282545"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_implementation.tcl": {
+          "bytes": 4200,
+          "sha256": "a42a86314f5a857f2aed0cc42a8560d30d8e78abf6f0491d934e851cd9a5dbaa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_integrated.tcl": {
+          "bytes": 30214,
+          "sha256": "c699949d019f0fa8f5527d7a594260ab4bc44643483a2e8973bfa8835c6b320d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_pp_boundary_timing.rpt": {
+          "bytes": 111617,
+          "sha256": "7376f7035087f0dac3501a2caaed5fc7578399b7f5d892b56bb59b74d09d7747"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_pp_utilization.rpt": {
+          "bytes": 9985,
+          "sha256": "aae7071eac326dceae46b1550f9572fe5cc1c209fd56d3c811e9c5d0232431a0"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_scope_timing.tsv": {
+          "bytes": 408,
+          "sha256": "74ce20e23f82b1a5b0629a0e8f9353e410d11f21ae81e1f0acd705e01a4b2b61"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_synthesis.tcl": {
+          "bytes": 26148,
+          "sha256": "e55e8a011f7a9d66d4d3eb8c4fd990d97225f3a0a5043fd91d6bca9b5d7f3b71"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_timing.rpt": {
+          "bytes": 1265392,
+          "sha256": "7a4e55eaa163441378e066601789148cade859df944b4e75e6bf728381eca1ec"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/baseline_utilization.rpt": {
+          "bytes": 13319,
+          "sha256": "2c6641e9221b1d68569c283f82afa885d0356cd2b086c1935bf63c0c3ceb0ca8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/route-default.log": {
+          "bytes": 333095,
+          "sha256": "e53ec868447a291841ab6e0c72f22e0c554d5969895d7158e43eeccc747c5a96"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101/gateware/synthesis.log": {
+          "bytes": 610136,
+          "sha256": "36cfdfb1d671f49cfd50287ec0fad66a91df65e334c529adcfc209aa8e4d1110"
+        }
+      },
+      "route_status": {
+        "routable nets": 101190,
+        "fully routed nets": 101190,
+        "nets with routing errors": 0
+      }
+    },
+    "AltSpreadLogic_high": {
+      "corners": {
+        "Slow_0C": {
+          "WNS_ns": 0.09,
+          "WHS_ns": 0.04
+        },
+        "Slow_85C": {
+          "WNS_ns": 0.09,
+          "WHS_ns": 0.04
+        },
+        "Fast_0C": {
+          "WNS_ns": 1.642,
+          "WHS_ns": 0.011
+        },
+        "Fast_85C": {
+          "WNS_ns": 1.642,
+          "WHS_ns": 0.011
+        }
+      },
+      "worst": {
+        "WNS_ns": 0.09,
+        "WHS_ns": 0.011
+      },
+      "artifacts": {
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "bytes": 1353644,
+          "sha256": "73121caca7b96ef0adf8a121375abf973ccb9442f5dc36024f41c0740b402ed8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "bytes": 1353645,
+          "sha256": "df518cf24826a3d55692f30bfae12e45692ad11f91ed03dd27b82ce5e9dad657"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "bytes": 1308265,
+          "sha256": "4484c2aca20be5a2b2bf521fa23e1c3535788f424cb1b0fc9fa26b6484748ae2"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "bytes": 1308266,
+          "sha256": "0dc992f841d0298298e21cb65e678aa56766fc75f6c0a74770c09f7b0b1ee517"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_clock_interaction.rpt": {
+          "bytes": 5716,
+          "sha256": "ff7327b394ef56c9c9e59b90921bf011d5e5b7bf4672bf12475c50ec15d3b699"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_clock_utilization.rpt": {
+          "bytes": 56275,
+          "sha256": "d5a07a1104c3f183214a74bf9e9cd491b11f6f51bdc203b45ed260244e6297ee"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_control_sets.rpt": {
+          "bytes": 870931,
+          "sha256": "cffb4c3153ea831094ebf82af519fc43e8a00f00ea24a50346cd6b9215ebff15"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_drc.rpt": {
+          "bytes": 51302,
+          "sha256": "dfb4bbd79edfb3aa6668b0e114862f7b77d67428fa58586c403a4f6498841bd3"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_exceptions.rpt": {
+          "bytes": 80306,
+          "sha256": "84c06ac5e1e5fbd1469518b6229e14023b77510c82298db594edcf5a7d8b042c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_io.rpt": {
+          "bytes": 151695,
+          "sha256": "1d80067748c510e396a47e74ffa9fc2ba90fa0243517dbcf305e8cd90d6dd6ea"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_iob_pack.rpt": {
+          "bytes": 1924,
+          "sha256": "6dc8b514cd65c80d89c0bd3fbe9e6055a509023db7fe43d571aa82e4499a750d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_place.dcp": {
+          "bytes": 32594962,
+          "sha256": "6c29c532fee160bd31c626c16f0b7b4535d2c139617bcd317b5fcaf0c6b7ef8e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_power.rpt": {
+          "bytes": 16288,
+          "sha256": "395df42c43b97b39b1ea9db098fc205ffc73a1a7deb8ff33b81d731df0eb1ca8"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_route.dcp": {
+          "bytes": 41539994,
+          "sha256": "46ad505f0fb7d52618a54d1bfa41d3c96439b3f4ba25e3e38b1ccdc2d313cbf2"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_route_status.rpt": {
+          "bytes": 651,
+          "sha256": "251101da92716c3c0f716f6e74ee954e4581723161c50e459cc6d2b360ef18f4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "21d069d842702e296837f52adf1d288e68f52ad15e51489467c6cf03af377a1d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "fc06e9883fec2029ec74fc561bbd0c930a14d07c97c46cf41990f5042f6180ec"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Fast_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "db0912a67a191e6f57d687135b299c2a42abc0c683dd6a463110465962b0579a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "0d3eba007e54e8399fe88ec3635a6a26e9b99151e8b768b9bbd7a66e5da4c962"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_Slow_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_all_timing.rpt": {
+          "bytes": 1356484,
+          "sha256": "83b4f993d7d1c3bf93974d640ed44035be32d0722dff623662ebb42bf501001c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_cdc.rpt": {
+          "bytes": 139909,
+          "sha256": "f34062e3c770d1e811288fac9820ad5559293f44e049cd8d49c85e5a40c3a245"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_check_timing.rpt": {
+          "bytes": 4828,
+          "sha256": "3774ccd5cc6e9096a30642ef6dfece2203e7a3d5c3d4b238be2513ba9e5d3a24"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_signoff_clock_interaction.rpt": {
+          "bytes": 5724,
+          "sha256": "f52010cdc373b0f5d4e23faba4348a809b7fc0b4e7046117cdc2f78d5797719a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_timing.rpt": {
+          "bytes": 1324214,
+          "sha256": "f5e4d080a6508d2843124fd856f2bf031496722017c0fefd8d1b90211260acc2"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_utilization_hierarchical_place.rpt": {
+          "bytes": 30075,
+          "sha256": "8a8cc0ac6910d7f4498099825377f78ad11d2fc73b86c4e88ffb9d3aa64b4474"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/alinx_ax7101_utilization_place.rpt": {
+          "bytes": 13329,
+          "sha256": "a5aa4932422cacb089348726a17050e9be2f02880330f9e672d07e4654a70357"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_cells.tsv": {
+          "bytes": 8283105,
+          "sha256": "69dfeb964181542dfa54d46f890634027fbd5ac6582f4f350c3d4598051a8cad"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_hierarchy.rpt": {
+          "bytes": 46405,
+          "sha256": "6ae2eb853ffc835140c4c4fd50c494551286ce9a6fac46a484fcb257bd7b12fd"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_implementation.tcl": {
+          "bytes": 4198,
+          "sha256": "c4a62165b00a6ffe798225f90aa53f1f29d35c4a3d5ff3da1b9c5f31c5e91a8e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_pp_boundary_timing.rpt": {
+          "bytes": 117994,
+          "sha256": "5367a23b8ba4f3d0b300862bf01bace16dd2ed32ba62a74d7bf147accd7b43f2"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_pp_utilization.rpt": {
+          "bytes": 9985,
+          "sha256": "960f379b130980208b48610fc13e8b91523cd04b9cb259c6edef99b6cf3ba217"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_scope_timing.tsv": {
+          "bytes": 408,
+          "sha256": "eb4a20a9579b42022aba83a1f50ae148d3ba285af643be4dc1ce74642ce4e73f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_timing.rpt": {
+          "bytes": 1271498,
+          "sha256": "c64cc22be60b96af59d035cfb41b20a06d8ddd8bb63a3a34dd85ef5db89d339f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/baseline_utilization.rpt": {
+          "bytes": 13319,
+          "sha256": "550926e49e1011674881c1c1aa0479ca7369fb539af844b429e3c139e57bc5bc"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-AltSpreadLogic_high/route-altspread.log": {
+          "bytes": 399273,
+          "sha256": "a449fa8b2a00579973b5b7e57247a9e02893610603b71e329bb06003a81dc148"
+        }
+      },
+      "route_status": {
+        "routable nets": 101221,
+        "fully routed nets": 101221,
+        "nets with routing errors": 0
+      }
+    },
+    "ExtraTimingOpt": {
+      "corners": {
+        "Slow_0C": {
+          "WNS_ns": 0.055,
+          "WHS_ns": 0.057
+        },
+        "Slow_85C": {
+          "WNS_ns": 0.055,
+          "WHS_ns": 0.057
+        },
+        "Fast_0C": {
+          "WNS_ns": 1.588,
+          "WHS_ns": 0.02
+        },
+        "Fast_85C": {
+          "WNS_ns": 1.588,
+          "WHS_ns": 0.02
+        }
+      },
+      "worst": {
+        "WNS_ns": 0.055,
+        "WHS_ns": 0.02
+      },
+      "artifacts": {
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_0C_timing.rpt": {
+          "bytes": 1361933,
+          "sha256": "64c391b9e36d2a4fcd4926b66841377f0f285472373d830823d3e0db69061eca"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_timing.rpt": {
+          "bytes": 1361934,
+          "sha256": "6109975cda02140a2eae707c4b0f84cad4c580daca9f49435b2a4c948af63265"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_0C_timing.rpt": {
+          "bytes": 1319315,
+          "sha256": "64a23464bc47ee783b48512f3f48df5370a546a4aa3a7cd0c53807029cee8fef"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_85C_timing.rpt": {
+          "bytes": 1319316,
+          "sha256": "df7df660403df4f7fb963bbe2f097659cc63ce7d314504277c43280d9d6c3fd0"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_clock_interaction.rpt": {
+          "bytes": 5716,
+          "sha256": "1f2f143c75024efb0ecc4e4d193682062955873d01cb70cb374eedb982e1a75d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_clock_utilization.rpt": {
+          "bytes": 56033,
+          "sha256": "b0da3c026e7563de199d876de118d170eb6baa774f09be858d4ba73b80ffd233"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_control_sets.rpt": {
+          "bytes": 870520,
+          "sha256": "2e005674a0587302144181d6c12ccecd57db0405277ef5c3b7f3fbd4b35c1cac"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_drc.rpt": {
+          "bytes": 59399,
+          "sha256": "0822338ee0eab3de2d63f7537d43b30b9324c5461a0583f29fc2b8d441dcfece"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_exceptions.rpt": {
+          "bytes": 80306,
+          "sha256": "4b22db99eb83405545f00a3d645c20476a7d875e5baab7fee61bb249c2e8cac0"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_io.rpt": {
+          "bytes": 151695,
+          "sha256": "e0573750cd7575cd1b62be37a9cc38d9483230e87a5a13301ef878b7272b859a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_iob_pack.rpt": {
+          "bytes": 1924,
+          "sha256": "6dc8b514cd65c80d89c0bd3fbe9e6055a509023db7fe43d571aa82e4499a750d"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_place.dcp": {
+          "bytes": 32594326,
+          "sha256": "64588725c965cd93e124043054fa7bc727f770696c622c184855bd82aa0d5099"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_power.rpt": {
+          "bytes": 16288,
+          "sha256": "0b4f321e70d740fcff64f5ca829a8e3f2906b7f0d0f002e26d967bc63915c1ce"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_route.dcp": {
+          "bytes": 41493925,
+          "sha256": "918bb7f6b7f6101b75e9028d21fd25412422ba4dc3900907c6f13c178291cd0f"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_route_status.rpt": {
+          "bytes": 651,
+          "sha256": "7a44d2874e2c827543cdd5df6a8c16dbd1d5c20de52ca3711ea8c0a99194069c"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "72b02f34fd8a955725ab67eb3b60f9f5374de94eb250ffa4ce3ab5baff52d2a0"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "40780841679bb1a813f87c22b7b3f76f43e948be281d6979f08005cf809e46dd"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Fast_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_0C_negative.rpt": {
+          "bytes": 904,
+          "sha256": "8ad6d61c97d2b9d6b6064dffd14946f0b89be48df0cf348f2a50ee51c42023c4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_0C_operating.rpt": {
+          "bytes": 1567,
+          "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_negative.rpt": {
+          "bytes": 905,
+          "sha256": "9824145bd750872da8d3bb8d3cc6aa2e72285fade1269b4e107c4b898e2706c2"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_Slow_85C_operating.rpt": {
+          "bytes": 1568,
+          "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_all_timing.rpt": {
+          "bytes": 1363698,
+          "sha256": "8a006ce1a11ecba9551d81cce4f870f25610932ef64a65a1281af1e78b240e2e"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_cdc.rpt": {
+          "bytes": 139909,
+          "sha256": "0b319a01c69001867772eefdf49aece35db761846ace8e5cac55d84c724fa1b5"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_check_timing.rpt": {
+          "bytes": 4828,
+          "sha256": "0f8b8f4e560863d5216ba53863091d3f882c67971de42552ac810680651f6fb5"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_signoff_clock_interaction.rpt": {
+          "bytes": 5724,
+          "sha256": "371385fb336b9d882ea02c2e34808edbaee1b88d76f388a240400fc113c465cb"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_timing.rpt": {
+          "bytes": 1316601,
+          "sha256": "58d11a57342486b272103b2ea69189a90bf35cf1d9f53fefdd235e82e5a643db"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_utilization_hierarchical_place.rpt": {
+          "bytes": 30075,
+          "sha256": "e113e1ca79be6b22745c2b1dfe5c647445df1eecefa77bae6ecb09c3a2222bf4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/alinx_ax7101_utilization_place.rpt": {
+          "bytes": 13329,
+          "sha256": "ab6631b4dffa03ff2f714fc321ba356b25853d1842d3f41198d24a2131b8ea39"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_cells.tsv": {
+          "bytes": 8281972,
+          "sha256": "0189562991347f71a942f9dd52e768ed7ffd12ee9e670daf6dd871c40fd79cdb"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_hierarchy.rpt": {
+          "bytes": 46405,
+          "sha256": "898c16495d5756985562bd36ff5273084aff6c208ff784aa283f94a2b58e1bf3"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_implementation.tcl": {
+          "bytes": 4193,
+          "sha256": "ace9c834e5f650c32c30dc0ea27a150d1c03bb3c17e74322539ef0a1f603ae8b"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_pp_boundary_timing.rpt": {
+          "bytes": 112246,
+          "sha256": "7e0e06c2c7153ae9e53319bead8c070fb977f5cc9e11b6385d2b881b7b1a04b4"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_pp_utilization.rpt": {
+          "bytes": 9985,
+          "sha256": "407cd7f018cbabf76fa32c73c85546f2195fe5b698cf82a9e0fcadc748b0a8e9"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_scope_timing.tsv": {
+          "bytes": 408,
+          "sha256": "b31c49574205ced6c299b9834947aa719d4ab96c3ec027aa41bddd96d71ed0af"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_timing.rpt": {
+          "bytes": 1263885,
+          "sha256": "7085fcfc5247d8009e75aed45780a03a369be302a5f63035a862fdf8de9ae449"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/baseline_utilization.rpt": {
+          "bytes": 13319,
+          "sha256": "3496d7fd958c9c926d150060922565e5f798323b77e887103d65f3efd56eabdb"
+        },
+        "$VALIDATION_STORAGE/682-a554/round2/work/ax7101-ExtraTimingOpt/route-extratiming.log": {
+          "bytes": 433792,
+          "sha256": "7f63e643ec70a33fdad3121315437846f720e7a79b7b864164760311aff5dc44"
+        }
+      },
+      "route_status": {
+        "routable nets": 101183,
+        "fully routed nets": 101183,
+        "nets with routing errors": 0
+      }
+    }
+  },
+  "complete_image": {
+    "best": "ExtraPostPlacementOpt",
+    "complete_image": {
+      "manifest": "baremetal",
+      "gptp_owner": "fabric",
+      "cpu_xlen": 32,
+      "entry": null,
+      "complete": false,
+      "images": [
+        {
+          "name": "bitstream",
+          "offset": 0,
+          "addr": 0,
+          "budget": 4194304
+        },
+        {
+          "name": "aem",
+          "offset": 4194304,
+          "addr": 0,
+          "budget": 65536
+        }
+      ],
+      "aem_image_bytes": 7512,
+      "aem_image_crc32": 1537431019,
+      "aem_image_sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d",
+      "bitstream_payload_sha256": "ebc849027a5cc58394cc62dbf08995671b27f3039139c30d828c455ca416875b",
+      "bitstream_fpga_part": "7a100tfgg484"
+    },
+    "preflight": {
+      "directive": "ExtraPostPlacementOpt",
+      "source": "$LANES/682-pp-pin3/sw/litex/deploy.sh",
+      "source_bytes": 25716,
+      "source_sha256": "2e1768262c8b3dd2487d89b4cea5904ce5e572b1954a0ccf03a7f7abc5b48cd7",
+      "functions": [
+        "do_check_images",
+        "materialize_images"
+      ],
+      "invocation": "do_check_images",
+      "script": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight.sh",
+      "script_bytes": 8303,
+      "script_sha256": "30e6cdf3a76fe151d21a0282c3be2493c0a137efbe7a06fb263fbfb46d7663ad",
+      "rc": 0,
+      "hardware_setup_executed": false
+    },
+    "manifest_regeneration": {
+      "command": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "$LANES/682-pp-pin3/sw/litex/layout_from_soch.py",
+        "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt",
+        "--bit",
+        "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit"
+      ],
+      "before_bytes": 616,
+      "after_bytes": 616,
+      "before_sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774",
+      "after_sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774",
+      "identical": true
+    },
+    "artifacts": [
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/acceptance/images/01-ExtraPostPlacementOpt.log",
+        "bytes": 45755,
+        "sha256": "25a9b13fb2248c8eb380e691ed6a787c075f418759d567e1cb5f200992d58e2d"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/aem_desc.bin",
+        "bytes": 7512,
+        "sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight-receipt.json",
+        "bytes": 585,
+        "sha256": "044669f71755ee56b9918a7e8da8353a5d97439d63f890cc335580fcbd4f2437"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/artifact-preflight.sh",
+        "bytes": 8303,
+        "sha256": "30e6cdf3a76fe151d21a0282c3be2493c0a137efbe7a06fb263fbfb46d7663ad"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/flashboot_layout.json",
+        "bytes": 616,
+        "sha256": "bb3ddd51685a6b8aec8b89d06ee52d6ff030a669ed4caaf046c6630e30d45774"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.bit",
+        "bytes": 3825992,
+        "sha256": "613a670a15dc7dce29c9cce0a1fc75527229575f7b43968dce6a444ffc80a8bc"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101.xdc",
+        "bytes": 19504,
+        "sha256": "81bbf89c34dd0e911c43a66a00533145544e15f2d5b4a45727b954f678793b2d"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_clock_interaction.rpt",
+        "bytes": 5716,
+        "sha256": "18a082e082be616eeaf664f1848c5d3d95c54dc62ad7c73316d4c2d7adfc8160"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_drc.rpt",
+        "bytes": 59399,
+        "sha256": "8709e336115800589541bb86029accd4d40e1ce7a6422d6e258f541dee75a0d9"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_exceptions.rpt",
+        "bytes": 80306,
+        "sha256": "542d02c50c56bb2e4b48ad372369191dfc557edcf5bf5a2fe9b456564a86e866"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_iob_pack.rpt",
+        "bytes": 1924,
+        "sha256": "6dc8b514cd65c80d89c0bd3fbe9e6055a509023db7fe43d571aa82e4499a750d"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_power.rpt",
+        "bytes": 16087,
+        "sha256": "2313da6a5c615f34aea806ffc5f590ab23348adf7330bedecd19cf938d5b4900"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_route_status.rpt",
+        "bytes": 651,
+        "sha256": "443b575d30fe2c652339fea5a434ad08d106b49747ed1dc72eecc8054458aa3a"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_negative.rpt",
+        "bytes": 904,
+        "sha256": "601db153cc80fbdacc7cf77ad5801833506593c0355bbc01508dd58f83bd23ba"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_operating.rpt",
+        "bytes": 1567,
+        "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_0C_timing.rpt",
+        "bytes": 1298911,
+        "sha256": "d737e1b76c1d8491c138d5b1be2e39c465ba21c781d71c2e4b9e05404d29df3b"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_negative.rpt",
+        "bytes": 905,
+        "sha256": "72a96eb4585d3d90f1d4f6442d366a41b989ff5e78f61ab52d7df7239b87b15c"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_operating.rpt",
+        "bytes": 1568,
+        "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Fast_85C_timing.rpt",
+        "bytes": 1298912,
+        "sha256": "89e9bd1039f025be364d403769bb6dc1920a2a4dd9289e64443c50a3f3598a6c"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_negative.rpt",
+        "bytes": 904,
+        "sha256": "d54876be64049d6ab826400062208f617552ff3f8f9e5f5cae20fd00682aed7e"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_operating.rpt",
+        "bytes": 1567,
+        "sha256": "4b82747c8a30ea38478b9a4f2e9c818f1ef47505b1aa42e113de48d9a6518d0a"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_0C_timing.rpt",
+        "bytes": 1355675,
+        "sha256": "4aac7d802c1ed47c6bc1b47ad76d42456e7e251a736df806acbfafec52dc2a56"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_negative.rpt",
+        "bytes": 905,
+        "sha256": "53efce2fcece5460fa73300cd26f8b0059e760130b2bbb9883a66eb07adbcfa5"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_operating.rpt",
+        "bytes": 1568,
+        "sha256": "85213bcf11ec192e30deee8ad5fe048ec1d0bbdfb77cd8445e2192577397cdfa"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_Slow_85C_timing.rpt",
+        "bytes": 1355676,
+        "sha256": "2d1c190acad16cbb37e9eb7a30ae4c9f093517c72ec4d020feff3ed08205a78f"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_all_timing.rpt",
+        "bytes": 1356058,
+        "sha256": "8dd9b14aff2faade59a5ce2005ebfc1f7bbac29e3a5113390f9e0d8ccf0587c8"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_cdc.rpt",
+        "bytes": 139909,
+        "sha256": "e668fec8cef62c0470729f327b1e98c1c74b8254bfb3a9e654f788d05c0a1cd4"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_check_timing.rpt",
+        "bytes": 4828,
+        "sha256": "968eaef9fec3fd21eb3ee955f388fa3ee0d8d265467ddbadcea3f5e50015f525"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_clock_interaction.rpt",
+        "bytes": 5724,
+        "sha256": "ff7ec5519530c95a1c41223ad328f351291bd330112ea781f2f901c1bca37c29"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_signoff_grade.txt",
+        "bytes": 210,
+        "sha256": "ea5de95bc0ac0651d2b41deeefd4d61ac5d2a91beeed6a5d33fb8dac965ab492"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/alinx_ax7101_timing.rpt",
+        "bytes": 1318108,
+        "sha256": "c315bc0d2c0ef4e750d86bc77690efc719bcec9e2f1ffe0746c3285ed8f8e96b"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/bitstream.log",
+        "bytes": 44812,
+        "sha256": "4cbb9881214ea5d461c5dd96f87a81db70af42ea303ee79a1959dd6fc0f40961"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/gateware/finish.tcl",
+        "bytes": 1203,
+        "sha256": "6265091ba40d76c6cb363abc6865a7aecd5ad30d8ea7a9eb99a52739e75169f3"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/manifest-repeat.json",
+        "bytes": 570,
+        "sha256": "482d5087b6efb1687885c47fb51dcacc7473b795447abce65504a009fef092dc"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/bios/bios.bin",
+        "bytes": 53116,
+        "sha256": "a5f8aad66e6a866046c858b799322c6b05abce127e8bd7c074fed9d3b80f554c"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/bios/bios.elf",
+        "bytes": 510532,
+        "sha256": "88a4d5ae8c08cf3973e952a57aeb3430e1c83bfe5dd107e4ec2bd66a66e208c3"
+      },
+      {
+        "path": "$VALIDATION_STORAGE/682-a554/round2/work/images/ExtraPostPlacementOpt/software/include/generated/soc.h",
+        "bytes": 11949,
+        "sha256": "8cd719d023b3e493f475bcb1ee3ed5dc560d3edc0d1bf8e317ea78ae649e7ca9"
+      }
+    ]
+  },
+  "image_retention_bindings_verified": 37,
+  "synthesis_counts": {
+    "route-1x1": {
+      "sources": 46,
+      "processor_8_6901": 0
+    },
+    "ooc-1x1": {
+      "sources": 46,
+      "processor_8_6901": 0
+    },
+    "ooc-8x8": {
+      "sources": 46,
+      "processor_8_6901": 0
+    }
+  },
+  "retained_full_sweep": {
+    "label": "final",
+    "head": "591a5752e6a587b28b501e2d02d6a9d0293f3ba2",
+    "command": "bash scripts/run_all_suites.sh $VALIDATION_STORAGE/682-a554/round2/final/parent-suite-logs",
+    "sweep_rc": 0,
+    "tally_rc": 0,
+    "completed_suites": 60,
+    "passing": 60,
+    "failing": []
+  },
+  "fresh_gate_receipts": [
+    {
+      "bank": "refresh-builder",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 101687,
+      "sha256": "845c7b2d69f5a742b7acf4d21ff6f5c5105bcfbfe045e977cef71fc182871ef9",
+      "name": "builder-elaboration"
+    },
+    {
+      "bank": "refresh-field",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3789,
+      "sha256": "914c87164139807bb86fe0df5dcffea67d75f66a7e55312302da4910f1ad9bd2",
+      "name": "oracle-configure"
+    },
+    {
+      "bank": "refresh-field",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 4367,
+      "sha256": "5a4271a9c562432ebc3d2a667270e7a358d22392754632511f15035a13ab79df",
+      "name": "oracle-build"
+    },
+    {
+      "bank": "refresh-field",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 11269,
+      "sha256": "0af049c53889ad04b84efb97553cfd9bc1fa5e2c0217a9eeaad0a9cf88421c38",
+      "name": "tsn-fuzz"
+    },
+    {
+      "bank": "refresh-field",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "tsn-verdict"
+    },
+    {
+      "bank": "refresh-field",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 106,
+      "sha256": "1dd208a39feea42e3697da525eb9f83057d42a8905f293b638244a420a2ab10f",
+      "name": "field-completeness"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 5759,
+      "sha256": "b92571400fe49b3a60f67673cabbe80cd0b6c5ea3ebb08244eb5d96498a64c2e",
+      "name": "sdk-controls"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 793,
+      "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+      "name": "rv32-object-controls"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3982,
+      "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+      "name": "firmware-tally-controls"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 39463,
+      "sha256": "7e5b4fb06949bdf7fd21ba21631cb23e2296cef7e6b84028a81f7784812fec18",
+      "name": "firmware-ctrl"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3710,
+      "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+      "name": "firmware-coverage-controls"
+    },
+    {
+      "bank": "refresh-firmware",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3005,
+      "sha256": "173dbff52a82557f6b44df9af37d262af0cbc7626d342ce51f10b32d5bbe7d13",
+      "name": "firmware-coverage"
+    },
+    {
+      "bank": "refresh-mailbox",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 19127,
+      "sha256": "86872f1b175f97e725cbb758437d4bcb72047216083b988ba3aa985e0ba68d61",
+      "name": "mbx"
+    },
+    {
+      "bank": "refresh-mailbox",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "mbx-verdict"
+    },
+    {
+      "bank": "refresh-markdown",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 128,
+      "sha256": "9de597c20c044953930a35a471dc8e5592ecc57b24be4c395bf381c1e72e2052",
+      "name": "markdown-docs"
+    },
+    {
+      "bank": "refresh-markdown",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 38,
+      "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+      "name": "markdown-toc-controls"
+    },
+    {
+      "bank": "refresh-markdown",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 64,
+      "sha256": "2085cd5b07944246d79457654dfb861a2b81a1c93936c4428b0ac2895b44371e",
+      "name": "markdown-anchor-check"
+    },
+    {
+      "bank": "refresh-markdown",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 94,
+      "sha256": "327a49b965f12e7f77c6ab1ae5812d3fed54f2dd64786e400f71111120c97fbd",
+      "name": "markdown-toc-check"
+    },
+    {
+      "bank": "refresh-records",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 258,
+      "sha256": "9ea22aaa883f791ac12c06c2b73e0fc96d098c9858a37e27967d8bde43eea747",
+      "name": "generated-record-repeatability"
+    },
+    {
+      "bank": "refresh-records-final",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 258,
+      "sha256": "9ea22aaa883f791ac12c06c2b73e0fc96d098c9858a37e27967d8bde43eea747",
+      "name": "generated-record-repeatability"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 593,
+      "sha256": "2ca20be2737097c53a7907da0cabb7de63a00c68bd0171d2eea1db82c6949e9c",
+      "name": "route-1x1"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 378,
+      "sha256": "1497ef241c7693598d85d9e76208172f422b40af299db3799d87c0291e09ec3c",
+      "name": "ooc-1x1"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 377,
+      "sha256": "085dede82739485596ecdd3b6383ddc7de15cbaa105e91ba821c917ebf89a60a",
+      "name": "ooc-8x8"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 27,
+      "sha256": "2114d909e60add091220b415987d4409a611d70c9e84f1bb9e0ae12d6a2f14a0",
+      "name": "resource-policy"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+      "name": "capture-receipt"
+    },
+    {
+      "bank": "refresh-resources",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 278,
+      "sha256": "b80d5cc237b2a35454d1e8fb166dafcca3fd4bdd41213111744e0aef9db50a06",
+      "name": "exact-resource-inputs"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 817,
+      "sha256": "bcfb2b736e14772928de54c323dc6166465e81c3fcc10fbce6e8b96a2905cd8c",
+      "name": "Build the validated HDL reference"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "Install the python gate dependencies"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "Install the pinned Markdown renderer"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 2323,
+      "sha256": "83e0678c915bb0e1bca480d0e5c1d71bb40af48ebdbdc21976658e511897bea4",
+      "name": "Install diagram gate dependencies"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 128,
+      "sha256": "9de597c20c044953930a35a471dc8e5592ecc57b24be4c395bf381c1e72e2052",
+      "name": "Link health, wording, dead-reference and local-info gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 140,
+      "sha256": "9768aeb548e607b4bd7e5685d0452c6e9d35a03a508e9e2d7910cd4dafc8e90d",
+      "name": "Added-line em-dash gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 167,
+      "sha256": "05d6ef2302a6c0467ad437209233733e93bcb2941539103e26c51b988a28637a",
+      "name": "Concise audience documentation gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 242,
+      "sha256": "79dce4dc64e4d57851e37c5bac0a829304d65207659bb65049e11b7d0683f069",
+      "name": "Audience diagram no-drift gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 146,
+      "sha256": "9ef43cc924919e10ccb30a9419819d20b849d787a8f37fcabba22e2159d3167d",
+      "name": "Product solution source-fact gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 227,
+      "sha256": "cd9f3e7404ce8e884eded8567a1b2560dc22cc7a4b5796601edb295cb725cc64",
+      "name": "Verified submodule documentation gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 241,
+      "sha256": "af9493d0e4acd65eb64ba2bbe7103a2c6f957ecca650a938cdc18d70396a57ea",
+      "name": "HDL timing diagram no-drift gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 125,
+      "sha256": "17d1d2360a98e818f8706a8165affff7c873cb06b4fe8db4c48300e103e51c1e",
+      "name": "Published diagram PNG gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 1500,
+      "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+      "name": "Milan feature-status consistency gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 118,
+      "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+      "name": "Traceability matrix no-drift gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "Fetch the builder source dependencies"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 2736,
+      "sha256": "2ee7c1389f730f5d60e04123c4e7b04cd555da58393dccf27b73d1265fc5d481",
+      "name": "Imported gPTP documentation gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3293,
+      "sha256": "862838344ece59e4179fd4bcfe04f85ee320f0601c325014b2509717db13368b",
+      "name": "Code-quality measurement self-tests"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 31,
+      "sha256": "176b5effd5ab230db92a3088fc5e8a688744dc1203991c6e71b25f2a29925e0d",
+      "name": "Install the pinned sv2v release"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 115,
+      "sha256": "821b14c7b7602fb0eb2324b506ad9098d840ec28628ab146bca7aeaab31ff7aa",
+      "name": "Bare-metal scope gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 8119,
+      "sha256": "bc748996f0846efd76f61e2aec52b050db1da455529fe10b340b637c051e2448",
+      "name": "Install and verify the pinned RV32 SDK"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 52041,
+      "sha256": "d0709afe4c5f022260d7e46acf58ff9da0a487a84942d24c957601bd7dc17572",
+      "name": "Compiler-absent firmware controls"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 101744,
+      "sha256": "ab9f69abd55e0b0ff475b40f4ab314e1eb98e40a1cb2ad1de39c39853fe27440",
+      "name": "End-station builder gates"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 9588,
+      "sha256": "7969fb65ae1ea9d608146bed63d697587402331dc1efa2c128e61861a7f6493e",
+      "name": "NVM record-space gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 324,
+      "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+      "name": "Capture measurement census and clock gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 5189,
+      "sha256": "cba18482dbf27c70ee56b28a8fbbe7bfdc2cc49b4644a42daa5ad4db8f6d4972",
+      "name": "Saved-state writer gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 4733,
+      "sha256": "7c34f57b723fa707a2eadc1915b61980ed407fd0cf480238032e391030f053f9",
+      "name": "SoC source-list gate (Vivado would fail 40 min in without this)"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3453,
+      "sha256": "be8805dc2fee50eddcf0b966ea5728febdeed2e7b9f288ba358f41c1fe4b7041",
+      "name": "RTL source-list drift gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 40634,
+      "sha256": "ad6af3b1bb7cbfe3e761b8105d59a1fac1937cd0ab6c437b8298f61304a7e81b",
+      "name": "Boundary-unit naming ratchet"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 5040,
+      "sha256": "72a62b76b7c80018909615134728c909abb86662481704f5a9edbe5337f1e653",
+      "name": "Port contract gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 12682,
+      "sha256": "3fbed56aa0724496465ce6f185d931ddb1a3ee49bb28a1ff77e1051981a700dd",
+      "name": "Fail-fast ratchet"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 2745,
+      "sha256": "10561e66d8780f7ff930a768aa20aa5a4b96ba78ee29ab2ee537deb577c0df67",
+      "name": "TODO ownership gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 20766,
+      "sha256": "6162e40a0b084c014771b2f9a22fcbaf6fa61f425fac6dfe2cd03604e6f2ce65",
+      "name": "Test-evidence ratchet"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3847,
+      "sha256": "278016932202046492104d01ce45472981270e852379d098f33d0251024769eb",
+      "name": "Mechanical hygiene ratchet"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3173,
+      "sha256": "ccd900273b796fdfcf74e586f952eadfc9f6f6b1ad448b891183f939a49df728",
+      "name": "SystemVerilog idiom gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3909,
+      "sha256": "b8717d3988b724a233037e112619b6056ae6a75066ade22db0cb1f23cb435591",
+      "name": "C and C++ idiom gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 2992,
+      "sha256": "e14702c126a3bb1c93f88f0b3c5fd09127f315a38d7de6b44979b740a5f0e227",
+      "name": "Python idiom gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 2696,
+      "sha256": "a57f331056f1f93e369a05fc919fd7d91a98638253282a970a118711a46e20e1",
+      "name": "Shell idiom gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 151577,
+      "sha256": "d7490f337de8e6f9456bdd2d75332bb10b44de58765e9cab1054d4b0d00e34a5",
+      "name": "CI event and SHA contract gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 36483,
+      "sha256": "876a6eca5975005e4e1d1ddddad9f74d2443039a10df8b7f590e4c781632fdab",
+      "name": "Local act runner contract gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 85,
+      "sha256": "14e8073fd597e8c2e74483ee4f15374aa0f669038c0af1acafb7b47d130467ff",
+      "name": "Doc cited-path gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 128,
+      "sha256": "1a15e66a07892f544c4b9bee75201ff9acaf3edd2c37963a780f8473466d50cb",
+      "name": "Archive integrity gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 196,
+      "sha256": "36c8da18e4e51f6b3aec96cfb64f354aa3ed5a316faf8c7d2b9d4be36d11fe91",
+      "name": "Per-page contents gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 3596,
+      "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+      "name": "AEM store generator self-test"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 19682,
+      "sha256": "2962726b80aba6c16ad55a00fdbd9b4907af69342b6b111405e89b7f4b98c349",
+      "name": "Sweep/build shape gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 9270,
+      "sha256": "6e4bb815d4a015fc437da1e1584f8755b4feba5ab5272421126ca193b0a58610",
+      "name": "Deploy shape gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 25694,
+      "sha256": "7c1cc4d5ce778537bd27790e075eb0d8159cf6c1281870eb96142e9465eff19c",
+      "name": "Entity shape gate"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "name": "Fetch the engine authority the builder derives from"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 4965,
+      "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+      "name": "Advertised-vs-emitted gate (green since 2026-07-28, item 00)"
+    },
+    {
+      "bank": "refresh-docs-workflow",
+      "head": "5428b044176f95248e6916dc00dd89c0df154078",
+      "rc": 0,
+      "bytes": 225,
+      "sha256": "61b434a5b050726a78dd7f6a13e73571394c8107723278946e505e7c5b71c713",
+      "name": "Strip git metadata, then run the docs gate"
+    }
+  ],
+  "limitations": "Public receipts and retained report hashes audited; private report bytes and physical hardware not examined."
+}

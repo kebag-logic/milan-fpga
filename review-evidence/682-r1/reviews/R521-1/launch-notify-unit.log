@@ -1,0 +1,4 @@
+$PINNED_VERILATOR --cc --exe --build --jobs 4 --top-module KL_aecp_notify -GN_CTRL_P=2 -GN_STREAM_IN_P=1 -GN_STREAM_OUT_P=1 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$SCRATCH/processor-focused/tb/aecp_notify -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/aecp/KL_aecp_notify.sv sim_main.cpp -o Vaecp_notify_sim
+%Error: Invalid option: --jobs
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+make: *** [Makefile:36: run] Error 1
