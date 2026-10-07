@@ -7,18 +7,24 @@
 // it, and nothing here runs on a bench.
 //
 // It declares what a platform declares statically (the app, the pool's arena,
-// the entity, the ACMP configuration of the shape's entity model) and runs the
-// boot order of ctrl/README.md: ctrl_app_compose(), the binding owner on lane
-// F1's store over the LiteSPI port (acmp_nvm.h), nvm_store_boot(), the store's
-// centisecond service, ctrl_app_open(), then the loop. The owners the
-// integrator supplies (the lock, the sources, SRP, the notifier and every
-// saved-state group but the bindings) are stubs that do nothing, so the
-// measure is the composition's and not theirs.
+// the entity, the ACMP configuration of the shape's entity model, MAAP's
+// allocation output on the datapath CSR window) and runs the boot order of
+// ctrl/README.md: ctrl_app_compose() with ADP, ACMP and MAAP, the binding
+// owner on lane F1's store over the LiteSPI port (acmp_nvm.h),
+// nvm_store_boot(), the store's centisecond service, ctrl_app_open(), then
+// the loop. The owners the integrator supplies (the lock, the sources, SRP,
+// the notifier, every saved-state group but the bindings, and the CSR
+// window's two accesses) are stubs that do nothing, so the measure is the
+// composition's and not theirs. MAAP's allocation output takes the shape's
+// STREAM_OUTPUTs as its AAF talkers and its CRF output, one each but one AAF
+// (maap_csr.h), as both measured shapes declare them.
 //
 // A tree whose ctrl_app composes no ACMP (CTRL_APP_ACMP_FIRST_SLOT absent:
 // the base before lane F3) links the same platform without ACMP: the store's
 // port is the integrator's owners directly, and the app composes and opens in
-// one call (ctrl_app_start), so the store boots before it.
+// one call, so the store boots before it. That call is ctrl_app_start_maap()
+// where the app composes MAAP only through it (CTRL_APP_MAAP_FIRST_SLOT
+// absent, maap_mbx.h present: dev with lane F2), else ctrl_app_start().
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -32,6 +38,9 @@
 
 #ifdef CTRL_APP_ACMP_FIRST_SLOT
 #include "acmp_nvm.h"
+#endif
+#ifdef CTRL_MAAP_MBX_H
+#include "maap_csr.h"
 #endif
 
 #ifndef IMAGE_SINKS
@@ -140,6 +149,26 @@ static struct acmp_config acmp_cfg;
 static struct acmp_nvm binding_owner;
 #endif
 
+#ifdef CTRL_MAAP_MBX_H
+static uint32_t csr_read(void *ctx, unsigned interface, uint32_t offset)
+{
+	(void)ctx;
+	(void)interface;
+	(void)offset;
+	return 0u;
+}
+
+static void csr_write(void *ctx, unsigned interface, uint32_t offset, uint32_t value)
+{
+	(void)ctx;
+	(void)interface;
+	(void)offset;
+	(void)value;
+}
+
+static struct maap_csr csr;
+#endif
+
 static void halt(void)
 {
 	for (;;) {
@@ -153,7 +182,16 @@ int main(void)
 #ifdef CTRL_APP_ACMP_FIRST_SLOT
 		.acmp = &acmp_cfg, .acmp_env = &env,
 #endif
+#ifdef CTRL_APP_MAAP_FIRST_SLOT
+		.maap_allocation = maap_csr_allocation, .maap_ctx = &csr,
+#endif
 	};
+#ifdef CTRL_MAAP_MBX_H
+	if (!maap_csr_init(&csr, (struct maap_csr_port){NULL, csr_read, csr_write}, IMAGE_SOURCES - 1u, true, 1u,
+			   1u)) {
+		halt();
+	}
+#endif
 	nvm_flash_litespi_power_on();
 #ifdef CTRL_APP_ACMP_FIRST_SLOT
 	acmp_cfg.entity_id = entity.entity_id;
@@ -172,7 +210,12 @@ int main(void)
 #else
 	// the base composes in one call, so its store boots first
 	nvm_store_boot(&nvm_flash_litespi, &others);
-	if (!ctrl_app_start(&app, &cfg) || !ctrl_loop_add_tick(&app.loop, nvm_store_service)) {
+#ifdef CTRL_MAAP_MBX_H
+	if (!ctrl_app_start_maap(&app, &cfg, maap_csr_allocation, &csr, 0u) ||
+#else
+	if (!ctrl_app_start(&app, &cfg) ||
+#endif
+	    !ctrl_loop_add_tick(&app.loop, nvm_store_service)) {
 		halt();
 	}
 #endif

@@ -5,7 +5,8 @@
 
 WHAT IT MEASURES. For each shape (a shipped config), the control-plane
 firmware as a Mark II platform composes it (rv32_image/image_main.c): the app
-(pool, loop, ADP and, since lane F3, ACMP with its binding owner), lane F1's
+(pool, loop, ADP, lane F2's MAAP with its allocation output on the datapath
+CSR window, and, since lane F3, ACMP with its binding owner), lane F1's
 saved-state store on the LiteSPI port at the shape's generated container, and
 the MMIO platform, booted in ctrl/README.md's order. Every source is
 compiled freestanding with its own gate's RV32 flags (ctrl_build.RV32_FLAGS,
@@ -44,7 +45,8 @@ the image.
 THE BASE. --base REV measures the firmware of another revision of this
 repository (git archive of sw/firmware, never a checkout) with this tree's
 harness and shapes, and prints the delta. A base whose ctrl_app composes no
-ACMP links the same platform without it (image_main.c).
+ACMP links the same platform without it, with MAAP through
+ctrl_app_start_maap() where the base has lane F2's (image_main.c).
 
 Usage:
     python3 sw/firmware/ctrl/test/ctrl_image.py [--shape NAME ...] [--base REV] [--out DIR]
@@ -319,7 +321,8 @@ def app_parts(cc: str, fw: Path, gen: Path, work: Path) -> dict[str, int]:
     probe = work / "app_parts.c"
     probe.write_text('#include "ctrl_app.h"\nstruct ctrl_app size_app;\nstruct ctrl_pool size_pool;\n'
                      "struct ctrl_loop size_loop;\nstruct adp_mbx size_adp;\n#ifdef CTRL_APP_ACMP_FIRST_SLOT\n"
-                     "struct acmp_mbx size_acmp;\n#endif\n", encoding="utf-8")
+                     "struct acmp_mbx size_acmp;\n#endif\n#ifdef CTRL_MAAP_MBX_H\nstruct maap_mbx size_maap;\n"
+                     "#endif\n", encoding="utf-8")
     obj = work / "app_parts.o"
     run([cc, *RV32_FLAGS, "-fno-common", *fw_rv32.includes(cc), *includes(fw, gen), "-c", str(probe), "-o",
          str(obj)])
