@@ -1,0 +1,27 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (70 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/integration_test.c:221: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [be less than] [1500]
+		actual value:			[1500]
+		expected to be less than:	[1500]
+
+  "integration_suite": 370 passes, 1 failure in 11ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 1486 passes in 21ms.
+Completed "main": 4202 passes, 1 failure in 62ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

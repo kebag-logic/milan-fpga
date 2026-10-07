@@ -1,0 +1,57 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (70 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 5ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:81: Failure: transmit_suite -> leaveall_then_withdrawal_retains_until_leave_expiry 
+	Expected [left] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "transmit_suite": 105 passes, 1 failure in 5ms.
+  "integration_suite": 371 passes in 11ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:174: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[1]
+		expected value:			[2]
+
+  "milan_suite": 424 passes, 6 failures in 9ms.
+  "boundaries_suite": 1486 passes in 25ms.
+Completed "main": 4196 passes, 7 failures in 76ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

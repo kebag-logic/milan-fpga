@@ -1,0 +1,27 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.09 sec
+Running "main" (70 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 13ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 11ms.
+  "milan_suite": 442 passes in 22ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:285: Failure: boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation 
+	Expected [state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 1485 passes, 1 failure in 21ms.
+Completed "main": 4214 passes, 1 failure in 86ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.09 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,42 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.09 sec
+Running "main" (70 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 25ms.
+  "milan_suite": 430 passes in 11ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:577: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:578: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 0).reg] to [equal] [MRP_REG_STATE_MT]
+		actual value:			[1]
+		expected value:			[2]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:579: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:580: Failure: boundaries_suite -> timer_allocation_failure_rolls_back_and_retries 
+	Expected [stream_state(a, 2).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 1482 passes, 4 failures in 26ms.
+Completed "main": 4199 passes, 4 failures in 88ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.09 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

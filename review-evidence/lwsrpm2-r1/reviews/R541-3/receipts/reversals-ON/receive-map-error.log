@@ -1,0 +1,47 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (70 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 6ms.
+  "integration_suite": 371 passes in 12ms.
+  "milan_suite": 430 passes in 10ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:551: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+  "boundaries_suite": 1481 passes, 5 failures in 23ms.
+Completed "main": 4198 passes, 5 failures in 71ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,15 @@
+flush fail_slot=0 immediate reg=MT leave_indications=1
+flush fail_slot=0 after_dispatch reg=IN leaves=1 joins=2 policies=3
+flush fail_slot=1 immediate reg=IN leave_indications=0
+flush fail_slot=1 after_dispatch reg=IN leaves=0 joins=1 policies=1
+FAIL line 28: leaves == 1
+FAIL line 29: joins == 2
+flush fail_slot=2 immediate reg=IN leave_indications=0
+flush fail_slot=2 after_dispatch reg=IN leaves=0 joins=1 policies=1
+FAIL line 28: leaves == 1
+FAIL line 29: joins == 2
+flush fail_slot=3 immediate reg=IN leave_indications=0
+flush fail_slot=3 after_dispatch reg=IN leaves=0 joins=1 policies=1
+FAIL line 28: leaves == 1
+FAIL line 29: joins == 2
+flush checks=532 failures=6 live=0

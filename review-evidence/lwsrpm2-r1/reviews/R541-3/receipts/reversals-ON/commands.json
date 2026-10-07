@@ -1,0 +1,959 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$PACKET/scratch/reversals-ON/source",
+      "-B",
+      "$PACKET/scratch/reversals-ON/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=$PACKET/scratch/cgreen",
+      "-DLWSRP_MILAN=ON"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-delayed-in-leave-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-delayed-in-leave",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-restarted-lv-deadline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-restarted-lv-deadline",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "application-decode-error-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "application-decode-error",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "stream-increment-overflow-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "stream-increment-overflow",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-priority-range-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-priority-range",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "vlan-range-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "vlan-range",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mac-increment-overflow-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mac-increment-overflow",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "unknown-event-extension-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unknown-event-extension",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "current-version-extension-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "current-version-extension",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "propagation-retention-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "propagation-retention",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "propagation-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "propagation-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-recovery-indication-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-recovery-indication",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "committed-local-leaveall-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "committed-local-leaveall",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "omitted-leaveall-event-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "omitted-leaveall-event",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reserved-leaveall-event-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reserved-leaveall-event",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-subtype-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-subtype",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-upper-bound-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-upper-bound",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reclaim-leaving-observer-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reclaim-leaving-observer",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-redeclare-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-redeclare-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-transmitted-leaveall-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-transmitted-leaveall-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "received-leaveall-restart-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "received-leaveall-restart",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-in-only-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-in-only",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "stream-list-boundary-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "stream-list-boundary",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-value-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-value-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "applicant-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "applicant-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leave-timer-retry-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leave-timer-retry",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-map-error-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-map-error",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reservation-atomicity-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reservation-atomicity",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "poll-replay-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "poll-replay",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "commit-replay-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "commit-replay",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "queue-teardown-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "queue-teardown",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "zero-attribute-length-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "zero-attribute-length",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-value-propagation-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-value-propagation",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "replay-error-retention-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "replay-error-retention",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "callback-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "callback-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "own-short-value-restore-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-short-value-restore",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "own-last-destination-lost-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-last-destination-lost",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/reversals-ON/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/reversals-ON/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]
