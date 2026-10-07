@@ -44,6 +44,8 @@ FW_SRC  = $(addprefix $(FW_DIR)/,mbx/mbx.c loop/ctrl_loop.c port/ctrl_pool.c por
             port/shlan_port.c adp/adp.c adp/adp_mbx.c acmp/acmp.c acmp/acmp_mbx.c acmp/acmp_nvm.c \
             app/ctrl_app.c host/mbx_model.c)
 FW_INC  = $(addprefix -I$(FW_DIR)/,mbx wire host port loop adp acmp app) -I$(abspath $(ROOT))/sw/firmware/ctrl_nvm
+# Every header those sources can include, so a header-only change rebuilds them.
+FW_HDR  = $(wildcard $(FW_DIR)/*/*.h) $(wildcard $(abspath $(ROOT))/sw/firmware/ctrl_nvm/*.h)
 CC     ?= cc
 AR     ?= ar
 
@@ -60,12 +62,18 @@ run-axil:
 	@echo "======================================================================"
 	./obj_axil/Vmbx_axil 1
 
-obj_fw/libctrlfw.a: $(FW_SRC)
+obj_fw/libctrlfw.a: $(FW_SRC) $(FW_HDR)
 	@mkdir -p obj_fw
+	rm -f obj_fw/*.o obj_fw/libctrlfw.a
 	cd obj_fw && $(CC) -std=c11 -O2 -Wall -Wextra -Werror -pedantic $(FW_INC) -c $(FW_SRC)
 	cd obj_fw && $(AR) crs libctrlfw.a *.o
 
+# Verilator's own build relinks Vmbx_cosim only when one of its objects
+# changed, and the firmware library is not one of them: the binary goes
+# whenever the library is newer, so a firmware-only change is never run stale.
 run-cosim: obj_fw/libctrlfw.a
+	if [ -e obj_cosim/Vmbx_cosim ] && [ obj_cosim/Vmbx_cosim -ot obj_fw/libctrlfw.a ]; then \
+	  rm -f obj_cosim/Vmbx_cosim; fi
 	$(VERILATOR) $(VFLAGS) -GHOST_P=0 --Mdir obj_cosim $(RTL) cosim_main.cpp \
 	  -CFLAGS "-Wall -Wextra $(FW_INC)" -LDFLAGS "$(abspath obj_fw/libctrlfw.a)" -o Vmbx_cosim
 	@echo "======================================================================"

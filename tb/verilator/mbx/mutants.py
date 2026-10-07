@@ -9,8 +9,11 @@ suite's harness against the copy with the Makefile's own recipe (read through
 `make print-vflags`, never restated here) through the adapter the arm names,
 runs it, and requires the run to complete with exit 1 and a `[FAIL]` line
 naming the arm's check. A positive control, the unmodified RTL through both
-adapters, runs first. The tree is never written: every build directory is
-under the scratch root.
+adapters, runs first. An arm that names two interfaces builds the contract's
+two-interface variant, which the generator writes into the copy (as `make
+run-if2` does into its build directory), so a defect only another interface
+shows is graded there; that variant has its own positive controls. The tree
+is never written: every build directory is under the scratch root.
 
 Usage:
     python3 tb/verilator/mbx/mutants.py [--jobs N] [--keep DIR]
@@ -36,6 +39,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RTL = HERE.parents[2] / "hdl" / "milan" / "mailbox"
+GEN = HERE.parents[2] / "sw" / "mailbox" / "gen_mailbox.py"
+CONTRACT_INC = HERE.parents[2] / "sw" / "firmware" / "ctrl" / "mbx"   # the Makefile's CONTRACT_INC
 RTL_FILES = ("KL_mbx_pkg.sv", "KL_mbx_ring.sv", "KL_mbx_rx.sv", "KL_mbx_tx.sv", "KL_mbx_evt.sv", "KL_mbx.sv",
              "KL_mbx_wb.sv", "KL_mbx_axil.sv")
 
@@ -50,6 +55,7 @@ class Arm:
     new: str
     host: int
     needle: str
+    ifs: int = 1        # the contract's interface count the arm builds; 2 is the generator's variant
 
 
 ARMS = (
@@ -244,9 +250,9 @@ ARMS = (
 )
 
 
-def _both(name: str, path: str, old: str, new: str, needle: str) -> tuple[Arm, Arm]:
+def _both(name: str, path: str, old: str, new: str, needle: str, ifs: int = 1) -> tuple[Arm, Arm]:
     """One defect planted through each bus adapter: `name` on Wishbone, `name-axil` on AXI4-Lite."""
-    return Arm(name, path, old, new, 0, needle), Arm(f"{name}-axil", path, old, new, 1, needle)
+    return Arm(name, path, old, new, 0, needle, ifs), Arm(f"{name}-axil", path, old, new, 1, needle, ifs)
 
 
 #: ---- lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1),
@@ -287,6 +293,53 @@ ARMS += (
 )
 
 
+#: ---- lane F3 round 2: the adp channel's bound talkers (#665, comment
+#: 6029368753), one defect per rule through both adapters (the model's twins
+#: are in sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # an ENTITY_AVAILABLE or ENTITY_DEPARTING of a bound talker passes: the term
+    # dropped from the contract, the identity's halves swapped into the filter
+    *_both("pkg-adp-bound-term-dropped", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_TEST_C = 32'd5;",
+           "MBX_CH_ADP_T2_TEST_C = 32'd0;", "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("top-bound-eid-halves-swapped", "KL_mbx.sv",
+           "bound_eid_w[64*k +: 64] = {bound_eid_hi_r[k], bound_eid_lo_r[k]};",
+           "bound_eid_w[64*k +: 64] = {bound_eid_lo_r[k], bound_eid_hi_r[k]};",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    # only those two message types, only the whole identity, only an enabled entry
+    *_both("pkg-adp-bound-term-any-type", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_MSG_MASK_C = 32'h00000003;",
+           "MBX_CH_ADP_T2_MSG_MASK_C = 32'h0000FFFF;",
+           "Q12 no other message_type of a bound talker passes on its entity_id"),
+    *_both("rx-bound-low-word-only", "KL_mbx_rx.sv", "field_r[j] == bound_eid_w[64*e +: 64]",
+           "field_r[j][31:0] == bound_eid_w[64*e +: 32]",
+           "Q12 an entity_id differing from the entry in [63:32] only"),
+    *_both("rx-bound-enable-ignored", "KL_mbx_rx.sv", "if (bound_en_w[e] && field_r[j] == bound_eid_w[64*e +: 64])",
+           "if (field_r[j] == bound_eid_w[64*e +: 64])",
+           "Q12 an entry with BOUND_EN clear, its identity still written"),
+    *_both("rx-bound-field-length-unchecked", "KL_mbx_rx.sv",
+           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound)", "MBX_TEST_EQ_BOUND_C:      if (bound)",
+           "Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id"),
+    # every entry takes part, and each is written and read at its own address
+    *_both("rx-bound-first-entry-only", "KL_mbx_rx.sv", "for (int e = 0; e < int'(NB_C); e++) begin",
+           "for (int e = 0; e < 1; e++) begin", "Q12 the last entry passes its talker"),
+    *_both("top-bound-entry-write-lands-in-entry-0", "KL_mbx.sv",
+           "bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e] <=", "bound_eid_lo_r[i * int'(MBX_N_BOUND_C)] <=",
+           "R1 each bound-talker entry keeps"),
+    *_both("top-bound-en-read-from-eid", "KL_mbx.sv",
+           "reg_rdata_w = 32'(bound_en_r[i * int'(MBX_N_BOUND_C) + e]);",
+           "reg_rdata_w = 32'(bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e]);", "R1 each bound-talker entry keeps"),
+    # the table read is the arrival interface's: at one interface an index with
+    # no interface behind it shows it, at two the other interface's table does
+    *_both("rx-bound-table-of-interface-0", "KL_mbx_rx.sv", "if (int'(if_r) == i) begin\n        bound_eid_w",
+           "if (i == 0) begin\n        bound_eid_w",
+           "Q13 on another interface, or an index with no interface, it reaches no ring"),
+    *_both("rx-bound-enable-of-interface-0", "KL_mbx_rx.sv", "bound_en_w  = bound_en_i[NB_C*i +: NB_C];",
+           "bound_en_w  = bound_en_i[0 +: NB_C];", "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("top-bound-write-ignores-interface", "KL_mbx.sv",
+           "bound_en_r[i * int'(MBX_N_BOUND_C) + e] <=", "bound_en_r[e] <=",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+)
+
+
 #: One defect per leaf and one in the skeleton, and one in the filter's tuple: the arms the suite's default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
          "rx-dst-ignored")
@@ -299,11 +352,27 @@ def recipe() -> list[str]:
     return [w for w in res.stdout.splitlines() if w]
 
 
-def build_and_run(rtl_dir: Path, work: Path, host: int) -> tuple[int, str]:
-    """Build the suite against rtl_dir through one adapter and run it."""
+def variant(copy: Path, ifs: int) -> None:
+    """The contract's `ifs`-interface package, skeleton and header, written by
+    the generator over the copy's (never the tree's)."""
+    res = subprocess.run([sys.executable, "-B", str(GEN), "--variant-interfaces", str(ifs), "--out", str(copy)],
+                         capture_output=True, text=True, check=False)
+    if res.returncode != 0:
+        raise ValueError(f"the {ifs}-interface variant was refused: {res.stdout}{res.stderr}")
+
+
+def build_and_run(rtl_dir: Path, work: Path, host: int, ifs: int = 1) -> tuple[int, str]:
+    """Build the suite against rtl_dir through one adapter and run it; a
+    variant's C++ side includes the variant's header, which rtl_dir holds."""
     work.mkdir(parents=True, exist_ok=True)
-    argv = recipe() + [f"-GHOST_P={host}", "--Mdir", str(work / "obj"), "-j", "4",
-                       *[str(rtl_dir / f) for f in RTL_FILES], "tb_mbx_top.sv", "sim_main.cpp", "-o", "Vmbx"]
+    argv = recipe()
+    if ifs != 1:
+        include = f"-I{CONTRACT_INC}"
+        if not any(include in w for w in argv):
+            raise ValueError(f"the Makefile's recipe names no {include} to replace with the variant's header")
+        argv = [w.replace(include, f"-I{rtl_dir}") for w in argv]
+    argv += [f"-GHOST_P={host}", "--Mdir", str(work / "obj"), "-j", "4",
+             *[str(rtl_dir / f) for f in RTL_FILES], "tb_mbx_top.sv", "sim_main.cpp", "-o", "Vmbx"]
     built = subprocess.run(argv, cwd=HERE, capture_output=True, text=True, check=False)
     if built.returncode != 0:
         return 2, built.stdout + built.stderr
@@ -315,6 +384,8 @@ def plant(arm: Arm, root: Path) -> Path:
     """A copy of the RTL with the arm's defect written into it."""
     copy = root / arm.name / "rtl"
     shutil.copytree(RTL, copy)
+    if arm.ifs != 1:
+        variant(copy, arm.ifs)
     target = copy / arm.path
     text = target.read_text(encoding="utf-8")
     if text.count(arm.old) != 1:
@@ -325,7 +396,7 @@ def plant(arm: Arm, root: Path) -> Path:
 
 def run_arm(arm: Arm, root: Path) -> tuple[Arm, bool, str]:
     """One arm's verdict and its first failing line."""
-    rc, log = build_and_run(plant(arm, root), root / arm.name, arm.host)
+    rc, log = build_and_run(plant(arm, root), root / arm.name, arm.host, arm.ifs)
     fails = [ln.strip() for ln in log.splitlines() if "[FAIL]" in ln]
     caught = rc == 1 and any(arm.needle in ln for ln in fails)
     detail = fails[0] if fails else (log.strip().splitlines() or ["no output"])[-1]
@@ -343,12 +414,23 @@ def main(argv: list[str] | None = None) -> int:
     with tempfile.TemporaryDirectory(prefix="mbx-mutants-") as tmp:
         root = args.keep.resolve() if args.keep else Path(tmp)
         bad = 0
-        for host in () if args.quick else (0, 1):
-            rc, log = build_and_run(RTL, root / f"control-{host}", host)
-            tally = [ln for ln in log.splitlines() if "checks:" in ln]
-            verdict = tally[-1] if tally else log[-200:]
-            print(f"[{'ok' if rc == 0 else 'FAIL'}] positive control, host {host}: {verdict}")
-            bad += rc != 0
+        try:
+            for ifs in () if args.quick else sorted({1} | {a.ifs for a in arms}):
+                rtl = RTL
+                if ifs != 1:
+                    rtl = root / f"control-if{ifs}" / "rtl"
+                    shutil.copytree(RTL, rtl)
+                    variant(rtl, ifs)
+                for host in (0, 1):
+                    rc, log = build_and_run(rtl, root / f"control-if{ifs}-{host}", host, ifs)
+                    tally = [ln for ln in log.splitlines() if "checks:" in ln]
+                    verdict = tally[-1] if tally else log[-200:]
+                    print(f"[{'ok' if rc == 0 else 'FAIL'}] positive control, {ifs} interface(s), host {host}: "
+                          f"{verdict}")
+                    bad += rc != 0
+        except ValueError as exc:
+            print(f"REFUSED: {exc}")
+            return 2
         try:
             with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
                 results = list(pool.map(lambda a: run_arm(a, root), arms))
