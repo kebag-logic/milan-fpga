@@ -1,0 +1,15 @@
+Verilator 5.050 2026-07-01 rev v5.050
+
+fatal: pathspec 'scripts/mutant_run.py' did not match any files
+Traceback (most recent call last):
+  File "${PACKET}/scripts/mailbox.py", line 18, in <module>
+    subprocess.run(['git','-C',str(a.repo),'archive','HEAD','tb/verilator/mbx','tb/common',
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'hdl/milan/mailbox','sw/firmware/ctrl','sw/mailbox','scripts/mutant_run.py'],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   stdout=out,check=True)
+                   ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '${REPO}', 'archive', 'HEAD', 'tb/verilator/mbx', 'tb/common', 'hdl/milan/mailbox', 'sw/firmware/ctrl', 'sw/mailbox', 'scripts/mutant_run.py']' returned non-zero exit status 128.

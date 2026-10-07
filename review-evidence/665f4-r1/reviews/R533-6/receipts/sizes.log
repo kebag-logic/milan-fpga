@@ -1,0 +1,378 @@
+ARGV ["/usr/bin/python3", "sw/firmware/ctrl/test/ctrl_image_runtime.py", "--picolibc", "${PACKET}/scratch/runtime-inputs/picolibc", "--compiler-rt", "${PACKET}/scratch/runtime-inputs/compiler-rt", "--litex-software", "${PACKET}/scratch/runtime-inputs/litex-software", "--output", "${PACKET}/scratch/runtime"]
+ARGV ["tar", "-xf", "${PACKET}/scratch/base.tar", "-C", "${PACKET}/scratch/base"]
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_1x1_tdm8.yaml", "--interfaces", "1", "--output", "${PACKET}/scratch/sizes/1x1_tdm8-if1-base", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a", "--without-srp", "--ctrl-source", "${PACKET}/scratch/base/sw/firmware/ctrl"]
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_1x1_tdm8.yaml", "--interfaces", "1", "--output", "${PACKET}/scratch/sizes/1x1_tdm8-if1-head", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a"]
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_1x1_tdm8.yaml", "--interfaces", "2", "--output", "${PACKET}/scratch/sizes/1x1_tdm8-if2-base", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a", "--without-srp", "--ctrl-source", "${PACKET}/scratch/base/sw/firmware/ctrl"]
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_1x1_tdm8.yaml", "--interfaces", "2", "--output", "${PACKET}/scratch/sizes/1x1_tdm8-if2-head", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a"]
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": false,
+  "sections": {
+    ".text": 7264,
+    ".rodata": 144,
+    ".bss": 3148,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_app": 2076,
+    "image_arena": 1024,
+    "image_classes": 4,
+    "image_entity": 40
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 15828,
+      "sha256": "39303ff917258faf9f04fcb7fd72fa4be870461d77c9d7460f4124382ac76d86"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 36151,
+      "sha256": "bc63fc974cbd62763c2c8d528bb50815997c7582f744fbfc9839b928e67d1fa6"
+    }
+  ],
+  "ram_sections": 18748,
+  "ram_span": 18752
+}
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_8x8.yaml", "--interfaces", "1", "--output", "${PACKET}/scratch/sizes/8x8-if1-base", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a", "--without-srp", "--ctrl-source", "${PACKET}/scratch/base/sw/firmware/ctrl"]
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-base/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-base/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-base/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": false,
+  "sections": {
+    ".text": 7664,
+    ".rodata": 144,
+    ".bss": 3240,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_app": 2168,
+    "image_arena": 1024,
+    "image_classes": 4,
+    "image_entity": 40
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 16228,
+      "sha256": "f5b4689edbd1479dcbb9f3e6f13fcb58fa6b785f05c9771e9bbb25829aea8766"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 36151,
+      "sha256": "6572ea947dba5601ae7eb4b404163c9fbbe86f2e6245126cc3f9351d4eafc3f3"
+    }
+  ],
+  "ram_sections": 19240,
+  "ram_span": 19248
+}
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_8x8.yaml", "--interfaces", "1", "--output", "${PACKET}/scratch/sizes/8x8-if1-head", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a"]
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": true,
+  "sections": {
+    ".text": 33440,
+    ".rodata": 2846,
+    ".bss": 18072,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_allocation": 8,
+    "image_app": 3200,
+    "image_arena": 9920,
+    "image_entity": 40,
+    "image_licences": 2,
+    "image_sources": 64,
+    "image_srp": 4816
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 51696,
+      "sha256": "a649276593beeb1baf268d6ca437737c6011b6586bd212e5faf9a9d0f0cfe373"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 76334,
+      "sha256": "9d6c09fb5fa0938f215ff7d9d11b59424cfc2f1f98bf3ce894b9b687fcee791d"
+    }
+  ],
+  "ram_sections": 62550,
+  "ram_span": 62560
+}
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_8x8.yaml", "--interfaces", "2", "--output", "${PACKET}/scratch/sizes/8x8-if2-base", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a", "--without-srp", "--ctrl-source", "${PACKET}/scratch/base/sw/firmware/ctrl"]
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": false,
+  "sections": {
+    ".text": 7264,
+    ".rodata": 144,
+    ".bss": 3148,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_app": 2076,
+    "image_arena": 1024,
+    "image_classes": 4,
+    "image_entity": 40
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 15828,
+      "sha256": "1d2c0a5dd7d3dd716d92a32d273b257fd5f8f0c4e8e28967c4537cad6d8cd977"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 35226,
+      "sha256": "f59f2bcf970da5956888fb7fb29887108eca3f09c3e084a198952b0f057c09fe"
+    }
+  ],
+  "ram_sections": 18748,
+  "ram_span": 18752
+}
+ARGV ["/usr/bin/python3", "${PACKET}/scripts/image_one.py", "${REPO}", "--config", "configs/endstation_ax7101_8x8.yaml", "--interfaces", "2", "--output", "${PACKET}/scratch/sizes/8x8-if2-head", "--libc", "${PACKET}/scratch/runtime/libc.a", "--compiler-runtime", "${PACKET}/scratch/runtime/libcompiler_rt.a"]
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-head/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-head/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/1x1_tdm8-if2-head/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": true,
+  "sections": {
+    ".text": 34676,
+    ".rodata": 2846,
+    ".bss": 29424,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_allocation": 16,
+    "image_app": 4360,
+    "image_arena": 19840,
+    "image_entity": 40,
+    "image_licences": 4,
+    "image_sources": 128,
+    "image_srp": 5016
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 52936,
+      "sha256": "b7f9eb99d67f1e211986d2ca730a1df488335726bafcca40e2925b573cd56a38"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 76294,
+      "sha256": "0e8bbd2b315ad6fb75eb566925482c7b1c015077ccebdad1e290e681b3ce9569"
+    }
+  ],
+  "ram_sections": 75138,
+  "ram_span": 75152
+}
+wrote ${PACKET}/scratch/sizes/8x8-if2-base/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/8x8-if2-base/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/8x8-if2-base/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": false,
+  "sections": {
+    ".text": 7664,
+    ".rodata": 144,
+    ".bss": 3240,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_app": 2168,
+    "image_arena": 1024,
+    "image_classes": 4,
+    "image_entity": 40
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 16228,
+      "sha256": "c50579540b3fa66162a9022db6319813577f2a914d46897850985c15c433bc4f"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 35226,
+      "sha256": "352b30d003e826779d6b8c9b6c24fca615c32a569a7d18e5d965f02f720dcba9"
+    }
+  ],
+  "ram_sections": 19240,
+  "ram_span": 19248
+}
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "sections": {
+    ".text": 33380,
+    ".rodata": 2846,
+    ".bss": 32824,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_allocation": 8,
+    "image_app": 3200,
+    "image_arena": 24032,
+    "image_entity": 40,
+    "image_licences": 9,
+    "image_sources": 288,
+    "image_srp": 5224
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 51640,
+      "sha256": "5bf7335e0757c7f3c7ac88109015d0e2f90f6939b7ece694ce1f0423635ef2bb"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 74168,
+      "sha256": "fa4e7d82078c18187193955c492a6617bba33357663ebb27e4e7f33002a9a9b9"
+    }
+  ],
+  "ram_sections": 77242,
+  "ram_span": 77264
+}
+wrote ${PACKET}/scratch/sizes/8x8-if2-head/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/8x8-if2-head/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/sizes/8x8-if2-head/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "sections": {
+    ".text": 34628,
+    ".rodata": 2846,
+    ".bss": 58928,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_allocation": 16,
+    "image_app": 4360,
+    "image_arena": 48064,
+    "image_entity": 40,
+    "image_licences": 18,
+    "image_sources": 576,
+    "image_srp": 5832
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "b034f44e3cbd685ccfe93d19780d9c3c6a1858d90fb44a440493aff3bc51e86a"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "07f70cbec0700471a6e87f4ca9333692e57653e163b46b2a5e3aa79461999afa"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 52888,
+      "sha256": "cf28232ce144cccfd3692f7fcd479dd233070f7a531e29137e23c85c26a1b886"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 74167,
+      "sha256": "4c388fb1080e1dc7b08c329f97c4d31c6f3f80fc390ca5176b4e8f75022e97ff"
+    }
+  ],
+  "ram_sections": 104594,
+  "ram_span": 104608
+}
+1x1_tdm8-if1-base 18752 {'.text': 7264, '.rodata': 144, '.bss': 3148, '.stack': 8192, '.riscv.attributes': 28}
+1x1_tdm8-if1-head 62560 {'.text': 33440, '.rodata': 2846, '.bss': 18072, '.stack': 8192, '.riscv.attributes': 28}
+1x1_tdm8-if2-base 19248 {'.text': 7664, '.rodata': 144, '.bss': 3240, '.stack': 8192, '.riscv.attributes': 28}
+1x1_tdm8-if2-head 75152 {'.text': 34676, '.rodata': 2846, '.bss': 29424, '.stack': 8192, '.riscv.attributes': 28}
+8x8-if1-base 18752 {'.text': 7264, '.rodata': 144, '.bss': 3148, '.stack': 8192, '.riscv.attributes': 28}
+8x8-if1-head 77264 {'.text': 33380, '.rodata': 2846, '.bss': 32824, '.stack': 8192, '.riscv.attributes': 28}
+8x8-if2-base 19248 {'.text': 7664, '.rodata': 144, '.bss': 3240, '.stack': 8192, '.riscv.attributes': 28}
+8x8-if2-head 104608 {'.text': 34628, '.rodata': 2846, '.bss': 58928, '.stack': 8192, '.riscv.attributes': 28}

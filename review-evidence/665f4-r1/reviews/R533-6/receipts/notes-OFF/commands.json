@@ -1,0 +1,131 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "${PACKET}/scratch/notes-OFF/source",
+      "-B",
+      "${PACKET}/scratch/notes-OFF/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=${PACKET}/scratch/upstream/prefix",
+      "-DLWSRP_MILAN=OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pending-point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pending-point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "shared-in-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "shared-in-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "${PACKET}/scratch/notes-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]

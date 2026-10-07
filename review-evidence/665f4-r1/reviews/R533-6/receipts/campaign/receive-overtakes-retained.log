@@ -1,0 +1,111 @@
+Note: Google Test filter = SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:89: Failure
+Expected equality of these values:
+  loop.stats.rx_records
+    Which is: 3
+  records
+    Which is: 2
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:     Which is: 2
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(0, 0, true)
+Google Mock tried the following 3 expectations, but none matched:
+
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:83: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 1
+           Actual: 0
+         Expected: to be called once
+           Actual: called once - saturated and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:93: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 1
+           Actual: 0
+  Expected arg #2: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:94: tried expectation #2: EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: all pre-requisites are satisfied
+           Actual: the following immediate pre-requisites are not satisfied:
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:93: pre-requisite #0
+                   (end of pre-requisites)
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:            Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:97: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface: Expected: false
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:99: Failure
+Expected equality of these values:
+  adapter.received
+    Which is: 2
+  3u
+    Which is: 3
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:     Which is: 3
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(0, 0, false)
+Google Mock tried the following 4 expectations, but none matched:
+
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:83: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 1
+           Actual: 0
+  Expected arg #2: is equal to true
+           Actual: false
+         Expected: to be called once
+           Actual: called once - saturated and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:93: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 1
+           Actual: 0
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:94: tried expectation #2: EXPECT_CALL(licence, Change(0,0,true))...
+  Expected arg #2: is equal to true
+           Actual: false
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:101: tried expectation #3: EXPECT_CALL(licence, Change(0,0,false))...
+         Expected: all pre-requisites are satisfied
+           Actual: the following immediate pre-requisites are not satisfied:
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:94: pre-requisite #0
+                   (end of pre-requisites)
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:            Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:94: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:            Actual: never called - unsatisfied and active
+${REPO}/sw/firmware/ctrl/test/srp_rx_retry.cpp:101: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(0,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface:            Actual: never called - unsatisfied and active
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[----------] 1 test from SrpRetry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

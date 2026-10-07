@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "${REPO}",
+    "archive",
+    "--format=tar",
+    "--output",
+    "${PACKET}/scratch/public-mailbox-inputs.tar",
+    "HEAD",
+    "tb/verilator/mbx",
+    "tb/common",
+    "hdl/milan/mailbox",
+    "sw/firmware/ctrl",
+    "sw/mailbox",
+    "scripts/mutant_run.py"
+  ],
+  "rc": 128,
+  "output": "fatal: pathspec 'scripts/mutant_run.py' did not match any files\n",
+  "expected_missing_path": "scripts/mutant_run.py"
+}

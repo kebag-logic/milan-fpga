@@ -1,0 +1,42 @@
+Test project ${PACKET}/scratch/notes-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+${PACKET}/scratch/notes-OFF/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_receive_conditions_follow_link_mode 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[7]
+		expected value:			[0]
+
+${PACKET}/scratch/notes-OFF/source/tests/unit/integration_test.c:284: Failure: integration_suite -> pending_applicant_joinin_obeys_note_four 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[9]
+		expected value:			[1]
+
+  "integration_suite": 385 passes, 2 failures in 10ms.
+  "milan_suite": 442 passes in 8ms.
+${PACKET}/scratch/notes-OFF/source/tests/unit/review_test.c:1219: Failure: boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+	Expected [typed_state(a, 0, 1, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[7]
+		expected value:			[0]
+
+${PACKET}/scratch/notes-OFF/source/tests/unit/review_test.c:1226: Failure: boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+	Expected [typed_state(a, 2, 3, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[7]
+		expected value:			[0]
+
+  "boundaries_suite": 17154 passes, 2 failures in 79ms.
+Completed "main": 19897 passes, 4 failures in 118ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

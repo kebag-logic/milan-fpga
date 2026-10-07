@@ -1,0 +1,62 @@
+Note: Google Test filter = SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpWalk
+[ RUN      ] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:75: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  unsigned(event)
+    Which is: 0
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire:     Which is: 0
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:75: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  unsigned(event)
+    Which is: 0
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire:     Which is: 0
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:75: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  unsigned(event)
+    Which is: 0
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire:     Which is: 0
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:75: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  unsigned(event)
+    Which is: 0
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire:     Which is: 0
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:77: Failure
+Value of: seen
+  Actual: false
+Expected: true
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire: Expected: true
+${REPO}/sw/firmware/ctrl/test/srp_walk.cpp:77: Failure
+Value of: seen
+  Actual: false
+Expected: true
+
+  [FAIL] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire: Expected: true
+[  FAILED  ] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire (0 ms)
+[----------] 1 test from SrpWalk (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire
+
+ 1 FAILED TEST
+== ctrl SRP processor wire differential: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

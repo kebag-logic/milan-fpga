@@ -1,0 +1,114 @@
+control 1 0 Note: Google Test filter = Srp.Review*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[ RUN      ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[ RUN      ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+wrote ${PACKET}/scratch/probes/control/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/control/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/control/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+control 2 0 Note: Google Test filter = Srp.Review*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[ RUN      ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[ RUN      ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+retry-removed 1 1 Note: Google Test filter = Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=1 received=1 malformed=0 stops=0
+${PACKET}/scripts/independent.cpp:55: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery: Expected: false
+${PACKET}/scripts/independent.cpp:56: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery:     Which is: 1
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+
+ 1 FAILED TEST
+== independent dependency seams: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
+wrote ${PACKET}/scratch/probes/retry-removed/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/retry-removed/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote ${PACKET}/scratch/probes/retry-removed/if2/srp-independent-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+retry-removed 2 1 Note: Google Test filter = Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=1 received=1 malformed=0 stops=0
+${PACKET}/scripts/independent.cpp:55: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery: Expected: false
+${PACKET}/scripts/independent.cpp:56: Failure
+Expected equality of these values:
+  adapter.stops
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery:     Which is: 1
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+
+ 1 FAILED TEST
+== independent dependency seams: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

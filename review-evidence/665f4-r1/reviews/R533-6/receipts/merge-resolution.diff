@@ -1,0 +1,95 @@
+069874955e9c1061872d47afc3b7e57fc24e19bd 500b8f64443777685e6a54049d933476710d26f0 e21c1ca024d37ea188ad15b5c8f9c2dae18628df Merge F2 composition from dev into SRP lane
+
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/README.md
+index 0e851d38f..2dfd83143 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -6,14 +6,9 @@ mailbox ([design](../../../docs/design/MAILBOX_SPLIT.md),
+ [contract](../../../docs/reference/MAILBOX_CONTRACT.md)). No OS, no heap, no
+ threads: one event loop, static state, and a static pool behind lwSRP's
+ allocation port. Lane F0 carries the mailbox driver, the HAL, lwSRP's port
+-<<<<<<< 500b8f644 (Adopt public lwSRP main and preserve allocation refusal coverage)
+-layer, the loop and the ADP slice; the other protocols follow in F1 to F5,
+-each as its own ports-and-adapters module. F4 adds the
+-[SRP adapter](srp/README.md) on the pinned lwSRP dependency.
+-=======
+-layer, the loop and the ADP slice. F2 adds the opt-in [MAAP owner](maap/README.md);
+-each protocol has its own core and mailbox adapter.
+->>>>>>> e21c1ca02 (Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox)
++layer, the loop and the ADP slice. F2 adds the opt-in [MAAP owner](maap/README.md).
++F4 adds the [SRP adapter](srp/README.md) on pinned lwSRP.
++Each protocol has its own core and mailbox adapter.
+ 
+ `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test`
+ is the gate: exit 0 = every arm passed and every planted defect was caught.
+@@ -40,11 +35,8 @@ is an integration obligation, not a target-time result established here.
+ | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
+ | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
+ | [`adp/`](adp) | the ADP core (no mailbox), its mailbox adapter with the latency bounds, and `adp_entity.py` |
+-<<<<<<< 500b8f644 (Adopt public lwSRP main and preserve allocation refusal coverage)
+-| [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
+-=======
+ | [`maap/`](maap) | the Annex B core, per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
+->>>>>>> e21c1ca02 (Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox)
++| [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
+ | [`app/`](app) | the static composition a platform starts |
+ | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
+ | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+remerge CONFLICT (content): Merge conflict in sw/firmware/ctrl/test/test_ctrl_firmware.py
+index c21003299..d90462411 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -117,25 +117,18 @@ def main(argv: list[str] | None = None) -> int:
+     ap.add_argument("--lwsrp", type=Path, default=CTRL.parents[2] / "third_party/lwSRP",
+                     help="an exact pinned lwSRP checkout (default: the submodule)")
+     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
+-<<<<<<< 500b8f644 (Adopt public lwSRP main and preserve allocation refusal coverage)
+-=======
+     ap.add_argument("--mutation-shard", nargs=2, type=int, metavar=("INDEX", "COUNT"),
+                     help="with --self-test: run zero-based INDEX of COUNT mutation partitions")
+-    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
+->>>>>>> e21c1ca02 (Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox)
+     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
+     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
+     ap.add_argument("--jobs", type=int, default=4, help="parallel compilation jobs (1–4)")
+     args = ap.parse_args(argv)
+-<<<<<<< 500b8f644 (Adopt public lwSRP main and preserve allocation refusal coverage)
+     args.jobs = min(4, max(1, args.jobs))
+-=======
+     if args.mutation_shard is not None:
+         index, count = args.mutation_shard
+         if not args.self_test or not 0 <= index < count or count > len(ctrl_mutants.MUTANTS):
+             ap.error("mutation shard requires --self-test and 0 <= INDEX < COUNT <= mutant count")
+         ctrl_mutants.MUTANTS = ctrl_mutants.MUTANTS[index::count]
+->>>>>>> e21c1ca02 (Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox)
+     if args.coverage is not None:
+         return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
+     print(f"toolchain: {fw_gtest.toolchain()}")
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+remerge CONFLICT (content): Merge conflict in sw/firmware/gtest/coverage.ratchet
+index c1b07eaed..b54e7b6aa 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -4,18 +4,12 @@
+ # file  lines covered/total  branches covered/total
+ sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+-<<<<<<< 500b8f644 (Adopt public lwSRP main and preserve allocation refusal coverage)
+-sw/firmware/ctrl/app/ctrl_app.c  lines 14/14  branches 8/8
+-sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
+-sw/firmware/ctrl/mbx/mbx.c  lines 177/177  branches 68/68
+-=======
+ sw/firmware/ctrl/app/ctrl_app.c  lines 31/31  branches 20/20
+-sw/firmware/ctrl/loop/ctrl_loop.c  lines 95/95  branches 56/56
++sw/firmware/ctrl/loop/ctrl_loop.c  lines 101/101  branches 62/62
+ sw/firmware/ctrl/maap/maap.c  lines 209/209  branches 140/140
+ sw/firmware/ctrl/maap/maap_csr.c  lines 39/39  branches 18/18
+ sw/firmware/ctrl/maap/maap_mbx.c  lines 98/98  branches 60/60
+-sw/firmware/ctrl/mbx/mbx.c  lines 173/173  branches 62/62
+->>>>>>> e21c1ca02 (Merge PR #687: Mark II F2: bare-metal MAAP core on the mailbox)
++sw/firmware/ctrl/mbx/mbx.c  lines 177/177  branches 68/68
+ sw/firmware/ctrl/mbx/mbx_wire.h  lines 15/15  branches 12/12
+ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6

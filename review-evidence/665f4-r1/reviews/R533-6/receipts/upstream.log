@@ -1,0 +1,306 @@
+ARGV ["cmake", "-S", "${PACKET}/scratch/upstream/cgreen-91ba387904d7f43c6564486690386e76d4f8bc76", "-B", "${PACKET}/scratch/upstream/cgreen-build", "-DCMAKE_INSTALL_PREFIX=${PACKET}/scratch/upstream/prefix", "-DCMAKE_BUILD_TYPE=Release"]
+-- The C compiler identification is GNU 16.2.1
+-- The CXX compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Found LibXml2: /usr/lib/libxml2.so (found version "2.15.4")
+-- Performing Test WITH_FPIC
+-- Performing Test WITH_FPIC - Success
+-- Performing Test WITH_FORTIFY_SOURCE
+-- Performing Test WITH_FORTIFY_SOURCE - Success
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+CMake Warning at src/CMakeLists.txt:15 (message):
+  -- Unable to find git, or not a repo.  Setting git revision to 'unknown'.
+
+
+-- Looking for sys/resource.h
+-- Looking for sys/resource.h - found
+-- Configuring done (1.2s)
+-- Generating done (0.1s)
+-- Build files have been written to: ${PACKET}/scratch/upstream/cgreen-build
+ARGV ["make", "-C", "${PACKET}/scratch/upstream/cgreen-build", "-j16"]
+make: Entering directory '${PACKET}/scratch/upstream/cgreen-build'
+[  0%] Building C object src/CMakeFiles/cgreen_shared.dir/boxed_double.c.o
+[  2%] Building C object src/CMakeFiles/cgreen_shared.dir/assertions.c.o
+[  2%] Building C object src/CMakeFiles/cgreen_shared.dir/breadcrumb.c.o
+[  2%] Building C object src/CMakeFiles/cgreen_shared.dir/cute_reporter.c.o
+[  3%] Building C object src/CMakeFiles/cgreen_shared.dir/cdash_reporter.c.o
+[  4%] Building C object src/CMakeFiles/cgreen_shared.dir/mocks.c.o
+[  4%] Building C object src/CMakeFiles/cgreen_shared.dir/message_formatting.c.o
+[  5%] Building C object src/CMakeFiles/cgreen_shared.dir/constraint.c.o
+[  5%] Building C object src/CMakeFiles/cgreen_shared.dir/reporter.c.o
+[  5%] Building C object src/CMakeFiles/cgreen_shared.dir/messaging.c.o
+[  5%] Building C object src/CMakeFiles/cgreen_shared.dir/cgreen_value.c.o
+[  6%] Building C object src/CMakeFiles/cgreen_shared.dir/cgreen_time.c.o
+[  8%] Building C object src/CMakeFiles/cgreen_shared.dir/runner.c.o
+[  8%] Building C object src/CMakeFiles/cgreen_shared.dir/string_comparison.c.o
+[  9%] Building C object src/CMakeFiles/cgreen_shared.dir/parameters.c.o
+[  9%] Building C object src/CMakeFiles/cgreen_shared.dir/suite.c.o
+[ 10%] Building C object src/CMakeFiles/cgreen_shared.dir/text_reporter.c.o
+[ 10%] Building C object src/CMakeFiles/cgreen_shared.dir/utils.c.o
+[ 11%] Building C object src/CMakeFiles/cgreen_shared.dir/vector.c.o
+[ 11%] Building C object src/CMakeFiles/cgreen_shared.dir/xml_reporter.c.o
+[ 12%] Building C object src/CMakeFiles/cgreen_shared.dir/libxml_reporter.c.o
+[ 12%] Building C object src/CMakeFiles/cgreen_shared.dir/posix_cgreen_pipe.c.o
+[ 13%] Building C object src/CMakeFiles/cgreen_shared.dir/posix_cgreen_time.c.o
+[ 13%] Building C object src/CMakeFiles/cgreen_shared.dir/posix_runner_platform.c.o
+[ 14%] Building CXX object src/CMakeFiles/cgreen_shared.dir/cpp_constraint.cpp.o
+[ 15%] Building CXX object src/CMakeFiles/cgreen_shared.dir/cpp_assertions.cpp.o
+[ 15%] Linking CXX shared library libcgreen.so
+[ 15%] Built target cgreen_shared
+[ 15%] Building C object tests/CMakeFiles/breadcrumb_tests.dir/breadcrumb_tests.c.o
+[ 16%] Building C object tests/CMakeFiles/test_cgreen_c.dir/all_c_tests.c.o
+[ 16%] Building C object tests/CMakeFiles/constraint_tests.dir/constraint_tests.c.o
+[ 16%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/assertion_tests.cpp.o
+[ 18%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/assertion_tests.c.o
+[ 18%] Building C object tests/CMakeFiles/assertion_tests.dir/assertion_tests.c.o
+[ 18%] Building C object tests/CMakeFiles/double_tests.dir/double_tests.c.o
+[ 19%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/all_cpp_tests.cpp.o
+[ 19%] Building C object tests/CMakeFiles/cgreen_value_tests.dir/cgreen_value_tests.c.o
+[ 20%] Building C object tests/CMakeFiles/cute_reporter_tests.dir/cute_reporter_tests.c.o
+[ 20%] Building C object tests/CMakeFiles/cdash_reporter_tests.dir/cdash_reporter_tests.c.o
+[ 20%] Building C object tests/CMakeFiles/message_formatting_tests.dir/message_formatting_tests.c.o
+[ 21%] Building C object tests/CMakeFiles/messaging_tests.dir/messaging_tests.c.o
+[ 22%] Building C object tests/CMakeFiles/mocks_tests.dir/mocks_tests.c.o
+[ 23%] Building C object tests/CMakeFiles/parameters_tests.dir/parameters_tests.c.o
+[ 24%] Building C object tests/CMakeFiles/mocks_struct_tests.dir/mocks_struct_tests.c.o
+[ 25%] Building C object tests/CMakeFiles/test_cgreen_c.dir/assertion_tests.c.o
+[ 26%] Linking C shared library libdouble_tests.so
+[ 27%] Linking C shared library libmessage_formatting_tests.so
+[ 27%] Linking C shared library libcgreen_value_tests.so
+[ 27%] Linking C shared library libmessaging_tests.so
+[ 27%] Linking C shared library libmocks_struct_tests.so
+[ 28%] Linking C shared library libbreadcrumb_tests.so
+[ 29%] Linking C shared library libcdash_reporter_tests.so
+[ 29%] Linking C shared library libcute_reporter_tests.so
+[ 29%] Linking C shared library libconstraint_tests.so
+[ 29%] Linking C shared library libparameters_tests.so
+[ 30%] Linking C shared library libassertion_tests.so
+[ 30%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/breadcrumb_tests.c.o
+[ 30%] Built target double_tests
+[ 30%] Linking C shared library libmocks_tests.so
+[ 30%] Built target message_formatting_tests
+[ 30%] Building C object tests/CMakeFiles/test_cgreen_c.dir/breadcrumb_tests.c.o
+[ 30%] Built target mocks_struct_tests
+[ 31%] Building C object tests/CMakeFiles/test_cgreen_c.dir/cdash_reporter_tests.c.o
+[ 31%] Built target breadcrumb_tests
+[ 32%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/cdash_reporter_tests.c.o
+[ 32%] Building C object tests/CMakeFiles/test_cgreen_c.dir/cgreen_value_tests.c.o
+[ 33%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/assertion_tests.cpp.o
+[ 33%] Built target cute_reporter_tests
+[ 34%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/cgreen_value_tests.c.o
+[ 34%] Built target cgreen_value_tests
+[ 34%] Built target messaging_tests
+[ 34%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/breadcrumb_tests.cpp.o
+[ 35%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/cdash_reporter_tests.cpp.o
+[ 35%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/cgreen_value_tests.cpp.o
+[ 35%] Built target cdash_reporter_tests
+[ 35%] Building C object tests/CMakeFiles/reflective_tests.dir/reflective_tests.c.o
+[ 35%] Built target assertion_tests
+[ 36%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/constraint_tests.cpp.o
+[ 36%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/constraint_tests.c.o
+[ 36%] Built target constraint_tests
+[ 36%] Built target parameters_tests
+[ 36%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/cute_reporter_tests.cpp.o
+[ 37%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/double_tests.cpp.o
+[ 38%] Building C object tests/CMakeFiles/test_cgreen_c.dir/constraint_tests.c.o
+[ 38%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/environment_variables_tests.cpp.o
+[ 39%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/message_formatting_tests.cpp.o
+[ 40%] Linking C shared library libreflective_tests.so
+[ 41%] Building C object tests/CMakeFiles/reflective_runner_no_teardown_tests.dir/reflective_runner_no_teardown_tests.c.o
+[ 42%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/breadcrumb_tests.cpp.o
+[ 42%] Built target mocks_tests
+[ 43%] Building C object tests/CMakeFiles/text_reporter_tests.dir/text_reporter_tests.c.o
+[ 43%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/cdash_reporter_tests.cpp.o
+[ 44%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/cute_reporter_tests.c.o
+[ 45%] Linking C shared library libreflective_runner_no_teardown_tests.so
+[ 45%] Building C object tests/CMakeFiles/test_cgreen_c.dir/cute_reporter_tests.c.o
+[ 45%] Linking C shared library libtext_reporter_tests.so
+[ 45%] Built target reflective_tests
+[ 46%] Building C object tests/CMakeFiles/test_cgreen_c.dir/double_tests.c.o
+[ 46%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/double_tests.c.o
+[ 47%] Building C object tests/CMakeFiles/test_cgreen_c.dir/environment_variables_tests.c.o
+[ 47%] Building C object tests/CMakeFiles/test_cgreen_c.dir/message_formatting_tests.c.o
+[ 47%] Built target reflective_runner_no_teardown_tests
+[ 48%] Building C object tests/CMakeFiles/test_cgreen_c.dir/messaging_tests.c.o
+[ 49%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/messaging_tests.cpp.o
+[ 49%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/mocks_tests.cpp.o
+[ 50%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/mocks_struct_tests.cpp.o
+[ 50%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/parameters_tests.cpp.o
+[ 51%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/environment_variables_tests.c.o
+[ 52%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/reflective_runner_no_teardown_tests.cpp.o
+[ 52%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/reflective_tests.cpp.o
+[ 52%] Building C object tests/CMakeFiles/test_cgreen_c.dir/mocks_tests.c.o
+[ 53%] Building C object tests/CMakeFiles/test_cgreen_c.dir/mocks_struct_tests.c.o
+[ 53%] Built target text_reporter_tests
+[ 53%] Building C object tests/CMakeFiles/test_cgreen_c.dir/parameters_tests.c.o
+[ 54%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/text_reporter_tests.cpp.o
+[ 54%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/unit_tests.cpp.o
+[ 55%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/cgreen_value_tests.cpp.o
+[ 56%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/constraint_tests.cpp.o
+[ 57%] Building C object tests/CMakeFiles/test_cgreen_c.dir/reflective_runner_no_teardown_tests.c.o
+[ 57%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/message_formatting_tests.c.o
+[ 57%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/cute_reporter_tests.cpp.o
+[ 57%] Building C object tests/CMakeFiles/test_cgreen_c.dir/reflective_tests.c.o
+[ 58%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/vector_tests.cpp.o
+[ 59%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/messaging_tests.c.o
+[ 59%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/xml_reporter_tests.cpp.o
+[ 60%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/libxml_reporter_tests.cpp.o
+[ 60%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/mocks_tests.c.o
+[ 61%] Building C object tests/CMakeFiles/test_cgreen_c.dir/text_reporter_tests.c.o
+[ 62%] Building CXX object tests/CMakeFiles/test_cgreen_cpp.dir/cpp_assertion_tests.cpp.o
+[ 63%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/double_tests.cpp.o
+[ 63%] Building C object tests/CMakeFiles/test_cgreen_c.dir/unit_tests.c.o
+[ 64%] Building C object tests/CMakeFiles/test_cgreen_c.dir/vector_tests.c.o
+[ 64%] Building C object tests/CMakeFiles/test_cgreen_c.dir/xml_reporter_tests.c.o
+[ 64%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/environment_variables_tests.cpp.o
+[ 65%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/message_formatting_tests.cpp.o
+[ 66%] Building C object tests/CMakeFiles/test_cgreen_c.dir/libxml_reporter_tests.c.o
+[ 66%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/messaging_tests.cpp.o
+[ 67%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/mocks_tests.cpp.o
+[ 67%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/mocks_struct_tests.cpp.o
+[ 68%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/parameters_tests.cpp.o
+[ 68%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/reflective_runner_no_teardown_tests.cpp.o
+[ 69%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/mocks_struct_tests.c.o
+[ 70%] Building C object tests/CMakeFiles/unit_tests.dir/unit_tests.c.o
+[ 70%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/parameters_tests.c.o
+[ 71%] Building C object tests/CMakeFiles/vector_tests.dir/vector_tests.c.o
+[ 72%] Building C object tests/CMakeFiles/xml_reporter_tests.dir/xml_reporter_tests.c.o
+[ 73%] Linking C executable test_cgreen_c
+[ 73%] Linking C shared library libunit_tests.so
+[ 74%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/reflective_tests.cpp.o
+[ 74%] Building C object tests/CMakeFiles/libxml_reporter_tests.dir/libxml_reporter_tests.c.o
+[ 75%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/reflective_runner_no_teardown_tests.c.o
+[ 75%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/text_reporter_tests.cpp.o
+[ 75%] Linking C shared library libvector_tests.so
+[ 76%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/unit_tests.cpp.o
+[ 77%] Linking C shared library libxml_reporter_tests.so
+[ 78%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/vector_tests.cpp.o
+[ 79%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/reflective_tests.c.o
+[ 79%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/text_reporter_tests.c.o
+[ 79%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/xml_reporter_tests.cpp.o
+[ 79%] Built target test_cgreen_c
+[ 79%] Built target unit_tests
+[ 80%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/unit_tests.c.o
+[ 80%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/vector_tests.c.o
+[ 81%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/libxml_reporter_tests.cpp.o
+[ 82%] Linking C shared library liblibxml_reporter_tests.so
+[ 83%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/xml_reporter_tests.c.o
+[ 83%] Building CXX object tests/CMakeFiles/cgreen_cpp_tests.dir/cpp_assertion_tests.cpp.o
+[ 83%] Built target vector_tests
+[ 83%] Built target xml_reporter_tests
+[ 84%] Building C object tests/CMakeFiles/cgreen_c_tests.dir/libxml_reporter_tests.c.o
+[ 84%] Building C object tests/CMakeFiles/constraint_messages_tests.dir/constraint_messages_tests.c.o
+[ 85%] Building C object tests/CMakeFiles/custom_constraint_messages_tests.dir/custom_constraint_messages_tests.c.o
+[ 86%] Building C object tests/CMakeFiles/mock_messages_tests.dir/mock_messages_tests.c.o
+[ 86%] Building C object tests/CMakeFiles/assertion_messages_tests.dir/assertion_messages_tests.c.o
+[ 86%] Building C object tests/CMakeFiles/failure_messages_tests.dir/failure_messages_tests.c.o
+[ 86%] Linking CXX executable test_cgreen_cpp
+[ 86%] Building C object tests/CMakeFiles/ignore_messages_tests.dir/ignore_messages_tests.c.o
+[ 86%] Built target libxml_reporter_tests
+[ 87%] Building C object tests/CMakeFiles/xml_output_tests.dir/xml_output_tests.c.o
+[ 87%] Linking C shared library libcustom_constraint_messages_tests.so
+[ 87%] Building C object tests/CMakeFiles/libxml_output_tests.dir/libxml_output_tests.c.o
+[ 87%] Linking C shared library libconstraint_messages_tests.so
+[ 87%] Linking C shared library libmock_messages_tests.so
+[ 88%] Building C object tests/api/CMakeFiles/cgreen_api.dir/core_api.c.o
+[ 89%] Linking C shared library libfailure_messages_tests.so
+[ 89%] Linking C shared library libxml_output_tests.so
+[ 90%] Linking C shared library libassertion_messages_tests.so
+[ 90%] Building C object tools/CMakeFiles/cgreen-runner.dir/cgreen-runner.c.o
+[ 91%] Linking C shared library libignore_messages_tests.so
+[ 92%] Linking C shared library libcgreen_c_tests.so
+[ 93%] Building C object tools/CMakeFiles/cgreen-runner.dir/gopt.c.o
+[ 94%] Linking C shared library liblibxml_output_tests.so
+[ 94%] Building C object tools/CMakeFiles/cgreen-runner.dir/gopt-errors.c.o
+[ 94%] Built target test_cgreen_cpp
+[ 94%] Building C object tests/api/CMakeFiles/cgreen_api.dir/suites_without_context_api.c.o
+[ 94%] Built target custom_constraint_messages_tests
+[ 95%] Building C object tests/api/CMakeFiles/cgreen_api.dir/suites_with_context_api.c.o
+[ 95%] Building C object tools/CMakeFiles/cgreen_runner_tests.dir/runner_unit_tests.c.o
+[ 96%] Building C object tools/CMakeFiles/cgreen-runner.dir/runner.c.o
+[ 97%] Building C object tools/CMakeFiles/cgreen-runner.dir/discoverer.c.o
+[ 97%] Built target assertion_messages_tests
+[ 97%] Building C object tools/CMakeFiles/cgreen-runner.dir/test_item.c.o
+[ 98%] Building C object tools/CMakeFiles/cgreen-runner.dir/io.c.o
+[ 98%] Built target xml_output_tests
+[ 98%] Built target constraint_messages_tests
+[ 98%] Built target failure_messages_tests
+[ 98%] Built target mock_messages_tests
+[ 99%] Building C object tools/CMakeFiles/cgreen_runner_tests.dir/test_item.c.o
+[ 99%] Built target ignore_messages_tests
+[ 99%] Linking C shared library libcgreen_api.so
+[ 99%] Built target cgreen_c_tests
+[ 99%] Built target libxml_output_tests
+[ 99%] Linking C executable cgreen-runner
+[ 99%] Linking C shared library libcgreen_runner_tests.so
+[ 99%] Built target cgreen_api
+[ 99%] Built target cgreen-runner
+[100%] Linking CXX shared library libcgreen_cpp_tests.so
+[100%] Built target cgreen_runner_tests
+[100%] Built target cgreen_cpp_tests
+make: Leaving directory '${PACKET}/scratch/upstream/cgreen-build'
+ARGV ["cmake", "--install", "${PACKET}/scratch/upstream/cgreen-build"]
+-- Install configuration: "Release"
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/bash-completion/completions/cgreen-runner
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/bash-completion/completions/cgreen-debug
+-- Installing: ${PACKET}/scratch/upstream/prefix/lib/cmake/cgreen/cgreen-config.cmake
+-- Installing: ${PACKET}/scratch/upstream/prefix/lib/cmake/cgreen/cgreen-config-version.cmake
+-- Installing: ${PACKET}/scratch/upstream/prefix/lib/libcgreen.so.1.6.4
+-- Installing: ${PACKET}/scratch/upstream/prefix/lib/libcgreen.so.1
+-- Installing: ${PACKET}/scratch/upstream/prefix/lib/libcgreen.so
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man/man1
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man/man1/cgreen-runner.1
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man/man1/cgreen-debug.1
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man/man5
+-- Installing: ${PACKET}/scratch/upstream/prefix/share/man/man5/cgreen.5
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/assertions.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/boxed_double.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/breadcrumb.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cdash_reporter.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cgreen.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cgreen_value.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/constraint.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/constraint_syntax_helpers.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cpp_assertions.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cpp_constraint.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/cute_reporter.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/filename.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/legacy.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/mocks.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/string_comparison.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/reporter.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/runner.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/suite.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/text_reporter.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/unit.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/vector.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/xml_reporter.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/unit_implementation.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/mock_table.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/mocks_internal.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/suite_internal.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/assertions_internal.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/c_assertions.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/cpp_assertions.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/cgreen_pipe.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/cgreen_time.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/runner_platform.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/function_macro.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/include/cgreen/internal/stringify_token.h
+-- Installing: ${PACKET}/scratch/upstream/prefix/bin/cgreen-runner
+-- Set non-toolchain portion of runtime path of "${PACKET}/scratch/upstream/prefix/bin/cgreen-runner" to ""
+-- Installing: ${PACKET}/scratch/upstream/prefix/bin/cgreen-debug

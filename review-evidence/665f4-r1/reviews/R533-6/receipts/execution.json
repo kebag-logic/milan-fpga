@@ -1,0 +1,58 @@
+[
+  {
+    "name": "suites",
+    "argv": [
+      "python3",
+      "${PACKET}/scripts/focused.py",
+      "${REPO}",
+      "--mode",
+      "suites",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 89.01045319600962
+  },
+  {
+    "name": "campaign",
+    "argv": [
+      "python3",
+      "${PACKET}/scripts/focused.py",
+      "${REPO}",
+      "--mode",
+      "campaign",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 192.37383167597
+  },
+  {
+    "name": "probes",
+    "argv": [
+      "python3",
+      "${PACKET}/scripts/focused.py",
+      "${REPO}",
+      "--mode",
+      "probes",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 23.077582738013007
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "python3",
+      "${REPO}/sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "${PACKET}/scratch/coverage"
+    ],
+    "rc": 0,
+    "seconds": 205.86361341900192
+  }
+]

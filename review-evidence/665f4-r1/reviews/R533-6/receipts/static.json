@@ -1,0 +1,41 @@
+[
+  {
+    "argv": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "500b8f64",
+      "HEAD"
+    ],
+    "rc": 0
+  }
+]
