@@ -1,0 +1,38 @@
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl ADP MAAP SRP composition: checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+Traceback (most recent call last):
+  File "$SOURCE/sw/firmware/ctrl/test/srp_arms.py", line 75, in arm_srp
+    exe = fw_gtest.link(build,[*ours,*host,*theirs,*tests,main],out / "suite")
+  File "$SOURCE/sw/firmware/gtest/fw_gtest.py", line 170, in link
+    raise BuildError(f"{exe.name} does not link:\n{res.stderr}")
+fw_gtest.BuildError: suite does not link:
+/usr/bin/ld: $SCRATCH/focused/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/main/fw_gtest_main-41bbb3c8fa6a.o: in function `main':
+$SOURCE/sw/firmware/gtest/fw_gtest_main.cpp:189:(.text+0x566): undefined reference to `fw_test::tally_label()'
+collect2: error: ld returned 1 exit status
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "$SCRATCH/focused.py", line 9, in <module>
+    o=srp_arms.arm_srp(Tree(CTRL,r/"focused",r/"focused/reuse",fw_gtest.Build(jobs=4)),ROOT/"third_party/lwSRP",n,test=suite)
+  File "$SOURCE/sw/firmware/ctrl/test/srp_arms.py", line 78, in arm_srp
+    raise Refusal(str(error)) from error
+ctrl_build.Refusal: suite does not link:
+/usr/bin/ld: $SCRATCH/focused/srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8/main/fw_gtest_main-41bbb3c8fa6a.o: in function `main':
+$SOURCE/sw/firmware/gtest/fw_gtest_main.cpp:189:(.text+0x566): undefined reference to `fw_test::tally_label()'
+collect2: error: ld returned 1 exit status
+

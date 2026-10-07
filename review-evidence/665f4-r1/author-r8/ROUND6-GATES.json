@@ -1,0 +1,1776 @@
+[
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "0",
+      "2",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware-shard0"
+    ],
+    "rc": 0,
+    "seconds": 551.257,
+    "log": "firmware-shard0-final.log",
+    "label": "firmware-shard0-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "83a6573860c1cf0bb211851bd35a8501b8ee1b3183c55cc333ca37fe043fd874",
+    "log_raw_size": 118304,
+    "retained_log": "round6-receipts/firmware-shard0-final.log",
+    "retained_sha256": "b0386d70f1aaa386caeff90c523478c46b3d306d43833bb655af26495e7e9512",
+    "retained_size": 105604
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--self-test",
+      "--mutation-shard",
+      "1",
+      "2",
+      "--jobs",
+      "4",
+      "--build-dir",
+      "$SCRATCH/firmware-shard1"
+    ],
+    "rc": 0,
+    "seconds": 542.885,
+    "log": "firmware-shard1-final.log",
+    "label": "firmware-shard1-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "5e702ef8a44d7d8922dde1970ccf260aa34618ec6df2f6777ef5ba4b58c014a3",
+    "log_raw_size": 118720,
+    "retained_log": "round6-receipts/firmware-shard1-final.log",
+    "retained_sha256": "e4176791f1ff824c725b3986da09f5556157f1b2dbb2c62fdb8554cdc89437f5",
+    "retained_size": 106020
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "$SCRATCH/coverage-check"
+    ],
+    "rc": 0,
+    "seconds": 199.728,
+    "log": "coverage-check.log",
+    "label": "coverage-check",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "4acd3b3e6eef314bba4181a03a3c2c77495c304be5342c1e91944beebb5d38b3",
+    "log_raw_size": 3134,
+    "retained_log": "round6-receipts/coverage-check.log",
+    "retained_sha256": "4acd3b3e6eef314bba4181a03a3c2c77495c304be5342c1e91944beebb5d38b3",
+    "retained_size": 3134
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+      "--require-rv32",
+      "--jobs",
+      "4"
+    ],
+    "rc": 0,
+    "seconds": 97.097,
+    "log": "firmware-nvm.log",
+    "label": "firmware-nvm",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175",
+    "log_raw_size": 3981,
+    "retained_log": "round6-receipts/firmware-nvm.log",
+    "retained_sha256": "aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175",
+    "retained_size": 3981
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.417,
+    "log": "coverage-selftest.log",
+    "label": "coverage-selftest",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+    "log_raw_size": 3710,
+    "retained_log": "round6-receipts/coverage-selftest.log",
+    "retained_sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+    "retained_size": 3710
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 5.636,
+    "log": "rv32-selftest.log",
+    "label": "rv32-selftest",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+    "log_raw_size": 793,
+    "retained_log": "round6-receipts/rv32-selftest.log",
+    "retained_sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+    "retained_size": 793
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/gtest/tally_selftest.py",
+      "--mutants"
+    ],
+    "rc": 0,
+    "seconds": 52.614,
+    "log": "tally-mutants.log",
+    "label": "tally-mutants",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+    "log_raw_size": 3982,
+    "retained_log": "round6-receipts/tally-mutants.log",
+    "retained_sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+    "retained_size": 3982
+  },
+  {
+    "command": [
+      "python3",
+      "sw/mailbox/gen_mailbox.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.165,
+    "log": "mailbox-contract.log",
+    "label": "mailbox-contract",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f",
+    "log_raw_size": 26,
+    "retained_log": "round6-receipts/mailbox-contract.log",
+    "retained_sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f",
+    "retained_size": 26
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "$SCRATCH/mailbox/tb/verilator/mbx",
+      "-j2",
+      "VBUILD_JOBS=8",
+      "VERILATOR=$SCRATCH_PARENT/verilator-j8"
+    ],
+    "rc": 0,
+    "seconds": 57.368,
+    "log": "mailbox.log",
+    "label": "mailbox",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "40120f9e08b45198dbdfa45e5a6f6f2c683cf31155ddd672bc619e518a6964c2",
+    "log_raw_size": 36472,
+    "retained_log": "round6-receipts/mailbox.log",
+    "retained_sha256": "21e30fa1c71a4703ebc58bdc462aa6917dfca335135f5eaf58acad0a28925016",
+    "retained_size": 33517
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/ctrl/test/maap_differential.py",
+      "--self-test",
+      "--keep",
+      "$SCRATCH/maap-diff"
+    ],
+    "rc": 0,
+    "seconds": 142.353,
+    "log": "maap-differential.log",
+    "label": "maap-differential",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "47c58f38019ee3c020ddda802d3194869d67bd645725ce03e1bdc3386b56b49f",
+    "log_raw_size": 13101121,
+    "retained_log": false
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/upstream_positive.py"
+    ],
+    "rc": 0,
+    "seconds": 3.376,
+    "log": "upstream-positive.log",
+    "label": "upstream-positive",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "94f5b85d48ff01cd7aa4336c8255ddd472f14b8bd56fd2937330060921ebd727",
+    "log_raw_size": 7973,
+    "retained_log": "round6-receipts/upstream-positive.log",
+    "retained_sha256": "92bdf53a986c542497574e734fa73ca4a422ec70ed89f2551ee841a8c2495e31",
+    "retained_size": 7579
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/probes.py"
+    ],
+    "rc": 0,
+    "seconds": 12.105,
+    "log": "reviewer-probes-final.log",
+    "label": "reviewer-probes-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "f46b02724849ddb15c40412e8c61aeeda85bf997427b78a95dc00bcb6f5d36e1",
+    "log_raw_size": 2972,
+    "retained_log": "round6-receipts/reviewer-probes-final.log",
+    "retained_sha256": "5c5e63d58776c5e8b144763e4c9e495054d30fa51be919581fa4723b297f24f6",
+    "retained_size": 2772
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/probe_control.py"
+    ],
+    "rc": 0,
+    "seconds": 11.451,
+    "log": "reviewer-retry-control.log",
+    "label": "reviewer-retry-control",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "f3f64d04c86b306c9a274a7569c89eb9e19fb326bff7f8c9ed2f9ac48834875e",
+    "log_raw_size": 3743,
+    "retained_log": "round6-receipts/reviewer-retry-control.log",
+    "retained_sha256": "3d634cc130a8254d79454a0f108791a0bb40203eaa3188868d3c49730da84caa",
+    "retained_size": 3443
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/images.py"
+    ],
+    "rc": 0,
+    "seconds": 8.455,
+    "log": "linked-size-final.log",
+    "label": "linked-size-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "57eacc7a021c59f96eedea4e4c45edf84123c598c0cceaa7e7bad2b6f39787e6",
+    "log_raw_size": 4898,
+    "retained_log": "round6-receipts/linked-size-final.log",
+    "retained_sha256": "708203507630df952a974fd700961c747ba4d4e055281539524bba09446b5f03",
+    "retained_size": 4748
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.315,
+    "log": "docs-00.log",
+    "label": "docs-00",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "37f8a6328b999680a38553b32493c4349f11099c3713772949e119eb22d58f21",
+    "log_raw_size": 414,
+    "retained_log": "round6-receipts/docs-00.log",
+    "retained_sha256": "7e23ec8ca3d3597a8cae496f04b359c04c2927eab1a707cf3d761183ec602208",
+    "retained_size": 389
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "$SCRATCH/milan-hdl-reference"
+    ],
+    "rc": 0,
+    "seconds": 1.919,
+    "log": "docs-01.log",
+    "label": "docs-01",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "ceafbbf3d2d2844912291108c5274212711264e34632d3ae8b34452d975f1f37",
+    "log_raw_size": 413,
+    "retained_log": "round6-receipts/docs-01.log",
+    "retained_sha256": "b62d85c91ec7cbd81ebb7306c1522b4a5978bcfb5135a8d39781e707b8aa2f48",
+    "retained_size": 388
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.083,
+    "log": "docs-02.log",
+    "label": "docs-02",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+    "log_raw_size": 128,
+    "retained_log": "round6-receipts/docs-02.log",
+    "retained_sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+    "retained_size": 128
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+    ],
+    "rc": 0,
+    "seconds": 3.627,
+    "log": "docs-03.log",
+    "label": "docs-03",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "b0594dcebb137130bcbd73da2cb5679ff3aa6445fae6b4bfc7e4a696512028e9",
+    "log_raw_size": 140,
+    "retained_log": "round6-receipts/docs-03.log",
+    "retained_sha256": "b0594dcebb137130bcbd73da2cb5679ff3aa6445fae6b4bfc7e4a696512028e9",
+    "retained_size": 140
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "docs-05.log",
+    "label": "docs-05",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "log_raw_size": 33,
+    "retained_log": "round6-receipts/docs-05.log",
+    "retained_sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+    "retained_size": 33
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.215,
+    "log": "docs-06.log",
+    "label": "docs-06",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+    "log_raw_size": 41,
+    "retained_log": "round6-receipts/docs-06.log",
+    "retained_sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+    "retained_size": 41
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.264,
+    "log": "docs-07.log",
+    "label": "docs-07",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+    "log_raw_size": 46,
+    "retained_log": "round6-receipts/docs-07.log",
+    "retained_sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+    "retained_size": 46
+  },
+  {
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "docs-08.log",
+    "label": "docs-08",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "log_raw_size": 61,
+    "retained_log": "round6-receipts/docs-08.log",
+    "retained_sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+    "retained_size": 61
+  },
+  {
+    "command": [
+      "python3",
+      "docs/DOC_MAP.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.516,
+    "log": "docs-09.log",
+    "label": "docs-09",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "log_raw_size": 60,
+    "retained_log": "round6-receipts/docs-09.log",
+    "retained_sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+    "retained_size": 60
+  },
+  {
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "docs-10.log",
+    "label": "docs-10",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+    "log_raw_size": 60,
+    "retained_log": "round6-receipts/docs-10.log",
+    "retained_sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+    "retained_size": 60
+  },
+  {
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.465,
+    "log": "docs-11.log",
+    "label": "docs-11",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+    "log_raw_size": 61,
+    "retained_log": "round6-receipts/docs-11.log",
+    "retained_sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+    "retained_size": 61
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.164,
+    "log": "docs-12.log",
+    "label": "docs-12",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+    "log_raw_size": 87,
+    "retained_log": "round6-receipts/docs-12.log",
+    "retained_sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+    "retained_size": 87
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_solution_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.77,
+    "log": "docs-13.log",
+    "label": "docs-13",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+    "log_raw_size": 59,
+    "retained_log": "round6-receipts/docs-13.log",
+    "retained_sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+    "retained_size": 59
+  },
+  {
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.465,
+    "log": "docs-14.log",
+    "label": "docs-14",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55",
+    "log_raw_size": 54,
+    "retained_log": "round6-receipts/docs-14.log",
+    "retained_sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55",
+    "retained_size": 54
+  },
+  {
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.515,
+    "log": "docs-15.log",
+    "label": "docs-15",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+    "log_raw_size": 60,
+    "retained_log": "round6-receipts/docs-15.log",
+    "retained_sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+    "retained_size": 60
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.515,
+    "log": "docs-16.log",
+    "label": "docs-16",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c",
+    "log_raw_size": 47,
+    "retained_log": "round6-receipts/docs-16.log",
+    "retained_sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c",
+    "retained_size": 47
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "docs-17.log",
+    "label": "docs-17",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "log_raw_size": 66,
+    "retained_log": "round6-receipts/docs-17.log",
+    "retained_sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+    "retained_size": 66
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.164,
+    "log": "docs-18.log",
+    "label": "docs-18",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+    "log_raw_size": 77,
+    "retained_log": "round6-receipts/docs-18.log",
+    "retained_sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+    "retained_size": 77
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_axis_backpressure.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.314,
+    "log": "docs-19.log",
+    "label": "docs-19",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+    "log_raw_size": 58,
+    "retained_log": "round6-receipts/docs-19.log",
+    "retained_sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+    "retained_size": 58
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_cdc_handshake.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.365,
+    "log": "docs-20.log",
+    "label": "docs-20",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+    "log_raw_size": 54,
+    "retained_log": "round6-receipts/docs-20.log",
+    "retained_sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+    "retained_size": 54
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_wavedrom.py",
+      "docs/diagrams/wd_gptp_pdelay.json",
+      "--background=white",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.365,
+    "log": "docs-21.log",
+    "label": "docs-21",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+    "log_raw_size": 52,
+    "retained_log": "round6-receipts/docs-21.log",
+    "retained_sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+    "retained_size": 52
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0,
+    "seconds": 0.364,
+    "log": "docs-22.log",
+    "label": "docs-22",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+    "log_raw_size": 66,
+    "retained_log": "round6-receipts/docs-22.log",
+    "retained_sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+    "retained_size": 66
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.888,
+    "log": "docs-23.log",
+    "label": "docs-23",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+    "log_raw_size": 59,
+    "retained_log": "round6-receipts/docs-23.log",
+    "retained_sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+    "retained_size": 59
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.917,
+    "log": "docs-24.log",
+    "label": "docs-24",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "log_raw_size": 1500,
+    "retained_log": "round6-receipts/docs-24.log",
+    "retained_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "retained_size": 1500
+  },
+  {
+    "command": [
+      "python3",
+      "docs/traceability/gen_module_matrix.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.268,
+    "log": "docs-25.log",
+    "label": "docs-25",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+    "log_raw_size": 118,
+    "retained_log": "round6-receipts/docs-25.log",
+    "retained_sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+    "retained_size": 118
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0,
+    "seconds": 0.214,
+    "log": "docs-26.log",
+    "label": "docs-26",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+    "log_raw_size": 66,
+    "retained_log": "round6-receipts/docs-26.log",
+    "retained_sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+    "retained_size": 66
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "gptp-processor",
+      "docs"
+    ],
+    "rc": 0,
+    "seconds": 0.765,
+    "log": "docs-27.log",
+    "label": "docs-27",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "a4af3015d9c6ced375d65a0284c5936d6b40247347da058fee9503a41badf40f",
+    "log_raw_size": 2668,
+    "retained_log": "round6-receipts/docs-27.log",
+    "retained_sha256": "2d2c3119250a7cab0dae68eba2b739fecdc1beda838652555a03844f268df6ae",
+    "retained_size": 2626
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_control_flow.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.164,
+    "log": "docs-28.log",
+    "label": "docs-28",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+    "log_raw_size": 2565,
+    "retained_log": "round6-receipts/docs-28.log",
+    "retained_sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+    "retained_size": 2565
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_cohesion.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "docs-29.log",
+    "label": "docs-29",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+    "log_raw_size": 728,
+    "retained_log": "round6-receipts/docs-29.log",
+    "retained_sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+    "retained_size": 728
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 18.376,
+    "log": "docs-30.log",
+    "label": "docs-30",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "4979de3f3ca27887f418c7f76a8a91c301229c1846a0ea436aa1eac1c013cf25",
+    "log_raw_size": 72,
+    "retained_log": "round6-receipts/docs-30.log",
+    "retained_sha256": "4979de3f3ca27887f418c7f76a8a91c301229c1846a0ea436aa1eac1c013cf25",
+    "retained_size": 72
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_baremetal_only.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.587,
+    "log": "docs-31.log",
+    "label": "docs-31",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "log_raw_size": 43,
+    "retained_log": "round6-receipts/docs-31.log",
+    "retained_sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+    "retained_size": 43
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 1.167,
+    "log": "docs-32.log",
+    "label": "docs-32",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "ec846d772f9dd2ab140157ddcd6c0f1882363a7636c0fe4fc7a4ff61d6abb4ed",
+    "log_raw_size": 6368,
+    "retained_log": "round6-receipts/docs-32.log",
+    "retained_sha256": "4aeeb6fcbee5d176ae207d216958f7656ff7653f7cbb86456f7bf0849593beec",
+    "retained_size": 5843
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_rv32_sdk.py",
+      "--destination",
+      "$SDK"
+    ],
+    "rc": 0,
+    "seconds": 1.418,
+    "log": "docs-33.log",
+    "label": "docs-33",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "817bee33c7348e43502b4167a374a68511bda120ea38ed7e129b9ddfac1fd8c4",
+    "log_raw_size": 1501,
+    "retained_log": "round6-receipts/docs-33.log",
+    "retained_sha256": "1cec9c57c8583dbbfdb8c5916521e58815e539248bb9ef30a6b5bd76405140c2",
+    "retained_size": 1253
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py"
+    ],
+    "rc": 0,
+    "seconds": 2.32,
+    "log": "docs-34.log",
+    "label": "docs-34",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+    "log_raw_size": 2578,
+    "retained_log": "round6-receipts/docs-34.log",
+    "retained_sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+    "retained_size": 2578
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_nvm_record_space.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 44.553,
+    "log": "docs-35.log",
+    "label": "docs-35",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+    "log_raw_size": 7010,
+    "retained_log": "round6-receipts/docs-35.log",
+    "retained_sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+    "retained_size": 7010
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0,
+    "seconds": 0.867,
+    "log": "docs-36.log",
+    "label": "docs-36",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+    "log_raw_size": 324,
+    "retained_log": "round6-receipts/docs-36.log",
+    "retained_sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+    "retained_size": 324
+  },
+  {
+    "command": [
+      "python3",
+      "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 72.447,
+    "log": "docs-37.log",
+    "label": "docs-37",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d",
+    "log_raw_size": 5189,
+    "retained_log": "round6-receipts/docs-37.log",
+    "retained_sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d",
+    "retained_size": 5189
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py"
+    ],
+    "rc": 0,
+    "seconds": 0.164,
+    "log": "docs-38.log",
+    "label": "docs-38",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+    "log_raw_size": 85,
+    "retained_log": "round6-receipts/docs-38.log",
+    "retained_sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+    "retained_size": 85
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_soc_sources.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.264,
+    "log": "docs-39.log",
+    "label": "docs-39",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "log_raw_size": 1501,
+    "retained_log": "round6-receipts/docs-39.log",
+    "retained_sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+    "retained_size": 1501
+  },
+  {
+    "command": [
+      "python3",
+      "sw/litex/iob_pack_selftest.py"
+    ],
+    "rc": 0,
+    "seconds": 2.122,
+    "log": "docs-40.log",
+    "label": "docs-40",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad",
+    "log_raw_size": 3147,
+    "retained_log": "round6-receipts/docs-40.log",
+    "retained_sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad",
+    "retained_size": 3147
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py"
+    ],
+    "rc": 0,
+    "seconds": 1.568,
+    "log": "docs-41.log",
+    "label": "docs-41",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "log_raw_size": 153,
+    "retained_log": "round6-receipts/docs-41.log",
+    "retained_sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+    "retained_size": 153
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 2.983,
+    "log": "docs-42.log",
+    "label": "docs-42",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "log_raw_size": 3300,
+    "retained_log": "round6-receipts/docs-42.log",
+    "retained_sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+    "retained_size": 3300
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.515,
+    "log": "docs-43.log",
+    "label": "docs-43",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "1cf945250501b5b0267ea1d21f976938536502d765b18d75110bfb3bffbc4508",
+    "log_raw_size": 36608,
+    "retained_log": "round6-receipts/docs-43.log",
+    "retained_sha256": "1cf945250501b5b0267ea1d21f976938536502d765b18d75110bfb3bffbc4508",
+    "retained_size": 36608
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.567,
+    "log": "docs-44.log",
+    "label": "docs-44",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+    "log_raw_size": 4026,
+    "retained_log": "round6-receipts/docs-44.log",
+    "retained_sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+    "retained_size": 4026
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0,
+    "seconds": 2.979,
+    "log": "docs-45.log",
+    "label": "docs-45",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "3c1a34d3169cf6f071f2cbb62a8ddca7591338e9f45ee665e1c66758f22c5524",
+    "log_raw_size": 421,
+    "retained_log": "round6-receipts/docs-45.log",
+    "retained_sha256": "3c1a34d3169cf6f071f2cbb62a8ddca7591338e9f45ee665e1c66758f22c5524",
+    "retained_size": 421
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.432,
+    "log": "docs-46.log",
+    "label": "docs-46",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+    "log_raw_size": 4619,
+    "retained_log": "round6-receipts/docs-46.log",
+    "retained_sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+    "retained_size": 4619
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 1.821,
+    "log": "docs-47.log",
+    "label": "docs-47",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+    "log_raw_size": 6085,
+    "retained_log": "round6-receipts/docs-47.log",
+    "retained_sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+    "retained_size": 6085
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_fail_fast.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.771,
+    "log": "docs-48.log",
+    "label": "docs-48",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+    "log_raw_size": 6597,
+    "retained_log": "round6-receipts/docs-48.log",
+    "retained_sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+    "retained_size": 6597
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py"
+    ],
+    "rc": 0,
+    "seconds": 1.869,
+    "log": "docs-49.log",
+    "label": "docs-49",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "a4b0e34436e9102a2bd9d5796feb6d9f18da929d983820f9f4d0e280c365897a",
+    "log_raw_size": 161,
+    "retained_log": "round6-receipts/docs-49.log",
+    "retained_sha256": "a4b0e34436e9102a2bd9d5796feb6d9f18da929d983820f9f4d0e280c365897a",
+    "retained_size": 161
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_todo_ownership.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.969,
+    "log": "docs-50.log",
+    "label": "docs-50",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+    "log_raw_size": 2584,
+    "retained_log": "round6-receipts/docs-50.log",
+    "retained_sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+    "retained_size": 2584
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 6.836,
+    "log": "docs-51.log",
+    "label": "docs-51",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+    "log_raw_size": 14871,
+    "retained_log": "round6-receipts/docs-51.log",
+    "retained_sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+    "retained_size": 14871
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 6.837,
+    "log": "docs-52.log",
+    "label": "docs-52",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "log_raw_size": 5895,
+    "retained_log": "round6-receipts/docs-52.log",
+    "retained_sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+    "retained_size": 5895
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "docs-53.log",
+    "label": "docs-53",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "c148565dfd741e7b5d915960022a966f15e3b9dab12f75d44b01bf69e43ca7a0",
+    "log_raw_size": 2000,
+    "retained_log": "round6-receipts/docs-53.log",
+    "retained_sha256": "c148565dfd741e7b5d915960022a966f15e3b9dab12f75d44b01bf69e43ca7a0",
+    "retained_size": 2000
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_hygiene.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.467,
+    "log": "docs-54.log",
+    "label": "docs-54",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "log_raw_size": 1847,
+    "retained_log": "round6-receipts/docs-54.log",
+    "retained_sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+    "retained_size": 1847
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.517,
+    "log": "docs-55.log",
+    "label": "docs-55",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+    "log_raw_size": 218,
+    "retained_log": "round6-receipts/docs-55.log",
+    "retained_sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+    "retained_size": 218
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_sv_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.516,
+    "log": "docs-56.log",
+    "label": "docs-56",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+    "log_raw_size": 2955,
+    "retained_log": "round6-receipts/docs-56.log",
+    "retained_sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+    "retained_size": 2955
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.719,
+    "log": "docs-58.log",
+    "label": "docs-58",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+    "log_raw_size": 3593,
+    "retained_log": "round6-receipts/docs-58.log",
+    "retained_sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+    "retained_size": 3593
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 4.478,
+    "log": "docs-60.log",
+    "label": "docs-60",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "log_raw_size": 2531,
+    "retained_log": "round6-receipts/docs-60.log",
+    "retained_sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+    "retained_size": 2531
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 0.265,
+    "log": "docs-61.log",
+    "label": "docs-61",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "log_raw_size": 235,
+    "retained_log": "round6-receipts/docs-61.log",
+    "retained_sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+    "retained_size": 235
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_sh_idiom.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.265,
+    "log": "docs-62.log",
+    "label": "docs-62",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "log_raw_size": 2461,
+    "retained_log": "round6-receipts/docs-62.log",
+    "retained_sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+    "retained_size": 2461
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.215,
+    "log": "docs-63.log",
+    "label": "docs-63",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+    "log_raw_size": 167,
+    "retained_log": "round6-receipts/docs-63.log",
+    "retained_sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+    "retained_size": 167
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 18.229,
+    "log": "docs-64.log",
+    "label": "docs-64",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37",
+    "log_raw_size": 151471,
+    "retained_log": "round6-receipts/docs-64.log",
+    "retained_sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37",
+    "retained_size": 151471
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "docs-65.log",
+    "label": "docs-65",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "961b9a199d402b370d1728f20d3d32fe9bf256ce4e0c99c7be098e6ff66cbe72",
+    "log_raw_size": 85,
+    "retained_log": "round6-receipts/docs-65.log",
+    "retained_sha256": "961b9a199d402b370d1728f20d3d32fe9bf256ce4e0c99c7be098e6ff66cbe72",
+    "retained_size": 85
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_archive.py"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "docs-66.log",
+    "label": "docs-66",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+    "log_raw_size": 93,
+    "retained_log": "round6-receipts/docs-66.log",
+    "retained_sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+    "retained_size": 93
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_archive.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "docs-67.log",
+    "label": "docs-67",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+    "log_raw_size": 35,
+    "retained_log": "round6-receipts/docs-67.log",
+    "retained_sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+    "retained_size": 35
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.915,
+    "log": "docs-68.log",
+    "label": "docs-68",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "log_raw_size": 38,
+    "retained_log": "round6-receipts/docs-68.log",
+    "retained_sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+    "retained_size": 38
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.025,
+    "log": "docs-69.log",
+    "label": "docs-69",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "2085cd5b07944246d79457654dfb861a2b81a1c93936c4428b0ac2895b44371e",
+    "log_raw_size": 64,
+    "retained_log": "round6-receipts/docs-69.log",
+    "retained_sha256": "2085cd5b07944246d79457654dfb861a2b81a1c93936c4428b0ac2895b44371e",
+    "retained_size": 64
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 4.88,
+    "log": "docs-70.log",
+    "label": "docs-70",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+    "log_raw_size": 94,
+    "retained_log": "round6-receipts/docs-70.log",
+    "retained_sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+    "retained_size": 94
+  },
+  {
+    "command": [
+      "python3",
+      "avdecc/gen_aem_store.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.114,
+    "log": "docs-71.log",
+    "label": "docs-71",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+    "log_raw_size": 3596,
+    "retained_log": "round6-receipts/docs-71.log",
+    "retained_sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+    "retained_size": 3596
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_sweep_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 15.432,
+    "log": "docs-72.log",
+    "label": "docs-72",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "5a37b3c904809463760d1c21519be530b0375dff87e86295daf31c3700547510",
+    "log_raw_size": 19678,
+    "retained_log": "round6-receipts/docs-72.log",
+    "retained_sha256": "6bf5ac5bdf7ba5d038642f581d4c9a04fd16804cfa7d79fff700542ecb260c27",
+    "retained_size": 19594
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_deploy_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.465,
+    "log": "docs-73.log",
+    "label": "docs-73",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "e424a100293545585d0d9cd212edab2d524ee6f56cdc0568f1cb9684f6049274",
+    "log_raw_size": 9268,
+    "retained_log": "round6-receipts/docs-73.log",
+    "retained_sha256": "1adf286f29854f1f75c6333aa89ced6f54776d05fcb93d53b1da8119749dcc3c",
+    "retained_size": 9226
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_entity_shape.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 59.154,
+    "log": "docs-74.log",
+    "label": "docs-74",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "016d0ddb5406a250386877b6de32a63744377f51b3c0ed4249a855b6c681ddb2",
+    "log_raw_size": 25693,
+    "retained_log": "round6-receipts/docs-74.log",
+    "retained_sha256": "ca40578969adf3c37b6ec950a10d98d17ea73df70d1c3059a1512d123b418365",
+    "retained_size": 25672
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.064,
+    "log": "docs-style-final.log",
+    "label": "docs-style-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "log_raw_size": 47,
+    "retained_log": "round6-receipts/docs-style-final.log",
+    "retained_sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+    "retained_size": 47
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_cpp_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 1.718,
+    "log": "cpp-idiom-final.log",
+    "label": "cpp-idiom-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "48f6cd47027175360704aab24d6a30d021ecc29a00f2ce6a6902b5c468b60eba",
+    "log_raw_size": 316,
+    "retained_log": "round6-receipts/cpp-idiom-final.log",
+    "retained_sha256": "48f6cd47027175360704aab24d6a30d021ecc29a00f2ce6a6902b5c468b60eba",
+    "retained_size": 316
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "seconds": 4.425,
+    "log": "py-idiom-final.log",
+    "label": "py-idiom-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "aefcb3177dd454f8aacdc12cdfd9b0f1d2acb6b6adafa2e688a68684cb02b2c4",
+    "log_raw_size": 461,
+    "retained_log": "round6-receipts/py-idiom-final.log",
+    "retained_sha256": "aefcb3177dd454f8aacdc12cdfd9b0f1d2acb6b6adafa2e688a68684cb02b2c4",
+    "retained_size": 461
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.214,
+    "log": "docs-selftest.log",
+    "label": "docs-selftest",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "log_raw_size": 56,
+    "retained_log": "round6-receipts/docs-selftest.log",
+    "retained_sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+    "retained_size": 56
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_wire_accountability.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "seconds": 0.315,
+    "log": "docs-wire.log",
+    "label": "docs-wire",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+    "log_raw_size": 4965,
+    "retained_log": "round6-receipts/docs-wire.log",
+    "retained_sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+    "retained_size": 4965
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 5.428,
+    "log": "ci-scope.log",
+    "label": "ci-scope",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "cda2e3e13229332d91d0863932d724a7fdeef280c924f262aa43f5d5448c62da",
+    "log_raw_size": 6877,
+    "retained_log": "round6-receipts/ci-scope.log",
+    "retained_sha256": "cda2e3e13229332d91d0863932d724a7fdeef280c924f262aa43f5d5448c62da",
+    "retained_size": 6877
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+    ],
+    "rc": 0,
+    "seconds": 3.59,
+    "log": "em-dash-final.log",
+    "label": "em-dash-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "7f913d8a63c542426acb78b57aba468518be142c7f8110b35d8bf1d1e54d727a",
+    "log_raw_size": 140,
+    "retained_log": "round6-receipts/em-dash-final.log",
+    "retained_sha256": "7f913d8a63c542426acb78b57aba468518be142c7f8110b35d8bf1d1e54d727a",
+    "retained_size": 140
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.688,
+    "log": "docs-final.log",
+    "label": "docs-final",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+    "log_raw_size": 128,
+    "retained_log": "round6-receipts/docs-final.log",
+    "retained_sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+    "retained_size": 128
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.882,
+    "log": "docs-archive.log",
+    "label": "docs-archive",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$ARCHIVE",
+    "log_raw_sha256": "b6fac800544d394c2bd960b05cb04d06af87d2d8290dba912045f87dfa832b7c",
+    "log_raw_size": 196,
+    "retained_log": "round6-receipts/docs-archive.log",
+    "retained_sha256": "b6fac800544d394c2bd960b05cb04d06af87d2d8290dba912045f87dfa832b7c",
+    "retained_size": 196
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "seconds": 1.067,
+    "log": "docs-archive-feature.log",
+    "label": "docs-archive-feature",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$ARCHIVE",
+    "log_raw_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+    "log_raw_size": 29,
+    "retained_log": "round6-receipts/docs-archive-feature.log",
+    "retained_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+    "retained_size": 29
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "500b8f64443777685e6a54049d933476710d26f0",
+      "HEAD"
+    ],
+    "rc": 0,
+    "seconds": 0.016,
+    "log": "source-diff.log",
+    "label": "source-diff",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "log_raw_size": 0,
+    "retained_log": "round6-receipts/source-diff.log",
+    "retained_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retained_size": 0
+  },
+  {
+    "command": [
+      "python3",
+      "$SCRATCH/integrity.py"
+    ],
+    "rc": 0,
+    "seconds": 0.415,
+    "log": "integrity.log",
+    "label": "integrity",
+    "source_head": "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+    "working_directory": "$SOURCE",
+    "log_raw_sha256": "b006532c9ef9d3097effa3e4b69ffe25845d3c87f6bc42cb88725fb381fc33e5",
+    "log_raw_size": 3247,
+    "retained_log": "round6-receipts/integrity.log",
+    "retained_sha256": "b006532c9ef9d3097effa3e4b69ffe25845d3c87f6bc42cb88725fb381fc33e5",
+    "retained_size": 3247
+  }
+]

@@ -1,0 +1,2107 @@
+{
+  "head": "f74b9403b330ce316eeec6f724846f16def98443",
+  "all_rc_zero": true,
+  "count": 99,
+  "records": [
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--mutation-shard",
+        "0",
+        "3",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/firmware-shard0"
+      ],
+      "rc": 0,
+      "seconds": 531.058,
+      "label": "firmware-shard0",
+      "raw_log": {
+        "size": 120829,
+        "sha256": "7766441f83374cc75f5c554f544cf95b1eb87cfcc4afbfb0a5d6e17b667b039c",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/firmware-shard0.log",
+        "size": 107229,
+        "sha256": "531f57dcc462891b2f8f5d0d8fb1ec4eefd7aae1e9aeeee486d643285c8fe6c4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--mutation-shard",
+        "1",
+        "3",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/firmware-shard1"
+      ],
+      "rc": 0,
+      "seconds": 501.561,
+      "label": "firmware-shard1",
+      "raw_log": {
+        "size": 120153,
+        "sha256": "1551ef3efe92310ef41f3da29f7bd41f3b60b65b8e5d325777250e9c6d2e0601",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/firmware-shard1.log",
+        "size": 106553,
+        "sha256": "2ac89c210f02fbf78f91e7bbba9433c14440cf626becb6df3afff80455aac3ba"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+        "--require-rv32",
+        "--self-test",
+        "--mutation-shard",
+        "2",
+        "3",
+        "--jobs",
+        "4",
+        "--build-dir",
+        "$SCRATCH/firmware-shard2"
+      ],
+      "rc": 0,
+      "seconds": 509.471,
+      "label": "firmware-shard2",
+      "raw_log": {
+        "size": 120150,
+        "sha256": "5c2d3613e29f1f3a58649639f4456978ae87e0889238ecc2b480d08139764a66",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/firmware-shard2.log",
+        "size": 106550,
+        "sha256": "6e9f1d92a54fe50591cb9504a2a18ec8e4d0060ea062b92aa6ff12b5453ef01e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$PACKET/round7-helpers/probes.py"
+      ],
+      "rc": 0,
+      "seconds": 48.819,
+      "label": "probes-final",
+      "raw_log": {
+        "size": 28072,
+        "sha256": "4bbfc776315e9ea843c69810b4fc4d70510f7ca1518126580751d036c19f1e42",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/probes-final.log",
+        "size": 26322,
+        "sha256": "bed560620a795bf0b8037676f13d9f905f150c596d37435a17c98290dbcaeb8d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$PACKET/round7-helpers/new_plants_if1.py"
+      ],
+      "rc": 0,
+      "seconds": 37.89,
+      "label": "new-plants-if1",
+      "raw_log": {
+        "size": 1491,
+        "sha256": "40363e41b55cb0238d727a759a3d2563b3055f75f9145be71e08d8bbc1df7ce9",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/new-plants-if1.log",
+        "size": 1491,
+        "sha256": "40363e41b55cb0238d727a759a3d2563b3055f75f9145be71e08d8bbc1df7ce9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--write",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-final"
+      ],
+      "rc": 0,
+      "seconds": 202.906,
+      "label": "coverage-write",
+      "raw_log": {
+        "size": 3155,
+        "sha256": "e3e4961076b37cc5f2f0f913672f386ba8726e9897d188d739c96cbf3e412310",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/coverage-write.log",
+        "size": 3155,
+        "sha256": "e3e4961076b37cc5f2f0f913672f386ba8726e9897d188d739c96cbf3e412310"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--check",
+        "--jobs",
+        "4",
+        "--keep",
+        "$SCRATCH/coverage-final"
+      ],
+      "rc": 0,
+      "seconds": 184.513,
+      "label": "coverage-check",
+      "raw_log": {
+        "size": 3134,
+        "sha256": "95e9ac8a40cd41e1ccdf7b63eeef334b7879d72dfa929b95a6b636afdbc5c316",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/coverage-check.log",
+        "size": 3134,
+        "sha256": "95e9ac8a40cd41e1ccdf7b63eeef334b7879d72dfa929b95a6b636afdbc5c316"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_coverage.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.465,
+      "label": "coverage-selftest",
+      "raw_log": {
+        "size": 3710,
+        "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/coverage-selftest.log",
+        "size": 3710,
+        "sha256": "3788b02a1c5d91d7ff2c8581f2ed09040261511d92565dd669103fee911dca0b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/fw_rv32_selftest.py",
+        "--require-rv32"
+      ],
+      "rc": 0,
+      "seconds": 5.581,
+      "label": "rv32-selftest",
+      "raw_log": {
+        "size": 793,
+        "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/rv32-selftest.log",
+        "size": 793,
+        "sha256": "9cd3b019b88560e4f902812b20cbb7d859405f50f0e686d6d71b6474287e7c94"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/gtest/tally_selftest.py",
+        "--mutants"
+      ],
+      "rc": 0,
+      "seconds": 58.196,
+      "label": "tally-mutants",
+      "raw_log": {
+        "size": 3982,
+        "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/tally-mutants.log",
+        "size": 3982,
+        "sha256": "02268c336448885863d0308d88968cde7fe44eedb9743f0589fc01020f7eca11"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py",
+        "--require-rv32",
+        "--jobs",
+        "4"
+      ],
+      "rc": 0,
+      "seconds": 94.894,
+      "label": "firmware-nvm-final",
+      "raw_log": {
+        "size": 3981,
+        "sha256": "aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/firmware-nvm-final.log",
+        "size": 3981,
+        "sha256": "aca49c80a6f07d0deff6a0d261526709c396b3c5cafa419c3e8bbf360a0f1175"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/mailbox/gen_mailbox.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "label": "mailbox-contract",
+      "raw_log": {
+        "size": 26,
+        "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/mailbox-contract.log",
+        "size": 26,
+        "sha256": "9bb7d3a8faff1627f39a3bb7c9462a0b15ec8dd6c94a44c48d2fc7ac515a982f"
+      }
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "$SCRATCH/mailbox/tb/verilator/mbx",
+        "-j2",
+        "VERILATOR_JOBS=2",
+        "VERILATOR=$PINNED_VERILATOR"
+      ],
+      "rc": 0,
+      "seconds": 41.141,
+      "label": "mailbox",
+      "raw_log": {
+        "size": 36532,
+        "sha256": "1b642e3a896132a9b7bb5539e3124eb30ace94b2716e4c382910d8452a756d6c",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/mailbox.log",
+        "size": 33467,
+        "sha256": "b665cdec74104a0742ce5b78206a8ab4961597353287e17fc1b304458e6fc8ec"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/ctrl/test/maap_differential.py",
+        "--self-test",
+        "--keep",
+        "$SCRATCH/maap-diff"
+      ],
+      "rc": 0,
+      "seconds": 145.509,
+      "label": "maap-differential",
+      "raw_log": {
+        "size": 13101121,
+        "sha256": "0004b8f797265456ad89f44c60956122becce4e7567180c3ae6071857be640cc",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": null
+    },
+    {
+      "command": [
+        "python3",
+        "$PACKET/round7-helpers/upstream_positive.py"
+      ],
+      "rc": 0,
+      "seconds": 3.629,
+      "label": "upstream-positive",
+      "raw_log": {
+        "size": 7973,
+        "sha256": "002aef339170c1fd541d0d2e339efc678d69253abdccb70fe5ce04ecc2ec5935",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/upstream-positive.log",
+        "size": 7579,
+        "sha256": "2791e3a374db87a55efda120a4f6a677b5d66220f3a332ce0260cc6d12cb7c06"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "$PACKET/round7-helpers/images.py"
+      ],
+      "rc": 0,
+      "seconds": 20.909,
+      "label": "linked-size-verified",
+      "raw_log": {
+        "size": 14391,
+        "sha256": "adebd3cf18e51bade62c2922f5a4facb93d274d45ef379b11406d3590acf5b84",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/linked-size-verified.log",
+        "size": 13941,
+        "sha256": "0ec1f822e6e0ce908bb9a8fcde20f65e5b16b8ef39b1cc1bf8ee73c60f13e75b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.215,
+      "label": "docs-selftest",
+      "raw_log": {
+        "size": 56,
+        "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-selftest.log",
+        "size": 56,
+        "sha256": "83cb6b9c5f7a556a8ea31ad3a751a39e6d573b00fe44ac39f5e1591022048339"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.267,
+      "label": "docs-00",
+      "raw_log": {
+        "size": 414,
+        "sha256": "6d9058698e2162e1bb76a63a9ba9935d8e3d34f7aef65ace2ffbf57734de5c18",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-00.log",
+        "size": 389,
+        "sha256": "3259b50752748b6ae3f7297223e5956772182a32d93df0b542d2db54e43fffd0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_hdl_reference.py",
+        "--output",
+        "$SCRATCH/milan-hdl-reference"
+      ],
+      "rc": 0,
+      "seconds": 1.969,
+      "label": "docs-01",
+      "raw_log": {
+        "size": 413,
+        "sha256": "8cfe912d23c9a31777873c2010c84092df7d4fe7394e5ede54f2923960f5cb14",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-01.log",
+        "size": 388,
+        "sha256": "d1de63014b5519c93309a70c2cbefef858ed719e71493bb75ed70b3466692226"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 6.068,
+      "label": "docs-02",
+      "raw_log": {
+        "size": 128,
+        "sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-02.log",
+        "size": 128,
+        "sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+      ],
+      "rc": 0,
+      "seconds": 3.929,
+      "label": "docs-03",
+      "raw_log": {
+        "size": 140,
+        "sha256": "7f913d8a63c542426acb78b57aba468518be142c7f8110b35d8bf1d1e54d727a",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-03.log",
+        "size": 140,
+        "sha256": "7f913d8a63c542426acb78b57aba468518be142c7f8110b35d8bf1d1e54d727a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "label": "docs-04",
+      "raw_log": {
+        "size": 47,
+        "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-04.log",
+        "size": 47,
+        "sha256": "1491d3f6bec03b920cf58f5fb28e6abff4a9d433a758bc0fe5d2db77bf4f53cd"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_style.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "label": "docs-05",
+      "raw_log": {
+        "size": 33,
+        "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-05.log",
+        "size": 33,
+        "sha256": "0acc8195c60dd145a8f17d24b7b07c29074ac131d71893f9cef5f880239dd909"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.264,
+      "label": "docs-06",
+      "raw_log": {
+        "size": 41,
+        "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-06.log",
+        "size": 41,
+        "sha256": "d8a77a32600566f0613626fd361bad845759693a08b1095dd54865c1aa25455d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.266,
+      "label": "docs-07",
+      "raw_log": {
+        "size": 46,
+        "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-07.log",
+        "size": 46,
+        "sha256": "200332e4eddfd8a6338d8a4dbe27d2f513de92f951a1aa1f6b25882182bc290e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "label": "docs-08",
+      "raw_log": {
+        "size": 61,
+        "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-08.log",
+        "size": 61,
+        "sha256": "74408f0fbcdfc1c7e22f6eccd3eb299da61cabe9bb4526eed416b31a8bf61e16"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/DOC_MAP.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "label": "docs-09",
+      "raw_log": {
+        "size": 60,
+        "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-09.log",
+        "size": 60,
+        "sha256": "85ddf25d9a99974b71a9c165cbfbbf390be3d7bf74f081b4cc669622a0a562b9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "label": "docs-10",
+      "raw_log": {
+        "size": 60,
+        "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-10.log",
+        "size": 60,
+        "sha256": "51058c96a481bf763246394b619601227bdec11b6b11ddcaa1d6f57593d2f1f4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/timesync_chain.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.618,
+      "label": "docs-11",
+      "raw_log": {
+        "size": 61,
+        "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-11.log",
+        "size": 61,
+        "sha256": "7c7ad79fa685d29607abf71e3a99d98855fd7ffa1ba5fbf7de23bfb41a33c8fa"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "label": "docs-12",
+      "raw_log": {
+        "size": 87,
+        "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-12.log",
+        "size": 87,
+        "sha256": "48ac84ddbd532247deb21834ee60bd4b7322f69bb9ab9fc5f9901969ccb38c42"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_solution_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 2.822,
+      "label": "docs-13",
+      "raw_log": {
+        "size": 59,
+        "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-13.log",
+        "size": 59,
+        "sha256": "c57d3ed2e5c9be43085106227b69fe55f866b1198ad209fbb27f940e5757ec30"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.515,
+      "label": "docs-14",
+      "raw_log": {
+        "size": 54,
+        "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-14.log",
+        "size": 54,
+        "sha256": "d1ae5c433282f7f6f0b3df74fb92180c7567e27714311c0b98d16e6f237f8e55"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/diagrams/submodule_boundaries.gen.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.668,
+      "label": "docs-15",
+      "raw_log": {
+        "size": 60,
+        "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-15.log",
+        "size": 60,
+        "sha256": "51bca8fb66fd6f0acc480e3364f74fd7a4874946b191468bfbe20ad159cca889"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.565,
+      "label": "docs-16",
+      "raw_log": {
+        "size": 47,
+        "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-16.log",
+        "size": 47,
+        "sha256": "79be302e03c97636315bf0b9d13d7d4160d1b0ac67f93f42874e51838b6de78c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_submodule_docs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "label": "docs-17",
+      "raw_log": {
+        "size": 66,
+        "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-17.log",
+        "size": 66,
+        "sha256": "54dbecff3ad17dc651e86c7b313ef57fa96baf89fb40f0fb90af4bbb8ddc802b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "label": "docs-18",
+      "raw_log": {
+        "size": 77,
+        "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-18.log",
+        "size": 77,
+        "sha256": "8439889f74aa49f8d61f50d6b525f358d0774a4133b54cd9895edad971302d42"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_axis_backpressure.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.365,
+      "label": "docs-19",
+      "raw_log": {
+        "size": 58,
+        "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-19.log",
+        "size": 58,
+        "sha256": "b3f8f3a790f92f14932f7c8a8c6b7ad9f33d327b6a6cfe653364d5f34617f8e3"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_cdc_handshake.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.416,
+      "label": "docs-20",
+      "raw_log": {
+        "size": 54,
+        "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-20.log",
+        "size": 54,
+        "sha256": "4d9e7670f2a4615d27d64a23c95a4882fd923026e00120f90d44a031c39b61d5"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_wavedrom.py",
+        "docs/diagrams/wd_gptp_pdelay.json",
+        "--background=white",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.365,
+      "label": "docs-21",
+      "raw_log": {
+        "size": 52,
+        "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-21.log",
+        "size": 52,
+        "sha256": "411f08b7121f1a0c6b28105fe433aa4561caad5a8e4caf9e7a6c6aa2fd33cac9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py"
+      ],
+      "rc": 0,
+      "seconds": 0.417,
+      "label": "docs-22",
+      "raw_log": {
+        "size": 66,
+        "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-22.log",
+        "size": 66,
+        "sha256": "05e0fcfa26a97494e8983dcfca3ad89cdaf91e390acbfb9dbdfb6f614cba4e51"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_diagram_pngs.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.689,
+      "label": "docs-23",
+      "raw_log": {
+        "size": 59,
+        "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-23.log",
+        "size": 59,
+        "sha256": "918e8cc85a2a2b0d45eeb3f0c7b006824c81e2ed404a535eded095b09d875dc5"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.917,
+      "label": "docs-24",
+      "raw_log": {
+        "size": 1500,
+        "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-24.log",
+        "size": 1500,
+        "sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 1.268,
+      "label": "docs-25",
+      "raw_log": {
+        "size": 118,
+        "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-25.log",
+        "size": 118,
+        "sha256": "d0be3b6428ae2079134f2a21b2972c524a26103b0e9c8b64039bb24ae22797dc"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "rc": 0,
+      "seconds": 0.214,
+      "label": "docs-26",
+      "raw_log": {
+        "size": 66,
+        "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-26.log",
+        "size": 66,
+        "sha256": "7ca87a8501c54854805f1cf90d49b2a8ff6353a1049fd21cf0631569f5024e41"
+      }
+    },
+    {
+      "command": [
+        "make",
+        "-C",
+        "gptp-processor",
+        "docs"
+      ],
+      "rc": 0,
+      "seconds": 0.817,
+      "label": "docs-27",
+      "raw_log": {
+        "size": 2668,
+        "sha256": "a4af3015d9c6ced375d65a0284c5936d6b40247347da058fee9503a41badf40f",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-27.log",
+        "size": 2626,
+        "sha256": "2d2c3119250a7cab0dae68eba2b739fecdc1beda838652555a03844f268df6ae"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_control_flow.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "label": "docs-28",
+      "raw_log": {
+        "size": 2565,
+        "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-28.log",
+        "size": 2565,
+        "sha256": "34d85283c432e38af30c33dcc6de6b85208e1ec98a538b78e68061d27421972b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_cohesion.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "label": "docs-29",
+      "raw_log": {
+        "size": 728,
+        "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-29.log",
+        "size": 728,
+        "sha256": "10f526cea8560a3a39135260553e767b316076d7598559fb5f07e8cfab2c5363"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 19.178,
+      "label": "docs-30",
+      "raw_log": {
+        "size": 72,
+        "sha256": "4979de3f3ca27887f418c7f76a8a91c301229c1846a0ea436aa1eac1c013cf25",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-30.log",
+        "size": 72,
+        "sha256": "4979de3f3ca27887f418c7f76a8a91c301229c1846a0ea436aa1eac1c013cf25"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_baremetal_only.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.592,
+      "label": "docs-31",
+      "raw_log": {
+        "size": 43,
+        "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-31.log",
+        "size": 43,
+        "sha256": "09b491b87735efaef68eafe7f45f4fe4ba1f8ad036c0d252d2a93a00906d51f8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 1.438,
+      "label": "docs-32",
+      "raw_log": {
+        "size": 6368,
+        "sha256": "42bc19372720ff93f1dba26145dcaa3deafa6570578c40320fd41865097623fd",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-32.log",
+        "size": 5843,
+        "sha256": "dc6d01d391b7e66f9465a487b841521cb2dea45725db0df6c92bac6fb26c263a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_rv32_sdk.py",
+        "--destination",
+        "$SDK"
+      ],
+      "rc": 0,
+      "seconds": 2.02,
+      "label": "docs-33",
+      "raw_log": {
+        "size": 1501,
+        "sha256": "817bee33c7348e43502b4167a374a68511bda120ea38ed7e129b9ddfac1fd8c4",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-33.log",
+        "size": 1253,
+        "sha256": "1cec9c57c8583dbbfdb8c5916521e58815e539248bb9ef30a6b5bd76405140c2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py"
+      ],
+      "rc": 0,
+      "seconds": 2.523,
+      "label": "docs-34",
+      "raw_log": {
+        "size": 2578,
+        "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-34.log",
+        "size": 2578,
+        "sha256": "cf53746e34d5ec76dc263f5ce98c17e9f1b227048b67c9e6bdbb8e798007f4f0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_record_space.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 47.35,
+      "label": "docs-35",
+      "raw_log": {
+        "size": 7010,
+        "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-35.log",
+        "size": 7010,
+        "sha256": "8e636c8b39e0ce66934ec2a3a7088ef7e6be29b5820a3a87f147d40c612320c6"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_nvm_capture.py"
+      ],
+      "rc": 0,
+      "seconds": 0.916,
+      "label": "docs-36",
+      "raw_log": {
+        "size": 324,
+        "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-36.log",
+        "size": 324,
+        "sha256": "9a4196c774ce4ddfa9980cf9345d111028f3afa812677fe5bab392f81c955439"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/firmware/nvm_hosttest/test_nvm_firmware.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 78.479,
+      "label": "docs-37",
+      "raw_log": {
+        "size": 5189,
+        "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-37.log",
+        "size": 5189,
+        "sha256": "4928189ff11ec557fe7fa80a3eb28b91ba56eed839cb6accf24847335a2d516d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py"
+      ],
+      "rc": 0,
+      "seconds": 0.164,
+      "label": "docs-38",
+      "raw_log": {
+        "size": 85,
+        "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-38.log",
+        "size": 85,
+        "sha256": "7ea77f321df0437a49feae4436006813f0653a8151945dbf7601fe0e5e289033"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_soc_sources.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.214,
+      "label": "docs-39",
+      "raw_log": {
+        "size": 1501,
+        "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-39.log",
+        "size": 1501,
+        "sha256": "d877c9fa9a5d1db2854c5ed3486ca7d2d135944cf3953143bdf63b554f8c3dc0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "sw/litex/iob_pack_selftest.py"
+      ],
+      "rc": 0,
+      "seconds": 2.536,
+      "label": "docs-40",
+      "raw_log": {
+        "size": 3147,
+        "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-40.log",
+        "size": 3147,
+        "sha256": "55e08920618778573a58f152092c4605e53735fdaf550c99ed72016963b2ffad"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0,
+      "seconds": 1.724,
+      "label": "docs-41",
+      "raw_log": {
+        "size": 153,
+        "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-41.log",
+        "size": 153,
+        "sha256": "ed979d7e26c3cd7a6f14364c11994089b77632424d04252613eeed458ebc8a95"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 3.328,
+      "label": "docs-42",
+      "raw_log": {
+        "size": 3300,
+        "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-42.log",
+        "size": 3300,
+        "sha256": "418b0ce0f1f8a55805a4c0e75385ae0f3c18b83b3af16598f5cfc45b40591f1d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.567,
+      "label": "docs-43",
+      "raw_log": {
+        "size": 36608,
+        "sha256": "1cf945250501b5b0267ea1d21f976938536502d765b18d75110bfb3bffbc4508",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-43.log",
+        "size": 36608,
+        "sha256": "1cf945250501b5b0267ea1d21f976938536502d765b18d75110bfb3bffbc4508"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_naming.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.519,
+      "label": "docs-44",
+      "raw_log": {
+        "size": 4026,
+        "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-44.log",
+        "size": 4026,
+        "sha256": "20635e2ee5994ddc3555ad8acef6af506885fef1ccec25b9c4efb88ab4984c02"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0,
+      "seconds": 2.778,
+      "label": "docs-45",
+      "raw_log": {
+        "size": 421,
+        "sha256": "3c1a34d3169cf6f071f2cbb62a8ddca7591338e9f45ee665e1c66758f22c5524",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-45.log",
+        "size": 421,
+        "sha256": "3c1a34d3169cf6f071f2cbb62a8ddca7591338e9f45ee665e1c66758f22c5524"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_port_contracts.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 3.28,
+      "label": "docs-46",
+      "raw_log": {
+        "size": 4619,
+        "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-46.log",
+        "size": 4619,
+        "sha256": "8cbdbe06b994bf0db6efd8d9289a0a237bb965d3a771a9d536aa23e8ae0ae75e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 1.718,
+      "label": "docs-47",
+      "raw_log": {
+        "size": 6085,
+        "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-47.log",
+        "size": 6085,
+        "sha256": "bbf0264b3cc1beedf3b725b71c379498d33eceeff22f734695af87a77240563e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_fail_fast.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.719,
+      "label": "docs-48",
+      "raw_log": {
+        "size": 6597,
+        "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-48.log",
+        "size": 6597,
+        "sha256": "ef92c9eb4e29bf495c938a2ebe16cb2ec7896671a4e7a63ae465c76f5ca8373a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py"
+      ],
+      "rc": 0,
+      "seconds": 1.771,
+      "label": "docs-49",
+      "raw_log": {
+        "size": 161,
+        "sha256": "a4b0e34436e9102a2bd9d5796feb6d9f18da929d983820f9f4d0e280c365897a",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-49.log",
+        "size": 161,
+        "sha256": "a4b0e34436e9102a2bd9d5796feb6d9f18da929d983820f9f4d0e280c365897a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_todo_ownership.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.869,
+      "label": "docs-50",
+      "raw_log": {
+        "size": 2584,
+        "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-50.log",
+        "size": 2584,
+        "sha256": "696cea82f33dcda09f3d8b1047ee2682f9ca7c6da9348a07813eaf3d3d6f978b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 7.137,
+      "label": "docs-51",
+      "raw_log": {
+        "size": 14871,
+        "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-51.log",
+        "size": 14871,
+        "sha256": "30d8fb61edeb6851416d834317922c33ff8744eccd8c133a10e72e49282400bf"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 7.237,
+      "label": "docs-52",
+      "raw_log": {
+        "size": 5895,
+        "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-52.log",
+        "size": 5895,
+        "sha256": "9665bb06c04a7169e36eb253ae73089a4786ac51c2db1b5c8f5a67e8e090f9b2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "label": "docs-53",
+      "raw_log": {
+        "size": 2000,
+        "sha256": "c148565dfd741e7b5d915960022a966f15e3b9dab12f75d44b01bf69e43ca7a0",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-53.log",
+        "size": 2000,
+        "sha256": "c148565dfd741e7b5d915960022a966f15e3b9dab12f75d44b01bf69e43ca7a0"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_hygiene.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.466,
+      "label": "docs-54",
+      "raw_log": {
+        "size": 1847,
+        "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-54.log",
+        "size": 1847,
+        "sha256": "2c7b5cb25dc4cc0407fc27441f4bba2291c74fa2aa2b22f1276e129651f615a8"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 0.515,
+      "label": "docs-55",
+      "raw_log": {
+        "size": 218,
+        "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-55.log",
+        "size": 218,
+        "sha256": "aed2873a1909e4a41b3e6dee6dc5aaab993bbf1ef41f556062a5b377a6a8b167"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sv_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.465,
+      "label": "docs-56",
+      "raw_log": {
+        "size": 2955,
+        "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-56.log",
+        "size": 2955,
+        "sha256": "0e4826a9db5e2e72c2d3a62bfef0d017bacb9a51238353b44b469b7dbd1c5f9b"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 1.72,
+      "label": "docs-57",
+      "raw_log": {
+        "size": 316,
+        "sha256": "48f6cd47027175360704aab24d6a30d021ecc29a00f2ce6a6902b5c468b60eba",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-57.log",
+        "size": 316,
+        "sha256": "48f6cd47027175360704aab24d6a30d021ecc29a00f2ce6a6902b5c468b60eba"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_cpp_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 1.869,
+      "label": "docs-58",
+      "raw_log": {
+        "size": 3593,
+        "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-58.log",
+        "size": 3593,
+        "sha256": "7fd74c4ebf8b2f0a9812a20518981f63c8350a34c535bcde2c7fa6c58fbec2b9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 4.477,
+      "label": "docs-59",
+      "raw_log": {
+        "size": 461,
+        "sha256": "1c4b9ee3e240974d3f67d140529a515a31f06d766dc62a50b1be0a0b808d0331",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-59.log",
+        "size": 461,
+        "sha256": "1c4b9ee3e240974d3f67d140529a515a31f06d766dc62a50b1be0a0b808d0331"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_py_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 4.024,
+      "label": "docs-60",
+      "raw_log": {
+        "size": 2531,
+        "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-60.log",
+        "size": 2531,
+        "sha256": "d7413b83955948950d15e364a901be97cf05148dad38e97be07b2d63eb46406d"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0,
+      "seconds": 0.264,
+      "label": "docs-61",
+      "raw_log": {
+        "size": 235,
+        "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-61.log",
+        "size": 235,
+        "sha256": "7ace602f03fa0e411862de119cff9d337583f1f2170d920dff65a0e0f39ee6d9"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sh_idiom.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.265,
+      "label": "docs-62",
+      "raw_log": {
+        "size": 2461,
+        "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-62.log",
+        "size": 2461,
+        "sha256": "b9af4f07f8aabdddc7af15799e1e06640c7a0a356ef30681b059784e385d3a57"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 0.214,
+      "label": "docs-63",
+      "raw_log": {
+        "size": 167,
+        "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-63.log",
+        "size": 167,
+        "sha256": "617e44ed66b13896b9bf7fa2c76c7242990622e9ced9ba79a693484ad4bd4a77"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_events.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 17.725,
+      "label": "docs-64",
+      "raw_log": {
+        "size": 151471,
+        "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-64.log",
+        "size": 151471,
+        "sha256": "db420a4b83a96d53cefdd88cc69322ed20d7ac02ec28012258d3175fdb7eea37"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "label": "docs-65",
+      "raw_log": {
+        "size": 100,
+        "sha256": "8862c3c4ca0dff440c78c90420ccb1e16ef8832addb83a595e2c2b157d092539",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-65.log",
+        "size": 100,
+        "sha256": "8862c3c4ca0dff440c78c90420ccb1e16ef8832addb83a595e2c2b157d092539"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0,
+      "seconds": 0.415,
+      "label": "docs-66",
+      "raw_log": {
+        "size": 93,
+        "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-66.log",
+        "size": 93,
+        "sha256": "69d45782911c2958be2fef681f849e9b3915293c938de331bb6885dab21fd46c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_archive.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.064,
+      "label": "docs-67",
+      "raw_log": {
+        "size": 35,
+        "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-67.log",
+        "size": 35,
+        "sha256": "83aa5efe967935657a1678bf63262a7c435d29d571cc08dd2ae8cf6f8569d34a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 0.866,
+      "label": "docs-68",
+      "raw_log": {
+        "size": 38,
+        "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-68.log",
+        "size": 38,
+        "sha256": "d7fd5f6ebcdd25e6cf93b623b0fba00cfa32d19c812ce34eb6b8d8b352ac9b32"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0,
+      "seconds": 2.871,
+      "label": "docs-69",
+      "raw_log": {
+        "size": 64,
+        "sha256": "2085cd5b07944246d79457654dfb861a2b81a1c93936c4428b0ac2895b44371e",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-69.log",
+        "size": 64,
+        "sha256": "2085cd5b07944246d79457654dfb861a2b81a1c93936c4428b0ac2895b44371e"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0,
+      "seconds": 5.629,
+      "label": "docs-70",
+      "raw_log": {
+        "size": 94,
+        "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-70.log",
+        "size": 94,
+        "sha256": "fddbe675291483bdeb63f3889244a9ff3eedf33303fdb81d182eaf3966f7357a"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "avdecc/gen_aem_store.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.114,
+      "label": "docs-71",
+      "raw_log": {
+        "size": 3596,
+        "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-71.log",
+        "size": 3596,
+        "sha256": "9f126bf9dfc7cb552a2414b98d2792449dc4ae126395997750d5039cb896f022"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_sweep_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 15.375,
+      "label": "docs-72",
+      "raw_log": {
+        "size": 19678,
+        "sha256": "1f7840f32b811fed467e833080245f426df97962cd04461df27b22d336d9a9f0",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-72.log",
+        "size": 19594,
+        "sha256": "26bc6200e332ccde588df2c31410bfdf64fe66bfa6e0ddf7fa44a9b2909c8a86"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_deploy_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.566,
+      "label": "docs-73",
+      "raw_log": {
+        "size": 9268,
+        "sha256": "e424a100293545585d0d9cd212edab2d524ee6f56cdc0568f1cb9684f6049274",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-73.log",
+        "size": 9226,
+        "sha256": "1adf286f29854f1f75c6333aa89ced6f54776d05fcb93d53b1da8119749dcc3c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_entity_shape.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 56.845,
+      "label": "docs-74",
+      "raw_log": {
+        "size": 25693,
+        "sha256": "016d0ddb5406a250386877b6de32a63744377f51b3c0ed4249a855b6c681ddb2",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-74.log",
+        "size": 25672,
+        "sha256": "ca40578969adf3c37b6ec950a10d98d17ea73df70d1c3059a1512d123b418365"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_em_dash.py",
+        "--base",
+        "e21c1ca024d37ea188ad15b5c8f9c2dae18628df"
+      ],
+      "rc": 0,
+      "seconds": 3.278,
+      "label": "em-dash-final",
+      "raw_log": {
+        "size": 140,
+        "sha256": "c056b47ab7fdebeaec6b27e8a634b76067aa957b0a308e414328527d60a8eda3",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/em-dash-final.log",
+        "size": 140,
+        "sha256": "c056b47ab7fdebeaec6b27e8a634b76067aa957b0a308e414328527d60a8eda3"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.627,
+      "label": "docs-final",
+      "raw_log": {
+        "size": 128,
+        "sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-final.log",
+        "size": 128,
+        "sha256": "a2844e18d0399e9b02d4faad97eef6dbc3fb96e6c9d1486d22602f16ee263c37"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_wire_accountability.py",
+        "--self-test"
+      ],
+      "rc": 0,
+      "seconds": 0.316,
+      "label": "docs-wire",
+      "raw_log": {
+        "size": 4965,
+        "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/docs-wire.log",
+        "size": 4965,
+        "sha256": "bd97b8b53304baf2b912ac2e4ec507e3b8f9ae4c5c2511b5dc69a41d2cbdd3d4"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/ci_scope.py",
+        "--selftest"
+      ],
+      "rc": 0,
+      "seconds": 5.327,
+      "label": "ci-scope",
+      "raw_log": {
+        "size": 6877,
+        "sha256": "cda2e3e13229332d91d0863932d724a7fdeef280c924f262aa43f5d5448c62da",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/ci-scope.log",
+        "size": 6877,
+        "sha256": "cda2e3e13229332d91d0863932d724a7fdeef280c924f262aa43f5d5448c62da"
+      }
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "cce554f64f6bdab1f6d26e5c4d7b46d54d228c52",
+        "HEAD"
+      ],
+      "rc": 0,
+      "seconds": 0.008,
+      "label": "source-diff",
+      "raw_log": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "retained": false
+      },
+      "cwd": "$SOURCE",
+      "normalized_log": {
+        "path": "round7-receipts/source-diff.log",
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0,
+      "seconds": 5.485,
+      "label": "docs-archive",
+      "raw_log": {
+        "size": 196,
+        "sha256": "b6fac800544d394c2bd960b05cb04d06af87d2d8290dba912045f87dfa832b7c",
+        "retained": false
+      },
+      "cwd": "$SCRATCH/committed-source",
+      "normalized_log": {
+        "path": "round7-receipts/docs-archive.log",
+        "size": 196,
+        "sha256": "b6fac800544d394c2bd960b05cb04d06af87d2d8290dba912045f87dfa832b7c"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_feature_status.py"
+      ],
+      "rc": 0,
+      "seconds": 0.966,
+      "label": "docs-archive-feature",
+      "raw_log": {
+        "size": 29,
+        "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+        "retained": false
+      },
+      "cwd": "$SCRATCH/committed-source",
+      "normalized_log": {
+        "path": "round7-receipts/docs-archive-feature.log",
+        "size": 29,
+        "sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0"
+      }
+    }
+  ]
+}
