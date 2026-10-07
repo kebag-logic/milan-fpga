@@ -76,10 +76,12 @@ The contract's single MAAP range filter covers the envelope of live ranges;
 the indexed core performs the exact overlap test.
 Ports return without blocking and must never invoke a core synchronously.
 
-Call `ctrl_app_start_maap` with an allocation callback for the experimental composition.
-It preserves ADP startup, uses separate timer slots and opens ADP plus MAAP.
-MAAP reception enables its interrupt alongside ADP and events.
-The ordinary `ctrl_app_start` remains the ADP-only entry point.
+Call `ctrl_app_start_maap` with an allocation callback for the experimental composition,
+or set the configuration's `maap_allocation`, `maap_ctx` and `maap_preferred`
+([the composition](../README.md#the-composition), lane F3 round 6).
+MAAP attaches after ADP and any ACMP, before the open, on timer slots after ACMP's.
+The open enables MAAP reception's interrupt alongside every other bound channel's and the events'.
+`ctrl_app_start` composes MAAP only when the configuration supplies it.
 No builder placement switch or shipping firmware entry point changes.
 
 [`maap_csr_allocation`](maap_csr.c) names the allocation output interface.
@@ -107,6 +109,8 @@ Feed the processor's MAAP face from the firmware allocation,
 or move ACMP onto the core through F3.
 This is a #664 decision 3 default-flip condition.
 F2 records the dependency; it does not change that wiring.
+F3 composes ACMP on the core beside MAAP, but its talker learns a stream's destination only from the integrator's
+`source` port (`acmp.h`); the app does not feed that port from this allocation.
 
 ## Service evidence
 
@@ -127,7 +131,8 @@ that callback must remain bounded and nonblocking.
 A standalone MAAP loop pass costs at most
 8*(6+48) + 2*(20+48) + interfaces*48 accesses: 616 for one interface, 664 for two.
 The receive bound includes the channel's maximum 64-byte record.
-Other protocol callbacks must be added for a composed loop.
+Composed with ADP and ACMP, a pass costs at most `CTRL_APP_PASS_MAX` (`ctrl_app.h`):
+1,580 accesses for one interface, 1,659 for two.
 
 Tests include event and receive backlog, timer wrap, stale tags, link loss,
 short TX stalls and an 11 ms stall that must fail the original bound after recovery.

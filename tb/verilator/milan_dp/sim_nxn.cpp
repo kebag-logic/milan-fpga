@@ -961,13 +961,16 @@ class NxnDatapathHarness {
         return resp;
     }
     // walk `cyc` cycles with the trunk open, logging every unsolicited or
-    // originated AEM frame - the [NOTIFY] section's observation window
+    // originated AEM frame - the [NOTIFY] section's observation window. A
+    // frame still on the trunk at the last cycle is read to its end (one
+    // frame's beats at most), so a window that ends inside a frame never cuts
+    // it in two and drops it
     void drain_tx(int cyc) {
         std::vector<uint8_t> cur;
         cur.reserve(1514);
         dut->m_axis_mac_tx_tready = 1;
         force_uns_log_realloc();
-        for (int c = 0; c < cyc; c++) {
+        for (int c = 0; c < cyc || (!cur.empty() && c < cyc + 2048); c++) {
             lo();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
                 for (int l = 0; l < 8; l++)

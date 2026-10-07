@@ -5,7 +5,9 @@
 The skeleton is the part of the fabric the contract fixes: the port list, the
 register decode (a storage register for every ``rw`` register, a pulse for
 every ``wo`` register, a read for every readable one), the read multiplexer
-and one ring instance per direction per channel. The leaves it instantiates
+and one ring instance per direction per channel. The bound-talker registers
+are the exception: the skeleton decodes them and ``KL_mbx_rx`` holds them, in
+distributed RAM beside the compare that reads them. The leaves it instantiates
 (``KL_mbx_ring``, ``KL_mbx_rx``, ``KL_mbx_tx``, ``KL_mbx_evt``) are written by
 hand against ``KL_mbx_pkg`` and are the same for every contract.
 
@@ -35,6 +37,13 @@ RO_SOURCES = {
 #: The interface filter registers the skeleton wires into KL_mbx_rx's own_mac_i:
 #: register -> the MAC bits its one field carries, as (msb, lsb).
 OWN_MAC_BITS = {"OWN_MAC_HI": (47, 32), "OWN_MAC_LO": (31, 0)}
+
+#: The bound-talker registers KL_mbx_rx holds behind the skeleton's decode:
+#: register -> the bits its one field carries, as (msb, lsb).
+BOUND_BITS = {"BOUND_EID_HI": (63, 32), "BOUND_EID_LO": (31, 0), "BOUND_EN": (0, 0)}
+
+#: The code KL_mbx_rx's bnd_reg_i gives each bound-talker register.
+BOUND_CODE = {"BOUND_EID_LO": 0, "BOUND_EID_HI": 1, "BOUND_EN": 2}
 
 #: Read-only interface fields; `{i}` is the interface index.
 IF_SOURCES = {
@@ -205,8 +214,44 @@ def _core() -> list[str]:
         "  logic                     evt_pending_w;",
         "  logic [15:0]              filter_mismatch_w;",
         "  logic [MBX_N_IF_C*48-1:0] own_mac_w;      //! OWN_MAC per interface, the filter's `own` destination",
+        "  logic [31:0]              bnd_eid_w;      //! the BOUND_EID word an access names, as KL_mbx_rx stores it",
+        "  logic                     bnd_eid_vld_w;  //! that word was written since the reset (else it reads 0)",
+        "  logic                     bnd_en_w;       //! the BOUND_EN of the entry an access names",
         "",
     ]
+
+
+def _bound_decode(contract: Contract) -> list[str]:
+    """The bound-talker register an offset names: its interface, entry and
+    register by the bit fields of the offset, the strides being powers of two."""
+    named = " || ".join(f"in_entry == {AW}'(MBX_BND_REG_{name}_C)" for name in BOUND_CODE)
+    out = ["  // ---- the bound-talker tables: decoded here, held by KL_mbx_rx -------------------",
+           "  // The strides are powers of two, so an offset's interface and entry are",
+           "  // its bit fields; a hole between the registers names none.",
+           "  logic                  bnd_at_w;      //! the offset names a bound-talker register",
+           "  logic [MBX_IF_W_C-1:0] bnd_if_w;      //! its interface",
+           "  logic [4:0]            bnd_entry_w;   //! its entry (bound_talkers is at most 32)",
+           "  logic [1:0]            bnd_reg_w;     //! 0 BOUND_EID_LO, 1 BOUND_EID_HI, 2 BOUND_EN",
+           "  always_comb begin : bound_decode",
+           f"    logic [{AW}-1:0] rel;",
+           f"    logic [{AW}-1:0] in_entry;",
+           f"    logic [{AW}-1:0] entry;",
+           f"    rel         = off_w - {AW}'(MBX_BND_BASE_C);",
+           f"    in_entry    = rel & {AW}'(MBX_BND_ENTRY_STRIDE_C - 1);",
+           f"    entry       = (rel & {AW}'(MBX_BND_STRIDE_C - 1)) >> $clog2(MBX_BND_ENTRY_STRIDE_C);",
+           "    bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));",
+           "    bnd_entry_w = 5'(entry);",
+           "    bnd_reg_w   = '0;"]
+    for name, code in BOUND_CODE.items():
+        if code:
+            out.append(f"    if (in_entry == {AW}'(MBX_BND_REG_{name}_C)) bnd_reg_w = 2'd{code};")
+    out += [f"    bnd_at_w    = off_w >= {AW}'(MBX_BND_BASE_C)",
+            f"                  && (rel >> $clog2(MBX_BND_STRIDE_C)) < {AW}'(MBX_N_IF_C)",
+            f"                  && entry < {AW}'(MBX_N_BOUND_C)",
+            f"                  && ({named});",
+            "  end : bound_decode",
+            ""]
+    return out
 
 
 def _storage(contract: Contract) -> list[str]:
@@ -298,6 +343,13 @@ def _read_block(contract: Contract) -> list[str]:
                 raise ContractError(f"interface filter register {reg.name}: the skeleton stores rw registers only")
             base = f"MBX_IFF_BASE_C + {i} * MBX_IFF_STRIDE_C + MBX_IFF_REG_{reg.name}_C"
             out.append(f"    if (off_w == {AW}'({base})) reg_rdata_w = 32'({reg.name.lower()}_r[{i}]);")
+    for reg in contract.bnd_registers:
+        if reg.access != "rw":
+            raise ContractError(f"bound-talker register {reg.name}: KL_mbx_rx holds rw registers only")
+    out.append(f"    if (bnd_at_w && bnd_reg_w == 2'd{BOUND_CODE['BOUND_EN']}) reg_rdata_w = "
+               f"{_place('BOUND_EN', 'EN', 'bnd_en_w')};")
+    out.append(f"    if (bnd_at_w && bnd_reg_w != 2'd{BOUND_CODE['BOUND_EN']} && bnd_eid_vld_w) "
+               "reg_rdata_w = bnd_eid_w;")
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
@@ -382,8 +434,8 @@ def _mux_block(contract: Contract) -> list[str]:
     return out
 
 
-def _leaves(contract: Contract) -> list[str]:
-    """The pending levels, the interrupt and the three leaf instances."""
+def _check_wiring(contract: Contract) -> None:
+    """The register sets the skeleton wires into the leaves by name are the contract's."""
     ch_rw = {r.name for r in contract.ch_registers if r.access == "rw"}
     if ch_rw != {"RX_TAIL", "TX_HEAD"}:
         raise ContractError("the skeleton wires RX_TAIL and TX_HEAD into the leaves; the channel rw set changed")
@@ -392,6 +444,24 @@ def _leaves(contract: Contract) -> list[str]:
                                             for name, r in iff.items() for hi, lo in (OWN_MAC_BITS[name],)):
         raise ContractError("the skeleton wires OWN_MAC_HI (MAC[47:32]) and OWN_MAC_LO (MAC[31:0]) into the "
                             "filter; the interface filter registers changed")
+    bnd = {r.name: r for r in contract.bnd_registers}
+    if set(bnd) != set(BOUND_BITS) or any(len(r.fields) != 1 or r.fields[0].lsb != 0 or _bits(r) != hi - lo + 1
+                                          for name, r in bnd.items() for hi, lo in (BOUND_BITS[name],)):
+        raise ContractError("KL_mbx_rx holds BOUND_EID_HI (EID[63:32]), BOUND_EID_LO (EID[31:0]) and BOUND_EN "
+                            "(one bit); the bound-talker registers changed")
+    for name, stride in (("stride", contract.bnd_stride), ("entry_stride", contract.bnd_entry_stride)):
+        if stride & (stride - 1):
+            raise ContractError(f"the bound-talker {name} {stride:#x} is not a power of two: the skeleton decodes "
+                                "an entry by its offset's bit fields")
+    bound = {t.offset for ch in contract.channels for t in ch.terms if t.test == "eq_bound"}
+    if len(bound) > 1:
+        raise ContractError(f"eq_bound terms read the fields at {sorted(bound)}: KL_mbx_rx compares one "
+                            "identity per frame against the bound-talker table")
+
+
+def _leaves(contract: Contract) -> list[str]:
+    """The pending levels, the interrupt and the three leaf instances."""
+    _check_wiring(contract)
     mac = ", ".join(f"{name.lower()}_r[i]" for name in OWN_MAC_BITS)
     status = next(r for r in contract.registers if r.name == "IRQ_STATUS")
     return [
@@ -419,6 +489,15 @@ def _leaves(contract: Contract) -> list[str]:
         "    .ms_tick_p_i     (ms_tick_p_i),", "    .now_ms_i        (now_ms_r),",
         "    .own_eid_i       ({own_eid_hi_r, own_eid_lo_r}),",
         "    .own_mac_i       (own_mac_w),",
+        "    .bnd_req_i       (host_req_i && bnd_at_w),",
+        "    .bnd_we_i        (wr_w && bnd_at_w),",
+        "    .bnd_if_i        (bnd_if_w),",
+        "    .bnd_entry_i     (bnd_entry_w),",
+        "    .bnd_reg_i       (bnd_reg_w),",
+        "    .bnd_wdata_i     (host_wdata_i),",
+        "    .bnd_eid_o       (bnd_eid_w),",
+        "    .bnd_eid_vld_o   (bnd_eid_vld_w),",
+        "    .bnd_en_o        (bnd_en_w),",
         "    .open_i          (filter_en_r[MBX_N_CH_C-1:0]),",
         "    .maap_base_i     ({maap_base_hi_r[15:0], maap_base_lo_r}),",
         "    .maap_count_i    (maap_count_r[15:0]),",
@@ -477,6 +556,7 @@ def _leaves(contract: Contract) -> list[str]:
 
 def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
-    lines = (_banner() + _ports() + _core() + _storage(contract) + _write_block(contract)
-             + _read_block(contract) + _ring_block(contract) + _mux_block(contract) + _leaves(contract))
+    lines = (_banner() + _ports() + _core() + _bound_decode(contract) + _storage(contract)
+             + _write_block(contract) + _read_block(contract) + _ring_block(contract) + _mux_block(contract)
+             + _leaves(contract))
     return "\n".join(lines)

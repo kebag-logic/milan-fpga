@@ -15,42 +15,36 @@ test can see the defect. A mutant may name further (arm, test, words) kills in
 
 from __future__ import annotations
 
+import re
 import shutil
-from dataclasses import dataclass
 from pathlib import Path
 
+import acmp_mutants
 import ctrl_arms
 import fw_gtest
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, Outcome, Refusal, Tree
+from ctrl_mutant import Mutant
 
 
-@dataclass(frozen=True)
-class Mutant:
-    """One planted defect."""
-
-    name: str
-    path: str
-    old: str
-    new: str
-    arm: str
-    test: str
-    needle: str
-    also: tuple[tuple[str, str, str], ...] = ()
-
-    def kills(self) -> tuple[tuple[str, str, str], ...]:
-        """Every (arm, test, words) that must fail on this defect."""
-        return ((self.arm, self.test, self.needle), *self.also)
-
-
-#: ctrl_app_start from the pool's bind to the mailbox's open: the app binds
-#: lwSRP's pool before anything reads the mailbox window. (Lane FC: the open
-#: now also takes every interface's own MAC.)
+#: ctrl_app_compose and ctrl_app_open, from the pool's bind to the mailbox's
+#: open: the app binds lwSRP's pool before anything reads the mailbox window.
+#: (Lane FC: the open also takes every interface's own MAC. Lane F3: the boot
+#: is two calls, compose then open, with ACMP composed after ADP, and since
+#: round 6 lane F2's MAAP after ACMP; the defect is unchanged.)
 APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, cfg->sink_ctx);\n"
              "\tctrl_loop_init(&app->loop);\n"
              "\tif (!adp_mbx_init(&app->adp, cfg->entity, CTRL_APP_ADP_FIRST_SLOT, "
              "cfg->current_configuration_index) ||\n"
              "\t    !adp_mbx_attach(&app->adp, &app->loop)) {\n\t\treturn false;\n\t}\n"
+             "\t// ACMP stands in front of ADP's binding of the adp channel, so it comes\n"
+             "\t// after it\n"
+             "\tif (cfg->acmp != NULL &&\n"
+             "\t    (!acmp_mbx_init(&app->acmp, cfg->acmp, cfg->acmp_env, CTRL_APP_ACMP_FIRST_SLOT) ||\n"
+             "\t     !acmp_mbx_attach(&app->acmp, &app->loop))) {\n\t\treturn false;\n\t}\n"
+             "\treturn cfg->maap_allocation == NULL || maap_compose(app, cfg);\n"
+             "}\n\n"
+             "bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)\n{\n"
              "\t// ADP sends the entity's one MAC on every interface (adp.c), so it is\n"
              "\t// every interface's own unicast address\n"
              "\tuint64_t own_mac[MBX_N_IF];\n"
@@ -217,7 +211,8 @@ MUTANTS = (
     Mutant("events-halved", "loop/ctrl_loop.c", "while (n < CTRL_LOOP_EVENTS_PER_PASS && mbx_event_take(&ev)) {",
            "while (n < CTRL_LOOP_EVENTS_PER_PASS / 2u && mbx_event_take(&ev)) {",
            "adp", "AdpBacklog.F0toF7FullBacklogs",
-           "F2 all 16 event records are taken by pass"),
+           "F2 all 16 event records are taken by pass",
+           (("acmp", "AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound", "F1 every event is taken by pass 2"),)),
     Mutant("rx-before-events", "loop/ctrl_loop.c",
            "\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n"
            "\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n",
@@ -376,7 +371,9 @@ MUTANTS = (
     # 3. own unicast is the arrival interface's MAC, never any unicast
     Mutant("model-own-any-unicast", "host/mbx_model.c", "&& dst == mac &&",
            "&& (dst == mac || (tuple_dst[j] == MBX_DST_OWN && ((dst >> 40) & 1u) == 0u)) &&",
-           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (aecp, command)"),
+           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (aecp, command)",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+             "B2 a foreign unicast is refused"),)),
     Mutant("model-own-mac-of-interface-0", "host/mbx_model.c",
            "if (tuple_dst[j] == MBX_DST_OWN && interface < MBX_N_IF) {\n\t\t*mac = m->own_mac[interface];",
            "if (tuple_dst[j] == MBX_DST_OWN) {\n\t\t(void)interface;\n\t\t*mac = m->own_mac[0];",
@@ -395,10 +392,12 @@ MUTANTS = (
     Mutant("model-mismatch-never-counted", "host/mbx_model.c", "\t*mismatch = control;",
            "\t*mismatch = control && false;",
            "model", MODEL_GROUP + "TupleRejections",
-           "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once"),
+           "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+             "B2 and counted once in FILTER_MISMATCH"),)),
     Mutant("model-mismatch-counts-identity-refusals", "host/mbx_model.c",
-           "\tif (!rule_passes(m, c, frame, len)) {\n\t\treturn false;",
-           "\tif (!rule_passes(m, c, frame, len)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
+           "\tif (!rule_passes(m, c, frame, len, interface)) {\n\t\treturn false;",
+           "\tif (!rule_passes(m, c, frame, len, interface)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
            "\t\treturn false;",
            "model", MODEL_GROUP + "TupleRejections",
            "Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it"),
@@ -445,8 +444,25 @@ MUTANTS = (
            "port", "LoopBring.L1OpenOrder", "L1 every interface's OWN_MAC is written before any channel opens"),
     Mutant("app-own-mac-not-the-entity-mac", "app/ctrl_app.c", "\t\town_mac[i] = cfg->entity->mac;\n",
            "\t\town_mac[i] = cfg->entity->mac & 0xFFFFFFFFull;\n",
-           "unit", "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens", "OWN_MAC is the entity's MAC"),
-)
+           "unit", "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens", "OWN_MAC is the entity's MAC",
+           (("acmp", "AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused",
+             "B2 a command to this interface's own unicast MAC passes"),)),
+) + acmp_mutants.MUTANTS
+
+
+#: Lane F3's test sources. Every test in them is named by at least one defect,
+#: which `unnamed_tests` proves before any is planted (the rule lane F1's
+#: store suite proves with nvm_mutants.unnamed_checks).
+NAMED_SOURCES = ("test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+
+
+def unnamed_tests(test_dir: Path = Path(__file__).resolve().parent) -> list[str]:
+    """The tests of NAMED_SOURCES no defect names: a test with no planted
+    defect is unproven. A parameterised test is named through any instance."""
+    named = {t.split("/")[1] if "/" in t else t for m in MUTANTS for _, t, _ in m.kills()}
+    tests = [f"{suite}.{name}" for src in NAMED_SOURCES
+             for suite, name in re.findall(r"^TEST(?:_F|_P)?\((\w+), (\w+)\)", (test_dir / src).read_text(), re.M)]
+    return [t for t in tests if t not in named]
 
 
 MUTANTS += maap_mutants(Mutant)
@@ -512,18 +528,33 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
     return escaped
 
 
-def campaign(root: Path, reuse: Path, jobs: int) -> bool:
-    """Plant every mutant; True when one escaped. One build serves every
-    copy, so a test object is compiled again only where a planted header
-    changes what it sees."""
+def sliced(part: tuple[int, int]) -> tuple[Mutant, ...]:
+    """Slice k of n of the table, contiguous and in table order: every mutant
+    is in exactly one slice, so n runs together plant the whole table."""
+    k, n = part
+    size = -(-len(MUTANTS) // n)
+    return MUTANTS[(k - 1) * size:k * size]
+
+
+def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1)) -> bool:
+    """Plant every mutant of slice `part` (k of n; the whole table by
+    default); True when one escaped. One build serves every copy, so a test
+    object is compiled again only where a planted header changes what it
+    sees."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
-            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+            "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "acmp": ctrl_arms.arm_acmp,
+            "acmpwalk": ctrl_arms.arm_acmpwalk, "acmpnvm": ctrl_arms.arm_acmpnvm, "acmpif2": ctrl_arms.arm_acmpif2,
+            "entity": ctrl_arms.arm_entity,
             "maap": ctrl_arms.arm_maap, "maap_debug": ctrl_arms.arm_maap_debug, "maap_if2": ctrl_arms.arm_maap_if2,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
             "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
     build = fw_gtest.Build(jobs=jobs)
+    unnamed = unnamed_tests()
+    for test in unnamed:
+        print(f"[ESCAPED] no defect names the test {test}")
     escaped = 0
-    for m in MUTANTS:
+    table = sliced(part)
+    for m in table:
         tree = Tree(plant(m, root), root / m.name / "build", reuse, build)
         missed = []
         fails: list[str] = []
@@ -541,5 +572,7 @@ def campaign(root: Path, reuse: Path, jobs: int) -> bool:
             print(f"    first: {fails[0]}")
         escaped += 0 if not missed else 1
         shutil.rmtree(root / m.name, ignore_errors=True)
-    print(f"mutants: {len(MUTANTS) - escaped} of {len(MUTANTS)} caught")
-    return escaped != 0
+    where = "" if part == (1, 1) else f" (slice {part[0]} of {part[1]} of {len(MUTANTS)})"
+    print(f"mutants: {len(table) - escaped} of {len(table)} caught{where}"
+          f"{'' if not unnamed else f'; {len(unnamed)} test(s) named by no defect'}")
+    return escaped != 0 or bool(unnamed)
