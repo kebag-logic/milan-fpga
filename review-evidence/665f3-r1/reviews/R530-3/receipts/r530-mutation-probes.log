@@ -1,0 +1,20 @@
+[CAUGHT] owed-probe-sets-no-timer-kind: rc=1 
+    [  FAILED  ] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort (0 ms) 
+    [  FAILED  ] AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves (0 ms)
+[CAUGHT] no-resp-from-send-keeps-the-cached-clock: rc=1 
+    [  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms) 
+    [  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[CAUGHT] duplicate-only-from-the-cached-clock: rc=1 
+    [  FAILED  ] AcmpCore.A30ADuplicateTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[CAUGHT] initial-only-from-the-cached-clock: rc=1 
+    [  FAILED  ] AcmpCore.A30ATimerDueAfterAnEarlierSinksSendIsTakenInTheSameExpiry (0 ms)
+[CAUGHT] poll-timer-from-a-clock-read-before-its-send: rc=1 
+    [  FAILED  ] AcmpCore.A30AProbeTakenAtOnceRunsFromTheClockAfterItsSend (0 ms)
+[CAUGHT] taken-probe-199ms: rc=1 
+    [  FAILED  ] AcmpCore.A1BindFromUnboundRespondsThenProbes (0 ms) 
+    [  FAILED  ] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp (0 ms) 
+    [  FAILED  ] AcmpCore.A12DelaySendsANewProbe (0 ms) 
+    [  FAILED  ] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches (0 ms) 
+    [  FAILED  ] AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap (0 ms) 
+    [  FAILED  ] AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap (0 ms)
+[SURVIVED] lost-probe-rereads-the-clock (expected equivalent): rc=0

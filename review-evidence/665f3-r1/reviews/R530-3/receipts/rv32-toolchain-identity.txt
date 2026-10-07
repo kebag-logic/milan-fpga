@@ -1,0 +1,21 @@
+# [R530] R530-3 RV32 toolchain identity for ctrl_image.py
+pinned archive (scripts/ci_rv32_sdk.py ARCHIVE_SHA256): ARCHIVE_SHA256 = "d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f"
+archive used for the extraction: d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f
+== PINNED SDK (fresh extraction of the pinned archive)
+version: riscv32-linux-gcc.br_real (Buildroot 2021.11-18033-g83947c7bb6) 14.3.0
+multilibs: .; 
+libgcc sha256: d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58
+libgcc ELF flags:  Flags: 0x4, double-float ABI
+== LOCAL ~/br-milan-rv32/host toolchain (not the pinned archive)
+version: riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0
+multilibs: .; 
+libgcc sha256: faef00acffa378a84c98c04cb6e548ed3881d7f90048f998f2efaf02c5cb280a
+libgcc ELF flags:  Flags: 0x0
+== libgcc helpers the composed image's objects need (from the head's objects):
+  acmp_acmp.o: __lshrdi3 
+  adp_adp.o: __lshrdi3 __mulsi3 
+  plat_nvm_flash_litespi.o: __muldi3 __udivdi3 __umoddi3 
+  port_ctrl_pool.o: __mulsi3 __udivsi3 __umodsi3 
+== ctrl_image.py is invoked by no gate or workflow:
+  (no match outside the tool itself)
+== libgcc input sections in the head image (shipping shape, local toolchain), from its link map: text 2704 bytes, rodata 256 bytes

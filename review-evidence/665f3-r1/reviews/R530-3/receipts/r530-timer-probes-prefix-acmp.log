@@ -1,0 +1,69 @@
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from R530Timers
+[ RUN      ] R530Timers.OwedDuplicateRunsFromThePollsSend
+[       OK ] R530Timers.OwedDuplicateRunsFromThePollsSend (0 ms)
+[ RUN      ] R530Timers.OwedDuplicateTimesOutAtTheFullInterval
+[       OK ] R530Timers.OwedDuplicateTimesOutAtTheFullInterval (0 ms)
+[ RUN      ] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend
+$PACKET/scripts/r530_timer_probes.cpp:72: Failure
+Expected equality of these values:
+  r.a.sinks[0].timer_deadline
+    Which is: 1400
+  fk.sent[0].at + 200u
+    Which is: 1405
+
+  [FAIL] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend:     Which is: 1405
+$PACKET/scripts/r530_timer_probes.cpp:73: Failure
+Expected equality of these values:
+  r.a.sinks[1].timer_deadline
+    Which is: 1400
+  fk.sent[1].at + 200u
+    Which is: 1410
+
+  [FAIL] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend:     Which is: 1410
+$PACKET/scripts/r530_timer_probes.cpp:75: Failure
+Value of: fk.armed[0] && fk.at[0] == fk.sent[0].at + 200u
+  Actual: false
+Expected: true
+the interface timer at the earliest
+
+  [FAIL] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend: the interface timer at the earliest
+[  FAILED  ] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend (0 ms)
+[ RUN      ] R530Timers.SendAcrossTheWrap
+$PACKET/scripts/r530_timer_probes.cpp:82: Failure
+Expected equality of these values:
+  r.a.sinks[0].timer_deadline
+    Which is: 194
+  at + 200u
+    Which is: 204
+
+  [FAIL] R530Timers.SendAcrossTheWrap:     Which is: 204
+$PACKET/scripts/r530_timer_probes.cpp:84: Failure
+Expected equality of these values:
+  r.a.sinks[0].state
+    Which is: 4
+  ACMP_PRB_W_RESP
+    Which is: 3
+
+  [FAIL] R530Timers.SendAcrossTheWrap:     Which is: 3
+[  FAILED  ] R530Timers.SendAcrossTheWrap (0 ms)
+[ RUN      ] R530Timers.LostProbeRunsFromTheAttempt
+[       OK ] R530Timers.LostProbeRunsFromTheAttempt (0 ms)
+[ RUN      ] R530Timers.RebindWhileOwedStartsOnlyOnTheCurrentProbe
+[       OK ] R530Timers.RebindWhileOwedStartsOnlyOnTheCurrentProbe (0 ms)
+[ RUN      ] R530Timers.UnbindWhileOwedLeavesNoTimer
+[       OK ] R530Timers.UnbindWhileOwedLeavesNoTimer (0 ms)
+[----------] 7 tests from R530Timers (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend
+[  FAILED  ] R530Timers.SendAcrossTheWrap
+
+ 2 FAILED TESTS
+== R530-3 moving-clock TMR_NO_RESP probes: checks: 7   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 7 checks, exit 1)

@@ -1,0 +1,25 @@
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from R530Timers
+[ RUN      ] R530Timers.OwedDuplicateRunsFromThePollsSend
+[       OK ] R530Timers.OwedDuplicateRunsFromThePollsSend (0 ms)
+[ RUN      ] R530Timers.OwedDuplicateTimesOutAtTheFullInterval
+[       OK ] R530Timers.OwedDuplicateTimesOutAtTheFullInterval (0 ms)
+[ RUN      ] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend
+[       OK ] R530Timers.TwoDuplicatesInOneExpiryEachFromItsOwnSend (0 ms)
+[ RUN      ] R530Timers.SendAcrossTheWrap
+[       OK ] R530Timers.SendAcrossTheWrap (0 ms)
+[ RUN      ] R530Timers.LostProbeRunsFromTheAttempt
+[       OK ] R530Timers.LostProbeRunsFromTheAttempt (0 ms)
+[ RUN      ] R530Timers.RebindWhileOwedStartsOnlyOnTheCurrentProbe
+[       OK ] R530Timers.RebindWhileOwedStartsOnlyOnTheCurrentProbe (0 ms)
+[ RUN      ] R530Timers.UnbindWhileOwedLeavesNoTimer
+[       OK ] R530Timers.UnbindWhileOwedLeavesNoTimer (0 ms)
+[----------] 7 tests from R530Timers (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 7 tests.
+== R530-3 moving-clock TMR_NO_RESP probes: checks: 7   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (7 tests, 0 failures, exit 0)

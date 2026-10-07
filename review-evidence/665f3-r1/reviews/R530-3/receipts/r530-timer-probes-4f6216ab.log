@@ -1,0 +1,89 @@
+Traceback (most recent call last):
+  File "$PACKET/scripts/run_r530_probes.py", line 11, in <module>
+    o += fw_gtest.compile_tests(t.build, b.includes(t), [test], t.out / 'tests')
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree-4f6216ab/sw/firmware/gtest/fw_gtest.py", line 150, in compile_tests
+    compile_many(build, todo)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "$PACKET/scratch/tree-4f6216ab/sw/firmware/gtest/fw_gtest.py", line 114, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "$PACKET/scratch/tree-4f6216ab/sw/firmware/gtest/fw_gtest.py", line 106, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: r530_timer_probes.cpp does not compile:
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘uint32_t {anonymous}::Rig::last_probe_at() const’:
+$PACKET/scripts/r530_timer_probes.cpp:31:81: error: ‘struct acmp_test::Sent’ has no member named ‘at’
+   31 |             if ((it->bytes[15] & 15u) == spec::MSG_PROBE_TX_COMMAND) return it->at;
+      |                                                                                 ^~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_OwedDuplicateRunsFromThePollsSend_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:43:40: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   43 |     fk.now = 1250u; fk.room = true; fk.send_ms = 5u; fk.clear();
+      |                                        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp:46:41: error: ‘__gnu_cxx::__alloc_traits<std::allocator<acmp_test::Sent>, acmp_test::Sent>::value_type’ {aka ‘struct acmp_test::Sent’} has no member named ‘at’
+   46 |     const std::uint32_t at = fk.sent[0].at; ASSERT_EQ(at, 1255u);
+      |                                         ^~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_OwedDuplicateTimesOutAtTheFullInterval_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:57:40: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   57 |     fk.now = 1250u; fk.room = true; fk.send_ms = 5u; (void)acmp_poll(&r.a);
+      |                                        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp:58:8: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   58 |     fk.send_ms = 0u; fk.clear(); fk.now = 1455u; acmp_timer_expired(&r.a, 0);
+      |        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_TwoDuplicatesInOneExpiryEachFromItsOwnSend_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:69:24: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   69 |     fk.now = 1200u; fk.send_ms = 5u; fk.clear(); acmp_timer_expired(&r.a, 0);
+      |                        ^~~~~~~
+In file included from /usr/include/gtest/gtest.h:72,
+                 from $PACKET/scripts/r530_timer_probes.cpp:3:
+$PACKET/scripts/r530_timer_probes.cpp:72:55: error: ‘__gnu_cxx::__alloc_traits<std::allocator<acmp_test::Sent>, acmp_test::Sent>::value_type’ {aka ‘struct acmp_test::Sent’} has no member named ‘at’
+   72 |     EXPECT_EQ(r.a.sinks[0].timer_deadline, fk.sent[0].at + 200u);
+      |                                                       ^~
+$PACKET/scripts/r530_timer_probes.cpp:73:55: error: ‘__gnu_cxx::__alloc_traits<std::allocator<acmp_test::Sent>, acmp_test::Sent>::value_type’ {aka ‘struct acmp_test::Sent’} has no member named ‘at’
+   73 |     EXPECT_EQ(r.a.sinks[1].timer_deadline, fk.sent[1].at + 200u);
+      |                                                       ^~
+$PACKET/scripts/r530_timer_probes.cpp:74:26: error: ‘__gnu_cxx::__alloc_traits<std::allocator<acmp_test::Sent>, acmp_test::Sent>::value_type’ {aka ‘struct acmp_test::Sent’} has no member named ‘at’
+   74 |     EXPECT_EQ(fk.sent[1].at, 1210u);
+      |                          ^~
+In file included from /usr/include/gtest/gtest-printers.h:126,
+                 from /usr/include/gtest/gtest-matchers.h:51,
+                 from /usr/include/gtest/internal/gtest-death-test-internal.h:48,
+                 from /usr/include/gtest/gtest-death-test.h:43,
+                 from /usr/include/gtest/gtest.h:65:
+$PACKET/scripts/r530_timer_probes.cpp:75:55: error: ‘__gnu_cxx::__alloc_traits<std::allocator<acmp_test::Sent>, acmp_test::Sent>::value_type’ {aka ‘struct acmp_test::Sent’} has no member named ‘at’
+   75 |     EXPECT_TRUE(fk.armed[0] && fk.at[0] == fk.sent[0].at + 200u) << "the interface timer at the earliest";
+      |                                                       ^~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_SendAcrossTheWrap_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:79:31: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   79 |     Rig r(1, 0xFFFFFFF0u); fk.send_ms = 10u; r.bind(0);
+      |                               ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp:83:8: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   83 |     fk.send_ms = 0u; fk.now = at + 199u; acmp_timer_expired(&r.a, 0);
+      |        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_LostProbeRunsFromTheAttempt_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:99:24: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+   99 |     fk.room = true; fk.send_ms = 5u; for (int i = 0; i < 8; ++i) (void)acmp_poll(&r.a);
+      |                        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp:101:8: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+  101 |     fk.send_ms = 0u; fk.now = 3200u; fk.clear(); acmp_timer_expired(&r.a, 0);
+      |        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_RebindWhileOwedStartsOnlyOnTheCurrentProbe_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:112:24: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+  112 |     fk.room = true; fk.send_ms = 5u;
+      |                        ^~~~~~~
+$PACKET/scripts/r530_timer_probes.cpp:121:84: error: ‘const struct acmp_test::Sent’ has no member named ‘at’
+  121 |         if (p.msg == spec::MSG_PROBE_TX_COMMAND && p.seq == second) current_at = f.at;
+      |                                                                                    ^~
+$PACKET/scripts/r530_timer_probes.cpp: In member function ‘virtual void {anonymous}::R530Timers_UnbindWhileOwedLeavesNoTimer_Test::TestBody()’:
+$PACKET/scripts/r530_timer_probes.cpp:132:24: error: ‘struct acmp_test::Fake’ has no member named ‘send_ms’
+  132 |     fk.room = true; fk.send_ms = 5u; while (r.a.owed_count) (void)acmp_poll(&r.a);
+      |                        ^~~~~~~
+

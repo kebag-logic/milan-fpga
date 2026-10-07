@@ -1,0 +1,61 @@
+# 2026-10-07T13:02:46+02:00 cwd=$CLONE head=abb3a78a12c29ff13ee7f71a00b387a6c91dc361
+# cmd: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+endstation_arty_4x4          clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2190 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_4x4): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=12124 data=24 bss=5452 stage=4816 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_arty_8ch          clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_8ch): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=12124 data=24 bss=8012 stage=7376 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_arty_current      clock=83333000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_arty_current): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  rv32 at 83333000 Hz: text=12116 data=24 bss=3160 stage=2524 payload=66 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_ax7101_1x1_tdm8   clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_1x1_tdm8): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_1x1_tdm8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  longest service call, model time: 0 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a build whose record walk and sizes disagree: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  longest service call, model time: 167 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, a shape with no name record: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm LiteSPI port (command master and timer0 mocked): checks: 3   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+  == NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  rv32 at 100000000 Hz: text=12132 data=24 bss=4048 stage=3344 payload=136 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+endstation_ax7101_8x8        clock=100000000 Hz
+  longest service call, model time: 210 us with no stall armed, 2189 us with a command-master stall
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  longest service call, model time: 210 us with no stall armed, 0 us with a command-master stall
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+  rv32 at 100000000 Hz: text=12136 data=24 bss=14408 stage=13264 payload=576 chunk=256 store=288 clock=20 (bytes)
+  largest static frame: 128 bytes (not a call-chain bound)
+saved-state store gate (#665 F1): OK across 5 shape(s), 435 tests

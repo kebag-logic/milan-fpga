@@ -1,0 +1,40 @@
+# 2026-10-07T12:47:42+02:00 head=abb3a78a12c29ff13ee7f71a00b387a6c91dc361 MILAN_RV32_CC=$HOME/br-milan-rv32/host/bin/riscv32-linux-gcc (local Buildroot 2026.05, NOT the pinned SDK)
+compiler: $HOME/br-milan-rv32/host/bin/riscv32-linux-gcc, riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0
+shape endstation_ax7101_1x1_tdm8: 2 STREAM_INPUTs, 2 STREAM_OUTPUTs
+  section         head      base     delta
+  text          29,812    18,960   +10,852
+  rodata           992       956       +36
+  data              16        16        +0
+  bss           11,280     6,432    +4,848
+  total         42,100    26,364   +15,736
+  load image (text + rodata + data) 30,820; with bss 42,100 of the 131,072-byte budget (32.1 %), the stack not counted
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  static objects of 64 bytes or more:
+    app                        6,800
+    nvm_stage                  3,344
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    nvm_payload                  136
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 6,800, acmp 4,720, loop 1,748, pool 204, adp 124
+shape endstation_ax7101_8x8: 9 STREAM_INPUTs, 9 STREAM_OUTPUTs
+  section         head      base     delta
+  text          29,816    18,964   +10,852
+  rodata           992       956       +36
+  data              16        16        +0
+  bss           21,648    16,784    +4,864
+  total         52,472    36,720   +15,752
+  load image (text + rodata + data) 30,824; with bss 52,472 of the 131,072-byte budget (40.0 %), the stack not counted
+  C-runtime stand-ins in text: 64 bytes (libbase's in the SoC image)
+  static objects of 64 bytes or more:
+    nvm_stage                 13,264
+    app                        6,800
+    nvm_payload                  576
+    nvm                          288
+    arena                        256
+    nvm_chunk                    256
+    acmp_cfg                      88
+  struct ctrl_app, by part (sizeof): app 6,800, acmp 4,720, loop 1,748, pool 204, adp 124
+base: d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+rc=0

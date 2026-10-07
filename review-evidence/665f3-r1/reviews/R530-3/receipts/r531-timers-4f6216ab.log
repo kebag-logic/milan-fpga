@@ -1,0 +1,62 @@
+# 2026-10-07T12:49:50+02:00 cwd=$PACKET/scratch/tree-4f6216ab head=
+# cmd: python3 $PACKET/scratch/r531probe/run_timer_probes.py $PACKET/scratch/tree-4f6216ab $PACKET/scratch/r531probe-base
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from ReviewerTimers
+[ RUN      ] ReviewerTimers.InitialImmediateSendStartsAtAcceptance
+$PACKET/scratch/r531probe-base/scripts/independent_timers.cpp:31: Failure
+Expected equality of these values:
+  r.a.sinks[0].timer_deadline
+    Which is: 1200
+  last_send+200u
+    Which is: 1205
+initial command must receive 200 ms after accepted send
+
+  [FAIL] ReviewerTimers.InitialImmediateSendStartsAtAcceptance: initial command must receive 200 ms after accepted send
+[  FAILED  ] ReviewerTimers.InitialImmediateSendStartsAtAcceptance (0 ms)
+[ RUN      ] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance
+$PACKET/scratch/r531probe-base/scripts/independent_timers.cpp:38: Failure
+Expected equality of these values:
+  r.a.sinks[0].timer_deadline
+    Which is: 1400
+  last_send+200u
+    Which is: 1405
+duplicate must receive 200 ms after accepted send
+
+  [FAIL] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance: duplicate must receive 200 ms after accepted send
+$PACKET/scratch/r531probe-base/scripts/independent_timers.cpp:41: Failure
+Expected equality of these values:
+  r.a.sinks[0].state
+    Which is: 5
+  ACMP_PRB_W_RESP2
+    Which is: 4
+199 ms after duplicate acceptance is not a timeout
+
+  [FAIL] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance: 199 ms after duplicate acceptance is not a timeout
+$PACKET/scratch/r531probe-base/scripts/independent_timers.cpp:48: Failure
+Expected equality of these values:
+  r.a.sinks[0].state
+    Which is: 5
+  ACMP_SETTLED_NO_RSV
+    Which is: 6
+matching success 199 ms after duplicate acceptance must settle
+
+  [FAIL] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance: matching success 199 ms after duplicate acceptance must settle
+[  FAILED  ] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance (0 ms)
+[ RUN      ] ReviewerTimers.DeferredSendUsesFreshPostAcceptanceClock
+[       OK ] ReviewerTimers.DeferredSendUsesFreshPostAcceptanceClock (0 ms)
+[ RUN      ] ReviewerTimers.ZeroElapsedSendPositiveControl
+[       OK ] ReviewerTimers.ZeroElapsedSendPositiveControl (0 ms)
+[----------] 4 tests from ReviewerTimers (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] ReviewerTimers.InitialImmediateSendStartsAtAcceptance
+[  FAILED  ] ReviewerTimers.DuplicateImmediateSendStartsAtAcceptance
+
+ 2 FAILED TESTS
+== R531 accepted-send deadline probes: checks: 4   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 4 checks, exit 1)

@@ -1,0 +1,9 @@
+# 2026-10-07T12:57:44+02:00 cwd=$PACKET/scratch/tree-head head=
+# cmd: python3 -B $PACKET/scripts/r530_mbx_mutants.py $PACKET/scratch/tree-head $PACKET/scratch/r530mbx
+[CAUGHT] r530-live-en-of-interface-0 (ifs 2, host 0): 5 check(s) failed; first: [FAIL] Q13 a talker bound on interface i passes on interface i got=1 exp=2
+[CAUGHT] r530-compare-interface-0-identities (ifs 2, host 0): 2 check(s) failed; first: [FAIL] Q13 a talker bound on interface i passes on interface i got=1 exp=2
+[ESCAPED] r530-if-latched-every-byte (ifs 1, host 0): 0 check(s) failed; first: RESULT: PASS
+[ESCAPED] r530-if-latched-every-byte-if2 (ifs 2, host 0): 0 check(s) failed; first: RESULT: PASS
+[CAUGHT] r530-host-entry-ignores-interface (ifs 2, host 0): 7 check(s) failed; first: [FAIL] R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+[ESCAPED] r530-no-table-index-not-refused (ifs 2, host 0): 0 check(s) failed; first: RESULT: PASS
+[CAUGHT] r530-verdict-presented-interface-axil-if2 (ifs 2, host 1): 2 check(s) failed; first: [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=2
