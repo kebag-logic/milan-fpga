@@ -1,0 +1,931 @@
+[
+ {
+  "name": "startup-vid",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.StartupDeclaresTalkersDomainAndVlan"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "short-leave",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "asking-is-ready",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.RegisteredListenerSubtypeChangeRevokesPermission"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "ignore-link",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.InterfaceStateDoesNotCross"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "failed-listener-ready",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "ignore-peer-domain",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.DomainUsesPeerPriorityAndVlan"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "rx-overtakes-owed",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.RefusedMailboxRetainsOwedFrameAndDefersInput"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "rx-overtakes-expiry",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ExpiryBacklogPrecedesSamePassReceive"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "reentry-uncounted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ReentryFromOutputIsRefusedAndCounted"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "invalid-vid",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.InvalidBindingsAndDuplicateBindingsPreserveState"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "failed-init-leaks",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "missing-port-accepted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.MissingBootDependenciesRefuseBeforeAttachment"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "attach-nonatomic",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "malformed-uncounted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.InvalidFramesHaveNoReservationSideEffects"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "reset-skips-recreate",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.RecreateAllocationFailureIsCountedAndRetried"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "readyfailed-ignored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ReadyFailedAndUninterestingStreamsAreSeparated"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "foreign-domain-stored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.DomainFilterAndDuplicateDoNotGrowDeclarations"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "foreign-vlan-stored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.MvrpAcceptsOnlyCurrentDomainVid"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "sink-da-ignored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "admission-ceiling-ignored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AdmissionUsesBandwidthAndEthernetMinimum"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "domain-refusal-lost",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.DomainExhaustionPreservesOldDeclarationUntilRetry"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "listener-refusal-lost",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "other-link-cancels-owed",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.LinkLossCancelsItsOwedFrameOnly"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "duplicate-tick-owner",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.OneLoopOwnsTheGlobalCentisecondDispatch"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "binding-debug-guard",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "receive-debug-guard",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "tick-debug-guard",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "licence-before-vlan",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ListenerBeforeVlanCommitCannotStartTalker"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "unbind-shared-listener",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "withdraw-bound-domain",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.BoundOldDomainVlanSurvivesDomainChange"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "withdraw-same-domain",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.PriorityOnlyDomainChangeKeepsVlanMembership"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "sink-vlan-refusal-lost",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "ready-before-vlan",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkMembershipCommitsBeforeReadyAtStartup"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "latency-missing-startup",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "latency-domain-unserviced",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "latency-leave-origin",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "latency-relaxed-budget",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "walk-domain-ignored",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "walk-match-da-ignored",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "walk-leave-shortened",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "walk-startup-is-join",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "walk-malformed-uncounted",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "shape-last-output-missing",
+  "kind": "author-skip",
+  "rows": []
+ },
+ {
+  "name": "tag-overhead-omitted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AdmissionStraddlesTheExactEthernetCeiling"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "preamble-ifg-omitted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AdmissionStraddlesTheExactEthernetCeiling"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "ninety-percent-ceiling",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AdmissionStraddlesTheExactEthernetCeiling"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "readyfailed-callback-stop",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "short-link-interruption-ignored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "old-prefix-accepted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "shared-identity-overwritten",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "event-reentry-unguarded",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.EventReentryAndSinkCapacityAreGuarded"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "failed-interface-starves-peer",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.RecreateAllocationFailureIsCountedAndRetried"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "backlogged-old-prefix-accepted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "link-level-loss-ignored",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.LinkLevelLossAndFirstDownEventAreFailClosed"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "reset-leaks-owned-participants",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "downlink-receive-accepted",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "delayed-in-listener",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.InListenerWithdrawalRevokesLicenceImmediately"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "delayed-in-talker",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.InTalkerWithdrawalImmediatelyWithdrawsListener"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "attach-ignores-current-link",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "cancelled-link-never-recovers",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "rebind-loses-shared-applicant",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "consecutive-rebind-loses-applicant",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "last-ineligible-vid-leaks",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "reset-keeps-owed-domain",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.RefusedPeerDomainDoesNotSurviveLinkRestart"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "reset-keeps-sink-vlan",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "shared-ready-uses-first-vlan",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ },
+ {
+  "name": "milan-rapid-leave-leaks-to-mvrp",
+  "kind": "author",
+  "rows": [
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline"
+    ],
+    "passed": 0,
+    "caught": true
+   }
+  ]
+ }
+]

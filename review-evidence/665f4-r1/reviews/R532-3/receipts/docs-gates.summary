@@ -1,0 +1,11 @@
+0 :: python3 docs/diagrams/submodule_boundaries.gen.py --check
+0 :: python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+0 :: python3 scripts/check_submodule_docs.py
+0 :: python3 scripts/check_submodule_docs.py --selftest
+0 :: python3 scripts/docs_check.py
+0 :: python3 scripts/check_doc_style.py
+0 :: python3 scripts/check_diagram_pngs.py
+0 :: python3 docs/DOC_MAP.gen.py --check
+2 :: python3 scripts/check_em_dash.py --base d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+0 :: python3 scripts/check_solution_docs.py
+0 :: python3 docs/traceability/gen_module_matrix.py --check

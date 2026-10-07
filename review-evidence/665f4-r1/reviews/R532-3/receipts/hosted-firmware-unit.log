@@ -1,0 +1,179 @@
+﻿2026-10-07T10:28:34.0042828Z Current runner version: '2.337.0'
+2026-10-07T10:28:34.0081362Z ##[group]Runner Image Provisioner
+2026-10-07T10:28:34.0082492Z Hosted Compute Agent
+2026-10-07T10:28:34.0084321Z Version: 20260901.588
+2026-10-07T10:28:34.0085830Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-07T10:28:34.0086480Z Build Date: 2026-09-01T19:56:44Z
+2026-10-07T10:28:34.0088028Z Worker ID: {06786cf3-fb94-4d3a-a451-b0005670dbc8}
+2026-10-07T10:28:34.0088987Z Azure Region: centralus
+2026-10-07T10:28:34.0089563Z ##[endgroup]
+2026-10-07T10:28:34.0091144Z ##[group]Operating System
+2026-10-07T10:28:34.0092243Z Ubuntu
+2026-10-07T10:28:34.0092785Z 24.04.5
+2026-10-07T10:28:34.0093860Z LTS
+2026-10-07T10:28:34.0094320Z ##[endgroup]
+2026-10-07T10:28:34.0095335Z ##[group]Runner Image
+2026-10-07T10:28:34.0096038Z Image: ubuntu-24.04
+2026-10-07T10:28:34.0096566Z Version: 20260927.320.1
+2026-10-07T10:28:34.0098023Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-07T10:28:34.0099639Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-07T10:28:34.0100716Z ##[endgroup]
+2026-10-07T10:28:34.0102349Z ##[group]GITHUB_TOKEN Permissions
+2026-10-07T10:28:34.0105204Z Contents: read
+2026-10-07T10:28:34.0106006Z Metadata: read
+2026-10-07T10:28:34.0106493Z Packages: read
+2026-10-07T10:28:34.0107183Z ##[endgroup]
+2026-10-07T10:28:34.0109730Z Secret source: Actions
+2026-10-07T10:28:34.0110786Z Cache mode: write
+2026-10-07T10:28:34.0111822Z Prepare workflow directory
+2026-10-07T10:28:34.0527233Z Prepare all required actions
+2026-10-07T10:28:34.0572673Z Getting action download info
+2026-10-07T10:28:34.2839599Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-07T10:28:34.4796442Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-10-07T10:28:34.8116638Z Complete job name: firmware-unit
+2026-10-07T10:28:34.8804417Z ##[group]Run actions/checkout@v4
+2026-10-07T10:28:34.8804899Z with:
+2026-10-07T10:28:34.8805156Z   repository: kebag-logic/milan-fpga
+2026-10-07T10:28:34.8807458Z   token: ***
+2026-10-07T10:28:34.8807698Z   ssh-strict: true
+2026-10-07T10:28:34.8807946Z   ssh-user: git
+2026-10-07T10:28:34.8808195Z   persist-credentials: true
+2026-10-07T10:28:34.8808465Z   clean: true
+2026-10-07T10:28:34.8808716Z   sparse-checkout-cone-mode: true
+2026-10-07T10:28:34.8809009Z   fetch-depth: 1
+2026-10-07T10:28:34.8809254Z   fetch-tags: false
+2026-10-07T10:28:34.8809505Z   show-progress: true
+2026-10-07T10:28:34.8809756Z   lfs: false
+2026-10-07T10:28:34.8809984Z   submodules: false
+2026-10-07T10:28:34.8810238Z   set-safe-directory: true
+2026-10-07T10:28:34.8810523Z   allow-unsafe-pr-checkout: false
+2026-10-07T10:28:34.8810882Z env:
+2026-10-07T10:28:34.8811114Z   VERILATOR_VERSION: v5.050
+2026-10-07T10:28:34.8811382Z   YOSYS_VERSION: v0.66
+2026-10-07T10:28:34.8811867Z ##[endgroup]
+2026-10-07T10:28:34.9515858Z Syncing repository: kebag-logic/milan-fpga
+2026-10-07T10:28:34.9517745Z ##[group]Getting Git version info
+2026-10-07T10:28:34.9518180Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-07T10:28:34.9518751Z [command]/usr/bin/git version
+2026-10-07T10:28:34.9615148Z git version 2.55.0
+2026-10-07T10:28:34.9629034Z ##[endgroup]
+2026-10-07T10:28:34.9641891Z Temporarily overriding HOME='<home-path>/work/_temp/c33dadbb-f77b-4a5e-bc59-94634d1c95f1' before making global git config changes
+2026-10-07T10:28:34.9643277Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T10:28:34.9646661Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-07T10:28:35.0445910Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-10-07T10:28:35.0450203Z ##[group]Initializing the repository
+2026-10-07T10:28:35.0454199Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-10-07T10:28:35.0567511Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-07T10:28:35.0568457Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-07T10:28:35.0569268Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-07T10:28:35.0569884Z hint: call:
+2026-10-07T10:28:35.0570229Z hint:
+2026-10-07T10:28:35.0570691Z hint: 	git config --global init.defaultBranch <name>
+2026-10-07T10:28:35.0571201Z hint:
+2026-10-07T10:28:35.0571728Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-07T10:28:35.0572472Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-07T10:28:35.0573106Z hint:
+2026-10-07T10:28:35.0573582Z hint: 	git branch -m <name>
+2026-10-07T10:28:35.0573864Z hint:
+2026-10-07T10:28:35.0574377Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-07T10:28:35.0575261Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-10-07T10:28:35.0580008Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-10-07T10:28:35.0731138Z ##[endgroup]
+2026-10-07T10:28:35.0731896Z ##[group]Disabling automatic garbage collection
+2026-10-07T10:28:35.0735644Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-07T10:28:35.0827298Z ##[endgroup]
+2026-10-07T10:28:35.0827948Z ##[group]Setting up auth
+2026-10-07T10:28:35.0833645Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T10:28:35.0868011Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T10:28:35.1189566Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T10:28:35.1226218Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T10:28:35.1412121Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T10:28:35.1447019Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T10:28:35.1643965Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-07T10:28:35.2247521Z ##[endgroup]
+2026-10-07T10:28:35.2248371Z ##[group]Fetching the repository
+2026-10-07T10:28:35.2256134Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +9e54ed3d1ae0b0030db01d19592e37003fb1f369:refs/remotes/pull/690/merge
+2026-10-07T10:28:37.3653069Z From https://github.com/kebag-logic/milan-fpga
+2026-10-07T10:28:37.3654421Z  * [new ref]         9e54ed3d1ae0b0030db01d19592e37003fb1f369 -> pull/690/merge
+2026-10-07T10:28:37.3656548Z ##[endgroup]
+2026-10-07T10:28:37.3657371Z ##[group]Determining the checkout info
+2026-10-07T10:28:37.3658196Z ##[endgroup]
+2026-10-07T10:28:37.3664010Z [command]/usr/bin/git sparse-checkout disable
+2026-10-07T10:28:37.3803520Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-07T10:28:37.3982252Z ##[group]Checking out the ref
+2026-10-07T10:28:37.3985461Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/690/merge
+2026-10-07T10:28:37.5379165Z Note: switching to 'refs/remotes/pull/690/merge'.
+2026-10-07T10:28:37.5379810Z 
+2026-10-07T10:28:37.5380236Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-07T10:28:37.5381387Z changes and commit them, and you can discard any commits you make in this
+2026-10-07T10:28:37.5382597Z state without impacting any branches by switching back to a branch.
+2026-10-07T10:28:37.5383350Z 
+2026-10-07T10:28:37.5384055Z If you want to create a new branch to retain commits you create, you may
+2026-10-07T10:28:37.5385016Z do so (now or later) by using -c with the switch command. Example:
+2026-10-07T10:28:37.5385710Z 
+2026-10-07T10:28:37.5385855Z   git switch -c <new-branch-name>
+2026-10-07T10:28:37.5386158Z 
+2026-10-07T10:28:37.5386300Z Or undo this operation with:
+2026-10-07T10:28:37.5386569Z 
+2026-10-07T10:28:37.5386685Z   git switch -
+2026-10-07T10:28:37.5386879Z 
+2026-10-07T10:28:37.5395743Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-07T10:28:37.5396456Z 
+2026-10-07T10:28:37.5397156Z HEAD is now at 9e54ed3 Merge c1049de1970e93d2c36ace62891ee9d947cd3191 into d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+2026-10-07T10:28:37.5399312Z ##[endgroup]
+2026-10-07T10:28:37.5438415Z [command]/usr/bin/git log -1 --format=%H
+2026-10-07T10:28:37.5462009Z 9e54ed3d1ae0b0030db01d19592e37003fb1f369
+2026-10-07T10:28:37.5709881Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+2026-10-07T10:28:37.5711784Z git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/lwSRP
+2026-10-07T10:28:37.6197121Z shell: /usr/bin/bash -e {0}
+2026-10-07T10:28:37.6197655Z env:
+2026-10-07T10:28:37.6197951Z   VERILATOR_VERSION: v5.050
+2026-10-07T10:28:37.6198398Z   YOSYS_VERSION: v0.66
+2026-10-07T10:28:37.6198856Z ##[endgroup]
+2026-10-07T10:28:37.6583031Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-10-07T10:28:37.6682814Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-10-07T10:28:37.6687221Z Submodule 'third_party/lwSRP' (https://github.com/kebag-logic/lwSRP.git) registered for path 'third_party/lwSRP'
+2026-10-07T10:28:37.6780903Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-10-07T10:28:37.6807347Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-10-07T10:28:38.4379594Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-10-07T10:28:39.9310280Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+2026-10-07T10:28:40.0565099Z fatal: could not read Username for 'https://github.com': No such device or address
+2026-10-07T10:28:40.0588642Z fatal: clone of 'https://github.com/kebag-logic/lwSRP.git' into submodule path '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP' failed
+2026-10-07T10:28:40.0594292Z Failed to clone 'third_party/lwSRP'. Retry scheduled
+2026-10-07T10:28:40.0614125Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-10-07T10:28:40.5815644Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP'...
+2026-10-07T10:28:40.6894843Z fatal: could not read Username for 'https://github.com': No such device or address
+2026-10-07T10:28:40.6915476Z fatal: clone of 'https://github.com/kebag-logic/lwSRP.git' into submodule path '<home-path>/work/milan-fpga/milan-fpga/third_party/lwSRP' failed
+2026-10-07T10:28:40.6917105Z Failed to clone 'third_party/lwSRP' a second time, aborting
+2026-10-07T10:28:40.6935660Z ##[error]Process completed with exit code 1.
+2026-10-07T10:28:40.7050235Z Post job cleanup.
+2026-10-07T10:28:40.7599446Z [command]/usr/bin/git version
+2026-10-07T10:28:40.7635099Z git version 2.55.0
+2026-10-07T10:28:40.7661853Z Temporarily overriding HOME='<home-path>/work/_temp/14ed94d0-ad92-4958-bf06-43b10b510644' before making global git config changes
+2026-10-07T10:28:40.7662515Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-07T10:28:40.7666118Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-10-07T10:28:40.7701632Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-07T10:28:40.7731779Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-07T10:28:40.7923807Z Entering 'gptp-processor'
+2026-10-07T10:28:40.7966770Z Entering 'protocol-processor'
+2026-10-07T10:28:40.8010811Z Entering 'third_party/verilog-axis'
+2026-10-07T10:28:40.8058425Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-07T10:28:40.8086234Z http.https://github.com/.extraheader
+2026-10-07T10:28:40.8097738Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-07T10:28:40.8143818Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-07T10:28:40.8329240Z Entering 'gptp-processor'
+2026-10-07T10:28:40.8364817Z Entering 'protocol-processor'
+2026-10-07T10:28:40.8400469Z Entering 'third_party/verilog-axis'
+2026-10-07T10:28:40.8449787Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T10:28:40.8482994Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-07T10:28:40.8650422Z Entering 'gptp-processor'
+2026-10-07T10:28:40.8666564Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-10-07T10:28:40.8680898Z Entering 'protocol-processor'
+2026-10-07T10:28:40.8695172Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-10-07T10:28:40.8709735Z Entering 'third_party/verilog-axis'
+2026-10-07T10:28:40.8724049Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-10-07T10:28:40.8751092Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T10:28:40.8781032Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T10:28:40.8809260Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-07T10:28:40.8971238Z Cleaning up orphan processes
+2026-10-07T10:28:40.9166692Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

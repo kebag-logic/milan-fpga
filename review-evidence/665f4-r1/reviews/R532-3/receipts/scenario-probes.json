@@ -1,0 +1,74 @@
+[
+ {
+  "name": "head",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": []
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": []
+   }
+  ]
+ },
+ {
+  "name": "RP3-declared-only-from-replaced-slot",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves"
+    ]
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves"
+    ]
+   }
+  ]
+ },
+ {
+  "name": "RP5-withdraw-domain-vid-on-unbind",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan"
+    ]
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan"
+    ]
+   }
+  ]
+ },
+ {
+  "name": "RP10-declared-inheritance-any-stream",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream"
+    ]
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream"
+    ]
+   }
+  ]
+ }
+]

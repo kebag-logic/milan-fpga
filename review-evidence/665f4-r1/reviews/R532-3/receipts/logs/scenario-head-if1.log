@@ -1,0 +1,19 @@
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves
+[       OK ] Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves (1 ms)
+[ RUN      ] Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan
+[       OK ] Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan (0 ms)
+[ RUN      ] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream
+[       OK ] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream (0 ms)
+[ RUN      ] Srp.ProbeR533OverlappingRebindWithdrawsSharedReady
+[       OK ] Srp.ProbeR533OverlappingRebindWithdrawsSharedReady (0 ms)
+[----------] 4 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 4 tests.
+== reviewer SRP probe: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)

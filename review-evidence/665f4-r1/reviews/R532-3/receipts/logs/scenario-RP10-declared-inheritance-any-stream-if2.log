@@ -1,0 +1,37 @@
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves
+[       OK ] Srp.ProbeJoiningSharedBindingCarriesApplicantWhenOriginalLeaves (3 ms)
+[ RUN      ] Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan
+[       OK ] Srp.ProbeUnbindingTheLastDomainVidBindingKeepsSrClassVlan (1 ms)
+[ RUN      ] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream
+$PACKET/scratch/scenarios/tree/sw/firmware/ctrl/test/srp_probe.cpp:88: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID's Talker is registered, so Ready is owed
+
+  [FAIL] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream: the rebound StreamID's Talker is registered, so Ready is owed
+$PACKET/scratch/scenarios/tree/sw/firmware/ctrl/test/srp_probe.cpp:88: Failure
+Value of: ready
+  Actual: false
+Expected: true
+the rebound StreamID's Talker is registered, so Ready is owed
+
+  [FAIL] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream: the rebound StreamID's Talker is registered, so Ready is owed
+[  FAILED  ] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream (1 ms)
+[ RUN      ] Srp.ProbeR533OverlappingRebindWithdrawsSharedReady
+[       OK ] Srp.ProbeR533OverlappingRebindWithdrawsSharedReady (1 ms)
+[----------] 4 tests from Srp (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeRebindToRegisteredStreamDeclaresReadyBesideAnotherReadyStream
+
+ 1 FAILED TEST
+== reviewer SRP probe: checks: 4   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 4 checks, exit 1)

@@ -1,0 +1,292 @@
+[
+ {
+  "name": "RP1-drop-vlan-requested-inheritance",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation"
+    ],
+    "passed": 49
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation"
+    ],
+    "passed": 49
+   }
+  ]
+ },
+ {
+  "name": "RP2-drop-vlan-sent-inheritance",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind"
+    ],
+    "passed": 48
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind"
+    ],
+    "passed": 48
+   }
+  ]
+ },
+ {
+  "name": "RP3-declared-only-from-replaced-slot",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   }
+  ]
+ },
+ {
+  "name": "RP4-judge-without-replacement",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "14",
+     "Srp.BoundOldDomainVlanSurvivesDomainChange",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation",
+     "Srp.InTalkerWithdrawalImmediatelyWithdrawsListener",
+     "Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind",
+     "Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire",
+     "Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan",
+     "Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest",
+     "Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding",
+     "Srp.SinkMembershipCommitsBeforeReadyAtStartup",
+     "Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer",
+     "Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent",
+     "Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart",
+     "Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt"
+    ],
+    "passed": 36
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "14",
+     "Srp.BoundOldDomainVlanSurvivesDomainChange",
+     "Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation",
+     "Srp.InTalkerWithdrawalImmediatelyWithdrawsListener",
+     "Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind",
+     "Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire",
+     "Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan",
+     "Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest",
+     "Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding",
+     "Srp.SinkMembershipCommitsBeforeReadyAtStartup",
+     "Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer",
+     "Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent",
+     "Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart",
+     "Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt"
+    ],
+    "passed": 36
+   }
+  ]
+ },
+ {
+  "name": "RP5-withdraw-domain-vid-on-unbind",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   }
+  ]
+ },
+ {
+  "name": "RP6-attach-assumes-up",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   }
+  ]
+ },
+ {
+  "name": "RP7-poll-edge-not-seen",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   }
+  ]
+ },
+ {
+  "name": "RP8-poll-up-edge-without-reset",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive"
+    ],
+    "passed": 49
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive"
+    ],
+    "passed": 49
+   }
+  ]
+ },
+ {
+  "name": "RP9-vlan-inheritance-any-vid",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent"
+    ],
+    "passed": 49
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "1",
+     "Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent"
+    ],
+    "passed": 49
+   }
+  ]
+ },
+ {
+  "name": "RP10-declared-inheritance-any-stream",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   },
+   {
+    "if": 2,
+    "rc": 0,
+    "failing": [],
+    "passed": 50
+   }
+  ]
+ },
+ {
+  "name": "RP11-unbind-shared-vid-while-bound",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind"
+    ],
+    "passed": 48
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder",
+     "Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind"
+    ],
+    "passed": 48
+   }
+  ]
+ },
+ {
+  "name": "RP12-poll-reconcile-skips-down-edge",
+  "kind": "reviewer",
+  "rows": [
+   {
+    "if": 1,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive",
+     "Srp.LinkLevelLossAndFirstDownEventAreFailClosed"
+    ],
+    "passed": 48
+   },
+   {
+    "if": 2,
+    "rc": 1,
+    "failing": [
+     "2",
+     "Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive",
+     "Srp.LinkLevelLossAndFirstDownEventAreFailClosed"
+    ],
+    "passed": 48
+   }
+  ]
+ }
+]
