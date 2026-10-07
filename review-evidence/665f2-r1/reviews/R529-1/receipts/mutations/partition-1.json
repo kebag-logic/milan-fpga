@@ -1,0 +1,1359 @@
+[
+  {
+    "index": 1,
+    "name": "departing-sends-zero",
+    "path": "adp/adp.c",
+    "seconds": 6.504,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A10toA14DepartingIndex",
+        "needle": "A10 SHUTDOWN in WAITING",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 3,
+    "name": "available-passes-owed-departing",
+    "path": "adp/adp.c",
+    "seconds": 5.147,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A17RoomBackBeforeAPoll",
+        "needle": "A17 room back and TMR_DELAY expiring before a poll",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 5,
+    "name": "second-shutdown-overwrites-index",
+    "path": "adp/adp.c",
+    "seconds": 5.236,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+        "needle": "A16 a SHUTDOWN while one is owed queues its own",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 7,
+    "name": "gm-change-drops-owed-available",
+    "path": "adp/adp.c",
+    "seconds": 5.356,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 a GM change in DELAY leaves the owed ENTITY_AVAILABLE owed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 9,
+    "name": "stray-expiry-drops-owed-available",
+    "path": "adp/adp.c",
+    "seconds": 5.396,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 and a stray expiry, which is counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 11,
+    "name": "departing-queue-unbounded",
+    "path": "adp/adp.c",
+    "seconds": 5.138,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/",
+        "needle": "E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 13,
+    "name": "coalesce-drops-queued-departing",
+    "path": "adp/adp.c",
+    "seconds": 4.582,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 15,
+    "name": "own-discover-discarded",
+    "path": "adp/adp.c",
+    "seconds": 3.607,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING",
+        "needle": "RCV_ADP_DISCOVER(own eid) x WAITING",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 17,
+    "name": "link-down-departs",
+    "path": "adp/adp.c",
+    "seconds": 3.881,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING",
+        "needle": "LINK_DOWN x WAITING: frames committed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 19,
+    "name": "delay-ignores-link-down",
+    "path": "adp/adp.c",
+    "seconds": 3.989,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed",
+        "needle": "LINK_DOWN x DELAY",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 21,
+    "name": "advertise-expiry-skips-delay",
+    "path": "adp/adp.c",
+    "seconds": 4.045,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING",
+        "needle": "TMR_ADVERTISE x WAITING",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 23,
+    "name": "link-up-draws-startup-kind",
+    "path": "adp/adp.c",
+    "seconds": 4.1,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN",
+        "needle": "LINK_UP x DOWN",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 25,
+    "name": "foreign-discover-answered",
+    "path": "adp/adp.c",
+    "seconds": 5.179,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A3toA5DiscoverAndDiscard",
+        "needle": "A4 a foreign DISCOVER",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 27,
+    "name": "stale-tag-accepted",
+    "path": "adp/adp_mbx.c",
+    "seconds": 4.961,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpAdapter.B1StaleTagDiscarded",
+        "needle": "B1 an expiry of the arm a GM_CHANGE replaced",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 29,
+    "name": "pool-free-leaks",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.951,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P2ReleaseAndBadFrees",
+        "needle": "P2 a released block",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 31,
+    "name": "pool-double-free-accepted",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.978,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P2ReleaseAndBadFrees",
+        "needle": "P2 a double free",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 33,
+    "name": "tick-count-ignored",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.02,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Loop.L4TickFanOut",
+        "needle": "L4 every centisecond",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 35,
+    "name": "poll-owes-nothing",
+    "path": "adp/adp_mbx.c",
+    "seconds": 5.223,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpOwed.E0toE3PendingWake",
+        "needle": "E1 the loop does not sleep while a frame is owed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 37,
+    "name": "rx-before-events",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 5.164,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpBacklog.F0toF7FullBacklogs",
+        "needle": "F1 events first",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 39,
+    "name": "tick-slice-unbounded",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.32,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Loop.L7TickSlices",
+        "needle": "L7 at most CTRL_LOOP_TICKS_PER_PASS",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 41,
+    "name": "filter-opened-before-eid",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.099,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "LoopBring.L1OpenOrder",
+        "needle": "L1 OWN_EID is written before",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 43,
+    "name": "tx-overfills",
+    "path": "mbx/mbx.c",
+    "seconds": 4.112,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
+        "needle": "D3 a held merge fills the ring",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 45,
+    "name": "frame-sources-from-sinks",
+    "path": "adp/adp.c",
+    "seconds": 13.214,
+    "kills": [
+      {
+        "arm": "entity",
+        "test": "Fabric/EntityField.MatchesTheFabric/talker_stream_sources",
+        "needle": "talker_stream_sources",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 47,
+    "name": "model-rate-unlimited",
+    "path": "host/mbx_model.c",
+    "seconds": 4.096,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/RateLimit",
+        "needle": "T0 the frames past it count in RATE_DROP",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 49,
+    "name": "model-round-robin",
+    "path": "host/mbx_model.c",
+    "seconds": 4.293,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder",
+        "needle": "X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 51,
+    "name": "zero-byte-class-accepted",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.781,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P5ClassTablesAndArenasRefused",
+        "needle": "P5 a class of zero-byte blocks is refused",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 53,
+    "name": "foreign-free-uncounted",
+    "path": "port/ctrl_pool.c",
+    "seconds": 4.009,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P7FreeBelowTheArenaRefused",
+        "needle": "P7 a free below the first class is refused and counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 55,
+    "name": "pool-follows-a-cut-free-list",
+    "path": "port/ctrl_pool.c",
+    "seconds": 4.11,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P9AFreeListShorterThanItsCountIsExhausted",
+        "needle": "crashed on signal 11",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 57,
+    "name": "encoding-failure-swallowed",
+    "path": "port/ctrl_debug.c",
+    "seconds": 3.932,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "DebugSink.S3UnencodablePrintDiscarded",
+        "needle": "S3 an encoding failure is returned",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 59,
+    "name": "seed-left-at-zero",
+    "path": "adp/adp.c",
+    "seconds": 4.587,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A22GeneratorNeverStuckAtZero",
+        "needle": "A22 an entity id whose words cancel the seed constant",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 61,
+    "name": "other-subtype-accepted",
+    "path": "adp/adp.c",
+    "seconds": 4.499,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A24OtherEtherTypeOrSubtypeDiscarded",
+        "needle": "A24 a DISCOVER under another EtherType or subtype is discarded",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 63,
+    "name": "app-starts-on-an-uncarved-pool",
+    "path": "app/ctrl_app.c",
+    "seconds": 6.531,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AppComposition.U1AnUncarvablePoolStartsNothing",
+        "needle": "over-saturated and active",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 65,
+    "name": "evt-words-unchecked",
+    "path": "mbx/mbx.c",
+    "seconds": 6.863,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words",
+        "needle": "U2 evt_words differs",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 67,
+    "name": "maap-base-shifted",
+    "path": "mbx/mbx.c",
+    "seconds": 6.56,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D6MaapRangeWritten",
+        "needle": "D6 MAAP_BASE_LO holds the base's low word",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 69,
+    "name": "unknown-event-decoded-as-tick",
+    "path": "mbx/mbx.c",
+    "seconds": 7.54,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
+        "needle": "D9 an event of a type the contract does not define",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 71,
+    "name": "slots-past-the-bank",
+    "path": "adp/adp_mbx.c",
+    "seconds": 7.577,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AdpAdapterUnit.B2SlotsPastTheTimerBankRefused",
+        "needle": "B2 slots past the fabric's timer bank",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 73,
+    "name": "attach-ignores-poll-room",
+    "path": "adp/adp_mbx.c",
+    "seconds": 7.98,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AdpAdapterUnit.B4LoopWithNoRoomRefused",
+        "needle": "B4 a loop with no room for the poll is refused",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 75,
+    "name": "wait-without-wfi",
+    "path": "plat/mbx_plat_mmio.c",
+    "seconds": 7.631,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "MmioPlatform.M2WaitIsThePlatformWfi",
+        "needle": "M2 each mbx_hal_wait() waits once",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 77,
+    "name": "model-tpid-matches-a-tuple",
+    "path": "host/mbx_model.c",
+    "seconds": 4.222,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q1 tagged, it (srp MSRP): no RX record",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 79,
+    "name": "model-ethertype-ignored",
+    "path": "host/mbx_model.c",
+    "seconds": 4.241,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q3 under another control EtherType, it (adp)",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 81,
+    "name": "model-own-any-unicast",
+    "path": "host/mbx_model.c",
+    "seconds": 4.429,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q2 to another destination MAC, it (aecp, command)",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 83,
+    "name": "model-own-mac-hi-dropped",
+    "path": "host/mbx_model.c",
+    "seconds": 4.329,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks",
+        "needle": "R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 85,
+    "name": "model-mismatch-never-counted",
+    "path": "host/mbx_model.c",
+    "seconds": 4.442,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 87,
+    "name": "model-mismatch-sets-no-err",
+    "path": "host/mbx_model.c",
+    "seconds": 4.341,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount",
+        "needle": "Q9 a mismatch sets IRQ_STATUS.ERR",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 89,
+    "name": "model-tuple-msg-type-ignored",
+    "path": "host/mbx_model.c",
+    "seconds": 4.373,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast",
+        "needle": "Q11 a PROBE to this interface's own MAC: no RX record",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 91,
+    "name": "model-defend-any-unicast",
+    "path": "host/mbx_model.c",
+    "seconds": 4.085,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast",
+        "needle": "Q11 a DEFEND to a unicast MAC no interface owns: no RX record",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 93,
+    "name": "own-mac-halves-swapped",
+    "path": "mbx/mbx.c",
+    "seconds": 11.485,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+        "needle": "D11 OWN_MAC_LO holds MAC[31:0]",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "port",
+        "test": "Driver.D12OwnMacAndMismatchOnTheModel",
+        "needle": "D12 an AEM_COMMAND to it on interface 0 passes",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 95,
+    "name": "own-mac-after-the-channels-open",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.369,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "LoopBring.L1OpenOrder",
+        "needle": "L1 every interface's OWN_MAC is written before any channel opens",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 97,
+    "name": "maap-down-start-keeps-owner",
+    "path": "maap/maap.c",
+    "seconds": 7.22,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "starting down withdraws the prior owner",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 99,
+    "name": "maap-retransmit-count",
+    "path": "maap/maap.h",
+    "seconds": 8.009,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "three retransmissions remain",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 101,
+    "name": "maap-wire-version",
+    "path": "maap/maap.c",
+    "seconds": 7.939,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 103,
+    "name": "maap-wire-source",
+    "path": "maap/maap.c",
+    "seconds": 7.509,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 105,
+    "name": "maap-constant-probe_base",
+    "path": "maap/maap.h",
+    "seconds": 7.625,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 107,
+    "name": "maap-constant-announce_base",
+    "path": "maap/maap.h",
+    "seconds": 7.688,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 109,
+    "name": "maap-seed-clock-ignored",
+    "path": "maap/maap.c",
+    "seconds": 7.554,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 111,
+    "name": "maap-biased-random-bucket",
+    "path": "maap/maap.c",
+    "seconds": 7.221,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.UniformDrawRejectsIncompleteBucket",
+        "needle": "incomplete random bucket rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 113,
+    "name": "maap-defend-multicast",
+    "path": "maap/maap.c",
+    "seconds": 7.175,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 115,
+    "name": "maap-intersection-too-long",
+    "path": "maap/maap.c",
+    "seconds": 8.26,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 117,
+    "name": "maap-zero-count-conflicts",
+    "path": "maap/maap.c",
+    "seconds": 8.446,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "half open intervals",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 119,
+    "name": "maap-malformed-ethertype",
+    "path": "maap/maap.c",
+    "seconds": 8.128,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 121,
+    "name": "maap-malformed-version",
+    "path": "maap/maap.c",
+    "seconds": 7.945,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 123,
+    "name": "maap-malformed-reserved-high",
+    "path": "maap/maap.c",
+    "seconds": 7.91,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 125,
+    "name": "maap-malformed-cdl-truncated",
+    "path": "maap/maap.c",
+    "seconds": 8.262,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 127,
+    "name": "maap-malformed-source-zero",
+    "path": "maap/maap.c",
+    "seconds": 8.333,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 129,
+    "name": "maap-malformed-destination",
+    "path": "maap/maap.c",
+    "seconds": 8.075,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 131,
+    "name": "maap-valid-minimum-refused",
+    "path": "maap/maap.c",
+    "seconds": 7.962,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "B.2.3 recognized future",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 133,
+    "name": "maap-range-end-off-by-one",
+    "path": "maap/maap.c",
+    "seconds": 8.059,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitAndPreferredRangeBounds",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 135,
+    "name": "maap-release-keeps-enable",
+    "path": "maap/maap.c",
+    "seconds": 7.897,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "released instance stays idle",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 137,
+    "name": "maap-allocation-before-commit",
+    "path": "maap/maap.c",
+    "seconds": 7.829,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "allocation waits for committed ANNOUNCE",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 139,
+    "name": "maap-overflow-uncounted",
+    "path": "maap/maap.c",
+    "seconds": 7.929,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "overload is counted as failure",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 141,
+    "name": "maap-release-leaves-output",
+    "path": "maap/maap.c",
+    "seconds": 8.215,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 143,
+    "name": "maap-debug-no-assert",
+    "path": "maap/maap.c",
+    "seconds": 1.841,
+    "kills": [
+      {
+        "arm": "maap_debug",
+        "test": "MaapDebug.SynchronousExpiryAsserts",
+        "needle": "debug reentry assertion",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 145,
+    "name": "maap-selection-not-restored",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.643,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.EveryStreamAddressAndLossGate",
+        "needle": "selection restored",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 147,
+    "name": "maap-loss-keeps-crf",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.599,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.EveryStreamAddressAndLossGate",
+        "needle": "loss closes both media gates",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 149,
+    "name": "maap-crf-index-wrong",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.2,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.ShapesAndCountRefusal",
+        "needle": "CRF only shape",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 151,
+    "name": "maap-foreign-not-counted",
+    "path": "maap/maap_mbx.c",
+    "seconds": 7.368,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.StaleTagsForeignInputsAndLinkEdges",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 153,
+    "name": "maap-interface-zero",
+    "path": "maap/maap_mbx.c",
+    "seconds": 3.438,
+    "kills": [
+      {
+        "arm": "maap_if2",
+        "test": "MaapHost.InterfaceIsolationAndRangeEnvelope",
+        "needle": "record index selects state",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 155,
+    "name": "maap-filter-destination-ignored",
+    "path": "host/mbx_model.c",
+    "seconds": 8.202,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.HMaapFilterTupleAndRate",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 157,
+    "name": "maap-stall-unqueued",
+    "path": "maap/maap.c",
+    "seconds": 8.387,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.HMaapBacklogAndStallNeverRestartClock",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 159,
+    "name": "maap-callback-work-overrun",
+    "path": "maap/maap_mbx.c",
+    "seconds": 8.239,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.CallbackWorkAndEveryOutputCount",
+        "needle": "callback work bound",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 161,
+    "name": "maap-table-b7-0",
+    "path": "maap/maap.c",
+    "seconds": 8.531,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/0",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 163,
+    "name": "maap-table-b7-2",
+    "path": "maap/maap.c",
+    "seconds": 8.368,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/2",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 165,
+    "name": "maap-table-b7-4",
+    "path": "maap/maap.c",
+    "seconds": 8.431,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/4",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 167,
+    "name": "maap-table-b7-6",
+    "path": "maap/maap.c",
+    "seconds": 7.6,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/6",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 169,
+    "name": "maap-table-b7-8",
+    "path": "maap/maap.c",
+    "seconds": 7.762,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/8",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 171,
+    "name": "maap-table-b7-10",
+    "path": "maap/maap.c",
+    "seconds": 7.705,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/10",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 173,
+    "name": "maap-table-b7-12",
+    "path": "maap/maap.c",
+    "seconds": 8.451,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/12",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 175,
+    "name": "maap-table-b7-14",
+    "path": "maap/maap.c",
+    "seconds": 8.351,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/14",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 177,
+    "name": "maap-table-b7-16",
+    "path": "maap/maap.c",
+    "seconds": 8.858,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/16",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 179,
+    "name": "maap-allocation-seam-disconnected",
+    "path": "maap/maap.c",
+    "seconds": 8.999,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.AcquiredRangeFeedsExistingCsrPath",
+        "needle": "allocation reaches AAF CSR",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  }
+]

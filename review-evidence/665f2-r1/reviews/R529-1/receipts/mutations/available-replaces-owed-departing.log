@@ -1,0 +1,348 @@
+arm=adp rc=1 expected_test=AdpCore.A15OwedDepartingAcrossARestart expected_text='A15 with room, the next poll sends the owed ENTITY_DEPARTING first' caught=True
+[==========] Running 26 tests from 6 test suites.
+[----------] Global test environment set-up.
+[----------] 15 tests from AdpCore
+[ RUN      ] AdpCore.A0toA2Schedule
+[       OK ] AdpCore.A0toA2Schedule (0 ms)
+[ RUN      ] AdpCore.A3toA5DiscoverAndDiscard
+[       OK ] AdpCore.A3toA5DiscoverAndDiscard (0 ms)
+[ RUN      ] AdpCore.A6toA8DeferredSends
+[       OK ] AdpCore.A6toA8DeferredSends (0 ms)
+[ RUN      ] AdpCore.A9DrawKinds
+[       OK ] AdpCore.A9DrawKinds (0 ms)
+[ RUN      ] AdpCore.A10toA14DepartingIndex
+[       OK ] AdpCore.A10toA14DepartingIndex (0 ms)
+[ RUN      ] AdpCore.A15OwedDepartingAcrossARestart
+<source>/sw/firmware/ctrl/test/test_adp.cpp:340: Failure
+Value of: a.available_owed && a.departing_owed == 1u && a.departing_index == 1u && a.state == ADP_STATE_DELAY && a.timer == ADP_TIMER_NONE && fk.starts == starts && fk.sends == 1u
+  Actual: false
+Expected: true
+A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 that TMR_DELAY expires before the ring has room: ENTITY_AVAILABLE owed behind it, no timer
+<source>/sw/firmware/ctrl/test/test_adp.cpp:343: Failure
+Value of: adp_poll(&a) && a.available_owed && a.departing_owed == 1u && fk.sends == 1u
+  Actual: false
+Expected: true
+A15 a poll without room keeps both owed
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 a poll without room keeps both owed
+<source>/sw/firmware/ctrl/test/test_adp.cpp:346: Failure
+Value of: adp_poll(&a) && fk.sends == 2u && took(1, 1u, 1)
+  Actual: false
+Expected: true
+A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 with room, the next poll sends the owed ENTITY_DEPARTING first, with its SHUTDOWN index 1
+<source>/sw/firmware/ctrl/test/test_adp.cpp:348: Failure
+Value of: !adp_poll(&a) && fk.sends == 3u && took(2, 0u, 0)
+  Actual: false
+Expected: true
+A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 and the one after it the restart's ENTITY_AVAILABLE, with index 0
+<source>/sw/firmware/ctrl/test/test_adp.cpp:353: Failure
+Value of: !a.available_owed && a.departing_owed == 0u && !adp_poll(&a) && fk.sends == 3u
+  Actual: false
+Expected: true
+A15 and nothing stranded: nothing owed, a further poll sends nothing
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 and nothing stranded: nothing owed, a further poll sends nothing
+<source>/sw/firmware/ctrl/test/test_adp.cpp:357: Failure
+Value of: fk.sends == 4u && took(3, 0u, 1)
+  Actual: false
+Expected: true
+A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1
+
+  [FAIL] AdpCore.A15OwedDepartingAcrossARestart: A15 the schedule runs on: the next ENTITY_AVAILABLE carries 1
+[  FAILED  ] AdpCore.A15OwedDepartingAcrossARestart (0 ms)
+[ RUN      ] AdpCore.A16SecondShutdownQueuesItsOwn
+<source>/sw/firmware/ctrl/test/test_adp.cpp:367: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && !a.available_owed && a.state == ADP_STATE_DOWN
+  Actual: false
+Expected: true
+A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+
+  [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 a SHUTDOWN while one is owed queues its own ENTITY_DEPARTING and drops the owed AVAILABLE
+<source>/sw/firmware/ctrl/test/test_adp.cpp:373: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 1u, 0) && !owed
+  Actual: false
+Expected: true
+A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+
+  [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 each leaves in order with its SHUTDOWN's index: 1, then 0 (that run sent nothing)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:378: Failure
+Value of: fk.sends == 4u && took(3, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+
+  [FAIL] AdpCore.A16SecondShutdownQueuesItsOwn: A16 its ENTITY_AVAILABLE, with index 0, leaves at its TMR_DELAY expiry; WAITING
+[  FAILED  ] AdpCore.A16SecondShutdownQueuesItsOwn (0 ms)
+[ RUN      ] AdpCore.A17RoomBackBeforeAPoll
+<source>/sw/firmware/ctrl/test/test_adp.cpp:388: Failure
+Value of: fk.sends == 1u && a.available_owed && a.departing_owed == 1u && a.state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+
+  [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 room back and TMR_DELAY expiring before a poll: the ENTITY_AVAILABLE does not pass the owed DEPARTING
+<source>/sw/firmware/ctrl/test/test_adp.cpp:392: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 0u, 0) && !owed && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+
+  [FAIL] AdpCore.A17RoomBackBeforeAPoll: A17 the polls then send DEPARTING with index 1 and AVAILABLE with index 0, in that order
+[  FAILED  ] AdpCore.A17RoomBackBeforeAPoll (0 ms)
+[ RUN      ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+<source>/sw/firmware/ctrl/test/test_adp.cpp:412: Failure
+Value of: a.state == ADP_STATE_DOWN && !a.available_owed && a.departing_owed == 1u && a.departing_index == 1u && fk.sends == 1u
+  Actual: false
+Expected: true
+A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+
+  [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 a link loss with that run's ENTITY_AVAILABLE owed drops the AVAILABLE and keeps the DEPARTING
+<source>/sw/firmware/ctrl/test/test_adp.cpp:418: Failure
+Value of: !owed && fk.sends == 2u && took(1, 1u, 1)
+  Actual: false
+Expected: true
+A18 with room the ENTITY_DEPARTING leaves, index 1
+
+  [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 with room the ENTITY_DEPARTING leaves, index 1
+<source>/sw/firmware/ctrl/test/test_adp.cpp:421: Failure
+Value of: fk.sends == 3u && took(2, 0u, 0) && a.state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING
+
+  [FAIL] AdpCore.A18LinkLossKeepsTheOwedDeparting: A18 then the new run's ENTITY_AVAILABLE, index 0, at its TMR_DELAY expiry; WAITING
+[  FAILED  ] AdpCore.A18LinkLossKeepsTheOwedDeparting (0 ms)
+[ RUN      ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable
+[       OK ] AdpCore.A19IgnoredInputsKeepTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A20LinkLossDropsTheOwedAvailable
+[       OK ] AdpCore.A20LinkLossDropsTheOwedAvailable (0 ms)
+[ RUN      ] AdpCore.A21DepartingCapacity
+<source>/sw/firmware/ctrl/test/test_adp.cpp:480: Failure
+Value of: a.departing_owed == 2u && a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 0u
+  Actual: false
+Expected: true
+A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+
+  [FAIL] AdpCore.A21DepartingCapacity: A21 a second SHUTDOWN takes the last place: two owed, the oldest with index 1, none coalesced
+<source>/sw/firmware/ctrl/test/test_adp.cpp:486: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 1u && !a.available_owed && a.state == ADP_STATE_DOWN && fk.sends == 1u
+  Actual: false
+Expected: true
+A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+
+  [FAIL] AdpCore.A21DepartingCapacity: A21 the next SHUTDOWN is coalesced into the queued one and counted; its run's owed AVAILABLE is dropped
+<source>/sw/firmware/ctrl/test/test_adp.cpp:493: Failure
+Value of: a.departing_owed == 2u && a.departing_index == 1u && a.departing_coalesced == 100001u && fk.sends == 1u
+  Actual: false
+Expected: true
+A21 and so are 100000 more, each counted, the two owed unchanged
+
+  [FAIL] AdpCore.A21DepartingCapacity: A21 and so are 100000 more, each counted, the two owed unchanged
+<source>/sw/firmware/ctrl/test/test_adp.cpp:499: Failure
+Value of: fk.sends == 3u && took(1, 1u, 1) && took(2, 1u, 0) && !owed && !adp_poll(&a) && fk.sends == 3u
+  Actual: false
+Expected: true
+A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+
+  [FAIL] AdpCore.A21DepartingCapacity: A21 with room the wire carries DEPARTING 1, then one DEPARTING 0, and nothing more is owed
+[  FAILED  ] AdpCore.A21DepartingCapacity (0 ms)
+[ RUN      ] AdpCore.A22GeneratorNeverStuckAtZero
+[       OK ] AdpCore.A22GeneratorNeverStuckAtZero (0 ms)
+[ RUN      ] AdpCore.A23RepeatedEnableOrDisableChangesNothing
+[       OK ] AdpCore.A23RepeatedEnableOrDisableChangesNothing (0 ms)
+[ RUN      ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded
+[       OK ] AdpCore.A24OtherEtherTypeOrSubtypeDiscarded (0 ms)
+[----------] 15 tests from AdpCore (1 ms total)
+
+[----------] 1 test from AdpAdapter
+[ RUN      ] AdpAdapter.B1StaleTagDiscarded
+[       OK ] AdpAdapter.B1StaleTagDiscarded (0 ms)
+[----------] 1 test from AdpAdapter (0 ms total)
+
+[----------] 1 test from AdpLatency
+[ RUN      ] AdpLatency.C0toC6EveryResponsePath
+  C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+  C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+  C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+  C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+  C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+  C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+  C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+[       OK ] AdpLatency.C0toC6EveryResponsePath (0 ms)
+[----------] 1 test from AdpLatency (0 ms total)
+
+[----------] 2 tests from AdpOwed
+[ RUN      ] AdpOwed.E0toE3PendingWake
+[       OK ] AdpOwed.E0toE3PendingWake (0 ms)
+[ RUN      ] AdpOwed.E4OwedDepartingWake
+<source>/sw/firmware/ctrl/test/test_adp.cpp:789: Failure
+Value of: adp0()->available_owed && adp0()->departing_owed == 1u && adp0()->state == ADP_STATE_DELAY && !app.adp.ifs[0].armed
+  Actual: false
+Expected: true
+E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm
+
+  [FAIL] AdpOwed.E4OwedDepartingWake: E4 its TMR_DELAY expires before the ring drains: ENTITY_AVAILABLE owed behind the DEPARTING, no arm
+<source>/sw/firmware/ctrl/test/test_adp.cpp:799: Failure
+Value of: model.tx_sent == drained + 2u && model_sent(drained, 1u, 1) && model_sent(drained + 1u, 0u, 0)
+  Actual: false
+Expected: true
+E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0
+
+  [FAIL] AdpOwed.E4OwedDepartingWake: E4 once the ring drains: ENTITY_DEPARTING with index 1, then ENTITY_AVAILABLE with index 0
+<source>/sw/firmware/ctrl/test/test_adp.cpp:802: Failure
+Value of: t != nullptr && arm->op == 1u && arm->deadline_ms == t->now_ms + 5000u && app.adp.ifs[0].armed && adp0()->state == ADP_STATE_WAITING
+  Actual: false
+Expected: true
+E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+
+  [FAIL] AdpOwed.E4OwedDepartingWake: E4 then WAITING with TMR_ADVERTISE armed 5 s after the ENTITY_AVAILABLE left
+<source>/sw/firmware/ctrl/test/test_adp.cpp:808: Failure
+Value of: !adp0()->available_owed && adp0()->departing_owed == 0u && model.tx_sent == drained + 2u && waiter.waits > waits && waiter.dead == 0u && adp0()->state == ADP_STATE_DELAY
+  Actual: false
+Expected: true
+E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+
+  [FAIL] AdpOwed.E4OwedDepartingWake: E4 nothing stranded: no frame owed, the loop sleeps, and the TMR_ADVERTISE expiry wakes it
+[  FAILED  ] AdpOwed.E4OwedDepartingWake (0 ms)
+[----------] 2 tests from AdpOwed (0 ms total)
+
+[----------] 1 test from AdpBacklog
+[ RUN      ] AdpBacklog.F0toF7FullBacklogs
+  backlog: 16 event records, 30 centiseconds, 28 receive records
+  passes: events by 2, ENTITY_AVAILABLE in 2 (175 accesses), receive ring by 14 (457 accesses), idle at 15; worst pass 105 accesses
+  F5 the costliest pass of the backlog         105 accesses (bound 407)
+[       OK ] AdpBacklog.F0toF7FullBacklogs (0 ms)
+[----------] 1 test from AdpBacklog (0 ms total)
+
+[----------] 6 tests from Shutdowns/AdpOwedBound
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0: E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  33 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0: E5 1 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0, where GetParam() = (1, false) (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1: E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 2 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  39 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1: E5 1 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1, where GetParam() = (1, true) (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2: E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  33 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2: E5 2 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2, where GetParam() = (2, false) (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3: E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  39 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3: E5 2 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3, where GetParam() = (2, true) (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4: E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  33 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4: E5 64 SHUTDOWNs behind a full ring, expiry taken before the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4, where GetParam() = (64, false) (0 ms)
+[ RUN      ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5
+<source>/sw/firmware/ctrl/test/test_adp.cpp:867: Failure
+Value of: at == k + 1u && at <= (2u + 1u > (((64u / 4u) + 8u - 1u) / 8u) ? 2u + 1u : (((64u / 4u) + 8u - 1u) / 8u))
+  Actual: false
+Expected: true
+E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5: E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: the ENTITY_AVAILABLE is committed in pass k + 1 = 3 after the room returns, within ADP_MBX_OWED_PASSES
+  E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  39 accesses (bound 1628)
+<source>/sw/firmware/ctrl/test/test_adp.cpp:873: Failure
+Value of: model.tx_sent == base + k + 1u && model_sent(base, 1u, 1) && (k < 2u || model_sent(base + 1u, 1u, 0)) && model_sent(base + k, 0u, 0)
+  Actual: false
+Expected: true
+E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+
+  [FAIL] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5: E5 64 SHUTDOWNs behind a full ring, expiry taken after the room: the wire carries DEPARTING 1, DEPARTING 0, AVAILABLE 0
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5, where GetParam() = (64, true) (0 ms)
+[----------] 6 tests from Shutdowns/AdpOwedBound (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 26 tests from 6 test suites ran. (2 ms total)
+[  PASSED  ] 14 tests.
+[  FAILED  ] 12 tests, listed below:
+[  FAILED  ] AdpCore.A15OwedDepartingAcrossARestart
+[  FAILED  ] AdpCore.A16SecondShutdownQueuesItsOwn
+[  FAILED  ] AdpCore.A17RoomBackBeforeAPoll
+[  FAILED  ] AdpCore.A18LinkLossKeepsTheOwedDeparting
+[  FAILED  ] AdpCore.A21DepartingCapacity
+[  FAILED  ] AdpOwed.E4OwedDepartingWake
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/0, where GetParam() = (1, false)
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/1, where GetParam() = (1, true)
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/2, where GetParam() = (2, false)
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/3, where GetParam() = (2, true)
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/4, where GetParam() = (64, false)
+[  FAILED  ] Shutdowns/AdpOwedBound.E5CommittedInPassKPlusOne/5, where GetParam() = (64, true)
+
+12 FAILED TESTS
+== ctrl ADP slice (fake ports and host model): checks: 26   failures: 12 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 12 failure(s) across 26 checks, exit 1)

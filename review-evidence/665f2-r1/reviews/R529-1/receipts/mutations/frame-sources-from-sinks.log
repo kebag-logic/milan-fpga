@@ -1,0 +1,159 @@
+arm=entity rc=1 expected_test=Fabric/EntityField.MatchesTheFabric/talker_stream_sources expected_text='talker_stream_sources' caught=True
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Fabric/EntityField
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_model_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_model_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/mac
+[       OK ] Fabric/EntityField.MatchesTheFabric/mac (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/identify_control_index
+[       OK ] Fabric/EntityField.MatchesTheFabric/identify_control_index (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_capabilities (0 ms)
+[----------] 9 tests from Fabric/EntityField (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Fabric/EntityField
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_model_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_model_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/mac
+[       OK ] Fabric/EntityField.MatchesTheFabric/mac (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/identify_control_index
+[       OK ] Fabric/EntityField.MatchesTheFabric/identify_control_index (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_capabilities (0 ms)
+[----------] 9 tests from Fabric/EntityField (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Fabric/EntityField
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_model_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_model_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/mac
+[       OK ] Fabric/EntityField.MatchesTheFabric/mac (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/identify_control_index
+[       OK ] Fabric/EntityField.MatchesTheFabric/identify_control_index (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources
+<source>/sw/firmware/ctrl/test/entity_fields.cpp:68: Failure
+Expected equality of these values:
+  got
+    Which is: 2
+  f.want
+    Which is: 1
+endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+
+  [FAIL] Fabric/EntityField.MatchesTheFabric/talker_stream_sources: endstation_arty_current: talker_stream_sources is 0x2 in the firmware ADPDU, 0x1 in the fabric
+[  FAILED  ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources, where GetParam() = 24-byte object <12-F7 65-27 20-56 00-00 26-00 00-00 02-00 00-00 01-00 00-00 00-00 00-00> (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_capabilities (0 ms)
+[----------] 9 tests from Fabric/EntityField (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 8 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources, where GetParam() = 24-byte object <12-F7 65-27 20-56 00-00 26-00 00-00 02-00 00-00 01-00 00-00 00-00 00-00>
+
+ 1 FAILED TEST
+== ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 9 checks, exit 1)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Fabric/EntityField
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_model_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_model_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/mac
+[       OK ] Fabric/EntityField.MatchesTheFabric/mac (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/identify_control_index
+[       OK ] Fabric/EntityField.MatchesTheFabric/identify_control_index (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_capabilities (0 ms)
+[----------] 9 tests from Fabric/EntityField (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Fabric/EntityField
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_model_id
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_model_id (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/mac
+[       OK ] Fabric/EntityField.MatchesTheFabric/mac (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/entity_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/entity_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/identify_control_index
+[       OK ] Fabric/EntityField.MatchesTheFabric/identify_control_index (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_stream_sources (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_stream_sinks (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/talker_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/talker_capabilities (0 ms)
+[ RUN      ] Fabric/EntityField.MatchesTheFabric/listener_capabilities
+[       OK ] Fabric/EntityField.MatchesTheFabric/listener_capabilities (0 ms)
+[----------] 9 tests from Fabric/EntityField (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 9 tests.
+== ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)

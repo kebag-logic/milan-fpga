@@ -1,0 +1,28 @@
+arm=port rc=1 expected_test=Pool.P9AFreeListShorterThanItsCountIsExhausted expected_text='crashed on signal 11' caught=True
+[==========] Running 31 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from Pool
+[ RUN      ] Pool.P0Refusals
+[       OK ] Pool.P0Refusals (0 ms)
+[ RUN      ] Pool.P1ClassesExhaustionAndRefusals
+[       OK ] Pool.P1ClassesExhaustionAndRefusals (0 ms)
+[ RUN      ] Pool.P2ReleaseAndBadFrees
+[       OK ] Pool.P2ReleaseAndBadFrees (0 ms)
+[ RUN      ] Pool.P3CallocZeroesAndRefusesAWrap
+[       OK ] Pool.P3CallocZeroesAndRefusesAWrap (0 ms)
+[ RUN      ] Pool.P4ShlanFunctionsDrawOnTheBoundPool
+[       OK ] Pool.P4ShlanFunctionsDrawOnTheBoundPool (0 ms)
+[ RUN      ] Pool.P5ClassTablesAndArenasRefused
+[       OK ] Pool.P5ClassTablesAndArenasRefused (0 ms)
+[ RUN      ] Pool.P6CallocOfNothingAndOnAnExhaustedPool
+[       OK ] Pool.P6CallocOfNothingAndOnAnExhaustedPool (0 ms)
+[ RUN      ] Pool.P7FreeBelowTheArenaRefused
+[       OK ] Pool.P7FreeBelowTheArenaRefused (0 ms)
+[ RUN      ] Pool.P8PortLayerUnbound
+[       OK ] Pool.P8PortLayerUnbound (0 ms)
+[ RUN      ] Pool.P9AFreeListShorterThanItsCountIsExhausted
+
+  [FAIL] Pool.P9AFreeListShorterThanItsCountIsExhausted: crashed on signal 11
+== ctrl port, driver and loop (host model): checks: 10   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 10 checks, exit -11)

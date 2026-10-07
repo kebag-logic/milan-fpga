@@ -1,0 +1,26 @@
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from MaapDebug
+[ RUN      ] MaapDebug.SynchronousExpiryAsserts
+<source>/sw/firmware/ctrl/test/test_maap_debug.cpp:21: Failure
+Death test: { std::signal(6, ((__sighandler_t) 0)); (void)maap_begin(&core, 0x91e0f0000000UL); std::_Exit(0); }
+    Result: died but not with expected exit code:
+            Terminated by signal 11 (core dumped)
+Actual msg:
+[  DEATH   ] 
+debug reentry assertion
+
+  [FAIL] MaapDebug.SynchronousExpiryAsserts: debug reentry assertion
+[  FAILED  ] MaapDebug.SynchronousExpiryAsserts (148 ms)
+[----------] 1 test from MaapDebug (148 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (148 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDebug.SynchronousExpiryAsserts
+
+ 1 FAILED TEST
+== ctrl MAAP debug port contract: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

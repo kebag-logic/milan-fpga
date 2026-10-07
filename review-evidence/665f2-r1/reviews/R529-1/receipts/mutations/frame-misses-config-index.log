@@ -1,0 +1,184 @@
+arm=walk rc=1 expected_test=AdpWalk.P11ConfigurationIndexBytes expected_text='P11' caught=True
+[==========] Running 41 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from AdpWalk
+[ RUN      ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked
+  walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+[       OK ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked (0 ms)
+[ RUN      ] AdpWalk.P12BootGate
+[       OK ] AdpWalk.P12BootGate (0 ms)
+[ RUN      ] AdpWalk.P1toP5FirstAdvertAndCadence
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:353: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, pp::GM0, 0, pp::CFGIX)
+  Actual: false
+Expected: true
+P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+
+  [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P2 the first ENTITY_AVAILABLE is the processor's model frame, index 0
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:366: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, pp::GM0, k, pp::CFGIX)
+  Actual: false
+Expected: true
+P3 each cycle sends the model frame with the next index
+
+  [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 each cycle sends the model frame with the next index
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:366: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, pp::GM0, k, pp::CFGIX)
+  Actual: false
+Expected: true
+P3 each cycle sends the model frame with the next index
+
+  [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 each cycle sends the model frame with the next index
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:366: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, pp::GM0, k, pp::CFGIX)
+  Actual: false
+Expected: true
+P3 each cycle sends the model frame with the next index
+
+  [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P3 each cycle sends the model frame with the next index
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:374: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, kGm1, 4, pp::CFGIX)
+  Actual: false
+Expected: true
+P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+
+  [FAIL] AdpWalk.P1toP5FirstAdvertAndCadence: P5 GM_CHANGE re-advertises with the new grandmaster sampled at build (5.6.3.5.7)
+[  FAILED  ] AdpWalk.P1toP5FirstAdvertAndCadence (0 ms)
+[ RUN      ] AdpWalk.P7DepartingAndRestart
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:388: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(true, pp::GM0, index, pp::CFGIX)
+  Actual: false
+Expected: true
+P7 disable sends ENTITY_DEPARTING with the pre-reset index
+
+  [FAIL] AdpWalk.P7DepartingAndRestart: P7 disable sends ENTITY_DEPARTING with the pre-reset index
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:395: Failure
+Value of: w.frames.size() == 1u && w.frames[0] == expected(false, pp::GM0, 0, pp::CFGIX)
+  Actual: false
+Expected: true
+P7 the restart advertises from index 0
+
+  [FAIL] AdpWalk.P7DepartingAndRestart: P7 the restart advertises from index 0
+[  FAILED  ] AdpWalk.P7DepartingAndRestart (0 ms)
+[ RUN      ] AdpWalk.P11ConfigurationIndexBytes
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:415: Failure
+Value of: b.frames.size() == 1u && b.frames[0] == expected(false, pp::GM0, 1, 0x0304)
+  Actual: false
+Expected: true
+P11 and the frame is the model's at the new index
+
+  [FAIL] AdpWalk.P11ConfigurationIndexBytes: P11 and the frame is the model's at the new index
+[  FAILED  ] AdpWalk.P11ConfigurationIndexBytes (0 ms)
+[----------] 5 tests from AdpWalk (1 ms total)
+
+[----------] 36 tests from Table551/AdpWalkCell
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:289: Failure
+Value of: w.frames[0] == expected(c.frame == 2, pp::GM0, aidx0, pp::CFGIX)
+  Actual: false
+Expected: true
+TMR_DELAY x DELAY(timer armed): the frame is the processor's model_frame, byte for byte
+
+  [FAIL] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed: TMR_DELAY x DELAY(timer armed): the frame is the processor's model_frame, byte for byte
+[  FAILED  ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed, where GetParam() = (4, 4) (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:289: Failure
+Value of: w.frames[0] == expected(c.frame == 2, pp::GM0, aidx0, pp::CFGIX)
+  Actual: false
+Expected: true
+SHUTDOWN x WAITING: the frame is the processor's model_frame, byte for byte
+
+  [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING: SHUTDOWN x WAITING: the frame is the processor's model_frame, byte for byte
+[  FAILED  ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING, where GetParam() = (8, 2) (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:289: Failure
+Value of: w.frames[0] == expected(c.frame == 2, pp::GM0, aidx0, pp::CFGIX)
+  Actual: false
+Expected: true
+SHUTDOWN x DELAY(timer armed): the frame is the processor's model_frame, byte for byte
+
+  [FAIL] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed: SHUTDOWN x DELAY(timer armed): the frame is the processor's model_frame, byte for byte
+[  FAILED  ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed, where GetParam() = (8, 4) (0 ms)
+[----------] 36 tests from Table551/AdpWalkCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 41 tests from 2 test suites ran. (2 ms total)
+[  PASSED  ] 35 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] AdpWalk.P1toP5FirstAdvertAndCadence
+[  FAILED  ] AdpWalk.P7DepartingAndRestart
+[  FAILED  ] AdpWalk.P11ConfigurationIndexBytes
+[  FAILED  ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed, where GetParam() = (4, 4)
+[  FAILED  ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING, where GetParam() = (8, 2)
+[  FAILED  ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed, where GetParam() = (8, 4)
+
+ 6 FAILED TESTS
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 41 checks, exit 1)

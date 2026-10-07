@@ -1,0 +1,176 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast expected_text="Q11 a DEFEND to this interface's own MAC reaches the MAAP ring" caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Classification (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 and sets no IRQ_STATUS.ERR
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 and sets no IRQ_STATUS.ERR
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 2
+  expected
+    Which is: 3
+Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 7
+  expected
+    Which is: 6
+Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q9 and set no IRQ_STATUS.ERR
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 and set no IRQ_STATUS.ERR
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q11 its record is the DEFEND, byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 its record is the DEFEND, byte for byte
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 and FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 and FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q11 the DEFEND after them still reaches the MAAP ring
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 the DEFEND after them still reaches the MAAP ring
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21 (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 18 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21
+
+ 4 FAILED TESTS
+== mbx (host model): checks: 22   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 22 checks, exit 1)

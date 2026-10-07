@@ -1,0 +1,139 @@
+arm=maap rc=1 expected_test=MaapCore.QueueBoundAndWithdrawal expected_text='poll has bounded work' caught=True
+[==========] Running 32 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+[       OK ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+[       OK ] MaapCore.ConstantsStrictTimersAndSeed (3 ms)
+[ RUN      ] MaapCore.ReverseOctetPriority
+[       OK ] MaapCore.ReverseOctetPriority (0 ms)
+[ RUN      ] MaapCore.UniformDrawRejectsIncompleteBucket
+[       OK ] MaapCore.UniformDrawRejectsIncompleteBucket (0 ms)
+[ RUN      ] MaapCore.DefendEchoAndIntersection
+[       OK ] MaapCore.DefendEchoAndIntersection (0 ms)
+[ RUN      ] MaapCore.DisjointAdjacentZeroAndDefendRange
+[       OK ] MaapCore.DisjointAdjacentZeroAndDefendRange (0 ms)
+[ RUN      ] MaapCore.MalformedAndVersionCompatibility
+[       OK ] MaapCore.MalformedAndVersionCompatibility (0 ms)
+[ RUN      ] MaapCore.InitAndPreferredRangeBounds
+[       OK ] MaapCore.InitAndPreferredRangeBounds (0 ms)
+[ RUN      ] MaapCore.ReleaseLossAndRetry
+[       OK ] MaapCore.ReleaseLossAndRetry (0 ms)
+[ RUN      ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+[       OK ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry (0 ms)
+[ RUN      ] MaapCore.QueueBoundAndWithdrawal
+<source>/sw/firmware/ctrl/test/test_maap.cpp:304: Failure
+Value of: maap_poll(&r.core)
+  Actual: false
+Expected: true
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal: Expected: true
+<source>/sw/firmware/ctrl/test/test_maap.cpp:305: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 21
+  n + 2
+    Which is: 7
+poll has bounded work
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal: poll has bounded work
+[  FAILED  ] MaapCore.QueueBoundAndWithdrawal (0 ms)
+[ RUN      ] MaapCore.ReentrantPortsAreCountedAndIgnored
+[       OK ] MaapCore.ReentrantPortsAreCountedAndIgnored (0 ms)
+[----------] 12 tests from MaapCore (3 ms total)
+
+[----------] 2 tests from MaapCsr
+[ RUN      ] MaapCsr.EveryStreamAddressAndLossGate
+[       OK ] MaapCsr.EveryStreamAddressAndLossGate (0 ms)
+[ RUN      ] MaapCsr.ShapesAndCountRefusal
+[       OK ] MaapCsr.ShapesAndCountRefusal (0 ms)
+[----------] 2 tests from MaapCsr (0 ms total)
+
+[----------] 18 tests from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/0
+[       OK ] AllStates/MaapCell.TableB7/0 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/1
+[       OK ] AllStates/MaapCell.TableB7/1 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/2
+[       OK ] AllStates/MaapCell.TableB7/2 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/3
+[       OK ] AllStates/MaapCell.TableB7/3 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/4
+[       OK ] AllStates/MaapCell.TableB7/4 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/5
+[       OK ] AllStates/MaapCell.TableB7/5 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/6
+[       OK ] AllStates/MaapCell.TableB7/6 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/7
+[       OK ] AllStates/MaapCell.TableB7/7 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/8
+[       OK ] AllStates/MaapCell.TableB7/8 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/9
+[       OK ] AllStates/MaapCell.TableB7/9 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/10
+[       OK ] AllStates/MaapCell.TableB7/10 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/11
+[       OK ] AllStates/MaapCell.TableB7/11 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/12
+[       OK ] AllStates/MaapCell.TableB7/12 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/13
+[       OK ] AllStates/MaapCell.TableB7/13 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/14
+[       OK ] AllStates/MaapCell.TableB7/14 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/15
+[       OK ] AllStates/MaapCell.TableB7/15 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/16
+[       OK ] AllStates/MaapCell.TableB7/16 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/17
+[       OK ] AllStates/MaapCell.TableB7/17 (0 ms)
+[----------] 18 tests from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 32 tests from 3 test suites ran. (3 ms total)
+[  PASSED  ] 31 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapCore.QueueBoundAndWithdrawal
+
+ 1 FAILED TEST
+== ctrl MAAP Annex B: checks: 32   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 32 checks, exit 1)
+[==========] Running 11 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 11 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 8300 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 11300 ns from original deadline (model)
+  H-MAAP timer 2: 56 accesses, 16600 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 19900 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+[       OK ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[       OK ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[       OK ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[       OK ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 11 tests from MaapHost (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 11 tests.
+== ctrl H-MAAP mailbox: checks: 11   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (11 tests, 0 failures, exit 0)

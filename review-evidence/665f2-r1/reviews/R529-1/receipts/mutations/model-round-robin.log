@@ -1,0 +1,95 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder expected_text='X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Classification (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+X2 each with its own bytes
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 each with its own bytes
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+X2 after an SRP frame, AECP, ACMP and ADP leave in the order they were committed
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 after an SRP frame, AECP, ACMP and ADP leave in the order they were committed
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+X2 equal SEQs leave round-robin from the channel served last
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder: X2 equal SEQs leave round-robin from the channel served last
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder, where GetParam() = 7 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 21 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder, where GetParam() = 7
+
+ 1 FAILED TEST
+== mbx (host model): checks: 22   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 22 checks, exit 1)

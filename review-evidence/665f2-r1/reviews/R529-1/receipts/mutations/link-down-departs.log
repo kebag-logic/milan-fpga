@@ -1,0 +1,121 @@
+arm=walk rc=1 expected_test=Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING expected_text='LINK_DOWN x WAITING: frames committed' caught=True
+[==========] Running 41 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from AdpWalk
+[ RUN      ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked
+  walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+[       OK ] AdpWalk.EveryCellOutsideTheDrawColumnIsWalked (0 ms)
+[ RUN      ] AdpWalk.P12BootGate
+[       OK ] AdpWalk.P12BootGate (0 ms)
+[ RUN      ] AdpWalk.P1toP5FirstAdvertAndCadence
+[       OK ] AdpWalk.P1toP5FirstAdvertAndCadence (1 ms)
+[ RUN      ] AdpWalk.P7DepartingAndRestart
+[       OK ] AdpWalk.P7DepartingAndRestart (0 ms)
+[ RUN      ] AdpWalk.P11ConfigurationIndexBytes
+[       OK ] AdpWalk.P11ConfigurationIndexBytes (0 ms)
+[----------] 5 tests from AdpWalk (2 ms total)
+
+[----------] 36 tests from Table551/AdpWalkCell
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_own_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/ENTITY_DISCOVER_foreign_eid_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/TMR_ADVERTISE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/LINK_UP_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:286: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(w.frames.size())
+    Which is: 1
+  static_cast<std::uint64_t>(c.frame == 0 ? 0u : 1u)
+    Which is: 0
+LINK_DOWN x WAITING: frames committed
+
+  [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING: LINK_DOWN x WAITING: frames committed
+[  FAILED  ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING, where GetParam() = (6, 2) (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed
+<source>/sw/firmware/ctrl/test/adp_walk.cpp:286: Failure
+Expected equality of these values:
+  static_cast<std::uint64_t>(w.frames.size())
+    Which is: 1
+  static_cast<std::uint64_t>(c.frame == 0 ? 0u : 1u)
+    Which is: 0
+LINK_DOWN x DELAY(timer armed): frames committed
+
+  [FAIL] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed: LINK_DOWN x DELAY(timer armed): frames committed
+[  FAILED  ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed, where GetParam() = (6, 4) (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/GM_CHANGE_x_DELAY_timer_armed (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_NOT_STARTED_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_WAITING (0 ms)
+[ RUN      ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed
+[       OK ] Table551/AdpWalkCell.Graded/SHUTDOWN_x_DELAY_timer_armed (0 ms)
+[----------] 36 tests from Table551/AdpWalkCell (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 41 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 39 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_WAITING, where GetParam() = (6, 2)
+[  FAILED  ] Table551/AdpWalkCell.Graded/LINK_DOWN_x_DELAY_timer_armed, where GetParam() = (6, 4)
+
+ 2 FAILED TESTS
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 41 checks, exit 1)

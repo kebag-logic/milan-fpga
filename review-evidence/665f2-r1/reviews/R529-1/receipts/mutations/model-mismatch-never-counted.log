@@ -1,0 +1,488 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/TupleRejections expected_text='Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Classification (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (adp): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (adp): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (adp): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (adp): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (acmp, multicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, multicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (acmp, multicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (acmp, multicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (acmp, multicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (acmp, multicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (acmp, own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (acmp, own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (aecp, command): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (aecp, command): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (aecp, response): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (aecp, response): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (maap): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (maap): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (maap): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (maap): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (maap): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 with an unassigned AVTP subtype, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 with an unassigned AVTP subtype, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (srp MSRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (srp MSRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (srp MSRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (srp MSRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MSRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MSRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 as AVTP with the ADP subtype, it cannot select srp (srp MSRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 as AVTP with the ADP subtype, it cannot select srp (srp MSRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q2 to another destination MAC, it (srp MVRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q2 to another destination MAC, it (srp MVRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q3 under another control EtherType, it (srp MVRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q3 under another control EtherType, it (srp MVRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MVRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MVRP): FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q4 as AVTP with the ADP subtype, it cannot select srp (srp MVRP): FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q4 as AVTP with the ADP subtype, it cannot select srp (srp MVRP): FILTER_MISMATCH counts it once
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q6 untagged AAF to a stream address: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered: Q6 untagged AAF to a stream address: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q6 untagged CRF to a stream address: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered: Q6 untagged CRF to a stream address: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q6 untagged AAF to the ADP and ACMP address: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered: Q6 untagged AAF to the ADP and ACMP address: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q6 untagged CRF to this interface's own MAC: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered: Q6 untagged CRF to this interface's own MAC: FILTER_MISMATCH counts it once
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered, where GetParam() = 16 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 3
+Q8 and counts once each in FILTER_MISMATCH
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 and counts once each in FILTER_MISMATCH
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q8 a MAC differing from OWN_MAC in MAC[47:32] only: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 a MAC differing from OWN_MAC in MAC[47:32] only: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q8 a MAC differing from OWN_MAC in MAC[31:0] only: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 a MAC differing from OWN_MAC in MAC[31:0] only: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q8 rewritten, the old own MAC: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 rewritten, the old own MAC: FILTER_MISMATCH counts it once
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q9 a mismatch sets IRQ_STATUS.ERR
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 a mismatch sets IRQ_STATUS.ERR
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 6
+Q9 five tuple failures in a row count five
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 five tuple failures in a row count five
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 6
+Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 16
+Q10 and FILTER_MISMATCH counts the tuple failures only
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter: Q10 and FILTER_MISMATCH counts the tuple failures only
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 13
+Q11 and each counts once in FILTER_MISMATCH
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 and each counts once in FILTER_MISMATCH
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21 (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 16 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered, where GetParam() = 16
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21
+
+ 6 FAILED TESTS
+== mbx (host model): checks: 22   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 22 checks, exit 1)

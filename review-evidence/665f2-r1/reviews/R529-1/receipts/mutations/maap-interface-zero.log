@@ -1,0 +1,52 @@
+arm=maap_if2 rc=1 expected_test=MaapHost.InterfaceIsolationAndRangeEnvelope expected_text='record index selects state' caught=True
+[==========] Running 11 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 11 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 12200 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 15200 ns from original deadline (model)
+  H-MAAP timer 2: 56 accesses, 20500 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 23800 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+[       OK ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[       OK ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:237: Failure
+Expected equality of these values:
+  adapter.ifs[k].core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+record index selects state
+
+  [FAIL] MaapHost.InterfaceIsolationAndRangeEnvelope: record index selects state
+[  FAILED  ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[       OK ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 11 tests from MaapHost (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapHost.InterfaceIsolationAndRangeEnvelope
+
+ 1 FAILED TEST
+== ctrl H-MAAP mailbox: checks: 11   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 11 checks, exit 1)

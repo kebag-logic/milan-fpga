@@ -1,0 +1,170 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/ expected_text='F1 frame byte k is ring word' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter: F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter, where GetParam() = 2 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/Classification, where GetParam() = 3 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+D0 every unread record survives the dropped frame byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord: D0 every unread record survives the dropped frame byte for byte
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+D1 the record after it is still the next frame's
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord: D1 the record after it is still the next frame's
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord, where GetParam() = 4 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (adp)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (adp)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (acmp, multicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (acmp, multicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (acmp, own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (acmp, own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (aecp, command)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (aecp, command)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (aecp, response)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (aecp, response)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (maap)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (maap)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (srp MSRP)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (srp MSRP)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (srp MVRP)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (srp MVRP)
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q7 its record is the response, byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 its record is the response, byte for byte
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q11 its record is the DEFEND, byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 its record is the DEFEND, byte for byte
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21 (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 16 tests.
+[  FAILED  ] 6 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter, where GetParam() = 2
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/Classification, where GetParam() = 3
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord, where GetParam() = 4
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21
+
+ 6 FAILED TESTS
+== mbx (host model): checks: 22   failures: 6 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 6 failure(s) across 22 checks, exit 1)

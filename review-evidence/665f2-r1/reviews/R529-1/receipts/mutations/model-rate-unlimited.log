@@ -1,0 +1,115 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/RateLimit expected_text='T0 the frames past it count in RATE_DROP' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Classification (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 10
+  expected
+    Which is: 8
+T0 a burst of the bucket's depth passes
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 a burst of the bucket's depth passes
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 2
+T0 the frames past it count in RATE_DROP
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T0 the frames past it count in RATE_DROP
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 12
+  expected
+    Which is: 9
+T1 one refill period buys exactly one more frame
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T1 one refill period buys exactly one more frame
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 3
+T1 and the next is refused again
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/RateLimit: T1 and the next is refused again
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit, where GetParam() = 5 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 9
+  expected
+    Which is: 8
+Q10 refusals by the filter take no token: a full burst still passes after them
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter: Q10 refusals by the filter take no token: a full burst still passes after them
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+Q10 the bucket refuses the frame past it in RATE_DROP
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter: Q10 the bucket refuses the frame past it in RATE_DROP
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 20 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit, where GetParam() = 5
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20
+
+ 2 FAILED TESTS
+== mbx (host model): checks: 22   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 22 checks, exit 1)

@@ -1,0 +1,113 @@
+arm=port rc=1 expected_test=Pool.P4ShlanFunctionsDrawOnTheBoundPool expected_text='P4 shlan_malloc and shlan_calloc draw on the bound pool' caught=True
+[==========] Running 31 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from Pool
+[ RUN      ] Pool.P0Refusals
+[       OK ] Pool.P0Refusals (0 ms)
+[ RUN      ] Pool.P1ClassesExhaustionAndRefusals
+[       OK ] Pool.P1ClassesExhaustionAndRefusals (0 ms)
+[ RUN      ] Pool.P2ReleaseAndBadFrees
+[       OK ] Pool.P2ReleaseAndBadFrees (0 ms)
+[ RUN      ] Pool.P3CallocZeroesAndRefusesAWrap
+[       OK ] Pool.P3CallocZeroesAndRefusesAWrap (0 ms)
+[ RUN      ] Pool.P4ShlanFunctionsDrawOnTheBoundPool
+<source>/sw/firmware/ctrl/test/test_port_loop.cpp:177: Failure
+Value of: in_bin(pool, 1, a) && in_bin(pool, 0, b)
+  Actual: false
+Expected: true
+P4 shlan_malloc and shlan_calloc draw on the bound pool
+
+  [FAIL] Pool.P4ShlanFunctionsDrawOnTheBoundPool: P4 shlan_malloc and shlan_calloc draw on the bound pool
+<source>/sw/firmware/ctrl/test/test_port_loop.cpp:181: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 0
+  before - 2u
+    Which is: 4294967295
+P4 shlan_free returns both blocks
+
+  [FAIL] Pool.P4ShlanFunctionsDrawOnTheBoundPool: P4 shlan_free returns both blocks
+[  FAILED  ] Pool.P4ShlanFunctionsDrawOnTheBoundPool (0 ms)
+[ RUN      ] Pool.P5ClassTablesAndArenasRefused
+[       OK ] Pool.P5ClassTablesAndArenasRefused (0 ms)
+[ RUN      ] Pool.P6CallocOfNothingAndOnAnExhaustedPool
+[       OK ] Pool.P6CallocOfNothingAndOnAnExhaustedPool (0 ms)
+[ RUN      ] Pool.P7FreeBelowTheArenaRefused
+[       OK ] Pool.P7FreeBelowTheArenaRefused (0 ms)
+[ RUN      ] Pool.P8PortLayerUnbound
+[       OK ] Pool.P8PortLayerUnbound (0 ms)
+[ RUN      ] Pool.P9AFreeListShorterThanItsCountIsExhausted
+[       OK ] Pool.P9AFreeListShorterThanItsCountIsExhausted (0 ms)
+[----------] 10 tests from Pool (0 ms total)
+
+[----------] 4 tests from DebugSink
+[ RUN      ] DebugSink.S0NoSinkDiscardsAndCounts
+[       OK ] DebugSink.S0NoSinkDiscardsAndCounts (0 ms)
+[ RUN      ] DebugSink.S1FormattedToTheSink
+[       OK ] DebugSink.S1FormattedToTheSink (0 ms)
+[ RUN      ] DebugSink.S2TruncatedToTheLine
+[       OK ] DebugSink.S2TruncatedToTheLine (0 ms)
+[ RUN      ] DebugSink.S3UnencodablePrintDiscarded
+[       OK ] DebugSink.S3UnencodablePrintDiscarded (0 ms)
+[----------] 4 tests from DebugSink (0 ms total)
+
+[----------] 7 tests from Driver
+[ RUN      ] Driver.D0RxRecordByteForByte
+[       OK ] Driver.D0RxRecordByteForByte (0 ms)
+[ RUN      ] Driver.D1MalformedRecordResynchronises
+[       OK ] Driver.D1MalformedRecordResynchronises (0 ms)
+[ RUN      ] Driver.D2TxRecordAndRefusals
+[       OK ] Driver.D2TxRecordAndRefusals (0 ms)
+[ RUN      ] Driver.D3HeldMergeFillsAndOrderAcrossChannels
+[       OK ] Driver.D3HeldMergeFillsAndOrderAcrossChannels (0 ms)
+[ RUN      ] Driver.D4EveryEventTypeDecoded
+[       OK ] Driver.D4EveryEventTypeDecoded (0 ms)
+[ RUN      ] Driver.D5CoherentGrandmasterRead
+[       OK ] Driver.D5CoherentGrandmasterRead (0 ms)
+[ RUN      ] Driver.D12OwnMacAndMismatchOnTheModel
+[       OK ] Driver.D12OwnMacAndMismatchOnTheModel (0 ms)
+[----------] 7 tests from Driver (0 ms total)
+
+[----------] 3 tests from LoopBring
+[ RUN      ] LoopBring.L0BindingsFitTheirTables
+[       OK ] LoopBring.L0BindingsFitTheirTables (0 ms)
+[ RUN      ] LoopBring.L1OpenOrder
+[       OK ] LoopBring.L1OpenOrder (0 ms)
+[ RUN      ] LoopBring.L9TablesRefuseNullAndOverflow
+[       OK ] LoopBring.L9TablesRefuseNullAndOverflow (0 ms)
+[----------] 3 tests from LoopBring (0 ms total)
+
+[----------] 7 tests from Loop
+[ RUN      ] Loop.L2PerPassRxBound
+[       OK ] Loop.L2PerPassRxBound (0 ms)
+[ RUN      ] Loop.L3PerPassEventBound
+[       OK ] Loop.L3PerPassEventBound (0 ms)
+[ RUN      ] Loop.L4TickFanOut
+[       OK ] Loop.L4TickFanOut (0 ms)
+[ RUN      ] Loop.L5MalformedRecordCounted
+[       OK ] Loop.L5MalformedRecordCounted (0 ms)
+[ RUN      ] Loop.L6OwedOutputKeepsPassing
+[       OK ] Loop.L6OwedOutputKeepsPassing (0 ms)
+[ RUN      ] Loop.L7TickSlices
+[       OK ] Loop.L7TickSlices (0 ms)
+[ RUN      ] Loop.L8TickRecordWhileCarried
+[       OK ] Loop.L8TickRecordWhileCarried (0 ms)
+[----------] 7 tests from Loop (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 5 test suites ran. (0 ms total)
+[  PASSED  ] 30 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Pool.P4ShlanFunctionsDrawOnTheBoundPool
+
+ 1 FAILED TEST
+== ctrl port, driver and loop (host model): checks: 31   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 31 checks, exit 1)
+arm=rv32 rc=1 expected_test= expected_text='symbols outside the C library' caught=True
+  riscv64-elf-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 12 objects
+  size (text data bss dec): 14808 0 167 14975
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, malloc, memcpy, memset, vsnprintf
+  [FAIL] symbols outside the C library and libgcc: malloc
+== ctrl RV32I freestanding build: checks: 1   failures: 1 ==
+RESULT: FAIL

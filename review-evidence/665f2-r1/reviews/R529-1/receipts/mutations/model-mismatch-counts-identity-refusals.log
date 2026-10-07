@@ -1,0 +1,172 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/TupleRejections expected_text='Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Classification (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 ENTITY_AVAILABLE of this entity: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ENTITY_AVAILABLE of this entity: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 ACMP for neither this talker nor this listener: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 ACMP for neither this talker nor this listener: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 an AECP command for another target, even with this controller: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 an AECP command for another target, even with this controller: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 an AECP response for another controller, even to this target: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 an AECP response for another controller, even to this target: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 a MAAP PROBE beside this entity's range: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 a MAAP PROBE beside this entity's range: FILTER_MISMATCH does not count it
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q7 a CONTROLLER_AVAILABLE response for another controller: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 a CONTROLLER_AVAILABLE response for another controller: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 16
+  expected
+    Which is: 0
+Q7 no command passes on its controller, no response on its target, none counted
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 no command passes on its controller, no response on its target, none counted
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 7
+  expected
+    Which is: 6
+Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 32
+  expected
+    Which is: 16
+Q10 and FILTER_MISMATCH counts the tuple failures only
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter: Q10 and FILTER_MISMATCH counts the tuple failures only
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21 (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 17 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter, where GetParam() = 20
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21
+
+ 5 FAILED TESTS
+== mbx (host model): checks: 22   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 22 checks, exit 1)

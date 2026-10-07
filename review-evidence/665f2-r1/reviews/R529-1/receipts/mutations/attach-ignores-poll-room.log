@@ -1,0 +1,99 @@
+arm=unit rc=1 expected_test=AdpAdapterUnit.B4LoopWithNoRoomRefused expected_text='B4 a loop with no room for the poll is refused' caught=True
+[==========] Running 23 tests from 6 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from AppComposition
+[ RUN      ] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox
+[       OK ] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox (0 ms)
+[ RUN      ] AppComposition.U1AnotherContractOpensNothing
+[       OK ] AppComposition.U1AnotherContractOpensNothing (0 ms)
+[ RUN      ] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens
+[       OK ] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens (0 ms)
+[ RUN      ] AppComposition.U1AnUncarvablePoolStartsNothing
+[       OK ] AppComposition.U1AnUncarvablePoolStartsNothing (0 ms)
+[----------] 4 tests from AppComposition (0 ms total)
+
+[----------] 1 test from LoopRun
+[ RUN      ] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed
+[       OK ] LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed (0 ms)
+[----------] 1 test from LoopRun (0 ms total)
+
+[----------] 5 tests from DriverUnit
+[ RUN      ] DriverUnit.D6MaapRangeWritten
+[       OK ] DriverUnit.D6MaapRangeWritten (0 ms)
+[ RUN      ] DriverUnit.D8TransmitRefusals
+[       OK ] DriverUnit.D8TransmitRefusals (0 ms)
+[ RUN      ] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt
+[       OK ] DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt (0 ms)
+[ RUN      ] DriverUnit.D10LanesAndFieldsAtTheirBounds
+[       OK ] DriverUnit.D10LanesAndFieldsAtTheirBounds (0 ms)
+[ RUN      ] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount
+[       OK ] DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount (0 ms)
+[----------] 5 tests from DriverUnit (0 ms total)
+
+[----------] 3 tests from AdpAdapterUnit
+[ RUN      ] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused
+[       OK ] AdpAdapterUnit.B2SlotsPastTheTimerBankRefused (0 ms)
+[ RUN      ] AdpAdapterUnit.B3ForeignInterfaceCounted
+[       OK ] AdpAdapterUnit.B3ForeignInterfaceCounted (0 ms)
+[ RUN      ] AdpAdapterUnit.B4LoopWithNoRoomRefused
+<source>/sw/firmware/ctrl/test/test_unit_driver.cpp:196: Failure
+Value of: adp_mbx_attach(&m, &loop)
+  Actual: true
+Expected: false
+B4 a loop with no room for the poll is refused
+
+  [FAIL] AdpAdapterUnit.B4LoopWithNoRoomRefused: B4 a loop with no room for the poll is refused
+[  FAILED  ] AdpAdapterUnit.B4LoopWithNoRoomRefused (0 ms)
+[----------] 3 tests from AdpAdapterUnit (0 ms total)
+
+[----------] 6 tests from IdAndCaps/ContractField
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/magic
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/magic (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_ch (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_if (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/n_timers (0 ms)
+[ RUN      ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words
+[       OK ] IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/evt_words (0 ms)
+[----------] 6 tests from IdAndCaps/ContractField (0 ms total)
+
+[----------] 4 tests from Records/DriverMalformed
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/shorter_than_a_header (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/longer_than_the_channel_takes (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/RX_HEAD_past_the_ring (0 ms)
+[ RUN      ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD
+[       OK ] Records/DriverMalformed.D7RefusedAndResynchronised/record_past_RX_HEAD (0 ms)
+[----------] 4 tests from Records/DriverMalformed (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 23 tests from 6 test suites ran. (0 ms total)
+[  PASSED  ] 22 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AdpAdapterUnit.B4LoopWithNoRoomRefused
+
+ 1 FAILED TEST
+== ctrl units on the HAL and port-layer mocks: checks: 23   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 23 checks, exit 1)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from MmioPlatform
+[ RUN      ] MmioPlatform.M1OneWordAtBasePlusOffset
+[       OK ] MmioPlatform.M1OneWordAtBasePlusOffset (0 ms)
+[ RUN      ] MmioPlatform.M2WaitIsThePlatformWfi
+[       OK ] MmioPlatform.M2WaitIsThePlatformWfi (0 ms)
+[----------] 2 tests from MmioPlatform (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)

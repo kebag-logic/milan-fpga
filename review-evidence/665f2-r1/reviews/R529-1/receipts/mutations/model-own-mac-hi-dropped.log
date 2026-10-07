@@ -1,0 +1,359 @@
+arm=model rc=1 expected_test=Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks expected_text='R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only' caught=True
+[==========] Running 22 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 22 tests from Suite/MbxModelGroup
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks: R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks, where GetParam() = 0 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/PartialStrobeRefused (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/AdpFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Classification
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 1
+C1 AECP to this entity passes; to another does not
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C1 AECP to this entity passes; to another does not
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 7
+  expected
+    Which is: 8
+C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/Classification: C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/Classification, where GetParam() = 3 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/DropNeverTouchesAnUnreadRecord (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/RateLimit (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxMerge (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxCommitOrder (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TxRefusals (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/BadHostCounters (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/LinkAndGmEvents (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Timers
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Timers (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/Tick
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/Tick (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 1
+Q0 a valid frame reaches its channel (acmp, own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (acmp, own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (acmp, own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (acmp, own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 a valid frame never counts in FILTER_MISMATCH (acmp, own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (acmp, own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 2
+Q0 a valid frame reaches its channel (aecp, command)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, command)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (aecp, command)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (aecp, command)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 a valid frame never counts in FILTER_MISMATCH (aecp, command)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (aecp, command)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 2
+Q0 a valid frame reaches its channel (aecp, response)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (aecp, response)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (aecp, response)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (aecp, response)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 a valid frame never counts in FILTER_MISMATCH (aecp, response)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (aecp, response)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame reaches its channel (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast)
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 a valid frame never counts in FILTER_MISMATCH (maap, DEFEND to own unicast)
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q0 and sets no IRQ_STATUS.ERR
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleControls: Q0 and sets no IRQ_STATUS.ERR
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 an AECP command for another target, even with this controller: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 an AECP command for another target, even with this controller: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q5 an AECP response for another controller, even to this target: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections: Q5 an AECP response for another controller, even to this target: FILTER_MISMATCH does not count it
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/StreamDataNeverDelivered (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 2
+Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q7 its record is the response, byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 its record is the response, byte for byte
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q7 a CONTROLLER_AVAILABLE response for another controller: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 a CONTROLLER_AVAILABLE response for another controller: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 8
+Q7 every command type (even) for this target passes
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 every command type (even) for this target passes
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 8
+Q7 every response type (odd) for this controller passes
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 every response type (odd) for this controller passes
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 32
+  expected
+    Which is: 0
+Q7 no command passes on its controller, no response on its target, none counted
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections: Q7 no command passes on its controller, no response on its target, none counted
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 0
+  expected
+    Which is: 3
+Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 2
+Q8 rewritten, the new own MAC passes
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface: Q8 rewritten, the new own MAC passes
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 10
+  expected
+    Which is: 6
+Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q9 and set no IRQ_STATUS.ERR
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount: Q9 and set no IRQ_STATUS.ERR
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19 (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter
+[       OK ] Suite/MbxModelGroup.PassesOnTheModel/TokensApartFromTheFilter (0 ms)
+[ RUN      ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC reaches the MAAP ring
+<source>/sw/firmware/ctrl/test/model_suite.cpp:41: Failure
+Value of: condition
+  Actual: false
+Expected: true
+Q11 its record is the DEFEND, byte for byte
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 its record is the DEFEND, byte for byte
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 and FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 and FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC for a range beside this entity's: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 1
+  expected
+    Which is: 0
+Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 a DEFEND to this interface's own MAC that ends at byte 15, before its range: FILTER_MISMATCH does not count it
+<source>/sw/firmware/ctrl/test/model_suite.cpp:37: Failure
+Expected equality of these values:
+  got
+    Which is: 5
+  expected
+    Which is: 3
+Q11 the DEFEND after them still reaches the MAAP ring
+
+  [FAIL] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast: Q11 the DEFEND after them still reaches the MAAP ring
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21 (0 ms)
+[----------] 22 tests from Suite/MbxModelGroup (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 22 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 14 tests.
+[  FAILED  ] 8 tests, listed below:
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/ResetIdentityAndRegisterMasks, where GetParam() = 0
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/Classification, where GetParam() = 3
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleControls, where GetParam() = 14
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/TupleRejections, where GetParam() = 15
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections, where GetParam() = 17
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface, where GetParam() = 18
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/FilterMismatchCount, where GetParam() = 19
+[  FAILED  ] Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast, where GetParam() = 21
+
+ 8 FAILED TESTS
+== mbx (host model): checks: 22   failures: 8 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 8 failure(s) across 22 checks, exit 1)

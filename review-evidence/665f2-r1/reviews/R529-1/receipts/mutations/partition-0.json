@@ -1,0 +1,1380 @@
+[
+  {
+    "index": 0,
+    "name": "departing-keeps-index",
+    "path": "adp/adp.c",
+    "seconds": 5.46,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/",
+        "needle": "available_index",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 2,
+    "name": "available-replaces-owed-departing",
+    "path": "adp/adp.c",
+    "seconds": 5.09,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A15OwedDepartingAcrossARestart",
+        "needle": "A15 with room, the next poll sends the owed ENTITY_DEPARTING first",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 4,
+    "name": "second-departing-dropped",
+    "path": "adp/adp.c",
+    "seconds": 4.978,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A16SecondShutdownQueuesItsOwn",
+        "needle": "A16 a SHUTDOWN while one is owed queues its own",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 6,
+    "name": "link-loss-drops-owed-departing",
+    "path": "adp/adp.c",
+    "seconds": 5.448,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A18LinkLossKeepsTheOwedDeparting",
+        "needle": "A18 a link loss during the restart stops it and keeps the owed ENTITY_DEPARTING",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 8,
+    "name": "discover-drops-owed-available",
+    "path": "adp/adp.c",
+    "seconds": 5.257,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A19IgnoredInputsKeepTheOwedAvailable",
+        "needle": "A19 so does an ENTITY_DISCOVER",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 10,
+    "name": "link-loss-keeps-owed-available",
+    "path": "adp/adp.c",
+    "seconds": 5.398,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A20LinkLossDropsTheOwedAvailable",
+        "needle": "A20 a link loss drops the owed ENTITY_AVAILABLE at once",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 12,
+    "name": "coalesced-departing-uncounted",
+    "path": "adp/adp.c",
+    "seconds": 4.562,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 14,
+    "name": "coalesce-overwrites-oldest-index",
+    "path": "adp/adp.c",
+    "seconds": 4.468,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A21DepartingCapacity",
+        "needle": "A21 the next SHUTDOWN is coalesced into the queued one and counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 16,
+    "name": "down-answers-discover",
+    "path": "adp/adp.c",
+    "seconds": 3.722,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/RCV_ADP_DISCOVER_eid_0_x_DOWN",
+        "needle": "RCV_ADP_DISCOVER(eid 0) x DOWN",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 18,
+    "name": "gm-change-ignored",
+    "path": "adp/adp.c",
+    "seconds": 4.122,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/GM_CHANGE_x_WAITING",
+        "needle": "GM_CHANGE x WAITING",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 20,
+    "name": "shutdown-in-down-departs",
+    "path": "adp/adp.c",
+    "seconds": 3.882,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/SHUTDOWN_x_DOWN",
+        "needle": "SHUTDOWN x DOWN",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 22,
+    "name": "advertise-period-wrong",
+    "path": "adp/adp.c",
+    "seconds": 3.945,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "Table551/AdpWalkCell.Graded/TMR_DELAY_x_DELAY_timer_armed",
+        "needle": "TMR_DELAY x DELAY(timer armed)",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 24,
+    "name": "draw-kinds-merged",
+    "path": "adp/adp.c",
+    "seconds": 5.122,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A9DrawKinds",
+        "needle": "A9 every startup draw",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 26,
+    "name": "frame-misses-config-index",
+    "path": "adp/adp.c",
+    "seconds": 3.937,
+    "kills": [
+      {
+        "arm": "walk",
+        "test": "AdpWalk.P11ConfigurationIndexBytes",
+        "needle": "P11",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 28,
+    "name": "latency-extra-read",
+    "path": "adp/adp_mbx.c",
+    "seconds": 5.126,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpLatency.C0toC6EveryResponsePath",
+        "needle": "C0 LINK_UP -> TMR_DELAY armed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 30,
+    "name": "calloc-overflow-unchecked",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.93,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P3CallocZeroesAndRefusesAWrap",
+        "needle": "P3 calloc refuses",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 32,
+    "name": "debug-truncation-uncounted",
+    "path": "port/ctrl_debug.c",
+    "seconds": 4.049,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "DebugSink.S2TruncatedToTheLine",
+        "needle": "S2 the truncation",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 34,
+    "name": "rx-pass-unbounded",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.221,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Loop.L2PerPassRxBound",
+        "needle": "L2 a pass takes at most",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 36,
+    "name": "events-halved",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 5.248,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpBacklog.F0toF7FullBacklogs",
+        "needle": "F2 all 16 event records are taken by pass",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 38,
+    "name": "carried-ticks-overwritten",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.09,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Loop.L8TickRecordWhileCarried",
+        "needle": "L8 a TICK record taken while centiseconds are carried",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 40,
+    "name": "owed-ticks-let-it-sleep",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 4.096,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Loop.L7TickSlices",
+        "needle": "L7 and the loop keeps passing",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 42,
+    "name": "rx-no-resync",
+    "path": "mbx/mbx.c",
+    "seconds": 11.568,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Driver.D1MalformedRecordResynchronises",
+        "needle": "D1 and the ring is resynchronised",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "unit",
+        "test": "Records/DriverMalformed.D7RefusedAndResynchronised/",
+        "needle": "and the ring is resynchronised to RX_HEAD",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 44,
+    "name": "lanes-big-endian",
+    "path": "mbx/mbx_wire.h",
+    "seconds": 4.489,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/",
+        "needle": "F1 frame byte k is ring word",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 46,
+    "name": "pool-falls-back-to-heap",
+    "path": "port/shlan_port.c",
+    "seconds": 4.836,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P4ShlanFunctionsDrawOnTheBoundPool",
+        "needle": "P4 shlan_malloc and shlan_calloc draw on the bound pool",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "rv32",
+        "test": "",
+        "needle": "symbols outside the C library",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 48,
+    "name": "seq-not-stamped",
+    "path": "mbx/mbx.c",
+    "seconds": 4.042,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Driver.D3HeldMergeFillsAndOrderAcrossChannels",
+        "needle": "D3 ACMP, ACMP, AECP committed by the driver",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 50,
+    "name": "model-gm-hi-live",
+    "path": "host/mbx_model.c",
+    "seconds": 4.107,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/GmSnapshot",
+        "needle": "G0 GM_HI reads the snapshot",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 52,
+    "name": "zero-size-refusal-uncounted",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.848,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P6CallocOfNothingAndOnAnExhaustedPool",
+        "needle": "P6 and both refusals are counted",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 54,
+    "name": "port-pool-unreported",
+    "path": "port/shlan_port.c",
+    "seconds": 4.046,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P8PortLayerUnbound",
+        "needle": "P8 the bound pool is the one reported",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 56,
+    "name": "pool-cut-list-refuses-outright",
+    "path": "port/ctrl_pool.c",
+    "seconds": 3.982,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "Pool.P9AFreeListShorterThanItsCountIsExhausted",
+        "needle": "P9 a class whose list ends before its count",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 58,
+    "name": "rx-binds-no-function",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 3.875,
+    "kills": [
+      {
+        "arm": "port",
+        "test": "LoopBring.L9TablesRefuseNullAndOverflow",
+        "needle": "L9 a channel bound to no function is refused",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 60,
+    "name": "enable-not-idempotent",
+    "path": "adp/adp.c",
+    "seconds": 4.601,
+    "kills": [
+      {
+        "arm": "adp",
+        "test": "AdpCore.A23RepeatedEnableOrDisableChangesNothing",
+        "needle": "A23 an enable while enabled draws and arms nothing",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 62,
+    "name": "app-binds-pool-after-the-mailbox",
+    "path": "app/ctrl_app.c",
+    "seconds": 6.598,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox",
+        "needle": "unsatisfied and active",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 64,
+    "name": "major-unchecked",
+    "path": "mbx/mbx.c",
+    "seconds": 8.394,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AppComposition.U1AnotherContractOpensNothing",
+        "needle": "U1 a bitstream carrying another contract is refused",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "unit",
+        "test": "IdAndCaps/ContractField.U2RefusedAndNothingMoreRead/major",
+        "needle": "U2 major differs",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 66,
+    "name": "step-waits-twice",
+    "path": "loop/ctrl_loop.c",
+    "seconds": 6.786,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed",
+        "needle": "U3 every turn is one pass",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 68,
+    "name": "tx-negative-fill",
+    "path": "mbx/mbx.c",
+    "seconds": 7.106,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D8TransmitRefusals",
+        "needle": "D8 a TX_TAIL more than a ring behind TX_HEAD is no room",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 70,
+    "name": "whole-field-loses-its-top-bit",
+    "path": "mbx/mbx_wire.h",
+    "seconds": 7.58,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D10LanesAndFieldsAtTheirBounds",
+        "needle": "D10 and reads whole",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 72,
+    "name": "foreign-frame-uncounted",
+    "path": "adp/adp_mbx.c",
+    "seconds": 8.056,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AdpAdapterUnit.B3ForeignInterfaceCounted",
+        "needle": "B3 a record, a LINK and a GM",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 74,
+    "name": "mmio-offset-as-index",
+    "path": "plat/mbx_plat_mmio.c",
+    "seconds": 7.765,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "MmioPlatform.M1OneWordAtBasePlusOffset",
+        "needle": "M1 a write lands in the word at base + offset",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 76,
+    "name": "model-tag-stripped",
+    "path": "host/mbx_model.c",
+    "seconds": 4.086,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q1 tagged, it (adp): no RX record",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 78,
+    "name": "model-multicast-dst-ignored",
+    "path": "host/mbx_model.c",
+    "seconds": 4.179,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q2 to another destination MAC, it (adp)",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 80,
+    "name": "model-subtype-ignored",
+    "path": "host/mbx_model.c",
+    "seconds": 4.32,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q4 with an unassigned AVTP subtype, it (adp)",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 82,
+    "name": "model-own-mac-of-interface-0",
+    "path": "host/mbx_model.c",
+    "seconds": 4.115,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/OwnMacPerInterface",
+        "needle": "Q8 another interface's own MAC, or one on an index with no interface, reaches no ring",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 84,
+    "name": "model-aecp-command-only",
+    "path": "mbx/mbx_contract.h",
+    "seconds": 4.398,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/AecpBothDirections",
+        "needle": "Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 86,
+    "name": "model-mismatch-counts-identity-refusals",
+    "path": "host/mbx_model.c",
+    "seconds": 4.232,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/TupleRejections",
+        "needle": "Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 88,
+    "name": "model-msg-type-off-by-one",
+    "path": "host/mbx_model.c",
+    "seconds": 4.417,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast",
+        "needle": "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 90,
+    "name": "model-msg-type-refusal-uncounted",
+    "path": "host/mbx_model.c",
+    "seconds": 4.047,
+    "kills": [
+      {
+        "arm": "model",
+        "test": "Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast",
+        "needle": "Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 92,
+    "name": "own-mac-unguarded",
+    "path": "mbx/mbx.c",
+    "seconds": 7.356,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+        "needle": "D11 an interface past the contract's is refused",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 94,
+    "name": "mismatch-read-from-bus-err",
+    "path": "mbx/mbx.c",
+    "seconds": 11.276,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+        "needle": "D11 FILTER_MISMATCH is read as its COUNT field",
+        "rc": 1,
+        "caught": true
+      },
+      {
+        "arm": "port",
+        "test": "Driver.D12OwnMacAndMismatchOnTheModel",
+        "needle": "D12 FILTER_MISMATCH reads the one tuple failure",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 96,
+    "name": "app-own-mac-not-the-entity-mac",
+    "path": "app/ctrl_app.c",
+    "seconds": 6.848,
+    "kills": [
+      {
+        "arm": "unit",
+        "test": "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens",
+        "needle": "OWN_MAC is the entity's MAC",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 98,
+    "name": "maap-initial-send-absent",
+    "path": "maap/maap.c",
+    "seconds": 8.034,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "initial PROBE is immediate",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 100,
+    "name": "maap-probe-count-not-decremented",
+    "path": "maap/maap.c",
+    "seconds": 8.53,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "retransmission decrements once",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 102,
+    "name": "maap-wire-length",
+    "path": "maap/maap.c",
+    "seconds": 7.722,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 104,
+    "name": "maap-wire-padding",
+    "path": "maap/maap.c",
+    "seconds": 7.799,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.InitialAndThreeRetransmissions",
+        "needle": "B.2 complete PROBE bytes",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 106,
+    "name": "maap-constant-probe_variation",
+    "path": "maap/maap.h",
+    "seconds": 7.862,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 108,
+    "name": "maap-constant-announce_variation",
+    "path": "maap/maap.h",
+    "seconds": 7.762,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 110,
+    "name": "maap-zero-seed-sticks",
+    "path": "maap/maap.c",
+    "seconds": 7.071,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ConstantsStrictTimersAndSeed",
+        "needle": "zero sum cannot lock generator",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 112,
+    "name": "maap-numeric-mac-priority",
+    "path": "maap/maap.c",
+    "seconds": 7.578,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ReverseOctetPriority",
+        "needle": "least significant octet decides first",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 114,
+    "name": "maap-defend-echo-own-range",
+    "path": "maap/maap.c",
+    "seconds": 8.492,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DefendEchoAndIntersection",
+        "needle": "echo request and exact intersection",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 116,
+    "name": "maap-adjacent-overlaps",
+    "path": "maap/maap.c",
+    "seconds": 8.285,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "half open intervals",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 118,
+    "name": "maap-defend-checks-request",
+    "path": "maap/maap.c",
+    "seconds": 8.2,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.DisjointAdjacentZeroAndDefendRange",
+        "needle": "DEFEND tests conflict fields",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 120,
+    "name": "maap-malformed-subtype",
+    "path": "maap/maap.c",
+    "seconds": 7.729,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 122,
+    "name": "maap-malformed-reserved-zero",
+    "path": "maap/maap.c",
+    "seconds": 8.101,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 124,
+    "name": "maap-malformed-cdl-short",
+    "path": "maap/maap.c",
+    "seconds": 8.303,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 126,
+    "name": "maap-malformed-cdl-current",
+    "path": "maap/maap.c",
+    "seconds": 8.131,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 128,
+    "name": "maap-malformed-source-group",
+    "path": "maap/maap.c",
+    "seconds": 8.028,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 130,
+    "name": "maap-malformed-own-probe",
+    "path": "maap/maap.c",
+    "seconds": 8.119,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "malformed input is rejected",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 132,
+    "name": "maap-future-version-refused",
+    "path": "maap/maap.c",
+    "seconds": 7.99,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.MalformedAndVersionCompatibility",
+        "needle": "B.2.3 recognized future",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 134,
+    "name": "maap-port-up-keeps-claim",
+    "path": "maap/maap.c",
+    "seconds": 7.741,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ReleaseLossAndRetry",
+        "needle": "PortOperational invalidates acquired address",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 136,
+    "name": "maap-expiry-forgotten-on-stall",
+    "path": "maap/maap.c",
+    "seconds": 7.934,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "original expiry remains owed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 138,
+    "name": "maap-probe-announce-reordered",
+    "path": "maap/maap.c",
+    "seconds": 8.004,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.StalledOutputRetainsOrderAndOriginalExpiry",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 140,
+    "name": "maap-poll-unbounded",
+    "path": "maap/maap.c",
+    "seconds": 8.143,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.QueueBoundAndWithdrawal",
+        "needle": "poll has bounded work",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 142,
+    "name": "maap-reentry-not-counted",
+    "path": "maap/maap.c",
+    "seconds": 7.569,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCore.ReentrantPortsAreCountedAndIgnored",
+        "needle": "all input guards fire",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 144,
+    "name": "maap-stream-index-missing",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.52,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.EveryStreamAddressAndLossGate",
+        "needle": "stream destination base plus index",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 146,
+    "name": "maap-fabric-owner-kept",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.184,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.EveryStreamAddressAndLossGate",
+        "needle": "fabric MAAP disabled without touching seed",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 148,
+    "name": "maap-count-mismatch-accepted",
+    "path": "maap/maap_csr.c",
+    "seconds": 7.365,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapCsr.ShapesAndCountRefusal",
+        "needle": "wrong shape stays disabled",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 150,
+    "name": "maap-timer-tag-ignored",
+    "path": "maap/maap_mbx.c",
+    "seconds": 7.499,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.StaleTagsForeignInputsAndLinkEdges",
+        "needle": "old timer tag ignored",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 152,
+    "name": "maap-half-attach",
+    "path": "maap/maap_mbx.c",
+    "seconds": 8.579,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.AttachRefusalsAndTimerWrap",
+        "needle": "no partial attachment",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 154,
+    "name": "maap-no-range-filter",
+    "path": "maap/maap_mbx.c",
+    "seconds": 8.174,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.HMaapConflictLossAndRetry",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 156,
+    "name": "maap-late-service",
+    "path": "maap/maap_mbx.c",
+    "seconds": 8.683,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.HMaapTimerCommitsAndIntervals",
+        "needle": "H-MAAP original timer deadline",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 158,
+    "name": "maap-app-channel-closed",
+    "path": "app/ctrl_app.c",
+    "seconds": 8.459,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.ExplicitAppComposition",
+        "needle": "",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 160,
+    "name": "maap-ignored-input-late",
+    "path": "maap/maap_mbx.c",
+    "seconds": 8.419,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "MaapHost.IgnoredInputCommitsStateWithinOriginalBudget",
+        "needle": "state completion uses original RX budget",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 162,
+    "name": "maap-table-b7-1",
+    "path": "maap/maap.c",
+    "seconds": 7.72,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/1",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 164,
+    "name": "maap-table-b7-3",
+    "path": "maap/maap.c",
+    "seconds": 7.529,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/3",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 166,
+    "name": "maap-table-b7-5",
+    "path": "maap/maap.c",
+    "seconds": 8.23,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/5",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 168,
+    "name": "maap-table-b7-7",
+    "path": "maap/maap.c",
+    "seconds": 8.0,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/7",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 170,
+    "name": "maap-table-b7-9",
+    "path": "maap/maap.c",
+    "seconds": 8.156,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/9",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 172,
+    "name": "maap-table-b7-11",
+    "path": "maap/maap.c",
+    "seconds": 8.634,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/11",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 174,
+    "name": "maap-table-b7-13",
+    "path": "maap/maap.c",
+    "seconds": 8.663,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/13",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 176,
+    "name": "maap-table-b7-15",
+    "path": "maap/maap.c",
+    "seconds": 7.807,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/15",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  },
+  {
+    "index": 178,
+    "name": "maap-table-b7-17",
+    "path": "maap/maap.c",
+    "seconds": 7.807,
+    "kills": [
+      {
+        "arm": "maap",
+        "test": "AllStates/MaapCell.TableB7/17",
+        "needle": "Table B.7",
+        "rc": 1,
+        "caught": true
+      }
+    ]
+  }
+]

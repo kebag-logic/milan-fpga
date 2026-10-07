@@ -1,0 +1,118 @@
+arm=port rc=1 expected_test=Pool.P7FreeBelowTheArenaRefused expected_text='P7 a free below the first class is refused and counted' caught=True
+[==========] Running 31 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from Pool
+[ RUN      ] Pool.P0Refusals
+[       OK ] Pool.P0Refusals (0 ms)
+[ RUN      ] Pool.P1ClassesExhaustionAndRefusals
+[       OK ] Pool.P1ClassesExhaustionAndRefusals (0 ms)
+[ RUN      ] Pool.P2ReleaseAndBadFrees
+<source>/sw/firmware/ctrl/test/test_port_loop.cpp:146: Failure
+Expected equality of these values:
+  f.pool.bad_frees
+    Which is: 2
+  3u
+    Which is: 3
+P2 a free of a pointer the pool never handed out is refused
+
+  [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of a pointer the pool never handed out is refused
+<source>/sw/firmware/ctrl/test/test_port_loop.cpp:148: Failure
+Expected equality of these values:
+  f.pool.bad_frees
+    Which is: 2
+  3u
+    Which is: 3
+P2 a free of NULL is a no-op
+
+  [FAIL] Pool.P2ReleaseAndBadFrees: P2 a free of NULL is a no-op
+[  FAILED  ] Pool.P2ReleaseAndBadFrees (0 ms)
+[ RUN      ] Pool.P3CallocZeroesAndRefusesAWrap
+[       OK ] Pool.P3CallocZeroesAndRefusesAWrap (0 ms)
+[ RUN      ] Pool.P4ShlanFunctionsDrawOnTheBoundPool
+[       OK ] Pool.P4ShlanFunctionsDrawOnTheBoundPool (0 ms)
+[ RUN      ] Pool.P5ClassTablesAndArenasRefused
+[       OK ] Pool.P5ClassTablesAndArenasRefused (0 ms)
+[ RUN      ] Pool.P6CallocOfNothingAndOnAnExhaustedPool
+[       OK ] Pool.P6CallocOfNothingAndOnAnExhaustedPool (0 ms)
+[ RUN      ] Pool.P7FreeBelowTheArenaRefused
+<source>/sw/firmware/ctrl/test/test_port_loop.cpp:218: Failure
+Expected equality of these values:
+  pool.bad_frees
+    Which is: 0
+  1u
+    Which is: 1
+P7 a free below the first class is refused and counted
+
+  [FAIL] Pool.P7FreeBelowTheArenaRefused: P7 a free below the first class is refused and counted
+[  FAILED  ] Pool.P7FreeBelowTheArenaRefused (0 ms)
+[ RUN      ] Pool.P8PortLayerUnbound
+[       OK ] Pool.P8PortLayerUnbound (0 ms)
+[ RUN      ] Pool.P9AFreeListShorterThanItsCountIsExhausted
+[       OK ] Pool.P9AFreeListShorterThanItsCountIsExhausted (0 ms)
+[----------] 10 tests from Pool (0 ms total)
+
+[----------] 4 tests from DebugSink
+[ RUN      ] DebugSink.S0NoSinkDiscardsAndCounts
+[       OK ] DebugSink.S0NoSinkDiscardsAndCounts (0 ms)
+[ RUN      ] DebugSink.S1FormattedToTheSink
+[       OK ] DebugSink.S1FormattedToTheSink (0 ms)
+[ RUN      ] DebugSink.S2TruncatedToTheLine
+[       OK ] DebugSink.S2TruncatedToTheLine (0 ms)
+[ RUN      ] DebugSink.S3UnencodablePrintDiscarded
+[       OK ] DebugSink.S3UnencodablePrintDiscarded (0 ms)
+[----------] 4 tests from DebugSink (0 ms total)
+
+[----------] 7 tests from Driver
+[ RUN      ] Driver.D0RxRecordByteForByte
+[       OK ] Driver.D0RxRecordByteForByte (0 ms)
+[ RUN      ] Driver.D1MalformedRecordResynchronises
+[       OK ] Driver.D1MalformedRecordResynchronises (0 ms)
+[ RUN      ] Driver.D2TxRecordAndRefusals
+[       OK ] Driver.D2TxRecordAndRefusals (0 ms)
+[ RUN      ] Driver.D3HeldMergeFillsAndOrderAcrossChannels
+[       OK ] Driver.D3HeldMergeFillsAndOrderAcrossChannels (0 ms)
+[ RUN      ] Driver.D4EveryEventTypeDecoded
+[       OK ] Driver.D4EveryEventTypeDecoded (0 ms)
+[ RUN      ] Driver.D5CoherentGrandmasterRead
+[       OK ] Driver.D5CoherentGrandmasterRead (0 ms)
+[ RUN      ] Driver.D12OwnMacAndMismatchOnTheModel
+[       OK ] Driver.D12OwnMacAndMismatchOnTheModel (0 ms)
+[----------] 7 tests from Driver (0 ms total)
+
+[----------] 3 tests from LoopBring
+[ RUN      ] LoopBring.L0BindingsFitTheirTables
+[       OK ] LoopBring.L0BindingsFitTheirTables (0 ms)
+[ RUN      ] LoopBring.L1OpenOrder
+[       OK ] LoopBring.L1OpenOrder (0 ms)
+[ RUN      ] LoopBring.L9TablesRefuseNullAndOverflow
+[       OK ] LoopBring.L9TablesRefuseNullAndOverflow (0 ms)
+[----------] 3 tests from LoopBring (0 ms total)
+
+[----------] 7 tests from Loop
+[ RUN      ] Loop.L2PerPassRxBound
+[       OK ] Loop.L2PerPassRxBound (0 ms)
+[ RUN      ] Loop.L3PerPassEventBound
+[       OK ] Loop.L3PerPassEventBound (0 ms)
+[ RUN      ] Loop.L4TickFanOut
+[       OK ] Loop.L4TickFanOut (0 ms)
+[ RUN      ] Loop.L5MalformedRecordCounted
+[       OK ] Loop.L5MalformedRecordCounted (0 ms)
+[ RUN      ] Loop.L6OwedOutputKeepsPassing
+[       OK ] Loop.L6OwedOutputKeepsPassing (0 ms)
+[ RUN      ] Loop.L7TickSlices
+[       OK ] Loop.L7TickSlices (0 ms)
+[ RUN      ] Loop.L8TickRecordWhileCarried
+[       OK ] Loop.L8TickRecordWhileCarried (0 ms)
+[----------] 7 tests from Loop (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 5 test suites ran. (0 ms total)
+[  PASSED  ] 29 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Pool.P2ReleaseAndBadFrees
+[  FAILED  ] Pool.P7FreeBelowTheArenaRefused
+
+ 2 FAILED TESTS
+== ctrl port, driver and loop (host model): checks: 31   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 31 checks, exit 1)
