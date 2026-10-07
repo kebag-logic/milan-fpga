@@ -1,0 +1,47 @@
+make: Entering directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx'
+$VALIDATION_STORAGE/645-a531/round2c/functional/run-simulator-limited --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/mbx" -GHOST_P=0 --Mdir obj_wb ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb
+$VALIDATION_STORAGE/645-a531/round2c/functional/run-simulator-limited --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/mbx" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil
+$VALIDATION_STORAGE/645-a531/round2c/functional/run-simulator-limited --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/mbx" -GHOST_P=0 --Mdir obj_cosim ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv cosim_main.cpp \
+  -CFLAGS "-Wall -Wextra -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/mbx -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/wire -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/host -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/port -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/loop -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/adp -I$VALIDATION_STORAGE/645-a531/round2c/functional/physical/sw/firmware/ctrl/app" -LDFLAGS "$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_fw/libctrlfw.a" -o Vmbx_cosim
+make[1]: Entering directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_wb'
+make[1]: Entering directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_axil'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_wb'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.014 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 2 threads; allocated 16.492 MB
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_axil'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 2 threads; allocated 16.492 MB
+======================================================================
+./obj_wb/Vmbx_wb 0
+======================================================================
+./obj_axil/Vmbx_axil 1
+== mbx (Wishbone host): checks: 134   failures: 0 ==
+RESULT: PASS
+== mbx (AXI4-Lite host): checks: 179   failures: 0 ==
+RESULT: PASS
+python3 -B mutants.py --quick
+[ok] rx-lanes-big-endian: 4 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-partial-strobe-accepted: 1 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+mbx mutants: 4 of 4 caught
+make[1]: Entering directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_cosim'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx/obj_cosim'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 2 threads; allocated 16.492 MB
+======================================================================
+./obj_cosim/Vmbx_cosim
+  frame 0: NOW_MS 117, message_type 0, available_index 0
+  frame 1: NOW_MS 7542, message_type 0, available_index 1
+  frame 2: NOW_MS 14570, message_type 0, available_index 2
+  frame 3: NOW_MS 18907, message_type 0, available_index 3
+  frame 4: NOW_MS 20000, message_type 1, available_index 4
+== mbx cosim (firmware on the RTL and on the model): checks: 13   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '$VALIDATION_STORAGE/645-a531/round2c/functional/physical/tb/verilator/mbx'

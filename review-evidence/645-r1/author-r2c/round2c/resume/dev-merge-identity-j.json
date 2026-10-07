@@ -1,0 +1,24 @@
+{
+  "head": "886e16201654ba0fd0c60c41c228ea4c75b2f6d3",
+  "measurement_head": "0a1961923895b35354e8c6d72566749e31237ff8",
+  "diff": "M\tREQUIREMENTS.md\nM\tdocs/design/MAILBOX_SPLIT.md\nM\tdocs/reference/FR_NFR.md\nM\tdocs/reference/MAILBOX_CONTRACT.md\nM\thdl/milan/mailbox/KL_mbx.sv\nM\thdl/milan/mailbox/KL_mbx_pkg.sv\nM\thdl/milan/mailbox/KL_mbx_rx.sv\nM\tsw/firmware/ctrl/README.md\nM\tsw/firmware/ctrl/app/ctrl_app.c\nM\tsw/firmware/ctrl/host/mbx_model.c\nM\tsw/firmware/ctrl/host/mbx_model.h\nM\tsw/firmware/ctrl/loop/ctrl_loop.c\nM\tsw/firmware/ctrl/loop/ctrl_loop.h\nM\tsw/firmware/ctrl/mbx/mbx.c\nM\tsw/firmware/ctrl/mbx/mbx.h\nM\tsw/firmware/ctrl/mbx/mbx_contract.h\nM\tsw/firmware/ctrl/test/ctrl_mutants.py\nM\tsw/firmware/ctrl/test/lwsrp_port.cpp\nM\tsw/firmware/ctrl/test/test_adp.cpp\nM\tsw/firmware/ctrl/test/test_port_loop.cpp\nM\tsw/firmware/ctrl/test/test_unit_driver.cpp\nM\tsw/firmware/ctrl/test/test_unit_seams.cpp\nM\tsw/firmware/gtest/README.md\nM\tsw/firmware/gtest/coverage.ratchet\nM\tsw/mailbox/gen_mailbox.py\nM\tsw/mailbox/mailbox.yaml\nM\tsw/mailbox/mailbox_emit.py\nM\tsw/mailbox/mailbox_model.py\nM\tsw/mailbox/mailbox_skeleton.py\nM\ttb/verilator/mbx/Makefile\nM\ttb/verilator/mbx/README.md\nM\ttb/verilator/mbx/bench.hpp\nM\ttb/verilator/mbx/frames.hpp\nA\ttb/verilator/mbx/model_main.cpp\nM\ttb/verilator/mbx/mutants.py\nM\ttb/verilator/mbx/sim_main.cpp\nM\ttb/verilator/mbx/suite.hpp\n",
+  "note": "Delta of the --no-ff merge of dev 09f1841b (#665 FC): mailbox RTL (not in the AX7101 shipping file list), its mbx suite, mailbox generator, control-plane firmware and documentation; no other HDL, testbench or build input. Running regressions remain at the recorded measurement head; their claims carry forward through this explicit input-identity proof.",
+  "tree_diff_sha256": "64dc11bbed171fa5ecb383c268e8c9fd093e415a287edf1f5b9803e35a42acd5",
+  "dependencies": [
+    {
+      "path": "protocol-processor",
+      "root_verified": true,
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0"
+    },
+    {
+      "path": "gptp-processor",
+      "root_verified": true,
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "root_verified": true,
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  ]
+}

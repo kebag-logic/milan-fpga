@@ -1,0 +1,171 @@
+{
+  "result": "PASS",
+  "rc": 0,
+  "commands": [
+    {
+      "name": "builder",
+      "argv": [
+        "python3",
+        "-B",
+        "sw/builder/test_builder.py",
+        "--require-rv32",
+        "--require-elaboration"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+      "rc": 0,
+      "wall_seconds": 1243.1,
+      "peak_memory_bytes": 7004991488,
+      "resource_interruption": false
+    },
+    {
+      "name": "source-controls",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_rtl_source_lists.py",
+        "--selftest"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+      "rc": 0,
+      "wall_seconds": 4.0,
+      "peak_memory_bytes": 1810198528,
+      "resource_interruption": false
+    },
+    {
+      "name": "wire-controls",
+      "argv": [
+        "python3",
+        "-B",
+        "tb/tools/avtp_wire_truth.py",
+        "--self-test"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+      "rc": 0,
+      "wall_seconds": 1.0,
+      "peak_memory_bytes": 1237438464,
+      "resource_interruption": false
+    },
+    {
+      "name": "sweep-0",
+      "argv": [
+        "bash",
+        "scripts/run_all_suites.sh",
+        "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-m/sweep-0",
+        "--shard",
+        "0/2"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+      "rc": 0,
+      "wall_seconds": 6740.8,
+      "peak_memory_bytes": 7004991488,
+      "resource_interruption": false
+    },
+    {
+      "name": "sweep-1",
+      "argv": [
+        "bash",
+        "scripts/run_all_suites.sh",
+        "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-m/sweep-1",
+        "--shard",
+        "1/2"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+      "rc": 0,
+      "wall_seconds": 1922.3,
+      "peak_memory_bytes": 5660504064,
+      "resource_interruption": false
+    },
+    {
+      "name": "physical",
+      "argv": [
+        "bash",
+        "scripts/run_all_suites.sh",
+        "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-k/physical",
+        "--physical-gptp"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+      "rc": 0,
+      "wall_seconds": 5048.5,
+      "peak_memory_bytes": 7375138816,
+      "resource_interruption": false
+    },
+    {
+      "name": "render-pullin",
+      "argv": [
+        "make",
+        "-j8",
+        "tdm8render-pullin",
+        "PULLIN_JOBS=4",
+        "VERILATOR_JOBS=2"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree/tb/verilator/milan_dp_render",
+      "rc": 0,
+      "wall_seconds": 3038.2,
+      "peak_memory_bytes": 1671950336,
+      "resource_interruption": false
+    },
+    {
+      "name": "render-boundary",
+      "argv": [
+        "make",
+        "-j8",
+        "tdm8render-law-boundary",
+        "LAW_BOUNDARY_JOBS=2",
+        "VERILATOR_JOBS=2"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree/tb/verilator/milan_dp_render",
+      "rc": 0,
+      "wall_seconds": 8036.9,
+      "peak_memory_bytes": 3057197056,
+      "resource_interruption": false
+    },
+    {
+      "name": "portability",
+      "argv": [
+        "bash",
+        "syn/yosys/run.sh"
+      ],
+      "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+      "rc": 0,
+      "wall_seconds": 1024.1,
+      "peak_memory_bytes": 4035055616,
+      "resource_interruption": false
+    }
+  ],
+  "shards": [
+    {
+      "name": "sweep-0",
+      "suites": 60,
+      "checks": 2137971,
+      "failures": 0,
+      "rc": 0
+    },
+    {
+      "name": "sweep-1",
+      "suites": 1,
+      "checks": 12064,
+      "failures": 0,
+      "rc": 0
+    },
+    {
+      "name": "physical",
+      "suites": 1,
+      "checks": 197,
+      "failures": 0,
+      "rc": 0
+    }
+  ],
+  "default_suites": 61,
+  "default_checks": 2150035,
+  "render_pullin_phases": 18,
+  "export_content": "9e529b20 for the default sweep, builder and selftests; 5afae068 for physical, render pull-in, LAW boundary and portability (inputs untouched since)",
+  "export_identity": [
+    "../resume/export-identity-9e529b20.json",
+    "../resume/export-identity-5afae068.json",
+    "../resume/dev-merge-identity-m.json"
+  ],
+  "refused_not_credited": "merged-gates-k/vendor-parser: refused before analysis (export dependencies are not registered submodules); the vendor parser PASS at 9e529b20 is ../vendor-m/",
+  "current_head": "9e529b2069d0ef652325f37e029ca969f852e8a6",
+  "builder_note": "Builder rc 0 with one arm not run for a recorded reason: gate 11 needs an Arty mf48 build tree that is not on this host.",
+  "note": "Original non-piped commands, return codes and peak service memory are retained. Large logs stay in external scratch with size and SHA-256."
+}

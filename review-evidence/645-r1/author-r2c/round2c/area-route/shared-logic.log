@@ -1,0 +1,336 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Tue Oct  6 12:45:35 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source shared-logic.tcl
+# if {[llength $argv] != 2} { error "Usage: shared-logic.tcl <head-route.dcp> <base-route.dcp>" }
+# set_param general.maxThreads 1
+# foreach tag {base head} {
+#   if {$tag eq "base"} { set dcp [lindex $argv 1] } else { set dcp [lindex $argv 0] }
+#   open_checkpoint $dcp
+#   set roots [get_cells -hier -filter {NAME =~ *src_band_ticks_r* && REF_NAME =~ LUT*}]
+#   set inputs [get_pins -of_objects $roots -filter {DIRECTION == IN}]
+#   set cone [concat $roots [all_fanin -flat -only_cells -to $inputs] [get_cells -hier -filter {REF_NAME == VCC || REF_NAME == GND}]]
+#   set f [open $tag.shared_logic.tsv w]
+#   foreach c [lsort -unique $cone] {
+#     set kind [get_property REF_NAME $c]
+#     if {![string match LUT* $kind] && $kind ne "CARRY4" && $kind ne "GND" && $kind ne "VCC" && ![string match FD* $kind]} { continue }
+#     set init -
+#     if {[string match LUT* $kind]} { set init [get_property INIT $c] }
+#     set terms {}
+#     foreach ip [lsort [get_pins -of_objects $c -filter {DIRECTION == IN}]] {
+#       set nets [get_nets -of_objects $ip]
+#       set drivers [lsort [concat [get_pins -quiet -leaf -of_objects $nets -filter {DIRECTION == OUT}] [get_ports -quiet -of_objects $nets -filter {DIRECTION == IN}]]]
+#       lappend terms "[get_property REF_PIN_NAME $ip]=[join $drivers ,]"
+#     }
+#     puts $f "$c\t$kind\t$init\t[join $terms {;}]"
+#   }
+#   close $f
+#   close_design
+# }
+Command: open_checkpoint $VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 1448.340 ; gain = 7.938 ; free physical = 13660 ; free virtual = 42055
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.3 ; elapsed = 00:00:00.31 . Memory (MB): peak = 1959.531 ; gain = 0.000 ; free physical = 14545 ; free virtual = 43016
+INFO: [Netlist 29-17] Analyzing 5766 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.17 . Memory (MB): peak = 2114.656 ; gain = 0.000 ; free physical = 12757 ; free virtual = 41338
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2766.562 ; gain = 10.289 ; free physical = 12913 ; free virtual = 41660
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2768.562 ; gain = 2.000 ; free physical = 12913 ; free virtual = 41660
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2768.562 ; gain = 0.000 ; free physical = 12913 ; free virtual = 41660
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2846.852 ; gain = 78.289 ; free physical = 12980 ; free virtual = 41727
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2846.852 ; gain = 0.000 ; free physical = 12971 ; free virtual = 41718
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2873.852 ; gain = 27.000 ; free physical = 12683 ; free virtual = 41441
+Read Physdb Files: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2873.852 ; gain = 117.578 ; free physical = 12669 ; free virtual = 41427
+Restored from archive | CPU: 3.990000 secs | Memory: 88.028877 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2873.852 ; gain = 117.578 ; free physical = 12665 ; free virtual = 41423
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2902.906 ; gain = 0.000 ; free physical = 12680 ; free virtual = 41446
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 728 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 453 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:28 ; elapsed = 00:00:29 . Memory (MB): peak = 2910.941 ; gain = 1475.508 ; free physical = 12607 ; free virtual = 41374
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND_1 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND_3 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/u_rec_cdc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/u_seal_cdc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_mac_rmon_events/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_mac_rmon_events/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[4].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[5].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[7].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VCC_1 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/bufferCC_19/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/bufferCC_20/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_buffer/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/compactor/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/compactor/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/onPerId_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/io_up_aw_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/a_ctx/contexts/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/a_halted_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_bus_decoder_core/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_thread_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_thread_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/outHitSignal_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/pushArea_target_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_thread_logic/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_thread_logic/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_to_vexiis_0_priv_mei_flag_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_arbiter_core/a_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_decoder_core/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/upsize_d_ctx/contexts/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/FetchCachelessPlugin_logic_buffer_words/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/outHitSignal_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/pushArea_target_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/rx_chain/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/rx_chain/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/tx_chain/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/tx_chain/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_packetizer/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_packetizer/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/frame_fifo/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/frame_fifo/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/adp_tx_mux/GND -filter {DIRECTION == IN}'.
+INFO: [Common 17-14] Message 'Vivado 12-508' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+Command: open_checkpoint $VALIDATION_STORAGE/645-a531/round2c/route/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 13241 ; free virtual = 42030
+Netlist sorting complete. Time (s): cpu = 00:00:00.33 ; elapsed = 00:00:00.33 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 13934 ; free virtual = 42566
+INFO: [Netlist 29-17] Analyzing 5773 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.18 ; elapsed = 00:00:00.17 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 12418 ; free virtual = 41071
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.13 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 12234 ; free virtual = 40397
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 12221 ; free virtual = 40384
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 12217 ; free virtual = 40380
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 11781 ; free virtual = 39933
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 11764 ; free virtual = 39915
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 10865 ; free virtual = 39027
+Read Physdb Files: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 10842 ; free virtual = 39005
+Restored from archive | CPU: 3.700000 secs | Memory: 84.009918 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 10841 ; free virtual = 39004
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 10312 ; free virtual = 38478
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1245 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 18 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 663 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 29 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 2910.941 ; gain = 0.000 ; free physical = 10179 ; free virtual = 38348
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND_1 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects GND_3 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/u_rec_cdc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_gptp_gmii_launch/u_seal_cdc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_mac_rmon_events/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects KL_mac_rmon_events/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[4].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[5].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects {KL_mac_rmon_events/gen_evt_cdc[7].gen_live_lane.evt_cdc/VCC} -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VCC_1 -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/bufferCC_19/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/bufferCC_20/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_aggregator_asyncBuffers_0/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/cpuResetCtrl_fiber_buffer/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/aligner/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/compactor/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/compactor/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_read_bridge/onPerId_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/compactor/io_up_aw_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/d_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/popToPushGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/d_1/pushToPopGray_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/a_ctx/contexts/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/a_halted_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/mem_toAxi4_logic_bridge/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_bus_decoder_core/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_thread_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_thread_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/outHitSignal_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_clint_time_cc_driver/pushArea_target_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_thread_logic/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_thread_logic/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_plic_intc_to_vexiis_0_priv_mei_flag_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_arbiter_core/a_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_decoder_core/d_arbiter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_mem_toAxi4_up_widthAdapter/upsize_d_ctx/contexts/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/FetchCachelessPlugin_logic_buffer_words/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/outHitSignal_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/pushArea_target_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects VexiiRiscvLitex_f5f08b170311db53220574624f819159/vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/rx_chain/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/rx_chain/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/tx_chain/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_latency_tap_bank/g_ltap.aaf_latency_taps/tx_chain/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_packetizer/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_packetizer/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/frame_fifo/GND -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/aaf_rx_depkt/frame_fifo/VCC -filter {DIRECTION == IN}'.
+WARNING: [Vivado 12-508] No pins matched 'get_pins -of_objects milan_datapath/adp_tx_mux/GND -filter {DIRECTION == IN}'.
+INFO: [Common 17-14] Message 'Vivado 12-508' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Oct  6 12:46:33 2026...

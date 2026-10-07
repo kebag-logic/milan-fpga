@@ -1,0 +1,38 @@
+  info: INTERNAL: 2 slips in 4.068 s (beat 3.519 s); margin at the set +0.438..+3.372 ticks
+  info: t=4.068420 s  CLOCK_SOURCE <- 2
+  info: INTERNAL-to-AAF: LOCKED 6.658 s after the set; trim -5.812 ppm at the end
+  info: slip (dup) at 1.4836 s after the set, -5.1740 s from LOCKED
+  info: slip (dup) at 6.2052 s after the set, -0.4525 s from LOCKED
+  info: render recentre at 0.0428 s after the set, -6.6149 s from LOCKED
+  info: render recentre at 10.7539 s after the set, +4.0962 s from LOCKED
+  info: INTERNAL, last second      [   3.068,    4.068) s: ring slips 0+0, margin +0.438..+3.587 ticks; render n 8000 fill 13..16 (off-law 5232), delay 7.342..10.491 (out of band 5244), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: set to LOCKED              [   4.068,   10.726) s: ring slips 2+0, margin +0.008..+3.878 ticks; render n 53258 fill 10..16 (off-law 46190), delay 4.900..10.199 (out of band 46292), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: LOCKED to the settle       [  10.726,   14.822) s: ring slips 0+0, margin +0.960..+5.983 ticks; render n 32769 fill 10..13 (off-law 32769), delay 4.869..7.772 (out of band 32769), end-to-pop clearance 0.000 ticks NOT GRADABLE
+  info: settle to the hold's end   [  14.822,   44.068) s: ring slips 0+0, margin +5.952..+8.847 ticks; render n 233965 fill 13..16 (off-law 152303), delay 7.864..10.752 (out of band 152432), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: [B8]: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 2, after it 0; after it the loopback margin +5.952..+8.847 ticks, render fill 13..16 delay 7.864..10.752, not gradable
+MARGINS: [B8] empty 5.952000 full 2.234880 ticks
+  info: [B8]: settle recentre 10.7537 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: INTERNAL before switch window 3.568420160 4.068420160 samples 24000 axis_hz 6250000 histogram -1:26 0:23949 1:25
+ERROR-DISTRIBUTION: AAF after settle window 14.822293840 44.068420160 samples 1403798 axis_hz 6250000 histogram -1:25339 0:1353668 1:24791
+RESULT-645: phase 0.5625 jitter 60.0 us tail 0.0 us p 0e+00: slips set-to-settle 2 (declared bound 3), after the settle 0, margin at LOCKED +0.975..+3.863, after the settle +5.952..+8.847 ticks, LOCKED 6.66 s, settle +4.096 s after LOCKED, render after the settle fill 13..16 delay 7.864..10.752 (not gradable)
+  info: [B8] render law not graded: the run's arrivals are late by up to 60.0 us
+  info: t=44.068420 s  CLOCK_SOURCE <- 1
+  info: [SW] AAF to CRF:: LOCKED 3.010 s after; ring slips 0; margin +8.840 before the switch, +8.832 before its settle recentre
+  info: [SW] AAF to CRF:           [  44.068,   64.068) s: ring slips 0+0, margin +3.948..+8.840 ticks; render n 159997 fill 12..16 (off-law 104187), delay 6.851..10.744 (out of band 104239), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: [SW] AAF to CRF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +3.948..+6.835 ticks, render fill 12..15 delay 6.851..9.738, not gradable
+MARGINS: [SW] AAF to CRF: empty 3.947520 full 4.239360 ticks
+  info: [SW] AAF to CRF:: settle recentre 7.1061 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: [SW] AAF to CRF: window 51.174538000 64.068420160 samples 618900 axis_hz 6250000 histogram -1:8349 0:603101 1:7450
+RESULT-645-SW: [SW] AAF to CRF: phase 0.5625 jitter 60.0 us tail 0.0 us p 0e+00: LOCKED 3.01 s, slips 0, drift -0.008 ticks, settle +4.096 s after LOCKED, margin after +3.948..+6.835, render not gradable
+  info: [SW] AAF to CRF: render law not graded: the run's arrivals are late by up to 60.0 us
+  info: t=64.068420 s  CLOCK_SOURCE <- 2
+  info: [SW] CRF to AAF:: LOCKED 6.050 s after; ring slips 0; margin +6.828 before the switch, +6.858 before its settle recentre
+  info: [SW] CRF to AAF:           [  64.068,   84.068) s: ring slips 0+0, margin +3.955..+7.857 ticks; render n 159993 fill 12..15 (off-law 104525), delay 6.858..9.761 (out of band 104603), end-to-pop clearance 0.001 ticks NOT GRADABLE
+  info: [SW] CRF to AAF:: settle recentre fired (1 pulse(s), render recentre executed 1); slips before it 0, after it 0; after it the loopback margin +4.969..+7.857 ticks, render fill 12..15 delay 6.874..9.761, not gradable
+MARGINS: [SW] CRF to AAF: empty 4.968960 full 3.225600 ticks
+  info: [SW] CRF to AAF:: settle recentre 10.1464 s after the start, 4.0960 s after LOCKED
+ERROR-DISTRIBUTION: [SW] CRF to AAF: window 74.214943440 84.068420160 samples 472962 axis_hz 6250000 histogram -1:6062 0:461043 1:5857
+RESULT-645-SW: [SW] CRF to AAF: phase 0.5625 jitter 60.0 us tail 0.0 us p 0e+00: LOCKED 6.05 s, slips 0, drift +0.031 ticks, settle +4.096 s after LOCKED, margin after +4.969..+7.857, render not gradable
+  info: [SW] CRF to AAF: render law not graded: the run's arrivals are late by up to 60.0 us
+== follow_ring: checks: 37   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,132 @@
+[
+  {
+    "name": "physical",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-k/physical",
+      "--physical-gptp"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+    "rc": 0,
+    "wall_seconds": 5048.5,
+    "peak_memory_bytes": 7375138816,
+    "resource_interruption": false
+  },
+  {
+    "name": "builder",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+    "rc": 0,
+    "wall_seconds": 1334.5,
+    "peak_memory_bytes": 7368851456,
+    "resource_interruption": false
+  },
+  {
+    "name": "source-controls",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+    "rc": 0,
+    "wall_seconds": 4.0,
+    "peak_memory_bytes": 1628078080,
+    "resource_interruption": false
+  },
+  {
+    "name": "wire-controls",
+    "argv": [
+      "python3",
+      "-B",
+      "tb/tools/avtp_wire_truth.py",
+      "--self-test"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+    "rc": 0,
+    "wall_seconds": 1.0,
+    "peak_memory_bytes": 1600303104,
+    "resource_interruption": false
+  },
+  {
+    "name": "sweep-0",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-k/sweep-0",
+      "--shard",
+      "0/2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+    "rc": 0,
+    "wall_seconds": 6770.2,
+    "peak_memory_bytes": 7375138816,
+    "resource_interruption": false
+  },
+  {
+    "name": "render-pullin",
+    "argv": [
+      "make",
+      "-j8",
+      "tdm8render-pullin",
+      "PULLIN_JOBS=4",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "wall_seconds": 3038.2,
+    "peak_memory_bytes": 1671950336,
+    "resource_interruption": false
+  },
+  {
+    "name": "render-boundary",
+    "argv": [
+      "make",
+      "-j8",
+      "tdm8render-law-boundary",
+      "LAW_BOUNDARY_JOBS=2",
+      "VERILATOR_JOBS=2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree/tb/verilator/milan_dp_render",
+    "rc": 0,
+    "wall_seconds": 8036.9,
+    "peak_memory_bytes": 3057197056,
+    "resource_interruption": false
+  },
+  {
+    "name": "portability",
+    "argv": [
+      "bash",
+      "syn/yosys/run.sh"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+    "rc": 0,
+    "wall_seconds": 1024.1,
+    "peak_memory_bytes": 4035055616,
+    "resource_interruption": false
+  },
+  {
+    "name": "vendor-parser",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "python3",
+      "-B",
+      "scripts/xvlog_gate.py",
+      "--check"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/tree",
+    "rc": 2,
+    "wall_seconds": 1770.9,
+    "peak_memory_bytes": 7004692480,
+    "resource_interruption": false
+  }
+]

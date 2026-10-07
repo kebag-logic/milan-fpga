@@ -1,0 +1,22 @@
+[
+  {
+    "name": "synthesis",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "merged_synth_only.tcl",
+      "-nojournal",
+      "-log",
+      "synthesis-vendor.log"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware",
+    "rc": -15,
+    "wall_seconds": 664.4,
+    "peak_memory_bytes": 8810283008,
+    "resource_interruption": true
+  }
+]

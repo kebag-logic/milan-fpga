@@ -1,0 +1,271 @@
+{
+  "head": "132d79e7f38212cedf0e344a39d0f811566a1d1b",
+  "commands": [
+    {
+      "name": "anchors",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--verify-anchors"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "archive",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_archive.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "baremetal",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_baremetal_only.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "contracts",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_port_contracts.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "cpp-idiom",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_cpp_idiom.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "diff-check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "docs",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/docs_check.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "fail-fast",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/measure_fail_fast.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "feature-status",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_feature_status.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "gptp-docs",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_gptp_docs.py",
+        "--with-submodule"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "hygiene",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_hygiene.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "idiom",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_sv_idiom.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "lint",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "naming",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/measure_naming.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "paths",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/check_doc_paths.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "punctuation",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/check_em_dash.py",
+        "--base",
+        "origin/dev"
+      ],
+      "rc": 0,
+      "log": "punctuation-final.log"
+    },
+    {
+      "name": "py-idiom",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_py_idiom.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "sh-idiom",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_sh_idiom.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "soc-sources",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_soc_sources.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "solution-docs",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_solution_docs.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "sources",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_rtl_source_lists.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "style",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/check_doc_style.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "submodule-docs",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_submodule_docs.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "test-evidence",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/measure_test_evidence.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "toc",
+      "argv": [
+        "$VALIDATION_TOOLS/md-venv-40cdefe08ebd/bin/python3",
+        "-B",
+        "scripts/gen_toc.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "todo",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/check_todo_ownership.py"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "traceability",
+      "argv": [
+        "python3",
+        "-B",
+        "docs/traceability/gen_module_matrix.py",
+        "--check"
+      ],
+      "rc": 0
+    },
+    {
+      "name": "evidence-controls",
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/measure_test_evidence.py",
+        "--selftest"
+      ],
+      "rc": 0
+    }
+  ]
+}

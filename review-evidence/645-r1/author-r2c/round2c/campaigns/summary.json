@@ -1,0 +1,384 @@
+{
+  "result": "PASS",
+  "rc": 0,
+  "cases": 256,
+  "histogram_windows": 1024,
+  "candidate_acceptance_cases": 128,
+  "band_axis_cycles": 2,
+  "worst_quiet_excursion": 1,
+  "note": "Baseline is the preserved pre-recovery-qualification model with the four-band arm. Candidate is the two-cycle arm and recovery qualification implementation. This baseline is distinct from the vendor area reference and the manager timing table. Late-arrival runs grade the listener margins and slips; their render-law exclusions are reported separately. The strict fine pull and paired-pull cases grade the INTERNAL render law.",
+  "measurement_head": "132d79e7f38212cedf0e344a39d0f811566a1d1b",
+  "current_head": "5afae068b9172568e90f30d6b682993d33682667",
+  "baseline_provenance": "56 baseline cases are attested by resume/baseline-recovered-receipts.json (original driver rc line, log SHA-256 re-verified against the graded log, binary SHA-256); 52 of them have no per-case command file. The other 72 have per-case command and rc files from a single driver.",
+  "identity": "../resume/final-doc-merge-identity.json",
+  "groups": [
+    {
+      "campaign": "baseline",
+      "group": "slow-none",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j0_p09",
+        "window": "[SW] CRF to AAF:",
+        "empty": 4.98432,
+        "full": 5.08416
+      },
+      "full_min": {
+        "case": "b8_j0_p09",
+        "window": "[B8]",
+        "empty": 5.98272,
+        "full": 5.08416
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 0,
+        "result_lines_with_ambiguous_render_window": 3
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "slow-uniform5",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j5_p11",
+        "window": "[SW] AAF to CRF:",
+        "empty": 4.84608,
+        "full": 5.98272
+      },
+      "full_min": {
+        "case": "b8_j5_p10",
+        "window": "[B8]",
+        "empty": 5.9136,
+        "full": 4.90752
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 14
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "slow-tail24",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j2_p04",
+        "window": "[SW] AAF to CRF:",
+        "empty": 3.84768,
+        "full": 5.98272
+      },
+      "full_min": {
+        "case": "b8_j2_p11",
+        "window": "[SW] CRF to AAF:",
+        "empty": 4.93824,
+        "full": 5.09952
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 26
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "slow-uniform60",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j60_p06",
+        "window": "[SW] CRF to AAF:",
+        "empty": 2.17344,
+        "full": 6.01344
+      },
+      "full_min": {
+        "case": "b8_j60_p09",
+        "window": "[B8]",
+        "empty": 5.952,
+        "full": 2.23488
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 48
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "fast-none",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j0_p08",
+        "window": "[B8]",
+        "empty": 5.0304,
+        "full": 5.96736
+      },
+      "full_min": {
+        "case": "b8_j0_p07",
+        "window": "[B8]",
+        "empty": 5.96736,
+        "full": 5.02272
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 0,
+        "result_lines_with_ambiguous_render_window": 3
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "fast-uniform5",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j5_p09",
+        "window": "[B8]",
+        "empty": 4.85376,
+        "full": 5.89824
+      },
+      "full_min": {
+        "case": "b8_j5_p10",
+        "window": "[B8]",
+        "empty": 5.92128,
+        "full": 4.90752
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 12
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "fast-tail24",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j2_p08",
+        "window": "[B8]",
+        "empty": 3.8016,
+        "full": 6.0288
+      },
+      "full_min": {
+        "case": "b8_j2_p08",
+        "window": "[SW] AAF to CRF:",
+        "empty": 4.94592,
+        "full": 5.0304
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 21
+      }
+    },
+    {
+      "campaign": "baseline",
+      "group": "fast-uniform60",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j60_p00",
+        "window": "[SW] AAF to CRF:",
+        "empty": 2.66496,
+        "full": 5.52192
+      },
+      "full_min": {
+        "case": "b8_j60_p03",
+        "window": "[B8]",
+        "empty": 5.85984,
+        "full": 2.32704
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 48
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "slow-none",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j0_p09",
+        "window": "[SW] CRF to AAF:",
+        "empty": 4.98432,
+        "full": 5.08416
+      },
+      "full_min": {
+        "case": "b8_j0_p09",
+        "window": "[B8]",
+        "empty": 5.98272,
+        "full": 5.08416
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 0,
+        "result_lines_with_ambiguous_render_window": 3
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "slow-uniform5",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j5_p11",
+        "window": "[SW] AAF to CRF:",
+        "empty": 4.84608,
+        "full": 5.98272
+      },
+      "full_min": {
+        "case": "b8_j5_p10",
+        "window": "[B8]",
+        "empty": 5.9136,
+        "full": 4.90752
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 14
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "slow-tail24",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j2_p04",
+        "window": "[SW] AAF to CRF:",
+        "empty": 3.84768,
+        "full": 5.98272
+      },
+      "full_min": {
+        "case": "b8_j2_p11",
+        "window": "[SW] CRF to AAF:",
+        "empty": 4.93824,
+        "full": 5.09952
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 26
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "slow-uniform60",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j60_p06",
+        "window": "[SW] CRF to AAF:",
+        "empty": 2.17344,
+        "full": 6.01344
+      },
+      "full_min": {
+        "case": "b8_j60_p09",
+        "window": "[B8]",
+        "empty": 5.952,
+        "full": 2.23488
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 48
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "fast-none",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j0_p08",
+        "window": "[B8]",
+        "empty": 5.0304,
+        "full": 5.96736
+      },
+      "full_min": {
+        "case": "b8_j0_p07",
+        "window": "[B8]",
+        "empty": 5.96736,
+        "full": 5.02272
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 0,
+        "result_lines_with_ambiguous_render_window": 3
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "fast-uniform5",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j5_p09",
+        "window": "[B8]",
+        "empty": 4.85376,
+        "full": 5.89824
+      },
+      "full_min": {
+        "case": "b8_j5_p10",
+        "window": "[B8]",
+        "empty": 5.92128,
+        "full": 4.90752
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 12
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "fast-tail24",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j2_p08",
+        "window": "[B8]",
+        "empty": 3.8016,
+        "full": 6.0288
+      },
+      "full_min": {
+        "case": "b8_j2_p08",
+        "window": "[SW] AAF to CRF:",
+        "empty": 4.94592,
+        "full": 5.0304
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 21
+      }
+    },
+    {
+      "campaign": "candidate",
+      "group": "fast-uniform60",
+      "phases": 16,
+      "windows": 48,
+      "empty_min": {
+        "case": "b8_j60_p00",
+        "window": "[SW] AAF to CRF:",
+        "empty": 2.66496,
+        "full": 5.52192
+      },
+      "full_min": {
+        "case": "b8_j60_p03",
+        "window": "[B8]",
+        "empty": 5.85984,
+        "full": 2.32704
+      },
+      "scope_counts": {
+        "post_settle_windows": 48,
+        "late_arrival_law_windows_not_graded": 48,
+        "result_lines_with_ambiguous_render_window": 48
+      }
+    }
+  ]
+}

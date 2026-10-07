@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ownership",
+    "argv": [
+      "flock",
+      "$VIVADO_LOCK",
+      "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+      "-mode",
+      "batch",
+      "-source",
+      "ownership.tcl",
+      "-nojournal",
+      "-log",
+      "ownership-vendor.log",
+      "-tclargs",
+      "$VALIDATION_STORAGE/645-a531/round2c/route/ax7101-ExtraTimingOpt/gateware/alinx_ax7101_route.dcp",
+      "$VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/alinx_ax7101_route.dcp"
+    ],
+    "rc": 0,
+    "peak_memory_bytes": 4350025728,
+    "resource_interruption": false
+  },
+  {
+    "name": "compare",
+    "argv": [
+      "python3",
+      "-B",
+      "compare.py",
+      "$VALIDATION_STORAGE/645-a531/round2c/route-source",
+      "$VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware",
+      "$VALIDATION_STORAGE/645-a531/round2c/area-route-ExtraTimingOpt"
+    ],
+    "rc": 0,
+    "peak_memory_bytes": 2278785024,
+    "resource_interruption": false
+  }
+]

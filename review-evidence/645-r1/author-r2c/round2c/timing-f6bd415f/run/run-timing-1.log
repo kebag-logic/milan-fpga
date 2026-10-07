@@ -1,0 +1,15 @@
+=== start 2026-10-07T00:53:13Z head f6bd415f content (merged head 4951c4717)
+functional gates finished rc 0
+2026-10-07T02:53:13 START synthesis
+2026-10-07T03:52:37 DONE synthesis 0
+2026-10-07T03:52:37 START ExtraPostPlacementOpt-implementation
+2026-10-07T04:24:40 DONE ExtraPostPlacementOpt-implementation 0
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/645-a531/round2c/tf/run_timing.py", line 100, in <module>
+    spec.loader.exec_module(constraints)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "$VALIDATION_STORAGE/645-a531/round2c/route-source/sw/litex/clock_constraints.py", line 8, in <module>
+    from litex.build.xilinx.vivado import XilinxVivadoToolchain
+ModuleNotFoundError: No module named 'litex'
