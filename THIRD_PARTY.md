@@ -1,14 +1,14 @@
 # Third-party dependencies
 
-Git submodules provide imported RTL.
+Git submodules provide imported RTL and firmware libraries.
 
 Gitlinks define their exact revisions.
 
 ## Contents
 
-- **[Submodules](#submodules)** — Identify imported ownership.
-- **[Generated C](#generated-c)** — Identify generated trace sources.
-- **[Working safely](#working-safely)** — Preserve reproducible imports.
+- **[Submodules](#submodules)** -- Identify imported ownership.
+- **[Generated C](#generated-c)** -- Identify generated trace sources.
+- **[Working safely](#working-safely)** -- Preserve reproducible imports.
 
 ## Submodules
 
@@ -17,6 +17,7 @@ Gitlinks define their exact revisions.
 | `external` | `kebag-logic/fpga-avb-ethernet` | See submodule | Legacy Ethernet top only |
 | `gptp-processor` | `Mister-M-alt/FPGA-gPTP` | CERN-OHL-W-2.0 | Fabric gPTP engine |
 | `protocol-processor` | `Mister-M-alt/protocol-processor-control-plane-avb-milan` | CERN-OHL-W-2.0 | ADP, ACMP, AECP, and SRP |
+| `third_party/lwSRP` | `kebag-logic/lwSRP` | Apache-2.0; see its `LICENSE` and `NOTICE` | Bare-metal MSRP and MVRP through the mailbox adapter |
 | `third_party/verilog-axis` | `alexforencich/verilog-axis` | MIT | AXI-Stream primitives |
 
 Use the [verified submodule map](docs/reference/SUBMODULES.md).
@@ -50,7 +51,7 @@ git submodule update --init --recursive
 python3 scripts/check_submodule_docs.py
 ```
 
-- Never copy imported RTL into root code.
+- Never copy imported implementation into root code.
 - Review upstream changes before pin updates.
 - Run donor suites before root suites.
 - Commit only intentional Gitlink changes.

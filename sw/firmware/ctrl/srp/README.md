@@ -46,6 +46,9 @@ Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
 millisecond timestamp. Coalesced ticks are drained without dropping elapsed time.
 Destroy detaches the adapter, releases all participants and revokes active licences.
 Destroy before reinitializing an already initialized instance.
+Attach reads each interface's current mailbox link level.
+Polling reconciles that level even without another LINK record.
+A held DOWN record can disappear when the level recovers.
 
 F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
 A null identity removes a binding; false leaves the old binding unchanged.
@@ -56,6 +59,10 @@ Ready contributes 2, AskingFailed contributes 1, and their union is ReadyFailed.
 An ineligible binding contributes nothing and cannot withdraw another's request.
 Ready contributes only after its own VLAN membership commits.
 Shared bindings retain their Listener and VLAN until the final user leaves.
+Replacement preserves the shared Applicant state until reconciliation.
+Consecutive replacements before service preserve that state too.
+Reconciliation withdraws Ready when its last eligible binding disappears.
+The final binding releases its VID regardless of prior eligibility.
 All ports are serialized. Output callbacks must enqueue work and return;
 they must not synchronously call an input port or advance the loop.
 The adapter asserts on reentry in debug builds and counts/refuses it in release.
@@ -101,6 +108,7 @@ An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
+Observed level changes apply the same reset and receive fence.
 A repeated UP also recreates state because event coalescing may hide the down edge.
 Reset cancels only that interface's owed output and restores the default Domain.
 It fences that interface's already published RX prefix at the current RX_HEAD.
@@ -154,6 +162,15 @@ allocation failures, malformed inputs, declaration changes, reset, reentry,
 backpressure and timer ordering. The adapter has no coverage exclusions.
 `srp_mutants.py` ties each named case to a defect and its failed observable;
 build failures do not count as catches.
+
+The published lwSRP
+[applicant test follow-up](https://github.com/kebag-logic/lwSRP/tree/495520f5e02dd077fc9b1451942b25ec95afa1b8)
+is branch `f4-applicant-notes`, following PR #12.
+Its production sources equal this lane's unchanged dependency pin.
+`applicant_receive_conditions_follow_link_mode` tests Table 10-3 notes 4/5.
+`pending_applicant_joinin_obeys_note_four` adds both link modes in VP.
+The `point-to-point-condition`, `pending-point-to-point-condition` and
+`shared-in-condition` reversals must fail their named tests.
 
 The H-SRP desk test timestamps the actual mailbox access path at 100 ns per access.
 It adds one aggregate 1 ms CPU/preemption allowance and 100 ns uncertainty per

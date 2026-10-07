@@ -135,5 +135,6 @@ The CI firmware step also requires the control mutation campaign.
 Initialize `third_party/lwSRP` at its recorded gitlink before running the gate.
 An alternate `--lwsrp` checkout must match `ctrl_arms.LWSRP_REV`, currently
 `23d9a8173b07503a0ee6e8528f922fceab4e67f0`, with every compiled source unchanged.
-Moving either pin requires a reviewed change. The local upstream topic stack
-must be published before a clean remote checkout can fetch this revision.
+Moving either pin requires a reviewed change.
+The pin is published on lwSRP `mark2-port` (PR #12).
+A hosted checkout still needs read access to that repository.

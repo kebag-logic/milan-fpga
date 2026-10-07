@@ -10,10 +10,10 @@ Dirty submodules invalidate local evidence.
 
 ## Contents
 
-- **[Pinned dependencies](#pinned-dependencies)** — Identify every imported repository.
-- **[Initialize safely](#initialize-safely)** — Populate exact recorded revisions.
-- **[Respect ownership](#respect-ownership)** — Separate donor and root responsibilities.
-- **[Known documentation conflicts](#known-documentation-conflicts)** — Avoid stale donor claims.
+- **[Pinned dependencies](#pinned-dependencies)** -- Identify every imported repository.
+- **[Initialize safely](#initialize-safely)** -- Populate exact recorded revisions.
+- **[Respect ownership](#respect-ownership)** -- Separate donor and root responsibilities.
+- **[Known documentation conflicts](#known-documentation-conflicts)** -- Avoid stale donor claims.
 
 ## Pinned dependencies
 
@@ -23,6 +23,7 @@ Dirty submodules invalidate local evidence.
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `ead8036035affd53ef4b29979190f2f4f67084c0` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `third_party/lwSRP` | `23d9a8173b07503a0ee6e8528f922fceab4e67f0` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
 <!-- submodule-pins:end -->
 
@@ -182,14 +183,25 @@ It does not trust checked-out heads.
 
 ## Initialize safely
 
-Required root gates use three submodules.
+Firmware and root gates use these four submodules.
 
 ```sh
 git submodule update --init \
   third_party/verilog-axis \
   protocol-processor \
-  gptp-processor
+  gptp-processor \
+  third_party/lwSRP
 ```
+
+lwSRP uses the HTTPS URL recorded in `.gitmodules`.
+Fetching requires read access to its repository.
+
+The current pin is published on `mark2-port` (PR #12).
+
+The [SRP adapter](../../sw/firmware/ctrl/srp/README.md) documents compilation and ownership.
+
+lwSRP is licensed under Apache-2.0.
+Its pinned `LICENSE` and `NOTICE` retain dependency terms.
 
 The unused external import uses SSH.
 
@@ -233,6 +245,7 @@ The cleanliness command must print nothing.
 | `protocol-processor` | `protocol-processor/scripts/run_suites.sh` | `make -C tb/verilator/pp_shadow` |
 | `gptp-processor` | `make -C gptp-processor` | `make -C tb/verilator/gptp_shadow` |
 | `third_party/verilog-axis` | Upstream evidence | `make -C tb/verilator/queues` |
+| `third_party/lwSRP` | cgreen and behave | `python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4` |
 | `external` | Upstream evidence | Not applicable; no active product consumer |
 
 ## Known documentation conflicts

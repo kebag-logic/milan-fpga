@@ -2,6 +2,17 @@
 #include "srp_fixture.hpp"
 FW_TALLY_LABEL("ctrl SRP mailbox");
 namespace {
+std::vector<uint8_t> talker_value(const msrp_stream_id &sid, const uint8_t da[6], uint16_t vid) {
+    std::vector<uint8_t> value(25);
+    std::copy(sid.bytes,sid.bytes+8,value.begin());
+    std::copy(da,da+6,value.begin()+8);
+    wire_put_be(value.data()+14,vid,2);
+    wire_put_be(value.data()+16,224,2);
+    wire_put_be(value.data()+18,1,2);
+    value[20]=0x60;
+    return value;
+}
+
 TEST_F(Srp, StartupDeclaresTalkersDomainAndVlan) {
     settle();
     ASSERT_EQ(pool.refused,0u);
@@ -665,6 +676,261 @@ TEST_F(Srp, EventReentryAndSinkCapacityAreGuarded) {
     ASSERT_TRUE(srp_mbx_attach(&adapter,&loop)); srp_mbx_destroy(&adapter);
     EXPECT_EQ(loop.n_sinks,1u);
     EXPECT_EQ(mbx_rx_mark(MBX_N_CH),0u); EXPECT_FALSE(mbx_rx_before(MBX_N_CH,0));
+}
+
+TEST_F(Srp, ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord) {
+    settle(); advance(400);
+    srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+    ctrl_loop_init(&loop);
+    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
+    ASSERT_TRUE(ctrl_loop_open(&loop,0x020304fffe050600ull,config.mac));
+    capture(); model.tx_sent=0;
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_TRUE(mbx_link_up(i));
+        EXPECT_TRUE(adapter.ifs[i].link)<<"attach samples the current level";
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    advance(400); capture();
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        bool talker=false; bool domain=false; bool vlan=false;
+        for(const auto &d:declarations) if(d.interface==i) {
+            talker|=d.ethertype==0x22ea && d.type==1;
+            domain|=d.ethertype==0x22ea && d.type==4 && d.value==std::vector<uint8_t>({6,3,0,2});
+            vlan|=d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,2});
+        }
+        EXPECT_TRUE(talker); EXPECT_TRUE(domain); EXPECT_TRUE(vlan);
+        EXPECT_TRUE(adapter.ifs[i].active[0]);
+        EXPECT_CALL(licence,Change(i,0,false));
+    }
+}
+
+TEST_F(Srp, CancelledLinkRecordRecoversFromLevelAndFencesOldReceive) {
+    settle(); advance(400);
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,false));
+        // The DOWN level is observed while its record is held. The level
+        // returns to the last posted UP, so no new LINK record is owed.
+        model.link_up[i]=false; ctrl_loop_service(&loop);
+        ASSERT_FALSE(adapter.ifs[i].link);
+        auto ready=frame(3,identity(i),1,2);
+        for(unsigned n=0;n<CTRL_LOOP_RX_PER_PASS+1;++n)
+            ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
+        model.link_up[i]=true;
+        const unsigned start=model.now_ms;
+        advance(1500); capture();
+        EXPECT_TRUE(adapter.ifs[i].link);
+        EXPECT_FALSE(adapter.ifs[i].active[0]);
+        bool transmitted=false;
+        for(const auto &d:declarations) if(d.interface==i && d.time_ms>start) transmitted=true;
+        EXPECT_TRUE(transmitted)<<"level recovery resumes declarations";
+        for(unsigned other=i+1;other<MBX_N_IF;++other) EXPECT_TRUE(adapter.ifs[other].active[0]);
+        EXPECT_CALL(licence,Change(i,0,true)); offer(ready,i);
+        EXPECT_TRUE(adapter.ifs[i].active[0]);
+    }
+    for(unsigned i=0;i<MBX_N_IF;++i) EXPECT_CALL(licence,Change(i,0,false));
+}
+
+TEST_F(Srp, SharedRebindKeepsOnlyTheRemainingEligibleRequest) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[2][6]={
+        {0x91,0xe0,0xf0,0,0,9},{0x91,0xe0,0xf0,0,0,10}
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned slot : {0u,1u})
+        for(bool change_vid : {false,true}) for(bool retain_match : {false,true}) {
+        SCOPED_TRACE(::testing::Message()<<i<<'/'<<slot<<'/'<<change_vid<<'/'<<retain_match);
+        capture(); model.tx_sent=0;
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,&sid,da[0],7));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-slot,&sid,da[retain_match ? 0 : 1],7));
+        offer(frame(1,talker_value(sid,da[0],7),1),i); advance(400);
+        ASSERT_EQ(adapter.ifs[i].sinks[slot].declared,2u);
+        ASSERT_EQ(adapter.ifs[i].sinks[1-slot].declared,2u);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,&sid,da[change_vid ? 0 : 1],change_vid ? 8 : 7));
+        capture(); model.tx_sent=0;
+        advance(2200); capture();
+        bool left=false; bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==3) {
+            left|=d.event==5;
+            ready|=d.event!=5 && d.subtype==2;
+        }
+        EXPECT_EQ(left,!retain_match)<<"withdraw the last eligible shared request";
+        EXPECT_EQ(ready,retain_match)<<"no stale Ready renewal after rebind";
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-slot,nullptr,nullptr,0));
+        capture(); model.tx_sent=0;
+        advance(1200); capture();
+        left=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==3) {
+            left|=d.event==5;
+            EXPECT_EQ(d.event,5u)<<"removing the eligible user leaves no Ready";
+        }
+        EXPECT_EQ(left,retain_match);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,nullptr,nullptr,0)); advance(200);
+    }
+}
+
+TEST_F(Srp, ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const msrp_stream_id other{{2,1,2,3,4,5,6,8}};
+    const uint8_t da[2][6]={
+        {0x91,0xe0,0xf0,0,0,9},{0x91,0xe0,0xf0,0,0,10}
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned first : {0u,1u}) {
+        capture(); model.tx_sent=0;
+        for(unsigned k=0;k<2;++k) ASSERT_TRUE(srp_mbx_bind(&adapter,i,k,&sid,da[0],7));
+        offer(frame(1,talker_value(sid,da[0],7),1),i); advance(400);
+        // Both replacements occur before poll. The representative cannot
+        // forget the Applicant when the second cache is replaced too.
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,&sid,da[1],8));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,&sid,da[1],8));
+        capture(); model.tx_sent=0;
+        advance(2200); capture();
+        bool left=false; bool vlan_left=false;
+        for(const auto &d:declarations) if(d.interface==i) {
+            if(d.ethertype==0x22ea && d.type==3) {
+                left|=d.event==5; EXPECT_EQ(d.event,5u)<<"no stale shared renewal";
+            }
+            if(d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,7})) {
+                vlan_left|=d.event==5; EXPECT_EQ(d.event,5u);
+            }
+        }
+        EXPECT_TRUE(left); EXPECT_TRUE(vlan_left);
+        // Replacing the other StreamID must withdraw its last user while
+        // preserving the newly shared StreamID's existing Ready Applicant.
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,&other,da[0],7));
+        offer(frame(1,talker_value(other,da[0],7),1),i); advance(400);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,&other,da[0],7));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(1200); capture();
+        bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea && d.type==3 &&
+            d.value==std::vector<uint8_t>(other.bytes,other.bytes+8)) {
+            EXPECT_NE(d.event,5u); ready|=d.subtype==2;
+        }
+        EXPECT_TRUE(ready);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,nullptr,nullptr,0)); advance(200);
+    }
+}
+
+TEST_F(Srp, LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder) {
+    settle(); advance(400);
+    const msrp_stream_id eligible{{2,1,2,3,4,5,6,7}};
+    const msrp_stream_id waiting{{2,1,2,3,4,5,6,8}};
+    const uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned first : {0u,1u}) {
+        capture(); model.tx_sent=0;
+        // Bind the ineligible sink before the VID is requested. Ownership
+        // cannot depend on the last sink's individual request history.
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1,&waiting,da,7));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,0,&eligible,da,7));
+        offer(frame(1,talker_value(eligible,da,7),1),i); advance(400);
+        ASSERT_FALSE(adapter.ifs[i].sinks[1].vlan_requested);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(1200); capture();
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x88f5 &&
+            d.value==std::vector<uint8_t>({0,7})) { EXPECT_NE(d.event,5u); }
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(2200); capture();
+        bool vlan_left=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x88f5 &&
+            d.value==std::vector<uint8_t>({0,7})) {
+            vlan_left|=d.event==5; EXPECT_EQ(d.event,5u)<<"no VID renewal without a binding";
+        }
+        EXPECT_TRUE(vlan_left);
+    }
+}
+
+TEST_F(Srp, RefusedPeerDomainDoesNotSurviveLinkRestart) {
+    settle(); advance(400);
+    std::vector<void*> held; while(void *p=ctrl_pool_alloc(&pool,1)) held.push_back(p);
+    ASSERT_GE(held.size(),2u); ctrl_pool_free(&pool,held.back()); held.pop_back();
+    auto f=frame(4,{6,4,0,3},0);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0)); ctrl_loop_service(&loop);
+    ASSERT_TRUE(adapter.ifs[0].domain_owed);
+    for(void *p:held) ctrl_pool_free(&pool,p);
+    mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true); settle(); advance(400);
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"old link's refused Domain must be discarded";
+    EXPECT_EQ(adapter.ifs[0].domain.priority,3u);
+}
+
+TEST_F(Srp, SinkVlanRedeclaredBeforeReadyAfterLinkRestart) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,0,&sid,da,7));
+        offer(frame(1,talker_value(sid,da,7),1),i); advance(400);
+        ASSERT_EQ(adapter.ifs[i].sinks[0].declared,2u);
+        mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true); settle();
+        capture(); model.tx_sent=0;
+        offer(frame(1,talker_value(sid,da,7),1),i); advance(400); capture();
+        bool vlan=false; bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i) {
+            if(d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,7}) && (d.event==1 || d.event==3)) vlan=true;
+            if(d.ethertype==0x22ea && d.type==3 && d.subtype==2 && d.event!=5) {
+                EXPECT_TRUE(vlan)<<"new link's VLAN Join must precede Ready"; ready=true;
+            }
+        }
+        EXPECT_TRUE(vlan); EXPECT_TRUE(ready);
+    }
+}
+
+TEST_F(Srp, SharedReadyWaitsForTheMatchingBindingsOwnVlan) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[2][6]={
+        {0x91,0xe0,0xf0,0,0,8},{0x91,0xe0,0xf0,0,0,9}
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,0,&sid,da[0],2));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1,&sid,da[1],7));
+        advance(1200); ASSERT_TRUE(adapter.ifs[i].sinks[0].vlan_sent);
+        capture(); model.tx_sent=0;
+        offer(frame(1,talker_value(sid,da[1],7),1),i); advance(400); capture();
+        bool vlan=false; bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i) {
+            if(d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,7}) && (d.event==1 || d.event==3)) vlan=true;
+            if(d.ethertype==0x22ea && d.type==3 && d.subtype==2 && d.event!=5) {
+                EXPECT_TRUE(vlan)<<"matching binding's VLAN Join must precede Ready"; ready=true;
+            }
+        }
+        EXPECT_TRUE(vlan); EXPECT_TRUE(ready);
+    }
+}
+
+TEST_F(Srp, MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline) {
+    settle(); advance(400);
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        std::vector<uint8_t> vlan(26);
+        wire_put_be(vlan.data(),0x0180c2000021ull,6);
+        wire_put_be(vlan.data()+12,0x88f5,2);
+        const uint8_t pdu[]={
+            0,1,2,0,1,0,2,36,0,0,0,0
+        };
+        std::copy(pdu,pdu+12,vlan.begin()+14);
+        const auto registered=[&]() {
+            struct Status { int state=-1; } status;
+            mrp_attr_visit(adapter.ifs[i].mvrp,0,[](void *ctx,const mrp_attr_status *s) {
+                if(s->attr_type==1 && wire_be16(static_cast<const uint8_t*>(s->attr_val))==2)
+                    static_cast<Status*>(ctx)->state=s->reg;
+            },&status);
+            return status.state;
+        };
+        offer(vlan,i); ASSERT_EQ(registered(),MRP_REG_STATE_IN);
+        vlan[21]=5*36; offer(vlan,i);
+        EXPECT_EQ(registered(),MRP_REG_STATE_LV)<<"MVRP must retain IEEE aging";
+        advance(2000); offer(vlan,i);
+        advance(2990); EXPECT_EQ(registered(),MRP_REG_STATE_LV);
+        advance(10); EXPECT_EQ(registered(),MRP_REG_STATE_MT);
+    }
 }
 
 }

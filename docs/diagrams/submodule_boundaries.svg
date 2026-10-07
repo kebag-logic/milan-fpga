@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" font-family="Helvetica,Arial,sans-serif">
-<rect width="1500" height="900" fill="#FAFAFA"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1100" viewBox="0 0 1500 1100" font-family="Helvetica,Arial,sans-serif">
+<rect width="1500" height="1100" fill="#FAFAFA"/>
 <defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#455A64"/></marker></defs>
 <text x="48" y="48" font-size="30" font-weight="bold" fill="#263238">Verified submodule boundaries</text>
 <text x="48" y="78" font-size="18" fill="#546E7A">Submodule paths and revisions come directly from Git.</text>
@@ -21,6 +21,8 @@
 <text x="1002" y="298" text-anchor="middle" font-size="16" fill="#37474F">RTL</text>
 <path d="M1045,625 L1002,625 L1002,535 L960,535" fill="none" stroke="#455A64" stroke-width="2.5" marker-end="url(#arrow)" stroke-dasharray="9,7"/>
 <text x="1002" y="573" text-anchor="middle" font-size="16" fill="#37474F">legacy</text>
+<path d="M750,675 L750,675 L750,580 L750,580" fill="none" stroke="#455A64" stroke-width="2.5" marker-end="url(#arrow)"/>
+<text x="790" y="620" text-anchor="middle" font-size="16" fill="#37474F">C port</text>
 <rect x="35" y="135" width="420" height="270" rx="13" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2.5"/>
 <rect x="53" y="152" width="160" height="32" rx="16" fill="#2E7D32"/>
 <text x="133" y="174" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">ACTIVE CONTROL</text>
@@ -62,7 +64,17 @@
 <text x="1063" y="709" font-size="16" fill="#37474F">./</text>
 <text x="1063" y="730" font-size="16" fill="#37474F">no active root consumer</text>
 <text x="1063" y="754" font-size="16" fill="#37474F">test: not applicable</text>
-<rect x="190" y="785" width="1120" height="70" rx="12" fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>
-<text x="750" y="813" text-anchor="middle" font-size="18" font-weight="bold" fill="#263238">Evidence rule</text>
-<text x="750" y="839" text-anchor="middle" font-size="17" fill="#455A64">Run donor suites before root integration suites.</text>
+<rect x="540" y="675" width="420" height="270" rx="13" fill="#FFF8E1" stroke="#8D6E00" stroke-width="2.5"/>
+<rect x="558" y="692" width="160" height="32" rx="16" fill="#8D6E00"/>
+<text x="638" y="714" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">CORE SRP</text>
+<text x="558" y="755" font-size="20" font-weight="bold" fill="#212121">third_party/lwSRP</text>
+<text x="558" y="798" font-size="16" fill="#37474F">Bare-metal MRP, MSRP and MVRP library</text>
+<text x="558" y="837" font-size="16" fill="#37474F">pin 23d9a8173b07</text>
+<text x="558" y="863" font-size="16" fill="#37474F">mailbox adapter:</text>
+<text x="558" y="884" font-size="16" fill="#37474F">sw/firmware/ctrl/srp/</text>
+<text x="558" y="905" font-size="16" fill="#37474F">srp_mbx.c</text>
+<text x="558" y="929" font-size="16" fill="#37474F">test: sw/firmware/ctrl/test</text>
+<rect x="190" y="1000" width="1120" height="70" rx="12" fill="#FFFFFF" stroke="#78909C" stroke-width="2"/>
+<text x="750" y="1028" text-anchor="middle" font-size="18" font-weight="bold" fill="#263238">Evidence rule</text>
+<text x="750" y="1054" text-anchor="middle" font-size="17" fill="#455A64">Run donor suites before root integration suites.</text>
 </svg>

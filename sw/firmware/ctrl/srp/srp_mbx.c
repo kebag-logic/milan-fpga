@@ -267,12 +267,12 @@ void srp_mbx_destroy(struct srp_mbx *m)
     m->busy = false;
 }
 
-static bool another_sink(const struct srp_interface *i, unsigned skip,
+static bool has_sink(const struct srp_interface *i,
                          const struct srp_sink *old, bool same_stream)
 {
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         const struct srp_sink *s = &i->sinks[k];
-        if (k != skip && s->bound &&
+        if (s->bound &&
             (same_stream ? memcmp(s->stream_id.bytes,old->stream_id.bytes,8) == 0 : s->vid == old->vid)) {
             return true;
         }
@@ -302,17 +302,38 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
         m->busy = false;
         return true;
     }
-    if (s->bound) {
-        if (!another_sink(i,sink,s,true)) {
-            (void)msrp_withdraw_listener(i->msrp,0,&s->stream_id);
-        }
-        if (s->vlan_requested && s->vid != i->domain.vid && !another_sink(i,sink,s,false)) {
-            (void)mvrp_withdraw(i->mvrp,0,s->vid);
+    struct srp_sink replacement = {0};
+    if (identity) {
+        replacement.stream_id = *identity;
+        memcpy(replacement.dest_mac,dest_mac,6);
+        replacement.vid = vid;
+        replacement.bound = true;
+        // Carry the shared Applicant and committed VID across replacements,
+        // including several accepted binds before the next service pass.
+        for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+            const struct srp_sink *r = &i->sinks[k];
+            if (!r->bound) {
+                continue;
+            }
+            if (memcmp(r->stream_id.bytes,identity->bytes,8) == 0) {
+                replacement.declared |= r->declared;
+            }
+            if (r->vid == vid) {
+                replacement.vlan_requested |= r->vlan_requested;
+                replacement.vlan_sent |= r->vlan_sent;
+            }
         }
     }
-    memset(s,0,sizeof(*s));
-    if (identity) {
-        s->stream_id = *identity; memcpy(s->dest_mac,dest_mac,6); s->vid = vid; s->bound = true;
+    const struct srp_sink old = *s;
+    *s = replacement;
+    if (old.bound) {
+        // Judge the complete new binding set, including the replacement.
+        if (!has_sink(i,&old,true)) {
+            (void)msrp_withdraw_listener(i->msrp,0,&old.stream_id);
+        }
+        if (old.vid != i->domain.vid && !has_sink(i,&old,false)) {
+            (void)mvrp_withdraw(i->mvrp,0,old.vid);
+        }
     }
     m->busy = false;
     return true;
@@ -449,7 +470,7 @@ static bool change_domain(struct srp_interface *i)
     }
     (void)mrp_mad_leave(i->msrp,0,MSRP_ATTR_TYPE_DOMAIN,&i->domain);
     const struct srp_sink old_vlan = {.vid=i->domain.vid};
-    if (i->domain.vid != i->next_domain.vid && !another_sink(i,CTRL_SRP_SINKS,&old_vlan,false)) {
+    if (i->domain.vid != i->next_domain.vid && !has_sink(i,&old_vlan,false)) {
         (void)mvrp_withdraw(i->mvrp,0,i->domain.vid);
     }
     if (i->domain.vid != i->next_domain.vid) {
@@ -578,9 +599,10 @@ static bool poll(void *ctx)
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         struct srp_interface *i = &m->ifs[n];
         bool link = mbx_link_up(n);
-        if (i->link && !link) {
+        if (i->link != link) {
             reset_interface(i);
-            i->link = false;
+            i->link = link;
+            i->link_seen = true;
         }
         if (i->discard_prefix && !mbx_rx_before(MBX_CH_SRP,i->rx_mark)) {
             i->discard_prefix = false;
@@ -659,6 +681,9 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
     bool ok = m->initialized && !m->loop && !timer_owner && loop->n_ticks < CTRL_LOOP_MAX_TICKS &&
               loop->n_polls < CTRL_LOOP_MAX_POLLS && loop->n_sinks < CTRL_LOOP_MAX_SINKS && !loop->rx[MBX_CH_SRP].fn;
     if (ok) {
+        for (unsigned n = 0; n < MBX_N_IF; ++n) {
+            m->ifs[n].link = mbx_link_up(n);
+        }
         m->loop = loop;
         timer_owner = m;
         (void)ctrl_loop_bind_rx(loop,MBX_CH_SRP,receive,m);
