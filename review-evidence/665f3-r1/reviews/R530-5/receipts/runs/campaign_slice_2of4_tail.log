@@ -1,0 +1,7 @@
+entries 232..233: acmp-restore-unique-id-little-endian, acmp-roll-back-keeps-the-bindings
+[ok] mutant acmp-restore-unique-id-little-endian (acmp): 5 check(s) failed
+    first: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the record's flags and parameters, big-endian (the processor's BINDING payload)
+[ok] mutant acmp-roll-back-keeps-the-bindings (acmp, acmpnvm): 4 check(s) failed
+    first: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: A24 the roll-back drops every restored binding, keeps each sink's interface, calls no port
+mutants: 2 of 2 caught
+index_campaign: PASS

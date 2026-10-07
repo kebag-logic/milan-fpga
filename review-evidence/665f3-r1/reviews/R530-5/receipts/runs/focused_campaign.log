@@ -1,0 +1,49 @@
+focused: 23 of 465 defects: app-binds-pool-after-the-mailbox, app-starts-on-an-uncarved-pool, app-own-mac-not-the-entity-mac, app-acmp-before-adp, app-acmp-never-composed, app-acmp-never-opened, app-maap-slots-overlap-acmp, app-maap-slots-overlap-adp, app-maap-attached-after-open, app-maap-before-acmp, app-maap-started-in-compose, app-maap-never-started, app-maap-channel-unbound, app-maap-preferred-unchecked, app-maap-last-range-refused, app-maap-range-past-the-pool, app-maap-refusal-ignored, app-acmp-refusal-ignored, app-maap-entry-takes-no-port, app-maap-entry-drops-preferred, app-three-way-pass-overrun, maap-app-channel-closed, maap-app-missing-rx-interrupt
+[ok] mutant app-binds-pool-after-the-mailbox (unit): 1 check(s) failed
+    first: [FAIL] AppComposition.U1BindsTheAppPoolBehindLwsrpBeforeTheMailbox:            Actual: never called - unsatisfied and active
+[ok] mutant app-starts-on-an-uncarved-pool (unit): 3 check(s) failed
+    first: [FAIL] AppComposition.U1AnUncarvablePoolStartsNothing:            Actual: called once - over-saturated and active
+[ok] mutant app-own-mac-not-the-entity-mac (unit, acmp): 2 check(s) failed
+    first: [FAIL] AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens: U4 interface 0's OWN_MAC is the entity's MAC
+[ok] mutant app-acmp-before-adp (acmp): 21 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B0 the app with ACMP starts on the model
+[ok] mutant app-acmp-never-composed (acmp): 52 check(s) failed
+    first: [FAIL] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder: B1 the filter passes a BIND_RX for this listener
+[ok] mutant app-acmp-never-opened (acmp, acmp): 16 check(s) failed
+    first: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 the open wrote the restored binding's talker into interface 0's bound-talker table
+[ok] mutant app-maap-slots-overlap-acmp (acmp): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+[ok] mutant app-maap-slots-overlap-adp (maap, acmp): 3 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: protocol timer slots disjoint
+[ok] mutant app-maap-attached-after-open (acmp, maap): 11 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-before-acmp (acmp, acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 ADP, then ACMP, then MAAP attach, each with its sink and its poll
+[ok] mutant app-maap-started-in-compose (acmp): 4 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-never-started (acmp, maap): 10 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-channel-unbound (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+[ok] mutant app-maap-preferred-unchecked (acmp, maap): 6 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+[ok] mutant app-maap-last-range-refused (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the pool's last range is not
+[ok] mutant app-maap-range-past-the-pool (acmp): 2 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+[ok] mutant app-maap-refusal-ignored (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 MAAP for an entity with no talker source is refused
+[ok] mutant app-acmp-refusal-ignored (acmp, acmp): 8 check(s) failed
+    first: [FAIL] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract: U5 an ACMP configuration the module refuses fails the composition
+[ok] mutant app-maap-entry-takes-no-port (acmp, maap): 3 check(s) failed
+    first: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 the explicit MAAP entry refuses a missing stream-address port
+[ok] mutant app-maap-entry-drops-preferred (maap): 7 check(s) failed
+    first: [FAIL] MaapHost.ExplicitAppComposition: Expected: false
+[ok] mutant app-three-way-pass-overrun (acmp): 1 check(s) failed
+    first: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 the worst pass of the three-way backlog
+[ok] mutant maap-app-channel-closed (maap): 11 check(s) failed
+    first: [FAIL] MaapHost.HMaapConflictLossAndRetry: Expected: true
+[ok] mutant maap-app-missing-rx-interrupt (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+mutants: 23 of 23 caught
+focused_campaign: PASS

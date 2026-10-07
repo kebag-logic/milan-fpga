@@ -1,0 +1,40 @@
+[ESCAPED] probe pass-bound-drops-maap-share: acmp=rc0/0fail acmpif2=rc0/0fail maap=rc0/0fail maap_if2=rc0/0fail
+[CAUGHT] probe maap-slots-overlap-acmp-by-one: acmp=rc1/3fail acmpif2=rc1/3fail maap=rc0/0fail maap_if2=rc0/0fail
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 no module takes an expiry of another's arm, interface 0
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 and each slot holds its own module's current arm, interface 0
+    acmpif2: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 every interface's ADP, ACMP and MAAP slots are distinct and inside the timer bank
+[CAUGHT] probe maap-count-one: acmp=rc1/4fail acmpif2=rc1/4fail maap=rc0/0fail maap_if2=rc0/0fail
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 the acquired range reaches the stream-address port
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 MAAP for an entity with no talker source is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 and no refusal touched a mailbox register
+[CAUGHT] probe maap-start-drops-preferred: acmp=rc1/2fail acmpif2=rc1/2fail maap=rc1/4fail maap_if2=rc1/4fail
+    acmp: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 the acquired range reaches the stream-address port
+    acmpif2: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    acmpif2: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 the acquired range reaches the stream-address port
+[CAUGHT] probe maap-ctx-dropped: acmp=rc1/1fail acmpif2=rc1/1fail maap=rc1/1fail maap_if2=rc1/1fail
+    acmp: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: crashed on signal 11
+    acmpif2: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: crashed on signal 11
+    maap: [FAIL] MaapHost.ExplicitAppComposition: crashed on signal 11
+    maap_if2: [FAIL] MaapHost.ExplicitAppComposition: crashed on signal 11
+[CAUGHT] probe maap-start-before-open: acmp=rc1/2fail acmpif2=rc1/2fail maap=rc1/4fail maap_if2=rc1/4fail
+    acmp: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    acmp: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 the acquired range reaches the stream-address port
+    acmpif2: [FAIL] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound: F6 events, acmp and maap records wait
+    acmpif2: [FAIL] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen: U6 the acquired range reaches the stream-address port
+[ESCAPED] probe maap-mac-per-interface: acmp=rc0/0fail acmpif2=rc0/0fail maap=rc0/0fail maap_if2=rc0/0fail
+[CAUGHT] probe entry-drops-ctx: acmp=rc0/0fail acmpif2=rc0/0fail maap=rc1/1fail maap_if2=rc1/1fail
+    maap: [FAIL] MaapHost.ExplicitAppComposition: crashed on signal 11
+    maap_if2: [FAIL] MaapHost.ExplicitAppComposition: crashed on signal 11
+[CAUGHT] probe acmp-refusal-after-maap: acmp=rc1/4fail acmpif2=rc1/4fail maap=rc1/2fail maap_if2=rc1/2fail
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 a preferred range below the B.4 pool is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 MAAP for an entity with no talker source is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 and no refusal touched a mailbox register
+[CAUGHT] probe preferred-upper-unchecked: acmp=rc1/2fail acmpif2=rc1/2fail maap=rc1/2fail maap_if2=rc1/2fail
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+    acmp: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 and no refusal touched a mailbox register
+    acmpif2: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 one that runs past the pool's end is refused
+    acmpif2: [FAIL] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened: U7 and no refusal touched a mailbox register
