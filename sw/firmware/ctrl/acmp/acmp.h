@@ -16,6 +16,11 @@
 // The core allocates nothing, reaches no global, and every call returns after
 // a bounded number of steps.
 //
+//   ONLY AVTP VERSION 0 IS READ. A received ACMPDU or ADPDU whose AVTP version
+//   (frame byte 15, bits 6:4) is not 0, the only version IEEE 1722.1-2021
+//   8.2.1.3 and 6.2.2.3 define, is discarded before any field is decoded or
+//   anything changes (IEEE 1722-2016 4.4.3.4), and counted as malformed.
+//
 //   THE LISTENER (5.5.3). One sink per STREAM_INPUT, each with the eight
 //   states of Table 5.28 and every transition of Table 5.30 (5.5.3.5.1 to
 //   5.5.3.5.48). BIND_RX, UNBIND_RX and GET_RX_STATE with listener_entity_id
@@ -34,7 +39,10 @@
 //
 //   PROBING, TIMEOUTS AND SEQUENCE IDS. A probe is sent at once after a bind
 //   (5.5.3.5.3) or after a random TMR_DELAY of 0 to 1 s (Table 5.29) once the
-//   talker is discovered; TMR_NO_RESP is 200 ms (Table 5.26); its first
+//   talker is discovered; TMR_NO_RESP is 200 ms (Table 5.26) from the send the
+//   port accepts, of the probe and of its duplicate alike (5.5.3.5.3 steps 5
+//   to 7, 5.5.3.5.16): a probe that waits for transmit room holds its
+//   TMR_NO_RESP until acmp_poll sends it; its first
 //   expiry sends an exact duplicate, same sequence_id (5.5.3.5.16), its
 //   second sets ACMP status LISTENER_TALKER_TIMEOUT and TMR_RETRY 4 s
 //   (5.5.3.5.23); a failed response sets the status it carries and TMR_RETRY
@@ -48,8 +56,10 @@
 //   is 16 (IEEE 1722.1-2021 Table 8-3), before anything changes.
 //
 //   THE TALKER (5.5.4). Stateless (5.5.2.7): PROBE_TX (5.5.4.1, Tables 5.40
-//   to 5.43), DISCONNECT_TX (5.5.4.2, Tables 5.44 and 5.45: SUCCESS, nothing
-//   changes), GET_TX_STATE (5.5.4.3, Tables 5.46 and 5.47) and
+//   to 5.43), DISCONNECT_TX (5.5.4.2, Tables 5.44 and 5.45: SUCCESS for a
+//   valid source, nothing changes; 5.5.2.7's "always returns SUCCESS" is an
+//   overview that defers to 5.5.4, whose 5.5.4.2 validates the source first),
+//   GET_TX_STATE (5.5.4.3, Tables 5.46 and 5.47) and
 //   GET_TX_CONNECTION (5.5.4.4, Table 5.48: NOT_SUPPORTED), each with
 //   talker_entity_id this entity (IEEE 1722.1-2021 8.2.1.9). The first three
 //   naming a source that does not exist are answered TALKER_UNKNOWN_ID
@@ -67,7 +77,11 @@
 //   is the received valid_time in two-second units (IEEE 1722.1-2021
 //   6.2.2.5); every Table 5.54 transition and guard of 5.6.4.5.1 to 5.6.4.5.4
 //   is implemented, and the EVT_TK_DISCOVERED and EVT_TK_DEPARTED it raises
-//   drive the sink's connection machine in the same call.
+//   drive the sink's connection machine in the same call. The transport's
+//   admit port is told which talker each bound sink names, as its binding
+//   changes, so the ingress passes that talker's ENTITY_AVAILABLE and
+//   ENTITY_DEPARTING on the sink's interface (the mailbox's bound-talker
+//   table, #665 comment 6029368753) and the machine still filters exactly.
 //
 //   KEYED PER AVB INTERFACE. Each sink and source carries the AVB interface
 //   its descriptor is on: a sink's probes leave on it (5.5.3.5.3 step 5), a
@@ -98,8 +112,10 @@
 // A FRAME THE SEND PORT REFUSES IS OWED, never reordered: up to
 // ACMP_OWED_MAX frames wait, in order, for acmp_poll(), and nothing passes
 // them. A command that would add a response to a full queue is dropped
-// before it changes anything (busy_drops); a probe that finds the queue full
-// is counted lost (probes_lost) and its TMR_NO_RESP recovers it.
+// before it changes anything (busy_drops). An owed probe's TMR_NO_RESP starts
+// when acmp_poll sends it, provided its sink still waits for that probe (the
+// same sequence_id); a probe that finds the queue full is counted lost
+// (probes_lost) and its TMR_NO_RESP, run from the attempt, recovers it.
 //
 // PORTS NEVER CALL BACK INTO THE CORE SYNCHRONOUSLY (#678). Every expiry,
 // every frame and every SRP event is delivered by the one event loop, never
@@ -127,6 +143,7 @@ extern "C" {
 #endif
 #define ACMP_MAX_INTERFACES 4u          // AVB interfaces (the mailbox CAPS.N_IF field is 4 bits)
 #define ACMP_OWED_MAX 8u                // frames waiting for transmit room, at most
+#define ACMP_AVTP_VERSION 0u            // IEEE 1722.1-2021 8.2.1.3 (ACMP) and 6.2.2.3 (ADP)
 
 #define ACMP_ETHERTYPE 0x22F0u          // IEEE 1722-2016 Table 5 (AVTP)
 #define ACMP_SUBTYPE 0xFCu              // IEEE 1722-2016 Table 6; IEEE 1722.1-2021 8.2.1.1
@@ -279,6 +296,12 @@ struct acmp_ports {
 	void (*gptp)(void *ctx, unsigned interface, uint64_t *gm_id, uint8_t *domain);
 	// Entropy mixed into the random TMR_DELAY.
 	uint32_t (*seed)(void *ctx);
+	// The ingress of `interface` passes the ENTITY_AVAILABLE and
+	// ENTITY_DEPARTING of `talker_entity_id` for `sink` (one entry per sink),
+	// or, with bound false, no longer for it. Called when a sink is bound,
+	// unbound or bound to another talker, and by acmp_open for every binding
+	// the store restored.
+	void (*admit)(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t talker_entity_id);
 };
 
 // The entity's other owners. Every pointer is required; none may call back
@@ -325,8 +348,12 @@ struct acmp_sink {
 	// timers, absolute milliseconds
 	enum acmp_timer timer;
 	uint32_t timer_deadline;
+	bool timer_held;                        // TMR_NO_RESP waits for its owed probe to leave
 	bool adp_armed;
 	uint32_t adp_deadline;
+	// what the admit port holds for the sink
+	bool admitted;
+	uint64_t admitted_talker;
 	// notification (#653) and the store
 	uint8_t change_owed;                    // owed frames whose leaving releases this sink's change
 	struct acmp_sink_view reported;         // the view env->changed last reported
@@ -336,6 +363,7 @@ struct acmp_sink {
 // A frame waiting for transmit room, and the sinks whose change it releases.
 struct acmp_owed {
 	uint8_t interface;
+	uint8_t probe_of;                       // 1 + the sink whose PROBE_TX_COMMAND it is; 0 for a response
 	uint32_t release;                       // bit s: sink s's change is reported once it leaves
 	uint8_t frame[ACMP_FRAME_BYTES];
 };
@@ -358,11 +386,11 @@ struct acmp {
 	unsigned owed_count;
 	// diagnostics, each counted modulo 2^32
 	uint32_t rx_ignored;                    // not addressed to this entity's talker or listener
-	uint32_t rx_malformed;                  // not an ACMPDU this module can read
+	uint32_t rx_malformed;                  // not an ACMPDU this module can read (incl. another AVTP version)
 	uint32_t unknown_sink;                  // LISTENER_UNKNOWN_ID answers and probe responses ignored for it
 	uint32_t probe_mismatch;                // PROBE_TX_RESPONSEs that are not the sink's probe's
 	uint32_t refused_locked;                // CONTROLLER_NOT_AUTHORIZED answers
-	uint32_t adp_ignored;                   // ADPDUs no sink took
+	uint32_t adp_ignored;                   // ADPDUs no sink took, or none this module can read
 	uint32_t impossible;                    // events Table 5.30 or 5.54 marks "x"
 	uint32_t busy_drops;                    // commands dropped behind a full owed queue
 	uint32_t probes_lost;                   // probes dropped behind a full owed queue
@@ -393,8 +421,8 @@ void acmp_tk_unregistered(struct acmp *a, unsigned sink);
 // 5.3.8.7). False for an unbound or unknown sink.
 bool acmp_set_started(struct acmp *a, unsigned sink, bool started);
 
-// Retry the frames the send port had no room for, oldest first, until one is
-// refused; true while one is still owed.
+// Attempt to send at most one owed frame, oldest first; return true while any
+// frame remains owed.
 bool acmp_poll(struct acmp *a);
 
 // The saved-state store's binding walk and write path (see the top of this
@@ -405,6 +433,10 @@ enum acmp_restore {
 };
 enum acmp_restore acmp_restore_binding(struct acmp *a, unsigned sink, const uint8_t *payload, unsigned len);
 void acmp_restore_rollback(struct acmp *a);
+// The transport is open (the mailbox's contract checked, ctrl_loop_open): the
+// admit port is told every binding the store restored. A boot step, after the
+// binding walk and before the first input; any later entry would tell it too.
+void acmp_open(struct acmp *a);
 // The sink's saved record now; false for a sink the configuration does not have.
 bool acmp_binding_latch(const struct acmp *a, unsigned sink, uint8_t payload[ACMP_BINDING_BYTES]);
 

@@ -11,6 +11,8 @@
 //                   core's absolute deadline with a fresh tag, or cancelled
 //   gptp         -> the interface's GM_LO/GM_HI/DOMAIN snapshot
 //   seed         -> NOW_MS
+//   admit        -> entry `sink` of the interface's bound-talker table
+//                   (BOUND_EN cleared, then BOUND_EID and BOUND_EN written)
 //
 // and from the loop: the acmp channel's RX records to acmp_rx, the TIMER
 // event of a slot to acmp_timer_expired when its tag is the current arm's (an
@@ -25,9 +27,11 @@
 // DEPARTING record to acmp_adp_rx and every other record (ENTITY_DISCOVER, and
 // anything else ADP discards and counts, 5.6.3.1) to that handler unchanged.
 // It reaches F0's module through the loop's public binding only. The contract's
-// adp channel (sw/mailbox/mailbox.yaml, major 2) passes ENTITY_DISCOVER alone
-// today, so until it carries the term docs/design/MAILBOX_SPLIT.md's open items
-// name, the tap's discovery half receives nothing from the fabric.
+// adp channel (sw/mailbox/mailbox.yaml, 2.1) passes an ENTITY_AVAILABLE or
+// ENTITY_DEPARTING whose entity_id is an enabled entry of the arrival
+// interface's bound-talker table, which the admit port keeps equal to each
+// bound sink's talker (#665, comment 6029368753). Bindings the store restored
+// at boot are written by acmp_mbx_open(), once the mailbox is open.
 //
 // SERVICE LATENCY (NFR-SCOUT-03, the H-ACMP and H-DISC hooks of FR_NFR.md
 // 3.4.2), under the assumptions A1 to A4 of ctrl_loop.h, counted in mailbox
@@ -39,6 +43,8 @@
 //
 //   an ACMP RX record   RX_HEAD + 2 header + 18 payload + RX_TAIL       22
 //   an ACMP TX record   TX_TAIL + 2 header + 18 payload + TX_HEAD       22
+//   a talker admitted   BOUND_EN + BOUND_EID_LO + BOUND_EID_HI + BOUND_EN  4
+//   a talker withdrawn  BOUND_EN                                         1
 //   an ADP RX record    RX_HEAD + 2 header + 21 payload + RX_TAIL       25
 //   an event record     EVT_HEAD + 4 words + EVT_TAIL                    6
 //   the clock           NOW_MS                                           1
@@ -66,10 +72,11 @@
 //                                the tap's costliest handler: a record goes to
 //                                ADP (4, adp_mbx.h) or to discovery (gPTP 3,
 //                                clock 1, seed 1, re-arm 2), never to both
-//   ACMP RX 2 x (36 + 47)        the largest record and the costliest handler
+//   ACMP RX 2 x (36 + 51)        the largest record and the costliest handler
 //                                (a BIND: the clock, the response and the probe,
-//                                TMR_NO_RESP armed)
-//   polls   31 + 22              ADP's (adp_mbx.h) and one owed ACMP frame
+//                                TMR_NO_RESP armed, the new talker admitted)
+//   polls   31 + 25              ADP's (adp_mbx.h) and one owed ACMP frame (a
+//                                probe's: the clock and its TMR_NO_RESP armed)
 //
 // The smallest ACMP record the filter passes is 13 words (a frame that reaches
 // the end of talker_entity_id, byte 42), so a full acmp ring holds 19 and its
@@ -107,8 +114,9 @@ extern "C" {
 #endif
 
 // Mailbox accesses of one service pass, per response path (see above).
-#define ACMP_MBX_LAT_BIND 72u           // BIND_RX -> response, PROBE_TX, TMR_NO_RESP: 1 + 1 + 22 + 1 + 22 + 22 + 2 + 1
-#define ACMP_MBX_LAT_UNBIND 48u         // UNBIND_RX -> response, timer stopped: 1 + 1 + 22 + 1 + 22 + 1
+#define ACMP_MBX_LAT_BIND 76u           // BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted:
+					//   1 + 1 + 22 + 1 + 22 + 22 + 2 + 4 + 1
+#define ACMP_MBX_LAT_UNBIND 49u         // UNBIND_RX -> response, timer stopped, talker withdrawn: 1 + 1 + 22 + 1 + 22 + 1 + 1
 #define ACMP_MBX_LAT_GET_RX 47u         // GET_RX_STATE -> response: 1 + 1 + 22 + 22 + 1
 #define ACMP_MBX_LAT_PROBE_RESP 28u     // PROBE_TX_RESPONSE -> TMR_NO_TK or TMR_RETRY armed: 1 + 1 + 22 + 1 + 2 + 1
 #define ACMP_MBX_LAT_TALKER 47u         // PROBE_TX / GET_TX_STATE / DISCONNECT_TX -> response: 1 + 1 + 22 + 22 + 1
@@ -122,8 +130,8 @@ extern "C" {
 #define ACMP_MBX_EVENT_MAX 4u           // per event: the clock, the seed and a re-arm
 #define ACMP_MBX_SINK_WORK 22u          // per sink and pass: one probe frame
 #define ACMP_MBX_DISC_MAX 7u            // an ADP record's discovery: gPTP 3, clock 1, seed 1, re-arm 2
-#define ACMP_MBX_HANDLER_MAX 47u        // an ACMP record: BIND, 1 + 22 + 22 + 2
-#define ACMP_MBX_POLL_MAX 22u           // one owed frame
+#define ACMP_MBX_HANDLER_MAX 51u        // an ACMP record: BIND, 1 + 22 + 22 + 2 + 4
+#define ACMP_MBX_POLL_MAX 25u           // one owed frame, a probe's: 22 + the clock 1 + its TMR_NO_RESP 2
 #define ACMP_MBX_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + MBX_CH_ACMP_MAX_FRAME_BYTES / 4u)
 #define ACMP_MBX_ADP_HANDLER_MAX (ADP_MBX_HANDLER_MAX > ACMP_MBX_DISC_MAX ? ADP_MBX_HANDLER_MAX : ACMP_MBX_DISC_MAX)
 #define ACMP_MBX_PASS_MAX                                                                                          \
@@ -159,11 +167,18 @@ struct acmp_mbx {
 	struct ctrl_loop_rx adp_next;   // the adp channel's handler the tap stands in front of
 };
 
-// The core on the mailbox, interface i's timer on slot first_slot + i. False
-// when the slots do not fit the fabric's timer bank, the configuration names
-// more interfaces than the mailbox has, or the core refuses it.
+// The core on the mailbox, interface i's timer on slot first_slot + i and sink
+// k on entry k of its interface's bound-talker table. False when the slots do
+// not fit the fabric's timer bank (any first_slot past MBX_N_TIMERS - MBX_N_IF,
+// up to UINT_MAX), the configuration names more interfaces than the mailbox
+// has, or the core refuses it. A bound-talker table holds ACMP_MAX_SINKS
+// entries or more (a build-time check).
 bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const struct acmp_env *env,
 		   unsigned first_slot);
+
+// The mailbox is open (ctrl_loop_open): write the bound-talker entry of every
+// binding the store restored (acmp_open). The app calls it in ctrl_app_open.
+void acmp_mbx_open(struct acmp_mbx *m);
 
 // Bind the acmp channel, the event sink and the poll into the loop, and stand
 // in front of the adp channel's handler (see above). False when no handler is

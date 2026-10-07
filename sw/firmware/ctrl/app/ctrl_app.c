@@ -37,6 +37,11 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	if (!ctrl_loop_open(&app->loop, cfg->entity->entity_id, own_mac)) {
 		return false;
 	}
+	// the bindings the store restored between compose and open, into the
+	// adp channel's bound-talker table, before any protocol starts
+	if (cfg->acmp != NULL) {
+		acmp_mbx_open(&app->acmp);
+	}
 	adp_mbx_set_enable(&app->adp, true);
 	return true;
 }

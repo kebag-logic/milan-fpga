@@ -73,6 +73,13 @@ void mbx_filter_set_maap_range(uint64_t base, uint16_t count);
 // an `own` match tuple takes on a frame that arrived on that interface. False,
 // writing nothing, for an interface the contract does not have.
 bool mbx_filter_set_own_mac(unsigned interface, uint64_t mac);
+// Entry `entry` of an interface's bound-talker table (BOUND_EID, BOUND_EN):
+// with bound, the adp channel passes that talker's ENTITY_AVAILABLE and
+// ENTITY_DEPARTING on that interface (the eq_bound term); without, the entry
+// no longer takes part. BOUND_EN is cleared before the identity is written, so
+// a half-written entry never matches. False, writing nothing, for an interface
+// or an entry the contract does not have.
+bool mbx_filter_set_bound_talker(unsigned interface, unsigned entry, bool bound, uint64_t talker_entity_id);
 // FILTER_MISMATCH: untagged frames of a control EtherType that matched no
 // channel's tuple, saturating at 0xFFFF.
 uint16_t mbx_filter_mismatch(void);

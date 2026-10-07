@@ -6,15 +6,18 @@
 // Every public entry that changes state runs the same way: refuse a call made
 // from inside a port call (#678), act, reading the clock at most once and only
 // when a deadline is needed, then finish(): arm each interface's timer at the
-// earliest deadline its sinks hold, announce to the store every sink whose
-// saved record moved, and report every sink whose view moved and that holds
-// no change behind an owed response.
+// earliest deadline its sinks hold, tell the admit port every sink whose bound
+// talker moved, announce to the store every sink whose saved record moved,
+// and report every sink whose view moved and that holds no change behind an
+// owed response.
 //
 // A sink's connection timer holds the one Table 5.29 timer its state owns
 // (TMR_DELAY in PRB_W_DELAY, TMR_NO_RESP in PRB_W_RESP and PRB_W_RESP2,
 // TMR_RETRY in PRB_W_RETRY, TMR_NO_TK in SETTLED_NO_RSV, none elsewhere), so
-// an expiry is read off the timer's kind. Its discovery timer, TMR_NO_ADP,
-// runs beside it and is armed only while the talker is discovered.
+// an expiry is read off the timer's kind. TMR_NO_RESP is held, with no
+// deadline, while the probe it times waits for transmit room, and starts when
+// that probe leaves. Its discovery timer, TMR_NO_ADP, runs beside it and is
+// armed only while the talker is discovered.
 //
 // The random delay costs the same every time: one xorshift step and one
 // multiply, uniform to one part in 65536 over 0 to 1000 ms.
@@ -47,6 +50,7 @@
 #define O_SEQ (PDU + 48u)
 #define O_FLAGS (PDU + 50u)
 #define O_VLAN (PDU + 52u)
+#define AVTP_VERSION(frame) (((frame)[O_MSG] >> 4) & 0x07u)   // IEEE 1722-2016 Figure 5: bits 6:4 of byte 1
 
 // ADPDU field offsets in the frame (IEEE 1722.1-2021 Figure 6-1, 6.2.2).
 #define A_VALID_TIME (PDU + 2u)
@@ -169,6 +173,13 @@ static void p_changed(struct acmp *a, unsigned sink)
 	a->in_port = false;
 }
 
+static void p_admit(struct acmp *a, unsigned interface, unsigned sink, bool bound, uint64_t talker)
+{
+	a->in_port = true;
+	a->ports->admit(a->ports->ctx, interface, sink, bound, talker);
+	a->in_port = false;
+}
+
 // ---- the wire ----------------------------------------------------------------------
 
 static void decode(const uint8_t *frame, struct pdu *p)
@@ -234,19 +245,24 @@ static struct pdu echo(const struct pdu *cmd, uint8_t status)
 
 // ---- owed frames, in order ---------------------------------------------------------
 
+enum sent { SENT, OWED, LOST };
+
 // Send a frame now, or queue it behind those already owed. `release` names the
-// sinks whose change may be reported only once this frame has left. False when
-// the queue is full and the frame is lost.
-static bool transmit(struct acmp *a, unsigned interface, const uint8_t *frame, uint32_t release)
+// sinks whose change may be reported only once this frame has left; a probe
+// names its sink in `probe_of` (1 + the sink, 0 for a response). LOST when the
+// queue is full.
+static enum sent transmit(struct acmp *a, unsigned interface, const uint8_t *frame, uint32_t release,
+			  unsigned probe_of)
 {
 	if (a->owed_count == 0u && p_send(a, interface, frame)) {
-		return true;
+		return SENT;
 	}
 	if (a->owed_count >= ACMP_OWED_MAX) {
-		return false;
+		return LOST;
 	}
 	struct acmp_owed *o = &a->owed[(a->owed_head + a->owed_count) % ACMP_OWED_MAX];
 	o->interface = (uint8_t)interface;
+	o->probe_of = (uint8_t)probe_of;
 	o->release = release;
 	memcpy(o->frame, frame, ACMP_FRAME_BYTES);
 	a->owed_count++;
@@ -254,7 +270,7 @@ static bool transmit(struct acmp *a, unsigned interface, const uint8_t *frame, u
 	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 		a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed + ((release >> k) & 1u));
 	}
-	return true;
+	return OWED;
 }
 
 // A response; the command that asked for it saw room for it in the queue.
@@ -262,7 +278,7 @@ static void respond(struct acmp *a, unsigned interface, const struct pdu *r, uin
 {
 	uint8_t frame[ACMP_FRAME_BYTES];
 	build(a, interface, r, frame);
-	(void)transmit(a, interface, frame, release);
+	(void)transmit(a, interface, frame, release, 0u);
 }
 
 // Room for one more frame; a command that finds none is dropped before it
@@ -287,11 +303,19 @@ static void sm_timer(struct acmp *a, struct acmp_sink *s, enum acmp_timer kind, 
 {
 	s->timer = kind;
 	s->timer_deadline = now(a) + delay_ms;
+	s->timer_held = false;
 }
 
 static void sm_stop(struct acmp_sink *s)
 {
 	s->timer = ACMP_TIMER_NONE;
+	s->timer_held = false;
+}
+
+// The connection timer runs: armed, and not held for an owed probe.
+static bool sm_running(const struct acmp_sink *s)
+{
+	return s->timer != ACMP_TIMER_NONE && !s->timer_held;
 }
 
 // The seed is taken at the first draw, inside the event loop: nothing reads the
@@ -335,7 +359,7 @@ static void rearm(struct acmp *a)
 		for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 			const struct acmp_sink *s = &a->sinks[k];
 			if (s->interface == i) {
-				earliest(&any, &at, s->timer != ACMP_TIMER_NONE, s->timer_deadline);
+				earliest(&any, &at, sm_running(s), s->timer_deadline);
 				earliest(&any, &at, s->adp_armed, s->adp_deadline);
 			}
 		}
@@ -411,10 +435,27 @@ static bool same_record(const uint8_t *x, const uint8_t *y)
 	return diff == 0u;
 }
 
-// After every entry: the timers, then the store, then the notifier.
+// The ingress passes the ENTITY_AVAILABLE and ENTITY_DEPARTING of each bound
+// sink's talker on its interface (5.6.4.1); the port is called only for a sink
+// whose bound talker moved.
+static void admit(struct acmp *a)
+{
+	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
+		struct acmp_sink *s = &a->sinks[k];
+		uint64_t talker = s->binding.talker_entity_id;
+		if (s->bound != s->admitted || (s->bound && talker != s->admitted_talker)) {
+			s->admitted = s->bound;
+			s->admitted_talker = talker;
+			p_admit(a, s->interface, k, s->bound, talker);
+		}
+	}
+}
+
+// After every entry: the timers, the ingress, then the store, then the notifier.
 static void finish(struct acmp *a)
 {
 	rearm(a);
+	admit(a);
 	for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 		struct acmp_sink *s = &a->sinks[k];
 		uint8_t record[ACMP_BINDING_BYTES];
@@ -432,12 +473,17 @@ static void finish(struct acmp *a)
 	}
 }
 
-// A sink as the configuration starts it, and as an unbind or a roll-back
-// leaves it: UNBOUND, probing disabled, nothing running (5.5.3.5.1).
+// A sink as the configuration starts it, and as a restore or a roll-back
+// leaves it: UNBOUND, probing disabled, nothing running (5.5.3.5.1). What the
+// admit port holds is not the sink's state, and stays.
 static void sink_reset(struct acmp *a, unsigned k)
 {
 	struct acmp_sink *s = &a->sinks[k];
+	bool admitted = s->admitted;
+	uint64_t admitted_talker = s->admitted_talker;
 	memset(s, 0, sizeof *s);
+	s->admitted = admitted;
+	s->admitted_talker = admitted_talker;
 	s->interface = a->cfg.sink_interface[k];
 	s->state = ACMP_UNBOUND;
 	s->probing = ACMP_PROBING_DISABLED;
@@ -608,7 +654,9 @@ static void srp_stop(struct acmp *a, unsigned k)
 }
 
 // The sink's saved PROBE_TX_COMMAND (Table 5.33) on its interface; TMR_NO_RESP
-// 200 ms. A probe the queue has no room for is lost and TMR_NO_RESP recovers it.
+// 200 ms from the send the port accepts: a probe owed behind others holds it
+// until acmp_poll sends the probe (probe_left). A probe the queue has no room
+// for is lost and TMR_NO_RESP, run from the attempt, recovers it.
 static void send_probe(struct acmp *a, unsigned k)
 {
 	struct acmp_sink *s = &a->sinks[k];
@@ -625,8 +673,25 @@ static void send_probe(struct acmp *a, unsigned k)
 	p.flags = ACMP_FLAG_FAST_CONNECT;
 	uint8_t frame[ACMP_FRAME_BYTES];
 	build(a, s->interface, &p, frame);
-	if (!transmit(a, s->interface, frame, 0u)) {
+	enum sent sent = transmit(a, s->interface, frame, 0u, k + 1u);
+	if (sent == OWED) {
+		s->timer_held = true;
+	} else if (sent == LOST) {
 		a->probes_lost++;
+	}
+}
+
+// An owed frame has left. When it is the probe a sink's held TMR_NO_RESP waits
+// for (its sequence_id the sink's current probe's: a probe re-bound since is
+// not), the timer starts now (5.5.3.5.3 step 7, 5.5.3.5.16 step 2).
+static void probe_left(struct acmp *a, const struct acmp_owed *o)
+{
+	if (o->probe_of == 0u) {
+		return;
+	}
+	struct acmp_sink *s = &a->sinks[o->probe_of - 1u];
+	if (s->timer_held && wire_be16(o->frame + O_SEQ) == s->probe_seq) {
+		sm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);
 	}
 }
 
@@ -918,7 +983,7 @@ void acmp_rx(struct acmp *a, unsigned interface, const uint8_t *frame, size_t le
 		return;
 	}
 	if (interface >= a->cfg.n_interfaces || len < ACMP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||
-	    frame[PDU] != ACMP_SUBTYPE) {
+	    frame[PDU] != ACMP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION) {
 		a->rx_malformed++;
 		return;
 	}
@@ -966,7 +1031,8 @@ void acmp_adp_rx(struct acmp *a, unsigned interface, const uint8_t *frame, size_
 		return;
 	}
 	if (interface >= a->cfg.n_interfaces || len < ACMP_ADP_FRAME_BYTES || wire_be16(frame + 12) != ACMP_ETHERTYPE ||
-	    frame[PDU] != ACMP_ADP_SUBTYPE || (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {
+	    frame[PDU] != ACMP_ADP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||
+	    (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {
 		a->adp_ignored++;                               // not an ENTITY_AVAILABLE or ENTITY_DEPARTING
 		return;
 	}
@@ -1024,7 +1090,7 @@ void acmp_timer_expired(struct acmp *a, unsigned interface)
 			s->adp_armed = false;
 			tk_departed(s);
 		}
-		while (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, t)) {
+		while (sm_running(s) && due(s->timer_deadline, t)) {
 			sm_expired(a, k);
 		}
 	}
@@ -1085,6 +1151,7 @@ bool acmp_poll(struct acmp *a)
 			for (unsigned k = 0; k < a->cfg.n_sinks; ++k) {
 				a->sinks[k].change_owed = (uint8_t)(a->sinks[k].change_owed - ((o->release >> k) & 1u));
 			}
+			probe_left(a, o);
 			a->owed_head = (a->owed_head + 1u) % ACMP_OWED_MAX;
 			a->owed_count--;
 			finish(a);
@@ -1127,6 +1194,14 @@ void acmp_restore_rollback(struct acmp *a)
 		sink_reset(a, k);
 		sink_settle(&a->sinks[k]);
 	}
+}
+
+void acmp_open(struct acmp *a)
+{
+	if (!enter(a)) {
+		return;
+	}
+	finish(a);
 }
 
 bool acmp_binding_latch(const struct acmp *a, unsigned sink, uint8_t payload[ACMP_BINDING_BYTES])

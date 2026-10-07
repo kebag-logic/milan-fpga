@@ -7,6 +7,12 @@
 
 #include <string.h>
 
+// The interfaces' slots fit the bank, so MBX_N_TIMERS - MBX_N_IF cannot wrap;
+// and sink k is entry k of its interface's bound-talker table, which holds as
+// many entries as the core has sinks (the contract's bound_talkers).
+_Static_assert(MBX_N_TIMERS >= MBX_N_IF, "every interface needs a timer slot");
+_Static_assert(ACMP_MAX_SINKS <= MBX_N_BOUND, "every sink needs a bound-talker entry");
+
 static bool port_send(void *ctx, unsigned interface, const uint8_t *frame, size_t len)
 {
 	(void)ctx;
@@ -47,11 +53,22 @@ static uint32_t port_seed(void *ctx)
 	return mbx_now_ms();
 }
 
+// Sink k is entry k of its interface's bound-talker table; the sinks fit the
+// table (above) and acmp_mbx_init held the interfaces to the mailbox's, so the
+// driver's refusal never applies.
+static void port_admit(void *ctx, unsigned interface, unsigned sink, bool bound, uint64_t talker_entity_id)
+{
+	(void)ctx;
+	(void)mbx_filter_set_bound_talker(interface, sink, bound, talker_entity_id);
+}
+
 bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const struct acmp_env *env,
 		   unsigned first_slot)
 {
 	memset(m, 0, sizeof *m);
-	if (first_slot + MBX_N_IF > MBX_N_TIMERS || cfg->n_interfaces > MBX_N_IF) {
+	// first_slot is compared, never added to: no sum can wrap and no slot is
+	// narrowed into uint8_t until it is known to be one
+	if (first_slot > MBX_N_TIMERS - MBX_N_IF || cfg->n_interfaces > MBX_N_IF) {
 		return false;
 	}
 	m->ports.ctx = m;
@@ -60,6 +77,7 @@ bool acmp_mbx_init(struct acmp_mbx *m, const struct acmp_config *cfg, const stru
 	m->ports.timer = port_timer;
 	m->ports.gptp = port_gptp;
 	m->ports.seed = port_seed;
+	m->ports.admit = port_admit;
 	for (unsigned k = 0; k < MBX_N_IF; ++k) {
 		m->ifs[k].slot = (uint8_t)(first_slot + k);
 	}
@@ -114,6 +132,11 @@ static void on_adp_frame(void *ctx, const struct mbx_frame *f)
 		return;
 	}
 	m->adp_next.fn(m->adp_next.ctx, f);
+}
+
+void acmp_mbx_open(struct acmp_mbx *m)
+{
+	acmp_open(&m->acmp);
 }
 
 bool acmp_mbx_attach(struct acmp_mbx *m, struct ctrl_loop *l)
