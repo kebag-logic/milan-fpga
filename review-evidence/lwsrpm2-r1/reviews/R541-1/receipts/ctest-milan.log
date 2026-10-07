@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+UpdateCTestConfiguration  from :PACKET/scratch/build-milan/DartConfiguration.tcl
+Test project PACKET/scratch/build-milan
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/build-milan/unit_tests
+1: Working Directory: PACKET/scratch/build-milan
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 14ms.
+1:   "timer_suite": 14 passes in 1ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 8ms.
+1:   "transmit_suite": 104 passes in 7ms.
+1:   "integration_suite": 364 passes in 14ms.
+1:   "milan_suite": 369 passes in 7ms.
+1: Completed "main": 2647 passes in 60ms.
+1/1 Test #1: unit .............................   Passed    0.07 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.07 sec

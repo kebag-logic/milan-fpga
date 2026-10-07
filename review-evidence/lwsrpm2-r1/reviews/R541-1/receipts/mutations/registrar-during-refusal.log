@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 4ms.
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:256: Failure: integration_suite -> registrar_ages_while_a_transmission_is_retained 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 362 passes, 1 failure in 11ms.
+  "milan_suite": 381 passes in 6ms.
+Completed "main": 2657 passes, 1 failure in 43ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

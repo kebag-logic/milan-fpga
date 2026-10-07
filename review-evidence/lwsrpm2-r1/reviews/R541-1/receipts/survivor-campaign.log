@@ -1,0 +1,506 @@
+# SPDX-License-Identifier: Apache-2.0
+survivors-configure: rc=0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: SYSTEM_BIN/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: PACKET/scratch/survivors/build
+
+survivor-local-rla-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 15%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 15%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 30%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 35%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 50%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 55%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 65%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 65%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 75%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 75%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-local-rla-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 13ms.
+1:   "timer_suite": 14 passes in 1ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 5ms.
+1:   "integration_suite": 364 passes in 9ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 40ms.
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivor-omitted-txlaf-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-omitted-txlaf-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 13ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 14ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 5ms.
+1:   "integration_suite": 364 passes in 9ms.
+1:   "milan_suite": 381 passes in 8ms.
+1: Completed "main": 2659 passes in 55ms.
+1/1 Test #1: unit .............................   Passed    0.06 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.06 sec
+
+survivor-reserved-leaveall-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[ 10%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 10%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 15%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-reserved-leaveall-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 13ms.
+1:   "timer_suite": 14 passes in 1ms.
+1:   "msrp_values_suite": 23 passes in 2ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 42ms.
+1/1 Test #1: unit .............................   Passed    0.05 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivor-listener-ready-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[ 10%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 10%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+PACKET/scratch/survivors/source/src/core/mrp_mad.c: In function ‘tx_vector’:
+PACKET/scratch/survivors/source/src/core/mrp_mad.c:1167:28: warning: unused variable ‘bytes’ [-Wunused-variable]
+ 1167 |             const uint8_t *bytes = value;
+      |                            ^~~~~
+[ 15%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-listener-ready-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 1ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 3ms.
+1:   "transmit_suite": 104 passes in 5ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 40ms.
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec
+
+survivor-leaveall-upper-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-leaveall-upper-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 41ms.
+1/1 Test #1: unit .............................   Passed    0.05 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivor-leaveall-wide-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-leaveall-wide-test: rc=8
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+1: 		actual value:			[1]
+1: 		expected value:			[0]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [be less than] [1500]
+1: 		actual value:			[1500]
+1: 		expected to be less than:	[1500]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+1: 		actual value:			[1]
+1: 		expected value:			[0]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [be less than] [1500]
+1: 		actual value:			[1500]
+1: 		expected to be less than:	[1500]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [not equal] [previous]
+1: 		actual value:			[1500]
+1: 
+1:   "integration_suite": 359 passes, 5 failures in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2654 passes, 5 failures in 40ms.
+1/1 Test #1: unit .............................***Failed    0.04 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 4ms.
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [be less than] [1500]
+		actual value:			[1500]
+		expected to be less than:	[1500]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [be less than] [1500]
+		actual value:			[1500]
+		expected to be less than:	[1500]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1500]
+
+  "integration_suite": 359 passes, 5 failures in 10ms.
+  "milan_suite": 381 passes in 7ms.
+Completed "main": 2654 passes, 5 failures in 40ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
+
+survivor-reclaim-lo-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-reclaim-lo-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 13ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 5ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 42ms.
+1/1 Test #1: unit .............................   Passed    0.05 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivor-milan-redeclare-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-milan-redeclare-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 40ms.
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec
+
+survivor-milan-txla-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-milan-txla-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 13ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 5ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2659 passes in 42ms.
+1/1 Test #1: unit .............................   Passed    0.05 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivor-received-la-timer-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivor-received-la-timer-test: rc=0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1:   "integration_suite": 364 passes in 10ms.
+1:   "milan_suite": 381 passes in 6ms.
+1: Completed "main": 2659 passes in 39ms.
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.05 sec
+
+survivors-restored-build: rc=0
+make: Entering directory 'PACKET/scratch/survivors/build'
+[  5%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 10%] Linking C shared library libshlan.so
+[ 55%] Built target shlan
+[ 60%] Linking C executable unit_tests
+[100%] Built target unit_tests
+make: Leaving directory 'PACKET/scratch/survivors/build'
+
+survivors-restored-test: rc=0
+Test project PACKET/scratch/survivors/build
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    0.04 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.04 sec
+
+# SPDX-License-Identifier: Apache-2.0
+case build_rc test_rc
+local-rla 0 0
+omitted-txlaf 0 0
+reserved-leaveall 0 0
+listener-ready 0 0
+leaveall-upper 0 0
+leaveall-wide 0 8
+reclaim-lo 0 0
+milan-redeclare 0 0
+milan-txla 0 0
+received-la-timer 0 0
+restored_bytes=True restored_build=0 restored_test=0
+

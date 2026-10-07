@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.04 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:122: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:125: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "transmit_suite": 102 passes, 2 failures in 3ms.
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:186: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:188: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:191: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:194: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:196: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 359 passes, 5 failures in 10ms.
+  "milan_suite": 381 passes in 5ms.
+Completed "main": 2652 passes, 7 failures in 38ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.04 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

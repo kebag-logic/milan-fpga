@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+PACKET/scratch/mutations/source/tests/unit/msrp_values_test.c:18: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [domain.class_id] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+PACKET/scratch/mutations/source/tests/unit/msrp_values_test.c:23: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [out[0]] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+  "msrp_values_suite": 21 passes, 2 failures in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 5ms.
+  "integration_suite": 364 passes in 10ms.
+  "milan_suite": 381 passes in 11ms.
+Completed "main": 2657 passes, 2 failures in 46ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

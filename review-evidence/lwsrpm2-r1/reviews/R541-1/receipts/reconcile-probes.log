@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+Embedded source list: src/core/mrp_mad.c, src/core/mrp_pdu.c, src/modules/mvrp.c, src/modules/mmrp.c, src/modules/msrp.c, src/ports/alloc.c, src/ports/timer.c
+module-list-link: rc=1
+SYSTEM_BIN/ld: TEMP/ccm8Dwjx.o: in function `main':
+module_probe.c:(.text+0x88): undefined reference to `shlan_connect'
+SYSTEM_BIN/ld: module_probe.c:(.text+0x9c): undefined reference to `shlan_port_enable'
+SYSTEM_BIN/ld: module_probe.c:(.text+0xb0): undefined reference to `shlan_port_disable'
+SYSTEM_BIN/ld: module_probe.c:(.text+0xbf): undefined reference to `shlan_disconnect'
+collect2: error: ld returned 1 exit status
+
+module-list-control: rc=0
+
+module-list-control-run: rc=0
+
+map-build-default: rc=0
+
+map-default: rc=1
+join control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=QA messages=5
+join retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=0 state=absent messages=0
+leave control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=VO messages=1
+leave retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=1 state=QA messages=4
+
+map-build-milan: rc=0
+
+map-milan: rc=1
+join control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=QA messages=5
+join retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=0 state=absent messages=0
+leave control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=VO messages=1
+leave retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=1 state=QA messages=4
+
+Observed link failure=1; link control=0; map discrepancies=[1, 1]

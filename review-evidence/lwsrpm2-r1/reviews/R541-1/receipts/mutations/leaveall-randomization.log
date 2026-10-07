@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 104 passes in 4ms.
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:210: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:210: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:210: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+  "integration_suite": 359 passes, 5 failures in 9ms.
+  "milan_suite": 381 passes in 8ms.
+Completed "main": 2654 passes, 5 failures in 42ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

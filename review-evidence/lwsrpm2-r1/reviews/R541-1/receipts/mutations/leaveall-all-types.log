@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 5ms.
+PACKET/scratch/mutations/source/tests/unit/integration_test.c:371: Failure: integration_suite -> transmitted_leaveall_includes_every_supported_type 
+	Expected [leaveall_types] to [equal] [0x1e]
+		actual value:			[14]
+		expected value:			[30]
+
+  "integration_suite": 363 passes, 1 failure in 10ms.
+  "milan_suite": 381 passes in 7ms.
+Completed "main": 2658 passes, 1 failure in 41ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: Apache-2.0
+UpdateCTestConfiguration  from :PACKET/scratch/survivors/build/DartConfiguration.tcl
+Test project PACKET/scratch/survivors/build
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+    Start 1: unit
+
+1: Test command: PACKET/scratch/survivors/build/unit_tests
+1: Working Directory: PACKET/scratch/survivors/build
+1: Test timeout computed to be: 10000000
+1: Running "main" (45 tests)...
+1:   "mrp_pdu_suite": 1690 passes in 12ms.
+1:   "timer_suite": 14 passes in 2ms.
+1:   "msrp_values_suite": 23 passes in 1ms.
+1:   "receive_suite": 83 passes in 4ms.
+1:   "transmit_suite": 104 passes in 4ms.
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+1: 		actual value:			[1]
+1: 		expected value:			[0]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [be less than] [1500]
+1: 		actual value:			[1500]
+1: 		expected to be less than:	[1500]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+1: 		actual value:			[1]
+1: 		expected value:			[0]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [be less than] [1500]
+1: 		actual value:			[1500]
+1: 		expected to be less than:	[1500]
+1: 
+1: PACKET/scratch/survivors/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+1: 	Expected [elapsed] to [not equal] [previous]
+1: 		actual value:			[1500]
+1: 
+1:   "integration_suite": 359 passes, 5 failures in 10ms.
+1:   "milan_suite": 381 passes in 7ms.
+1: Completed "main": 2654 passes, 5 failures in 40ms.
+1/1 Test #1: unit .............................***Failed    0.04 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 104 passes in 4ms.
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [be less than] [1500]
+		actual value:			[1500]
+		expected to be less than:	[1500]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:217: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_ACTIVE]
+		actual value:			[1]
+		expected value:			[0]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:219: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [be less than] [1500]
+		actual value:			[1500]
+		expected to be less than:	[1500]
+
+PACKET/scratch/survivors/source/tests/unit/integration_test.c:220: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1500]
+
+  "integration_suite": 359 passes, 5 failures in 10ms.
+  "milan_suite": 381 passes in 7ms.
+Completed "main": 2654 passes, 5 failures in 40ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

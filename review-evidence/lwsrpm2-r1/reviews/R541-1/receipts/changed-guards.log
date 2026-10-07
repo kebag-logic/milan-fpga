@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+src/core/mrp_mad.c:837:     if (!ai) return -SHLAN_ERROR_NO_MEMORY;
+src/core/mrp_pdu.c:27:     if (len < 1) return -SHLAN_ERROR_NO_BUFFER;
+src/core/mrp_pdu.c:34:     if (len < 2) return -SHLAN_ERROR_NO_BUFFER;
+src/core/mrp_pdu.c:42:     if (len < 2) return -SHLAN_ERROR_INVALID;
+src/core/mrp_pdu.c:74:     if (fv_len == 0 || !first_value) return -SHLAN_ERROR_INVALID;
+src/core/mrp_pdu.c:79:     if (buf_len < need) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/mmrp.c:69:     if (buf_len < alen) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/mmrp.c:84:         if (buf_len < MMRP_ATTR_LEN_SVC) return -SHLAN_ERROR_INVALID;
+src/modules/mmrp.c:89:         if (buf_len < MMRP_ATTR_LEN_MAC) return -SHLAN_ERROR_INVALID;
+src/modules/msrp.c:262:         if (buf_len < MSRP_ATTR_LEN_TALKER_ADV) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/msrp.c:268:         if (buf_len < MSRP_ATTR_LEN_TALKER_FAILED) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/msrp.c:275:         if (buf_len < MSRP_ATTR_LEN_LISTENER) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/mvrp.c:45:     if (attr_type != MVRP_ATTR_TYPE_VID) return -SHLAN_ERROR_INVALID;
+src/modules/mvrp.c:46:     if (buf_len < MVRP_ATTR_LEN_VID) return -SHLAN_ERROR_NO_BUFFER;
+src/modules/mvrp.c:59:     if (attr_type != MVRP_ATTR_TYPE_VID) return -SHLAN_ERROR_INVALID;
+src/modules/mvrp.c:60:     if (buf_len < MVRP_ATTR_LEN_VID) return -SHLAN_ERROR_INVALID;
+src/modules/mvrp.c:64:     if (vid < MVRP_VID_MIN || vid > MVRP_VID_MAX) return -SHLAN_ERROR_RANGE;
+Count: 17

@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.04 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+PACKET/scratch/mutations/source/tests/unit/timer_test.c:30: Failure: timer_suite -> remove_head_middle_tail_and_reinitialize 
+	Expected [fired] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+PACKET/scratch/mutations/source/tests/unit/timer_test.c:34: Failure: timer_suite -> remove_head_middle_tail_and_reinitialize 
+	Expected [fired] to [equal] [1]
+		actual value:			[3]
+		expected value:			[1]
+
+  "timer_suite": 12 passes, 2 failures in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 104 passes in 5ms.
+  "integration_suite": 364 passes in 9ms.
+  "milan_suite": 381 passes in 8ms.
+Completed "main": 2657 passes, 2 failures in 41ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

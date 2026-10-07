@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+USING RUNNER: behave.runner:Runner
+Feature: Switch port management # tests/features/switch.feature:2
+
+  Feature: Switch port management  # tests/features/switch.feature:2
+
+  Scenario: Enable a port         # tests/features/switch.feature:7
+    Given the switch is connected # tests/features/steps/switch_steps.py:6
+    When port 0 is enabled        # tests/features/steps/switch_steps.py:17
+    Then port 0 should be active  # tests/features/steps/switch_steps.py:27
+
+  Scenario: Disable a port         # tests/features/switch.feature:11
+    Given the switch is connected  # tests/features/steps/switch_steps.py:6
+    Given port 0 is enabled        # tests/features/steps/switch_steps.py:12
+    When port 0 is disabled        # tests/features/steps/switch_steps.py:22
+    Then port 0 should be inactive # tests/features/steps/switch_steps.py:34
+
+  Scenario: Reject an out-of-range port  # tests/features/switch.feature:16
+    Given the switch is connected        # tests/features/steps/switch_steps.py:6
+    When port 255 is enabled             # tests/features/steps/switch_steps.py:17
+    Then the operation should fail       # tests/features/steps/switch_steps.py:40
+
+1 feature passed, 0 failed, 0 skipped
+3 scenarios passed, 0 failed, 0 skipped
+10 steps passed, 0 failed, 0 skipped
+Took 0min 0.001s

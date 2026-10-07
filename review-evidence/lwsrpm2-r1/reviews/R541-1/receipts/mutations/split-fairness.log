@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.05 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 5ms.
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/transmit_test.c:159: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "transmit_suite": 94 passes, 10 failures in 5ms.
+  "integration_suite": 364 passes in 11ms.
+  "milan_suite": 381 passes in 6ms.
+Completed "main": 2649 passes, 10 failures in 42ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.05 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

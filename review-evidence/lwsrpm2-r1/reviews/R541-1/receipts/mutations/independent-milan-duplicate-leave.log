@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+Test project PACKET/scratch/mutations/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.04 sec
+Running "main" (45 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 104 passes in 3ms.
+  "integration_suite": 364 passes in 10ms.
+PACKET/scratch/mutations/source/tests/unit/milan_test.c:146: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/milan_test.c:146: Failure: milan_suite -> talker_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+PACKET/scratch/mutations/source/tests/unit/milan_test.c:146: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [leaves] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "milan_suite": 388 passes, 3 failures in 7ms.
+Completed "main": 2666 passes, 3 failures in 39ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.04 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

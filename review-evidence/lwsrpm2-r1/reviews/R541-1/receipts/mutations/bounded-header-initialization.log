@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+src/core/mrp_pdu.c: In function ‘parse_pass’:
+src/core/mrp_pdu.c:147:16: error: ‘vh’ may be used uninitialized [-Werror=maybe-uninitialized]
+  147 |             if (vh == 0) {
+      |                ^
+src/core/mrp_pdu.c:144:22: note: ‘vh’ was declared here
+  144 |             uint16_t vh;
+      |                      ^~
+cc1: all warnings being treated as errors

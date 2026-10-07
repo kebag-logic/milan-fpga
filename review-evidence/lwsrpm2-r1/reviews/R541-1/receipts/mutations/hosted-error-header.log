@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_mad.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/core/mrp_pdu.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/core/mrp_pdu.c; rc=0
+FAIL src/core/mrp_pdu.c: hosted headers errno.h
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/ports/timer.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mmrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/mvrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -fsyntax-only src/modules/msrp.c; rc=0
+COMMAND cc -std=c11 -ffreestanding -Wall -Wextra -Wpedantic -Werror -Isrc/include -Isrc -M src/modules/msrp.c; rc=0
+Freestanding sources: 6; failures: 1

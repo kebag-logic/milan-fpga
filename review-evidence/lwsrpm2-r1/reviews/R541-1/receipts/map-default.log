@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+join control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=QA messages=5
+join retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=0 state=absent messages=0
+leave control: setup_rx=0 declare=0 first_tx=1 rx=0 target_talkers=1 state=VO messages=1
+leave retained: setup_rx=0 declare=0 first_tx=-105 rx=0 target_talkers=1 state=QA messages=4
