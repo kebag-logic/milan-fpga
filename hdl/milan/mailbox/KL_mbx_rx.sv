@@ -169,6 +169,21 @@ module KL_mbx_rx
     end
   end : bound_table
 
+  // ---- each eq_bound term's field against the enabled entries ----------------
+  // A term's test is a constant of the contract, so only a term the contract
+  // makes eq_bound gets the comparators; every other term's hit is 0.
+  logic [NT_C-1:0] bound_hit_w;    //! term j's field equals an enabled entry of the table
+  always_comb begin : bound_hits
+    for (int j = 0; j < int'(NT_C); j++) begin
+      bound_hit_w[j] = 1'b0;
+      if (MBX_TERM_TEST_TBL_C[j] == MBX_TEST_EQ_BOUND_C) begin
+        for (int e = 0; e < int'(NB_C); e++) begin
+          if (bound_en_w[e] && field_r[j] == bound_eid_w[64*e +: 64]) bound_hit_w[j] = 1'b1;
+        end
+      end
+    end
+  end : bound_hits
+
   // ---- classification at byte 15, or at the last byte of a frame ending at 14 --
   logic                  cls_at_w;    //! the byte taken now decides the channel
   logic                  cls_hit_w;   //! a channel's tuple holds
@@ -225,24 +240,19 @@ module KL_mbx_rx
       logic        overlap;
       logic [48:0] own_end;
       logic [48:0] req_end;
-      logic        bound;
       j        = TW_C'(int'(ch_r) * int'(MBX_MAX_TERMS_C) + t);
       field_ok = 32'(cnt_r) >= MBX_TERM_OFFSET_TBL_C[j] + MBX_TERM_FIELD_BYTES_C;
       own_end  = {1'b0, maap_base_i} + 49'(maap_count_i) - 49'd1;
       req_end  = {1'b0, field_r[j][63:16]} + 49'(field_r[j][15:0]) - 49'd1;
       overlap  = (field_r[j][15:0] != 16'd0) && (maap_count_i != 16'd0)
                  && ({1'b0, field_r[j][63:16]} <= own_end) && ({1'b0, maap_base_i} <= req_end);
-      bound    = 1'b0;
-      for (int e = 0; e < int'(NB_C); e++) begin
-        if (bound_en_w[e] && field_r[j] == bound_eid_w[64*e +: 64]) bound = 1'b1;
-      end
       if (MBX_TERM_MASK_TBL_C[j][{1'b0, msg_r}]) begin
         unique case (MBX_TERM_TEST_TBL_C[j])
           MBX_TEST_ANY_C:           rule_pass_w = 1'b1;
           MBX_TEST_EQ_OWN_C:        if (field_ok && eqown_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_EQ_ZERO_C:       if (field_ok && eqzero_r[j]) rule_pass_w = 1'b1;
           MBX_TEST_RANGE_OVERLAP_C: if (field_ok && overlap) rule_pass_w = 1'b1;
-          MBX_TEST_EQ_BOUND_C:      if (field_ok && bound) rule_pass_w = 1'b1;
+          MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w[j]) rule_pass_w = 1'b1;
           default: ;
         endcase
       end

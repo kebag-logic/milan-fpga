@@ -317,7 +317,7 @@ ARMS += (
            "if (field_r[j] == bound_eid_w[64*e +: 64])",
            "Q12 an entry with BOUND_EN clear, its identity still written"),
     *_both("rx-bound-field-length-unchecked", "KL_mbx_rx.sv",
-           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound)", "MBX_TEST_EQ_BOUND_C:      if (bound)",
+           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w[j])", "MBX_TEST_EQ_BOUND_C:      if (bound_hit_w[j])",
            "Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id"),
     # every entry takes part, and each is written and read at its own address
     *_both("rx-bound-first-entry-only", "KL_mbx_rx.sv", "for (int e = 0; e < int'(NB_C); e++) begin",
