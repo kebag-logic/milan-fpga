@@ -26,11 +26,11 @@ define the interface. The numbers live in one place, the generated
 - **[Bus adapters and the hard core](#bus-adapters-and-the-hard-core)** -- Wishbone for the on-chip RISC-V and AXI4-Lite for a hard core with every output registered, neither adding anything to the contract.
 - **[The firmware: bare metal first](#the-firmware-bare-metal-first)** -- No OS, no heap: the three-function bus port, lwSRP's port layer on a static pool at a pinned revision, the event loop's per-pass order and when it may sleep, and protocols as ports-and-adapters modules.
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
-- **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the term the adp filter still lacks, every path's service cost and the backlog bounds against T_svc, and the four differences from the processor.
+- **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four differences from the processor.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter and the bound-talker term added, the term in distributed RAM against its target, and the recipe.
-- **[Open items](#open-items)** -- The datapath tap, the adp channel's AVAILABLE and DEPARTING term, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip and MMRP.
+- **[Open items](#open-items)** -- The datapath tap, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip, the bound-talker term's area and MMRP.
 
 ## What moves, and what the fabric keeps
 
@@ -546,6 +546,9 @@ the duplicate sent on the first TMR_NO_RESP repeats it (5.5.3.5.16).
 TMR_NO_RESP runs 200 ms from the send the transmit ring accepts, for the
 probe and for its duplicate: a probe owed behind other frames holds its
 timer until it leaves (5.5.3.5.3 steps 5 to 7, 5.5.3.5.16 steps 1 and 2).
+Its deadline is taken from a clock read after that send returns, so neither
+the time the send takes nor a clock the entry read before it (a timer
+expiry's) shortens the 200 ms.
 Only AVTP version 0 is read: an ACMPDU or ADPDU of another version is
 discarded before it is decoded (IEEE 1722-2016 4.4.3.4; IEEE 1722.1-2021
 8.2.1.3, 6.2.2.3). The fabric's filter does not read the version, so the core
@@ -632,7 +635,7 @@ defect that adds accesses to its path.
 | GET_RX_STATE | 47 | 47 | response |
 | PROBE_TX_RESPONSE | 28 | 28 | TMR_NO_TK or TMR_RETRY armed |
 | PROBE_TX, GET_TX_STATE, DISCONNECT_TX, GET_TX_CONNECTION | 47 | 47 | response |
-| TMR_DELAY, or the first TMR_NO_RESP | 34 | 34 | PROBE_TX, TMR_NO_RESP armed |
+| TMR_DELAY, or the first TMR_NO_RESP | 35 | 35 | PROBE_TX, the clock read after it, TMR_NO_RESP armed |
 | the second TMR_NO_RESP, TMR_RETRY, TMR_NO_TK | 13 | 12 to 13 | the next timer armed |
 | ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 35 | 35 | TMR_DELAY armed |
 | ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 30 | 29 | timer stopped or re-armed |
@@ -642,33 +645,35 @@ The H-DISC rows are measured from the record the model's filter commits (its
 RX_HEAD), through the bound-talker term, at one interface and, in the
 `acmpif2` arm, at each of two.
 
-A pass of the composition costs at most 996 accesses (`ACMP_MBX_PASS_MAX`).
+A pass of the composition costs at most 1,012 accesses (`ACMP_MBX_PASS_MAX`).
 That covers 8 events at 6 + 31 + 4, sixteen sinks' due timers at one probe
-each, 2 adp records at 36 + 7, 2 acmp records at 36 + 51, ADP's poll at 31
-and one owed ACMP frame at 25 (a probe's: the clock and its TMR_NO_RESP).
-ADP's records and events are served by the same passes, so the ADP figures
-above (407 a pass) hold for ADP alone. With ACMP composed, ADP's figures take
-the same pass count at 996.
+each and the clock read after it (23), 2 adp records at 36 + 7, 2 acmp
+records at 36 + 51, ADP's poll at 31 and one owed ACMP frame at 25 (a
+probe's: the clock and its TMR_NO_RESP). ADP's records and events are served
+by the same passes, so the ADP figures above (407 a pass) hold for ADP alone.
+With ACMP composed, ADP's figures take the same pass count at 1,012.
 
 The bound with a backlog counts from a pass already running when the input
 arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
 200 ms transaction timeout (Table 5.26), which also bounds a discovery
 input's resulting ACMP action
 ([3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
+The access times are the bound's time over its accesses, rounded down.
 
 | Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
 |---|---:|---:|---:|---:|---|
-| an event behind 15 others | 2 | 2,988 | 3.35 us | 6.69 us | every event by pass 2; worst pass 193 accesses |
-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 10,956 | 0.91 us | 1.83 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 21,912 | 0.46 us | 0.91 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 8,964 | 1.12 us | 2.23 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
+| an event behind 15 others | 2 | 3,036 | 3.29 us | 6.58 us | every event by pass 2; worst pass 193 accesses |
+| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,132 | 0.89 us | 1.79 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,264 | 0.44 us | 0.89 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 9,108 | 1.09 us | 2.19 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
 
 The access time is not measured (A4). At F0's assumed 1 us per access every
 path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
 The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
 that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
-8,964 accesses (8,865 before round 2 added the probe's timer to a poll), fits
-T_svc at that figure: 8.96 ms, the time waiting for room excluded. The
+9,108 accesses (8,865 before round 2 added the probe's timer to a poll, and
+8,964 before round 4 added the clock read after each probe sent at once),
+fits T_svc at that figure: 9.108 ms, the time waiting for room excluded. The
 bounds charge every pass with every term at its maximum at once (sixteen
 sinks each probing, eight events each at ADP's costliest action), which the
 measured backlogs stay far below. Whether these paths meet T_svc on the
@@ -917,12 +922,12 @@ report_timing_summary -delay_type max
   frames then enter the SRP channel's transmit ring as header plus MRPDU.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
-  simulation. ACMP's backlog bounds fit T_svc only at 0.92 us per access or
-  less, and H-DISC's behind a full adp ring at 0.46 us
-  ([ACMP service latency](#acmp-service-latency)).
+  simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
+  less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
+  times for T_svc ([ACMP service latency](#acmp-service-latency)).
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
 - **The bound-talker term's area** is 57 LUTs over its target of 300
-  ([Measured area](#measured-area)); the two contract changes measured there
-  are the owner's to take or refuse.
+  ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
+  the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.

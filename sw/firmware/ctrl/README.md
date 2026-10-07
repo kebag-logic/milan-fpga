@@ -22,7 +22,7 @@ is an integration obligation, not a target-time result established here.
 ## Contents
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, ACMP, the app, the MMIO platform, the host model, the tests.
-- **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the filter term discovery still waits for, and the boot order.
+- **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
 - **[The host test](#the-host-test)** -- The thirteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The four invocations and what each needs.
 
@@ -68,7 +68,8 @@ with the bindings the store restored
 Only AVTP version 0 is read: the core discards an ACMPDU or ADPDU of another
 version before decoding it (IEEE 1722-2016 4.4.3.4). TMR_NO_RESP runs from
 the send the transmit ring accepts, so a probe owed behind other frames
-holds its timer until it leaves.
+holds its timer until it leaves, and its deadline comes from a clock read
+after that send returns, never from one read before it.
 
 A platform that restores bindings boots in this order: `ctrl_app_compose()`,
 `acmp_nvm_init()` on the app's ACMP core, `nvm_store_boot()` with its port,
@@ -167,7 +168,7 @@ a byte early, a tuple's message types ignored, a message_type refusal left
 uncounted, a DEFEND taken to any unicast), and the firmware's side has its
 own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
 `port`), the own MACs written after the channels open (`port`) and the app's
-own MAC not the entity's (`unit`). Lane F3 adds 251 defects for the
+own MAC not the entity's (`unit`). Lane F3 adds 254 defects for the
 `acmp`, `acmpwalk`, `acmpnvm` and `acmpif2` arms (with the driver's and the
 model's for the bound-talker table in `unit` and `model`): a defect in each clause step, each
 response field, each guard term, each timer, the owed queue and the #653
@@ -177,9 +178,10 @@ measured path, each backlog figure understated, and the binding owner's
 forwarding; round 2's AVTP version check, TMR_NO_RESP from the accepted send,
 the slot range, the per-interface wiring at two interfaces, the binding
 record's flags and length, the D3 roll-back, each timer across the
-millisecond wrap and the bound-talker table; and eight wrong numbers in `acmp.h` itself, which the tests
+millisecond wrap and the bound-talker table; round 4's TMR_NO_RESP from a
+clock read before the probe's send; and eight wrong numbers in `acmp.h` itself, which the tests
 catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
-never the header's. They are `acmp_mutants.py`'s table, round 2's in
+never the header's. They are `acmp_mutants.py`'s table, rounds 2 and 4's in
 `acmp_review_mutants.py`. Every test of those
 arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
 store suite does. Some FC filter defects in the host model also name

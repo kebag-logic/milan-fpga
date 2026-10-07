@@ -164,7 +164,7 @@ it.
 The table records the port as FT landed it. Lane FC (the full-tuple ingress
 filter) then added eight `model` groups, D12 to `port`, and D11 and U4 to
 `unit`, so those arms run 22, 31 and 25 tests. Lane F3 (ACMP) added four
-arms written on GoogleTest from the start: `acmp` (78 tests), `acmpwalk`
+arms written on GoogleTest from the start: `acmp` (81 tests), `acmpwalk`
 (127: 88 cells of the processor's Table 5.30 model, 33 of its Table 5.54
 transcription, six scenarios), `acmpnvm` (7) and `acmpif2` (19: the
 adapter's tests on the contract's two-interface variant), each test with a
