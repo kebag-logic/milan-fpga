@@ -1,0 +1,80 @@
+[
+ {
+  "probe": "ctl-withdraw",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "edits": 0,
+  "expect": "PASS",
+  "build_rc": 0,
+  "run_rc": 0,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 4 checks, 0 failures"
+  ],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "probe": "r-wd-two-clocks",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "edits": 2,
+  "expect": "FAIL:WD",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 4 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-wd-mask-dropped",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "edits": 3,
+  "expect": "FAIL:WD",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 4 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-full-mask-dropped",
+  "suite": "./obj_dir/Vpp_top_sim",
+  "edits": 3,
+  "expect": "FAIL:",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9975 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "probe": "r-full-two-clocks",
+  "suite": "./obj_dir/Vpp_top_sim",
+  "edits": 2,
+  "expect": "FAIL:",
+  "build_rc": 0,
+  "run_rc": 1,
+  "tallies": [
+   "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 9975 checks, 1 failures"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

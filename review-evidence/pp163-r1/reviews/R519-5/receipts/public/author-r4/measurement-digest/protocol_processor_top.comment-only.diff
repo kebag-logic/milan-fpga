@@ -1,0 +1,23 @@
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index bf522a6..7177006 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -4446,11 +4446,13 @@ module protocol_processor_top
+   //! whose cones (the registry's identity index, the received header, the
+   //! response CAM) reached the TX arbiter's slot and state registers through
+   //! the lane request and start_abort_i: 51 logic levels at the 50 MHz clock.
+-  //! Every reader below takes this copy, so a withdrawal reaches the lane
+-  //! queue and the arbiter in the cycle the originator's registered release
+-  //! reaches the pool. A frame the arbiter accepts in the cancelling cycle
+-  //! itself is sent: the originator drops that acceptance (the entry is gone)
+-  //! and the pool frees the slot after its last byte.
++  //! Every reader below takes this copy. An immediate cancellation's mask
++  //! reaches the lane and arbiter with its registered release. If another
++  //! exchange's matched response parks the cancellation, the mask arrives
++  //! one clock before that cancelled slot's release: it alone withdraws a
++  //! probe selected in the cancelling clock, before the pool starts it.
++  //! A frame accepted in the cancelling clock itself is sent: the originator
++  //! drops that acceptance and the pool frees the slot after its last byte.
+   logic [7:0]              org_withdraw_mask_r;
+ 
+   always_ff @(posedge clk_i) begin : withdraw_mask_stage

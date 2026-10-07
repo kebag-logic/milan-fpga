@@ -1,0 +1,104 @@
+{
+  "label": "m3final",
+  "area": {
+    "KL_pp_shadow": {
+      "lut": 23160,
+      "ff": 19787
+    },
+    "u_pp": {
+      "lut": 22478,
+      "ff": 18951
+    },
+    "(u_pp)": {
+      "lut": 780,
+      "ff": 2039
+    },
+    "u_notify": {
+      "lut": 2157,
+      "ff": 1258
+    },
+    "u_originator": {
+      "lut": 676,
+      "ff": 885
+    },
+    "u_tx_arbiter": {
+      "lut": 234,
+      "ff": 187
+    }
+  },
+  "timing": {
+    "setup": {
+      "failing_endpoints": 0,
+      "worst_slack_ns": 3.337,
+      "total_violation_ns": 0.0
+    },
+    "hold": {
+      "failing_endpoints": 0,
+      "worst_slack_ns": 0.159,
+      "total_violation_ns": 0.0
+    }
+  },
+  "cone": {
+    "sequential_cells": 187,
+    "queried_endpoint_pins": 561,
+    "queried_startpoints": 328,
+    "reported_startpoints": 328,
+    "reported_endpoints": 543,
+    "pairs": 17990,
+    "above_20": 0,
+    "max_levels": 16,
+    "min_slack_ns": 11.912,
+    "pairs_without_slack": 187,
+    "histogram": {
+      "0": 1,
+      "1": 810,
+      "2": 981,
+      "3": 3551,
+      "4": 4249,
+      "5": 3967,
+      "6": 1434,
+      "7": 1460,
+      "8": 1043,
+      "9": 122,
+      "10": 132,
+      "11": 91,
+      "12": 79,
+      "13": 13,
+      "14": 19,
+      "15": 23,
+      "16": 15
+    }
+  },
+  "worst_five": [
+    {
+      "slack_ns": 11.912,
+      "source": "u_pp/u_ca_builder/cancel_release_slot_o_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[0]/D",
+      "levels": 16
+    },
+    {
+      "slack_ns": 11.912,
+      "source": "u_pp/u_ca_builder/cancel_release_slot_o_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[1]/D",
+      "levels": 16
+    },
+    {
+      "slack_ns": 11.912,
+      "source": "u_pp/u_ca_builder/cancel_release_slot_o_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/slot_r_reg[2]/D",
+      "levels": 16
+    },
+    {
+      "slack_ns": 12.057,
+      "source": "u_pp/u_ca_builder/cancel_release_slot_o_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/owner_r_reg[1]/D",
+      "levels": 15
+    },
+    {
+      "slack_ns": 12.296,
+      "source": "u_pp/u_ca_builder/cancel_release_slot_o_reg[2]/C",
+      "destination": "u_pp/u_tx_arbiter/owner_r_reg[0]/D",
+      "levels": 14
+    }
+  ]
+}

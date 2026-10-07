@@ -1,0 +1,18 @@
+{
+  "documentation_export_attempt": {
+    "result": "make check exited 2 in the source archive because the ID and figure inventories require git ls-files",
+    "correction": "Run make -j16 check in the assigned tracked clone, using the dependency environment created only under packet/scratch/golden",
+    "final_receipt": "docs-check-tracked.log and docs-check-tracked.rc, exit 0"
+  },
+  "reviewer_digest_script_development": {
+    "result": "The first comment-strip comparison retained two extra blank comment lines and asserted unequal",
+    "correction": "Ignore empty comment-stripped lines while retaining every non-comment line and string; zero changed non-comment diff lines independently checked",
+    "final_receipt": "delta-digest-audit.json, exit 0"
+  },
+  "reviewer_plant_inventory_script_development": {
+    "result": "The first source-name inventory included the dynamic golden- constructor alongside mutation names",
+    "correction": "Exclude that constructor from the comparison with the evaluated MUTANTS list",
+    "final_receipt": "plant-audit.json: 91 arms, 101 edits, 298 applicable patches, no removals"
+  },
+  "credit": "These preparation attempts are not design failures or credited test executions. The corrected runs are identified explicitly."
+}

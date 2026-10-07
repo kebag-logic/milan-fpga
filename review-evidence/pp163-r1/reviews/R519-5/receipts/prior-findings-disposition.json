@@ -1,0 +1,80 @@
+[
+  {
+    "ids": [
+      "R518-2-F1",
+      "R519-2-S2"
+    ],
+    "severity": "MINOR",
+    "lenses": [
+      "Conformance",
+      "Robustness",
+      "Tests",
+      "Docs"
+    ],
+    "disposition": "RESOLVED at exact head 8947bafdd62b4bf991debf7bfd8cdb73994a3a81; all four requested faults KILLED by WD4 only, control PASS, no-deposit replay PASS",
+    "artifacts": [
+      "tb/pp_top/notify_phases.hpp:2005",
+      "tb/pp_top/notify_mutants.py:424",
+      "docs/architecture/03_packet_engine.md:488",
+      "hdl/top/protocol_processor_top.sv:4444",
+      "tb/pp_top/README.md:2553"
+    ],
+    "authority": "Issue 163 assignment comment 6033185530 and acceptance item 2",
+    "impact": "The previous WD case could not distinguish the registered mask from the release term",
+    "required_outcome": "Grade parked cancellation before serializer acceptance; the four requested mask probes must fail WD4 and ctl-withdraw must pass",
+    "verification": "receipts/runs/probes/results.json; receipts/runs/shipped/results.json; shipping-withdraw.log; default-run.log; plant-audit.json; docs-check-tracked.log"
+  },
+  {
+    "ids": [
+      "R519-2-F1",
+      "R519-3 carry of R519-2-F1",
+      "R518-2-S2"
+    ],
+    "severity": "MINOR (R519-2-F1); SUGGESTION (R518-2-S2)",
+    "lenses": [
+      "Conformance",
+      "Tests",
+      "Docs"
+    ],
+    "disposition": "RESOLVED at c4539ff1 in R519-4; resolution retained and digest delta verified at this head",
+    "artifact": "Public measurement inputs addendum and author-r4/measurement-digest",
+    "authority": "Frozen merged-head timing evidence and source-binding requirements",
+    "impact": "Previously unavailable measurement inputs prevented independent source binding",
+    "required_outcome": "Publish enough input bytes and ordering to reproduce the recorded digest",
+    "verification": "delta-digest-audit.json rehashes all processor components and reproduces both aggregates; timing-record-judgment.json"
+  },
+  {
+    "ids": [
+      "R518-1-S1",
+      "R519-1-S1",
+      "R518-2-S1"
+    ],
+    "severity": "SUGGESTION",
+    "lenses": [
+      "Robustness",
+      "Tests",
+      "Docs"
+    ],
+    "disposition": "RETAINED, narrowed as in R519-4",
+    "artifact": "Public cone-m3final.stdout and paths-m3final.stdout, grouped cone evidence",
+    "authority": "Acceptance items 1 and 2, full arbiter-cone coverage",
+    "impact": "Traversal commands are visible, but complete before/after pair tables, explicit pin inventory and summary transformation remain unavailable",
+    "required_outcome": "Optional: publish the remaining extraction artifacts or complete replay bundle",
+    "verification": "Reproduce 187 cells, 561 pins, 263154/17990 pairs, 146535/0 pairs above 20 and no-slack accounting"
+  },
+  {
+    "ids": [
+      "R518-2-S3"
+    ],
+    "severity": "SUGGESTION",
+    "lenses": [
+      "Docs"
+    ],
+    "disposition": "PARTLY RESOLVED: WD/CX and --withdraw-only index entries and section count are fixed; optional README wrapping remains",
+    "artifact": "docs/architecture/09_verification.md:300,313,320; tb/aecp_notify/README.md:15",
+    "authority": "Prior public documentation-discoverability suggestion",
+    "impact": "Only source-prose readability remains; rendered meaning and claims are unchanged",
+    "required_outcome": "Optional exact edit: wrap the existing README sentence after 'CA:' and after 'registry', preserving every word",
+    "verification": "Inspect unchanged sentence content and rerun documentation gates; current make check passes"
+  }
+]

@@ -1,0 +1,43 @@
+[
+ {
+  "mutant": "golden-pp_top-withdraw-only",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "withdraw_mask_dropped",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "withdraw_two_clocks",
+  "suite": "./obj_dir/Vpp_top_sim --withdraw-only",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "WD4:"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "WD4: a drain parked behind another exchange's matched response withdraws the selected probe next clock, one clock before its release, and it never reaches the wire (setup 1/1, coincident 1, mask leads 1, withdrawn 0, wire 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

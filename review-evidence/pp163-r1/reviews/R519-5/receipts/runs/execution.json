@@ -1,0 +1,79 @@
+[
+  {
+    "name": "reviewer-probes",
+    "argv": [
+      "python3",
+      "$REVIEWS/pp163-r519-5-packet/receipts/public/reviews/R518-2/scripts/reviewer_probes.py",
+      "$REVIEWS/pp163-r519-5-packet/scratch/golden",
+      "$REVIEWS/pp163-r519-5-packet/receipts/runs/probes",
+      "$REVIEWS/pp163-r519-5-packet/scripts/compiler_bound.py",
+      "2",
+      "ctl-withdraw",
+      "r-wd-mask-dropped",
+      "r-wd-two-clocks",
+      "r-full-mask-dropped",
+      "r-full-two-clocks"
+    ],
+    "rc": 0,
+    "seconds": 857.21
+  },
+  {
+    "name": "shipped-withdraw",
+    "argv": [
+      "python3",
+      "tb/pp_top/notify_mutants.py",
+      "--jobs",
+      "1",
+      "--output",
+      "$REVIEWS/pp163-r519-5-packet/receipts/runs/shipped",
+      "--verilator",
+      "$REVIEWS/pp163-r519-5-packet/scripts/compiler_bound.py",
+      "--only",
+      "withdraw_mask_dropped",
+      "withdraw_two_clocks"
+    ],
+    "rc": 0,
+    "seconds": 319.42
+  },
+  [
+    {
+      "name": "default-build",
+      "argv": [
+        "make",
+        "-j16",
+        "gsi-build",
+        "VERILATOR=$REVIEWS/pp163-r519-5-packet/scripts/compiler_bound.py"
+      ],
+      "rc": 0,
+      "seconds": 30.76
+    },
+    {
+      "name": "default-run",
+      "argv": [
+        "./obj_dir/Vpp_top_sim"
+      ],
+      "rc": 0,
+      "seconds": 632.84
+    },
+    {
+      "name": "shipping-build",
+      "argv": [
+        "make",
+        "-j16",
+        "timer-defaults-build",
+        "VERILATOR=$REVIEWS/pp163-r519-5-packet/scripts/compiler_bound.py"
+      ],
+      "rc": 0,
+      "seconds": 12.48
+    },
+    {
+      "name": "shipping-withdraw",
+      "argv": [
+        "./obj_tdf/Vpp_top_tdf",
+        "--withdraw-only"
+      ],
+      "rc": 0,
+      "seconds": 242.01
+    }
+  ]
+]

@@ -1,0 +1,445 @@
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index 41b616b..d9b00ee 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -485,7 +485,7 @@ flowchart LR
+ |---|---|
+ | Priorities | ACMP (tightest budget, `T-BUDGET-ACMP-RESP`) > AECP solicited + originator commands > notification bursts > ADP periodic |
+ | Frame-atomic | grant holds sof→eof ([F02.4](02_interfaces.md#fig-02-txwave)); no preemption |
+-| Withdrawal | an originated exchange cancelled before the serializer accepts its frame leaves the originator lane and the arbiter's pre-start abort one clock after the originator takes the cancellation (a registered mask, in the clock its registered release reaches the slot pool); a frame accepted in the cancelling clock itself is sent, and its slot is freed after its last byte |
++| Withdrawal | the originator's registered mask reaches the lane queue and the arbiter's pre-start abort one clock after a cancellation is presented. For an immediate cancellation it arrives with the slot's registered release. When another exchange's matched response parks the cancellation, the mask leads that slot's release by one clock and alone withdraws a probe selected in the cancelling clock, before the pool starts it. A frame accepted in the cancelling clock itself is sent, and its slot is freed after its last byte |
+ | Starvation guard | aging promotes any requester older than `T-TX-AGING` to priority 1 |
+ | Notification pacing | fan-out engine spaces bursts so ≥ 1 slot/frame-time remains for solicited traffic; counters class additionally rate-limited ≤ 1/descriptor/s |
+ | Destination addressing | AECP: unicast to `src_mac` (or registry MAC for unsolicited). ACMP: **all** responses multicast `91-E0-F0-01-00-00`. ADP: multicast `91-E0-F0-01-00-00`. Identify: multicast `91-E0-F0-01-00-01` (IEEE Annex B). MRPDUs: MSRP `01-80-C2-00-00-0E` / MVRP `01-80-C2-00-00-21` |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 28f4ab1..6d1edd6 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -297,8 +297,8 @@ the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ ### 8.4 Notifications and identify: the RND and STORM evidence (issues #54, #58, #80, #86)
+ 
+ Each section runs on a fresh processor of its own in `tb/pp_top` (`--notify-only`,
+-`--spacing-only`, `--domain-notify-only`, `--identify-only`, and the suite's third build
+-for section ID), plus one section of the originator's unit suite and five of the
++`--spacing-only`, `--domain-notify-only`, `--withdraw-only`, `--identify-only`, and the suite's third build
++for section ID), plus one section of the originator's unit suite and six of the
+ notification block's:
+ 
+ | Category | Section | What it proves |
+@@ -310,12 +310,14 @@ notification block's:
+ | STORM | ST | one change fans out to all 16 rows byte-exact; GET_COUNTERS churned at 10 Hz on five descriptors emits at most once per descriptor per second; solicited AECP and ACMP answers stay inside `T-BUDGET-AECP-WC` / `T-BUDGET-ACMP-RESP` under the load |
+ | STORM | CS | ST's churn started at ST's phase and 30 and 95 clocks later (#148's shifted timing): every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads, though a solicited answer delays a round's frames |
+ | DIR | DN | the Domain and link-edge terms of the GET_AVB_INFO trigger (#42): an adopted Class A Domain, the declaration that returns it to the default and each link edge send a registered controller exactly one u = 1 GET_AVB_INFO for AVB_INTERFACE 0, byte-exact, and no GET_AS_PATH; an identical re-declaration sends nothing |
++| TIM | WD | the registered withdrawal boundary (#163): an immediate cancellation on the acceptance clock permits one complete probe, while a cancellation on the selection clock withdraws it before start; a cancellation parked by another exchange's matched response is withdrawn one clock before its release, and that probe never reaches the wire |
+ | RND | RN | a seeded REGISTER / DEREGISTER / LOCK / UNLOCK / SET / GET session from 20 controllers against an independent registry and lock model, zero divergence |
+ | RND | `tb/originator` R | a seeded session of 16 owners' overlapping CONTROLLER_AVAILABLE-shaped inflights, responses, expiries and cancellations in random order against an independent inflight model |
+ | DIR | `tb/aecp_notify` IX | the registry's identity index: a reused row refuses its previous controller, no identity one bit from a registered one matches, and in both cycles of a REGISTER's rewrite a command matching what `rows_r` holds still wins against a failed probe in the same cycle: in the row write's own cycle the reused row's previous controller, and, after a reset in that cycle, the row's identity, which the index then lacks |
+ | DIR | `tb/aecp_notify` TS | the counter throttle stamps' valid bit: a second change in the same second is held, and after a warm reset a change in that second goes out at once |
+ | DIR | `tb/aecp_notify` TW | a counter round that waits for the TX slot: the next round waits a second from the round's last send, never from its selection, and a change made while a job waits more than a second still waits a second after that send |
+ | DIR | `tb/aecp_notify` DR | a DEREGISTER drained between two jobs of a round, after a TIME_LIMITED expiry or a failed CONTROLLER_AVAILABLE retry: the round's remaining controller still receives the round's notification (a GET_COUNTERS and a SET_NAME round), the expired controller alone its own DEREGISTER, and with the drained row's next job held for the TX slot the next counter round still waits a second from that controller's send |
++| TIM | `tb/aecp_notify` CX | the superseding command presents exactly one availability cancellation in its own clock, before the top's registered mask |
+ 
+ The mutation records are in the two suites' READMEs; `tb/pp_top/notify_mutants.py`
+ plants the pp_top controls.
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index bf522a6..7177006 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -4446,11 +4446,13 @@ module protocol_processor_top
+   //! whose cones (the registry's identity index, the received header, the
+   //! response CAM) reached the TX arbiter's slot and state registers through
+   //! the lane request and start_abort_i: 51 logic levels at the 50 MHz clock.
+-  //! Every reader below takes this copy, so a withdrawal reaches the lane
+-  //! queue and the arbiter in the cycle the originator's registered release
+-  //! reaches the pool. A frame the arbiter accepts in the cancelling cycle
+-  //! itself is sent: the originator drops that acceptance (the entry is gone)
+-  //! and the pool frees the slot after its last byte.
++  //! Every reader below takes this copy. An immediate cancellation's mask
++  //! reaches the lane and arbiter with its registered release. If another
++  //! exchange's matched response parks the cancellation, the mask arrives
++  //! one clock before that cancelled slot's release: it alone withdraws a
++  //! probe selected in the cancelling clock, before the pool starts it.
++  //! A frame accepted in the cancelling clock itself is sent: the originator
++  //! drops that acceptance and the pool frees the slot after its last byte.
+   logic [7:0]              org_withdraw_mask_r;
+ 
+   always_ff @(posedge clk_i) begin : withdraw_mask_stage
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 2d120c6..213ecc4 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2524,12 +2524,13 @@ expiry choice. It fed the TX arbiter's slot and state registers through the
+ originator lane's request and the arbiter's pre-start abort, 51 logic levels from
+ the registry's identity index and the received header at the 50 MHz clock. The top
+ now registers it (`org_withdraw_mask_r`): a cancellation reaches the lane and the
+-abort one clock after the originator takes it, the clock its registered release
+-reaches the TX slot pool. That moves the race between a cancellation and the
+-serializer's acceptance by one clock, and WD grades the new boundary from both
+-sides.
++abort one clock after it is presented. An immediate cancellation's registered
++release arrives with that mask. If another exchange's matched response parks the
++cancellation, the mask leads the cancelled slot's release by one clock. It alone
++withdraws a probe selected in the cancelling clock, before the pool starts it.
++WD grades both the immediate and parked cases.
+ 
+-Each run holds a solicited answer (GET_CONFIGURATION) on its last byte until a
++WD1–WD3 hold a solicited answer (GET_CONFIGURATION) on its last byte until a
+ CONTROLLER_AVAILABLE probe waits in the originator lane, lets every waiting lane age
+ past T-TX-AGING so that the probe's class is the arbiter's first, then feeds a
+ GET_CONFIGURATION from the probed controller (Milan 5.4.5.3: any valid command
+@@ -2549,6 +2550,34 @@ exports the arbiter's state, owner lane and started bit (`dbg_arb_st_o`,
+   next clock, aborted, and is idle the clock after; the pool starts nothing.
+ - **WD3** that probe never reaches the wire; both answers leave, and the five TX
+   slots, the originator and its lane return idle.
++- **WD4** a TIME_LIMITED drain of row 0 coincides with the matched response to
++  row 1's exchange, and the arbiter selects row 0's queued probe in that clock.
++  The next clock holds that selected slot in the start state, without starting
++  it; the response releases row 1's different slot. One clock later the arbiter
++  is idle and row 0's release arrives. Row 0's probe never reaches the wire.
++  Both solicited answers and row 0's single DEREGISTER leave, row 1's initial
++  probe remains its only wire attempt, and every slot and exchange returns idle.
++
++WD4 uses a fresh `ParkedWithdrawPhase`. Both controllers register through the
++MAC. Row 1's initial probe leaves, then a held, aged solicited answer keeps row
++0's initial probe and row 1's retry queued, in that order. Neither queued attempt
++starts a response timer. A silent calibration locates the timer-driven drain;
++the replay feeds row 1's matching response and releases the held answer's EOF
++from the receive commit tap. The check requires the actual cancellation, response
++commit, matched-response report, two distinct releases, selected slot and three
++arbiter clocks to agree. It also observes the wire for 1.5 s after the race.
++
++The default wrapper's TIME_LIMITED fixture is only 400 ms, shorter than the
++30–60 s monitor interval. WD4 therefore postpones only the already-armed row-0
++deadline by 70 s in the timer RAM, located by owner tag 0xA0; its owner and armed
++bit stay intact. It deposits no cancellation, response, mask, queue or arbiter
++state. The production parameter and all ports are unchanged. For a replay with
++the top's own TIME_LIMITED default and **no deadline deposit**, build the existing
++sixth build (`make timer-defaults-build`) and run
++`./obj_tdf/Vpp_top_tdf --withdraw-only`. Its usual invocation still runs TD alone.
++The generated root header is used for that timer fixture and read-only evidence
++of the originator's reports, releases and queue head; WD4 does not read the mask
++register, so removing its readers cannot turn a mutant into a build failure.
+ 
+ Before #163 the acceptance clock's cancellation withdrew the probe (WD1 fails) and
+ the selection clock's one left nothing to select (WD2 fails): the
+@@ -2610,6 +2639,12 @@ where #69 moved the one-interface cancellation choice: the command is delayed
+ one clock and the TIME_LIMITED drain remains immediate. The per-interface
+ `ctr_last_r` shape and every WD/CX and CA/PD check are retained.
+ 
++Round 4 adds `withdraw_mask_dropped` and `withdraw_two_clocks`, both required to
++fail WD4, for 91 controls. Section WD now has four checks. The earlier two WD
++controls also fail WD4: the combinational mask prevents the required selection,
++and an unwired abort lets that selected probe start. Every other control keeps
++its earlier failing-check record.
++
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+ | `ident_two_frames` | a burst of two | 35, ID1 first |
+@@ -2677,8 +2712,10 @@ one clock and the TIME_LIMITED drain remains immediate. The per-interface
+ | `revert_strobes_at_defaults` | the LINK_DOWN revert strobes from DEFAULTS too (`if (adopted_r)` dropped) | 1: DN4 |
+ | `registry_never_claims` | a REGISTER never claims a free row | 9: DN0, DN4b-DN4e, DN1b, DN1c, DN2b, DN2c |
+ | `restore_never_done` | `restore_done_o` tied 0 | 1: the bench's boot premise ("notify bench: blank NVM, both restore walks reach done") |
+-| `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 2: WD1, WD2 |
+-| `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 2: WD2, WD3 |
++| `withdraw_unregistered` | the lane, its compaction and the arbiter's abort read the originator's combinational mask (the path before #163) | 3: WD1, WD2, WD4 |
++| `withdraw_abort_ignored` | the arbiter's `start_abort_i` tied low at the top | 3: WD2, WD3, WD4 |
++| `withdraw_mask_dropped` | all three mask readers see zero; only the release term remains | 1: WD4 |
++| `withdraw_two_clocks` | the mask reaches its three readers after two register stages | 1: WD4 |
+ | `cancel_one_clock_late` | the registry monitor's cancellation registered, one clock after the command | 2: `tb/aecp_notify` CX1, IX3 |
+ | `port_not_compared` | the registry walk matches {eid, mac} without the port (#69) | 7: `tb/aecp_notify` PT2, PT4, PT3, PT5, PT6, CA1, CA2 (5 before round 2: PT2 to PT7 but PT5) |
+ | `port_not_latched` | the op's port latched as 0 | 12: `tb/aecp_notify` PT2, PT4, PT3, PT5, PT6, PD1 to PD3, CA1 to CA4 (5 before round 2) |
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index b06ccfd..ba44bec 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -408,6 +408,9 @@ WITHDRAW = Suite("tb/pp_top", ("make", "gsi-build"), ("./obj_dir/Vpp_top_sim", "
+ MASK_READS = ("                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
+               "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
+               "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]\n")
++MASK_DECL = "  logic [7:0]              org_withdraw_mask_r;\n"
++MASK_STAGE = ("    if (!rst_n) org_withdraw_mask_r <= '0;\n"
++              "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;\n")
+ CA_REQUEST = "  always_comb begin : ca_request\n"
+ 
+ WITHDRAW_STAGE = (
+@@ -418,6 +421,17 @@ WITHDRAW_STAGE = (
+     Mutant("withdraw_abort_ignored", WITHDRAW, (
+         (TOP, "      .start_abort_i(arb_start_abort_w),\n", "      .start_abort_i(1'b0),\n"),),
+         ("WD2:", "WD3:")),
++    Mutant("withdraw_mask_dropped", WITHDRAW, tuple(
++        (TOP, old, re.sub(r"org_withdraw_mask_r\[[^]]*\]\]?", "1'b0", old))
++        for old in MASK_READS),
++        ("WD4:",)),
++    Mutant("withdraw_two_clocks", WITHDRAW, (
++        (TOP, MASK_DECL, MASK_DECL + "  logic [7:0]              withdraw_pre_r;\n"),
++        (TOP, MASK_STAGE,
++         "    if (!rst_n) begin org_withdraw_mask_r <= '0; withdraw_pre_r <= '0; end\n"
++         "    else begin withdraw_pre_r <= org_withdraw_slot_mask_w;"
++         " org_withdraw_mask_r <= withdraw_pre_r; end\n")),
++        ("WD4:",)),
+     # #69 moved the one-interface choice to g_ca_own; delay the command
+     # there, preserving the immediate TIME_LIMITED drain and the owner tuple.
+     Mutant("cancel_one_clock_late", INDEX, (
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+index 839cac4..8c03d1c 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1818,8 +1818,10 @@ struct DomainNotifyPhase : NotifyBench {
+ // levels from the registry's identity index and the received header, at the
+ // 50 MHz clock. The top now registers it (org_withdraw_mask_r), so a
+ // cancellation reaches the lane and the arbiter one clock after the
+-// originator takes it, the clock its registered release reaches the TX slot
+-// pool. Each run holds a solicited answer on its last byte until a
++// originator sees it. An immediate cancellation's release arrives with it;
++// a cancellation parked by another exchange's response is released one
++// clock later (WD4 below). Each immediate-cancellation run holds a solicited
++// answer on its last byte until a
+ // CONTROLLER_AVAILABLE probe waits in the originator lane, feeds a command
+ // from the probed controller (Milan 5.4.5.3: any valid command supersedes the
+ // probe) and lets the held byte go so that the command's cancellation lands
+@@ -1995,6 +1997,215 @@ struct WithdrawStagePhase : NotifyBench {
+   }
+ };
+ 
++// WD4: a TIME_LIMITED drain parked behind another exchange's response.
++// The default wrapper compresses TIME_LIMITED to 400 ms, before the first
++// 30..60 s monitor. Postpone that one armed deadline in the C++ fixture;
++// the timer sweep, drain, response CAM, mask and arbiter remain live. The
++// existing timer-defaults build replays the same case without that deposit.
++struct ParkedWithdrawPhase : WithdrawStagePhase {
++  using WithdrawStagePhase::WithdrawStagePhase;
++  static constexpr uint64_t OTHER_MAC = 0x020000000099ull;
++  static constexpr uint64_t OTHER_EID = 0x0011223344556699ull;
++  static constexpr uint64_t SECOND_MAC = 0x020000000002ull;
++#ifdef PP_TOP_TIM_DEFAULTS
++  static constexpr long LIMIT_MS = 310000;
++#else
++  static constexpr long LIMIT_MS = 72000;
++#endif
++  struct Mark {
++    Clock arb;
++    unsigned busy;
++    unsigned commit;
++    unsigned slot;
++    unsigned release_slot;
++    unsigned response_owner;
++    bool release;
++    bool response;
++  };
++  struct Result {
++    long cancel_t = -1;
++    bool ready = false;
++    bool coincident = false;
++    bool withdrawn = false;
++    bool leads = false;
++    bool wire = false;
++  };
++  unsigned probe_slot = 0;
++  unsigned answer_slot = 0;
++
++  //! Locate the actual armed row-0 TIME_LIMITED timer by its owner tag,
++  //! preserving its armed bit and owner. No cancel or TX state is deposited.
++  bool postpone_expiry() {
++    auto& root = *io.d->rootp;
++    auto& ram = root.pp_top_wrap__DOT__u_dut__DOT__u_timer__DOT__slot_ram_r;
++    const auto& armed = root.pp_top_wrap__DOT__u_dut__DOT__u_timer__DOT__armed_r;
++    unsigned found = 0;
++    for (size_t i = 0; i < ram.size(); ++i) {
++      if ((ram[i] >> 32) != 0xA0 || !((armed[i / 32] >> (i % 32)) & 1u)) continue;
++      const uint32_t remaining = uint32_t(ram[i]) - io.d->dbg_now_ms_o;
++#ifdef PP_TOP_TIM_DEFAULTS
++      if (remaining > 299000 && remaining <= 300000) ++found;
++#else
++      if (remaining > 0 && remaining <= 400) {
++        ram[i] = (ram[i] & 0xFF00000000ull) | uint32_t(uint32_t(ram[i]) + 70000);
++        ++found;
++      }
++#endif
++    }
++    return found == 1;
++  }
++  bool hold_eof() {
++    io.stall_tx_at_eof = true;
++    io.mac_tx_ready = true;
++    io.tx_eof_stalled = false;
++    for (int i = 0; i < 1000 && !io.tx_eof_stalled; ++i) tick();
++    return io.tx_eof_stalled;
++  }
++  void release_eof() {
++    io.stall_tx_at_eof = false;
++    io.mac_tx_ready = true;
++    tick();
++  }
++  unsigned probes_to(uint64_t mac) const {
++    unsigned n = 0;
++    for (const auto& s : to_mac(mac, 0)) n += is_probe(s.f) ? 1u : 0u;
++    return n;
++  }
++
++  //! Two registered controllers, a held answer, and both monitor probes.
++  //! Let row 1's first probe leave; an aged solicited answer then outranks
++  //! row 0's probe. Hold that answer until row 0 expires, with row 1's retry
++  //! behind row 0. Neither queued attempt starts a response timer.
++  bool setup() {
++    boot_to_idle(false);
++    const bool booted = io.boot_to_aecp();
++    std::vector<uint8_t> tl(4, 0);
++    tl[3] = 1;                         // Table 7-147 TIME_LIMITED
++    const auto reg = ask(CTLR_MAC, CTLR_EID, 0x7170, 0x0024, tl);
++    const bool timer = postpone_expiry();
++    const bool reg2 = register_controller(SECOND_MAC, CTLR2_EID, 0x7171);
++    io.mac_tx_ready = false;
++    feed(aecp_frame(OWN_MAC, OTHER_MAC, 0, 0, EID, OTHER_EID, 0x7172,
++                    AEM_GET_CONFIGURATION, {}, false));
++    for (int i = 0; i < 1000 && !io.d->tx_valid_o; ++i) tick();
++    const bool stalled = io.d->tx_valid_o;
++    for (long i = 0; i < 66000L * MS_CYC && io.d->dbg_org_queue_o < 2; ++i) tick();
++    run_ms(AGED_MS);
++    const bool queued = io.d->dbg_org_queue_o == 2 && io.d->dbg_org_second_owner_o == 0;
++    const bool first_held = hold_eof();
++    release_eof();
++    const bool probe_held = hold_eof() && io.d->dbg_arb_owner_o == LANE_ORIG;
++    answer_slot = io.d->dbg_ser_slot_o;
++    feed(aecp_frame(OWN_MAC, OTHER_MAC, 0, 0, EID, OTHER_EID, 0x7173,
++                    AEM_GET_CONFIGURATION, {}, false));
++    run_ms(50);                        // response build plus T-TX-AGING
++    release_eof();
++    const bool answer_held = hold_eof() && io.d->dbg_arb_owner_o == 0;
++    run_ms(300);                       // row 1's one retry queues behind row 0
++    probe_slot = io.d->rootp->pp_top_wrap__DOT__u_dut__DOT__laneq_org_r & 7u;
++    const auto a = to_mac(SECOND_MAC, 0);
++    bool exact = false;
++    for (const auto& s : a) {
++      if (is_probe(s.f)) exact = s.f == aecp_frame(SECOND_MAC, OWN_MAC, 0, 0,
++                                                  CTLR2_EID, EID, 0, 0x0003, {});
++    }
++    return booted && !reg.empty() && status_of(reg) == AECP_SUCCESS && timer && reg2
++        && stalled && queued && first_held && probe_held && answer_held
++        && io.d->dbg_org_queue_o == 2 && io.d->dbg_org_second_owner_o == 1
++        && probe_slot != answer_slot && probes_to(CTLR_MAC) == 0
++        && probes_to(SECOND_MAC) == 1 && exact;
++  }
++
++  Mark mark() {
++    const Clock k = sample();
++    const auto& root = *io.d->rootp;
++    return {k, unsigned(io.d->dbg_org_busy_o), unsigned(io.d->dbg_rxv_commit_o),
++            unsigned(io.d->dbg_ser_slot_o),
++            unsigned(root.pp_top_wrap__DOT__u_dut__DOT__org_release_slot_w),
++            unsigned(root.pp_top_wrap__DOT__u_dut__DOT__org_rt_owner_w),
++            root.pp_top_wrap__DOT__u_dut__DOT__org_release_valid_w != 0,
++            root.pp_top_wrap__DOT__u_dut__DOT__org_rt_valid_w != 0};
++  }
++  bool wire_ok() const {
++    unsigned dereg = 0;
++    bool first = false;
++    bool second = false;
++    for (const auto& s : to_mac(CTLR_MAC, 0))
++      dereg += unsolicited(s.f) && ct_of(s.f) == 0x0025 ? 1u : 0u;
++    for (const auto& s : to_mac(OTHER_MAC, 0)) {
++      first = first || is_answer(s.f, 0x7172);
++      second = second || is_answer(s.f, 0x7173);
++    }
++    return probes_to(CTLR_MAC) == 0 && probes_to(SECOND_MAC) == 1 && dereg == 1
++        && first && second && io.d->dbg_txs_free_o == 5
++        && io.d->dbg_org_busy_o == 0 && io.d->dbg_org_queue_o == 0;
++  }
++
++  //! A silent calibration locates the timer-driven cancel on a fresh run.
++  //! The replay uses identical setup and sends row 1's matching response so
++  //! its header commits on that clock; the commit tap releases the held EOF.
++  //! Every timing premise is graded again, so calibration cannot hide a miss.
++  Result race(long target = -1) {
++    Result r;
++    r.ready = setup();
++    const auto f = aecp_frame(OWN_MAC, SECOND_MAC, 1, AECP_SUCCESS, CTLR2_EID, EID,
++                              0, 0x0003, {}, false);
++    io.release_eof_on_commit = target >= 0 ? 1 : -1;
++    std::vector<Mark> clocks;
++    for (long n = 0; n < LIMIT_MS * MS_CYC; ++n) {
++      const long ix = long(io.t) - (target - long(f.size()) - 2);
++      const bool byte = target >= 0 && ix >= 0 && ix < long(f.size());
++      io.d->rx_valid_i = byte;
++      io.d->rx_data_i = byte ? f[size_t(ix)] : 0;
++      io.d->rx_last_i = byte && ix + 1 == long(f.size());
++      const Mark k = mark();
++      if (k.arb.cancel && r.cancel_t < 0) r.cancel_t = long(io.t);
++      if (r.cancel_t >= 0) clocks.push_back(k);
++      tick();
++      if (clocks.size() == 3) break;
++    }
++    if (target < 0) return r;
++    if (clocks.size() == 3) {
++      const auto& c = clocks[0];
++      const auto& next = clocks[1];
++      const auto& after = clocks[2];
++      r.coincident = r.cancel_t == target && c.arb.cancel && c.commit == 4
++          && c.busy == 3 && next.response && next.response_owner == 1
++          && next.busy != 0 && (next.busy & (next.busy - 1)) == 0 && after.busy == 0;
++      r.leads = next.release && next.release_slot == answer_slot
++          && after.release && after.release_slot == probe_slot;
++      r.withdrawn = c.arb.st == A_IDLE && c.arb.queue == 2 && !c.arb.start
++          && next.arb.st == A_START && next.arb.owner == LANE_ORIG
++          && next.slot == probe_slot && !next.arb.sent && !next.arb.start
++          && after.arb.st == A_IDLE && !after.arb.start;
++      for (size_t i = 0; i < clocks.size(); ++i) {
++        const auto& k = clocks[i];
++        printf("  [i] WD4 c+%zu: cancel %d, response %d/%u, busy %u, "
++               "release %d/%u, arb %u/%u, slot %u, start %d, queue %u\n", i,
++               int(k.arb.cancel), int(k.response), k.response_owner, k.busy,
++               int(k.release), k.release_slot, k.arb.st, k.arb.owner, k.slot,
++               int(k.arb.start), k.arb.queue);
++      }
++    }
++    io.release_eof_on_commit = -1;
++    io.stall_tx_at_eof = false;
++    io.mac_tx_ready = true;
++    run_ms(QUIET_MS);
++    r.wire = wire_ok();
++    return r;
++  }
++  static void run(H& h) {
++    const Result calibration = ParkedWithdrawPhase{h}.race();
++    const Result r = ParkedWithdrawPhase{h}.race(calibration.cancel_t);
++    CHECK(calibration.ready && r.ready && r.coincident && r.leads && r.withdrawn && r.wire,
++          "WD4: a drain parked behind another exchange's matched response withdraws "
++          "the selected probe next clock, one clock before its release, and it never "
++          "reaches the wire (setup %d/%d, coincident %d, mask leads %d, withdrawn %d, wire %d)",
++          int(calibration.ready), int(r.ready), int(r.coincident), int(r.leads),
++          int(r.withdrawn), int(r.wire));
++  }
++};
++
+ [[maybe_unused]] static void run_rnd(H& h) {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+@@ -2036,6 +2247,7 @@ struct WithdrawStagePhase : NotifyBench {
+   const int checks0 = h.checks;
+   const int fails0 = h.fails;
+   WithdrawStagePhase{h}.run();
++  ParkedWithdrawPhase::run(h);
+   printf("WD: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
+ }
+ 
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 57b4d38..1e5afa3 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -38,6 +38,7 @@
+ #include <utility>
+ #include <vector>
+ #include "Vpp_top_wrap.h"
++#include "Vpp_top_wrap___024root.h"
+ #include "verilated.h"
+ #include "../common/verilator_harness.hpp"
+ 
+@@ -14060,7 +14061,8 @@ int main(int argc, char** argv) {
+ #elif defined(PP_TOP_TIM_DEFAULTS)
+   //! the sixth build runs section TD alone, with the registration and lock
+   //! timers at the top's own defaults
+-  run_timer_defaults(h);
++  if (argc == 2 && std::strcmp(argv[1], "--withdraw-only") == 0) run_withdraw(h);
++  else run_timer_defaults(h);
+   const char* const build = "defaults";
+ #elif defined(PP_TOP_IF2)
+   //! the seventh build sets P-N-AVB-INTERFACES to 2 and runs section IF alone
