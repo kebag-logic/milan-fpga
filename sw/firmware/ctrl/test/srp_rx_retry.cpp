@@ -20,6 +20,25 @@ protected:
         first.insert(first.end(),last.begin()+15,last.end());
         return first;
     }
+    std::vector<uint8_t> domains(unsigned count) {
+        auto f=frame(4,{6,3,0,100},1);
+        f.resize(19);
+        wire_put_be(f.data()+17,7*count+2,2);
+        for(unsigned k=0;k<count;++k) {
+            const unsigned vid=100+k;
+            f.insert(f.end(),{0,1,6,3,uint8_t(vid>>8),uint8_t(vid),36});
+        }
+        f.insert(f.end(),{0,0,0,0});
+        return f;
+    }
+    void pump(unsigned ms) {
+        for(unsigned k=0;k<ms;++k) {
+            mbx_model_advance_ms(&model,1);
+            for(unsigned n=0;n<20;++n) {
+                if(ctrl_loop_service(&loop)==0 && !mbx_model_irq(&model)) break;
+            }
+        }
+    }
 };
 
 TEST_F(SrpRetry, RefusedMixedPayloadRetriesWithoutPeerRetransmission) {
@@ -253,5 +272,128 @@ TEST_F(SrpRetry, WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped) {
     EXPECT_EQ(adapter.malformed,1u);
     EXPECT_EQ(adapter.received,1u);
     EXPECT_CALL(licence,Change(0,0,false));
+}
+
+TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding) {
+    settle(); advance(400);
+    const unsigned i=MBX_N_IF-1;
+    EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),0,2),i);
+    auto f=domains(150);
+    ASSERT_LT(f.size(),size_t(MBX_FRAME_BYTES_MAX));
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.pending_rx.len,f.size());
+    EXPECT_FALSE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
+    auto leave=frame(3,identity(i),5,2);
+    ASSERT_TRUE(mbx_model_rx(&model,leave.data(),leave.size(),i));
+    // No artificial allocation failure: the PDU itself fills the entity pool.
+    pump(999);
+    EXPECT_NE(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,0u);
+    EXPECT_EQ(adapter.received,1u);
+    EXPECT_CALL(licence,Change(i,0,false));
+    pump(1);
+    EXPECT_EQ(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.received,2u);
+    EXPECT_EQ(adapter.malformed,0u);
+    EXPECT_FALSE(adapter.ifs[i].active[0]);
+    EXPECT_TRUE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
+    pump(1000);
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.stops,1u);
+}
+
+TEST_F(SrpRetry, QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap) {
+    settle(); advance(400);
+    model.now_ms=UINT32_MAX-499u;
+    auto f=domains(150);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    mbx_model_advance_ms(&model,1000);
+    // Hold polls to prove the expired first refusal is discarded by reception.
+    const unsigned polls=loop.n_polls;
+    loop.n_polls=0;
+    for(unsigned n=0;n<100 && loop.stats.rx_records==0;++n) ctrl_loop_service(&loop);
+    loop.n_polls=polls;
+    EXPECT_EQ(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.received,0u);
+    EXPECT_EQ(adapter.malformed,0u);
+}
+
+TEST_F(SrpRetry, RecoveryAtDeadlineStillAppliesTheCompleteRecord) {
+    settle(); advance(400);
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    pump(999);
+    EXPECT_NE(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,0u);
+    recover(); pump(1);
+    EXPECT_EQ(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.ifs[0].domain.vid,7u);
+    EXPECT_EQ(adapter.received,1u);
+    EXPECT_EQ(adapter.rx_discarded,0u);
+}
+
+TEST_F(SrpRetry, RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard) {
+    settle(); advance(400);
+    model.now_ms=UINT32_MAX-499u;
+    exhaust(); offer(frame(4,{6,4,0,7},0));
+    pump(999);
+    EXPECT_NE(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,0u);
+    pump(1);
+    EXPECT_EQ(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.received,0u);
+    recover(); settle();
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
+}
+
+TEST_F(SrpRetry, FailedRecreationCannotRetainInputBeyondItsDeadline) {
+    settle(); advance(400);
+    const unsigned i=MBX_N_IF-1;
+    calloc_before_failure=0;
+    mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
+    ctrl_loop_service(&loop);
+    ASSERT_EQ(adapter.ifs[i].msrp,nullptr);
+    auto f=frame(3,identity(i),0,2);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));
+    ctrl_loop_service(&loop);
+    ASSERT_NE(adapter.pending_rx.len,0u);
+    pump(1000);
+    EXPECT_EQ(adapter.pending_rx.len,0u);
+    EXPECT_EQ(adapter.rx_discarded,1u);
+    EXPECT_EQ(adapter.received,0u);
+    EXPECT_EQ(adapter.malformed,0u);
+    recover(); settle();
+    EXPECT_TRUE(srp_mbx_bind(&adapter,i,0,nullptr,nullptr,0));
+    EXPECT_CALL(licence,Change(i,0,true)); offer(f,i);
+    EXPECT_CALL(licence,Change(i,0,false));
+}
+
+TEST_F(SrpRetry, DomainFloodCannotDelayLaterRapidLeave) {
+    EXPECT_CALL(licence,Change(0,0,::testing::_)).Times(::testing::AnyNumber());
+    settle(); offer(frame(3,identity(),1,2));
+    ASSERT_TRUE(adapter.ifs[0].active[0]);
+    for(unsigned vid=3;vid<63;++vid) {
+        auto f=frame(4,{6,3,0,uint8_t(vid)},1);
+        bool accepted=false;
+        for(unsigned n=0;n<200 && !accepted;++n) {
+            accepted=mbx_model_rx(&model,f.data(),f.size(),0);
+            pump(accepted ? 2 : 1);
+        }
+        ASSERT_TRUE(accepted);
+    }
+    pump(1500);
+    ASSERT_EQ(adapter.pending_rx.len,0u);
+    ASSERT_GT(adapter.rx_discarded,0u);
+    ASSERT_TRUE(adapter.ifs[0].active[0]);
+    const unsigned before=adapter.received;
+    auto leave=frame(3,identity(),5,2);
+    ASSERT_TRUE(mbx_model_rx(&model,leave.data(),leave.size(),0));
+    pump(1);
+    EXPECT_EQ(adapter.received,before+1);
+    EXPECT_FALSE(adapter.ifs[0].active[0]);
+    EXPECT_EQ(adapter.malformed,0u);
 }
 } // namespace

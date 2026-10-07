@@ -77,6 +77,7 @@ struct srp_mbx {
     bool initialized;
     uint32_t reentries;
     uint32_t refused;
+    uint32_t rx_discarded; // allocation refusal still present at the receive deadline
     uint32_t malformed;
     uint32_t received;
     uint32_t transmitted;
@@ -94,7 +95,8 @@ bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config);
 bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop);
 void srp_mbx_destroy(struct srp_mbx *m);
 // ACMP-facing port. A false result leaves the binding unchanged; retry
-// after owed transmission and retained reception finish. Null identity unbinds.
+// after owed transmission commits and retained reception completes or expires.
+// Null identity unbinds.
 bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
                   const struct msrp_stream_id *identity, const uint8_t dest_mac[6], uint16_t vid);
 #ifdef __cplusplus

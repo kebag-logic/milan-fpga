@@ -32,8 +32,8 @@ There is no firmware heap or operating-system dependency.
 The pool has two small and two large blocks per interface, plus
 `16 + 3 * sources + 4 * sinks` medium blocks per interface.
 The arena includes conservative allocator overhead for each block.
-Receive-interest filters retain only the Class A Domain, output Listener IDs,
-bound input Talker IDs and required VLANs.
+Receive-interest filters retain every valid Class A Domain value, output Listener
+IDs, bound input Talker IDs and required VLANs.
 Quiescent, undeclared MT attributes are reclaimed under Table 10-3 note 11.
 Exhaustion is counted and refused; it cannot overwrite another reservation.
 The pool is a finite capacity, not a claim that arbitrary peer churn always fits.
@@ -82,12 +82,23 @@ Malformed PDUs increment `malformed`; local allocation refusals increment `refus
 A refusal retains the complete record in one static buffer.
 Its interface, arrival timestamp and payload remain unchanged.
 Later SRP records and binding changes wait behind it.
-Each poll retries after earlier events, ticks and owed output.
+Each poll retries after pending events, ticks and owed output.
 Earlier applied attributes remain applied; replay includes every later attribute.
-Repeated refusal retains the same record.
 Each poll attempts reception once.
 The fabric centisecond event supplies another service opportunity.
 Storage recovery completes the payload on the next eligible poll.
+A continuing allocation refusal expires after 1000 ms from the original arrival.
+This local recovery policy allows one periodic interval.
+It is checked at each eligible receive attempt.
+A record already delayed in the RX ring gets no fresh retry window.
+A failed participant recreation checks the same deadline.
+A successful retry takes precedence over expiration; pending events and owed
+output still precede that retry.
+Expired refusal clears the retained record and increments `rx_discarded` once,
+without incrementing `received` or `malformed`.
+Earlier applied attributes remain; MRP refresh and aging recover the lost suffix.
+Later input on every interface and binding calls can then proceed.
+This recovery limit does not enlarge the 10 ms service budget.
 Destroy cancels it; link reset cancels only its interface's record.
 
 Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
@@ -117,7 +128,8 @@ The corresponding Talker licence or Listener request is revoked in that pass.
 MVRP retains the generic IEEE 802.1Q Table 10-4 Registrar behavior.
 A withdrawal in LV does not restart LeaveTime (#608 and processor #134).
 The original five-second deadline revokes the Talker licence.
-Temporary storage refusal defers application until capacity returns.
+Temporary storage refusal defers application until capacity returns or the
+receive recovery limit expires.
 Timer withdrawals retry at each centisecond; retained RX retries at polls.
 That delay is measured from the original deadline or arrival.
 Exhaustion never grants a fresh service or protocol timing budget.
@@ -188,6 +200,10 @@ Separate receive tests exhaust it before accepting a mailbox record.
 They cover mixed attributes, partial completion, repeated refusal and recovery.
 They also cover interface ordering, link fences and destruction.
 The retry-removal plant must fail the retained-payload regressions.
+Wire-valid Domain floods exceed the actual pool without artificial exhaustion.
+They check later withdrawal and binding progress at one and two interfaces.
+Boundary, clock-wrap and failed-recreation cases grade the original deadline.
+The bound-removal plant must fail the oversized-record regression.
 Higher-version messages and atomic invalid-value rejection have wire cases.
 
 The published lwSRP [Applicant tests](https://github.com/kebag-logic/lwSRP/pull/15)

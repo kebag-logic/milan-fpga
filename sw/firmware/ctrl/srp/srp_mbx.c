@@ -15,6 +15,10 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
     {64u, SRP_POOL_SMALL_BLOCKS}, {256u, SRP_POOL_MEDIUM_BLOCKS}, {512u, SRP_POOL_LARGE_BLOCKS}
 };
 
+// Stop retrying allocation refusal after one periodic interval from arrival.
+// This recovery limit does not extend the 10 ms service budget.
+#define SRP_RX_RETRY_MS 1000u
+
 static struct srp_mbx *timer_owner;
 static void tick(void);
 static bool poll(void *ctx);
@@ -352,7 +356,7 @@ static bool rx_ready(void *ctx)
     return m->pending_rx.len == 0 && rx_order_ready(m);
 }
 
-// Return false only for recoverable local storage refusal. Earlier events
+// Return false only for local storage refusal. Earlier events
 // may already have applied; lwSRP requires replay of the identical payload.
 static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
 {
@@ -381,6 +385,15 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
     return true;
 }
 
+static void expire_receive(struct srp_mbx *m)
+{
+    if (m->pending_rx.len &&
+        (uint32_t)(mbx_now_ms() - m->pending_rx.arrival_ms) >= SRP_RX_RETRY_MS) {
+        m->pending_rx.len = 0;
+        ++m->rx_discarded;
+    }
+}
+
 static void receive(void *ctx, const struct mbx_frame *frame)
 {
     struct srp_mbx *m = ctx;
@@ -399,6 +412,7 @@ static void receive(void *ctx, const struct mbx_frame *frame)
     }
     if (!apply_receive(m,frame)) {
         m->pending_rx = *frame;
+        expire_receive(m);
     }
     m->busy = false;
 }
@@ -641,6 +655,9 @@ static bool poll(void *ctx)
             i->msrp = NULL; i->mvrp = NULL;
             if (!open_interface(i)) {
                 ++m->refused; owed = true;
+                if (m->pending_rx.interface == n) {
+                    expire_receive(m);
+                }
                 continue;
             }
         }
@@ -649,6 +666,8 @@ static bool poll(void *ctx)
         if (m->pending_rx.len && m->pending_rx.interface == n && rx_order_ready(m)) {
             if (apply_receive(m,&m->pending_rx)) {
                 m->pending_rx.len = 0;
+            } else {
+                expire_receive(m);
             }
         }
         memset(i->registered,0,sizeof(i->registered));
