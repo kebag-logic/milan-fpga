@@ -465,6 +465,9 @@ DEFECTS = (
            'msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n'
            '    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;',
            'i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;', 'adapter.refused'),
+    Defect('downlink-receive-accepted','OldReceiveBacklogCannotRegisterAcrossLinkRestart',
+           '!i->link || (i->discard_prefix', 'false || (i->discard_prefix',
+           'adapter.ifs[i].registered[0]'),
     Defect('delayed-in-listener','InListenerWithdrawalRevokesLicenceImmediately',
            '// These valid constants',
            '((struct mrp_app_ops *)i->msrp->ops)->milan_rapid_leave = false;\n    // These valid constants',

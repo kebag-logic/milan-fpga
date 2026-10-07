@@ -562,6 +562,7 @@ TEST_F(Srp, OldReceiveBacklogCannotRegisterAcrossLinkRestart) {
         EXPECT_TRUE(adapter.ifs[i].active[0]);
         EXPECT_CALL(licence,Change(i,0,false));
         mbx_model_set_link(&model,i,false); settle();
+        offer(ready,i); EXPECT_FALSE(adapter.ifs[i].registered[0]);
     }
 }
 TEST_F(Srp, SharedIdentityReconcilesBothBindingOrdersOnTheWire) {
