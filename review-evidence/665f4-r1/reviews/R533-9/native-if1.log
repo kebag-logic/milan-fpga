@@ -1,0 +1,345 @@
+{'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 53 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 53 tests from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (0 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+[       OK ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[       OK ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+[       OK ] Srp.ExpiryBacklogPrecedesSamePassReceive (0 ms)
+[ RUN      ] Srp.ReentryFromOutputIsRefusedAndCounted
+[       OK ] Srp.ReentryFromOutputIsRefusedAndCounted (0 ms)
+[ RUN      ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState
+[       OK ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState (0 ms)
+[ RUN      ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+[       OK ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+[       OK ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+[       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+[ RUN      ] Srp.InvalidFramesHaveNoReservationSideEffects
+[       OK ] Srp.InvalidFramesHaveNoReservationSideEffects (0 ms)
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[       OK ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+[       OK ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+[ RUN      ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+[       OK ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations (0 ms)
+[ RUN      ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+[       OK ] Srp.MvrpAcceptsOnlyCurrentDomainVid (0 ms)
+[ RUN      ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+[       OK ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt (0 ms)
+[ RUN      ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+[       OK ] Srp.AdmissionUsesBandwidthAndEthernetMinimum (0 ms)
+[ RUN      ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[       OK ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+[ RUN      ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[       OK ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+[ RUN      ] Srp.LinkLossCancelsItsOwedFrameOnly
+[       OK ] Srp.LinkLossCancelsItsOwedFrameOnly (0 ms)
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+[       OK ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[ RUN      ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+[       OK ] Srp.ListenerBeforeVlanCommitCannotStartTalker (0 ms)
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[       OK ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[ RUN      ] Srp.BoundOldDomainVlanSurvivesDomainChange
+[       OK ] Srp.BoundOldDomainVlanSurvivesDomainChange (0 ms)
+[ RUN      ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+[       OK ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership (0 ms)
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[       OK ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+[ RUN      ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+[       OK ] Srp.SinkMembershipCommitsBeforeReadyAtStartup (0 ms)
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[       OK ] Srp.InListenerWithdrawalRevokesLicenceImmediately (0 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[       OK ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[ RUN      ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+[       OK ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence (0 ms)
+[ RUN      ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+[       OK ] Srp.AdmissionStraddlesTheExactEthernetCeiling (0 ms)
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[       OK ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[       OK ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[ RUN      ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+[       OK ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire (1 ms)
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[       OK ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[ RUN      ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+[       OK ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed (0 ms)
+[ RUN      ] Srp.EventReentryAndSinkCapacityAreGuarded
+[       OK ] Srp.EventReentryAndSinkCapacityAreGuarded (0 ms)
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[       OK ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[       OK ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (3 ms)
+[ RUN      ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+[       OK ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation (1 ms)
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[       OK ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (0 ms)
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[       OK ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (0 ms)
+[ RUN      ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+[       OK ] Srp.FinalDomainVidUnbindKeepsSrClassMembership (1 ms)
+[ RUN      ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+[       OK ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder (0 ms)
+[ RUN      ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+[       OK ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+[       OK ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart (0 ms)
+[ RUN      ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+[       OK ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan (0 ms)
+[ RUN      ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+[       OK ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline (0 ms)
+[----------] 53 tests from Srp (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 1 test suite ran. (16 ms total)
+[  PASSED  ] 53 tests.
+== ctrl SRP mailbox: checks: 53   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (53 tests, 0 failures, exit 0)
+srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpRetry
+[ RUN      ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[ RUN      ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[ RUN      ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[ RUN      ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[ RUN      ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[ RUN      ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[       OK ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (126 ms)
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[       OK ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[ RUN      ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+[ RUN      ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[       OK ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[       OK ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (1 ms)
+[ RUN      ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+[       OK ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (9 ms)
+[----------] 17 tests from SrpRetry (138 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (139 ms total)
+[  PASSED  ] 17 tests.
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (17 tests, 0 failures, exit 0)
+srp-srp_app-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 3 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from SrpApp
+[ RUN      ] SrpApp.AttachRefusalPreservesExistingComposition
+[       OK ] SrpApp.AttachRefusalPreservesExistingComposition (0 ms)
+[ RUN      ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources
+[       OK ] SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources (0 ms)
+[----------] 2 tests from SrpApp (0 ms total)
+
+[----------] 1 test from Srp
+[ RUN      ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds
+  SRP event bound: 1 accesses, bound 1
+  SRP refused receive bound: 2 accesses, bound 2
+  SRP retained receive poll bound: 3 accesses, bound 770
+  SRP transmitting poll bound: 48 accesses, bound 770
+  SRP maximum TX record bound: 383 accesses, bound 383
+  SRP maximum RX record bound: 383 accesses, bound 383
+  SRP complete pass bound: 388 accesses, bound 1596
+[       OK ] Srp.EventReceiveAndTransmitPollFitTheirMeasuredBounds (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 3 tests.
+== ctrl ADP MAAP SRP composition: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 29 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 21 tests from AcmpMailbox
+[ RUN      ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder
+[       OK ] AcmpMailbox.B1TheChannelCarriesCommandsAndResponsesInOrder (0 ms)
+[ RUN      ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused
+[       OK ] AcmpMailbox.B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused (0 ms)
+[ RUN      ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot
+[       OK ] AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot (0 ms)
+[ RUN      ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+[       OK ] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded (0 ms)
+[ RUN      ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+[       OK ] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp (0 ms)
+[ RUN      ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces
+[       OK ] AcmpMailbox.B6TheGrandmasterIsTheInterfaces (0 ms)
+[ RUN      ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding
+[       OK ] AcmpMailbox.B8TheBoundTalkerTableFollowsEachBinding (0 ms)
+[ RUN      ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing
+[       OK ] AcmpMailbox.B9AnotherAvtpVersionPassesTheFilterAndChangesNothing (0 ms)
+[ RUN      ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+  C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   76 accesses (bound 76)
+  C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       28 accesses (bound 28)
+  C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     49 accesses (bound 49)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C4 talker command -> response, interface 0                                 47 accesses (bound 47)
+  C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 28)
+[       OK ] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem (0 ms)
+[ RUN      ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry
+  C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+  C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 13)
+  C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 13)
+  C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+  C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               12 accesses (bound 13)
+[       OK ] AcmpMailbox.C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord
+  C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+  C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+[       OK ] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord (0 ms)
+[ RUN      ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry
+  C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+[       OK ] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry (0 ms)
+[ RUN      ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+[       OK ] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt (0 ms)
+[ RUN      ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1
+  E2 0 owed ahead: room to response                                          25 accesses (bound 9108)
+  E2 3 owed ahead: room to response                                         100 accesses (bound 9108)
+  E2 7 owed ahead: room to response                                         200 accesses (bound 9108)
+[       OK ] AcmpMailbox.E2AnOwedResponseIsCommittedInPassKPlus1 (0 ms)
+[ RUN      ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound
+  backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+  F3 the worst pass of the backlog                                          193 accesses (bound 1012)
+[       OK ] AcmpMailbox.F0ToF3FullRingsAreTakenWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing
+[       OK ] AcmpMailbox.F4TheSmallestRecordsTheFilterPassesFillTheRing (0 ms)
+[ RUN      ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+  adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+  F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22264)
+[       OK ] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound (0 ms)
+[ RUN      ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound
+  three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 265 accesses
+  F6 the worst pass of the four-way backlog                                 265 accesses (bound 3128)
+[       OK ] AcmpMailbox.F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound (0 ms)
+[ RUN      ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract
+[       OK ] AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract (0 ms)
+[ RUN      ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen
+[       OK ] AcmpMailbox.U6AdpAcmpAndMaapShareTheLoopOnDisjointSlotsWithEveryChannelOpen (0 ms)
+[ RUN      ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened
+[       OK ] AcmpMailbox.U7TheThreeWayCompositionRefusesWithNothingOpened (0 ms)
+[----------] 21 tests from AcmpMailbox (1 ms total)
+
+[----------] 1 test from AcmpAdapterUnit
+[ RUN      ] AcmpAdapterUnit.B7RefusalsOfTheAdapter
+[       OK ] AcmpAdapterUnit.B7RefusalsOfTheAdapter (0 ms)
+[----------] 1 test from AcmpAdapterUnit (0 ms total)
+
+[----------] 7 tests from SrpBinding
+[ RUN      ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface
+[       OK ] SrpBinding.BindIsDeferredAndKeepsEverySinkAndInterface (0 ms)
+[ RUN      ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry
+[       OK ] SrpBinding.RefusedReceiveRetriesAfterRecoveryOrExpiry (0 ms)
+[ RUN      ] SrpBinding.OwedTransmissionRetriesAfterCommit
+[       OK ] SrpBinding.OwedTransmissionRetriesAfterCommit (0 ms)
+[ RUN      ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding
+[       OK ] SrpBinding.UnbindCancelsPendingAndWithdrawsAcceptedBinding (0 ms)
+[ RUN      ] SrpBinding.ReplacementSupersedesPendingIdentity
+[       OK ] SrpBinding.ReplacementSupersedesPendingIdentity (0 ms)
+[ RUN      ] SrpBinding.OneRefusedSinkDoesNotBlockAnotherOrLetTheLoopSleep
+[       OK ] SrpBinding.OneRefusedSinkDoesNotBlockAnotherOrLetTheLoopSleep (0 ms)
+[ RUN      ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding
+[       OK ] SrpBinding.AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding (0 ms)
+[----------] 7 tests from SrpBinding (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 29 tests from 3 test suites ran. (2 ms total)
+[  PASSED  ] 29 tests.
+== ctrl ADP ACMP MAAP SRP composition: checks: 29   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (29 tests, 0 failures, exit 0)
+srp-srp_latency-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpLatency
+[ RUN      ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget
+H-SRP if=1 path=startup elapsed_ns=1005300 wait_ms=0 service_ns=1005300 accesses=56
+H-SRP if=1 path=JoinTime elapsed_ns=1015300 wait_ms=0 service_ns=1015300 accesses=212
+H-SRP if=1 path=periodic elapsed_ns=1015700 wait_ms=0 service_ns=1015700 accesses=517
+H-SRP if=1 path=MVRP LeaveAll elapsed_ns=1002400 wait_ms=0 service_ns=1002400 accesses=17568
+H-SRP if=1 path=MSRP LeaveAll elapsed_ns=1006800 wait_ms=0 service_ns=1006800 accesses=20450
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (0 ms)
+[ RUN      ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths
+H-SRP if=1 path=RX to licence elapsed_ns=1001900 wait_ms=0 service_ns=1001900 accesses=228
+H-SRP if=1 path=malformed discard elapsed_ns=1002300 wait_ms=0 service_ns=1002300 accesses=254
+H-SRP if=1 path=Domain to declarations elapsed_ns=200995000 wait_ms=200 service_ns=995000 accesses=436
+H-SRP if=1 path=Talker RX to Listener elapsed_ns=200998700 wait_ms=200 service_ns=998700 accesses=623
+H-SRP if=1 path=unbind to withdrawal elapsed_ns=200999300 wait_ms=200 service_ns=999300 accesses=780
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[ RUN      ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog
+H-SRP if=1 path=LeaveTime to stop elapsed_ns=1001100 wait_ms=0 service_ns=1001100 accesses=666
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[ RUN      ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[ RUN      ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget
+H-SRP if=1 path=RX storage recovery elapsed_ns=1983200 wait_ms=0 service_ns=1983200 accesses=262
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[----------] 5 tests from SrpLatency (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)
+srp-srp_walk-if1-endstation_ax7101_1x1_tdm8 0 [==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from SrpWalk
+[ RUN      ] SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA
+[       OK ] SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA (0 ms)
+[ RUN      ] SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal
+[       OK ] SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal (0 ms)
+[ RUN      ] SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener
+[       OK ] SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener (1 ms)
+[ RUN      ] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire
+[       OK ] SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire (0 ms)
+[ RUN      ] SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput
+[       OK ] SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput (0 ms)
+[----------] 5 tests from SrpWalk (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 5 tests.
+== ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

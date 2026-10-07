@@ -1,0 +1,35 @@
+Note: Google Test filter = AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+R533 interface=0 ACMP_requested=1 SRP_bound=1
+[       OK ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/binding-probe/if2/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AcmpMailbox
+[ RUN      ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp
+R533 interface=0 ACMP_requested=1 SRP_bound=1
+R533 interface=1 ACMP_requested=1 SRP_bound=1
+[       OK ] AcmpMailbox.R533ComposedAcmpDeliveryReachesSrp (0 ms)
+[----------] 1 test from AcmpMailbox (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP ACMP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+PASS: accepted ACMP requests reach the attached SRP adapter without direct delivery
