@@ -432,6 +432,8 @@ F2 adds an opt-in [bare-metal MAAP owner](../../sw/firmware/ctrl/maap/README.md)
 Its H-MAAP tests use the FC channel and the existing AAF/CRF CSR allocation output.
 The page records Annex B coverage, per-event work and host timing assumptions.
 The shipping all-fabric placement remains unchanged.
+F3 composes it with ADP and ACMP in one app
+([the composition](../../sw/firmware/ctrl/README.md#the-composition)).
 
 The figures below are F0's conditional mailbox-access evidence.
 [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
@@ -687,6 +689,23 @@ shipping core is open until the access time is measured (see
 composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
 with margin) needs the datapath tap and is not measured here.
 
+With lane F2's MAAP composed as well, a pass costs at most 1,580 accesses
+(`CTRL_APP_PASS_MAX`; 1,659 at two interfaces). MAAP adds its costliest
+action on each of the 8 events (48), its 2 records of the maap channel
+(20 + 48) and its poll (48). Each input is taken by the same pass as above,
+so each bound is that pass count, plus one, times 1,580:
+
+| Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
+|---|---:|---:|---:|---:|
+| an event behind 15 others | 2 | 4,740 | 2.10 us | 4.21 us |
+| an ACMP command behind a full acmp ring | 10 | 17,380 | 0.57 us | 1.15 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 34,760 | 0.28 us | 0.57 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 14,220 | 0.70 us | 1.40 us |
+
+On the model, 15 events, 12 acmp records and 7 maap records behind them
+take a worst pass of 231 accesses (233 at two interfaces), every record and
+event within 10 passes (`test_acmp_mbx.cpp` F6).
+
 ### Differences from the processor
 
 The `acmpwalk` arm runs the processor's own expectations against the
@@ -929,7 +948,8 @@ report_timing_summary -delay_type max
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
   simulation. ACMP's backlog bounds fit T_svc only at 0.89 us per access or
   less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
-  times for T_svc ([ACMP service latency](#acmp-service-latency)).
+  times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
+  composed as well they are 0.57 us and 0.28 us.
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
 - **The bound-talker term's area** is 57 LUTs over its target of 300

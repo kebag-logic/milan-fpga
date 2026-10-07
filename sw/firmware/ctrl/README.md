@@ -24,6 +24,7 @@ is an integration obligation, not a target-time result established here.
 
 - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, MAAP, ACMP, the app, the MMIO platform, the host model, the tests.
 - **[The ACMP module](#the-acmp-module)** -- The core, its mailbox adapter with the ADP channel's tap, and the binding owner on the saved-state store; per-interface keying, the response before its notification, the adp filter's bound-talker term, TMR_NO_RESP from the accepted send, and the boot order.
+- **[The composition](#the-composition)** -- ADP, ACMP and MAAP in one app: the attach order, the channels the open enables, the timer slots, the refusals and the pass bound.
 - **[The host test](#the-host-test)** -- The sixteen arms and lwSRP's, how the processor's ADP and ACMP stimulus is cut from the pinned submodule and walked, and the planted defects.
 - **[Run](#run)** -- The four invocations and what each needs.
 - **[Linked size](#linked-size)** -- The composed app linked with the pinned SDK and no library, audited as RV32I, at the shipping and the largest shape, against the block-RAM budget and dev.
@@ -79,6 +80,50 @@ A platform that restores bindings boots in this order: `ctrl_app_compose()`,
 `nvm_store_service()` added as a centisecond consumer, then `ctrl_app_open()`;
 the ACMP env's `persist` port calls `nvm_store_changed(NVM_G_BIND, sink)`.
 
+## The composition
+
+`ctrl_app` composes ADP always, and ACMP and lane F2's
+[MAAP owner](maap/README.md) when the configuration supplies them: `acmp`
+and `acmp_env` for ACMP; `maap_allocation`, the stream-address port
+(`maap_csr_allocation` on the datapath CSR window), with `maap_ctx` and
+`maap_preferred` for MAAP. Lane F2's `ctrl_app_start_maap()` is
+`ctrl_app_start()` with those three fields given, and refuses a missing port.
+
+- **The attach order.** `ctrl_app_compose()` attaches ADP, then ACMP (its
+  tap stands in front of ADP's handler of the adp channel), then MAAP, and
+  touches no mailbox register. `ctrl_app_open()` then opens every bound
+  channel at the filter and enables each one's receive interrupt with the
+  events' (`ctrl_loop_open()`): with all three, the adp, acmp and maap
+  channels and no other. ACMP writes the restored bindings, ADP is enabled,
+  and MAAP reads each interface's link and begins.
+- **The timer slots.** ADP holds slots 0 to `MBX_N_IF` - 1, ACMP the next
+  `MBX_N_IF` and MAAP the next: three disjoint runs, which a
+  `_Static_assert` keeps inside the fabric's bank of `MBX_N_TIMERS` (16).
+- **The refusals.** The composition is refused, with nothing opened, for a
+  pool that cannot be carved, a configuration its module refuses (MAAP
+  refuses an entity with no talker source), and a preferred MAAP range
+  that starts outside the B.4 pool (IEEE 1722-2016 Table B.9) or runs past
+  its end. A refusal stops the composition before the later modules attach.
+- **The pass bound.** A pass of the three costs at most `CTRL_APP_PASS_MAX`
+  mailbox accesses: the pass of ADP and ACMP (`ACMP_MBX_PASS_MAX`, 1,012 at
+  one interface) plus MAAP's share of 568, its costliest action on each of
+  the 8 events (48), its 2 records of the maap channel (20 + 48) and its
+  poll on each interface (48). That is 1,580 at one interface and 1,659 at
+  two. Every pass count of `acmp_mbx.h` and of the MAAP page holds in the
+  composed loop with this pass in place of its own
+  ([design page](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)).
+
+MAAP's allocation reaches ACMP's talker only through the integrator's
+`source` port (`acmp.h`): the port reports `dest_mac_valid` and the stream's
+destination, and the app does not connect it to the stream-address port.
+
+`test_acmp_mbx.cpp` holds the composition's checks, in both ACMP arms: U6
+(the attach order, every channel and its interrupt, disjoint slots each
+holding its own module's arm, MAAP acquiring its range beside the other
+two over four seconds), U7 (the refusals) and F6 (events and the acmp and
+maap rings backlogged: the worst pass 231 accesses at one interface and 233
+at two).
+
 ## The host test
 
 The driver compiles the firmware for the host exactly as the target
@@ -96,10 +141,10 @@ hand-rolled checks and the coverage ratchet are described in
 | `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
 | `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
-| `acmp` | `test_acmp.cpp`, `test_acmp_mbx.cpp` | the ACMP core over fake ports (every listener command, response, timer and SRP event in every state Table 5.30 gives it, each response field by field; the talker's answers; the lock; responses keyed on the consumer's unique ID; sequence IDs; one timer per interface; owed frames and the response before its notification; the discovery machine cell by cell; the saved record; the no-callback guard), then the adapter on the model: the channel and its filter, the timer slot and the tag rule, the ADP channel's tap, the gPTP pair, the adapter's refusals, every path's service cost (the H-ACMP and H-DISC hooks), an owed response behind a full ring under a HAL that sleeps, full backlogs and the composition |
+| `acmp` | `test_acmp.cpp`, `test_acmp_mbx.cpp` | the ACMP core over fake ports (every listener command, response, timer and SRP event in every state Table 5.30 gives it, each response field by field; the talker's answers; the lock; responses keyed on the consumer's unique ID; sequence IDs; one timer per interface; owed frames and the response before its notification; the discovery machine cell by cell; the saved record; the no-callback guard), then the adapter on the model: the channel and its filter, the timer slot and the tag rule, the ADP channel's tap, the gPTP pair, the adapter's refusals, every path's service cost (the H-ACMP and H-DISC hooks), an owed response behind a full ring under a HAL that sleeps, full backlogs and the composition, with ADP, ACMP and MAAP composed together ([The composition](#the-composition)) |
 | `acmpwalk` | `acmp_walk.cpp` | the processor's own ACMP expectations, reused: its F05.3 matrix model of Table 5.30 in lock step with the firmware (88 cells), its Table 5.54 transcription (33 cells) and its talker suite's F05.11 constants, each difference between the two asserted to be what it is |
 | `acmpnvm` | `test_acmp_nvm.cpp` | the core and its binding owner on lane F1's store over the host flash model, at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, the started flags, an unread slot refusing persistence, a refused record, the roll-back and every other group forwarded, and a D3 roll-back (at the port and at a boot) leaving the bindings applied |
-| `acmpif2` | `test_acmp_mbx.cpp`, `acmp_if2.cpp` | the adapter's tests again with the firmware and the model compiled against the contract elaborated for two AVB interfaces (written into the build by `gen_mailbox.py`): each interface's timer slot, tag, gPTP pair, bound-talker table and every latency path |
+| `acmpif2` | `test_acmp_mbx.cpp`, `acmp_if2.cpp` | the adapter's tests again with the firmware and the model compiled against the contract elaborated for two AVB interfaces (written into the build by `gen_mailbox.py`): each interface's timer slot, tag, gPTP pair, bound-talker table and every latency path, and the three-way composition |
 | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
 | `maap`, `maap_if2`, `maap_debug` | `test_maap.cpp`, `test_maap_mbx.cpp`, `test_maap_debug.cpp` | Annex B, stream CSR output, H-MAAP at one/two interfaces, and synchronous reentry refusal |
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
@@ -147,7 +192,8 @@ issue #168.
 ### Planted defects
 
 `--self-test` writes each defect of `ctrl_mutants.py` (with lane F3's
-`acmp_mutants.py` appended) into a copy of this tree and requires the arm it
+`acmp_mutants.py` and lane F2's `maap_mutants.py` appended) into a copy of
+this tree and requires the arm it
 names to exit 1 with a `[FAIL]` line naming the
 GoogleTest test and carrying the check's own words; a defect that breaks the
 build, or reddens only other tests, is an escape. The arms: ADP clause defects caught by the walk (one per walked
@@ -172,7 +218,7 @@ a byte early, a tuple's message types ignored, a message_type refusal left
 uncounted, a DEFEND taken to any unicast), and the firmware's side has its
 own: the own MAC unguarded or halved, FILTER_MISMATCH read from another register (`unit` and
 `port`), the own MACs written after the channels open (`port`) and the app's
-own MAC not the entity's (`unit`). Lane F3 adds 254 defects for the
+own MAC not the entity's (`unit`). Lane F3 adds 269 defects for the
 `acmp`, `acmpwalk`, `acmpnvm` and `acmpif2` arms (with the driver's and the
 model's for the bound-talker table in `unit` and `model`): a defect in each clause step, each
 response field, each guard term, each timer, the owed queue and the #653
@@ -183,10 +229,21 @@ forwarding; round 2's AVTP version check, TMR_NO_RESP from the accepted send,
 the slot range, the per-interface wiring at two interfaces, the binding
 record's flags and length, the D3 roll-back, each timer across the
 millisecond wrap and the bound-talker table; round 4's TMR_NO_RESP from a
-clock read before the probe's send; and eight wrong numbers in `acmp.h` itself, which the tests
+clock read before the probe's send; round 6's for the composition with
+MAAP: each overlap of MAAP's slots with ACMP's or ADP's, MAAP attached after
+the open, before ACMP, started in the compose or never, its channel left
+unbound, each refusal dropped or moved off its boundary, lane F2's entry
+taking no port or dropping its range, and a MAAP handler overrunning the
+three-way pass bound; and eight wrong numbers in `acmp.h` itself, which the tests
 catch because they spell the standards' values (`acmp_fake.hpp`, `spec`),
-never the header's. They are `acmp_mutants.py`'s table, rounds 2 and 4's in
-`acmp_review_mutants.py`. Every test of those
+never the header's. They are `acmp_mutants.py`'s table, rounds 2, 4 and 6's
+in `acmp_review_mutants.py`. Round 6 re-plants four defects whose text the
+composition moved, each with its test and words: the pool bound after the
+mailbox (F0) and ACMP never composed read the compose's ACMP block, and lane
+F2's MAAP receive interrupt and filter bit, which the app no longer writes,
+are dropped where `ctrl_loop_open()` writes them. Lane F2's own defects
+(96, `maap_mutants.py`) grade the `maap`, `maap_if2` and `maap_debug` arms;
+its README lists them. Every test of those
 arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
 store suite does. Some FC filter defects in the host model also name
 lane F3's own-unicast and FILTER_MISMATCH checks. With
@@ -228,15 +285,16 @@ a reviewed change to `LWSRP_REV`.
 ## Linked size
 
 `ctrl_image.py` links the firmware as a Mark II platform composes it
-([`rv32_image/image_main.c`](test/rv32_image/image_main.c)): the app, the
-binding owner and lane F1's store on the LiteSPI port at the shape's
+([`rv32_image/image_main.c`](test/rv32_image/image_main.c)): the app with
+ADP, ACMP and MAAP, the binding owner, MAAP's allocation output on the
+datapath CSR window, and lane F1's store on the LiteSPI port at the shape's
 container, booted in the order above, every source compiled with its gate's
 RV32I flags plus `-DNDEBUG`, one section per function and object, and linked
 at `--gc-sections` into one 128 KB block-RAM region
 ([`image.ld`](test/rv32_image/image.ld)), so only what the composition
 reaches counts (#665, acceptance addition 6030870481). The integrator's
-owners (the lock, the sources, SRP, the notifier, every other saved group)
-are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
+owners (the lock, the sources, SRP, the notifier, every other saved group,
+the CSR window's two accesses) are stubs; the C runtime the SoC's libbase supplies is linked from byte-loop
 stand-ins, reported apart (64 bytes: `memset` and `memcpy`, the only ones the
 composition reaches); lwSRP's pool is the host tests' 256 bytes until F4
 sizes it; the stack is not counted. `--base REV` measures another revision's
@@ -250,9 +308,10 @@ helper the `rv32` arm admits (none is a floating-point one), each a
 shift-and-add or shift-and-subtract loop that must be a leaf. A helpers
 object that leaves a symbol open or calls a helper is refused, since GCC
 lowers a `*` inside `__mulsi3` into a call to `__mulsi3`. In the SoC image
-LiteX's `libcompiler_rt` supplies them. They are reported apart: 412 bytes,
-`__lshrdi3`, `__muldi3`, `__mulsi3`, `__udivdi3` and `__umoddi3` (the only
-ones the composition reaches) and their shared divide loop.
+LiteX's `libcompiler_rt` supplies them. They are reported apart: 508 bytes,
+`__lshrdi3`, `__muldi3`, `__mulsi3`, `__udivdi3`, `__umoddi3` and
+`__umodsi3` (the only ones the composition reaches; MAAP's code brings
+`__umodsi3`) and their two divide loops.
 
 Before any figure is read, the linked ELF is audited, and any finding
 refuses the measurement:
@@ -266,7 +325,7 @@ refuses the measurement:
   to address 0 and leaves no trace in the image, so the inputs are read.
 
 ```sh
-python3 sw/firmware/ctrl/test/ctrl_image.py --base d51b373ad7e8e8381af2797be3ebb8ee45c62e3c
+python3 sw/firmware/ctrl/test/ctrl_image.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
 python3 sw/firmware/ctrl/test/ctrl_image_selftest.py --require-rv32
 ```
 
@@ -285,27 +344,28 @@ the sha256 of its `libgcc.a`, which is not linked. That is what names the
 toolchain of a table. Another build at the SDK's path prints another
 identity.
 
-At lane F3 round 5, with the pinned SDK of `scripts/ci_rv32_sdk.py`
+At lane F3 round 6, with the pinned SDK of `scripts/ci_rv32_sdk.py`
 (`riscv32-ilp32d--glibc--stable-2025.08-1`, archive sha256
 `d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f`), whose
 compiler's version line reports GCC 14.3.0 from the SDK build
 `2021.11-18033-g83947c7bb6` (`ctrl_image.py` prints the line in full) and
 whose `libgcc.a` has sha256
 `d8ebca8cf6ad31cd50695f79e91e86a716d3b1761fbbefd5ee7b0627a2d0af58`, against
-dev `d51b373a` (the app without ACMP, the same store):
+dev `e21c1ca0` (the app with ADP and MAAP through `ctrl_app_start_maap()`,
+no ACMP, the same store):
 
 | Shape | STREAM_INPUTs / OUTPUTs | text | rodata | data | bss | total | of 128 KB |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 27,700 (+10,852) | 736 (+36) | 0 (+0) | 11,280 (+4,848) | 39,716 (+15,736) | 30.3 % |
-| `endstation_ax7101_8x8` (largest) | 9 / 9 | 27,704 (+10,852) | 736 (+36) | 0 (+0) | 21,648 (+4,864) | 50,088 (+15,752) | 38.2 % |
+| `endstation_ax7101_1x1_tdm8` (shipping) | 2 / 2 | 33,444 (+10,768) | 748 (+32) | 0 (+0) | 12,416 (+4,848) | 46,608 (+15,648) | 35.6 % |
+| `endstation_ax7101_8x8` (largest) | 9 / 9 | 33,448 (+10,768) | 748 (+32) | 0 (+0) | 22,784 (+4,848) | 56,980 (+15,648) | 43.5 % |
 
-Every image passes the audit (`rv32i2p1`, 6,925 and 6,926 words at the
-head, 4,212 and 4,213 at the base). The text includes the 64 bytes of
-runtime stand-ins and the 412 bytes of helpers, at the head and the base.
+Every image passes the audit (`rv32i2p1`, 8,361 and 8,362 words at the
+head, 5,669 and 5,670 at the base). The text includes the 64 bytes of
+runtime stand-ins and the 508 bytes of helpers, at the head and the base.
 
-The static objects: the app, 6,800 bytes at every shape (ACMP's state 4,720
+The static objects: the app, 7,904 bytes at every shape (ACMP's state 4,720
 at its maxima of 16 sinks, 16 sources and four interfaces, the loop 1,748,
-the pool's header 204, ADP's 124), the store's stage (3,344 at the shipping
+MAAP's 1,104, the pool's header 204, ADP's 124), the store's stage (3,344 at the shipping
 shape, 13,264 at the largest), its payload buffer (136, 576), chunk (256)
 and state (288), and the pool's arena (256). ACMP's state does not follow
 the shape: the sinks and sources it serves are a run-time configuration
