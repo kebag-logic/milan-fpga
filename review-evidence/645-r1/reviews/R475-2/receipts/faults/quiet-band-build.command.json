@@ -1,0 +1,14 @@
+{
+  "cwd": "$REVIEWS/645-r475-2-packet/scratch/faults/quiet-band",
+  "argv": [
+    "$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "--binary",
+    "--timing",
+    "-j",
+    "8",
+    "-Wno-fatal",
+    "--top-module",
+    "settle_control",
+    "$REVIEWS/645-r475-2-packet/scratch/faults/quiet-band/settle_control.sv"
+  ]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "one-sided",
+    "rc": 1,
+    "killed": true,
+    "expected": "[FAIL] LRC: ten left drops five excess events on both pairs"
+  },
+  {
+    "name": "settle-counted",
+    "rc": 1,
+    "killed": true,
+    "expected": "[FAIL] LRC: no recentre moved the dup counter"
+  },
+  {
+    "name": "high-band",
+    "rc": 1,
+    "killed": true,
+    "expected": "excursion did not arm"
+  },
+  {
+    "name": "quiet-band",
+    "rc": 1,
+    "killed": true,
+    "expected": "quiet noise armed"
+  },
+  {
+    "name": "early-rearm",
+    "rc": 1,
+    "killed": true,
+    "expected": "re-armed before quiet dwell"
+  }
+]
