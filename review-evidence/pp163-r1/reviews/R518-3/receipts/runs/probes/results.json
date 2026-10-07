@@ -1,0 +1,96 @@
+{
+ "golden": {
+  "status": "PASS",
+  "rc": 0,
+  "tally": "WD: 4 checks, 0 failures",
+  "failing": [],
+  "edits": 0,
+  "edit_text": []
+ },
+ "rp-abort-mask-dropped": {
+  "status": "KILLED",
+  "rc": 1,
+  "tally": "WD: 4 checks, 1 failures",
+  "failing": [
+   "WD4"
+  ],
+  "edits": 1,
+  "edit_text": [
+   {
+    "old": "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]\n",
+    "new": "  assign arb_start_abort_w = 1'b0\n"
+   }
+  ]
+ },
+ "rp-head-mask-dropped": {
+  "status": "SURVIVED",
+  "rc": 0,
+  "tally": "WD: 4 checks, 0 failures",
+  "failing": [],
+  "edits": 1,
+  "edit_text": [
+   {
+    "old": "  assign laneq_org_withdraw_head_w = (laneq_org_cnt_r != 4'd0)\n                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
+    "new": "  assign laneq_org_withdraw_head_w = 1'b0;\n"
+   }
+  ]
+ },
+ "rp-compact-mask-dropped": {
+  "status": "SURVIVED",
+  "rc": 0,
+  "tally": "WD: 4 checks, 0 failures",
+  "failing": [],
+  "edits": 1,
+  "edit_text": [
+   {
+    "old": "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
+    "new": "          && 1'b1) begin\n"
+   }
+  ]
+ },
+ "rp-lane-mask-dropped": {
+  "status": "SURVIVED",
+  "rc": 0,
+  "tally": "WD: 4 checks, 0 failures",
+  "failing": [],
+  "edits": 2,
+  "edit_text": [
+   {
+    "old": "  assign laneq_org_withdraw_head_w = (laneq_org_cnt_r != 4'd0)\n                                   && org_withdraw_mask_r[laneq_org_r[0]];\n",
+    "new": "  assign laneq_org_withdraw_head_w = 1'b0;\n"
+   },
+   {
+    "old": "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin\n",
+    "new": "          && 1'b1) begin\n"
+   }
+  ]
+ },
+ "rp-mask-lowest-only": {
+  "status": "KILLED",
+  "rc": 1,
+  "tally": "WD: 4 checks, 1 failures",
+  "failing": [
+   "WD4"
+  ],
+  "edits": 1,
+  "edit_text": [
+   {
+    "old": "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;\n",
+    "new": "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w & (~org_withdraw_slot_mask_w + 8'd1);\n"
+   }
+  ]
+ },
+ "rp-mask-held-two": {
+  "status": "SURVIVED",
+  "rc": 0,
+  "tally": "WD: 4 checks, 0 failures",
+  "failing": [],
+  "edits": 1,
+  "edit_text": [
+   {
+    "old": "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;\n",
+    "new": "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w | (org_withdraw_mask_r & {8{|org_withdraw_slot_mask_w}});\n"
+   }
+  ]
+ }
+}

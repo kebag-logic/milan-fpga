@@ -1,0 +1,8 @@
+4463c4463
+<                                    && org_withdraw_slot_mask_w[laneq_org_r[0]];
+---
+>                                    && 1'b0;
+4483c4483
+<           && !org_withdraw_slot_mask_w[laneq_org_r[i]]) begin
+---
+>           && 1'b1) begin

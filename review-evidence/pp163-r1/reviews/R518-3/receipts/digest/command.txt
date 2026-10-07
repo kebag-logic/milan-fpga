@@ -1,0 +1,12 @@
+Evidence branch kebag-logic/milan-fpga pp163-review-evidence at 350e06ae (contains 7e552ca5, 90f80dda, 386d2f42); files read from review-evidence/pp163-r1.
+Parent kebag-logic/milan-fpga 28f9666feab2b2ba287643c63ed3a16b1e0bb863 (blobs via git cat-file; no checkout).
+gptp-processor (Mister-M-alt/FPGA-gPTP) 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d; verilog-axis (alexforencich/verilog-axis) 48ff7a7e2ef782cf778d47910cf85835c64b1bce.
+Processor blobs from the reviewed clone at c4539ff107a6a4c7d2e4a4844182b00a2bf33c82 and 8947bafdd62b4bf991debf7bfd8cdb73994a3a81.
+
+python3 scripts/recompute_inputs.py --evidence EV/review-evidence/pp163-r1 --processor REPO --parent MILAN_FPGA --gptp GPTP --axis AXIS \
+  --parent-rev 28f9666feab2b2ba287643c63ed3a16b1e0bb863 --gptp-rev 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d \
+  --axis-rev 48ff7a7e2ef782cf778d47910cf85835c64b1bce \
+  --processor-rev c4539ff107a6a4c7d2e4a4844182b00a2bf33c82 --processor-rev 8947bafdd62b4bf991debf7bfd8cdb73994a3a81 > recompute.json
+python3 scripts/comment_only.py REPO c4539ff107a6a4c7d2e4a4844182b00a2bf33c82 8947bafdd62b4bf991debf7bfd8cdb73994a3a81 hdl/top/protocol_processor_top.sv
+python3 scripts/comment_only.py REPO c9f74b6866a63dd3c0e4534724bfc07a86ad142b c4539ff107a6a4c7d2e4a4844182b00a2bf33c82 hdl/top/protocol_processor_top.sv   # control: must report unequal
+python3 scripts/verify_measurement.py EV/review-evidence/pp163-r1

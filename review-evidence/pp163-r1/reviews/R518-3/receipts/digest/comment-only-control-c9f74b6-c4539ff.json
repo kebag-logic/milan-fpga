@@ -1,0 +1,23 @@
+{
+ "path": "hdl/top/protocol_processor_top.sv",
+ "old": "c9f74b6866a63dd3c0e4534724bfc07a86ad142b",
+ "new": "c4539ff107a6a4c7d2e4a4844182b00a2bf33c82",
+ "old_tokens": 24599,
+ "new_tokens": 24634,
+ "token_streams_equal": false,
+ "changed_lines": 23,
+ "changed_lines_not_starting_with_comment": [
+  "  logic [7:0]              org_withdraw_mask_r;",
+  "  always_ff @(posedge clk_i) begin : withdraw_mask_stage",
+  "    if (!rst_n) org_withdraw_mask_r <= '0;",
+  "    else        org_withdraw_mask_r <= org_withdraw_slot_mask_w;",
+  "  end",
+  "                                   && org_withdraw_slot_mask_w[laneq_org_r[0]];",
+  "                                   && org_withdraw_mask_r[laneq_org_r[0]];",
+  "          && !org_withdraw_slot_mask_w[laneq_org_r[i]]) begin",
+  "          && !org_withdraw_mask_r[laneq_org_r[i]]) begin",
+  "  assign arb_start_abort_w = org_withdraw_slot_mask_w[ser_slot_w]",
+  "  assign arb_start_abort_w = org_withdraw_mask_r[ser_slot_w]"
+ ],
+ "changed_lines_with_directive_keyword": []
+}

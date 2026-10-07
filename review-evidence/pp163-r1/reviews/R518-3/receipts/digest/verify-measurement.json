@@ -1,0 +1,94 @@
+{
+ "all_rc_zero": {
+  "value": {
+   "cone-m3final.rc": "0",
+   "gate-m3final.rc": "0",
+   "ooc-m3final.rc": "0",
+   "paths-m3final.rc": "0",
+   "prepare-m3final.rc": "0",
+   "record-m3final.rc": "0"
+  },
+  "ok": true
+ },
+ "record": {
+  "value": {
+   "design": "KL_pp_shadow",
+   "flow": [
+    "create_project -force -name alinx_ax7101 -part xc7a100t-fgg484-2",
+    "set_param general.maxThreads 2",
+    "synth_design -directive AreaOptimized_high -top KL_pp_shadow -part xc7a100t-fgg484-2 -mode out_of_context"
+   ],
+   "clock": [
+    "20.000"
+   ],
+   "inputs_sha256": "24ba6a244a83a0b764e6de5131a9c94752135f01ecab5afad83258c7b4767be1",
+   "WNS_ns": 3.337,
+   "WHS_ns": 0.159
+  },
+  "ok": true
+ },
+ "gate": {
+  "value": [
+   "endpoint ooc-1x1: $VALIDATION_STORAGE/pp163-a553/meas/ooc-m3final",
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ "cone_stdout_vs_json": {
+  "value": {
+   "stdout": [
+    [
+     "187",
+     "561",
+     "328"
+    ],
+    "17990",
+    "$VALIDATION_STORAGE/pp163-a553/meas/ooc-m3final/baseline_synth.dcp"
+   ],
+   "json": [
+    187,
+    561,
+    328,
+    17990
+   ]
+  },
+  "ok": true
+ },
+ "histogram": {
+  "value": {
+   "sum": 17990,
+   "max_bin": 16,
+   "above_20_bins": 0,
+   "max_levels": 16,
+   "above_20": 0
+  },
+  "ok": true
+ },
+ "summary": {
+  "value": {
+   "group_paths_total": 17990,
+   "deepest_group": 16,
+   "header": [
+    "17990",
+    "16"
+   ]
+  },
+  "ok": true
+ },
+ "setup_slack": {
+  "value": {
+   "failing_endpoints": 0,
+   "worst_slack_ns": 3.337,
+   "total_violation_ns": 0.0
+  },
+  "ok": true
+ },
+ "manifest": {
+  "value": {
+   "files": 32,
+   "unlisted_or_mismatched": []
+  },
+  "ok": true
+ },
+ "all_ok": true
+}

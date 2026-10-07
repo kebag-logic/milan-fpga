@@ -1,0 +1,32 @@
+  [i] WD bit 0: stalled 1, probe queued 1, held 1, let go 1; the cancellation at command clock 40; [-1 st 0 owner 0 sent 1 start 0 queue 1] [+0 st 1 owner 7 sent 0 start 1 queue 1] [+1 st 1 owner 7 sent 1 start 0 queue 1] [+2 st 1 owner 7 sent 1 start 0 queue 0]; 1 probe(s), deregistration 0, answers 1, idle 1
+  [i] WD bit 1: stalled 1, probe queued 1, held 1, let go 1; the cancellation at command clock 40; [-1 st 2 owner 0 sent 1 start 0 queue 1] [+0 st 0 owner 0 sent 1 start 0 queue 1] [+1 st 1 owner 7 sent 0 start 0 queue 1] [+2 st 0 owner 7 sent 0 start 0 queue 0]; 0 probe(s), deregistration 0, answers 1, idle 1
+  [i] WD4 c+0: cancel 1, response 0/0, busy 3, release 0/0, arb 0/0, slot 0, start 0, queue 2
+  [i] WD4 c+1: cancel 0, response 1/1, busy 2, release 1/2, arb 1/7, slot 3, start 0, queue 2
+  [i] WD4 c+2: cancel 0, response 0/1, busy 0, release 1/3, arb 0/7, slot 3, start 0, queue 0
+WD: 4 checks, 0 failures
+[build defaults, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 4 checks, 0 failures
+FAIL: this build's tally cannot be recorded for the Makefile
+Command exited with non-zero status 1
+	Command being timed: "./obj_tdf/Vpp_top_tdf --withdraw-only"
+	User time (seconds): 246.58
+	System time (seconds): 0.01
+	Percent of CPU this job got: 96%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:16.39
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4224
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 335
+	Voluntary context switches: 34
+	Involuntary context switches: 3145
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 8
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
