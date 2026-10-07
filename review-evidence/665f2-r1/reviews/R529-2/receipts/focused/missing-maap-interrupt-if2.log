@@ -1,0 +1,81 @@
+[==========] Running 13 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 13 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 12200 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 15200 ns from original deadline (model)
+  H-MAAP timer 2: 56 accesses, 20500 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 23800 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+[       OK ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[       OK ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[       OK ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.AppWaitWakesForMaapWithinBudget
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:282: Failure
+Expected equality of these values:
+  model.irq_enable
+    Which is: 257
+  (1u << (0u + 0u)) | (1u << (0u + 3u)) | (1u << 8u)
+    Which is: 265
+MAAP wake preserves ADP and event interrupts
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: MAAP wake preserves ADP and event interrupts
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:308: Failure
+Value of: input.woke
+  Actual: false
+Expected: true
+accepted MAAP wakes idle loop
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: accepted MAAP wakes idle loop
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:311: Failure
+Expected equality of these values:
+  app.maap.ifs[k].core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+woken input reaches indexed core
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: woken input reaches indexed core
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:312: Failure
+Expected equality of these values:
+  commits.size()
+    Which is: 4
+  previous + 1u
+    Which is: 5
+wake commits the conflict retry
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: wake commits the conflict retry
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget (0 ms)
+[ RUN      ] MaapHost.InterfaceOneStallDrainsWithinBudget
+  H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+[       OK ] MaapHost.InterfaceOneStallDrainsWithinBudget (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+[       OK ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 13 tests from MaapHost (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget
+
+ 1 FAILED TEST
+== ctrl H-MAAP mailbox: checks: 13   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 13 checks, exit 1)

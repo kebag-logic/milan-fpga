@@ -1,0 +1,25 @@
+positive maap rc 0
+positive maap_if2 rc 0
+positive maap_debug rc 0
+positive model rc 0
+positive port rc 0
+positive unit rc 0
+KILLED missing-maap-interrupt MaapHost.AppWaitWakesForMaapWithinBudget rc 1
+KILLED missing-maap-interrupt-if2 MaapHost.AppWaitWakesForMaapWithinBudget rc 1
+KILLED lost-preferred-range MaapCore.BeginBeforePortOperationalRetainsRange rc 1
+KILLED restart-reuses-base MaapCore.RestartDrawsNewRange rc 1
+KILLED priority-only-last MaapCore.PriorityAfterTiedOctets rc 1
+KILLED priority-drops-first MaapCore.PriorityAfterTiedOctets rc 1
+KILLED csr-listener-direction MaapCsr.EveryStreamAddressAndLossGate rc 1
+KILLED csr-early-enables MaapCsr.AdmissionAfterEveryDestinationWrite rc 1
+KILLED interface-one-no-poll MaapHost.InterfaceOneStallDrainsWithinBudget rc 1
+KILLED model-msg-type-off-by-one Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast rc 1
+KILLED model-tuple-msg-type-ignored Suite/MbxModelGroup.PassesOnTheModel/MaapDefendToOwnUnicast rc 1
+KILLED maap-numeric-mac-priority MaapCore.ReverseOctetPriority rc 1
+KILLED maap-late-service MaapHost.HMaapTimerCommitsAndIntervals rc 1
+KILLED maap-ignored-input-late MaapHost.IgnoredInputCommitsStateWithinOriginalBudget rc 1
+KILLED maap-generic-initial-handles-conflict AllStates/MaapCell.TableB7/0 rc 1
+KILLED maap-generic-probe-state-defends AllStates/MaapCell.TableB7/12 rc 1
+KILLED maap-generic-probe-defend-uses-priority AllStates/MaapCell.TableB7/10 rc 1
+KILLED maap-generic-equal-mac-wins MaapCore.ReverseOctetPriority rc 1
+CONTROLS 18 FAILURES 0

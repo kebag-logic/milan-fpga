@@ -1,0 +1,422 @@
+[==========] Running 36 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 15 tests from MaapCore
+[ RUN      ] MaapCore.InitialAndThreeRetransmissions
+[       OK ] MaapCore.InitialAndThreeRetransmissions (0 ms)
+[ RUN      ] MaapCore.ConstantsStrictTimersAndSeed
+[       OK ] MaapCore.ConstantsStrictTimersAndSeed (3 ms)
+[ RUN      ] MaapCore.ReverseOctetPriority
+<source>/sw/firmware/ctrl/test/test_maap.cpp:173: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+least significant octet decides first
+
+  [FAIL] MaapCore.ReverseOctetPriority: least significant octet decides first
+<source>/sw/firmware/ctrl/test/test_maap.cpp:175: Failure
+Expected equality of these values:
+  equal.core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+equal MAC is not lower
+
+  [FAIL] MaapCore.ReverseOctetPriority: equal MAC is not lower
+[  FAILED  ] MaapCore.ReverseOctetPriority (0 ms)
+[ RUN      ] MaapCore.PriorityAfterTiedOctets
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 0
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 0
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 1
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 1
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 2
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 2
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 3
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 3
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 4
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 4
+<source>/sw/firmware/ctrl/test/test_maap.cpp:189: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  wins ? 0u : 1u
+    Which is: 1
+every reversed octet decides, including first: 5
+
+  [FAIL] MaapCore.PriorityAfterTiedOctets: every reversed octet decides, including first: 5
+[  FAILED  ] MaapCore.PriorityAfterTiedOctets (0 ms)
+[ RUN      ] MaapCore.RestartDrawsNewRange
+[       OK ] MaapCore.RestartDrawsNewRange (0 ms)
+[ RUN      ] MaapCore.UniformDrawRejectsIncompleteBucket
+[       OK ] MaapCore.UniformDrawRejectsIncompleteBucket (0 ms)
+[ RUN      ] MaapCore.DefendEchoAndIntersection
+<source>/sw/firmware/ctrl/test/test_maap.cpp:225: Failure
+Expected equality of these values:
+  r.frames.back()
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', 'R' (82, 0x52), '0' (48, 0x30), ... }
+  expected
+    Which is: { '\x6' (6), '\0', '\0', '\0', '\0', '@' (64, 0x40), '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x2' (2), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\0', '\xFC' (252), ... }
+echo request and exact intersection
+
+  [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+<source>/sw/firmware/ctrl/test/test_maap.cpp:225: Failure
+Expected equality of these values:
+  r.frames.back()
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', 'R' (82, 0x52), '0' (48, 0x30), ... }
+  expected
+    Which is: { '\x6' (6), '\0', '\0', '\0', '\0', '@' (64, 0x40), '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x2' (2), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\x4' (4), ... }
+echo request and exact intersection
+
+  [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+<source>/sw/firmware/ctrl/test/test_maap.cpp:225: Failure
+Expected equality of these values:
+  r.frames.back()
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', 'R' (82, 0x52), '0' (48, 0x30), ... }
+  expected
+    Which is: { '\x6' (6), '\0', '\0', '\0', '\0', '@' (64, 0x40), '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x2' (2), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\0', '\xF8' (248), ... }
+echo request and exact intersection
+
+  [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+<source>/sw/firmware/ctrl/test/test_maap.cpp:225: Failure
+Expected equality of these values:
+  r.frames.back()
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', 'R' (82, 0x52), '0' (48, 0x30), ... }
+  expected
+    Which is: { '\x6' (6), '\0', '\0', '\0', '\0', '@' (64, 0x40), '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x2' (2), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\x2' (2), ... }
+echo request and exact intersection
+
+  [FAIL] MaapCore.DefendEchoAndIntersection: echo request and exact intersection
+[  FAILED  ] MaapCore.DefendEchoAndIntersection (0 ms)
+[ RUN      ] MaapCore.DisjointAdjacentZeroAndDefendRange
+[       OK ] MaapCore.DisjointAdjacentZeroAndDefendRange (0 ms)
+[ RUN      ] MaapCore.MalformedAndVersionCompatibility
+[       OK ] MaapCore.MalformedAndVersionCompatibility (0 ms)
+[ RUN      ] MaapCore.InitAndPreferredRangeBounds
+[       OK ] MaapCore.InitAndPreferredRangeBounds (0 ms)
+[ RUN      ] MaapCore.ReleaseLossAndRetry
+[       OK ] MaapCore.ReleaseLossAndRetry (0 ms)
+[ RUN      ] MaapCore.BeginBeforePortOperationalRetainsRange
+[       OK ] MaapCore.BeginBeforePortOperationalRetainsRange (0 ms)
+[ RUN      ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry
+[       OK ] MaapCore.StalledOutputRetainsOrderAndOriginalExpiry (0 ms)
+[ RUN      ] MaapCore.QueueBoundAndWithdrawal
+<source>/sw/firmware/ctrl/test/test_maap.cpp:351: Failure
+Expected equality of these values:
+  r.core.queued
+    Which is: 1
+  16u
+    Which is: 16
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal:     Which is: 16
+<source>/sw/firmware/ctrl/test/test_maap.cpp:352: Failure
+Expected equality of these values:
+  r.core.overflow
+    Which is: 0
+  1u
+    Which is: 1
+overload is counted as failure
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal: overload is counted as failure
+<source>/sw/firmware/ctrl/test/test_maap.cpp:353: Failure
+Value of: maap_poll(&r.core)
+  Actual: false
+Expected: true
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal: Expected: true
+<source>/sw/firmware/ctrl/test/test_maap.cpp:354: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 6
+  n + 2
+    Which is: 7
+poll has bounded work
+
+  [FAIL] MaapCore.QueueBoundAndWithdrawal: poll has bounded work
+[  FAILED  ] MaapCore.QueueBoundAndWithdrawal (0 ms)
+[ RUN      ] MaapCore.ReentrantPortsAreCountedAndIgnored
+[       OK ] MaapCore.ReentrantPortsAreCountedAndIgnored (0 ms)
+[----------] 15 tests from MaapCore (3 ms total)
+
+[----------] 3 tests from MaapCsr
+[ RUN      ] MaapCsr.EveryStreamAddressAndLossGate
+[       OK ] MaapCsr.EveryStreamAddressAndLossGate (0 ms)
+[ RUN      ] MaapCsr.ShapesAndCountRefusal
+[       OK ] MaapCsr.ShapesAndCountRefusal (0 ms)
+[ RUN      ] MaapCsr.AdmissionAfterEveryDestinationWrite
+[       OK ] MaapCsr.AdmissionAfterEveryDestinationWrite (0 ms)
+[----------] 3 tests from MaapCsr (0 ms total)
+
+[----------] 18 tests from AllStates/MaapCell
+[ RUN      ] AllStates/MaapCell.TableB7/0
+[       OK ] AllStates/MaapCell.TableB7/0 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/1
+[       OK ] AllStates/MaapCell.TableB7/1 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/2
+[       OK ] AllStates/MaapCell.TableB7/2 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/3
+[       OK ] AllStates/MaapCell.TableB7/3 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/4
+[       OK ] AllStates/MaapCell.TableB7/4 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/5
+[       OK ] AllStates/MaapCell.TableB7/5 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/6
+<source>/sw/firmware/ctrl/test/test_maap.cpp:156: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 0
+  restart ? 1u : 0u
+    Which is: 1
+Table B.7 conflict decision
+
+  [FAIL] AllStates/MaapCell.TableB7/6: Table B.7 conflict decision
+<source>/sw/firmware/ctrl/test/test_maap.cpp:161: Failure
+Expected equality of these values:
+  r.frames.back()[15]
+    Which is: '\x2' (2)
+  1u
+    Which is: 1
+loss restarts with PROBE
+
+  [FAIL] AllStates/MaapCell.TableB7/6: loss restarts with PROBE
+[  FAILED  ] AllStates/MaapCell.TableB7/6, where GetParam() = 6 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/7
+[       OK ] AllStates/MaapCell.TableB7/7 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/8
+[       OK ] AllStates/MaapCell.TableB7/8 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/9
+<source>/sw/firmware/ctrl/test/test_maap.cpp:157: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 2
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 1
+Table B.7 output count
+
+  [FAIL] AllStates/MaapCell.TableB7/9: Table B.7 output count
+[  FAILED  ] AllStates/MaapCell.TableB7/9, where GetParam() = 9 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/10
+[       OK ] AllStates/MaapCell.TableB7/10 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/11
+[       OK ] AllStates/MaapCell.TableB7/11 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/12
+<source>/sw/firmware/ctrl/test/test_maap.cpp:156: Failure
+Expected equality of these values:
+  r.core.conflicts
+    Which is: 1
+  restart ? 1u : 0u
+    Which is: 0
+Table B.7 conflict decision
+
+  [FAIL] AllStates/MaapCell.TableB7/12: Table B.7 conflict decision
+<source>/sw/firmware/ctrl/test/test_maap.cpp:163: Failure
+Expected equality of these values:
+  r.core.state
+    Which is: 1
+  static_cast<maap_state>(state)
+    Which is: 2
+
+  [FAIL] AllStates/MaapCell.TableB7/12:     Which is: 2
+<source>/sw/firmware/ctrl/test/test_maap.cpp:164: Failure
+Expected equality of these values:
+  r.core.base
+    Which is: 160395285254704
+  base
+    Which is: 160395285233920
+
+  [FAIL] AllStates/MaapCell.TableB7/12:     Which is: 160395285233920
+<source>/sw/firmware/ctrl/test/test_maap.cpp:166: Failure
+Expected equality of these values:
+  field(r.frames.back(), 0, 6)
+    Which is: 160395285298944
+  peer
+    Which is: 6597069766720
+DEFEND uses PROBE source
+
+  [FAIL] AllStates/MaapCell.TableB7/12: DEFEND uses PROBE source
+[  FAILED  ] AllStates/MaapCell.TableB7/12, where GetParam() = 12 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/13
+[       OK ] AllStates/MaapCell.TableB7/13 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/14
+[       OK ] AllStates/MaapCell.TableB7/14 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/15
+<source>/sw/firmware/ctrl/test/test_maap.cpp:157: Failure
+Expected equality of these values:
+  r.frames.size()
+    Which is: 5
+  before + ((defend || restart) ? 1u : 0u)
+    Which is: 6
+Table B.7 output count
+
+  [FAIL] AllStates/MaapCell.TableB7/15: Table B.7 output count
+<source>/sw/firmware/ctrl/test/test_maap.cpp:166: Failure
+Expected equality of these values:
+  field(r.frames.back(), 0, 6)
+    Which is: 160395285298944
+  peer
+    Which is: 2199023255744
+DEFEND uses PROBE source
+
+  [FAIL] AllStates/MaapCell.TableB7/15: DEFEND uses PROBE source
+[  FAILED  ] AllStates/MaapCell.TableB7/15, where GetParam() = 15 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/16
+[       OK ] AllStates/MaapCell.TableB7/16 (0 ms)
+[ RUN      ] AllStates/MaapCell.TableB7/17
+[       OK ] AllStates/MaapCell.TableB7/17 (0 ms)
+[----------] 18 tests from AllStates/MaapCell (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 36 tests from 3 test suites ran. (3 ms total)
+[  PASSED  ] 28 tests.
+[  FAILED  ] 8 tests, listed below:
+[  FAILED  ] MaapCore.ReverseOctetPriority
+[  FAILED  ] MaapCore.PriorityAfterTiedOctets
+[  FAILED  ] MaapCore.DefendEchoAndIntersection
+[  FAILED  ] MaapCore.QueueBoundAndWithdrawal
+[  FAILED  ] AllStates/MaapCell.TableB7/6, where GetParam() = 6
+[  FAILED  ] AllStates/MaapCell.TableB7/9, where GetParam() = 9
+[  FAILED  ] AllStates/MaapCell.TableB7/12, where GetParam() = 12
+[  FAILED  ] AllStates/MaapCell.TableB7/15, where GetParam() = 15
+
+ 8 FAILED TESTS
+== ctrl MAAP Annex B: checks: 36   failures: 8 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 8 failure(s) across 36 checks, exit 1)
+[==========] Running 12 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 12 tests from MaapHost
+[ RUN      ] MaapHost.HMaapTimerCommitsAndIntervals
+  H-MAAP timer 0: 30 accesses, 8300 ns from original deadline (model)
+  H-MAAP timer 1: 30 accesses, 11300 ns from original deadline (model)
+  H-MAAP timer 2: 56 accesses, 16600 ns from original deadline (model)
+  H-MAAP timer 3: 30 accesses, 19900 ns from original deadline (model)
+[       OK ] MaapHost.HMaapTimerCommitsAndIntervals (0 ms)
+[ RUN      ] MaapHost.HMaapConflictLossAndRetry
+  H-MAAP DEFEND: 47 accesses, 4600 ns from RX_HEAD (model)
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:124: Failure
+Expected equality of these values:
+  frame->bytes[15]
+    Which is: '\x1' (1)
+  2u
+    Which is: 2
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry:     Which is: 2
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:125: Failure
+Expected equality of these values:
+  frame->bytes[0]
+    Which is: '\x91' (145)
+  6u
+    Which is: 6
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry:     Which is: 6
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:125: Failure
+Expected equality of these values:
+  frame->bytes[5]
+    Which is: '\0'
+  0x40u
+    Which is: 64
+unicast DEFEND destination
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: unicast DEFEND destination
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:127: Failure
+Value of: inject(incoming(2, macs[0]))
+  Actual: false
+Expected: true
+
+  [FAIL] MaapHost.HMaapConflictLossAndRetry: Expected: true
+[  FAILED  ] MaapHost.HMaapConflictLossAndRetry (0 ms)
+[ RUN      ] MaapHost.HMaapFilterTupleAndRate
+[       OK ] MaapHost.HMaapFilterTupleAndRate (0 ms)
+[ RUN      ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:178: Failure
+Value of: inject(f)
+  Actual: false
+Expected: true
+
+  [FAIL] MaapHost.HMaapBacklogAndStallNeverRestartClock: Expected: true
+[  FAILED  ] MaapHost.HMaapBacklogAndStallNeverRestartClock (0 ms)
+[ RUN      ] MaapHost.StaleTagsForeignInputsAndLinkEdges
+[       OK ] MaapHost.StaleTagsForeignInputsAndLinkEdges (0 ms)
+[ RUN      ] MaapHost.AttachRefusalsAndTimerWrap
+[       OK ] MaapHost.AttachRefusalsAndTimerWrap (0 ms)
+[ RUN      ] MaapHost.InterfaceIsolationAndRangeEnvelope
+[       OK ] MaapHost.InterfaceIsolationAndRangeEnvelope (0 ms)
+[ RUN      ] MaapHost.ExplicitAppComposition
+[       OK ] MaapHost.ExplicitAppComposition (0 ms)
+[ RUN      ] MaapHost.AppWaitWakesForMaapWithinBudget
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:311: Failure
+Expected equality of these values:
+  app.maap.ifs[k].core.conflicts
+    Which is: 0
+  1u
+    Which is: 1
+woken input reaches indexed core
+
+  [FAIL] MaapHost.AppWaitWakesForMaapWithinBudget: woken input reaches indexed core
+  H-MAAP wake interface 0: 4000 ns from RX_HEAD (model)
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget (0 ms)
+[ RUN      ] MaapHost.CallbackWorkAndEveryOutputCount
+[       OK ] MaapHost.CallbackWorkAndEveryOutputCount (0 ms)
+[ RUN      ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+<source>/sw/firmware/ctrl/test/test_maap_mbx.cpp:381: Failure
+Expected equality of these values:
+  commits.size()
+    Which is: 2
+  n
+    Which is: 1
+ignored input does not transmit
+
+  [FAIL] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget: ignored input does not transmit
+[  FAILED  ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget (0 ms)
+[ RUN      ] MaapHost.AcquiredRangeFeedsExistingCsrPath
+[       OK ] MaapHost.AcquiredRangeFeedsExistingCsrPath (0 ms)
+[----------] 12 tests from MaapHost (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 8 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] MaapHost.HMaapConflictLossAndRetry
+[  FAILED  ] MaapHost.HMaapBacklogAndStallNeverRestartClock
+[  FAILED  ] MaapHost.AppWaitWakesForMaapWithinBudget
+[  FAILED  ] MaapHost.IgnoredInputCommitsStateWithinOriginalBudget
+
+ 4 FAILED TESTS
+== ctrl H-MAAP mailbox: checks: 12   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 12 checks, exit 1)
