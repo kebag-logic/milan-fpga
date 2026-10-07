@@ -1,0 +1,790 @@
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 7e671dcd1..2bf61364e 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -498,6 +498,18 @@ The capture crossbar hands the talker whole TDM frames (#617).
+ 
+ Every channel of one sample event is one TDM frame.
+ 
++After each enable, packetization waits for the first channel pair.
++
++Reset or disable clears that admission state for each talker.
++
++The first accepted pair captures sample time plus presentation offset.
++
++Partial sample frames cannot start an epoch with retained timestamps.
++
++IEEE 1722-2016 7.5 requires valid timestamps in normal mode.
++
++The [startup sweep](../../tb/verilator/aaf/sim_start.cpp) grades this boundary (#667).
++
+ | Term | Value | Derivation |
+ |---|---|---|
+ | Frame complete | the strobe of the frame's last pair: pair 3 on TDM8 | `KL_tdm_capture_master` strobes pair k at the end of slot 2k+1 |
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 21b0c768f..d76988361 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -193,11 +193,57 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | original hosted basis: at most 548 s |
++| every other default suite | 1800 s | retained; #673's near-limit survey appears below |
+ | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+-| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
++| `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
++| `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
++| `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
++authorizes those three increases within existing shard envelopes.
++The survey covers ten hosted runs on 2026-10-06.
++Its endpoints are `37420502040` and `37457223191`.
++Available logs provide 425 completed suite windows.
++Seven active jobs withheld logs; one run skipped suites.
++These windows include tally overhead between adjacent verdicts.
++Timeout windows establish cutoffs, never successful completion bounds.
++
++| Suite above 60% | Largest window | Previous limit | Usage | Run / job |
++|---|---|---|---|---|
++| `capture_coherence` | 1642.280 s PASS | 1800 s | 91.24% | [37429204551 / 112155955445](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955445) |
++| `milan_dp` | 3509.562 s PASS | 3600 s | 97.49% | [37424768281 / 112142195163](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195163) |
++| `milan_dp_mclk` | 1800.008 s TIMEOUT | 1800 s | 100.00% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `milan_dp_render` | 1285.710 s PASS | 1800 s | 71.43% | [37429204551 / 112155955318](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955318) |
++| `mmcm_servo` | 1147.315 s PASS | 1800 s | 63.74% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `pp_shadow` | 1201.263 s PASS | 1800 s | 66.74% | [37424768281 / 112142195196](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195196) |
++| `milan_dp_gptp` | 5400.003 s TIMEOUT | 5400 s | 100.00% | [37430728685 / 112160880673](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880673) |
++
++The largest completed `milan_dp_mclk` window was 1084.530 seconds.
++It came from run `37424768281`, job `112142195210`.
++The three default suites exceeding 80% receive increases.
++The remaining default suites retain their limits.
++The ruling assigns `milan_dp_gptp` scheduling to a follow-up.
++
++Each envelope substitutes new limits for changed suites.
++It adds each sibling's largest observed window independently.
++Job overhead equals total job time minus suite windows.
++The largest observed overhead is added for each shard.
++This includes setup, preflights, tally, upload, and cleanup.
++Every affected shard remains below 6480 seconds: 90% utilization.
++
++| Shard | New limit | Sibling maxima sum | Maximum overhead | Envelope | Remaining / 7200 s |
++|---|---|---|---|---|---|
++| 1/5 | 2400 s | 3381.779 s | 117.580 s | 5899.359 s | 1300.641 s / 18.06% |
++| 2/5 | 3600 s | 2517.453 s | 86.448 s | 6203.901 s | 996.099 s / 13.83% |
++| 4/5 | 4800 s | 0 s | 89.438 s | 4889.438 s | 2310.562 s / 32.09% |
++
++Overhead maxima come from jobs `112142195196`, `112155955407`, and `112142195163`.
++No requested limit needs trimming under this measured envelope.
++These samples cannot bound future runner or cache-miss delays.
++Checks, campaigns, shard assignments, and job timeouts remain unchanged.
++An explicit `SUITE_TIMEOUT` still overrides every selected suite's limit.
++
+ PR #563's first head timed out during servo mutations.
+ 
+ The #545 decision keeps all clean checks under 1800 seconds.
+@@ -238,11 +284,11 @@ The PR samples build candidate merges onto dev `57456af9`.
+ The day's observed spread was 1296-2460 s.
+ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+ That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+-The new budget leaves 1140.1 s: 31.7%, approximately 32%.
++That historical budget left 1140.1 s: 31.7%, approximately 32%.
+ These historical samples do not measure the corrected candidate.
+ The five default gmstep controls remain in `run` (#602).
+ The additional controls stay in the explicit `gmstep-mutants` campaign.
+-The hosted shards allow 120 minutes, accommodating this one-hour deadline.
++The hosted shards allow 120 minutes; #673's envelopes appear above.
+ If later exact-head margin falls below 10%, split further.
+ 
+ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 7e2d3d469..9e77c01cc 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -80,9 +80,10 @@ See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+ for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+-check count cannot be read. The default selection contains 54 suites, each
+-with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+-under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
++check count cannot be read.
++The default selection contains 60 suites.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+ rates. CI shards the default selection; the physical job runs nightly and on
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5932ffd25..bbb713a8e 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -166,10 +166,9 @@ The directory inventory includes one environment-dependent measurement exception
+ It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+ Its README provides measurement commands and the complete receipt.
+ 
+-The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+-The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+-It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
++The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+ The separate physical job permits 5400 seconds, including compilation.
+ Its workflow job permits 120 minutes, including toolchain setup.
+ Both target a four-core `ubuntu-latest` hosted worker.
+diff --git a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+index fb038e678..eae99385c 100644
+--- a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++++ b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+@@ -268,6 +268,10 @@ module KL_aaf_packetizer #(
+   logic [2:0] nsamp_r  [N_TALKERS_P];   //! samples accumulated in wr bank
+   logic       wbank_r  [N_TALKERS_P];   //! bank being filled
+   logic       pend_r   [N_TALKERS_P];   //! !wbank full, awaiting emission
++  //! After enable, wait for pair zero before collecting a sample frame.
++  //! Otherwise its last pair advances nsamp without capturing TCTX w4.
++  //! IEEE 1722-2016 7.5 requires the first sample's presentation time.
++  logic       started_r [N_TALKERS_P]; //! first pair accepted since enable
+ 
+   //! channels_per_frame flop mirror of TCTX w0.chans (clamped even 2..8;
+   //! reset 2 = the byte-identical stereo default, t0 included). Snoops the
+@@ -312,6 +316,7 @@ module KL_aaf_packetizer #(
+   //! still-pending frame (the old MVP frame_pend drop, per bank; blocking
+   //! only the bank-completing pair keeps channel alignment slot-structural)
+   wire pair_ok_w = pair_valid_i && pown_v_w && stream_en_i[pown_t_w] &&
++                   (started_r[pown_t_w] || pown_o_w == '0) &&
+                    !(pend_r[pown_t_w] && own_last_w &&
+                      (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1));
+ 
+@@ -583,6 +588,7 @@ module KL_aaf_packetizer #(
+         nsamp_r[t] <= '0;
+         wbank_r[t] <= 1'b0;
+         pend_r[t]  <= 1'b0;
++        started_r[t] <= 1'b0;
+         //! the build constant IS the wire: reset every talker to the
+         //! channels_per_frame this fabric emits (WIRE_CHANS_P, default 2 =
+         //! the historical 4'd2 literal, byte for byte)
+@@ -706,6 +712,7 @@ module KL_aaf_packetizer #(
+       // ---- pair capture / bank swap (after the FSM so a same-cycle
+       //      new-epoch pend set wins over the drain clear) ----------------
+       if (pair_ok_w) begin
++        started_r[pown_t_w] <= 1'b1;
+         //! the sample row advances on its LAST channel pair; the bank swap
+         //! on the last row's last pair (channel position is slot-addressed,
+         //! so drops can only repeat a row, never skew channels)
+@@ -732,6 +739,7 @@ module KL_aaf_packetizer #(
+       //! disabled stream: clear its accumulation (flat-talker semantics)
+       for (int t = 0; t < N_TALKERS_P; t++) begin
+         if (!stream_en_i[t]) begin
++          started_r[t] <= 1'b0;
+           nsamp_r[t] <= '0;
+           pend_r[t]  <= 1'b0;
+         end
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 198b59d6c..8d217e548 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -668,13 +668,15 @@ def runner_contract(text: str) -> list[str]:
+         problems.append("the per-suite wall-clock guard is missing")
+     budget = '''suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }'''
+     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+-        problems.append("the declared 1800/3600/5400-second suite budgets changed")
++        problems.append("the declared 1800/2400/3600/4800/5400-second suite budgets changed")
+     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index fbb02cc52..04f814bd3 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -18,6 +18,9 @@ A new reader is debt until review classifies it here.
+ """
+ 
+ DUT_READER_DISPOSITIONS = {
++    "tb/verilator/aaf/start_mutants.py":
++        "mutation campaign; plants named defects in isolated RTL and requires named assertion failures; "
++        "expected timestamps and samples are independent of RTL text",
+     "protocol-processor/tb/pp_top/acmp_mutants.py":
+         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
+         "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
+diff --git a/scripts/measure_test_evidence_selftest.py b/scripts/measure_test_evidence_selftest.py
+index 302544ab7..4e16490a8 100644
+--- a/scripts/measure_test_evidence_selftest.py
++++ b/scripts/measure_test_evidence_selftest.py
+@@ -291,10 +291,14 @@ def _arms_runner_contract(ck):
+     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
+                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
+                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
+-                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
++                     ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-4800", "SUITE_TIMEOUT:-3600"),
+                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
++                     ("capture_coherence)", "capture_coherence_typo)"),
+                      ("milan_dp_gptp)", "milan_dp)"),
+-                     ("    milan_dp)      ", "    milan_dp_render) "),
++                     ("milan_dp_mclk)", "milan_dp_render)"),
++                     ("milan_dp)", "milan_dp_render)"),
+                      ('TMO=$(suite_timeout "$suite")', 'TMO=2400')):
+         ck(f"a changed suite budget is rejected: {old}",
+            bool(runner_contract(runner.replace(old, new))))
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index 997bea9fb..133a9c8f5 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -36,7 +36,8 @@
+ #
+ # Environment:
+ #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
+-#                        Defaults: 1800 s; milan_dp gets 3600 s and the
++#                        Defaults: 1800 s; capture_coherence gets 2400 s,
++#                        milan_dp_mclk 3600 s, milan_dp 4800 s and the
+ #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
+ #                        See docs/testing/TESTING.md for the physical timer floor.
+ #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
+@@ -237,14 +238,17 @@ acquire_lock() {
+ 
+ #! Declared per-suite defaults; an explicit caller override retains its meaning.
+ #! The CI runner contract pins every budget and each named suite.
+-#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
+-#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+-#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
++#! #673, decision 6015726285: capture_coherence passed in 1642.280 s,
++#! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
++#! The new limits leave >=10% in each hosted shard's measured job envelope.
++#! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
+ suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }
+ 
+diff --git a/tb/verilator/aaf/Makefile b/tb/verilator/aaf/Makefile
+index 8e3e72a93..36ddf3945 100644
+--- a/tb/verilator/aaf/Makefile
++++ b/tb/verilator/aaf/Makefile
+@@ -1,4 +1,8 @@
+ VERILATOR ?= verilator
++VERILATOR_JOBS ?= 16
++START_RTL ?= ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++START_MDIR ?= obj_start
++START_JOBS ?= 4
+ TOP = aaf_talker_i2s
+ SRCS = ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/common/cdc_pair_fifo.sv
+ # Multi-stream talker lane (docs/overview/ARCHITECTURE.md): golden byte-compare (flat talker vs
+@@ -15,8 +19,17 @@ obj_nx/Vaaf_nx_wrap: $(NXSRCS) sim_main_nx.cpp
+ 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+ 	  -Wno-PINCONNECTEMPTY -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+ 	  $(NXSRCS) sim_main_nx.cpp -o Vaaf_nx_wrap
+-run: obj_dir/V$(TOP) obj_nx/Vaaf_nx_wrap
++startup-build:
++	$(VERILATOR) --cc --exe --build -j $(VERILATOR_JOBS) \
++	  --top-module KL_aaf_packetizer -GN_TALKERS_P=1 -GWIRE_CHANS_P=8 \
++	  --Mdir $(START_MDIR) -Wall -Wno-fatal \
++	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" $(START_RTL) $(abspath sim_start.cpp)
++startup: startup-build
++	$(abspath $(START_MDIR))/VKL_aaf_packetizer
++startup-mutants: startup
++	python3 start_mutants.py --jobs $(START_JOBS)
++run: obj_dir/V$(TOP) obj_nx/Vaaf_nx_wrap startup-mutants
+ 	./obj_dir/V$(TOP)
+ 	./obj_nx/Vaaf_nx_wrap
+-clean: ; rm -rf obj_dir obj_nx
+-.PHONY: all run clean
++clean: ; rm -rf obj_dir obj_nx obj_start
++.PHONY: all run clean startup startup-build startup-mutants
+diff --git a/tb/verilator/aaf/README.md b/tb/verilator/aaf/README.md
+new file mode 100644
+index 000000000..5f31a5a0d
+--- /dev/null
++++ b/tb/verilator/aaf/README.md
+@@ -0,0 +1,108 @@
++<!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++
++# AAF talker checks
++
++`make` runs both existing talker legs and startup checks.
++
++## Contents
++
++- **[Startup boundary](#startup-boundary)** -- Defines the exercised contract and sweep.
++- **[Defect controls](#defect-controls)** -- Names each planted defect and detecting assertion.
++- **[Running](#running)** -- Gives reproducible commands and expected results.
++- **[Limits](#limits)** -- Separates boundary simulation from bench measurements.
++
++## Startup boundary
++
++Issue #667 concerns retained timestamps after stream enable.
++
++The shape has one talker and eight wire channels.
++
++Four pair slots form each sample; six samples form packets.
++
++IEEE 1722-2016 7.5 associates timestamps with the first sample.
++
++Sections 4.3.2 and 4.4.4.9 define presentation time and encoding.
++
++Milan v1.2 5.3.8.10, Table 5.6 defines EARLY/LATE_TIMESTAMP counters.
++
++| Sweep dimension | Values |
++|---|---|
++| Fabric period | 20 ns |
++| Sample periods | 1041, 1042, 1042 cycles, repeated |
++| Pair spacing | 1, 26, 260 fabric cycles |
++| Enable phase | 0, 1, each later pair and following cycle, 1040 |
++| PHC origin | 0, 1000000000, 0xffe00000 ns |
++| Disabled interval | Cold start, 500000000 ns, 3800000000 ns |
++| Restart | Disable/re-enable; reset with enable held high |
++| Output stalls | Five cycles in seventeen during reset-start cases |
++| Initial sequence | 248, crossing modulo-256 wrap |
++
++The Cartesian sweep grades 486 starts and 4860 PDUs.
++
++Repeated phases in the compact-spacing case remain separate cases.
++
++Every first-to-second timestamp step must equal the steady step.
++
++Six rational sample periods equal exactly 125000 ns here.
++
++The tolerance is therefore zero, including modulo-2^32 wrap.
++
++Every timestamp independently matches its payload sample plus offset.
++
++Payload checks require complete, ordered eight-channel sample frames.
++
++Bounded loops require all ten PDUs, preventing vacuous success.
++
++Each case prints its first ten headers and sweep result.
++
++## Defect controls
++
++| Planted defect | Required failing assertion |
++|---|---|
++| Restore admission before pair zero | Startup step equals steady |
++| Retain admission across disable | Startup step equals steady |
++| Retain admission across reset | Startup step equals steady |
++| Omit presentation offset | Sample plus offset |
++| Clear normal-mode timestamp validity | Valid normal timestamp |
++| Hold sequence number | Consecutive sequence |
++| Never publish a completed bank | Bounded first ten |
++| Corrupt left sample bits | Complete sample rows |
++
++Each source fragment must occur exactly once before mutation.
++
++Every mutant requires exit 1 and its named failing assertion.
++
++Compilation failures and crashes fail the campaign.
++
++## Running
++
++```sh
++make -j16 -C tb/verilator/aaf
++make -j16 -C tb/verilator/aaf startup
++make -j16 -C tb/verilator/aaf startup-mutants START_JOBS=4
++```
++
++The startup leg passes 34020 checks.
++
++All eight mutations must be caught; commands return zero.
++
++`START_MDIR` selects the startup build directory.
++
++`TMPDIR` selects temporary storage for the mutation campaign.
++
++## Limits
++
++The boundary receives the post-bind enable, not ACMP traffic.
++
++The pair source models three legal delivery spacings.
++
++It does not instantiate the TDM capture or capture-map engines.
++
++Disabled clocks are elided while PHC time advances.
++
++This exposes retained state without simulating seconds of silence.
++
++Whole-datapath regressions exercise integration separately.
++
++The manager repeats the bench binds after merge and flashing.
+diff --git a/tb/verilator/aaf/sim_start.cpp b/tb/verilator/aaf/sim_start.cpp
+new file mode 100644
+index 000000000..f4dceb557
+--- /dev/null
++++ b/tb/verilator/aaf/sim_start.cpp
+@@ -0,0 +1,222 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// #667: grade the first ten PDUs at every enable phase, including rebinds.
++// The shipping 1x1 TDM8 packetizer receives the capture-map pair walk.
++// IEEE 1722-2016 7.5: each timestamp belongs to its first sample frame.
++#include "VKL_aaf_packetizer.h"
++#include "../../common/verilator_harness.hpp"
++#include "verilated.h"
++#include <array>
++#include <cstdint>
++#include <cstdio>
++#include <map>
++#include <string>
++#include <vector>
++
++namespace {
++using Frame = std::vector<uint8_t>;
++constexpr uint32_t kTransitNs = 2000000;
++constexpr int kTickNs = 20;
++constexpr int kPduPeriodNs = 125000;
++constexpr unsigned kPdus = 10;
++constexpr unsigned kSamplesLimit = 80;
++
++class Startup {
++ public:
++    explicit Startup(milan::tb::Checker& checks) : check(checks) {}
++    void run(uint64_t origin, int phase, int pair_stride, uint64_t idle_ns, bool reset_start,
++             bool stalled);
++
++ private:
++    void tick();
++    void cycles(unsigned count);
++    void sample(unsigned index, int enable_cycle = -1);
++    void reset();
++    void grade(const std::string& label);
++    static uint32_t word(const Frame& frame, unsigned offset);
++
++    const milan::tb::Model<VKL_aaf_packetizer> model;
++    VKL_aaf_packetizer* dut = model.get();
++    milan::tb::Checker& check;
++    std::vector<Frame> frames;
++    Frame current;
++    std::map<unsigned, uint32_t> sample_times;
++    uint64_t now_ns = 0;
++    unsigned cycle = 0;
++    int pair_stride_cyc = 1;
++    bool stall = false;
++};
++
++void Startup::tick() {
++    dut->ptp_ns_i = now_ns;
++    // Bounded stalls never approach one sample interval or exhaust a bank.
++    dut->m_axis_tready = !stall || cycle % 17 >= 5;
++    dut->clk_i = 0;
++    dut->eval();
++    if (dut->m_axis_tvalid && dut->m_axis_tready) {
++        for (unsigned byte = 0; byte < 8; ++byte) {
++            if ((dut->m_axis_tkeep >> byte) & 1)
++                current.push_back(static_cast<uint8_t>(dut->m_axis_tdata >> (8 * byte)));
++        }
++        if (dut->m_axis_tlast) {
++            frames.push_back(current);
++            current.clear();
++        }
++    }
++    dut->clk_i = 1;
++    dut->eval();
++    now_ns += kTickNs;
++    ++cycle;
++}
++
++void Startup::cycles(unsigned count) {
++    for (unsigned i = 0; i < count; ++i) tick();
++}
++
++void Startup::sample(unsigned index, int enable_cycle) {
++    // Four pair slots exercise compact, capture-map and physical TDM spacing.
++    // A rational 1041/1042/1042-cycle grid gives 48 kHz at 50 MHz.
++    const int length = index % 3 == 0 ? 1041 : 1042;
++    sample_times[index] = static_cast<uint32_t>(now_ns);
++    for (int offset = 0; offset < length; ++offset) {
++        if (offset == enable_cycle) {
++            dut->rst_n = 1;
++            dut->stream_en_i = 1;
++        }
++        const int slot = offset / pair_stride_cyc;
++        dut->pair_valid_i = slot < 4 && offset % pair_stride_cyc == 0;
++        dut->pair_slot_i = slot < 4 ? slot : 0;
++        // Every channel identifies its source sample and channel position.
++        dut->pair_l_i = (index << 4) + 2 * slot;
++        dut->pair_r_i = (index << 4) + 2 * slot + 1;
++        tick();
++    }
++    dut->pair_valid_i = 0;
++}
++
++void Startup::reset() {
++    dut->rst_n = 0;
++    dut->stream_en_i = 0;
++    dut->pair_valid_i = 0;
++    cycles(4);
++    dut->rst_n = 1;
++    cycles(4);
++}
++
++uint32_t Startup::word(const Frame& frame, unsigned offset) {
++    uint32_t value = 0;
++    for (unsigned byte = 0; byte < 4; ++byte)
++        value = (value << 8) | frame.at(offset + byte);
++    return value;
++}
++
++void Startup::grade(const std::string& label) {
++    check.dec((label + " bounded first ten").c_str(), frames.size(), kPdus);
++    if (frames.size() != kPdus) return;
++    std::array<uint32_t, kPdus> timestamps{};
++    for (unsigned pdu = 0; pdu < kPdus; ++pdu) {
++        const Frame& frame = frames[pdu];
++        check.dec((label + " frame bytes").c_str(), frame.size(), 234);
++        if (frame.size() != 234) return;
++        timestamps[pdu] = word(frame, 30);
++        const unsigned first_sample = word(frame, 42) >> 12;
++        const auto first = sample_times.find(first_sample);
++        check.dec((label + " first sample exists").c_str(), first != sample_times.end(), true);
++        if (first != sample_times.end()) {
++            check.dec((label + " sample plus offset").c_str(), timestamps[pdu],
++                     static_cast<uint32_t>(first->second + kTransitNs));
++        }
++        bool payload_ok = true;
++        for (unsigned row = 0; row < 6; ++row) {
++            for (unsigned channel = 0; channel < 8; ++channel) {
++                const uint32_t expected = (((first_sample + row) << 4) + channel) << 8;
++                payload_ok &= word(frame, 42 + 4 * (8 * row + channel)) == expected;
++            }
++        }
++        check.dec((label + " complete sample rows").c_str(), payload_ok, true);
++        check.dec((label + " valid normal timestamp").c_str(), frame[19] & 1, 1);
++        if (pdu != 0)
++            check.dec((label + " consecutive sequence").c_str(), frame[20],
++                     static_cast<uint8_t>(frames[pdu - 1][20] + 1));
++        std::printf("START-PDU %s n=%u seq=%u tv=%u ts=%08x\n", label.c_str(),
++                    pdu + 1, frame[20], frame[19] & 1, timestamps[pdu]);
++    }
++    // Six rational sample periods are exactly 125000 ns, including wrap.
++    // Later PDUs independently establish the steady step. No first-PDU skip.
++    const int32_t steady = static_cast<int32_t>(timestamps[9] - timestamps[8]);
++    check.dec((label + " steady period").c_str(), steady, kPduPeriodNs);
++    for (unsigned pdu = 1; pdu < kPdus; ++pdu)
++        check.dec((label + " startup step equals steady").c_str(),
++                 static_cast<int32_t>(timestamps[pdu] - timestamps[pdu - 1]), steady);
++    std::printf("START-SWEEP %s first_step=%d steady=%d tolerance_ns=0\n", label.c_str(),
++                static_cast<int32_t>(timestamps[1] - timestamps[0]), steady);
++}
++
++void Startup::run(uint64_t origin, int phase, int pair_stride, uint64_t idle_ns,
++                  bool reset_start, bool stalled) {
++    now_ns = origin;
++    pair_stride_cyc = pair_stride;
++    dut->dest_mac_i = 0x91e0f0000001ULL;
++    dut->station_mac_i = 0x020000000001ULL;
++    dut->vlan_vid_i = 2;
++    dut->vlan_pcp_i = 3;
++    dut->dom_ovr_i = 0;
++    dut->transit_ns_i = kTransitNs;
++    dut->ts_uncertain_i = 0;
++    dut->mr_i = 0;
++    dut->tctx_wr_en_i = 0;
++    dut->tctx_rd_en_i = 0;
++    reset();
++    // An arbitrary legal initial sequence exercises modulo-256 wrap.
++    dut->tctx_wr_addr_i = 3;
++    dut->tctx_wr_data_i = 248;
++    dut->tctx_wr_en_i = 1;
++    tick();
++    dut->tctx_wr_en_i = 0;
++    if (idle_ns != 0) {
++        dut->stream_en_i = 1;
++        for (unsigned index = 0; index < 13; ++index) sample(index);
++        // Stop with a partial epoch. A new timestamp must be acquired even
++        // though the unreset TCTX retains this previous stream's value.
++        if (reset_start) {
++            // Keep enable high through reset so its reset assignment is
++            // observed independently of the disabled-stream clear.
++            dut->rst_n = 0;
++            cycles(8);
++        }
++        else {
++            dut->stream_en_i = 0;
++            cycles(8);
++        }
++        // Elide the disabled interval's clocks, advancing only the PHC.
++        now_ns += idle_ns;
++    }
++    frames.clear();
++    current.clear();
++    sample_times.clear();
++    stall = stalled;
++    sample(13, phase);
++    for (unsigned index = 14; index < kSamplesLimit && frames.size() < kPdus; ++index)
++        sample(index);
++    const std::string label = "origin=" + std::to_string(origin)
++        + " phase=" + std::to_string(phase) + " idle=" + std::to_string(idle_ns)
++        + " stride=" + std::to_string(pair_stride_cyc)
++        + " reset=" + std::to_string(reset_start) + " stall=" + std::to_string(stalled);
++    grade(label);
++}
++}  // namespace
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    milan::tb::Checker check{"aaf-start"};
++    for (uint64_t origin : {uint64_t{0}, uint64_t{1000000000}, uint64_t{0xffe00000}})
++        for (int stride : {1, 26, 260})
++          for (int phase : {0, 1, stride, stride + 1, 2 * stride,
++                            2 * stride + 1, 3 * stride, 3 * stride + 1, 1040})
++            for (uint64_t idle : {uint64_t{0}, uint64_t{500000000}, uint64_t{3800000000}})
++                for (bool reset : {false, true}) {
++                    Startup start(check);
++                    start.run(origin, phase, stride, idle, reset, reset);
++                }
++    return check.report();
++}
+diff --git a/tb/verilator/aaf/start_mutants.py b/tb/verilator/aaf/start_mutants.py
+new file mode 100644
+index 000000000..9aac632df
+--- /dev/null
++++ b/tb/verilator/aaf/start_mutants.py
+@@ -0,0 +1,98 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Prove the startup checks reject stale timestamps and invalid first PDUs.
++
++Each arm builds a disposable packetizer through the suite's own recipe.
++Only rc 1 with the named assertion is a caught defect. Compile failures,
++crashes and missing assertions fail this campaign. All loops in the leg
++are bounded by sample counts, independently of DUT progress.
++"""
++
++import argparse
++import os
++import subprocess
++import tempfile
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = HERE / "../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
++# name, unique source text, replacement, required failed assertion
++MUTATIONS = (
++    ("stale admission restored",
++     "                   (started_r[pown_t_w] || pown_o_w == '0) &&\n", "",
++     "startup step equals steady"),
++    ("disable keeps the previous start",
++     "          started_r[t] <= 1'b0;", "          started_r[t] <= started_r[t];",
++     "startup step equals steady"),
++    ("reset keeps the previous start",
++     "        started_r[t] <= 1'b0;", "        started_r[t] <= started_r[t];",
++     "startup step equals steady"),
++    ("offset omitted", "+ transit_ns_i[32*(32'(pown_t_w)) +: 32];", "+ 32'd0;",
++     "sample plus offset"),
++    ("normal timestamp marked invalid",
++     "fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b1};",
++     "fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b0};", "valid normal timestamp"),
++    ("sequence held", "{24'd0, eseq_r + 8'd1}", "{24'd0, eseq_r}",
++     "consecutive sequence"),
++    ("bank never published", "pend_r[pown_t_w]  <= 1'b1;", "pend_r[pown_t_w]  <= 1'b0;",
++     "bounded first ten"),
++    ("left samples corrupt", "assign stg_wdata_w = {pair_l_i, pair_r_i};",
++     "assign stg_wdata_w = {pair_l_i ^ 24'd1, pair_r_i};", "complete sample rows"),
++)
++
++
++def run_arm(arm: tuple[str, str, str, str], parent: Path) -> bool:
++    """Build and grade one mutation without changing tracked sources."""
++    name, old, new, assertion = arm
++    source = RTL.read_text()
++    # Compare whole lines for reset/disable: their indentation distinguishes
++    # two sites. A substring count would mistake the longer indentation.
++    if "started_r[t]" in old:
++        old = "\n" + old + "\n"
++        new = "\n" + new + "\n"
++    if source.count(old) != 1:
++        print(f"[FAIL] {name}: expected one planting site", flush=True)
++        return False
++    work = parent / name.replace(" ", "_")
++    work.mkdir()
++    mutated = work / RTL.name
++    mutated.write_text(source.replace(old, new))
++    obj = work / "obj"
++    command = ["make", "-j16", "--no-print-directory", "-C", str(HERE),
++               "startup-build", f"START_RTL={mutated}", f"START_MDIR={obj}"]
++    with (work / "build.log").open("w") as log:
++        build = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False)
++    if build.returncode != 0:
++        print(f"[FAIL] {name}: build rc={build.returncode}", flush=True)
++        print((work / "build.log").read_text()[-4000:])
++        return False
++    run = subprocess.run([str(obj / "VKL_aaf_packetizer")], capture_output=True,
++                         text=True, check=False)
++    caught = run.returncode == 1 and any(
++        "[FAIL]" in line and assertion in line for line in run.stdout.splitlines())
++    print(f"[{'PASS' if caught else 'FAIL'}] {name}: {assertion}; rc={run.returncode}",
++          flush=True)
++    if not caught:
++        print((run.stdout + run.stderr)[-4000:])
++    return caught
++
++
++def main() -> int:
++    """Run every declared arm and refuse any missed defect."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--jobs", type=int, default=4)
++    args = parser.parse_args()
++    if args.jobs < 1:
++        parser.error("--jobs must be positive")
++    # TMPDIR selects physical scratch storage for the entire campaign.
++    with tempfile.TemporaryDirectory(prefix="aaf-start-", dir=os.environ.get("TMPDIR")) as temp:
++        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
++            results = list(pool.map(lambda arm: run_arm(arm, Path(temp)), MUTATIONS))
++    print(f"startup mutants: {sum(results)}/{len(results)} caught")
++    return 0 if all(results) else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index bff4c7a49..3f962ae20 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -306,7 +306,8 @@ The unchanged acquisition deadline expires before the acquired-publication check
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+ The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+-Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+ Physical regressions are therefore caught nightly, outside the PR aggregate.
+ Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index c15b5f188..5fca90b3a 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -28,8 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.
+-The historical `milan_dp` suite has its own 3600-second budget.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ 
+ The accounting verifier retains each failing DUT control transcript.
+ They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.

@@ -1,0 +1,25 @@
+af5be4710c3516cc247c353213d6939fa8d23f57 72d3780d23a0b96362f8ae64059311b866ff5776 04e1435a218908d2b12b4053e5dab2c2dcac2ebf Validate issue 679 merge-train candidate
+04e1435a218908d2b12b4053e5dab2c2dcac2ebf 0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe fix: exclude local definitions from firmware runtime resolution
+0a004a8cc2ad879e74d8e4168bd4a39a12d5dbbe 6714181d0c8a16e2983f85b724f4d688f5111835 Fix RV32 firmware object checks for the pinned SDK
+6714181d0c8a16e2983f85b724f4d688f5111835 16af003a22556fff8b4160ed7d80f3c908239688 6ca834a782a1bd5574d44998c8e214cf16df3441 Merge PR #675: Mark II split FT: GoogleTest/GoogleMock unit tests, tally listener and branch-coverage ratchet for the bare-metal firmware (#665)
+16af003a22556fff8b4160ed7d80f3c908239688 bd884631684ccf5060339efa92263d5c3e5c262c 4dab80ae4564ef8d6e1030564dcea4ba19235ee6 Merge PR #674: Mark II requirements: the split control plane as the default placement, the all-fabric build as an option (#664)
+72d3780d23a0b96362f8ae64059311b866ff5776 28cdb5891b2b2d8a79b94a5bc2fb703c9fa8c721 793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df Validate issue 673 merge-train candidate
+793dcd3f7867d85f8c1f5c9ef2b04dc9c2d9c5df 26bd6334a7b8b2a8582b36ae4729a71620546c14 docs: align suite deadline references with measured limits
+26bd6334a7b8b2a8582b36ae4729a71620546c14 bd884631684ccf5060339efa92263d5c3e5c262c ci: raise measured per-suite time limits for slow runners
+28cdb5891b2b2d8a79b94a5bc2fb703c9fa8c721 618875364d864c9c2d9f7a74fcad66c2d3ceefee 41bc9dac031526c1fd637ff1e801d3c6dc1260b4 Validate issue 667 merge-train candidate
+41bc9dac031526c1fd637ff1e801d3c6dc1260b4 5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 bd884631684ccf5060339efa92263d5c3e5c262c Merge dev bd884631 into 667-talker-start; move the start_mutants reader entry to measure_test_evidence_readers.py
+618875364d864c9c2d9f7a74fcad66c2d3ceefee 5615f52eb810c6104a8250b44004df3a2917cec8 6ca834a782a1bd5574d44998c8e214cf16df3441 Validate issue 665ft merge-train candidate
+bd884631684ccf5060339efa92263d5c3e5c262c 30e3c018b9add0cb182d8f1229eeec062218130d afa4e687234b80e9474aa6dd0dc756de16a241bd Merge PR #676: B13 bench: two-hour soak of dev 28f9666f and the talker-start EARLY timestamps (#667)
+5615f52eb810c6104a8250b44004df3a2917cec8 40ae4ce9859d2151bfdf28d99106dbb9b7216a83 4dab80ae4564ef8d6e1030564dcea4ba19235ee6 Validate issue 664 merge-train candidate
+6ca834a782a1bd5574d44998c8e214cf16df3441 89b02c7f4795b4cbde7f409100e6ef34e5c6e618 Say that the five ADP coverage exclusions rest on the no-callback rule #678 rules, not on adp.h as it stands, and which port call reaches each row's items (#665 FT)
+89b02c7f4795b4cbde7f409100e6ef34e5c6e618 7a2686aee15de32e16e875486c87cfbcbc4c661b Plant SIGBUS, SIGFPE and SIGILL, a suite's tear-down, the global environment and a disabled suite in the tally self-test, each held to its tally line, and a listener defect for each path (#665 FT)
+7a2686aee15de32e16e875486c87cfbcbc4c661b e7e0c10f4d4e9f3180b5650507a83aa300c5d4d7 Pin the loaded-prefix guards at their exact ends: a record header claiming a payload past the container gets its own VD_LEN only once the header guard passes, with both guards planted one byte off either way (#665 FT)
+4dab80ae4564ef8d6e1030564dcea4ba19235ee6 f48d47cd93cc4b46fad3e537dee661fc2cd3ee6d Document exact mailbox ingress filtering and acceptance hooks
+f48d47cd93cc4b46fad3e537dee661fc2cd3ee6d 8fb296e3e02985aee27ef04cb08278836b734a14 30e3c018b9add0cb182d8f1229eeec062218130d Merge dev into 664-mark2-reqs for ingress filter requirements
+40ae4ce9859d2151bfdf28d99106dbb9b7216a83 30e3c018b9add0cb182d8f1229eeec062218130d afa4e687234b80e9474aa6dd0dc756de16a241bd Validate issue 667-b13 merge-train candidate
+e7e0c10f4d4e9f3180b5650507a83aa300c5d4d7 7412748ebffaeac9d36c0e880812aa8ccc826c5f Say which state the ADP machine is left in by a timer port that calls back from inside timer_start, as the two probes show (#665 FT)
+30e3c018b9add0cb182d8f1229eeec062218130d 423ac5d910d09ab189b3acc39ae3ae1d10d50b19 0f3d37dbffc4ca3f0e0f69499de80fc256a7db57 Merge PR #670: Power-on identity audio maps on every dynamic stream port, clipped to the restored formats; Milan 5.4.2.7 refusal kept (#658)
+7412748ebffaeac9d36c0e880812aa8ccc826c5f 341ea77e34edd4797bb65eef8df57070730d2bdf Hold every planted case of the tally self-test to its tally line, plant listener defects it must catch, keep GTEST_ variables away from test binaries, and print the ctrl gate's toolchain (#665 FT)
+341ea77e34edd4797bb65eef8df57070730d2bdf 8387d18fedfaceacc4d614a55fae9bc4c8098c57 Bind each coverage exclusion to its statement's exact uncovered arcs and lines, refuse one whose items move even with the function's totals unchanged, and print the toolchain the gate measured with (#665 FT)
+8387d18fedfaceacc4d614a55fae9bc4c8098c57 27433e47c6d7805376547a91b418cf6aa9d95d2a Test the pool's free list cut short and the codec's loaded prefix that ends before a record header, each with planted defects, and drop both coverage exclusions (#665 FT)
+5d6164a2da2d4f7374558bf33b464bcd8a9b4fc2 63f9ce62b51fd8a7da26bea0122642d48b3e4ad7 Keep the mutation disposition concise

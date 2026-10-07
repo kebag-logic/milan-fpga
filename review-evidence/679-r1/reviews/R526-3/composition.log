@@ -1,0 +1,51 @@
+Exact head, tree, ordered parents: PASS
+PR changes: 15 Additional predecessor changes: 15
+Additional-predecessor overlap: ["docs/testing/CI_WORKFLOWS.md"]
+72d3780d2 Validate issue 673 merge-train candidate
+26bd6334a ci: raise measured per-suite time limits for slow runners
+618875364 Validate issue 665ft merge-train candidate
+
+PR path .github/workflows/rtl-fast.yml candidate: 100644 blob cbb682646660899064727f1f58ec8f0611debba0 source: 100644 blob cbb682646660899064727f1f58ec8f0611debba0
+PR path docs/testing/CI_WORKFLOWS.md candidate: 100644 blob e3933a031fb344456c410ffb6b15fa4c36b897bf source: 100644 blob df8a895e367f3ed4570c9aa97d8e0703b6127715
+PR path scripts/ci_events.py candidate: 100755 blob 344b49157687288d7089675aa73007ee23df2fa6 source: 100755 blob 344b49157687288d7089675aa73007ee23df2fa6
+PR path sw/firmware/ctrl/README.md candidate: 100644 blob 777a24aba0ac426ca08e0c9d2a6811a32b16383b source: 100644 blob 777a24aba0ac426ca08e0c9d2a6811a32b16383b
+PR path sw/firmware/ctrl/test/ctrl_arms.py candidate: 100644 blob 4dc153c7e3ab3690657c50d604fd1da000e79bbf source: 100644 blob 4dc153c7e3ab3690657c50d604fd1da000e79bbf
+PR path sw/firmware/ctrl/test/ctrl_build.py candidate: 100644 blob f52c341f95ed00622bc62bc82d3f8f90e034cd55 source: 100644 blob f52c341f95ed00622bc62bc82d3f8f90e034cd55
+PR path sw/firmware/ctrl/test/test_ctrl_firmware.py candidate: 100644 blob bef6ad14b2f3ee559bfa8659202497f0f0abc201 source: 100644 blob bef6ad14b2f3ee559bfa8659202497f0f0abc201
+PR path sw/firmware/ctrl_nvm/README.md candidate: 100644 blob 7bab2bc4cbd2a18ab3a5c11ed5648eea0276c630 source: 100644 blob 7bab2bc4cbd2a18ab3a5c11ed5648eea0276c630
+PR path sw/firmware/ctrl_nvm/test/nvm_rv32.py candidate: 100644 blob eba0021471af75e7f808134f422cfd64d7305515 source: 100644 blob eba0021471af75e7f808134f422cfd64d7305515
+PR path sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py candidate: 100755 blob 66e863c1caff148c4fd4bf4c9f1cf732d1dc1222 source: 100755 blob 66e863c1caff148c4fd4bf4c9f1cf732d1dc1222
+PR path sw/firmware/gtest/README.md candidate: 100644 blob a73c91b707225b3caf5dd4b6816b8d6d45d5c8e8 source: 100644 blob a73c91b707225b3caf5dd4b6816b8d6d45d5c8e8
+PR path sw/firmware/gtest/fw_rv32.py candidate: 100644 blob d33c89c41c798b9740c3bcc0ed769dce0b0e4a71 source: 100644 blob d33c89c41c798b9740c3bcc0ed769dce0b0e4a71
+PR path sw/firmware/gtest/fw_rv32_selftest.py candidate: 100755 blob dd9e494ba8ffb7af492771c42eac2b87a3d4a228 source: 100755 blob dd9e494ba8ffb7af492771c42eac2b87a3d4a228
+PR path sw/firmware/gtest/rv32_include/stdio.h candidate: 100644 blob 43a18799a64bb16276aa85b5dd66c4465805c19d source: 100644 blob 43a18799a64bb16276aa85b5dd66c4465805c19d
+PR path sw/firmware/gtest/rv32_include/string.h candidate: 100644 blob f0029c7203d55f943c59805e448c711e61049195 source: 100644 blob f0029c7203d55f943c59805e448c711e61049195
+All 14 non-overlap PR entries identical to source; all paths outside PR delta identical to predecessor: PASS
+Retained predecessor path: docs/design/TIME_SYNC.md
+Retained predecessor path: docs/testing/RUNNING_TESTS.md
+Retained predecessor path: docs/testing/TESTING.md
+Retained predecessor path: hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+Retained predecessor path: scripts/measure_test_evidence.py
+Retained predecessor path: scripts/measure_test_evidence_readers.py
+Retained predecessor path: scripts/measure_test_evidence_selftest.py
+Retained predecessor path: scripts/run_all_suites.sh
+Retained predecessor path: tb/verilator/aaf/Makefile
+Retained predecessor path: tb/verilator/aaf/README.md
+Retained predecessor path: tb/verilator/aaf/sim_start.cpp
+Retained predecessor path: tb/verilator/aaf/start_mutants.py
+Retained predecessor path: tb/verilator/milan_dp/README.md
+Retained predecessor path: tb/verilator/milan_dp_gptp/README.md
+Historical FT overlap (already inherited by source base): [".github/workflows/rtl-fast.yml", "docs/testing/CI_WORKFLOWS.md", "scripts/ci_events.py", "sw/firmware/ctrl/README.md", "sw/firmware/ctrl/test/ctrl_arms.py", "sw/firmware/ctrl/test/ctrl_build.py", "sw/firmware/ctrl/test/test_ctrl_firmware.py", "sw/firmware/ctrl_nvm/README.md", "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py", "sw/firmware/gtest/README.md"]
+Historical FT inputs on every shared PR path except the known #673 document overlap equal source base before #679: PASS
+Raw three-way merge of sole overlap equals candidate bytes: PASS
+Deadline/document/explicit override: capture_coherence 2400 PASS
+Deadline/document/explicit override: milan_dp_mclk 3600 PASS
+Deadline/document/explicit override: milan_dp 4800 PASS
+Deadline/document/explicit override: milan_dp_gptp 5400 PASS
+Deadline/document/explicit override: mmcm_servo 1800 PASS
+Deadline/document/explicit override: aaf 1800 PASS
+Required RV32 step after SDK: fw_rv32_selftest.py PASS
+Required RV32 step after SDK: test_ctrl_firmware.py PASS
+Required RV32 step after SDK: test_ctrl_nvm.py PASS
+All firmware and workflow PR paths select relevant CI: PASS
+Composition probe: PASS
