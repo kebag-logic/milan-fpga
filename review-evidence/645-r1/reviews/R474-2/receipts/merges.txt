@@ -1,0 +1,79 @@
+886e16201 lane=0a19619238 dev=09f1841bd2 auto_tree=f2eb9b9b349fd5a1c13df31143c7e20df40e1ba7 merge_tree=f2eb9b9b349fd5a1c13df31143c7e20df40e1ba7 CLEAN-AUTO
+0a1961923 lane=4951c4717f dev=910f338dbd auto_tree=30a9e254e6048a51de52291ef6ceba76a1df0b3a merge_tree=30a9e254e6048a51de52291ef6ceba76a1df0b3a CLEAN-AUTO
+4951c4717 lane=f6bd415f74 dev=79b086d44e auto_tree=8ea4c5a070c65d69b56f2b3c6945b5e61b4ef489 merge_tree=8ea4c5a070c65d69b56f2b3c6945b5e61b4ef489 CLEAN-AUTO
+f6bd415f7 lane=9e529b2069 dev=6a05347d4e auto_tree=64190579ebedc893c2d7f4b03b64cf7425aa1b44 merge_tree=64190579ebedc893c2d7f4b03b64cf7425aa1b44 CLEAN-AUTO
+9e529b206 lane=33c951fcce dev=6714181d0c auto_tree=973e358830e6f007adcd473986adc4750b004b01 merge_tree=973e358830e6f007adcd473986adc4750b004b01 CLEAN-AUTO
+5afae068b lane=132d79e7f3 dev=bd88463168 auto_tree=72a56b7f0650922dc4cea7ab74f7197d1ea76bb3 merge_tree=72a56b7f0650922dc4cea7ab74f7197d1ea76bb3 CLEAN-AUTO
+132d79e7f lane=31538f4b47 dev=30e3c018b9 auto_tree=0a5ac355b07ef892fef966fecf54d72e9ebd3bf7 merge_tree=4814d899680341cdefaa4e54f0e9afee06baa860 MANUAL-RESOLUTION
+
+132d79e7f conflicts and resolution (auto-merge tree with conflict markers vs recorded merge):
+ scripts/measure_test_evidence.py         |   5 --
+ scripts/measure_test_evidence_readers.py |  11 +++
+ scripts/test_evidence_readers.py         | 150 -------------------------------
+ tb/verilator/milan_dp/Makefile           |  17 +---
+ 4 files changed, 15 insertions(+), 168 deletions(-)
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index fc4786462..198b59d6c 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -104,7 +104,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
+ from code_quality_scope import tracked  # noqa: E402
+ from measure_test_evidence_readers import DUT_READER_DISPOSITIONS  # noqa: E402
+ import suite_tally  # noqa: E402
+-from test_evidence_readers import DUT_READER_DISPOSITIONS  # noqa: E402
+ 
+ #: Every suite tree, and the files whose `make` invocations are its entry. A
+ #: target is executed only if one of these runs it: the superproject sweep and
+@@ -596,10 +595,6 @@ DUT_READ_SV = re.compile(r"`include\s+\"[^\"\n]*hdl/|\$fopen\s*\(|\$readmem[hb]\
+ DUT_READ_SH = re.compile(r"(?m)^[^\n]*\b(?:cat|grep|sed|awk|head|tail|diff)\b[^\n]*"
+                          r"(?:hdl/|\$[({](?:RTL|HDL)\w*[)}])")
+ DUT_PATH = re.compile(r"\b(?:RTL|FILTER)\s*=|[\"'][^\"'\n]*hdl/")
+-<<<<<<< 132d79e7f^1
+-
+-=======
+->>>>>>> 132d79e7f^2
+ 
+ 
+ def reads_dut_source(text: str, suffix: str = ".py") -> bool:
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 654ec3cd4..ac011fcc1 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -215,11 +215,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-<<<<<<< 132d79e7f^1
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+-=======
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+->>>>>>> 132d79e7f^2
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean gmstep-mutants option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -511,11 +507,6 @@ gsi-mutants: notify
+ unb-mutants: notify
+ 	python3 unb_mutants.py
+ 
+-<<<<<<< 132d79e7f^1
+-# Build once for the independent positive and failure-control runs.
+-ax1x1gptp ax1x1gptp-build: VERILATOR_JOBS = 4
+-ax1x1gptp-build: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+-=======
+ # #658 (see DYNMAP_BUILD); `run` builds and runs the same leg.
+ dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+ 	$(DYNMAP_BUILD)
+@@ -530,9 +521,9 @@ dynmap: dynmap-build
+ dynmap-mutants: dynmap
+ 	python3 dynmap_mutants.py
+ 
+-ax1x1gptp: VERILATOR_JOBS = 4
+-ax1x1gptp: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+->>>>>>> 132d79e7f^2
++# Build once for the independent positive and failure-control runs.
++ax1x1gptp ax1x1gptp-build: VERILATOR_JOBS = 4
++ax1x1gptp-build: ax1x1gptp-aemi ltn_rom.hex ucode.hex gptp_ax1x1_ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+ 	$(VERILATOR) $(SHAPE_AX1x1) $(AX_GPTP_FLAGS) --Mdir obj_ax1x1gptp \
+ 	  -GMILAN_CLK_FREQ_HZ=$(AX_GPTP_HZ) -GGPTP_PLANE_EN_P=1 \
+ 	  -CFLAGS "-DMILAN_CLK_HZ_TB=$(AX_GPTP_HZ) -Wall -Wextra" \

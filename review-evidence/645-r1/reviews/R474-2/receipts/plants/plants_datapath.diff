@@ -1,0 +1,44 @@
+--- a/hdl/milan/milan_datapath.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/milan/milan_datapath.sv	2026-10-07 07:55:38.296000000 +0200
+@@ -6585,7 +6585,7 @@
+   //! source change or re-engagement still arms immediately.
+   //! Twice the quiet +/-1 axis-cycle quantisation, independent of the
+   //! clock-frequency-scaled #386 settling band.
+-  localparam int unsigned SETTLE_EXC_ERR_C   = 2;
++  localparam int unsigned SETTLE_EXC_ERR_C   = 1;
+   localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
+   //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
+   localparam int unsigned SETTLE_LOCK_TICKS_C =
+--- a/hdl/milan/milan_datapath.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/milan/milan_datapath.sv	2026-10-07 07:55:38.312674680 +0200
+@@ -6585,7 +6585,7 @@
+   //! source change or re-engagement still arms immediately.
+   //! Twice the quiet +/-1 axis-cycle quantisation, independent of the
+   //! clock-frequency-scaled #386 settling band.
+-  localparam int unsigned SETTLE_EXC_ERR_C   = 2;
++  localparam int unsigned SETTLE_EXC_ERR_C   = 8;
+   localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
+   //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
+   localparam int unsigned SETTLE_LOCK_TICKS_C =
+--- a/hdl/milan/milan_datapath.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/milan/milan_datapath.sv	2026-10-07 07:55:38.329618247 +0200
+@@ -6641,7 +6641,7 @@
+       end else if (settle_recover_r) begin
+         if (!mga_engaged_w || settle_exc_w) begin
+           settle_run_ticks_r <= '0;
+-        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C)) begin
++        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(64)) begin
+           settle_recover_r   <= 1'b0;
+           settle_run_ticks_r <= '0;
+         end else if (media_tick_p) begin
+--- a/hdl/milan/milan_datapath.sv	2026-10-07 07:01:13.000000000 +0200
++++ b/hdl/milan/milan_datapath.sv	2026-10-07 07:55:38.346000000 +0200
+@@ -6641,7 +6641,7 @@
+       end else if (settle_recover_r) begin
+         if (!mga_engaged_w || settle_exc_w) begin
+           settle_run_ticks_r <= '0;
+-        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(SRC_SETTLE_TICKS_C)) begin
++        end else if (settle_run_ticks_r >= SETTLE_RUN_W_C'(512)) begin
+           settle_recover_r   <= 1'b0;
+           settle_run_ticks_r <= '0;
+         end else if (media_tick_p) begin
