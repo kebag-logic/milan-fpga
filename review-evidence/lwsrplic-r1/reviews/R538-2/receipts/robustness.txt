@@ -1,0 +1,13 @@
+anchor-fix diff equality: identical
+anchor-fix commit touches: doc/developer.md doc/integrator.md doc/manager.md doc/tester.md 
+merge e59b21f tree == 375dbe13 tree: yes
+merge reproduces both sides (merge-tree of parents == merge tree): no-auto-merge-equality
+base is ancestor of head: yes
+modes: 100755 build.sh; base 100755
+ create mode 100644 LICENSE
+ create mode 100644 NOTICE
+module.yml parse: {'name': 'lwsrp', 'build': {'cmake': '.', 'kconfig': 'Kconfig.zephyr'}}
+python ast parse: ok
+build.sh bash -n: ok
+Kconfig.zephyr diff lines: 0
+diff --check: clean

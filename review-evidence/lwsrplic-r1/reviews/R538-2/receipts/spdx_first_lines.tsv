@@ -1,0 +1,45 @@
+CMakeLists.txt	# SPDX-License-Identifier: Apache-2.0	if(DEFINED ZEPHYR_BASE)
+CONTRIBUTING.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Contributing
+Kconfig.zephyr	# SPDX-License-Identifier: Apache-2.0	config LWSRP
+LICENSE		                                 Apache License
+NOTICE	lwSRP	Copyright 2026 kebag-logic
+README.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# lwSRP
+behave.ini	# SPDX-License-Identifier: Apache-2.0	[behave]
+build.sh	#!/bin/bash	# SPDX-License-Identifier: Apache-2.0
+doc/architecture.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Architecture
+doc/developer.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Developer guide
+doc/integrator.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Integrator guide
+doc/manager.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Manager guide
+doc/tester.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Tester guide
+doc/tools/README.md	<!-- SPDX-License-Identifier: Apache-2.0 -->	# Documentation checks
+doc/tools/check_links.py	# SPDX-License-Identifier: Apache-2.0	"""Check local paths, local heading fragments, and unique external URLs."""
+doc/tools/check_references.py	# SPDX-License-Identifier: Apache-2.0	"""Find unlinked references in prose, including inline code."""
+doc/tools/check_sentences.py	# SPDX-License-Identifier: Apache-2.0	"""Check prose sentences, including wrapped paragraphs, against 25 words."""
+doc/tools/common.py	# SPDX-License-Identifier: Apache-2.0	"""Shared parsing for the repository's deliberately small Markdown subset."""
+doc/tools/render_mermaid.py	# SPDX-License-Identifier: Apache-2.0	"""Render every graph outside the checkout and reject graphs over 15 nodes."""
+src/core/mrp_mad.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/core/mrp_pdu.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/core/switch_ctrl.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/include/shish_lan/mmrp.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_MMRP_H
+src/include/shish_lan/mrp.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_MRP_H
+src/include/shish_lan/mrp_pdu.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_MRP_PDU_H
+src/include/shish_lan/msrp.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_MSRP_H
+src/include/shish_lan/mvrp.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_MVRP_H
+src/include/shish_lan/switch.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_SWITCH_H
+src/include/shish_lan/switch_ctrl.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_SWITCH_CTRL_H
+src/modules/mmrp.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/modules/msrp.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/modules/mvrp.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+src/modules/sim_adapter.c	/* SPDX-License-Identifier: Apache-2.0 */	#include <string.h>
+src/modules/sim_adapter.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHISH_LAN_SIM_ADAPTER_H
+src/ports/alloc.c	/* SPDX-License-Identifier: Apache-2.0 */	#include <stdarg.h>
+src/ports/alloc.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHLAN_PROTS_ALLOC_H
+src/ports/timer.c	/* SPDX-License-Identifier: Apache-2.0 */	#include "timer.h"
+src/ports/timer.h	/* SPDX-License-Identifier: Apache-2.0 */	#ifndef SHLAN_PORTS_TIMER_H
+tests/features/environment.py	# SPDX-License-Identifier: Apache-2.0	import ctypes
+tests/features/steps/switch_steps.py	# SPDX-License-Identifier: Apache-2.0	import ctypes
+tests/features/switch.feature	# SPDX-License-Identifier: Apache-2.0	Feature: Switch port management
+tests/features/switch_bindings.c	/* SPDX-License-Identifier: Apache-2.0 */	
+tests/unit/main.c	/* SPDX-License-Identifier: Apache-2.0 */	
+tests/unit/mrp_pdu_test.c	/* SPDX-License-Identifier: Apache-2.0 */	/*
+zephyr/module.yml	# SPDX-License-Identifier: Apache-2.0	name: lwsrp
