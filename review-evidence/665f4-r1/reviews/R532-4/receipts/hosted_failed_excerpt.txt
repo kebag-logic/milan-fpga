@@ -1,0 +1,16 @@
+firmware-unit	Fetch RTL dependencies	2026-10-07T11:18:54.5767660Z fatal: could not read Username for 'https://github.com': No such device or address
+firmware-unit	Fetch RTL dependencies	2026-10-07T11:18:54.5785998Z fatal: clone of 'https://github.com/kebag-logic/lwSRP.git' into submodule path '$RUNNER_WORKSPACE/third_party/lwSRP' failed
+firmware-unit	Fetch RTL dependencies	2026-10-07T11:18:55.9408236Z fatal: could not read Username for 'https://github.com': No such device or address
+firmware-unit	Fetch RTL dependencies	2026-10-07T11:18:55.9426666Z fatal: clone of 'https://github.com/kebag-logic/lwSRP.git' into submodule path '$RUNNER_WORKSPACE/third_party/lwSRP' failed
+firmware-unit	Fetch RTL dependencies	2026-10-07T11:18:55.9444369Z ##[error]Process completed with exit code 1.
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.4932129Z ^[[36;1m  "changes:$CHANGES_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.4933209Z ^[[36;1m  "verilator-lint:$VERILATOR_LINT_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.4934791Z ^[[36;1m  "bdd-conformance:$BDD_CONFORMANCE_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.4936106Z ^[[36;1m  "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.4937437Z ^[[36;1m  "firmware-unit:$FIRMWARE_UNIT_RESULT"; do^[[0m
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.5939300Z   CHANGES_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.5939838Z   VERILATOR_LINT_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.5940426Z   BDD_CONFORMANCE_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.5941018Z   YOSYS_ELABORATION_RESULT: success
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.5941615Z   FIRMWARE_UNIT_RESULT: failure
+rtl-fast	Require every applicable fast gate to pass	2026-10-07T11:31:27.6205555Z ##[error]Process completed with exit code 1.

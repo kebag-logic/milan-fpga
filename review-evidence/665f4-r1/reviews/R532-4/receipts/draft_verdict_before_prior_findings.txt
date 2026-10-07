@@ -1,0 +1,8 @@
+Written 2026-10-07T13:44:52+02:00 before reading any prior review findings text (R532-1..3, R533-1..3) and without reading R533-4.
+Draft verdict: POSITIVE at 6f7deea15a9160761b30aaa93fe152f20d416695 (no open finding from the independent delta pass).
+Draft ledger (all at 6f7deea1, this round R532-4):
+Conformance CLEAN - srp_mbx.c:334 guard vs README:65-66 and startup Domain/VID declaration (srp_mbx.c:170-172, README:87); test 3 asserts retention.
+RTL CLEAN - delta touches no production source (git diff --raw c1049de1..HEAD: 3 files, tests and README); srp_mbx.c:300-337 binding/inheritance contract read against the new tests.
+Robustness CLEAN - new tests run both slot orders, IF=1/2, VID 2 and peer VID 7; shuffled x10 at IF=1/2 pass.
+Tests CLEAN - 3 lane plants + 6 reviewer plants caught by named tests at IF=1 and IF=2; all 70 lane SRP plants caught at IF=2; coverage ratchet PASS.
+Docs CLEAN - README:65-66 matches srp_mbx.c:334; docs/em-dash/toc/style/path gates rc 0; PR body carries round 4.

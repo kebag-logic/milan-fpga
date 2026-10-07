@@ -1,0 +1,80 @@
+Note: Google Test filter = Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:725: Failure
+Value of: adapter.ifs[i].link
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:729: Failure
+Value of: transmitted
+  Actual: false
+Expected: true
+level recovery resumes declarations
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: level recovery resumes declarations
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:732: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:725: Failure
+Value of: adapter.ifs[i].link
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:729: Failure
+Value of: transmitted
+  Actual: false
+Expected: true
+level recovery resumes declarations
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: level recovery resumes declarations
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:732: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:731: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:731: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:734: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:734: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,false))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (1 ms)
+[----------] 1 test from Srp (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

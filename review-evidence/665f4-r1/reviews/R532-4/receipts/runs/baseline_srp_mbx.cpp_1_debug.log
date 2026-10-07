@@ -1,0 +1,18 @@
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Srp
+[ RUN      ] Srp.SynchronousBindingFromOutputAsserts
+[       OK ] Srp.SynchronousBindingFromOutputAsserts (228 ms)
+[ RUN      ] Srp.SynchronousReceiveFromOutputAsserts
+[       OK ] Srp.SynchronousReceiveFromOutputAsserts (215 ms)
+[ RUN      ] Srp.SynchronousTickFromOutputAsserts
+[       OK ] Srp.SynchronousTickFromOutputAsserts (104 ms)
+[----------] 3 tests from Srp (548 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (548 ms total)
+[  PASSED  ] 3 tests.
+== ctrl SRP debug guard: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+BASELINE srp_mbx.cpp IF=1 debug=True rc=0

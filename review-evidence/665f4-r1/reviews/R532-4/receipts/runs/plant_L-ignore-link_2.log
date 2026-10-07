@@ -1,0 +1,470 @@
+wrote $PACKET/scratch/probe/plant-L-ignore-link-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-ignore-link-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-ignore-link-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 53 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 53 tests from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:77: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, true)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.InterfaceStateDoesNotCross:            Actual: called twice - over-saturated and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:85: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.InterfaceStateDoesNotCross: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:77: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(1, 0, true)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.InterfaceStateDoesNotCross:            Actual: called twice - over-saturated and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:85: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.InterfaceStateDoesNotCross: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:80: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, false)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.InterfaceStateDoesNotCross:            Actual: called twice - over-saturated and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:80: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(1, 0, false)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.InterfaceStateDoesNotCross:            Actual: called twice - over-saturated and active
+[  FAILED  ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[       OK ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+[       OK ] Srp.ExpiryBacklogPrecedesSamePassReceive (0 ms)
+[ RUN      ] Srp.ReentryFromOutputIsRefusedAndCounted
+[       OK ] Srp.ReentryFromOutputIsRefusedAndCounted (0 ms)
+[ RUN      ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState
+[       OK ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState (0 ms)
+[ RUN      ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+[       OK ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+[       OK ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+[       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+[ RUN      ] Srp.InvalidFramesHaveNoReservationSideEffects
+[       OK ] Srp.InvalidFramesHaveNoReservationSideEffects (0 ms)
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:261: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, true)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset:            Actual: called twice - over-saturated and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:268: Failure
+Value of: adapter.ifs[0].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:265: Failure
+Mock function called more times than expected - returning directly.
+    Function call: Change(0, 0, false)
+         Expected: to be called once
+           Actual: called twice - over-saturated and active
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset:            Actual: called twice - over-saturated and active
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+[       OK ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+[ RUN      ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+[       OK ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations (0 ms)
+[ RUN      ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+[       OK ] Srp.MvrpAcceptsOnlyCurrentDomainVid (0 ms)
+[ RUN      ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+[       OK ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt (0 ms)
+[ RUN      ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+[       OK ] Srp.AdmissionUsesBandwidthAndEthernetMinimum (0 ms)
+[ RUN      ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[       OK ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+[ RUN      ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[       OK ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+[ RUN      ] Srp.LinkLossCancelsItsOwedFrameOnly
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:377: Failure
+Expected equality of these values:
+  adapter.owed_len
+    Which is: 107
+  0u
+    Which is: 0
+
+  [FAIL] Srp.LinkLossCancelsItsOwedFrameOnly:     Which is: 0
+[  FAILED  ] Srp.LinkLossCancelsItsOwedFrameOnly (0 ms)
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+[       OK ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[ RUN      ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+[       OK ] Srp.ListenerBeforeVlanCommitCannotStartTalker (0 ms)
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[       OK ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[ RUN      ] Srp.BoundOldDomainVlanSurvivesDomainChange
+[       OK ] Srp.BoundOldDomainVlanSurvivesDomainChange (0 ms)
+[ RUN      ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+[       OK ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership (0 ms)
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[       OK ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+[ RUN      ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+[       OK ] Srp.SinkMembershipCommitsBeforeReadyAtStartup (0 ms)
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[       OK ] Srp.InListenerWithdrawalRevokesLicenceImmediately (0 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[       OK ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[ RUN      ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+[       OK ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence (0 ms)
+[ RUN      ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+[       OK ] Srp.AdmissionStraddlesTheExactEthernetCeiling (0 ms)
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.priority
+    Which is: '\x4' (4)
+  3u
+    Which is: 3
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 3
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.vid
+    Which is: 3
+  2u
+    Which is: 2
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 2
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:558: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:560: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.priority
+    Which is: '\x4' (4)
+  3u
+    Which is: 3
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 3
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.vid
+    Which is: 3
+  2u
+    Which is: 2
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 2
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:558: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:560: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Change(0, 0, true)
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:     Function call: Change(0, 0, true)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:571: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:576: Failure
+Value of: adapter.ifs[i].registered[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(1, 0, true)
+Google Mock tried the following 2 expectations, but none matched:
+
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:572: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:574: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+  Expected arg #2: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: called once - saturated and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: called once - saturated and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:571: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:576: Failure
+Value of: adapter.ifs[i].registered[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:572: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:572: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[ RUN      ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+[       OK ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire (1 ms)
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected: (adapter.refused) > (refused), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (adapter.refused) > (refused), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected equality of these values:
+  adapter.ifs[0].msrp
+    Which is: 0x564fac0d5c30
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:620: Failure
+Expected equality of these values:
+  adapter.ifs[0].mvrp
+    Which is: 0x564fac0d5c70
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:621: Failure
+Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected: (adapter.refused) > (refused), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (adapter.refused) > (refused), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected equality of these values:
+  adapter.ifs[0].msrp
+    Which is: 0x564fac0d5c30
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:620: Failure
+Expected equality of these values:
+  adapter.ifs[0].mvrp
+    Which is: 0x564fac0d5c70
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:621: Failure
+Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected: (adapter.refused) > (refused), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (adapter.refused) > (refused), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:619: Failure
+Expected equality of these values:
+  adapter.ifs[0].msrp
+    Which is: 0x564fac0d5c30
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:620: Failure
+Expected equality of these values:
+  adapter.ifs[0].mvrp
+    Which is: 0x564fac0d5c70
+  nullptr
+    Which is: (nullptr)
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried:     Which is: (nullptr)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:621: Failure
+Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: (ctrl_loop_service(&loop)) > (0u), actual: 0 vs 0
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried (8 ms)
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+unknown file: Failure
+Uninteresting mock function call - returning directly.
+    Function call: Change(0, 0, true)
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:     Function call: Change(0, 0, true)
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:644: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix: Expected: false
+unknown file: Failure
+
+Unexpected mock function call - returning directly.
+    Function call: Change(1, 0, true)
+Google Mock tried the following 2 expectations, but none matched:
+
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:645: tried expectation #0: EXPECT_CALL(licence, Change(i,0,true))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:647: tried expectation #1: EXPECT_CALL(licence, Change(i,0,false))...
+  Expected arg #0: is equal to 0
+           Actual: 1
+  Expected arg #2: is equal to false
+           Actual: true
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:644: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:645: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:645: Failure
+Actual function call count doesn't match EXPECT_CALL(licence, Change(i,0,true))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix:            Actual: never called - unsatisfied and active
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[ RUN      ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+[       OK ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed (0 ms)
+[ RUN      ] Srp.EventReentryAndSinkCapacityAreGuarded
+[       OK ] Srp.EventReentryAndSinkCapacityAreGuarded (0 ms)
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[       OK ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[       OK ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (11 ms)
+[ RUN      ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+[       OK ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation (3 ms)
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[       OK ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (2 ms)
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[       OK ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (2 ms)
+[ RUN      ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+[       OK ] Srp.FinalDomainVidUnbindKeepsSrClassMembership (5 ms)
+[ RUN      ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+[       OK ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder (2 ms)
+[ RUN      ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:959: Failure
+Expected equality of these values:
+  adapter.ifs[0].domain.vid
+    Which is: 3
+  2u
+    Which is: 2
+old link's refused Domain must be discarded
+
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart: old link's refused Domain must be discarded
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:960: Failure
+Expected equality of these values:
+  adapter.ifs[0].domain.priority
+    Which is: '\x4' (4)
+  3u
+    Which is: 3
+
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart:     Which is: 3
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:980: Failure
+Value of: vlan
+  Actual: false
+Expected: true
+new link's VLAN Join must precede Ready
+
+  [FAIL] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart: new link's VLAN Join must precede Ready
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:980: Failure
+Value of: vlan
+  Actual: false
+Expected: true
+new link's VLAN Join must precede Ready
+
+  [FAIL] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart: new link's VLAN Join must precede Ready
+[  FAILED  ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart (0 ms)
+[ RUN      ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+[       OK ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan (0 ms)
+[ RUN      ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+[       OK ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline (1 ms)
+[----------] 53 tests from Srp (46 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 1 test suite ran. (46 ms total)
+[  PASSED  ] 44 tests.
+[  FAILED  ] 9 tests, listed below:
+[  FAILED  ] Srp.InterfaceStateDoesNotCross
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[  FAILED  ] Srp.LinkLossCancelsItsOwedFrameOnly
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+[  FAILED  ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+
+ 9 FAILED TESTS
+== ctrl SRP mailbox: checks: 53   failures: 9 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 9 failure(s) across 53 checks, exit 1)
+PLANT L-ignore-link IF=2 rc=1 named=CAUGHT test=InterfaceStateDoesNotCross needle=adapter.ifs[i].active[0] failing=['Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations', 'Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset', 'Srp.InterfaceStateDoesNotCross', 'Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix', 'Srp.LinkLossCancelsItsOwedFrameOnly', 'Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart', 'Srp.RecreateAllocationFailureIsCountedAndRetried', 'Srp.RefusedPeerDomainDoesNotSurviveLinkRestart', 'Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart']

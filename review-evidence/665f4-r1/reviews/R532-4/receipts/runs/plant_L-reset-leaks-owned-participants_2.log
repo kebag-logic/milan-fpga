@@ -1,0 +1,41 @@
+wrote $PACKET/scratch/probe/plant-L-reset-leaks-owned-participants-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-reset-leaks-owned-participants-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-reset-leaks-owned-participants-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 53 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 53 tests from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:71: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 42
+  0u
+    Which is: 0
+
+  [FAIL] Srp.InterfaceStateDoesNotCross:     Which is: 0
+[  FAILED  ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:71: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 11
+  0u
+    Which is: 0
+
+  [FAIL] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput:     Which is: 0
+[  FAILED  ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+
+timed out after 600 s
+  verdict: FAIL (NOCOUNT: no tally, or a tally of nothing (the run did not finish), exit 124)
+PLANT L-reset-leaks-owned-participants IF=2 rc=1 named=ESCAPED test=ExhaustedPoolStillReusesOwnedBlocksOnLinkReset needle=adapter.refused failing=['Srp.InterfaceStateDoesNotCross', 'Srp.RefusedMailboxRetainsOwedFrameAndDefersInput']

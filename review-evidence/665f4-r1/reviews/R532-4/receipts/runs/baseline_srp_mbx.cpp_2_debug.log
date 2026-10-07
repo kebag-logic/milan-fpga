@@ -1,0 +1,21 @@
+wrote $PACKET/scratch/probe/base-srp_mbx.cpp-if2-debug/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/base-srp_mbx.cpp-if2-debug/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/base-srp_mbx.cpp-if2-debug/build/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Srp
+[ RUN      ] Srp.SynchronousBindingFromOutputAsserts
+[       OK ] Srp.SynchronousBindingFromOutputAsserts (203 ms)
+[ RUN      ] Srp.SynchronousReceiveFromOutputAsserts
+[       OK ] Srp.SynchronousReceiveFromOutputAsserts (214 ms)
+[ RUN      ] Srp.SynchronousTickFromOutputAsserts
+[       OK ] Srp.SynchronousTickFromOutputAsserts (104 ms)
+[----------] 3 tests from Srp (521 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (521 ms total)
+[  PASSED  ] 3 tests.
+== ctrl SRP debug guard: checks: 3   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (3 tests, 0 failures, exit 0)
+BASELINE srp_mbx.cpp IF=2 debug=True rc=0

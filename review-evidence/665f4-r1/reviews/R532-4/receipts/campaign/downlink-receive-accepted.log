@@ -1,0 +1,30 @@
+Note: Google Test filter = Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:576: Failure
+Value of: adapter.ifs[i].registered[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:576: Failure
+Value of: adapter.ifs[i].registered[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: false
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

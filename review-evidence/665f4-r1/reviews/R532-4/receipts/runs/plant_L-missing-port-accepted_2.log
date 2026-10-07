@@ -1,0 +1,440 @@
+wrote $PACKET/scratch/probe/plant-L-missing-port-accepted-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-missing-port-accepted-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-L-missing-port-accepted-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 53 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 53 tests from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+[       OK ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[       OK ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+[       OK ] Srp.ExpiryBacklogPrecedesSamePassReceive (0 ms)
+[ RUN      ] Srp.ReentryFromOutputIsRefusedAndCounted
+[       OK ] Srp.ReentryFromOutputIsRefusedAndCounted (0 ms)
+[ RUN      ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState
+[       OK ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState (0 ms)
+[ RUN      ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+[       OK ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:225: Failure
+Value of: srp_mbx_init(&candidate,&cfg)
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:225: Failure
+Value of: srp_mbx_attach(&candidate,&loop)
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:228: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 20
+  0u
+    Which is: 0
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment:     Which is: 0
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:71: Failure
+Expected equality of these values:
+  ctrl_pool_in_use(&pool)
+    Which is: 20
+  0u
+    Which is: 0
+
+  [FAIL] Srp.MissingBootDependenciesRefuseBeforeAttachment:     Which is: 0
+[  FAILED  ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset: Expected: true
+[  FAILED  ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+[ RUN      ] Srp.InvalidFramesHaveNoReservationSideEffects
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.InvalidFramesHaveNoReservationSideEffects: Expected: true
+[  FAILED  ] Srp.InvalidFramesHaveNoReservationSideEffects (0 ms)
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset: Expected: true
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReadyFailedAndUninterestingStreamsAreSeparated: Expected: true
+[  FAILED  ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+[ RUN      ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations: Expected: true
+[  FAILED  ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations (0 ms)
+[ RUN      ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.MvrpAcceptsOnlyCurrentDomainVid: Expected: true
+[  FAILED  ] Srp.MvrpAcceptsOnlyCurrentDomainVid (0 ms)
+[ RUN      ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt: Expected: true
+[  FAILED  ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt (0 ms)
+[ RUN      ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.AdmissionUsesBandwidthAndEthernetMinimum: Expected: true
+[  FAILED  ] Srp.AdmissionUsesBandwidthAndEthernetMinimum (0 ms)
+[ RUN      ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry: Expected: true
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+[ RUN      ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding: Expected: true
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+[ RUN      ] Srp.LinkLossCancelsItsOwedFrameOnly
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.LinkLossCancelsItsOwedFrameOnly: Expected: true
+[  FAILED  ] Srp.LinkLossCancelsItsOwedFrameOnly (0 ms)
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.OneLoopOwnsTheGlobalCentisecondDispatch: Expected: true
+[  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[ RUN      ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ListenerBeforeVlanCommitCannotStartTalker: Expected: true
+[  FAILED  ] Srp.ListenerBeforeVlanCommitCannotStartTalker (0 ms)
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind: Expected: true
+[  FAILED  ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[ RUN      ] Srp.BoundOldDomainVlanSurvivesDomainChange
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.BoundOldDomainVlanSurvivesDomainChange: Expected: true
+[  FAILED  ] Srp.BoundOldDomainVlanSurvivesDomainChange (0 ms)
+[ RUN      ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.PriorityOnlyDomainChangeKeepsVlanMembership: Expected: true
+[  FAILED  ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership (0 ms)
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: true
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+[ RUN      ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SinkMembershipCommitsBeforeReadyAtStartup: Expected: true
+[  FAILED  ] Srp.SinkMembershipCommitsBeforeReadyAtStartup (0 ms)
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.InListenerWithdrawalRevokesLicenceImmediately: Expected: true
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately (0 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener: Expected: true
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[ RUN      ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence: Expected: true
+[  FAILED  ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence (0 ms)
+[ RUN      ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.AdmissionStraddlesTheExactEthernetCeiling: Expected: true
+[  FAILED  ] Srp.AdmissionStraddlesTheExactEthernetCeiling (0 ms)
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: true
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart: Expected: true
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[ RUN      ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire: Expected: true
+[  FAILED  ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire (0 ms)
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.RecreateAllocationFailureIsCountedAndRetried: Expected: true
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried (0 ms)
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix: Expected: true
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[ RUN      ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.LinkLevelLossAndFirstDownEventAreFailClosed: Expected: true
+[  FAILED  ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed (0 ms)
+[ RUN      ] Srp.EventReentryAndSinkCapacityAreGuarded
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.EventReentryAndSinkCapacityAreGuarded: Expected: true
+[  FAILED  ] Srp.EventReentryAndSinkCapacityAreGuarded (0 ms)
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord: Expected: true
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive: Expected: true
+[  FAILED  ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: Expected: true
+[  FAILED  ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (0 ms)
+[ RUN      ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation: Expected: true
+[  FAILED  ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation (0 ms)
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves: Expected: true
+[  FAILED  ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (0 ms)
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.ReboundStreamCannotInheritAnotherStreamsReady: Expected: true
+[  FAILED  ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (0 ms)
+[ RUN      ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: Expected: true
+[  FAILED  ] Srp.FinalDomainVidUnbindKeepsSrClassMembership (0 ms)
+[ RUN      ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder: Expected: true
+[  FAILED  ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder (0 ms)
+[ RUN      ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart: Expected: true
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart: Expected: true
+[  FAILED  ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart (0 ms)
+[ RUN      ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan: Expected: true
+[  FAILED  ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan (0 ms)
+[ RUN      ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+$REPO/sw/firmware/ctrl/test/srp_fixture.hpp:65: Failure
+Value of: srp_mbx_attach(&adapter,&loop)
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline: Expected: true
+[  FAILED  ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline (0 ms)
+[----------] 53 tests from Srp (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 42 tests, listed below:
+[  FAILED  ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+[  FAILED  ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+[  FAILED  ] Srp.InvalidFramesHaveNoReservationSideEffects
+[  FAILED  ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[  FAILED  ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+[  FAILED  ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+[  FAILED  ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+[  FAILED  ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+[  FAILED  ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+[  FAILED  ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[  FAILED  ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[  FAILED  ] Srp.LinkLossCancelsItsOwedFrameOnly
+[  FAILED  ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+[  FAILED  ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+[  FAILED  ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[  FAILED  ] Srp.BoundOldDomainVlanSurvivesDomainChange
+[  FAILED  ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[  FAILED  ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+[  FAILED  ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[  FAILED  ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[  FAILED  ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+[  FAILED  ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[  FAILED  ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[  FAILED  ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+[  FAILED  ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[  FAILED  ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[  FAILED  ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+[  FAILED  ] Srp.EventReentryAndSinkCapacityAreGuarded
+[  FAILED  ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[  FAILED  ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[  FAILED  ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[  FAILED  ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+[  FAILED  ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[  FAILED  ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[  FAILED  ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+[  FAILED  ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+[  FAILED  ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+[  FAILED  ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+[  FAILED  ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+[  FAILED  ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+
+42 FAILED TESTS
+== ctrl SRP mailbox: checks: 53   failures: 42 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 42 failure(s) across 53 checks, exit 1)
+PLANT L-missing-port-accepted IF=2 rc=1 named=CAUGHT test=MissingBootDependenciesRefuseBeforeAttachment needle=srp_mbx_init failing=['Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations', 'Srp.AdmissionStraddlesTheExactEthernetCeiling', 'Srp.AdmissionUsesBandwidthAndEthernetMinimum', 'Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset', 'Srp.BoundOldDomainVlanSurvivesDomainChange', 'Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive', 'Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation', 'Srp.DomainExhaustionPreservesOldDeclarationUntilRetry', 'Srp.DomainFilterAndDuplicateDoNotGrowDeclarations', 'Srp.EventReentryAndSinkCapacityAreGuarded', 'Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset', 'Srp.FinalDomainVidUnbindKeepsSrClassMembership', 'Srp.InListenerWithdrawalRevokesLicenceImmediately', 'Srp.InTalkerWithdrawalImmediatelyWithdrawsListener', 'Srp.InvalidFramesHaveNoReservationSideEffects', 'Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves', 'Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder', 'Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix', 'Srp.LinkLevelLossAndFirstDownEventAreFailClosed', 'Srp.LinkLossCancelsItsOwedFrameOnly', 'Srp.ListenerBeforeVlanCommitCannotStartTalker', 'Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline', 'Srp.MissingBootDependenciesRefuseBeforeAttachment', 'Srp.MvrpAcceptsOnlyCurrentDomainVid', 'Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart', 'Srp.OneLoopOwnsTheGlobalCentisecondDispatch', 'Srp.PriorityOnlyDomainChangeKeepsVlanMembership', 'Srp.ReadyFailedAndUninterestingStreamsAreSeparated', 'Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence', 'Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord', 'Srp.ReboundStreamCannotInheritAnotherStreamsReady', 'Srp.RecreateAllocationFailureIsCountedAndRetried', 'Srp.RefusedPeerDomainDoesNotSurviveLinkRestart', 'Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind', 'Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire', 'Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan', 'Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest', 'Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding', 'Srp.SinkMembershipCommitsBeforeReadyAtStartup', 'Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent', 'Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart', 'Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt']

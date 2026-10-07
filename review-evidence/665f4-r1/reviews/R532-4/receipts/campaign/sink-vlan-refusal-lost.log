@@ -1,0 +1,42 @@
+Note: Google Test filter = Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:460: Failure
+Value of: adapter.ifs[0].sinks[0].vlan_requested
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:460: Failure
+Expected: (adapter.refused) > (0u), actual: 0 vs 0
+
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: (adapter.refused) > (0u), actual: 0 vs 0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:462: Failure
+Expected equality of these values:
+  adapter.ifs[0].sinks[0].declared
+    Which is: '\0'
+  2u
+    Which is: 2
+
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent:     Which is: 2
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:476: Failure
+Value of: left7
+  Actual: false
+Expected: true
+
+  [FAIL] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent: Expected: true
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

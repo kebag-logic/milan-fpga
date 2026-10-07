@@ -1,0 +1,189 @@
+wrote $PACKET/scratch/probe/plant-R-guard-startup-vid-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-R-guard-startup-vid-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/plant-R-guard-startup-vid-if2/build/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[==========] Running 53 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 53 tests from Srp
+[ RUN      ] Srp.StartupDeclaresTalkersDomainAndVlan
+[       OK ] Srp.StartupDeclaresTalkersDomainAndVlan (0 ms)
+[ RUN      ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline
+[       OK ] Srp.LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline (1 ms)
+[ RUN      ] Srp.RegisteredListenerSubtypeChangeRevokesPermission
+[       OK ] Srp.RegisteredListenerSubtypeChangeRevokesPermission (0 ms)
+[ RUN      ] Srp.InterfaceStateDoesNotCross
+[       OK ] Srp.InterfaceStateDoesNotCross (0 ms)
+[ RUN      ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer
+[       OK ] Srp.SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer (0 ms)
+[ RUN      ] Srp.DomainUsesPeerPriorityAndVlan
+[       OK ] Srp.DomainUsesPeerPriorityAndVlan (0 ms)
+[ RUN      ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput
+[       OK ] Srp.RefusedMailboxRetainsOwedFrameAndDefersInput (0 ms)
+[ RUN      ] Srp.ExpiryBacklogPrecedesSamePassReceive
+[       OK ] Srp.ExpiryBacklogPrecedesSamePassReceive (3 ms)
+[ RUN      ] Srp.ReentryFromOutputIsRefusedAndCounted
+[       OK ] Srp.ReentryFromOutputIsRefusedAndCounted (0 ms)
+[ RUN      ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState
+[       OK ] Srp.InvalidBindingsAndDuplicateBindingsPreserveState (0 ms)
+[ RUN      ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock
+[       OK ] Srp.ExhaustionDuringEachStartupStageReleasesEveryBlock (0 ms)
+[ RUN      ] Srp.MissingBootDependenciesRefuseBeforeAttachment
+[       OK ] Srp.MissingBootDependenciesRefuseBeforeAttachment (0 ms)
+[ RUN      ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset
+[       OK ] Srp.AttachmentFailureIsAtomicAndDetachesAfterLoopReset (0 ms)
+[ RUN      ] Srp.InvalidFramesHaveNoReservationSideEffects
+[       OK ] Srp.InvalidFramesHaveNoReservationSideEffects (0 ms)
+[ RUN      ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset
+[       OK ] Srp.ExhaustedPoolStillReusesOwnedBlocksOnLinkReset (0 ms)
+[ RUN      ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated
+[       OK ] Srp.ReadyFailedAndUninterestingStreamsAreSeparated (0 ms)
+[ RUN      ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations
+[       OK ] Srp.DomainFilterAndDuplicateDoNotGrowDeclarations (0 ms)
+[ RUN      ] Srp.MvrpAcceptsOnlyCurrentDomainVid
+[       OK ] Srp.MvrpAcceptsOnlyCurrentDomainVid (0 ms)
+[ RUN      ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt
+[       OK ] Srp.WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt (0 ms)
+[ RUN      ] Srp.AdmissionUsesBandwidthAndEthernetMinimum
+[       OK ] Srp.AdmissionUsesBandwidthAndEthernetMinimum (0 ms)
+[ RUN      ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry
+[       OK ] Srp.DomainExhaustionPreservesOldDeclarationUntilRetry (0 ms)
+[ RUN      ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding
+[       OK ] Srp.SinkDeclarationExhaustionRetriesWithoutLosingBinding (0 ms)
+[ RUN      ] Srp.LinkLossCancelsItsOwedFrameOnly
+[       OK ] Srp.LinkLossCancelsItsOwedFrameOnly (0 ms)
+[ RUN      ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch
+[       OK ] Srp.OneLoopOwnsTheGlobalCentisecondDispatch (0 ms)
+[ RUN      ] Srp.ListenerBeforeVlanCommitCannotStartTalker
+[       OK ] Srp.ListenerBeforeVlanCommitCannotStartTalker (0 ms)
+[ RUN      ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind
+[       OK ] Srp.SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind (0 ms)
+[ RUN      ] Srp.BoundOldDomainVlanSurvivesDomainChange
+[       OK ] Srp.BoundOldDomainVlanSurvivesDomainChange (0 ms)
+[ RUN      ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership
+[       OK ] Srp.PriorityOnlyDomainChangeKeepsVlanMembership (0 ms)
+[ RUN      ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent
+[       OK ] Srp.SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent (0 ms)
+[ RUN      ] Srp.SinkMembershipCommitsBeforeReadyAtStartup
+[       OK ] Srp.SinkMembershipCommitsBeforeReadyAtStartup (0 ms)
+[ RUN      ] Srp.InListenerWithdrawalRevokesLicenceImmediately
+[       OK ] Srp.InListenerWithdrawalRevokesLicenceImmediately (3 ms)
+[ RUN      ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener
+[       OK ] Srp.InTalkerWithdrawalImmediatelyWithdrawsListener (0 ms)
+[ RUN      ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence
+[       OK ] Srp.ReadyToReadyFailedNeverGlitchesAnActiveLicence (0 ms)
+[ RUN      ] Srp.AdmissionStraddlesTheExactEthernetCeiling
+[       OK ] Srp.AdmissionStraddlesTheExactEthernetCeiling (0 ms)
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[       OK ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[ RUN      ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart
+[       OK ] Srp.OldReceiveBacklogCannotRegisterAcrossLinkRestart (0 ms)
+[ RUN      ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire
+[       OK ] Srp.SharedIdentityReconcilesBothBindingOrdersOnTheWire (6 ms)
+[ RUN      ] Srp.RecreateAllocationFailureIsCountedAndRetried
+[       OK ] Srp.RecreateAllocationFailureIsCountedAndRetried (17 ms)
+[ RUN      ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix
+[       OK ] Srp.LinkEventsDiscardOnlyTheirPublishedReceivePrefix (0 ms)
+[ RUN      ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed
+[       OK ] Srp.LinkLevelLossAndFirstDownEventAreFailClosed (0 ms)
+[ RUN      ] Srp.EventReentryAndSinkCapacityAreGuarded
+[       OK ] Srp.EventReentryAndSinkCapacityAreGuarded (0 ms)
+[ RUN      ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord
+[       OK ] Srp.ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord (0 ms)
+[ RUN      ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive
+[       OK ] Srp.CancelledLinkRecordRecoversFromLevelAndFencesOldReceive (0 ms)
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[       OK ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (21 ms)
+[ RUN      ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation
+[       OK ] Srp.ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation (11 ms)
+[ RUN      ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves
+[       OK ] Srp.JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves (5 ms)
+[ RUN      ] Srp.ReboundStreamCannotInheritAnotherStreamsReady
+[       OK ] Srp.ReboundStreamCannotInheritAnotherStreamsReady (4 ms)
+[ RUN      ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:907: Failure
+Expected: (d.event) != (5u), actual: 5 vs 5
+final unbind must retain the Domain VID
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/0
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:916: Failure
+Value of: vlan_renewed
+  Actual: false
+Expected: true
+SR class membership still renews after unbind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/0
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:907: Failure
+Expected: (d.event) != (5u), actual: 5 vs 5
+final unbind must retain the Domain VID
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/1
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/1
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:916: Failure
+Value of: vlan_renewed
+  Actual: false
+Expected: true
+SR class membership still renews after unbind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/1
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 0/7/1
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:907: Failure
+Expected: (d.event) != (5u), actual: 5 vs 5
+final unbind must retain the Domain VID
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/0
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:916: Failure
+Value of: vlan_renewed
+  Actual: false
+Expected: true
+SR class membership still renews after unbind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/0
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/0
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:907: Failure
+Expected: (d.event) != (5u), actual: 5 vs 5
+final unbind must retain the Domain VID
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/1
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/1
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:916: Failure
+Value of: vlan_renewed
+  Actual: false
+Expected: true
+SR class membership still renews after unbind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/1
+
+  [FAIL] Srp.FinalDomainVidUnbindKeepsSrClassMembership: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:895: 1/7/1
+[  FAILED  ] Srp.FinalDomainVidUnbindKeepsSrClassMembership (7 ms)
+[ RUN      ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder
+[       OK ] Srp.LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder (2 ms)
+[ RUN      ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart
+[       OK ] Srp.RefusedPeerDomainDoesNotSurviveLinkRestart (0 ms)
+[ RUN      ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart
+[       OK ] Srp.SinkVlanRedeclaredBeforeReadyAfterLinkRestart (0 ms)
+[ RUN      ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan
+[       OK ] Srp.SharedReadyWaitsForTheMatchingBindingsOwnVlan (0 ms)
+[ RUN      ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline
+[       OK ] Srp.MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline (1 ms)
+[----------] 53 tests from Srp (93 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 1 test suite ran. (93 ms total)
+[  PASSED  ] 52 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.FinalDomainVidUnbindKeepsSrClassMembership
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 53   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 53 checks, exit 1)
+PLANT R-guard-startup-vid IF=2 rc=1 named=CAUGHT test=FinalDomainVidUnbindKeepsSrClassMembership needle=d.event failing=['Srp.FinalDomainVidUnbindKeepsSrClassMembership']

@@ -1,0 +1,73 @@
+HEAD 6f7deea15a9160761b30aaa93fe152f20d416695 tree 485029d20cffa5d1970a608553b169d547838779
+status:
+!! avdecc/__pycache__/aem_assemble.cpython-314.pyc
+!! avdecc/__pycache__/aem_descriptors.cpython-314.pyc
+!! avdecc/__pycache__/aem_emit.cpython-314.pyc
+!! avdecc/__pycache__/aem_maps.cpython-314.pyc
+!! avdecc/__pycache__/aem_specs.cpython-314.pyc
+!! avdecc/__pycache__/gen_aem_store.cpython-314.pyc
+!! scripts/__pycache__/check_nvm_record_space.cpython-314.pyc
+!! scripts/__pycache__/nvm_allocation_table.cpython-314.pyc
+!! scripts/__pycache__/nvm_contract.cpython-314.pyc
+!! scripts/__pycache__/nvm_klj2.cpython-314.pyc
+!! scripts/__pycache__/nvm_map_checks.cpython-314.pyc
+!! scripts/__pycache__/nvm_shape.cpython-314.pyc
+!! scripts/__pycache__/pp_srcs.cpython-314.pyc
+!! scripts/__pycache__/suite_tally.cpython-314.pyc
+!! sw/builder/__pycache__/endstation_builder.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_arms.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_build.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_mutants.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/ctrl_reuse.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/srp_arms.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/srp_mutants.cpython-314.pyc
+!! sw/firmware/ctrl/test/__pycache__/srp_reuse.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_bench.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_fixture.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_mutants.cpython-314.pyc
+!! sw/firmware/ctrl_nvm/test/__pycache__/nvm_rv32.cpython-314.pyc
+!! sw/firmware/gtest/__pycache__/fw_gtest.cpython-314.pyc
+!! sw/firmware/gtest/__pycache__/fw_rv32.cpython-314.pyc
+!! sw/firmware/nvm_hosttest/__pycache__/test_nvm_firmware.cpython-314.pyc
+!! sw/litex/__pycache__/boot_policy.cpython-314.pyc
+!! sw/litex/__pycache__/flash_map.cpython-314.pyc
+!! sw/litex/platforms/__pycache__/board_audio_routing.cpython-314.pyc
+!! sw/mailbox/__pycache__/gen_mailbox.cpython-314.pyc
+!! sw/mailbox/__pycache__/mailbox_emit.cpython-314.pyc
+!! sw/mailbox/__pycache__/mailbox_model.cpython-314.pyc
+!! sw/mailbox/__pycache__/mailbox_skeleton.cpython-314.pyc
+index-vs-HEAD:
+worktree-vs-index:
+hidden-flags:
+gitlinks HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d	gptp-processor
+160000 commit ead8036035affd53ef4b29979190f2f4f67084c0	protocol-processor
+160000 commit 23d9a8173b07503a0ee6e8528f922fceab4e67f0	third_party/lwSRP
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gitlinks index:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d 0	gptp-processor
+160000 ead8036035affd53ef4b29979190f2f4f67084c0 0	protocol-processor
+160000 23d9a8173b07503a0ee6e8528f922fceab4e67f0 0	third_party/lwSRP
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d gptp-processor (heads/main)
+ ead8036035affd53ef4b29979190f2f4f67084c0 protocol-processor (v2.0-592-gead80360)
+-23d9a8173b07503a0ee6e8528f922fceab4e67f0 third_party/lwSRP
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gitlink delta r4:
+:100644 100644 6a19b25c2 96dcb178e M	sw/firmware/ctrl/srp/README.md
+:100644 100644 da3bedf14 39732f7d7 M	sw/firmware/ctrl/test/srp_mbx.cpp
+:100644 100644 aed1e0a2e 382a02449 M	sw/firmware/ctrl/test/srp_mutants.py
+prod paths changed r4 (excluding test/ and README):
+lwSRP clone:
+23d9a8173b07503a0ee6e8528f922fceab4e67f0
+0
+--- after cleanup
+ignored+untracked entries: 0
+tracked non-gitlink files: 1169; byte-hash mismatches vs index: 0 (git hash-object --no-filters over every tracked non-gitlink path)
+index(mode,blob,path) sha256 9edb6a2d02c38d710d709f0ae7102a7f3a4b11253b8249a607572a80e3e1deb9
+HEAD tree(mode,blob,path) sha256 9edb6a2d02c38d710d709f0ae7102a7f3a4b11253b8249a607572a80e3e1deb9
+core.filemode=true; mode drift via git diff: none (git diff --quiet rc 0)

@@ -1,0 +1,15 @@
+# final rc per gate at 6f7deea1 (em_dash/gen_toc rerun with the pinned renderer lock in a private venv; control-flow/cohesion dropped: those scripts have no --check mode and CI runs only their --selftest)
+gate_cpp_idiom 0    build without warnings: 0 <= 0
+gate_doc_paths 0  doc path gate: OK (937 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+gate_docs_check 0  docs_check: 0 finding(s) across 199 md files + 1145 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+gate_doc_style 0  documentation style: OK (22 current documents)
+gate_em_dash_pr 0  check_em_dash: 0 finding(s) over 567 added line(s) in 13 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [db9aa8c9..HEAD]
+gate_em_dash_r4 0  check_em_dash: 0 finding(s) over 2 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [c1049de1..HEAD]
+gate_fail_fast 0    the ratchets can be lowered to 80, 4 and 0
+gate_gen_toc_anchors 0  anchor check: 391 existing cross-page fragment links reproduced
+gate_gen_toc_check 0  TOC gate: OK (139 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+gate_hygiene 0  HYGIENE RATCHET: PASS (3 population(s), 1021 file(s))
+gate_naming 0  NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+gate_py_idiom 0    over-long line: 0 <= 0
+gate_test_evidence 0    the mutation ratchet can be lowered to 71
+gate_todo 0  TODO ownership gate: OK (0 owned marker(s), 0 unowned; 37 near-miss occurrence(s) on 30 line(s) correctly not treated as markers; 1079 first-party file(s) read)

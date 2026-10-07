@@ -1,0 +1,150 @@
+Note: Google Test filter = Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:760: Failure
+Expected equality of these values:
+  left
+    Which is: false
+  !retain_match
+    Which is: true
+withdraw the last eligible shared request
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:761: Failure
+Expected equality of these values:
+  ready
+    Which is: true
+  retain_match
+    Which is: false
+no stale Ready renewal after rebind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:768: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  5u
+    Which is: 5
+removing the eligible user leaves no Ready
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:760: Failure
+Expected equality of these values:
+  left
+    Which is: false
+  !retain_match
+    Which is: true
+withdraw the last eligible shared request
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:761: Failure
+Expected equality of these values:
+  ready
+    Which is: true
+  retain_match
+    Which is: false
+no stale Ready renewal after rebind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:768: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  5u
+    Which is: 5
+removing the eligible user leaves no Ready
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 0/0/true/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:760: Failure
+Expected equality of these values:
+  left
+    Which is: false
+  !retain_match
+    Which is: true
+withdraw the last eligible shared request
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:761: Failure
+Expected equality of these values:
+  ready
+    Which is: true
+  retain_match
+    Which is: false
+no stale Ready renewal after rebind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:768: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  5u
+    Which is: 5
+removing the eligible user leaves no Ready
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/false/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:760: Failure
+Expected equality of these values:
+  left
+    Which is: false
+  !retain_match
+    Which is: true
+withdraw the last eligible shared request
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:761: Failure
+Expected equality of these values:
+  ready
+    Which is: true
+  retain_match
+    Which is: false
+no stale Ready renewal after rebind
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:768: Failure
+Expected equality of these values:
+  d.event
+    Which is: 3
+  5u
+    Which is: 5
+removing the eligible user leaves no Ready
+Google Test trace:
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+
+  [FAIL] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest: $REPO/sw/firmware/ctrl/test/srp_mbx.cpp:745: 1/0/true/false
+[  FAILED  ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest (12 ms)
+[----------] 1 test from Srp (12 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (12 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.SharedRebindKeepsOnlyTheRemainingEligibleRequest
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

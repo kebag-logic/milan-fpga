@@ -1,0 +1,74 @@
+Note: Google Test filter = Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.priority
+    Which is: '\x4' (4)
+  3u
+    Which is: 3
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 3
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.vid
+    Which is: 3
+  2u
+    Which is: 2
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 2
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:558: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:560: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.priority
+    Which is: '\x4' (4)
+  3u
+    Which is: 3
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 3
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:557: Failure
+Expected equality of these values:
+  adapter.ifs[i].domain.vid
+    Which is: 3
+  2u
+    Which is: 2
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations:     Which is: 2
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:558: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+$REPO/sw/firmware/ctrl/test/srp_mbx.cpp:560: Failure
+Value of: adapter.ifs[i].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations: Expected: false
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.AdjacentLinkEdgesResetDomainAndAllPriorRegistrations
+
+ 1 FAILED TEST
+== ctrl SRP mailbox: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
