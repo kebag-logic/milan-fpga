@@ -1,0 +1,54 @@
+[
+  {
+    "name": "ctrl-firmware",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+      "--require-rv32",
+      "--build-dir",
+      "${PACKET}/scratch/ctrl"
+    ],
+    "rc": 0,
+    "seconds": 43.41
+  },
+  {
+    "name": "firmware-coverage",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--check",
+      "--jobs",
+      "4",
+      "--keep",
+      "${PACKET}/scratch/coverage"
+    ],
+    "rc": 0,
+    "seconds": 134.15
+  },
+  {
+    "name": "rv32-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_rv32_selftest.py",
+      "--require-rv32"
+    ],
+    "rc": 0,
+    "seconds": 5.38
+  },
+  {
+    "name": "coverage-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/firmware/gtest/fw_coverage.py",
+      "--selftest",
+      "--jobs",
+      "1"
+    ],
+    "rc": 0,
+    "seconds": 0.52
+  }
+]

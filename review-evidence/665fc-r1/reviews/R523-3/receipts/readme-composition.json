@@ -1,0 +1,65 @@
+{
+  "sw/firmware/ctrl/README.md": {
+    "raw_three_way_merge": "exact candidate bytes",
+    "sha256": "69fa5f462c0de2aafc46422541b5f027f56f8d8992ee2bff250bf1c2b3af5fd3"
+  },
+  "sw/firmware/gtest/README.md": {
+    "raw_three_way_merge": "exact candidate bytes",
+    "sha256": "6f9428f6b3403f0225d9f8f2410171ea26166f6185ba8a8d1ad736c97981fcab"
+  },
+  "exclusions": {
+    "rows": 14,
+    "all_four_versions_identical": true
+  },
+  "arms": {
+    "default": [
+      "model",
+      "port",
+      "unit",
+      "adp",
+      "walk",
+      "entity",
+      "rv32"
+    ],
+    "optional": "lwsrp",
+    "lwsrp_revision": "19f5796b63652eb1151906de73cb827d4980a53f"
+  },
+  "executed_counts": {
+    "model": 22,
+    "port": 31,
+    "unit": 25,
+    "unit_split": [
+      23,
+      2
+    ]
+  },
+  "documented_cli_flags": {
+    "sw/firmware/ctrl/test/test_ctrl_firmware.py": [
+      "--require-rv32",
+      "--self-test",
+      "--lwsrp"
+    ],
+    "sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py": [
+      "--require-rv32",
+      "--self-test",
+      "--jobs"
+    ],
+    "sw/firmware/gtest/tally_selftest.py": [
+      "--mutants"
+    ],
+    "sw/firmware/gtest/fw_coverage.py": [
+      "--check",
+      "--selftest",
+      "--lwsrp"
+    ],
+    "sw/firmware/gtest/fw_rv32_selftest.py": [
+      "--require-rv32"
+    ]
+  },
+  "rv32_compiler": {
+    "selector": "MILAN_RV32_CC",
+    "basename": "riscv32-linux-gcc",
+    "version": "14.3.0",
+    "target": "riscv32-buildroot-linux-gnu"
+  }
+}

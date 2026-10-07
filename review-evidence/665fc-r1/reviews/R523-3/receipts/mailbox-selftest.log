@@ -1,0 +1,38 @@
+[ok] positive control: generated outputs cross-check clean
+[ok] planted C header field width: C header: MBX_RXREC_W0_LEN_WIDTH = 0xf, the contract says 0x10
+[ok] planted C header field moved: C header: MBX_TMR_CMD_TAG_LSB = 0x0, the contract says 0x8
+[ok] planted SV package ring base: SV package: MBX_CH_ADP_RX_BASE = 0x1400, the contract says 0x1000
+[ok] planted SV package field lsb: SV package: MBX_EV_TIMER_W1_SLOT_LSB = 0x18, the contract says 0x10
+[ok] planted reference page value: reference page: MBX_REG_TMR_CMD = 0x38, the contract says 0x3c
+[ok] planted C header constant dropped: C header: MBX_EV_TYPE_GM is missing
+[ok] planted C header table order: C header: table MBX_CH_RX_WORDS_TBL lists ['CH_ACMP_RX_WORDS', 'CH_ADP_RX_WORDS', 'CH_AECP_RX_WORDS', 'CH_MAAP_RX_WORDS', 'CH_SRP_RX_WORDS'], want ['CH_ADP_RX_WORDS', 'CH_ACMP_RX_WORDS', 'CH_AECP_RX_WORDS', 'CH_MAAP_RX_WORDS', 'CH_SRP_RX_WORDS']
+[ok] planted skeleton register dropped: skeleton: register OWN_EID_HI is never decoded
+[ok] planted C header tuple destination: C header: MBX_CH_AECP_M0_DST = 0x1, the contract says 0x2
+[ok] planted SV package tuple address: SV package: MBX_CH_SRP_M1_DST_LO = 0xc200000e, the contract says 0xc2000021
+[ok] planted C header response term: C header: MBX_CH_AECP_T1_MSG_MASK = 0x5555, the contract says 0xaaaa
+[ok] planted reference page counter: reference page: MBX_REG_FILTER_MISMATCH = 0x70, the contract says 0x74
+[ok] planted C header tuple table order: C header: table MBX_TUPLE_ETHERTYPE_TBL lists ['CH_ADP_M1_ETHERTYPE', 'CH_ADP_M0_ETHERTYPE', 'CH_ACMP_M0_ETHERTYPE', 'CH_ACMP_M1_ETHERTYPE', 'CH_AECP_M0_ETHERTYPE', 'CH_AECP_M1_ETHERTYPE', 'CH_MAAP_M0_ETHERTYPE', 'CH_MAAP_M1_ETHERTYPE', 'CH_SRP_M0_ETHERTYPE', 'CH_SRP_M1_ETHERTYPE'], want ['CH_ADP_M0_ETHERTYPE', 'CH_ADP_M1_ETHERTYPE', 'CH_ACMP_M0_ETHERTYPE', 'CH_ACMP_M1_ETHERTYPE', 'CH_AECP_M0_ETHERTYPE', 'CH_AECP_M1_ETHERTYPE', 'CH_MAAP_M0_ETHERTYPE', 'CH_MAAP_M1_ETHERTYPE', 'CH_SRP_M0_ETHERTYPE', 'CH_SRP_M1_ETHERTYPE']
+[ok] planted skeleton own MAC dropped: skeleton: register OWN_MAC_HI is never decoded
+[ok] planted C header DEFEND tuple's message types: C header: MBX_CH_MAAP_M1_MSG_MASK = 0xffff, the contract says 0x4
+[ok] planted SV package DEFEND tuple dropped: SV package: MBX_CH_MAAP_M1_DST = 0x0, the contract says 0x2
+[ok] contract arm overlapping field: refused (registers.ID.MAJOR: overlaps another field)
+[ok] contract arm ring not a power of two: refused (adp rx: 192 words is not a power of two below 2^(index_bits-1))
+[ok] contract arm rings overlap: refused (adp tx overlaps adp rx)
+[ok] contract arm two channels, one EtherType: refused (acmp and adp both claim EtherType 0x22f0)
+[ok] contract arm register outside its block: refused (registers.BUS_ERR: offset 0x400 is unaligned or outside 0x400)
+[ok] contract arm register with no fabric source: refused (register BUS_ERRX: the skeleton has no fabric source for every field)
+[ok] contract arm term past the frame: refused (channels.acmp: a field at byte 124 ends past max_frame_bytes 128)
+[ok] contract arm a tuple names the C-VLAN TPID: refused (srp: a tuple names the VLAN tag TPID 0x8100; a tagged frame must reach no channel)
+[ok] contract arm a tuple names the S-VLAN TPID: refused (srp: a tuple names the VLAN tag TPID 0x88a8; a tagged frame must reach no channel)
+[ok] contract arm a tuple with no destination: refused (channels.aecp.match: missing `dst`)
+[ok] contract arm own MAC spills its stride: refused (interface filter registers spill out of their 0x4 stride)
+[ok] contract arm own MAC over the channel registers: refused (channel 0 RX_HEAD at 0x100 collides or leaves the register space)
+[ok] contract arm message types with no subtype: refused (channels.srp.match: a tuple names message types but no AVTP subtype to read them after)
+[ok] contract arm a message type wider than four bits: refused (channels.maap.match: a tuple's msg_types is a list of distinct message types 0 to 15)
+[ok] contract arm message_type not the byte after the subtype: refused (a tuple's message_type is read from the byte after the subtype)
+wrote $REVIEWS/665fc-r523-3-packet/scratch/tmp/mbx-selftest-6warfv3i/if2/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665fc-r523-3-packet/scratch/tmp/mbx-selftest-6warfv3i/if2/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665fc-r523-3-packet/scratch/tmp/mbx-selftest-6warfv3i/if2/mbx_contract.h (2 interfaces)
+[ok] variant of 2 interfaces: generated outputs cross-check clean
+[ok] variant of 4 interfaces: refused (interface 2 GM_LO at 0x60 collides or leaves the register space)
+selftest: 0 arm(s) failed

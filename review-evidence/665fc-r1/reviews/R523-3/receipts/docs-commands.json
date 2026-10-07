@@ -1,0 +1,144 @@
+[
+  {
+    "name": "docs-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 5.84
+  },
+  {
+    "name": "toc-check",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.29
+  },
+  {
+    "name": "toc-anchors",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.38
+  },
+  {
+    "name": "toc-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/gen_toc.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 1.02
+  },
+  {
+    "name": "em-dash",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "af5be4710c3516cc247c353213d6939fa8d23f57"
+    ],
+    "rc": 0,
+    "seconds": 3.99
+  },
+  {
+    "name": "em-dash-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 3.99
+  },
+  {
+    "name": "doc-paths",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.12
+  },
+  {
+    "name": "feature-status",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "rc": 0,
+    "seconds": 0.97
+  },
+  {
+    "name": "ci-events",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 0.22
+  },
+  {
+    "name": "ci-events-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 18.67
+  },
+  {
+    "name": "test-evidence",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 7.13
+  },
+  {
+    "name": "mailbox-contract",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--check",
+      "--crosscheck"
+    ],
+    "rc": 0,
+    "seconds": 0.17
+  },
+  {
+    "name": "mailbox-selftest",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/mailbox/gen_mailbox.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "seconds": 0.77
+  }
+]

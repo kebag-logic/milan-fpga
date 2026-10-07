@@ -1,0 +1,133 @@
+{
+  "observed_utc": "2026-10-07T04:47:05.576618+00:00",
+  "head": "64e62816ad21791f6df3657fadb935aec5555881",
+  "pr_source_head": "db9aa8c9b135b34ff3d070a979dee70440b37cc6",
+  "review_comments": [
+    {
+      "id": 6026554466,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6026554466",
+      "header": "[R523] POSITIVE - exact head 021b9c1fb966e9a1a4acef6b5233edd3518f32a0"
+    },
+    {
+      "id": 6026704364,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6026704364",
+      "header": "[R522] POSITIVE - exact head 021b9c1fb966e9a1a4acef6b5233edd3518f32a0"
+    },
+    {
+      "id": 6027873907,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6027873907",
+      "header": "[R523] POSITIVE - exact head db9aa8c9b135b34ff3d070a979dee70440b37cc6"
+    },
+    {
+      "id": 6028034458,
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6028034458",
+      "header": "[R522] POSITIVE - exact head db9aa8c9b135b34ff3d070a979dee70440b37cc6"
+    }
+  ],
+  "submitted_reviews": [],
+  "inline_reviews": [],
+  "findings": [
+    {
+      "id": "R523-1-R1",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "retained",
+      "artifact": "PR #685 body",
+      "evidence": {
+        "U+2014_occurrences": 9,
+        "line_numbers": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          16
+        ]
+      },
+      "exact_fix": "Replace every U+2014 separator in the PR body with ASCII --, preserving adjacent words, links and numbers."
+    },
+    {
+      "id": "R522-1-S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests",
+        "Robustness"
+      ],
+      "status": "retained",
+      "artifact": "hdl/milan/mailbox/KL_mbx_rx.sv:177,375,412; tb/verilator/mbx/suite.hpp",
+      "evidence": "Source-identical guards and suite; no composition edit adds saturation, post-mismatch sub-15-byte, or absent-interface zero-MAC regression checks.",
+      "optional_outcome": "Add those three permanent checks; each corresponding guard deletion must fail its named check."
+    },
+    {
+      "id": "R522-1-S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests"
+      ],
+      "status": "retained",
+      "artifact": "sw/mailbox/gen_mailbox.py:261; sw/mailbox/mailbox_model.py:353",
+      "evidence": "Generator self-test still plants the C- and S-VLAN TPIDs; no I-tag TPID plant was added.",
+      "optional_outcome": "Add a 0x88E7 contract plant and require the named TPID refusal."
+    },
+    {
+      "id": "R522-2-S1",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "Tests"
+      ],
+      "status": "retained",
+      "artifact": "hdl/milan/mailbox/KL_mbx_rx.sv:163; tb/verilator/mbx/suite.hpp:1211",
+      "evidence": "Source-identical live-subtype branch and suite; manager retained suggestion in comment 6028036349.",
+      "optional_outcome": "Add byte-14 termination after a different prior subtype and require the stale-subtype plant to fail on both adapters."
+    },
+    {
+      "id": "R522-2-S2",
+      "severity": "SUGGESTION",
+      "lenses": [
+        "RTL",
+        "Docs"
+      ],
+      "status": "retained",
+      "artifact": "hdl/milan/mailbox/KL_mbx_rx.sv:134,157,230; docs/design/MAILBOX_SPLIT.md:170",
+      "evidence": "Source-identical queue and decision logic; PR sentence clarified but design page has no added explicit byte-16 cycle note. Manager accepted as a future tap-lane note in comment 6028036349.",
+      "optional_outcome": "Document the byte-16 one-cycle stall for tap integration; verify the documented statement against the existing valid/ready behavior."
+    },
+    {
+      "id": "R522-2-RES1",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "resolved",
+      "artifact": "PR #685 Description table, Round 2 row",
+      "evidence": "Exact reviewer-requested replacement sentence is present."
+    },
+    {
+      "id": "R522-2-RES2",
+      "severity": "RESIDUE",
+      "lenses": [
+        "Docs"
+      ],
+      "status": "resolved",
+      "artifact": "PR #685 Status",
+      "evidence": "Exact reviewer-requested replacement sentence is present."
+    },
+    {
+      "id": "F2 STOP 6026825549",
+      "severity": null,
+      "lenses": [
+        "Conformance"
+      ],
+      "status": "resolved within FC scope",
+      "artifact": "sw/mailbox/mailbox.yaml:514; tb/verilator/mbx/suite.hpp:1180",
+      "evidence": "Own-unicast DEFEND rule retained from approved source; candidate model arm including Q11 passes. Other F2 scope is not discharged."
+    }
+  ],
+  "manager_ruling": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6028036349",
+  "owner_approval": "https://github.com/kebag-logic/milan-fpga/pull/685#issuecomment-6030236904"
+}
