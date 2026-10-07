@@ -1,0 +1,8 @@
+src/core/mrp_pdu.c: In function ‘parse_pass’:
+src/core/mrp_pdu.c:155:16: error: ‘vh’ may be used uninitialized [-Werror=maybe-uninitialized]
+  155 |             if (vh == 0) {
+      |                ^
+src/core/mrp_pdu.c:152:22: note: ‘vh’ was declared here
+  152 |             uint16_t vh;
+      |                      ^~
+cc1: all warnings being treated as errors

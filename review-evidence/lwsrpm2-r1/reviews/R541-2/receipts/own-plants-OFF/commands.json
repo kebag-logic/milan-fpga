@@ -1,0 +1,131 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$PACKET/scratch/own-plants-OFF/source",
+      "-B",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=$PACKET/scratch/deps",
+      "-DLWSRP_MILAN=OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-domain-byte-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-domain-byte-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "own-destination-increment-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-destination-increment",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "own-missing-destination-replay-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "own-missing-destination-replay",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$PACKET/scratch/own-plants-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]

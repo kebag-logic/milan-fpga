@@ -1,0 +1,27 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_receive_conditions_follow_link_mode 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[5]
+		expected value:			[4]
+
+  "integration_suite": 370 passes, 1 failure in 10ms.
+  "milan_suite": 442 passes in 9ms.
+  "boundaries_suite": 1167 passes in 13ms.
+Completed "main": 3895 passes, 1 failure in 56ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

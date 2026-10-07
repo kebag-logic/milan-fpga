@@ -1,0 +1,54 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 5ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+  "integration_suite": 364 passes, 7 failures in 12ms.
+  "milan_suite": 442 passes in 12ms.
+  "boundaries_suite": 1167 passes in 15ms.
+Completed "main": 3889 passes, 7 failures in 67ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,87 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.10 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 15ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:99: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [mrp_rx(a,0,rx,sizeof(rx))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:100: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [msrp_declare_talker(a,0,&talker,0)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:101: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [msrp_withdraw_talker(a,0,&talker.stream_id)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:105: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [memcmp(buffer,saved,sizeof(buffer))] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:108: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [memcmp(frame,saved,frame_len)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/transmit_test.c:111: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [left] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "transmit_suite": 100 passes, 6 failures in 6ms.
+  "integration_suite": 371 passes in 12ms.
+  "milan_suite": 430 passes in 10ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:233: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:242: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [memcmp(saved, tx, sizeof(tx))] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:244: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).appl] to [equal] [withdrawal ? MRP_APPL_STATE_LA : MRP_APPL_STATE_VP]
+		actual value:			[4]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:247: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).appl] to [equal] [withdrawal ? MRP_APPL_STATE_VO : MRP_APPL_STATE_AA]
+		actual value:			[5]
+		expected value:			[4]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:238: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).appl] to [equal] [MRP_APPL_STATE_QA]
+		actual value:			[6]
+		expected value:			[5]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:242: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [memcmp(saved, tx, sizeof(tx))] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:244: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).appl] to [equal] [withdrawal ? MRP_APPL_STATE_LA : MRP_APPL_STATE_VP]
+		actual value:			[0]
+		expected value:			[6]
+
+  "boundaries_suite": 1160 passes, 7 failures in 45ms.
+Completed "main": 3871 passes, 13 failures in 95ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.10 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,31 @@
+{
+  "source_export": [
+    "git",
+    "archive",
+    "23d9a817"
+  ],
+  "compile": [
+    "cc",
+    "-std=c11",
+    "-g",
+    "-fsanitize=address,undefined",
+    "-Isrc/include",
+    "-Isrc",
+    "$PACKET/scripts/probe.c",
+    "src/core/mrp_mad.c",
+    "src/core/mrp_pdu.c",
+    "src/modules/mvrp.c",
+    "src/modules/mmrp.c",
+    "src/modules/msrp.c",
+    "src/ports/timer.c",
+    "-o",
+    "$PACKET/scratch/parent-probe"
+  ],
+  "cwd": "$PACKET/scratch/parent",
+  "run": [
+    "$PACKET/scratch/parent-probe",
+    "order"
+  ],
+  "compile_rc": 0,
+  "run_rc": 0
+}

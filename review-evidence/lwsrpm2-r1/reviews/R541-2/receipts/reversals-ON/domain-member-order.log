@@ -1,0 +1,27 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/msrp_values_test.c:46: Failure: msrp_values_suite -> domain_callback_preserves_existing_member_order 
+	Expected [__builtin_offsetof (struct msrp_ctx, on_talker_advertise)] to [equal] [0]
+		actual value:			[8]
+		expected value:			[0]
+
+  "msrp_values_suite": 22 passes, 1 failure in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 430 passes in 9ms.
+  "boundaries_suite": 1167 passes in 15ms.
+Completed "main": 3883 passes, 1 failure in 58ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,92 @@
+Test project $PACKET/scratch/own-plants-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+$PACKET/scratch/own-plants-OFF/source/tests/unit/msrp_values_test.c:34: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [failed.talker.dest_mac[4]] to [equal] [0x35]
+		actual value:			[52]
+		expected value:			[53]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/msrp_values_test.c:35: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [failed.talker.dest_mac[5]] to [equal] [1]
+		actual value:			[255]
+		expected value:			[1]
+
+  "msrp_values_suite": 21 passes, 2 failures in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 10ms.
+  "milan_suite": 442 passes in 9ms.
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:56: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:57: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:58: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:59: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[4]
+		expected value:			[2]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:60: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:57: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:56: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrpdu_parse(pdu, len, a->ops, attribute, leaveall, ((void *)0))] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:57: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:58: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_rx(a, 0, pdu, len)] to [be less than] [0]
+		actual value:			[0]
+		expected to be less than:	[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:59: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[10]
+		expected value:			[8]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:60: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$PACKET/scratch/own-plants-OFF/source/tests/unit/review_test.c:57: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+  "boundaries_suite": 1155 passes, 12 failures in 12ms.
+Completed "main": 3882 passes, 14 failures in 55ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "cmake",
+    "-S",
+    "$SOURCE",
+    "-B",
+    "$PACKET/scratch/build-OFF",
+    "-DCMAKE_BUILD_TYPE=Debug",
+    "-DCMAKE_PREFIX_PATH=$PACKET/scratch/deps",
+    "-DLWSRP_MILAN=OFF"
+  ],
+  "cwd": "$SOURCE",
+  "environment": {},
+  "rc": 0
+}

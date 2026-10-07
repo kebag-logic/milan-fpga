@@ -1,0 +1,127 @@
+label	profile	build_rc	check_rc	failing_tests_or_expected_check
+timer-unlink	OFF	0	8	timer_suite -> remove_head_middle_tail_and_reinitialize
+msrp-address	OFF	0	8	integration_suite -> every_application_uses_its_standard_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+mmrp-address	OFF	0	8	integration_suite -> every_application_uses_its_standard_destination
+mvrp-address	OFF	0	8	integration_suite -> every_application_uses_its_standard_destination
+domain-offset	OFF	0	8	msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+talker-offset	OFF	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+listener-offset	OFF	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+wire-prevalidation	OFF	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; boundaries_suite -> reserved_leaveall_events_are_rejected_atomically; boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic; integration_suite -> a_malformed_later_message_has_no_earlier_indications; receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+pdu-endmark	OFF	0	8	receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+leaveall-scope	OFF	0	8	integration_suite -> mmrp_leaveall_changes_only_the_message_type_and_port; integration_suite -> msrp_leaveall_changes_only_the_message_type_and_port
+local-registration	OFF	0	8	transmit_suite -> fresh_ladder_and_refusal_are_transactional; transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall
+registrar-condition	OFF	0	8	transmit_suite -> fresh_ladder_and_refusal_are_transactional
+periodic-interval	OFF	0	8	integration_suite -> periodic_is_one_second_independent_of_join_time; transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait
+leaveall-randomization	OFF	0	8	integration_suite -> leaveall_draws_are_inside_the_required_interval
+refused-storage	OFF	0	8	boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall
+registrar-during-refusal	OFF	0	8	integration_suite -> registrar_ages_while_a_transmission_is_retained
+changed-listener-indication	OFF	0	8	receive_suite -> changed_registered_listener_notifies_without_duplicate_join
+receive-opportunity	OFF	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission; transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait
+receive-interest	OFF	0	8	receive_suite -> uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed
+reclaim	OFF	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission; boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; receive_suite -> uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed
+split-fairness	OFF	0	8	transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats
+received-withdrawal-value	OFF	0	8	milan_suite -> disabled_application_option_preserves_ieee_timing; milan_suite -> leave_in_lv_keeps_the_original_deadline; milan_suite -> listener_leave_in_is_immediate; milan_suite -> msrp_constructor_selects_the_build_profile; receive_suite -> withdrawal_does_not_replace_the_registered_declaration
+local-withdrawal-value	OFF	0	8	integration_suite -> local_withdrawal_keeps_the_registered_listener_value
+talker-replacement	OFF	0	8	receive_suite -> talker_join_replaces_the_other_type_on_the_same_port
+listener-redeclaration	OFF	0	8	transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant
+domain-member-order	OFF	0	8	msrp_values_suite -> domain_callback_preserves_existing_member_order
+hosted-allocation-header	OFF	intentional compile/dependency check	1	FAIL src/core/mrp_mad.c: hosted headers stdlib.h
+hosted-error-header	OFF	intentional compile/dependency check	1	FAIL src/core/mrp_pdu.c: hosted headers errno.h
+point-to-point-condition	OFF	0	8	integration_suite -> applicant_receive_conditions_follow_link_mode
+shared-in-condition	OFF	0	8	integration_suite -> applicant_receive_conditions_follow_link_mode
+withdrawal-transition	OFF	0	8	boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table
+periodic-passive	OFF	0	8	integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table
+leaveall-all-types	OFF	0	8	integration_suite -> transmitted_leaveall_includes_every_supported_type
+unknown-stream-message	OFF	0	8	boundaries_suite -> later_versions_skip_unknown_messages_in_every_application; integration_suite -> later_versions_skip_unknown_stream_messages
+bounded-header-initialization	OFF	intentional compile/dependency check	1	src/core/mrp_pdu.c:155:16: error: ‘vh’ may be used uninitialized [-Werror=maybe-uninitialized]
+milan-delayed-in-leave	OFF	0	8	milan_suite -> listener_leave_in_is_immediate; milan_suite -> talker_leave_in_is_immediate
+milan-restarted-lv-deadline	OFF	0	8	milan_suite -> leave_in_lv_keeps_the_original_deadline
+milan-profile-selection	OFF	0	8	milan_suite -> msrp_constructor_selects_the_build_profile
+milan-option-scope	OFF	0	8	boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map; milan_suite -> disabled_application_option_preserves_ieee_timing; milan_suite -> mmrp_keeps_ieee_leave_timing; milan_suite -> msrp_constructor_selects_the_build_profile; milan_suite -> mvrp_keeps_ieee_leave_timing
+application-decode-error	OFF	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+stream-increment-overflow	OFF	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination
+domain-priority-range	OFF	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+domain-class-range	OFF	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu
+vlan-range	OFF	0	8	boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+mac-increment-overflow	OFF	0	8	boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+unknown-event-extension	OFF	0	8	boundaries_suite -> later_versions_skip_unknown_events_but_current_versions_reject_them
+current-version-extension	OFF	0	8	boundaries_suite -> later_versions_skip_unknown_events_but_current_versions_reject_them; boundaries_suite -> later_versions_skip_unknown_messages_in_every_application; boundaries_suite -> reserved_leaveall_events_are_rejected_atomically; receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+propagation-retention	OFF	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order
+propagation-order	OFF	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation
+registrar-recovery-indication	OFF	0	8	boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+committed-local-leaveall	OFF	0	8	boundaries_suite -> full_leaveall_reports_each_required_transition
+omitted-leaveall-event	OFF	0	8	boundaries_suite -> full_leaveall_reports_each_required_transition
+reserved-leaveall-event	OFF	0	8	boundaries_suite -> reserved_leaveall_events_are_rejected_atomically
+listener-subtype	OFF	0	8	transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant
+leaveall-upper-bound	OFF	0	8	integration_suite -> leaveall_draws_are_inside_the_required_interval
+reclaim-leaving-observer	OFF	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission
+milan-redeclare-scope	OFF	0	8	milan_suite -> redeclare_keeps_the_ieee_deadline
+milan-transmitted-leaveall-scope	OFF	0	8	milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline
+received-leaveall-restart	OFF	0	8	boundaries_suite -> received_leaveall_restarts_the_participant_deadline
+embedded-switch-source	OFF	intentional compile/dependency check	1	embedded_switch.c:(.text+0xdb): undefined reference to `shlan_connect'; /usr/bin/ld: embedded_switch.c:(.text+0xf1): undefined reference to `shlan_port_enable'; /usr/bin/ld: embedded_switch.c:(.text+0x107): undefined reference to `shlan_port_disable'; /usr/bin/ld: embedded_switch.c:(.text+0x11f): undefined reference to `shlan_disconnect'
+own-domain-byte-order	OFF	0	8	msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+own-destination-increment	OFF	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+own-missing-destination-replay	OFF	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order
+timer-unlink	ON	0	8	timer_suite -> remove_head_middle_tail_and_reinitialize
+msrp-address	ON	0	8	integration_suite -> every_application_uses_its_standard_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+mmrp-address	ON	0	8	integration_suite -> every_application_uses_its_standard_destination
+mvrp-address	ON	0	8	integration_suite -> every_application_uses_its_standard_destination
+domain-offset	ON	0	8	msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+talker-offset	ON	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+listener-offset	ON	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+wire-prevalidation	ON	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; boundaries_suite -> reserved_leaveall_events_are_rejected_atomically; boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic; integration_suite -> a_malformed_later_message_has_no_earlier_indications; receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+pdu-endmark	ON	0	8	receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+leaveall-scope	ON	0	8	integration_suite -> mmrp_leaveall_changes_only_the_message_type_and_port; integration_suite -> msrp_leaveall_changes_only_the_message_type_and_port
+local-registration	ON	0	8	transmit_suite -> fresh_ladder_and_refusal_are_transactional; transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall
+registrar-condition	ON	0	8	transmit_suite -> fresh_ladder_and_refusal_are_transactional
+periodic-interval	ON	0	8	integration_suite -> periodic_is_one_second_independent_of_join_time; transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait
+leaveall-randomization	ON	0	8	integration_suite -> leaveall_draws_are_inside_the_required_interval
+refused-storage	ON	0	8	boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall
+registrar-during-refusal	ON	0	8	integration_suite -> registrar_ages_while_a_transmission_is_retained
+changed-listener-indication	ON	0	8	receive_suite -> changed_registered_listener_notifies_without_duplicate_join
+receive-opportunity	ON	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission; transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait
+receive-interest	ON	0	8	receive_suite -> uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed
+reclaim	ON	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission; boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; receive_suite -> uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed
+split-fairness	ON	0	8	transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats
+received-withdrawal-value	ON	0	8	milan_suite -> disabled_application_option_preserves_ieee_timing; milan_suite -> leave_in_lv_keeps_the_original_deadline; milan_suite -> listener_leave_in_is_immediate; milan_suite -> msrp_constructor_selects_the_build_profile; receive_suite -> withdrawal_does_not_replace_the_registered_declaration
+local-withdrawal-value	ON	0	8	integration_suite -> local_withdrawal_keeps_the_registered_listener_value
+talker-replacement	ON	0	8	receive_suite -> talker_join_replaces_the_other_type_on_the_same_port
+listener-redeclaration	ON	0	8	transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant
+domain-member-order	ON	0	8	msrp_values_suite -> domain_callback_preserves_existing_member_order
+hosted-allocation-header	ON	intentional compile/dependency check	1	FAIL src/core/mrp_mad.c: hosted headers stdlib.h
+hosted-error-header	ON	intentional compile/dependency check	1	FAIL src/core/mrp_pdu.c: hosted headers errno.h
+point-to-point-condition	ON	0	8	integration_suite -> applicant_receive_conditions_follow_link_mode
+shared-in-condition	ON	0	8	integration_suite -> applicant_receive_conditions_follow_link_mode
+withdrawal-transition	ON	0	8	boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order; integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table
+periodic-passive	ON	0	8	integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table
+leaveall-all-types	ON	0	8	integration_suite -> transmitted_leaveall_includes_every_supported_type
+unknown-stream-message	ON	0	8	boundaries_suite -> later_versions_skip_unknown_messages_in_every_application; integration_suite -> later_versions_skip_unknown_stream_messages
+bounded-header-initialization	ON	intentional compile/dependency check	1	src/core/mrp_pdu.c:155:16: error: ‘vh’ may be used uninitialized [-Werror=maybe-uninitialized]
+milan-delayed-in-leave	ON	0	8	milan_suite -> listener_leave_in_is_immediate; milan_suite -> msrp_constructor_selects_the_build_profile; milan_suite -> talker_leave_in_is_immediate
+milan-restarted-lv-deadline	ON	0	8	milan_suite -> leave_in_lv_keeps_the_original_deadline; transmit_suite -> leaveall_then_withdrawal_retains_until_leave_expiry
+milan-profile-selection	ON	0	8	milan_suite -> msrp_constructor_selects_the_build_profile
+milan-option-scope	ON	0	8	boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map; milan_suite -> disabled_application_option_preserves_ieee_timing; milan_suite -> mmrp_keeps_ieee_leave_timing; milan_suite -> mvrp_keeps_ieee_leave_timing
+application-decode-error	ON	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+stream-increment-overflow	ON	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination
+domain-priority-range	ON	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+domain-class-range	ON	0	8	boundaries_suite -> application_errors_reject_the_whole_pdu
+vlan-range	ON	0	8	boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+mac-increment-overflow	ON	0	8	boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic
+unknown-event-extension	ON	0	8	boundaries_suite -> later_versions_skip_unknown_events_but_current_versions_reject_them
+current-version-extension	ON	0	8	boundaries_suite -> later_versions_skip_unknown_events_but_current_versions_reject_them; boundaries_suite -> later_versions_skip_unknown_messages_in_every_application; boundaries_suite -> reserved_leaveall_events_are_rejected_atomically; receive_suite -> truncation_respects_complete_vectors_and_pdu_end
+propagation-retention	ON	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order
+propagation-order	ON	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation
+registrar-recovery-indication	ON	0	8	boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map
+committed-local-leaveall	ON	0	8	boundaries_suite -> full_leaveall_reports_each_required_transition
+omitted-leaveall-event	ON	0	8	boundaries_suite -> full_leaveall_reports_each_required_transition
+reserved-leaveall-event	ON	0	8	boundaries_suite -> reserved_leaveall_events_are_rejected_atomically
+listener-subtype	ON	0	8	transmit_suite -> changed_listener_redeclares_from_a_quiet_applicant
+leaveall-upper-bound	ON	0	8	integration_suite -> leaveall_draws_are_inside_the_required_interval
+reclaim-leaving-observer	ON	0	8	boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission
+milan-redeclare-scope	ON	0	8	milan_suite -> redeclare_keeps_the_ieee_deadline
+milan-transmitted-leaveall-scope	ON	0	8	milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline; transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall
+received-leaveall-restart	ON	0	8	boundaries_suite -> received_leaveall_restarts_the_participant_deadline
+embedded-switch-source	ON	intentional compile/dependency check	1	embedded_switch.c:(.text+0xdb): undefined reference to `shlan_connect'; /usr/bin/ld: embedded_switch.c:(.text+0xf1): undefined reference to `shlan_port_enable'; /usr/bin/ld: embedded_switch.c:(.text+0x107): undefined reference to `shlan_port_disable'; /usr/bin/ld: embedded_switch.c:(.text+0x11f): undefined reference to `shlan_disconnect'
+own-domain-byte-order	ON	0	8	msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+own-destination-increment	ON	0	8	boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination; msrp_values_suite -> domain_and_vector_offsets_match_wire_fields
+own-missing-destination-replay	ON	0	8	boundaries_suite -> queued_propagation_owns_values_and_survives_source_reclamation; boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order

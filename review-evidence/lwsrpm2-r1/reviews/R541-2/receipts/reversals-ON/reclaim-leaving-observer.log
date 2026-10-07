@@ -1,0 +1,37 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 371 passes in 9ms.
+  "milan_suite": 430 passes in 9ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:339: Failure: boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission 
+	Expected [mrp_reclaim(a, 0)] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:340: Failure: boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission 
+	Expected [mrp_transmit(a, 0, tx, sizeof(tx), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:341: Failure: boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission 
+	Expected [mrp_reclaim(a, 0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 1164 passes, 3 failures in 13ms.
+Completed "main": 3881 passes, 3 failures in 55ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

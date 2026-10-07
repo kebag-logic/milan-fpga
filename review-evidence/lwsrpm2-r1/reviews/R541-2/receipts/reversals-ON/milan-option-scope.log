@@ -1,0 +1,162 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 26ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 10ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:169: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:171: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:169: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:171: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:169: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:171: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> mvrp_keeps_ieee_leave_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:169: Failure: milan_suite -> mvrp_keeps_ieee_leave_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:171: Failure: milan_suite -> mvrp_keeps_ieee_leave_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> mvrp_keeps_ieee_leave_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> mmrp_keeps_ieee_leave_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:169: Failure: milan_suite -> mmrp_keeps_ieee_leave_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:171: Failure: milan_suite -> mmrp_keeps_ieee_leave_timing 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/milan_test.c:102: Failure: milan_suite -> mmrp_keeps_ieee_leave_timing 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+  "milan_suite": 410 passes, 20 failures in 9ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:279: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:285: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [joins] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:285: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [maps] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:286: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:279: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [state(a, 0).reg] to [equal] [MRP_REG_STATE_LV]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:285: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [joins] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:285: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [maps] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:286: Failure: boundaries_suite -> registrar_recovery_stops_aging_without_duplicate_join_or_map 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 1159 passes, 8 failures in 14ms.
+Completed "main": 3856 passes, 28 failures in 72ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

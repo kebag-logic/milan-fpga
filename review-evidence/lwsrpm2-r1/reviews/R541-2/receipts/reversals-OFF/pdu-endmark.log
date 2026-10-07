@@ -1,0 +1,37 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/receive_test.c:27: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [mrpdu_parse(pdu,n,a->ops,attr,la,0)] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/receive_test.c:28: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/receive_test.c:29: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [leavealls] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "receive_suite": 80 passes, 3 failures in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 371 passes in 12ms.
+  "milan_suite": 442 passes in 9ms.
+  "boundaries_suite": 1167 passes in 16ms.
+Completed "main": 3893 passes, 3 failures in 62ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

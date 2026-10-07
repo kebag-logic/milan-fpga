@@ -1,0 +1,47 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.07 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:50: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [mrp_attr_registered_ports(a,1,&talker)] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:58: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[0]
+		expected value:			[3]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:66: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [frames] to [equal] [3]
+		actual value:			[2]
+		expected value:			[3]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:112: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [left] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "transmit_suite": 101 passes, 5 failures in 6ms.
+  "integration_suite": 371 passes in 12ms.
+  "milan_suite": 446 passes in 14ms.
+  "boundaries_suite": 1167 passes in 15ms.
+Completed "main": 3895 passes, 5 failures in 68ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.07 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,19 @@
+[
+  "cc",
+  "-std=c11",
+  "-g",
+  "-fsanitize=address,undefined",
+  "-fno-omit-frame-pointer",
+  "-DLWSRP_MILAN=0",
+  "-Isrc/include",
+  "-Isrc",
+  "$PACKET/scripts/probe.c",
+  "src/core/mrp_mad.c",
+  "src/core/mrp_pdu.c",
+  "src/modules/mvrp.c",
+  "src/modules/mmrp.c",
+  "src/modules/msrp.c",
+  "src/ports/timer.c",
+  "-o",
+  "$PACKET/scratch/probe-OFF"
+]

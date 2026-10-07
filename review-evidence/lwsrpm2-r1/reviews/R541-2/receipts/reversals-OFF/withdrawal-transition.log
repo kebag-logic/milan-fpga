@@ -1,0 +1,32 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 5ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[11]
+		expected value:			[0]
+
+  "integration_suite": 370 passes, 1 failure in 10ms.
+  "milan_suite": 442 passes in 8ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/review_test.c:247: Failure: boundaries_suite -> retained_ports_replay_propagated_join_and_timer_leave_in_order 
+	Expected [state(a, 1).appl] to [equal] [withdrawal ? MRP_APPL_STATE_VO : MRP_APPL_STATE_AA]
+		actual value:			[11]
+		expected value:			[0]
+
+  "boundaries_suite": 1166 passes, 1 failure in 13ms.
+Completed "main": 3894 passes, 2 failures in 57ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

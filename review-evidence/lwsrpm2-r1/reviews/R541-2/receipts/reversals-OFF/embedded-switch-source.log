@@ -1,0 +1,31 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.4s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/reversals-OFF/embedded/OFF
+OFF: ['cmake', '-S', '$PACKET/scratch/reversals-OFF/embedded', '-B', '$PACKET/scratch/reversals-OFF/embedded/OFF', '-DLWSRP_ROOT=$PACKET/scratch/reversals-OFF/source', '-DLWSRP_MILAN=OFF']; rc=0
+[ 10%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/core/mrp_mad.c.o
+[ 20%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/core/mrp_pdu.c.o
+[ 30%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/modules/mvrp.c.o
+[ 40%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/modules/mmrp.c.o
+[ 50%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/modules/msrp.c.o
+[ 60%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/ports/alloc.c.o
+[ 70%] Building C object CMakeFiles/lwsrp.dir$PACKET/scratch/reversals-OFF/source/src/ports/timer.c.o
+[ 80%] Linking C static library liblwsrp.a
+[ 80%] Built target lwsrp
+[ 90%] Building C object CMakeFiles/probe.dir$PACKET/scratch/reversals-OFF/source/tests/embedded_switch.c.o
+[100%] Linking C executable probe
+/usr/bin/ld: CMakeFiles/probe.dir$PACKET/scratch/reversals-OFF/source/tests/embedded_switch.c.o: in function `main':
+embedded_switch.c:(.text+0xdb): undefined reference to `shlan_connect'
+/usr/bin/ld: embedded_switch.c:(.text+0xf1): undefined reference to `shlan_port_enable'
+/usr/bin/ld: embedded_switch.c:(.text+0x107): undefined reference to `shlan_port_disable'
+/usr/bin/ld: embedded_switch.c:(.text+0x11f): undefined reference to `shlan_disconnect'
+collect2: error: ld returned 1 exit status
+make[2]: *** [CMakeFiles/probe.dir/build.make:102: probe] Error 1
+make[1]: *** [CMakeFiles/Makefile2:122: CMakeFiles/probe.dir/all] Error 2
+make: *** [Makefile:91: all] Error 2
+OFF: ['cmake', '--build', '$PACKET/scratch/reversals-OFF/embedded/OFF', '--parallel', '2']; rc=2

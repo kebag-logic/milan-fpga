@@ -1,0 +1,77 @@
+Test project $PACKET/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.06 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 14ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/integration_test.c:387: Failure: integration_suite -> later_versions_skip_unknown_stream_messages 
+	Expected [mrp_rx(app, 0, pdu, sizeof(pdu))] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/integration_test.c:388: Failure: integration_suite -> later_versions_skip_unknown_stream_messages 
+	Expected [indications] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 364 passes, 2 failures in 10ms.
+  "milan_suite": 430 passes in 8ms.
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:138: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:139: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:140: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:138: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:139: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:140: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:138: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:139: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-ON/source/tests/unit/review_test.c:140: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 1158 passes, 9 failures in 12ms.
+Completed "main": 3868 passes, 11 failures in 56ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.06 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

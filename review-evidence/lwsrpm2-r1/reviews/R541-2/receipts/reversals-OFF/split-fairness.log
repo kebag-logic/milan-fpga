@@ -1,0 +1,72 @@
+Test project $PACKET/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.08 sec
+Running "main" (60 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+$PACKET/scratch/reversals-OFF/source/tests/unit/transmit_test.c:162: Failure: transmit_suite -> a_full_pdu_retries_omitted_attributes_before_repeats 
+	Expected [seen[n]] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "transmit_suite": 96 passes, 10 failures in 4ms.
+  "integration_suite": 371 passes in 13ms.
+  "milan_suite": 442 passes in 26ms.
+  "boundaries_suite": 1167 passes in 13ms.
+Completed "main": 3886 passes, 10 failures in 77ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.08 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
