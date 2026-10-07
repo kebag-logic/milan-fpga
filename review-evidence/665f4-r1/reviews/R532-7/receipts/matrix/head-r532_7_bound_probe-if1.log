@@ -1,0 +1,40 @@
+rc=0 ifs=1 test=r532_7_bound_probe.cpp filter=* root=$PACKET/scratch/root-head
+[       OK ] R5327.TimedHolThirty (239 ms)
+[       OK ] R5327.TimedHolOneFifty (354 ms)
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+[       OK ] R5327.RepeatedOversizedRetransmission (1325 ms)
+[       OK ] R5327.BindingProgressByTheBound (338 ms)
+[       OK ] R5327.StorageAfterDiscardInformation (322 ms)
+[  PASSED  ] 6 tests.
+== R532-7 receive bound probe: checks: 6   failures: 0 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R5327
+[ RUN      ] R5327.TimedHolThirty
+PROBE hol N=30 ifs=1 retained=1 accept_wait=0 revoke_ms=995 discarded=1 refused=99903 malformed=0 pending=0
+[       OK ] R5327.TimedHolThirty (239 ms)
+[ RUN      ] R5327.TimedHolOneFifty
+PROBE hol N=150 ifs=1 retained=1 accept_wait=0 revoke_ms=995 discarded=1 refused=99903 malformed=0 pending=0
+[       OK ] R5327.TimedHolOneFifty (354 ms)
+[ RUN      ] R5327.LeaveDuringDomainFlood
+PROBE flood-mid ifs=1 domains_sent=26 pending_at_lv=1 flood_accept_wait_max=0 lv_accept_wait=0 revoke_ms=0 discarded=0 refused=404
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+[ RUN      ] R5327.RepeatedOversizedRetransmission
+PROBE repeat ifs=1 lv_accept_wait=0 revoke_ms=500 discarded=8 refused=329620 received=2 malformed=0
+[       OK ] R5327.RepeatedOversizedRetransmission (1325 ms)
+[ RUN      ] R5327.BindingProgressByTheBound
+PROBE bind ifs=1 bind_after_ms=998 discarded=1
+[       OK ] R5327.BindingProgressByTheBound (338 ms)
+[ RUN      ] R5327.StorageAfterDiscardInformation
+PROBE storage ifs=1 in_use=32 refused+0 discarded+0 received+1 pending=0
+[       OK ] R5327.StorageAfterDiscardInformation (322 ms)
+[----------] 6 tests from R5327 (2581 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (2581 ms total)
+[  PASSED  ] 6 tests.
+== R532-7 receive bound probe: checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)

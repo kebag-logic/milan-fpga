@@ -1,0 +1,38 @@
+rc=0 ifs=1 test=r532_retry_probes.cpp filter=* root=$PACKET/scratch/root-head
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R532
+[ RUN      ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+[ RUN      ] R532.SleepingLoopRetriesOnTickWithoutPeerInput
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[ RUN      ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[ RUN      ] R532.RetainedFirstInterfacePrecedesLaterInterface
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[ RUN      ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[ RUN      ] R532.OnlyMalformedInputCountsMalformed
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[----------] 6 tests from R532 (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (6 tests, 0 failures, exit 0)

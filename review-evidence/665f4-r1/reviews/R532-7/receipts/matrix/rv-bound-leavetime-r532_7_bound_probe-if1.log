@@ -1,0 +1,72 @@
+rc=1 ifs=1 test=r532_7_bound_probe.cpp filter=* root=$PACKET/scratch/root-rv-bound-leavetime
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+[  FAILED  ] R5327.TimedHolThirty (1048 ms)
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+[  FAILED  ] R5327.TimedHolOneFifty (1678 ms)
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:119: Failure
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (4459 ms)
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:133: Failure
+[  FAILED  ] R5327.BindingProgressByTheBound (1617 ms)
+[       OK ] R5327.StorageAfterDiscardInformation (700 ms)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolThirty
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R5327
+[ RUN      ] R5327.TimedHolThirty
+PROBE hol N=30 ifs=1 retained=1 accept_wait=0 revoke_ms=4995 discarded=1 refused=499903 malformed=0 pending=0
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4995 vs 1020
+
+  [FAIL] R5327.TimedHolThirty: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4995 vs 1020
+[  FAILED  ] R5327.TimedHolThirty (1048 ms)
+[ RUN      ] R5327.TimedHolOneFifty
+PROBE hol N=150 ifs=1 retained=1 accept_wait=0 revoke_ms=4995 discarded=1 refused=499903 malformed=0 pending=0
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4995 vs 1020
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4995 vs 1020
+[  FAILED  ] R5327.TimedHolOneFifty (1678 ms)
+[ RUN      ] R5327.LeaveDuringDomainFlood
+PROBE flood-mid ifs=1 domains_sent=26 pending_at_lv=1 flood_accept_wait_max=0 lv_accept_wait=0 revoke_ms=0 discarded=0 refused=404
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+[ RUN      ] R5327.RepeatedOversizedRetransmission
+PROBE repeat ifs=1 lv_accept_wait=0 revoke_ms=4500 discarded=5 refused=1299908 received=2 malformed=0
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:119: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4500 vs 1020
+
+  [FAIL] R5327.RepeatedOversizedRetransmission: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 4500 vs 1020
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (4459 ms)
+[ RUN      ] R5327.BindingProgressByTheBound
+PROBE bind ifs=1 bind_after_ms=4998 discarded=1
+$PACKET/scratch/matrix/rv-bound-leavetime-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:133: Failure
+Expected: (t) <= (kBoundMs+kSlackMs), actual: 4998 vs 1020
+
+  [FAIL] R5327.BindingProgressByTheBound: Expected: (t) <= (kBoundMs+kSlackMs), actual: 4998 vs 1020
+[  FAILED  ] R5327.BindingProgressByTheBound (1617 ms)
+[ RUN      ] R5327.StorageAfterDiscardInformation
+PROBE storage ifs=1 in_use=33 refused+110000 discarded+0 received+0 pending=1073
+[       OK ] R5327.StorageAfterDiscardInformation (700 ms)
+[----------] 6 tests from R5327 (9504 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (9504 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolThirty
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+
+ 4 FAILED TESTS
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)

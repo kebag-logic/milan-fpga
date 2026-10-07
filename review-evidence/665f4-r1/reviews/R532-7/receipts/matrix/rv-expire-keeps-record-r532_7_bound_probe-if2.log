@@ -1,0 +1,109 @@
+wrote $PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=r532_7_bound_probe.cpp filter=* root=$PACKET/scratch/root-rv-expire-keeps-record
+[       OK ] R5327.TimedHolThirty (0 ms)
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:74: Failure
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:75: Failure
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:76: Failure
+[  FAILED  ] R5327.TimedHolOneFifty (8689 ms)
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:100: Failure
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:101: Failure
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:102: Failure
+[  FAILED  ] R5327.LeaveDuringDomainFlood (456 ms)
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:112: Failure
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (16123 ms)
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:133: Failure
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:134: Failure
+[  FAILED  ] R5327.BindingProgressByTheBound (8791 ms)
+[       OK ] R5327.StorageAfterDiscardInformation (2147 ms)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.LeaveDuringDomainFlood
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R5327
+[ RUN      ] R5327.TimedHolThirty
+PROBE hol N=30 ifs=2 retained=0 accept_wait=0 revoke_ms=1 discarded=0 refused=0 malformed=0 pending=0
+[       OK ] R5327.TimedHolThirty (0 ms)
+[ RUN      ] R5327.TimedHolOneFifty
+PROBE hol N=150 ifs=2 retained=1 accept_wait=0 revoke_ms=10000 discarded=450300 refused=1000501 malformed=0 pending=1073
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:74: Failure
+Value of: adapter.ifs[last()].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: false
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:75: Failure
+Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:76: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+[  FAILED  ] R5327.TimedHolOneFifty (8689 ms)
+[ RUN      ] R5327.LeaveDuringDomainFlood
+PROBE flood-mid ifs=2 domains_sent=50 pending_at_lv=1 flood_accept_wait_max=0 lv_accept_wait=0 revoke_ms=10000 discarded=450350 refused=500404
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:100: Failure
+Value of: adapter.ifs[last()].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] R5327.LeaveDuringDomainFlood: Expected: false
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:101: Failure
+Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+
+  [FAIL] R5327.LeaveDuringDomainFlood: Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:102: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.LeaveDuringDomainFlood: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+[  FAILED  ] R5327.LeaveDuringDomainFlood (456 ms)
+[ RUN      ] R5327.RepeatedOversizedRetransmission
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:112: Failure
+Value of: push(big,0)
+  Actual: false
+Expected: true
+
+  [FAIL] R5327.RepeatedOversizedRetransmission: Expected: true
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (16123 ms)
+[ RUN      ] R5327.BindingProgressByTheBound
+PROBE bind ifs=2 bind_after_ms=10000 discarded=450150
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:133: Failure
+Expected: (t) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.BindingProgressByTheBound: Expected: (t) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+$PACKET/scratch/matrix/rv-expire-keeps-record-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:134: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 450150
+  1u
+    Which is: 1
+
+  [FAIL] R5327.BindingProgressByTheBound:     Which is: 1
+[  FAILED  ] R5327.BindingProgressByTheBound (8791 ms)
+[ RUN      ] R5327.StorageAfterDiscardInformation
+PROBE storage ifs=2 in_use=67 refused+110000 discarded+55000 received+0 pending=1073
+[       OK ] R5327.StorageAfterDiscardInformation (2147 ms)
+[----------] 6 tests from R5327 (36208 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (36208 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.LeaveDuringDomainFlood
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+
+ 4 FAILED TESTS
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)

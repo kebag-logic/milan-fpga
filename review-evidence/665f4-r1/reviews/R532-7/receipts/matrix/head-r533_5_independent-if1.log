@@ -1,0 +1,30 @@
+rc=0 ifs=1 test=r533_5_independent.cpp filter=* root=$PACKET/scratch/root-head
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+
+--- full log ---
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Srp
+[ RUN      ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[ RUN      ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[ RUN      ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+[ RUN      ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[----------] 4 tests from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)

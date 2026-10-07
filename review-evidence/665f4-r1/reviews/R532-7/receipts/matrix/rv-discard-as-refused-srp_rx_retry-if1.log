@@ -1,0 +1,131 @@
+rc=1 ifs=1 test=srp_rx_retry.cpp filter=* root=$PACKET/scratch/root-rv-discard-as-refused
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:297: Failure
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:303: Failure
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (129 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:319: Failure
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:346: Failure
+[  FAILED  ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:365: Failure
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (1 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:389: Failure
+[  FAILED  ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (9 ms)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[  FAILED  ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[  FAILED  ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+== ctrl SRP receive recovery: checks: 17   failures: 5 ==
+
+--- full log ---
+[==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from SrpRetry
+[ RUN      ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[ RUN      ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[ RUN      ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[ RUN      ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[ RUN      ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[ RUN      ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[ RUN      ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[ RUN      ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[ RUN      ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[ RUN      ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:297: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding:     Which is: 1
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:303: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding:     Which is: 1
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (129 ms)
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:319: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap:     Which is: 1
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[ RUN      ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord
+[       OK ] SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord (0 ms)
+[ RUN      ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:346: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard:     Which is: 1
+[  FAILED  ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard (0 ms)
+[ RUN      ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:365: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline:     Which is: 1
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline (1 ms)
+[ RUN      ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+$PACKET/scratch/matrix/rv-discard-as-refused-srp_rx_retry-if1/stage/srp_rx_retry.cpp:389: Failure
+Expected: (adapter.rx_discarded) > (0u), actual: 0 vs 0
+
+  [FAIL] SrpRetry.DomainFloodCannotDelayLaterRapidLeave: Expected: (adapter.rx_discarded) > (0u), actual: 0 vs 0
+[  FAILED  ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave (9 ms)
+[----------] 17 tests from SrpRetry (141 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (141 ms total)
+[  PASSED  ] 12 tests.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[  FAILED  ] SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard
+[  FAILED  ] SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline
+[  FAILED  ] SrpRetry.DomainFloodCannotDelayLaterRapidLeave
+
+ 5 FAILED TESTS
+== ctrl SRP receive recovery: checks: 17   failures: 5 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 5 failure(s) across 17 checks, exit 1)

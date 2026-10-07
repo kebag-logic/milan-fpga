@@ -1,0 +1,106 @@
+rc=1 ifs=1 test=r532_7_bound_probe.cpp filter=* root=$PACKET/scratch/root-rv-poll-no-expire
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:74: Failure
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:75: Failure
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+[  FAILED  ] R5327.TimedHolThirty (2096 ms)
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:74: Failure
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:75: Failure
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+[  FAILED  ] R5327.TimedHolOneFifty (3408 ms)
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:112: Failure
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (6056 ms)
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:133: Failure
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:134: Failure
+[  FAILED  ] R5327.BindingProgressByTheBound (3337 ms)
+[       OK ] R5327.StorageAfterDiscardInformation (729 ms)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolThirty
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R5327
+[ RUN      ] R5327.TimedHolThirty
+PROBE hol N=30 ifs=1 retained=1 accept_wait=0 revoke_ms=10000 discarded=0 refused=1000501 malformed=0 pending=233
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:74: Failure
+Value of: adapter.ifs[last()].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] R5327.TimedHolThirty: Expected: false
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:75: Failure
+Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+
+  [FAIL] R5327.TimedHolThirty: Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.TimedHolThirty: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+[  FAILED  ] R5327.TimedHolThirty (2096 ms)
+[ RUN      ] R5327.TimedHolOneFifty
+PROBE hol N=150 ifs=1 retained=1 accept_wait=0 revoke_ms=10000 discarded=0 refused=1000501 malformed=0 pending=1073
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:74: Failure
+Value of: adapter.ifs[last()].active[0]
+  Actual: true
+Expected: false
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: false
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:75: Failure
+Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: (lat) < (kLeaveTimeMs), actual: 10000 vs 5000
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:76: Failure
+Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.TimedHolOneFifty: Expected: (lat+accept) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+[  FAILED  ] R5327.TimedHolOneFifty (3408 ms)
+[ RUN      ] R5327.LeaveDuringDomainFlood
+PROBE flood-mid ifs=1 domains_sent=26 pending_at_lv=1 flood_accept_wait_max=0 lv_accept_wait=0 revoke_ms=0 discarded=0 refused=404
+[       OK ] R5327.LeaveDuringDomainFlood (0 ms)
+[ RUN      ] R5327.RepeatedOversizedRetransmission
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:112: Failure
+Value of: push(big,0)
+  Actual: false
+Expected: true
+
+  [FAIL] R5327.RepeatedOversizedRetransmission: Expected: true
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (6056 ms)
+[ RUN      ] R5327.BindingProgressByTheBound
+PROBE bind ifs=1 bind_after_ms=10000 discarded=0
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:133: Failure
+Expected: (t) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+
+  [FAIL] R5327.BindingProgressByTheBound: Expected: (t) <= (kBoundMs+kSlackMs), actual: 10000 vs 1020
+$PACKET/scratch/matrix/rv-poll-no-expire-r532_7_bound_probe-if1/stage/r532_7_bound_probe.cpp:134: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] R5327.BindingProgressByTheBound:     Which is: 1
+[  FAILED  ] R5327.BindingProgressByTheBound (3337 ms)
+[ RUN      ] R5327.StorageAfterDiscardInformation
+PROBE storage ifs=1 in_use=33 refused+110000 discarded+0 received+0 pending=1073
+[       OK ] R5327.StorageAfterDiscardInformation (729 ms)
+[----------] 6 tests from R5327 (15630 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (15630 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 4 tests, listed below:
+[  FAILED  ] R5327.TimedHolThirty
+[  FAILED  ] R5327.TimedHolOneFifty
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+
+ 4 FAILED TESTS
+== R532-7 receive bound probe: checks: 6   failures: 4 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 4 failure(s) across 6 checks, exit 1)

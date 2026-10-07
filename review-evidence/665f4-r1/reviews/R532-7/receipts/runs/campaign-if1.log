@@ -1,0 +1,103 @@
+[ok] startup-vid: StartupDeclaresTalkersDomainAndVlan / d.value
+[ok] short-leave: LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline / Unexpected mock function call
+[ok] asking-is-ready: RegisteredListenerSubtypeChangeRevokesPermission / adapter.ifs[0].active[0]
+[ok] ignore-link: InterfaceStateDoesNotCross / adapter.ifs[i].active[0]
+[ok] failed-listener-ready: SinkPortUsesMatchingRegisteredTalkerAndRetainsLeaveTimer / declared
+[ok] ignore-peer-domain: DomainUsesPeerPriorityAndVlan / domain.priority
+[ok] rx-overtakes-owed: RefusedMailboxRetainsOwedFrameAndDefersInput / adapter.received
+[ok] rx-overtakes-expiry: ExpiryBacklogPrecedesSamePassReceive / adapter.stops
+[ok] reentry-uncounted: ReentryFromOutputIsRefusedAndCounted / adapter.reentries
+[ok] invalid-vid: InvalidBindingsAndDuplicateBindingsPreserveState / srp_mbx_bind
+[ESCAPED] failed-init-leaks: ExhaustionDuringEachStartupStageReleasesEveryBlock / ctrl_pool_in_use
+[ok] missing-port-accepted: MissingBootDependenciesRefuseBeforeAttachment / srp_mbx_init
+[ok] attach-nonatomic: AttachmentFailureIsAtomicAndDetachesAfterLoopReset / srp_mbx_attach
+[ok] malformed-uncounted: InvalidFramesHaveNoReservationSideEffects / adapter.malformed
+[ok] reset-skips-recreate: RecreateAllocationFailureIsCountedAndRetried / adapter.ifs[0].msrp
+[ok] readyfailed-ignored: ReadyFailedAndUninterestingStreamsAreSeparated / Actual function call count
+[ok] foreign-domain-stored: DomainFilterAndDuplicateDoNotGrowDeclarations / ctrl_pool_in_use
+[ok] foreign-vlan-stored: MvrpAcceptsOnlyCurrentDomainVid / ctrl_pool_in_use
+[ok] sink-da-ignored: WireMismatchesCannotAdmitBoundSinkAndLeaveExpiresIt / declared
+[ok] admission-ceiling-ignored: AdmissionUsesBandwidthAndEthernetMinimum / admitted[0]
+[ok] domain-refusal-lost: DomainExhaustionPreservesOldDeclarationUntilRetry / domain.vid
+[ok] listener-refusal-lost: SinkDeclarationExhaustionRetriesWithoutLosingBinding / declared
+[ok] other-link-cancels-owed: LinkLossCancelsItsOwedFrameOnly / adapter.owed_len
+[ok] duplicate-tick-owner: OneLoopOwnsTheGlobalCentisecondDispatch / srp_mbx_attach
+[ok] binding-debug-guard: SynchronousBindingFromOutputAsserts / failed to die
+[ok] receive-debug-guard: SynchronousReceiveFromOutputAsserts / failed to die
+[ok] tick-debug-guard: SynchronousTickFromOutputAsserts / failed to die
+[ok] licence-before-vlan: ListenerBeforeVlanCommitCannotStartTalker / joined
+[ok] unbind-shared-listener: SharedBindingsRetainTheListenerAndVlanUntilTheLastUnbind / d.event
+[ok] withdraw-bound-domain: BoundOldDomainVlanSurvivesDomainChange / d.event
+[ok] withdraw-same-domain: PriorityOnlyDomainChangeKeepsVlanMembership / d.event
+[ok] sink-vlan-refusal-lost: SinkVlanExhaustionRetriesAndDistinctMembershipsRemainIndependent / vlan_requested
+[ok] ready-before-vlan: SinkMembershipCommitsBeforeReadyAtStartup / joined
+[ok] latency-missing-startup: SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget / commits.size()
+[ok] latency-domain-unserviced: SrpLatency.ReceiveStateMalformedDomainAndListenerPaths / domain.vid
+[ok] latency-leave-origin: SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog / Unexpected mock function call
+[ok] latency-relaxed-budget: SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails / service_limit
+[ok] walk-domain-ignored: SrpWalk.CertifiedTwoClassDomainVectorAdoptsOnlyClassA / domain.vid
+[ok] walk-match-da-ignored: SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal / declared
+[ok] walk-leave-shortened: SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener / Unexpected mock function call
+[ok] walk-startup-is-join: SrpWalk.ProcessorApplicantTransmitAndReceivedRowsAgreeOnTheWire / d.event
+[ok] walk-malformed-uncounted: SrpWalk.PerInterfaceWireIdentityAndUnknownOrTruncatedInput / adapter.malformed
+[ok] shape-last-output-missing: EveryGeneratedOutputIsDeclaredAndEverySinkFits / outputs
+[ok] tag-overhead-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] preamble-ifg-omitted: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] ninety-percent-ceiling: AdmissionStraddlesTheExactEthernetCeiling / admitted[0]
+[ok] readyfailed-callback-stop: ReadyToReadyFailedNeverGlitchesAnActiveLicence / mock function call
+[ok] short-link-interruption-ignored: AdjacentLinkEdgesResetDomainAndAllPriorRegistrations / domain.priority
+[ok] old-prefix-accepted: LinkEventsDiscardOnlyTheirPublishedReceivePrefix / mock function call
+[ok] shared-identity-overwritten: SharedIdentityReconcilesBothBindingOrdersOnTheWire / last
+[ok] event-reentry-unguarded: EventReentryAndSinkCapacityAreGuarded / adapter.reentries
+[ESCAPED] failed-interface-starves-peer: RecreateAllocationFailureIsCountedAndRetried / other_sent
+[ok] backlogged-old-prefix-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / mock function call
+[ok] link-level-loss-ignored: LinkLevelLossAndFirstDownEventAreFailClosed / adapter.ifs[0].active[0]
+[ok] reset-leaks-owned-participants: ExhaustedPoolStillReusesOwnedBlocksOnLinkReset / adapter.refused
+[ok] downlink-receive-accepted: OldReceiveBacklogCannotRegisterAcrossLinkRestart / adapter.ifs[i].registered[0]
+[ok] delayed-in-listener: InListenerWithdrawalRevokesLicenceImmediately / adapter.ifs[i].active[0]
+[ok] delayed-in-talker: InTalkerWithdrawalImmediatelyWithdrawsListener / declared
+[ok] attach-ignores-current-link: ReattachLearnsAnAlreadyUpLinkWithoutAnotherRecord / adapter.ifs[i].link
+[ok] cancelled-link-never-recovers: CancelledLinkRecordRecoversFromLevelAndFencesOldReceive / adapter.ifs[i].link
+[ok] rebind-loses-shared-applicant: SharedRebindKeepsOnlyTheRemainingEligibleRequest / left
+[ok] consecutive-rebind-loses-applicant: ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation / left
+[ok] joining-binding-loses-applicant: JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves / d.event
+[ok] applicant-inherited-across-streams: ReboundStreamCannotInheritAnotherStreamsReady / ready
+[ok] final-unbind-withdraws-domain-vid: FinalDomainVidUnbindKeepsSrClassMembership / d.event
+[ok] last-ineligible-vid-leaks: LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder / vlan_left
+[ok] reset-keeps-owed-domain: RefusedPeerDomainDoesNotSurviveLinkRestart / domain.vid
+[ok] reset-keeps-sink-vlan: SinkVlanRedeclaredBeforeReadyAfterLinkRestart / vlan
+[ok] shared-ready-uses-first-vlan: SharedReadyWaitsForTheMatchingBindingsOwnVlan / vlan
+[ok] milan-rapid-leave-leaks-to-mvrp: MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline / registered()
+[ok] receive-retry-removed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.received
+[ok] partial-receive-retry-removed: SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop / domain.vid
+[ok] receive-record-lost: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.pending_rx.len
+[ok] receive-refusal-malformed: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / adapter.malformed
+[ok] receive-overtakes-retained: SrpRetry.LaterRecordsCannotOvertakeRetainedInterface / loop.stats.rx_records
+[ok] reset-keeps-retained-receive: SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords / adapter.received
+[ESCAPED] peer-reset-cancels-retained-receive: SrpRetry.OtherInterfaceResetPreservesRetainedPayload / adapter.pending_rx.len
+[ok] destroy-keeps-retained-receive: SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization / adapter.pending_rx.len
+[ok] bind-overtakes-retained-receive: SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission / srp_mbx_bind
+[ok] composition-attach-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.n_ticks
+[ok] composition-srp-irq-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / model.irq_enable
+[ok] composition-srp-tick-omitted: SrpApp.AllThreeProtocolsShareTheLoopAndWakeSources / app.loop.stats.ticks
+[ok] recreated-receive-retry-removed: SrpRetry.FailedParticipantRecreationRetainsFreshReceive / adapter.received
+[ok] mvrp-receive-retry-removed: SrpRetry.RetainedMvrpUsesItsOriginalParticipant / adapter.received
+[ok] receive-retry-passes-owed: SrpRetry.RetainedReceiveWaitsForOwedTransmit / adapter.pending_rx.len
+[ok] receive-retry-passes-backlog: SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs / adapter.received
+[ok] future-receive-refused: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.ifs[0].active[0]
+[ok] invalid-suffix-uncounted: SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped / adapter.malformed
+[ok] composition-refusal-ignored: SrpApp.AttachRefusalPreservesExistingComposition / ctrl_app_attach_srp
+[ok] recovery-latency-retry-removed: SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget / adapter.ifs[0].active[0]
+[ok] receive-retention-unbounded: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.pending_rx.len
+[ok] receive-retention-short: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-retention-late: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-uncounted: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.rx_discarded
+[ok] receive-discard-malformed: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.malformed
+[ok] receive-discard-as-success: SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding / adapter.received
+[ok] receive-queue-renews-deadline: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-first-refusal-never-expires: SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap / adapter.rx_discarded
+[ok] receive-expiry-precedes-recovery: SrpRetry.RecoveryAtDeadlineStillAppliesTheCompleteRecord / adapter.received
+[ok] receive-recreate-never-expires: SrpRetry.FailedRecreationCannotRetainInputBeyondItsDeadline / adapter.rx_discarded
+[ok] receive-flood-unbounded: SrpRetry.DomainFloodCannotDelayLaterRapidLeave / adapter.pending_rx.len
+[ok] receive-deadline-not-modular: SrpRetry.RetainedDeadlineCrossesClockWrapWithoutEarlyDiscard / adapter.rx_discarded
+SRP campaign IF=1: 99/102 caught

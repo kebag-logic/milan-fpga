@@ -1,0 +1,65 @@
+wrote $PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/srp-r532_7_bound_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=r532_7_bound_probe.cpp filter=* root=$PACKET/scratch/root-rv-discard-as-refused
+[       OK ] R5327.TimedHolThirty (0 ms)
+[       OK ] R5327.TimedHolOneFifty (909 ms)
+[       OK ] R5327.LeaveDuringDomainFlood (43 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:120: Failure
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (3216 ms)
+$PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:134: Failure
+[  FAILED  ] R5327.BindingProgressByTheBound (830 ms)
+[       OK ] R5327.StorageAfterDiscardInformation (830 ms)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+== R532-7 receive bound probe: checks: 6   failures: 2 ==
+
+--- full log ---
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from R5327
+[ RUN      ] R5327.TimedHolThirty
+PROBE hol N=30 ifs=2 retained=0 accept_wait=0 revoke_ms=1 discarded=0 refused=0 malformed=0 pending=0
+[       OK ] R5327.TimedHolThirty (0 ms)
+[ RUN      ] R5327.TimedHolOneFifty
+PROBE hol N=150 ifs=2 retained=1 accept_wait=0 revoke_ms=995 discarded=0 refused=99904 malformed=0 pending=0
+[       OK ] R5327.TimedHolOneFifty (909 ms)
+[ RUN      ] R5327.LeaveDuringDomainFlood
+PROBE flood-mid ifs=2 domains_sent=50 pending_at_lv=1 flood_accept_wait_max=0 lv_accept_wait=0 revoke_ms=998 discarded=0 refused=50260
+[       OK ] R5327.LeaveDuringDomainFlood (43 ms)
+[ RUN      ] R5327.RepeatedOversizedRetransmission
+PROBE repeat ifs=2 lv_accept_wait=0 revoke_ms=500 discarded=0 refused=329628 received=2 malformed=0
+$PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:120: Failure
+Expected: (adapter.rx_discarded) >= (1u), actual: 0 vs 1
+
+  [FAIL] R5327.RepeatedOversizedRetransmission: Expected: (adapter.rx_discarded) >= (1u), actual: 0 vs 1
+[  FAILED  ] R5327.RepeatedOversizedRetransmission (3216 ms)
+[ RUN      ] R5327.BindingProgressByTheBound
+PROBE bind ifs=2 bind_after_ms=998 discarded=0
+$PACKET/scratch/matrix/rv-discard-as-refused-r532_7_bound_probe-if2/stage/r532_7_bound_probe.cpp:134: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] R5327.BindingProgressByTheBound:     Which is: 1
+[  FAILED  ] R5327.BindingProgressByTheBound (830 ms)
+[ RUN      ] R5327.StorageAfterDiscardInformation
+PROBE storage ifs=2 in_use=66 refused+0 discarded+0 received+1 pending=0
+[       OK ] R5327.StorageAfterDiscardInformation (830 ms)
+[----------] 6 tests from R5327 (5830 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (5830 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] R5327.RepeatedOversizedRetransmission
+[  FAILED  ] R5327.BindingProgressByTheBound
+
+ 2 FAILED TESTS
+== R532-7 receive bound probe: checks: 6   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 6 checks, exit 1)

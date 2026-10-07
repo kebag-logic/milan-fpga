@@ -1,0 +1,44 @@
+rc=1 ifs=1 test=srp_rx_retry.cpp filter=SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding root=$PACKET/scratch/root-receive-discard-uncounted
+$PACKET/scratch/matrix/receive-discard-uncounted-named-if1/stage/srp_rx_retry.cpp:297: Failure
+$PACKET/scratch/matrix/receive-discard-uncounted-named-if1/stage/srp_rx_retry.cpp:303: Failure
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (162 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+
+--- full log ---
+Note: Google Test filter = SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+$PACKET/scratch/matrix/receive-discard-uncounted-named-if1/stage/srp_rx_retry.cpp:297: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding:     Which is: 1
+$PACKET/scratch/matrix/receive-discard-uncounted-named-if1/stage/srp_rx_retry.cpp:303: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding:     Which is: 1
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding (162 ms)
+[----------] 1 test from SrpRetry (162 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (162 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBinding
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

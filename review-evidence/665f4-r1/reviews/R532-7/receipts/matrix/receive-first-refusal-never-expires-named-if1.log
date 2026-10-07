@@ -1,0 +1,44 @@
+rc=1 ifs=1 test=srp_rx_retry.cpp filter=SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap root=$PACKET/scratch/root-receive-first-refusal-never-expires
+$PACKET/scratch/matrix/receive-first-refusal-never-expires-named-if1/stage/srp_rx_retry.cpp:318: Failure
+$PACKET/scratch/matrix/receive-first-refusal-never-expires-named-if1/stage/srp_rx_retry.cpp:319: Failure
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+
+--- full log ---
+Note: Google Test filter = SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from SrpRetry
+[ RUN      ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+$PACKET/scratch/matrix/receive-first-refusal-never-expires-named-if1/stage/srp_rx_retry.cpp:318: Failure
+Expected equality of these values:
+  adapter.pending_rx.len
+    Which is: 1073
+  0u
+    Which is: 0
+
+  [FAIL] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap:     Which is: 0
+$PACKET/scratch/matrix/receive-first-refusal-never-expires-named-if1/stage/srp_rx_retry.cpp:319: Failure
+Expected equality of these values:
+  adapter.rx_discarded
+    Which is: 0
+  1u
+    Which is: 1
+
+  [FAIL] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap:     Which is: 1
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap (0 ms)
+[----------] 1 test from SrpRetry (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.QueuedRefusalKeepsOriginalArrivalDeadlineAcrossClockWrap
+
+ 1 FAILED TEST
+== ctrl SRP receive recovery: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

@@ -1,0 +1,8 @@
+rc=0 ifs=1 test=srp_latency.cpp filter=* root=$PACKET/scratch/cov
+[       OK ] SrpLatency.StartupJoinPeriodicAndLeaveAllCommitWithinOneBudget (0 ms)
+[       OK ] SrpLatency.ReceiveStateMalformedDomainAndListenerPaths (0 ms)
+[       OK ] SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog (0 ms)
+[       OK ] SrpLatency.FullRingRetainsOriginalOriginAndElevenMillisecondStallFails (0 ms)
+[       OK ] SrpLatency.ReceiveRecoveryKeepsOriginalArrivalBudget (0 ms)
+[  PASSED  ] 5 tests.
+== ctrl SRP service latency: checks: 5   failures: 0 ==

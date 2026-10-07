@@ -1,0 +1,21 @@
+rc=0 ifs=1 test=r532_flood_probe.cpp filter=* root=$PACKET/scratch/root-head
+[       OK ] Srp.FloodThenListenerLeaveRevocationTime (12 ms)
+[  PASSED  ] 1 test.
+== R532-6 flood probe: checks: 1   failures: 0 ==
+
+--- full log ---
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.FloodThenListenerLeaveRevocationTime
+PROBE flood pushed=60 pending=0 refused=21538 received=24 active=1 pool_in_use=33
+PROBE flood lv revoked_after_ms=0 active=0 pending=0 received+1 malformed=0 pool_in_use=32
+[       OK ] Srp.FloodThenListenerLeaveRevocationTime (12 ms)
+[----------] 1 test from Srp (12 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (12 ms total)
+[  PASSED  ] 1 test.
+== R532-6 flood probe: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
