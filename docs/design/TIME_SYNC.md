@@ -486,10 +486,13 @@ Its CDC FIFO stays full: up to 16 frames more.
 A clock-source change arms one recentre.
 It fires once the grid has settled (table above).
 
-A settle recentre follows each change and each pull-in.
-It waits until the servo and aligner rest.
+A settle recentre follows each change.
+Each pull-in starting outside a previous action's recovery gets one.
 
-Nothing moves the stage after it.
+It waits until the servo and aligner rest.
+A pull-in starting inside that recovery is the declared residual.
+
+Outside that declared residual, nothing moves the stage after it.
 
 The `milan_dp` leg selects CRF under a running stream.
 One recentre fires; every PDU returns to the setpoint.
