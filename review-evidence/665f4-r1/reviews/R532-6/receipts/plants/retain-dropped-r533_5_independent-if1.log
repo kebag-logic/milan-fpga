@@ -1,0 +1,12 @@
+rc=1 ifs=1 test=r533_5_independent.cpp filter=* root=$PACKET/scratch/root-retain-dropped
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+withdraw/recovery: active=1 received=1 malformed=0 stops=0
+$PACKET/scratch/plants/retain-dropped-r533_5_independent-if1/stage/r533_5_independent.cpp:55: Failure
+$PACKET/scratch/plants/retain-dropped-r533_5_independent-if1/stage/r533_5_independent.cpp:56: Failure
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery
+== independent dependency seams: checks: 4   failures: 1 ==

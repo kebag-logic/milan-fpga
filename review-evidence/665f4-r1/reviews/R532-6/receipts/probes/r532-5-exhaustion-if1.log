@@ -1,0 +1,17 @@
+rc=1 ifs=1 test=r532_5_exhaustion_probe.cpp filter=* root=$REPO
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:28: Failure
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (0 ms)
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:46: Failure
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (1 ms)
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:63: Failure
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:64: Failure
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:63: Failure
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:64: Failure
+$PACKET/scratch/probe/exh5-if1/stage/r532_5_exhaustion_probe.cpp:76: Failure
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave (56 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave
+== reviewer exhaustion probe: checks: 3   failures: 3 ==

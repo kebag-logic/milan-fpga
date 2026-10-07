@@ -1,0 +1,17 @@
+wrote $PACKET/scratch/plants/head-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/plants/head-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/plants/head-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=0 ifs=2 test=srp_rx_retry.cpp filter=* root=$PACKET/scratch/root-head
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[  PASSED  ] 11 tests.
+== ctrl SRP receive recovery: checks: 11   failures: 0 ==

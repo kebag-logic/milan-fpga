@@ -1,0 +1,11 @@
+rc=0 ifs=1 test=r532_retry_probes.cpp filter=* root=$PACKET/scratch/root-reset-any-interface
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==

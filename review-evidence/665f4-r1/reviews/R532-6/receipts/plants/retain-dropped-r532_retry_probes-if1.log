@@ -1,0 +1,30 @@
+rc=1 ifs=1 test=r532_retry_probes.cpp filter=* root=$PACKET/scratch/root-retain-dropped
+exhausted: pending=0 refused=1 received=1 malformed=0
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:51: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:52: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:53: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:61: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:62: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:63: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:65: Failure
+[  FAILED  ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:74: Failure
+unknown file: Failure
+[  FAILED  ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:95: Failure
+unknown file: Failure
+[  FAILED  ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:142: Failure
+[  FAILED  ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:166: Failure
+$PACKET/scratch/plants/retain-dropped-r532_retry_probes-if1/stage/r532_retry_probes.cpp:171: Failure
+[  FAILED  ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery
+[  FAILED  ] R532.SleepingLoopRetriesOnTickWithoutPeerInput
+[  FAILED  ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder
+[  FAILED  ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly
+[  FAILED  ] R532.OnlyMalformedInputCountsMalformed
+== R532-6 receive retry probes: checks: 6   failures: 5 ==

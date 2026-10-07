@@ -1,0 +1,20 @@
+wrote $PACKET/scratch/probe/exh5-if2/srp-r532_5_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/exh5-if2/srp-r532_5_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/exh5-if2/srp-r532_5_exhaustion_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=r532_5_exhaustion_probe.cpp filter=* root=$REPO
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:28: Failure
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted (0 ms)
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:46: Failure
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted (0 ms)
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:63: Failure
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:64: Failure
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:63: Failure
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:64: Failure
+$PACKET/scratch/probe/exh5-if2/stage/r532_5_exhaustion_probe.cpp:76: Failure
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave (76 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] Srp.ProbeRapidListenerLeaveWhilePoolExhausted
+[  FAILED  ] Srp.ProbeLeaveTimeDeadlineWhilePoolExhausted
+[  FAILED  ] Srp.ProbeDomainFloodThenRapidListenerLeave
+== reviewer exhaustion probe: checks: 3   failures: 3 ==

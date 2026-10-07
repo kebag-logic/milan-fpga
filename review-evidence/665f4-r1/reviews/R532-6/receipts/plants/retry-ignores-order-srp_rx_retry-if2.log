@@ -1,0 +1,32 @@
+wrote $PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=srp_rx_retry.cpp filter=* root=$PACKET/scratch/root-retry-ignores-order
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+[       OK ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:204: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:206: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:209: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:210: Failure
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:219: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:219: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:219: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:222: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:223: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:232: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:233: Failure
+$PACKET/scratch/plants/retry-ignores-order-srp_rx_retry-if2/stage/srp_rx_retry.cpp:237: Failure
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[  PASSED  ] 9 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+== ctrl SRP receive recovery: checks: 11   failures: 2 ==

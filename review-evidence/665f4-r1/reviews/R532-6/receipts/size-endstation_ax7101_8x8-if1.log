@@ -1,0 +1,45 @@
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "srp": true,
+  "sections": {
+    ".text": 33380,
+    ".rodata": 2846,
+    ".bss": 32824,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_allocation": 8,
+    "image_app": 3200,
+    "image_arena": 24032,
+    "image_entity": 40,
+    "image_licences": 9,
+    "image_sources": 288,
+    "image_srp": 5224
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5542,
+      "sha256": "6bb70b6e83c319f5388df8546965da4ae7dfb41510b02dd3f2118a6980404066"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 30036,
+      "sha256": "166892972e2216da70c3c86d13295d4020b67a9b76e4aa667e4dda68a421fc40"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 51640,
+      "sha256": "5bf7335e0757c7f3c7ac88109015d0e2f90f6939b7ece694ce1f0423635ef2bb"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 78899,
+      "sha256": "ebe424e8d9459b92a44c2f9b526cfdcf0fc75c032f66eabd7ec073667d8679e4"
+    }
+  ],
+  "ram_sections": 77242,
+  "ram_span": 77264
+}

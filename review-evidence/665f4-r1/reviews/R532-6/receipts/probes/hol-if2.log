@@ -1,0 +1,15 @@
+wrote $PACKET/scratch/probe/hol-if2/srp-r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/hol-if2/srp-r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/hol-if2/srp-r532_hol_probe-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=r532_hol_probe.cpp filter=* root=$REPO
+[       OK ] R532Hol.ControlTwoDomainValues (6 ms)
+$PACKET/scratch/probe/hol-if2/stage/r532_hol_probe.cpp:55: Failure
+$PACKET/scratch/probe/hol-if2/stage/r532_hol_probe.cpp:56: Failure
+[  FAILED  ] R532Hol.ManyDomainValuesInOneValidPdu (26837 ms)
+[       OK ] R532Hol.TwelveDomainValues (5 ms)
+[       OK ] R532Hol.TwentyDomainValues (6 ms)
+[       OK ] R532Hol.ThirtyDomainValues (7 ms)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] R532Hol.ManyDomainValuesInOneValidPdu
+== R532-6 head-of-line probe: checks: 5   failures: 1 ==

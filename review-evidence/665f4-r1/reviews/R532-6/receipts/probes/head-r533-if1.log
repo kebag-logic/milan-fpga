@@ -1,0 +1,8 @@
+rc=0 ifs=1 test=r533_5_independent.cpp filter=* root=$REPO
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==

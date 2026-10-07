@@ -1,0 +1,21 @@
+rc=1 ifs=1 test=srp_rx_retry.cpp filter=* root=$PACKET/scratch/root-overtake
+[       OK ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+[       OK ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+$PACKET/scratch/plants/overtake-srp_rx_retry-if1/stage/srp_rx_retry.cpp:89: Failure
+$PACKET/scratch/plants/overtake-srp_rx_retry-if1/stage/srp_rx_retry.cpp:97: Failure
+$PACKET/scratch/plants/overtake-srp_rx_retry-if1/stage/srp_rx_retry.cpp:99: Failure
+$PACKET/scratch/plants/overtake-srp_rx_retry-if1/stage/srp_rx_retry.cpp:94: Failure
+$PACKET/scratch/plants/overtake-srp_rx_retry-if1/stage/srp_rx_retry.cpp:101: Failure
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+[       OK ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+[       OK ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+[       OK ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+[       OK ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+[       OK ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+[       OK ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[  PASSED  ] 10 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+== ctrl SRP receive recovery: checks: 11   failures: 1 ==

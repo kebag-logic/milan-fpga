@@ -1,0 +1,44 @@
+wrote $PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=r532_retry_probes.cpp filter=* root=$PACKET/scratch/root-retry-removed
+exhausted: pending=35 refused=1 received=1 malformed=0
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:53: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:60: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:61: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:62: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:63: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:65: Failure
+[  FAILED  ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+retry after recovery waited 30 ms
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:83: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:84: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:85: Failure
+[  FAILED  ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:25: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:104: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:105: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:107: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:102: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:109: Failure
+[  FAILED  ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:25: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:128: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:129: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:130: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:126: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:131: Failure
+[  FAILED  ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:166: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:170: Failure
+$PACKET/scratch/plants/retry-removed-r532_retry_probes-if2/stage/r532_retry_probes.cpp:171: Failure
+[  FAILED  ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 5 tests, listed below:
+[  FAILED  ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery
+[  FAILED  ] R532.SleepingLoopRetriesOnTickWithoutPeerInput
+[  FAILED  ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder
+[  FAILED  ] R532.RetainedFirstInterfacePrecedesLaterInterface
+[  FAILED  ] R532.OnlyMalformedInputCountsMalformed
+== R532-6 receive retry probes: checks: 6   failures: 5 ==

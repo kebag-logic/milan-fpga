@@ -1,0 +1,11 @@
+wrote $PACKET/scratch/plants/reset-keeps-r533_5_independent-if2/srp-r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/plants/reset-keeps-r533_5_independent-if2/srp-r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/plants/reset-keeps-r533_5_independent-if2/srp-r533_5_independent-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=0 ifs=2 test=r533_5_independent.cpp filter=* root=$PACKET/scratch/root-reset-keeps
+[       OK ] Srp.ReviewAtomicInvalidSuffixCannotStartTalker (0 ms)
+[       OK ] Srp.ReviewFutureUnknownMessageKeepsFollowingKnownListener (0 ms)
+[       OK ] Srp.ReviewChangedListenerInLvIndicatesBeforePoll (0 ms)
+withdraw/recovery: active=0 received=2 malformed=0 stops=1
+[       OK ] Srp.ReviewWithdrawDuringExhaustionSurvivesRecovery (0 ms)
+[  PASSED  ] 4 tests.
+== independent dependency seams: checks: 4   failures: 0 ==

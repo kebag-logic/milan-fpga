@@ -1,0 +1,15 @@
+rc=1 ifs=1 test=r532_hol_probe.cpp filter=* root=$REPO
+[       OK ] R532Hol.ControlTwoDomainValues (4 ms)
+$PACKET/scratch/probe/hol-if1/stage/r532_hol_probe.cpp:55: Failure
+$PACKET/scratch/probe/hol-if1/stage/r532_hol_probe.cpp:56: Failure
+[  FAILED  ] R532Hol.ManyDomainValuesInOneValidPdu (9603 ms)
+[       OK ] R532Hol.TwelveDomainValues (4 ms)
+[       OK ] R532Hol.TwentyDomainValues (5 ms)
+$PACKET/scratch/probe/hol-if1/stage/r532_hol_probe.cpp:55: Failure
+$PACKET/scratch/probe/hol-if1/stage/r532_hol_probe.cpp:56: Failure
+[  FAILED  ] R532Hol.ThirtyDomainValues (6565 ms)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] R532Hol.ManyDomainValuesInOneValidPdu
+[  FAILED  ] R532Hol.ThirtyDomainValues
+== R532-6 head-of-line probe: checks: 5   failures: 2 ==

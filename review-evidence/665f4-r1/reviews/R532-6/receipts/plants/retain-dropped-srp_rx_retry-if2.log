@@ -1,0 +1,56 @@
+wrote $PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=1 ifs=2 test=srp_rx_retry.cpp filter=* root=$PACKET/scratch/root-retain-dropped
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:32: Failure
+unknown file: Failure
+[  FAILED  ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:67: Failure
+[  FAILED  ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:89: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:96: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:97: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:99: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:100: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:94: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:101: Failure
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:110: Failure
+[  FAILED  ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:126: Failure
+[  FAILED  ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:143: Failure
+[  FAILED  ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:163: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:167: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:166: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:169: Failure
+[  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:182: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:185: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:192: Failure
+[  FAILED  ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:204: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:209: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:210: Failure
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit (0 ms)
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:222: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:226: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:232: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:233: Failure
+$PACKET/scratch/plants/retain-dropped-srp_rx_retry-if2/stage/srp_rx_retry.cpp:237: Failure
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs (0 ms)
+[       OK ] SrpRetry.WholeInvalidPduIsMalformedAndFutureUnknownMessageIsSkipped (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 10 tests, listed below:
+[  FAILED  ] SrpRetry.RefusedMixedPayloadRetriesWithoutPeerRetransmission
+[  FAILED  ] SrpRetry.PartialPayloadKeepsLaterAttributesAndDoesNotRepeatStop
+[  FAILED  ] SrpRetry.LaterRecordsCannotOvertakeRetainedInterface
+[  FAILED  ] SrpRetry.LinkResetCancelsRetainedPayloadAndFencesLaterOldRecords
+[  FAILED  ] SrpRetry.OtherInterfaceResetPreservesRetainedPayload
+[  FAILED  ] SrpRetry.DestroyCancelsRetainedPayloadBeforeReinitialization
+[  FAILED  ] SrpRetry.FailedParticipantRecreationRetainsFreshReceive
+[  FAILED  ] SrpRetry.RetainedMvrpUsesItsOriginalParticipant
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForOwedTransmit
+[  FAILED  ] SrpRetry.RetainedReceiveWaitsForTickAndLifecycleBacklogs
+== ctrl SRP receive recovery: checks: 11   failures: 10 ==

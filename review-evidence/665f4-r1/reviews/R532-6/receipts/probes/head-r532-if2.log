@@ -1,0 +1,14 @@
+wrote $PACKET/scratch/probe/head-r532-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $PACKET/scratch/probe/head-r532-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote $PACKET/scratch/probe/head-r532-if2/srp-r532_retry_probes-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+rc=0 ifs=2 test=r532_retry_probes.cpp filter=* root=$REPO
+exhausted: pending=35 refused=68 received=1 malformed=0
+[       OK ] R532.RepeatedRefusalAcrossTicksAppliesOnceAfterRecovery (0 ms)
+retry after recovery waited 10 ms
+[       OK ] R532.SleepingLoopRetriesOnTickWithoutPeerInput (0 ms)
+[       OK ] R532.RetainedLeaveThenQueuedReadyApplyInArrivalOrder (0 ms)
+[       OK ] R532.RetainedFirstInterfacePrecedesLaterInterface (0 ms)
+[       OK ] R532.LinkResetDuringExhaustionCancelsAndRecreatesCleanly (0 ms)
+[       OK ] R532.OnlyMalformedInputCountsMalformed (0 ms)
+[  PASSED  ] 6 tests.
+== R532-6 receive retry probes: checks: 6   failures: 0 ==
