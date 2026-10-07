@@ -29,8 +29,12 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            record, the no-callback guard), then its mailbox adapter on the
            model: the timers on the interface's slot, the ADP channel's tap,
            every path's service cost (the H-ACMP and H-DISC hooks), owed frames
-           and the response before its notification (test_acmp.cpp,
-           test_acmp_mbx.cpp);
+           and the response before its notification, the adp channel's
+           bound-talker table (test_acmp.cpp, test_acmp_mbx.cpp);
+  acmpif2  test_acmp_mbx.cpp again, the firmware and the model compiled
+           against the contract elaborated for two AVB interfaces (written by
+           gen_mailbox.py into the build), so the adapter's per-interface
+           slots, tags, gPTP pair, table and paths run at two interfaces;
   acmpwalk the PROCESSOR's own ACMP expectations, cut out of the pinned
            submodule at build time: its F05.3 matrix model of Milan Table 5.30
            (tb/acmp_listener), its Table 5.54 transcription (tb/adp_engine) and
@@ -142,7 +146,7 @@ def main(argv: list[str] | None = None) -> int:
             cut_reuse(tree.reuse)
             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree), ctrl_arms.arm_acmp(tree),
-                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree),
+                        ctrl_arms.arm_acmpwalk(tree), ctrl_arms.arm_acmpnvm(tree), ctrl_arms.arm_acmpif2(tree),
                         ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
             if args.lwsrp is not None:
                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))

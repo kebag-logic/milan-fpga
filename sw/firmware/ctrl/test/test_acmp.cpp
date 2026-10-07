@@ -8,8 +8,12 @@
 //       against its table; the talker's answers of 5.5.4; the lock; response
 //       routing by the consumer's unique ID; sequence IDs; the per-interface
 //       timers; owed frames and the response-before-notification rule (#653);
-//       the discovery machine of 5.6.4 cell by cell; the saved binding record;
-//       the no-callback guard (#678).
+//       the discovery machine of 5.6.4 cell by cell; the saved binding record,
+//       byte for byte against the processor's payload; the no-callback guard
+//       (#678); AVTP versions other than 0 discarded before they are read;
+//       TMR_NO_RESP from the accepted send of each attempt; every timer across
+//       the 32-bit millisecond wrap; the admit port behind the adp channel's
+//       bound-talker term.
 //
 // The walk of the processor's own Table 5.30 transcription is acmp_walk.cpp;
 // the mailbox adapter, the latency bounds and the composition are
@@ -18,9 +22,11 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <vector>
 
 #include "acmp.h"
 #include "acmp_fake.hpp"
@@ -1249,6 +1255,7 @@ TEST_F(AcmpCore, A23EveryEntryRefusesACallFromInsideAPort) {
         [&] { static_cast<void>(acmp_poll(&a)); },
         [&] { EXPECT_EQ(acmp_restore_binding(&a, 1, record, sizeof record), ACMP_RESTORE_REFUSED); },
         [&] { acmp_restore_rollback(&a); },
+        [&] { acmp_open(&a); },
     };
     unsigned n = 0;
     for (const auto& call : calls) {
@@ -1260,23 +1267,24 @@ TEST_F(AcmpCore, A23EveryEntryRefusesACallFromInsideAPort) {
         const acmp_sink& s = a.sinks[0];
         EXPECT_TRUE(a.reentries == 1u && reentry_traps == 1u)
             << "A23 a call made from inside the send port is refused, counted and trapped, entry " << n;
-        EXPECT_TRUE(s.state == ACMP_PRB_W_RESP && s.timer == ACMP_TIMER_NO_RESP && fk.armed[0] &&
+        EXPECT_TRUE(s.state == ACMP_PRB_W_RESP && s.timer == ACMP_TIMER_NO_RESP && s.timer_held && !fk.armed[0] &&
                     a.sinks[1].state == ACMP_UNBOUND && a.owed_count == 2u)
-            << "A23 and the outer call completes as if it had not been made: TMR_NO_RESP running, entry " << n;
+            << "A23 and the outer call completes as if it had not been made: TMR_NO_RESP held for the owed probe, entry "
+            << n;
         n++;
     }
 }
 
 TEST_F(AcmpCore, A23EveryPortIsGuarded) {
     const Call::Kind kinds[] = {Call::TIMER, Call::NOW, Call::GPTP, Call::SEED, Call::LOCKED,
-                                Call::SOURCE, Call::SRP, Call::PERSIST, Call::CHANGED};
+                                Call::SOURCE, Call::SRP, Call::PERSIST, Call::CHANGED, Call::ADMIT};
     for (Call::Kind kind : kinds) {
         SetUp();
         fk.locked = true;
         fk.holder = kCtl1;
         fk.hook_kind = kind;
         fk.hook = [this] { acmp_timer_expired(&a, 0); };
-        bind(0);                                         // LOCKED, NOW, SEND, TIMER, PERSIST, CHANGED
+        bind(0);                                         // LOCKED, NOW, SEND, TIMER, ADMIT, PERSIST, CHANGED
         Pdu t;
         t.msg = spec::MSG_GET_TX_STATE_COMMAND;
         t.talker = kOwn;
@@ -1322,6 +1330,10 @@ TEST_F(AcmpCore, A24UnboundRecordsRefusalsAndRollback) {
         << "A24 a record of a sink the configuration lacks is refused";
     EXPECT_EQ(acmp_restore_binding(&a, 0, record, sizeof record - 1u), ACMP_RESTORE_REFUSED)
         << "A24 a payload of another length is refused";
+    for (unsigned len : {0u, spec::BINDING_BYTES + 1u, 0x100u + spec::BINDING_BYTES, 0xFFFFFFFFu}) {
+        EXPECT_EQ(acmp_restore_binding(&a, 0, record, len), ACMP_RESTORE_REFUSED)
+            << "A24 a payload of " << len << " bytes is refused, the longer ones too, before a byte is read";
+    }
     ASSERT_EQ(acmp_restore_binding(&a, 0, record, sizeof record), ACMP_RESTORE_APPLIED);
     ASSERT_EQ(acmp_restore_binding(&a, 2, record, sizeof record), ACMP_RESTORE_APPLIED);
     acmp_restore_rollback(&a);
@@ -1349,6 +1361,58 @@ TEST_F(AcmpCore, A24StartedIsSavedAndReported) {
     EXPECT_TRUE(fk.calls.empty()) << "A24 setting it again changes nothing";
 }
 
+// The processor's BINDING payload, byte for byte: its flags byte packs
+// {5'd0, f.sw, f.started, vld} (protocol-processor hdl/acmp/KL_acmp_nvm_shadow.sv,
+// line 484; docs/design/SAVED_STATE_FASTCONNECT.md 2), then a reserved 0, the
+// talker_unique_id, talker_entity_id and controller_entity_id, big-endian.
+constexpr std::uint8_t kRecValid = 0x01u;           // bit 0, vld
+constexpr std::uint8_t kRecStarted = 0x02u;         // bit 1, f.started
+constexpr std::uint8_t kRecStreamingWait = 0x04u;   // bit 2, f.sw
+
+std::array<std::uint8_t, spec::BINDING_BYTES> payload(std::uint8_t flags, std::uint16_t uid, std::uint64_t talker,
+                                                      std::uint64_t ctlr) {
+    return {flags, 0x00, static_cast<std::uint8_t>(uid >> 8), static_cast<std::uint8_t>(uid),
+            static_cast<std::uint8_t>(talker >> 56), static_cast<std::uint8_t>(talker >> 48),
+            static_cast<std::uint8_t>(talker >> 40), static_cast<std::uint8_t>(talker >> 32),
+            static_cast<std::uint8_t>(talker >> 24), static_cast<std::uint8_t>(talker >> 16),
+            static_cast<std::uint8_t>(talker >> 8), static_cast<std::uint8_t>(talker),
+            static_cast<std::uint8_t>(ctlr >> 56), static_cast<std::uint8_t>(ctlr >> 48),
+            static_cast<std::uint8_t>(ctlr >> 40), static_cast<std::uint8_t>(ctlr >> 32),
+            static_cast<std::uint8_t>(ctlr >> 24), static_cast<std::uint8_t>(ctlr >> 16),
+            static_cast<std::uint8_t>(ctlr >> 8), static_cast<std::uint8_t>(ctlr)};
+}
+
+TEST_F(AcmpCore, A24TheRecordIsTheProcessorsPayloadOneFlagAtATime) {
+    std::array<std::uint8_t, spec::BINDING_BYTES> back{};
+    bind(0, kTkA, 0x1234u, kCtl1);                       // no STREAMING_WAIT: started
+    ASSERT_TRUE(acmp_binding_latch(&a, 0, back.data()));
+    EXPECT_EQ(back, payload(kRecValid | kRecStarted, 0x1234u, kTkA, kCtl1))
+        << "A24 bound and started: flags 0x03, then the parameters, byte for byte";
+    ASSERT_TRUE(acmp_set_started(&a, 0, false));
+    ASSERT_TRUE(acmp_binding_latch(&a, 0, back.data()));
+    EXPECT_EQ(back, payload(kRecValid, 0x1234u, kTkA, kCtl1)) << "A24 bound and stopped: the valid flag alone, 0x01";
+    bind(1, kTkB, 0x0102u, kCtl2, true);                 // STREAMING_WAIT: stopped
+    ASSERT_TRUE(acmp_binding_latch(&a, 1, back.data()));
+    EXPECT_EQ(back, payload(kRecValid | kRecStreamingWait, 0x0102u, kTkB, kCtl2))
+        << "A24 bound with STREAMING_WAIT: flags 0x05";
+    struct Case {
+        std::uint8_t flags;
+        bool started;
+        bool sw;
+    };
+    for (const Case& c : {Case{kRecValid, false, false}, Case{kRecValid | kRecStarted, true, false},
+                          Case{kRecValid | kRecStreamingWait, false, true}}) {
+        SetUp();
+        const auto rec = payload(c.flags, 0x0A0Bu, kTkB, kCtl2);
+        ASSERT_EQ(acmp_restore_binding(&a, 0, rec.data(), static_cast<unsigned>(rec.size())), ACMP_RESTORE_APPLIED);
+        const acmp_sink& s = a.sinks[0];
+        EXPECT_TRUE(s.bound && s.started == c.started && s.binding.streaming_wait == c.sw &&
+                    s.binding.talker_unique_id == 0x0A0Bu && s.binding.talker_entity_id == kTkB &&
+                    s.binding.controller_entity_id == kCtl2)
+            << "A24 the processor's flags 0x" << std::hex << unsigned(c.flags) << " restore that one flag";
+    }
+}
+
 // ---- A25: the notification follows Table 5.22's items ---------------------------------------------
 
 TEST_F(AcmpCore, A25OnlyTable522ItemsAreReported) {
@@ -1367,6 +1431,354 @@ TEST_F(AcmpCore, A25OnlyTable522ItemsAreReported) {
     rx(command(spec::MSG_BIND_RX_COMMAND, 0, kTkA, 1, kCtl1));
     EXPECT_TRUE(fk.count(Call::CHANGED) == 0u && fk.count(Call::PERSIST) == 0u)
         << "A25 a re-bind that changes nothing reports and saves nothing";
+}
+
+// ---- A26: only AVTP version 0 is read (IEEE 1722-2016 4.4.3.4) -----------------------------------
+
+// A frame with the AVTP version `v` in byte 15's bits 6:4, its message_type kept.
+template <std::size_t N>
+std::array<std::uint8_t, N> versioned(std::array<std::uint8_t, N> f, unsigned v) {
+    f[15] = static_cast<std::uint8_t>((f[15] & 0x8Fu) | (v << 4));
+    return f;
+}
+
+TEST_F(AcmpCore, A26AnotherAvtpVersionIsDiscardedBeforeItIsRead) {
+    for (unsigned v = 1; v < 8u; ++v) {
+        SetUp();
+        auto bindf = versioned(acmpdu(command(spec::MSG_BIND_RX_COMMAND, 0)), v);
+        acmp_rx(&a, 0, bindf.data(), bindf.size());
+        EXPECT_TRUE(fk.calls.empty() && a.sinks[0].state == ACMP_UNBOUND && a.rx_malformed == 1u)
+            << "A26 a BIND_RX of AVTP version " << v << " binds nothing, calls no port, counts as malformed";
+        Pdu t;
+        t.msg = spec::MSG_GET_TX_STATE_COMMAND;
+        t.talker = kOwn;
+        auto txf = versioned(acmpdu(t), v);
+        acmp_rx(&a, 0, txf.data(), txf.size());
+        EXPECT_TRUE(fk.calls.empty() && a.rx_malformed == 2u)
+            << "A26 a talker command of version " << v << " is not answered";
+        bind(0);
+        ASSERT_EQ(a.sinks[0].state, ACMP_PRB_W_RESP) << "A26 the same BIND_RX at version 0 binds";
+        fk.clear();
+        auto resp = versioned(acmpdu(probe_answer(0)), v);
+        acmp_rx(&a, 0, resp.data(), resp.size());
+        EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RESP && fk.calls.empty() && a.rx_malformed == 3u)
+            << "A26 the probe's own PROBE_TX_RESPONSE at version " << v << " is not taken";
+        auto avail = versioned(adpdu(Adp{}), v);
+        acmp_adp_rx(&a, 0, avail.data(), avail.size());
+        EXPECT_TRUE(!a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 1u)
+            << "A26 an ENTITY_AVAILABLE of version " << v << " discovers nothing";
+        adp(Adp{});
+        ASSERT_TRUE(a.sinks[0].discovered) << "A26 the same AVAILABLE at version 0 discovers the talker";
+        fk.clear();
+        Adp gone;
+        gone.msg = spec::ADPDU_ENTITY_DEPARTING;
+        auto dep = versioned(adpdu(gone), v);
+        acmp_adp_rx(&a, 0, dep.data(), dep.size());
+        EXPECT_TRUE(a.sinks[0].discovered && fk.calls.empty() && a.adp_ignored == 2u)
+            << "A26 an ENTITY_DEPARTING of version " << v << " departs nothing";
+        rx(probe_answer(0));
+        EXPECT_EQ(a.sinks[0].state, ACMP_SETTLED_NO_RSV) << "A26 the PROBE_TX_RESPONSE at version 0 settles";
+        // a restored binding waits in PRB_W_AVAIL: another version moves it nowhere
+        const auto rec = payload(kRecValid, 1u, kTkB, kCtl1);
+        ASSERT_EQ(acmp_restore_binding(&a, 1, rec.data(), static_cast<unsigned>(rec.size())), ACMP_RESTORE_APPLIED);
+        Adp tb;
+        tb.entity = kTkB;
+        auto availb = versioned(adpdu(tb), v);
+        acmp_adp_rx(&a, 0, availb.data(), availb.size());
+        EXPECT_TRUE(a.sinks[1].state == ACMP_PRB_W_AVAIL && !a.sinks[1].discovered)
+            << "A26 a restored binding stays in PRB_W_AVAIL on an AVAILABLE of version " << v;
+    }
+}
+
+// ---- A27: TMR_NO_RESP from the accepted send of each attempt (5.5.3.5.3, 5.5.3.5.16) ---------------
+
+TEST_F(AcmpCore, A27AnOwedProbeStartsItsTimerWhenItLeaves) {
+    const std::uint32_t t0 = fk.now;
+    fk.room = false;
+    bind(0);
+    const acmp_sink& s = a.sinks[0];
+    EXPECT_TRUE(s.state == ACMP_PRB_W_RESP && s.timer == ACMP_TIMER_NO_RESP && s.timer_held && !fk.armed[0] &&
+                a.owed_count == 2u)
+        << "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held, no timer armed";
+    fk.now = t0 + 5u;
+    fk.room = true;
+    fk.clear();
+    EXPECT_TRUE(acmp_poll(&a));
+    EXPECT_TRUE(fk.sent.size() == 1u && read(fk.sent[0].bytes.data()).msg == spec::MSG_BIND_RX_RESPONSE &&
+                s.timer_held && !fk.armed[0])
+        << "A27 the response leaves first, in command order, and the probe's timer still waits";
+    EXPECT_FALSE(acmp_poll(&a));
+    EXPECT_TRUE(fk.sent.size() == 2u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND &&
+                !s.timer_held && s.timer_deadline == t0 + 5u + spec::TMR_NO_RESP_MS && fk.armed[0] &&
+                fk.at[0] == s.timer_deadline)
+        << "A27 the probe leaves 5 ms late and TMR_NO_RESP runs 200 ms from that send";
+    fk.now = s.timer_deadline - 1u;
+    acmp_timer_expired(&a, 0);
+    EXPECT_EQ(s.state, ACMP_PRB_W_RESP) << "A27 no expiry 199 ms after the send";
+    fk.clear();
+    fk.now = t0 + 5u + spec::TMR_NO_RESP_MS;
+    acmp_timer_expired(&a, 0);
+    EXPECT_TRUE(s.state == ACMP_PRB_W_RESP2 && fk.sent.size() == 1u) << "A27 the duplicate 200 ms after the send";
+    SetUp();
+    fk.room = false;
+    bind(0);
+    fk.now += spec::TMR_NO_RESP_MS + 50u;
+    acmp_timer_expired(&a, 0);                           // the interface's timer, fired for another sink
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RESP && a.sinks[0].timer_held && a.owed_count == 2u)
+        << "A27 an expiry of the interface while the probe is owed takes nothing: a held timer is never due";
+}
+
+TEST_F(AcmpCore, A27AStalledDuplicateGetsItsWholeInterval) {
+    std::uint32_t t0 = fk.now;
+    bind(0);                                             // the probe leaves at t0
+    const acmp_sink& s = a.sinks[0];
+    const std::uint16_t seq = s.probe_seq;
+    const auto first = fk.sent.back();
+    fk.room = false;
+    fk.now = t0 + spec::TMR_NO_RESP_MS;
+    fk.clear();
+    acmp_timer_expired(&a, 0);
+    EXPECT_TRUE(s.state == ACMP_PRB_W_RESP2 && s.timer_held && fk.count(Call::TIMER) == 0u && !a.timer_armed[0] &&
+                a.owed_count == 1u)
+        << "A27 the first TMR_NO_RESP finds no room: the duplicate owed, PRB_W_RESP2, its timer held, none re-armed";
+    fk.now = t0 + 205u;
+    fk.room = true;
+    fk.clear();
+    EXPECT_FALSE(acmp_poll(&a));
+    EXPECT_TRUE(fk.sent.size() == 1u && fk.sent[0].bytes == first.bytes && s.probe_seq == seq &&
+                s.timer_deadline == t0 + 405u && fk.at[0] == t0 + 405u)
+        << "A27 the duplicate, the first probe's exact copy and sequence_id, leaves at 205 ms: TMR_NO_RESP to 405 ms";
+    fk.now = t0 + 402u;
+    rx(probe_answer(0));
+    EXPECT_EQ(s.state, ACMP_SETTLED_NO_RSV) << "A27 a response 197 ms after the duplicate left is taken (5.5.3.5.25)";
+    SetUp();
+    t0 = fk.now;
+    bind(0);
+    fk.room = false;
+    fk.now = t0 + spec::TMR_NO_RESP_MS;
+    acmp_timer_expired(&a, 0);
+    fk.room = true;
+    fk.now = t0 + 205u;
+    static_cast<void>(acmp_poll(&a));
+    fk.clear();
+    fk.now = t0 + 404u;
+    acmp_timer_expired(&a, 0);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_RESP2) << "A27 no second expiry 199 ms after the duplicate left";
+    fk.now = t0 + 405u;
+    acmp_timer_expired(&a, 0);
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RETRY && fk.sent.empty() &&
+                a.sinks[0].acmp_status == spec::STATUS_LISTENER_TALKER_TIMEOUT)
+        << "A27 the second expiry at 200 ms: no third probe, LISTENER_TALKER_TIMEOUT (5.5.3.5.23)";
+}
+
+TEST_F(AcmpCore, A27AProbeOwedPastAnUnbindARebindOrASuccessStartsNothing) {
+    fk.room = false;
+    bind(0);
+    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+    const acmp_sink& s = a.sinks[0];
+    EXPECT_TRUE(s.state == ACMP_UNBOUND && s.timer == ACMP_TIMER_NONE && !s.timer_held && a.owed_count == 3u)
+        << "A27 an UNBIND_RX while the probe is owed stops its timer";
+    fk.room = true;
+    while (acmp_poll(&a)) {}
+    EXPECT_TRUE(fk.sent.size() == 3u && read(fk.sent[1].bytes.data()).msg == spec::MSG_PROBE_TX_COMMAND &&
+                s.timer == ACMP_TIMER_NONE && !fk.armed[0])
+        << "A27 the probe still leaves, in order, and starts no timer";
+    SetUp();
+    fk.room = false;
+    bind(0, kTkA);
+    const std::uint16_t old_seq = a.sinks[0].probe_seq;
+    bind(0, kTkB);
+    EXPECT_TRUE(a.sinks[0].probe_seq != old_seq && a.sinks[0].timer_held && a.owed_count == 4u)
+        << "A27 a BIND_RX of another source while the probe is owed: a new probe, a new sequence_id, held";
+    fk.room = true;
+    fk.now += 3u;
+    static_cast<void>(acmp_poll(&a));
+    static_cast<void>(acmp_poll(&a));
+    EXPECT_TRUE(a.sinks[0].timer_held && !fk.armed[0]) << "A27 the old probe leaving starts no timer for the new one";
+    static_cast<void>(acmp_poll(&a));
+    fk.now += 2u;
+    static_cast<void>(acmp_poll(&a));
+    EXPECT_TRUE(!a.sinks[0].timer_held && a.sinks[0].timer_deadline == fk.now + spec::TMR_NO_RESP_MS && fk.armed[0])
+        << "A27 the new probe's own send starts it";
+    SetUp();
+    bind(0);
+    fk.room = false;
+    fire(0);                                             // the duplicate owed
+    rx(probe_answer(0));                                 // the talker answered the first probe
+    const std::uint32_t no_tk = a.sinks[0].timer_deadline;
+    EXPECT_TRUE(a.sinks[0].state == ACMP_SETTLED_NO_RSV && a.sinks[0].timer == ACMP_TIMER_NO_TK &&
+                !a.sinks[0].timer_held)
+        << "A27 a success while the duplicate is owed settles, TMR_NO_TK running";
+    fk.room = true;
+    fk.now += 7u;
+    EXPECT_FALSE(acmp_poll(&a));
+    EXPECT_TRUE(a.sinks[0].timer == ACMP_TIMER_NO_TK && a.sinks[0].timer_deadline == no_tk &&
+                a.sinks[0].state == ACMP_SETTLED_NO_RSV)
+        << "A27 and the duplicate leaving afterwards restarts nothing";
+}
+
+// ---- A28: the 32-bit millisecond clock wraps (FR_NFR.md 3.4.2: timer wrap) ------------------------
+
+// The interface's expiry at `at`, the clock there first.
+void expire_at(acmp* a, std::uint32_t at, unsigned interface = 0) {
+    fk.now = at;
+    acmp_timer_expired(a, interface);
+}
+
+constexpr std::uint32_t kWrap = 0xFFFFFFFFu;            // the last millisecond before NOW_MS wraps to 0
+
+TEST_F(AcmpCore, A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap) {
+    fk.now = kWrap - 99u;
+    bind(0);
+    const acmp_sink& s = a.sinks[0];
+    EXPECT_EQ(s.timer_deadline, 100u) << "A28 TMR_NO_RESP armed 100 ms before the wrap ends 100 ms after it";
+    expire_at(&a, kWrap);
+    expire_at(&a, 99u);
+    EXPECT_EQ(s.state, ACMP_PRB_W_RESP) << "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline";
+    expire_at(&a, 100u);
+    EXPECT_EQ(s.state, ACMP_PRB_W_RESP2) << "A28 TMR_NO_RESP expires at its deadline across the wrap";
+    SetUp();
+    fk.now = kWrap - 1399u;
+    bind(0);
+    fire(0);
+    fire(0);                                             // the second TMR_NO_RESP at the wrap less 999 ms
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RETRY && a.sinks[0].timer_deadline == 3000u)
+        << "A28 TMR_RETRY armed 999 ms before the wrap ends 3 s after it";
+    expire_at(&a, kWrap);
+    expire_at(&a, 2999u);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_RETRY) << "A28 TMR_RETRY: nothing before its deadline";
+    expire_at(&a, 3000u);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_AVAIL) << "A28 TMR_RETRY expires at its deadline across the wrap";
+    SetUp();
+    fk.now = kWrap - 4999u;
+    bind(0);
+    rx(probe_answer(0));
+    EXPECT_TRUE(a.sinks[0].state == ACMP_SETTLED_NO_RSV && a.sinks[0].timer_deadline == 5000u)
+        << "A28 TMR_NO_TK armed 4999 ms before the wrap ends 5 s after it";
+    expire_at(&a, kWrap);
+    expire_at(&a, 4999u);
+    EXPECT_EQ(a.sinks[0].state, ACMP_SETTLED_NO_RSV) << "A28 TMR_NO_TK: nothing before its deadline";
+    adp(Adp{});                                          // discovered, so the expiry reprobes through TMR_DELAY
+    expire_at(&a, 5000u);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_DELAY) << "A28 TMR_NO_TK expires at its deadline across the wrap";
+    const std::uint32_t delay = a.sinks[0].timer_deadline;
+    EXPECT_TRUE(a.last_draw_ms > 0u && delay - 5000u == a.last_draw_ms) << "A28 TMR_DELAY is the draw after the expiry";
+    SetUp();
+    const std::uint8_t restored[spec::BINDING_BYTES] = {kRecValid, 0, 0, 1, 0x00, 0x22, 0x11, 0x00,
+                                                         0xAA, 0xBB, 0xCC, 0xDD};
+    ASSERT_EQ(acmp_restore_binding(&a, 0, restored, sizeof restored), ACMP_RESTORE_APPLIED);
+    fk.now = kWrap;
+    adp(Adp{});                                          // TMR_DELAY from the last millisecond before the wrap
+    const std::uint32_t d = kWrap + a.last_draw_ms;      // the drawn deadline, past the wrap
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_DELAY && a.sinks[0].timer_deadline == d && a.last_draw_ms > 1u)
+        << "A28 TMR_DELAY drawn at the last millisecond before the wrap ends after it";
+    expire_at(&a, d - 1u);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_DELAY) << "A28 TMR_DELAY: nothing before its deadline";
+    expire_at(&a, d);
+    EXPECT_EQ(a.sinks[0].state, ACMP_PRB_W_RESP) << "A28 TMR_DELAY expires at its deadline across the wrap";
+    SetUp();
+    bind(0);
+    rx(probe_answer(0));                                 // settled: TMR_NO_TK 10 s
+    fk.now = kWrap - 9999u;
+    adp(Adp{});                                          // TMR_NO_ADP 20 s: ends 10 s after the wrap
+    EXPECT_TRUE(a.sinks[0].adp_armed && a.sinks[0].adp_deadline == 10000u)
+        << "A28 TMR_NO_ADP armed 9999 ms before the wrap ends 10 s after it";
+    acmp_tk_registered(&a, 0, false);                    // TMR_NO_TK stopped: TMR_NO_ADP alone
+    expire_at(&a, kWrap);
+    expire_at(&a, 9999u);
+    EXPECT_TRUE(a.sinks[0].discovered) << "A28 TMR_NO_ADP: nothing before its deadline";
+    expire_at(&a, 10000u);
+    EXPECT_FALSE(a.sinks[0].discovered) << "A28 TMR_NO_ADP expires at its deadline across the wrap (5.6.4.5.4)";
+}
+
+TEST_F(AcmpCore, A28TheEarliestDeadlineIsChosenAcrossTheWrap) {
+    fk.now = kWrap - 255u;
+    bind(0);                                             // TMR_NO_RESP at the wrap less 55 ms
+    fk.now = kWrap - 99u;
+    bind(1);                                             // TMR_NO_RESP 100 ms after the wrap
+    EXPECT_TRUE(a.sinks[0].timer_deadline == kWrap - 55u && a.sinks[1].timer_deadline == 100u)
+        << "A28 one deadline before the wrap, one after it";
+    EXPECT_TRUE(fk.armed[0] && fk.at[0] == kWrap - 55u)
+        << "A28 the interface timer holds the earlier deadline, the numerically larger one before the wrap";
+    expire_at(&a, kWrap - 55u);
+    EXPECT_TRUE(a.sinks[0].state == ACMP_PRB_W_RESP2 && a.sinks[1].state == ACMP_PRB_W_RESP)
+        << "A28 the first expiry takes sink 0 only: sink 1's deadline is after the wrap";
+    EXPECT_TRUE(fk.armed[0] && fk.at[0] == 100u) << "A28 then the timer holds sink 1's deadline after the wrap";
+}
+
+// ---- A29: the admit port behind the adp channel's bound-talker term (#665 comment 6029368753) -----
+
+std::vector<Call> admits() {
+    std::vector<Call> v;
+    for (const Call& c : fk.calls) {
+        if (c.kind == Call::ADMIT) {
+            v.push_back(c);
+        }
+    }
+    return v;
+}
+
+TEST_F(AcmpCore, A29TheAdmitPortFollowsEachSinksBoundTalker) {
+    bind(0, kTkA);
+    auto v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 a BIND_RX admits its talker once";
+    EXPECT_TRUE(v[0].index == 0u && v[0].value == 0u && v[0].flag && v[0].talker == kTkA)
+        << "A29 for its sink, on the sink's interface, the bound talker";
+    fk.clear();
+    bind(0, kTkA, 1, kCtl2);
+    bind(0, kTkA, 2);
+    EXPECT_TRUE(admits().empty()) << "A29 a re-bind to the same talker, from any controller or source, admits nothing";
+    bind(0, kTkB);
+    v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 a re-bind to another talker admits it";
+    EXPECT_TRUE(v[0].flag && v[0].talker == kTkB && v[0].index == 0u) << "A29 a re-bind to another talker admits it";
+    fk.clear();
+    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+    v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 an UNBIND_RX withdraws it";
+    EXPECT_TRUE(!v[0].flag && v[0].index == 0u && v[0].value == 0u) << "A29 an UNBIND_RX withdraws it";
+    fk.clear();
+    rx(command(spec::MSG_UNBIND_RX_COMMAND, 0));
+    EXPECT_TRUE(admits().empty()) << "A29 an UNBIND_RX of an unbound sink withdraws nothing";
+    bind(2, kTkB);
+    v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 sink 2's talker on interface 1";
+    EXPECT_TRUE(v[0].index == 2u && v[0].value == 1u && v[0].flag) << "A29 sink 2's talker on interface 1";
+    fk.clear();
+    fk.locked = true;
+    fk.holder = kCtl2;
+    bind(1, kTkA);
+    EXPECT_TRUE(admits().empty() && a.sinks[1].state == ACMP_UNBOUND) << "A29 a BIND_RX the lock refuses admits nothing";
+}
+
+TEST_F(AcmpCore, A29RestoredBindingsAreAdmittedWhenTheTransportOpens) {
+    const auto bound = payload(kRecValid, 1u, kTkB, kCtl1);
+    const auto none = payload(0u, 0u, 0u, 0u);
+    ASSERT_EQ(acmp_restore_binding(&a, 1, bound.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    ASSERT_EQ(acmp_restore_binding(&a, 2, none.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    EXPECT_TRUE(fk.calls.empty()) << "A29 the boot restore admits nothing: the transport is not open";
+    acmp_open(&a);
+    auto v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 acmp_open admits each restored binding's talker, the unbound sinks nothing";
+    EXPECT_TRUE(v[0].index == 1u && v[0].value == 0u && v[0].flag && v[0].talker == kTkB && fk.calls.size() == 1u)
+        << "A29 sink 1's talker on its interface, and nothing else: no timer, nothing to save or report";
+    fk.clear();
+    acmp_open(&a);
+    EXPECT_TRUE(fk.calls.empty()) << "A29 a second open changes nothing";
+    SetUp();
+    ASSERT_EQ(acmp_restore_binding(&a, 1, bound.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    acmp_restore_rollback(&a);
+    acmp_open(&a);
+    EXPECT_TRUE(fk.calls.empty()) << "A29 a binding the roll-back dropped is never admitted";
+    SetUp();
+    bind(0, kTkA);
+    fk.clear();
+    ASSERT_EQ(acmp_restore_binding(&a, 0, none.data(), spec::BINDING_BYTES), ACMP_RESTORE_APPLIED);
+    acmp_open(&a);
+    v = admits();
+    ASSERT_EQ(v.size(), 1u) << "A29 a sink the store resets is withdrawn at the next open";
+    EXPECT_TRUE(!v[0].flag && v[0].index == 0u)
+        << "A29 a sink the store resets is withdrawn at the next open: what the port holds outlives the reset";
 }
 
 }  // namespace

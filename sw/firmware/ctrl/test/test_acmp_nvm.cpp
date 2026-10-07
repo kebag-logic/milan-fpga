@@ -12,7 +12,8 @@
 //       saved as an unbound record; the started flags; a slot the boot
 //       cannot read holding the writer, so a later bind is not saved and the
 //       old binding comes back (ctrl_nvm/README.md, "Boot" item 9); a record
-//       the core refuses; the roll-back; every other group forwarded.
+//       the core refuses; the roll-back; every other group forwarded; a D3
+//       roll-back, at the port and at a real boot, leaving the bindings applied.
 //
 // The boot runs as a platform runs it (acmp_nvm.h): the core composed, the
 // store booted through acmp_nvm's port, then the core's inputs; the env's
@@ -241,6 +242,42 @@ TEST_F(AcmpStore, N6TheRollBackAndEveryOtherGroup) {
                 after.rollbacks == before.rollbacks + 1u && after.latches == before.latches + 1u &&
                 after.releases == before.releases + 1u && after.unbinds == before.unbinds)
         << "N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged";
+}
+
+// nvm_state.h: "a D3 roll-back leaves a completed binding walk applied" and
+// NVM_W_D3 rolls back "every D3 value ... the bindings untouched". At the port
+// first, then at a boot whose D3 walk the store rolls back.
+TEST_F(AcmpStore, N7AD3RollBackKeepsTheBindings) {
+    std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
+    wire_put_be(record + 4, kTkA, 8);
+    wire_put_be(record + 12, kCtl1, 8);
+    ASSERT_EQ(glue.port.apply(glue.port.ctx, NVM_G_BIND, 0, record, sizeof record), NVM_APPLIED);
+    const struct nvm_smodel_count before = *nvm_smodel_count();
+    fk.clear();
+    EXPECT_EQ(glue.port.rollback(glue.port.ctx, NVM_W_D3), 0) << "N7 the D3 walk's roll-back succeeds";
+    EXPECT_TRUE(a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA && a.sinks[0].state == ACMP_PRB_W_AVAIL &&
+                a.sinks[0].disc_running)
+        << "N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running";
+    EXPECT_TRUE(nvm_smodel_count()->rollbacks == before.rollbacks + 1u && nvm_smodel_count()->unbinds == before.unbinds &&
+                fk.calls.empty())
+        << "N7 the roll-back goes to the D3 owners only: nothing unbound, no port called";
+    command(spec::MSG_BIND_RX_COMMAND, 0, kTkB);         // another source: a record change, saved
+    serve();
+    ASSERT_EQ(persists, 1u);
+    nvm_smodel_reset();
+    nvm_smodel_fault_settle(1);                          // the D3 walk fails at its settle step: rolled back
+    fk = Fake{};
+    persists = 0;
+    nvm_fmodel_power_on();
+    nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_A + kJournal);
+    acmp_config cfg = a.cfg;
+    ASSERT_TRUE(acmp_init(&a, &cfg, &kPorts, &kStoreEnv));
+    acmp_nvm_init(&glue, &a, NVM_G_BIND, &nvm_smodel_port);
+    nvm_store_boot(&nvm_fmodel_port, &glue.port);
+    EXPECT_GE(nvm_smodel_count()->rollbacks, 1u) << "N7 the boot rolled the D3 walk back";
+    EXPECT_TRUE(nvm_store_status()->terminal == NVM_T_DEFAULTS && a.sinks[0].bound &&
+                a.sinks[0].binding.talker_entity_id == kTkB && a.sinks[0].state == ACMP_PRB_W_AVAIL)
+        << "N7 and the saved binding still comes back: the fast connect stands";
 }
 
 }  // namespace

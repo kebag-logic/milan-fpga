@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -46,6 +47,35 @@ def arm_acmp(tree: Tree) -> Outcome:
             compile_c(tree, sources(tree, HOST), "acmp/host", measured=False) +
             compile_tests(tree, ACMP_TESTS, "acmp/tests"))
     return execute("acmp", link(tree, "test_acmp", objs))
+
+
+#: The two-interface arm: the adapter's tests again, and its own label (R530-1-F1).
+IF2_TESTS = ("test_acmp_mbx.cpp", "acmp_if2.cpp")
+GEN_MAILBOX = ROOT / "sw/mailbox/gen_mailbox.py"
+
+
+def arm_acmpif2(tree: Tree) -> Outcome:
+    """The ACMP adapter, its latency paths and the composition on the contract
+    elaborated for two AVB interfaces. mbx.h includes the contract by quotes, so
+    its own directory's copy always wins: the arm builds a copy of the tree being
+    built (a planted defect included) whose mbx/mbx_contract.h is the variant's,
+    which the generator writes into the build. Unmeasured: coverage is the tracked
+    contract's arms'."""
+    work = tree.out / "acmpif2"
+    gen = work / "gen"
+    res = run([sys.executable, "-B", str(GEN_MAILBOX), "--variant-interfaces", "2", "--out", str(gen)])
+    if res.returncode != 0:
+        raise Refusal(f"the two-interface contract was refused: {res.stdout.strip()} {res.stderr.strip()}")
+    src = work / "ctrl"
+    if src.exists():
+        shutil.rmtree(src)
+    shutil.copytree(tree.src, src, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copyfile(gen / "mbx_contract.h", src / "mbx" / "mbx_contract.h")
+    if2 = Tree(src, work / "build", tree.reuse, tree.build)
+    objs = (compile_c(if2, sources(if2, PORTABLE), "fw", REENTRY_ASSERT, measured=False) +
+            compile_c(if2, sources(if2, HOST), "host", measured=False) +
+            compile_tests(if2, IF2_TESTS, "tests"))
+    return execute("acmpif2", link(if2, "test_acmp_if2", objs))
 
 
 def arm_acmpwalk(tree: Tree) -> Outcome:

@@ -90,11 +90,12 @@ constexpr std::uint64_t kDa = 0x91E0F0004455ull;
 
 // One port call.
 struct Call {
-    enum Kind { SEND, TIMER, GPTP, NOW, SEED, LOCKED, SOURCE, SRP, PERSIST, CHANGED } kind;
-    unsigned index;             // the interface, sink or source
-    bool flag;                  // TIMER: armed; SRP: a stream (not NULL); SEND: taken
-    std::uint32_t value;        // TIMER: the deadline
+    enum Kind { SEND, TIMER, GPTP, NOW, SEED, LOCKED, SOURCE, SRP, PERSIST, CHANGED, ADMIT } kind;
+    unsigned index;             // the interface, sink or source (ADMIT: the sink)
+    bool flag;                  // TIMER: armed; SRP: a stream (not NULL); SEND: taken; ADMIT: bound
+    std::uint32_t value;        // TIMER: the deadline; ADMIT: the interface
     acmp_stream stream;         // SRP
+    std::uint64_t talker = 0;   // ADMIT
 };
 
 struct Sent {
@@ -217,7 +218,12 @@ inline void f_changed(void*, unsigned sink) {
     fk.reenter(Call::CHANGED);
 }
 
-inline const acmp_ports kPorts = {nullptr, f_send, f_now, f_timer, f_gptp, f_seed};
+inline void f_admit(void*, unsigned interface, unsigned sink, bool bound, std::uint64_t talker) {
+    fk.calls.push_back({Call::ADMIT, sink, bound, interface, {}, talker});
+    fk.reenter(Call::ADMIT);
+}
+
+inline const acmp_ports kPorts = {nullptr, f_send, f_now, f_timer, f_gptp, f_seed, f_admit};
 inline const acmp_env kEnv = {nullptr, f_locked, f_source, f_srp, f_persist, f_changed};
 
 // ---- frames -------------------------------------------------------------------------

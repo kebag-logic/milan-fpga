@@ -2,13 +2,16 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """acmp_mutants.py - lane F3's planted defects (#665): the ACMP module's.
 
-One or more for every test of the acmp, acmpwalk and acmpnvm arms, which
-ctrl_mutants.unnamed_tests proves before any is planted. ctrl_mutants.py
-appends this table to its own and plants it the same way.
+One or more for every test of the acmp, acmpwalk, acmpnvm and acmpif2 arms,
+which ctrl_mutants.unnamed_tests proves before any is planted. ctrl_mutants.py
+appends this table to its own and plants it the same way. Round 2's defects
+(the reviews' findings and the adp channel's bound-talker term) are
+acmp_review_mutants.py's, appended here.
 """
 
 from __future__ import annotations
 
+import acmp_review_mutants
 from ctrl_mutant import Mutant
 
 MUTANTS = (
@@ -76,8 +79,9 @@ MUTANTS = (
            "\ts->started = !sw;\n\tbind_response(a, interface, k, cmd);\n\tdisc_start(s);\n\tprobe(a, k);",
            "\ts->started = !sw;\n\tdisc_start(s);\n\tprobe(a, k);\n\tbind_response(a, interface, k, cmd);",
            "acmp", "AcmpCore.A1BindFromUnboundRespondsThenProbes", "A1 BIND_RX_RESPONSE is Table 5.32"),
-    Mutant("acmp-no-resp-2s", "acmp/acmp.c", "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);",
-           "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS * 10u);",
+    Mutant("acmp-no-resp-2s", "acmp/acmp.c",
+           "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS);\n\tstruct pdu p;",
+           "\tsm_timer(a, s, ACMP_TIMER_NO_RESP, ACMP_TMR_NO_RESP_MS * 10u);\n\tstruct pdu p;",
            "acmp", "AcmpCore.A1BindFromUnboundRespondsThenProbes", "A1 and TMR_NO_RESP armed 200 ms",
            (("acmp", "AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot", "B3 TMR_NO_RESP is armed"),)),
     Mutant("acmp-bind-starts-no-discovery", "acmp/acmp.c",
@@ -378,8 +382,8 @@ MUTANTS = (
            "acmp", "AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline",
            "A17 an expiry with nothing due changes nothing and re-arms the timer it consumed"),
     Mutant("acmp-zero-delay-waits", "acmp/acmp.c",
-           "\t\twhile (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, t)) {",
-           "\t\tif (s->timer != ACMP_TIMER_NONE && due(s->timer_deadline, t)) {",
+           "\t\twhile (sm_running(s) && due(s->timer_deadline, t)) {",
+           "\t\tif (sm_running(s) && due(s->timer_deadline, t)) {",
            "acmp", "AcmpCore.A18AZeroDelayProbesInTheSameExpiry",
            "A18 TMR_RETRY drawing 0 ms sends its probe in the same expiry"),
     Mutant("acmp-delay-up-to-4s", "acmp/acmp.h", "#define ACMP_TMR_DELAY_MAX_MS 1000u",
@@ -415,8 +419,7 @@ MUTANTS = (
            "acmp", "AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs",
            "A19 a command whose response would find the queue full is dropped"),
     Mutant("acmp-lost-probe-uncounted", "acmp/acmp.c",
-           "\tif (!transmit(a, s->interface, frame, 0u)) {\n\t\ta->probes_lost++;\n\t}",
-           "\t(void)transmit(a, s->interface, frame, 0u);",
+           "\t} else if (sent == LOST) {\n\t\ta->probes_lost++;\n\t}", "\t}",
            "acmp", "AcmpCore.A19AProbeWithoutRoomIsLostAndRecovered",
            "A19 a probe the full queue cannot take is lost and counted"),
     Mutant("acmp-first-owed-releases-every-change", "acmp/acmp.c",
@@ -709,13 +712,13 @@ MUTANTS = (
     Mutant("acmp-no-tap", "acmp/acmp_mbx.c", "\t(void)ctrl_loop_bind_rx(l, MBX_CH_ADP, on_adp_frame, m);",
            "\t(void)on_adp_frame;",
            "acmp", "AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp",
-           "B5 a record the contract's term would post reaches discovery through the tap",
+           "B5 and reaches discovery through the tap",
            (("acmp", "AcmpMailbox.U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract",
              "U5 ACMP binds its channel and stands in front of ADP's handler"),)),
     Mutant("acmp-domain-not-sampled", "acmp/acmp_mbx.c", "\t*gm_id = mbx_gm_id(interface, domain);",
            "\t*gm_id = mbx_gm_id(interface, NULL);\n\t*domain = 0u;",
            "acmp", "AcmpMailbox.B6TheGrandmasterIsTheInterfaces",
-           "B6 one from the interface's grandmaster and domain is taken"),
+           "B6 one from interface 0's grandmaster and domain is taken"),
     Mutant("acmp-attach-before-adp", "acmp/acmp_mbx.c",
            "\tif (l->rx[MBX_CH_ADP].fn == NULL || !ctrl_loop_add_sink(l, on_event, m) || !ctrl_loop_add_poll(l, "
            "on_poll, m)) {",
@@ -729,12 +732,12 @@ MUTANTS = (
            "|| (!ctrl_loop_add_poll(l, on_poll, m) && false)) {",
            "acmp", "AcmpAdapterUnit.B7RefusalsOfTheAdapter", "B7 a loop with no room for the poll is refused"),
     Mutant("acmp-slots-past-the-bank", "acmp/acmp_mbx.c",
-           "\tif (first_slot + MBX_N_IF > MBX_N_TIMERS || cfg->n_interfaces > MBX_N_IF) {",
+           "\tif (first_slot > MBX_N_TIMERS - MBX_N_IF || cfg->n_interfaces > MBX_N_IF) {",
            "\tif (cfg->n_interfaces > MBX_N_IF) {",
-           "acmp", "AcmpAdapterUnit.B7RefusalsOfTheAdapter", "B7 slots past the fabric's timer bank are refused"),
+           "acmp", "AcmpAdapterUnit.B7RefusalsOfTheAdapter", "B7 a first slot of 16 is refused"),
     Mutant("acmp-interfaces-past-the-mailbox", "acmp/acmp_mbx.c",
-           "\tif (first_slot + MBX_N_IF > MBX_N_TIMERS || cfg->n_interfaces > MBX_N_IF) {",
-           "\tif (first_slot + MBX_N_IF > MBX_N_TIMERS) {",
+           "\tif (first_slot > MBX_N_TIMERS - MBX_N_IF || cfg->n_interfaces > MBX_N_IF) {",
+           "\tif (first_slot > MBX_N_TIMERS - MBX_N_IF) {",
            "acmp", "AcmpAdapterUnit.B7RefusalsOfTheAdapter", "B7 more interfaces than the mailbox has are refused"),
     Mutant("acmp-poll-owes-nothing", "acmp/acmp_mbx.c", "\treturn acmp_poll(&m->acmp);",
            "\t(void)acmp_poll(&m->acmp);\n\treturn false;",
@@ -771,11 +774,11 @@ MUTANTS = (
     Mutant("acmp-available-reads-the-clock-twice", "acmp/acmp.c", "\ts->adp_deadline = now(a) + valid_ms;",
            "\ts->adp_deadline = now(a) + valid_ms + 0u * a->ports->now_ms(a->ports->ctx);",
            "acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
-           "C10 ENTITY_AVAILABLE -> TMR_DELAY armed"),
+           "C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed"),
     Mutant("acmp-departing-samples-the-grandmaster", "acmp/acmp.c", "\t\t\tdisc_departing(s, d.ifx);",
            "\t\t\t(void)gm_matches(a, &d);\n\t\t\tdisc_departing(s, d.ifx);",
            "acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
-           "C11 ENTITY_DEPARTING -> timer stopped"),
+           "C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped"),
     Mutant("acmp-aging-samples-the-grandmaster", "acmp/acmp.c", "\t\t\ts->adp_armed = false;\n\t\t\ttk_departed(s);",
            "\t\t\ts->adp_armed = false;\n\t\t\t{\n\t\t\t\tuint64_t g;\n\t\t\t\tuint8_t dm;\n"
            "\t\t\t\tp_gptp(a, interface, &g, &dm);\n\t\t\t}\n\t\t\ttk_departed(s);",
@@ -869,7 +872,7 @@ MUTANTS = (
            "acmp", "AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail",
            "A22 the grandmaster is sampled once for the frame",
            (("acmp", "AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord",
-             "C10 ENTITY_AVAILABLE -> TMR_DELAY armed"),)),
+             "C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed"),)),
     # what discovery takes (A22): each term of acmp_adp_rx's guard but the interface's,
     # which no sink can match past the configuration
     Mutant("acmp-adp-short-frame-taken", "acmp/acmp.c",
@@ -881,8 +884,8 @@ MUTANTS = (
            "len < ACMP_ADP_FRAME_BYTES ||",
            "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
     Mutant("acmp-adp-subtype-unchecked", "acmp/acmp.c",
-           "\t    frame[PDU] != ACMP_ADP_SUBTYPE || (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
-           "\t    (frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
+           "\t    frame[PDU] != ACMP_ADP_SUBTYPE || AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
+           "\t    AVTP_VERSION(frame) != ACMP_AVTP_VERSION ||",
            "acmp", "AcmpCore.A22OtherAdpFramesAreIgnored", "A22 a short ADPDU, a DISCOVER"),
     Mutant("acmp-adp-discover-taken", "acmp/acmp.c",
            "(frame[O_MSG] & 0x0Fu) > ACMP_ADP_MSG_ENTITY_DEPARTING) {",
@@ -935,4 +938,4 @@ MUTANTS = (
     Mutant("acmp-nvm-model-always-ready", "acmp/acmp_nvm.c", "\treturn n->others->model_ready(n->others->ctx);",
            "\t(void)n;\n\treturn 1;",
            "acmpnvm", "AcmpStore.N6TheRollBackAndEveryOtherGroup", "N6 the model's readiness is the other owners'"),
-)
+) + acmp_review_mutants.MUTANTS

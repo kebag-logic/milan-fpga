@@ -10,10 +10,12 @@
 //
 // THE ORACLE IS THE OTHER FABRIC. Both runs see the same stimulus at the same
 // NOW_MS (a link rise, an ENTITY_DISCOVER, a grandmaster change, a shutdown;
-// a BIND_RX left unanswered through its probe, duplicate and retry, the
-// talker's and the listener's other commands, a command for another listener
-// and an ENTITY_AVAILABLE, which both filters refuse), and the firmware's
-// random delays are seeded from NOW_MS, so the two runs
+// a BIND_RX left unanswered through its probe, duplicate and retry; the bound
+// talker's ENTITY_AVAILABLE, which both filters pass through the bound-talker
+// table the firmware wrote (#665 lane F3 round 2), so TMR_RETRY probes again;
+// the talker's and the listener's other commands; a command for another
+// listener and another talker's ENTITY_AVAILABLE, which both filters refuse),
+// and the firmware's random delays are seeded from NOW_MS, so the two runs
 // must put the same frames on the wire at the same millisecond. A frame that
 // differs, or leaves at another time, is a difference between the model and
 // the RTL that the firmware can see; the per-check suites (suite.hpp) catch
@@ -175,12 +177,12 @@ std::vector<std::uint8_t> acmp_frame(std::uint8_t msg, std::uint64_t talker, std
     return f;
 }
 
-//! The talker's ENTITY_AVAILABLE (IEEE 1722.1-2021 Figure 6-1, valid_time 10).
-std::vector<std::uint8_t> available() {
+//! A talker's ENTITY_AVAILABLE (IEEE 1722.1-2021 Figure 6-1, valid_time 10).
+std::vector<std::uint8_t> available(std::uint64_t talker = kTalker) {
     std::vector<std::uint8_t> f = discover0();
     f[15] = 0x00;
     put_be(f, 16, (10u << 11) | 56u, 2);
-    put_be(f, 18, kTalker, 8);
+    put_be(f, 18, talker, 8);
     put_be(f, 50, 1u, 4);
     put_be(f, 54, kGm0, 8);
     return f;
@@ -197,7 +199,8 @@ void env_note(void*, unsigned) {}
 std::vector<std::uint8_t> acmp_at(std::uint32_t t) {
     switch (t) {
         case 1000u: return acmp_frame(6, kTalker, kEntityId, 0x0101);    // BIND_RX: response, probe, duplicate, retry
-        case 2000u: return available();                                  // refused by the adp channel's filter
+        case 2000u: return available();                                  // the bound talker's: discovered
+        case 2500u: return available(kTalker + 1u);                      // another talker's: refused
         case 3000u: return acmp_frame(4, kEntityId, kTalker, 0x0102);    // GET_TX_STATE
         case 3500u: return acmp_frame(0, kEntityId, kTalker, 0x0103);    // PROBE_TX
         case 4000u: return acmp_frame(6, kTalker, kTalker, 0x0104);      // another listener's: refused
@@ -279,9 +282,12 @@ int main(int argc, char** argv) {
     }
     check.that("the firmware advertised on the model (AVAILABLE x4 or more, then DEPARTING)", adp >= 5u);
     // BIND_RX_RESPONSE, PROBE_TX_COMMAND and its duplicate (Milan v1.2
-    // 5.5.3.5.3, 5.5.3.5.16), GET_TX_STATE_RESPONSE, PROBE_TX_RESPONSE,
-    // GET_RX_STATE_RESPONSE, UNBIND_RX_RESPONSE; nothing for the refused two
-    const std::vector<unsigned> want{7, 0, 0, 5, 1, 11, 9};
+    // 5.5.3.5.3, 5.5.3.5.16), GET_TX_STATE_RESPONSE, PROBE_TX_RESPONSE; at
+    // TMR_RETRY with the talker discovered, TMR_DELAY then a new
+    // PROBE_TX_COMMAND and its duplicate (5.5.3.5.30 step 2, 5.5.3.5.10,
+    // 5.5.3.5.16) around the GET_RX_STATE_RESPONSE, and the UNBIND_RX_RESPONSE;
+    // nothing for the refused two
+    const std::vector<unsigned> want{7, 0, 0, 5, 1, 0, 0, 11, 9};
     check.that("the firmware answered ACMP on the model, each frame of the scenario in order", acmp == want);
     check.dec("the RTL put as many frames on the wire as the model", on_rtl.size(), on_model.size());
     for (std::size_t k = 0; k < on_model.size() && k < on_rtl.size(); ++k) {

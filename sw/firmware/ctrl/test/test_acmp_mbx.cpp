@@ -6,7 +6,9 @@
 //   B   the adapter on the host model: the acmp channel and its filter, the
 //       own-unicast receive tolerance, the timers on one fabric slot per
 //       interface with the tag rule for raced expiries, the ADP channel's tap
-//       (ENTITY_DISCOVER still ADP's), the gPTP pair, the adapter's refusals;
+//       (ENTITY_DISCOVER still ADP's), the gPTP pair, the adapter's refusals,
+//       the bound-talker table each binding writes, another AVTP version
+//       passing the filter and changing nothing;
 //   C   every response path's service cost, counted access by access on the
 //       model in the pass that takes the input (acmp_mbx.h ACMP_MBX_LAT_*):
 //       the H-ACMP and H-DISC hooks of FR_NFR.md 3.4.2 on the host model;
@@ -18,18 +20,22 @@
 //   U   the composition: ACMP after ADP, nothing read before the contract
 //       check, the boot order's two halves.
 //
-// The tree's contract passes no ENTITY_AVAILABLE or ENTITY_DEPARTING into the
-// adp channel (sw/mailbox/mailbox.yaml; the open item of
-// docs/design/MAILBOX_SPLIT.md). The H-DISC paths are therefore measured from
-// a record this test writes into the adp receive ring in the contract's
-// record layout, as the fabric would post it once the contract carries the
-// term; from RX_HEAD on, the driver, the loop, the tap and the core run as
-// they do for any record. B5 first shows the tree's filter dropping the frame.
+// The contract's adp channel passes the ENTITY_AVAILABLE and ENTITY_DEPARTING of
+// a talker bound on the receiving interface (sw/mailbox/mailbox.yaml 2.1, the
+// eq_bound term). Every H-DISC path here is measured from the record the
+// model's filter commits (its RX_HEAD), so the frame takes the fabric's own
+// path into the ring. The file is written for any interface count: the
+// `acmpif2` arm builds it again on the contract's two-interface variant, where
+// B3, B4, B6, B8 and the C paths run per interface (sink i on interface i).
 
 #include <gtest/gtest.h>
 
+#include <array>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <initializer_list>
+#include <string>
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -55,6 +61,8 @@ alignas(std::max_align_t) std::uint8_t arena[1024];
 const ctrl_pool_class kClasses[] = {{32u, 8u}};
 acmp_config acfg;
 
+// Two sinks and two sources, each k on interface k % MBX_N_IF: at two
+// interfaces, sink i and source i are interface i's.
 acmp_config acmp_shape() {
     acmp_config c{};
     c.entity_id = kOwn;
@@ -64,7 +72,16 @@ acmp_config acmp_shape() {
     }
     c.n_sinks = 2;
     c.n_sources = 2;
+    for (unsigned k = 0; k < 2u; ++k) {
+        c.sink_interface[k] = static_cast<std::uint8_t>(k % MBX_N_IF);
+        c.source_interface[k] = static_cast<std::uint8_t>(k % MBX_N_IF);
+    }
     return c;
+}
+
+// Interface i's ACMP timer slot.
+constexpr unsigned slot(unsigned i) {
+    return CTRL_APP_ACMP_FIRST_SLOT + i;
 }
 
 ctrl_app_config app_config() {
@@ -89,16 +106,28 @@ void settle() {
 }
 
 // The measured accesses of a path against its bound, printed as evidence and checked.
-void bound(const char* path, std::uint64_t accesses, unsigned limit) {
-    std::printf("  %-52s %4u accesses (bound %u)\n", path, static_cast<unsigned>(accesses), limit);
+void bound(const std::string& path, std::uint64_t accesses, unsigned limit) {
+    std::printf("  %-72s %4u accesses (bound %u)\n", path.c_str(), static_cast<unsigned>(accesses), limit);
     EXPECT_TRUE(accesses <= limit) << path;
 }
 
-// A frame offered to the model's ingress; true when the filter committed it.
-bool offer(const Pdu& p, std::uint64_t dst = spec::MULTICAST_MAC) {
+// A path's label with the interface it ran on.
+std::string on_if(unsigned i, const char* path) {
+    return std::string(path) + ", interface " + std::to_string(i);
+}
+
+// A frame offered to the model's ingress on `iface`; true when the filter committed it.
+bool offer(const Pdu& p, std::uint64_t dst = spec::MULTICAST_MAC, unsigned iface = 0) {
     auto f = acmpdu(p);
     wire_put_be(f.data(), dst, 6);
-    return mbx_model_rx(&model, f.data(), f.size(), 0);
+    return mbx_model_rx(&model, f.data(), f.size(), iface);
+}
+
+// An ADPDU offered to the model's ingress on `iface`; true when the filter
+// committed it (RX_HEAD past its record): the fabric's path into the adp ring.
+bool available(const Adp& d, unsigned iface = 0) {
+    auto f = adpdu(d);
+    return mbx_model_rx(&model, f.data(), f.size(), iface);
 }
 
 // A record in the adp receive ring as the fabric posts one (KL_mbx_rx, the
@@ -118,11 +147,6 @@ void post_adp_record(const std::uint8_t* frame, std::size_t len) {
             ring_lanes_pack(frame + k, len - k > 4u ? 4u : static_cast<unsigned>(len - k));
     }
     ch->rx_head = static_cast<std::uint16_t>(ch->rx_head + MBX_RX_HDR_WORDS + (len + 3u) / 4u);
-}
-
-void post_adp(const Adp& d) {
-    auto f = adpdu(d);
-    post_adp_record(f.data(), f.size());
 }
 
 // The k-th frame the model sent, read back.
@@ -146,9 +170,31 @@ class AcmpMailbox : public ::testing::Test {
         acfg = acmp_shape();
         mbx_model_reset(&model);
         mbx_model_bind(&model, nullptr, nullptr);
-        mbx_model_set_gm(&model, 0, kGm0, 0);
+        for (unsigned i = 0; i < MBX_N_IF; ++i) {
+            mbx_model_set_gm(&model, i, kGm0, 0);
+        }
         const ctrl_app_config cfg = app_config();
         ASSERT_TRUE(ctrl_app_start(&app, &cfg)) << "B0 the app with ACMP starts on the model";
+        settle();
+        fk.clear();
+    }
+    // A power cycle with the sinks' bindings (talker kTkA) saved, in the boot
+    // order ctrl_app.h gives: compose, the store's binding walk, then open.
+    void boot_restored(std::initializer_list<unsigned> sinks) {
+        mbx_model_reset(&model);
+        mbx_model_bind(&model, nullptr, nullptr);
+        for (unsigned i = 0; i < MBX_N_IF; ++i) {
+            mbx_model_set_gm(&model, i, kGm0, 0);
+        }
+        const ctrl_app_config cfg = app_config();
+        ASSERT_TRUE(ctrl_app_compose(&app, &cfg));
+        std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
+        wire_put_be(record + 4, kTkA, 8);
+        wire_put_be(record + 12, kCtl1, 8);
+        for (unsigned k : sinks) {
+            ASSERT_EQ(acmp_restore_binding(core(), k, record, sizeof record), ACMP_RESTORE_APPLIED);
+        }
+        ASSERT_TRUE(ctrl_app_open(&app, &cfg));
         settle();
         fk.clear();
     }
@@ -190,21 +236,17 @@ class AcmpMailbox : public ::testing::Test {
         p.vlan = 2;
         return p;
     }
-    // Run the model to the ACMP slot's armed deadline.
-    void to_deadline() {
-        const mbx_model_timer& t = model.timers[CTRL_APP_ACMP_FIRST_SLOT];
-        ASSERT_TRUE(t.armed) << "the ACMP slot is armed";
+    // Run the model to interface i's ACMP slot's armed deadline.
+    void to_deadline(unsigned i = 0) {
+        const mbx_model_timer& t = model.timers[slot(i)];
+        ASSERT_TRUE(t.armed) << "the ACMP slot of interface " << i << " is armed";
         mbx_model_advance_ms(&model, t.deadline_ms - model.now_ms);
     }
+    // Bind sink k, the command arriving on the sink's interface.
     void bind(unsigned k) {
-        ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, k))) << "the filter passes the BIND_RX";
+        ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, k), spec::MULTICAST_MAC, acfg.sink_interface[k]))
+            << "the filter passes the BIND_RX";
         settle();
-    }
-    void restore(unsigned k) {
-        std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
-        wire_put_be(record + 4, kTkA, 8);
-        wire_put_be(record + 12, kCtl1, 8);
-        ASSERT_EQ(acmp_restore_binding(core(), k, record, sizeof record), ACMP_RESTORE_APPLIED);
     }
 };
 
@@ -245,71 +287,83 @@ TEST_F(AcmpMailbox, B2OwnUnicastIsAToleranceAndForeignUnicastIsRefused) {
 }
 
 TEST_F(AcmpMailbox, B3TheTimersRunOnTheInterfaceSlot) {
-    mbx_model_advance_ms(&model, 1234);                  // a deadline is absolute: NOW_MS must not be 0
-    std::uint32_t t0 = model.now_ms;
-    bind(0);
-    const struct mbx_model_tmr_op* arm = last_tmr();
-    ASSERT_NE(arm, nullptr) << "B3 the bind arms a fabric timer";
-    EXPECT_TRUE(arm->op == MBX_TMR_OP_ARM && arm->slot == CTRL_APP_ACMP_FIRST_SLOT &&
-                arm->deadline_ms == t0 + spec::TMR_NO_RESP_MS && app.acmp.ifs[0].armed)
-        << "B3 TMR_NO_RESP is armed on the interface's ACMP slot at NOW_MS + 200 (Table 5.26)";
-    std::uint32_t sent = model.tx_sent;
-    mbx_model_advance_ms(&model, spec::TMR_NO_RESP_MS - 1u);
-    settle();
-    EXPECT_EQ(model.tx_sent, sent) << "B3 nothing at 199 ms";
-    mbx_model_advance_ms(&model, 1);
-    settle();
-    const mbx_model_tx* dup = mbx_model_tx_frame(&model, sent);
-    EXPECT_TRUE(model.tx_sent == sent + 1u && dup != nullptr && dup->now_ms == t0 + spec::TMR_NO_RESP_MS &&
-                read(dup->bytes).msg == spec::MSG_PROBE_TX_COMMAND && core()->sinks[0].state == ACMP_PRB_W_RESP2)
-        << "B3 the duplicate leaves at 200 ms exactly (5.5.3.5.16)";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        mbx_model_advance_ms(&model, 1234);              // a deadline is absolute: NOW_MS must not be 0
+        const unsigned k = i;                            // sink i is interface i's
+        std::uint32_t t0 = model.now_ms;
+        bind(k);
+        const struct mbx_model_tmr_op* arm = last_tmr();
+        ASSERT_NE(arm, nullptr) << "B3 the bind arms a fabric timer";
+        EXPECT_TRUE(arm->op == MBX_TMR_OP_ARM && arm->slot == slot(i) && arm->deadline_ms == t0 + spec::TMR_NO_RESP_MS &&
+                    app.acmp.ifs[i].armed)
+            << "B3 TMR_NO_RESP is armed on interface " << i << "'s ACMP slot at NOW_MS + 200 (Table 5.26)";
+        std::uint32_t sent = model.tx_sent;
+        mbx_model_advance_ms(&model, spec::TMR_NO_RESP_MS - 1u);
+        settle();
+        EXPECT_EQ(model.tx_sent, sent) << "B3 nothing at 199 ms, interface " << i;
+        mbx_model_advance_ms(&model, 1);
+        settle();
+        const mbx_model_tx* dup = mbx_model_tx_frame(&model, sent);
+        EXPECT_TRUE(model.tx_sent == sent + 1u && dup != nullptr && dup->now_ms == t0 + spec::TMR_NO_RESP_MS &&
+                    dup->interface == i && read(dup->bytes).msg == spec::MSG_PROBE_TX_COMMAND &&
+                    core()->sinks[k].state == ACMP_PRB_W_RESP2)
+            << "B3 the duplicate leaves at 200 ms exactly, on interface " << i << " (5.5.3.5.16)";
+    }
 }
 
 TEST_F(AcmpMailbox, B4AnExpiryThatRacedAStopOrAReArmIsDiscarded) {
-    bind(0);
-    ASSERT_TRUE(offer(answer(0)));
-    settle();
-    ASSERT_EQ(core()->sinks[0].state, ACMP_SETTLED_NO_RSV);
-    to_deadline();                                       // TMR_NO_TK's expiry is posted, not yet taken
-    acmp_tk_registered(core(), 0, false);                // the SRP side, from another handler: nothing left to time
-    settle();
-    EXPECT_TRUE(app.acmp.ifs[0].stale_expiries == 1u && core()->sinks[0].state == ACMP_SETTLED_RSV_OK &&
-                !app.acmp.ifs[0].armed)
-        << "B4 the expiry of a stopped arm is counted, never acted on";
-    SetUp();
-    bind(0);
-    post_adp(Adp{});                                     // discovered: TMR_NO_ADP 20 s runs beside TMR_NO_TK 10 s
-    settle();
-    ASSERT_TRUE(offer(answer(0)));
-    settle();
-    to_deadline();
-    acmp_tk_registered(core(), 0, false);                // the slot re-armed at TMR_NO_ADP with a new tag
-    settle();
-    EXPECT_TRUE(app.acmp.ifs[0].stale_expiries == 1u && core()->sinks[0].state == ACMP_SETTLED_RSV_OK &&
-                app.acmp.ifs[0].armed && model.timers[CTRL_APP_ACMP_FIRST_SLOT].deadline_ms ==
-                core()->sinks[0].adp_deadline)
-        << "B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands";
-    mbx_event other{};
-    other.type = MBX_EV_TYPE_TIMER;
-    other.timer_slot = CTRL_APP_ADP_FIRST_SLOT;
-    for (unsigned i = 0; i < app.loop.n_sinks; ++i) {
-        if (app.loop.sinks[i].ctx == &app.acmp) {
-            app.loop.sinks[i].fn(app.loop.sinks[i].ctx, &other);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        bind(k);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(core()->sinks[k].state, ACMP_SETTLED_NO_RSV);
+        to_deadline(i);                                  // TMR_NO_TK's expiry is posted, not yet taken
+        acmp_tk_registered(core(), k, false);            // the SRP side, from another handler: nothing left to time
+        settle();
+        EXPECT_TRUE(app.acmp.ifs[i].stale_expiries == 1u && core()->sinks[k].state == ACMP_SETTLED_RSV_OK &&
+                    !app.acmp.ifs[i].armed)
+            << "B4 the expiry of a stopped arm is counted, never acted on, interface " << i;
+        SetUp();
+        bind(k);
+        ASSERT_TRUE(available(Adp{}, i));                // discovered: TMR_NO_ADP 20 s runs beside TMR_NO_TK 10 s
+        settle();
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        to_deadline(i);
+        acmp_tk_registered(core(), k, false);            // the slot re-armed at TMR_NO_ADP with a new tag
+        settle();
+        EXPECT_TRUE(app.acmp.ifs[i].stale_expiries == 1u && core()->sinks[k].state == ACMP_SETTLED_RSV_OK &&
+                    app.acmp.ifs[i].armed && model.timers[slot(i)].deadline_ms == core()->sinks[k].adp_deadline)
+            << "B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands, interface " << i;
+        mbx_event other{};
+        other.type = MBX_EV_TYPE_TIMER;
+        other.timer_slot = CTRL_APP_ADP_FIRST_SLOT + i;
+        for (unsigned j = 0; j < app.loop.n_sinks; ++j) {
+            if (app.loop.sinks[j].ctx == &app.acmp) {
+                app.loop.sinks[j].fn(app.loop.sinks[j].ctx, &other);
+            }
         }
+        EXPECT_TRUE(app.acmp.ifs[i].stale_expiries == 1u && app.acmp.ifs[i].armed)
+            << "B4 another module's slot is not ACMP's, interface " << i;
     }
-    EXPECT_TRUE(app.acmp.ifs[0].stale_expiries == 1u && app.acmp.ifs[0].armed)
-        << "B4 another module's slot is not ACMP's";
 }
 
 TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
-    restore(0);
-    auto avail = adpdu(Adp{});
-    EXPECT_FALSE(mbx_model_rx(&model, avail.data(), avail.size(), 0))
-        << "B5 the tree's contract passes no ENTITY_AVAILABLE into the adp channel (the published blocker)";
-    post_adp(Adp{});
+    boot_restored({0});
+    EXPECT_TRUE(model.bound_en[0][0] && model.bound_eid[0][0] == kTkA)
+        << "B5 the open wrote the restored binding's talker into interface 0's bound-talker table";
+    Adp other;
+    other.entity = kTkB;
+    std::uint16_t mismatch = model.filter_mismatch;
+    EXPECT_FALSE(available(other)) << "B5 an ENTITY_AVAILABLE of a talker no sink is bound to is refused";
+    EXPECT_EQ(model.filter_mismatch, mismatch) << "B5 by the identity term, uncounted";
+    EXPECT_TRUE(available(Adp{})) << "B5 the bound talker's ENTITY_AVAILABLE passes the filter (the eq_bound term)";
     settle();
     EXPECT_TRUE(core()->sinks[0].discovered && core()->sinks[0].state == ACMP_PRB_W_DELAY)
-        << "B5 a record the contract's term would post reaches discovery through the tap (5.5.3.5.9)";
+        << "B5 and reaches discovery through the tap (5.5.3.5.9)";
     mbx_model_set_link(&model, 0, true);
     for (unsigned k = 0; k < 12000u && app.adp.ifs[0].adp.state != ADP_STATE_WAITING; ++k) {
         mbx_model_advance_ms(&model, 1);
@@ -333,25 +387,37 @@ TEST_F(AcmpMailbox, B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp) {
 }
 
 TEST_F(AcmpMailbox, B6TheGrandmasterIsTheInterfaces) {
-    restore(0);
-    mbx_model_set_gm(&model, 0, kGm0 + 7u, 3);
-    Adp d;
-    d.gm = kGm0;
-    post_adp(d);
-    settle();
-    EXPECT_FALSE(core()->sinks[0].discovered) << "B6 an AVAILABLE from another grandmaster than GM_LO/GM_HI is ignored";
-    d.gm = kGm0 + 7u;
-    d.domain = 3;
-    post_adp(d);
-    settle();
-    EXPECT_TRUE(core()->sinks[0].discovered) << "B6 one from the interface's grandmaster and domain is taken";
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        boot_restored({i});
+        for (unsigned j = 0; j < MBX_N_IF; ++j) {
+            mbx_model_set_gm(&model, j, j == i ? kGm0 + 7u : kGm0 + 9u, j == i ? 3 : 5);
+        }
+        Adp d;
+        d.gm = kGm0;
+        ASSERT_TRUE(available(d, i));
+        settle();
+        EXPECT_FALSE(core()->sinks[i].discovered)
+            << "B6 an AVAILABLE from another grandmaster than interface " << i << "'s GM_LO/GM_HI is ignored";
+        d.gm = kGm0 + 7u;
+        d.domain = 3;
+        ASSERT_TRUE(available(d, i));
+        settle();
+        EXPECT_TRUE(core()->sinks[i].discovered)
+            << "B6 one from interface " << i << "'s grandmaster and domain is taken";
+    }
 }
 
 TEST(AcmpAdapterUnit, B7RefusalsOfTheAdapter) {
     acmp_mbx m{};
     acmp_config c = acmp_shape();
-    EXPECT_FALSE(acmp_mbx_init(&m, &c, &kEnv, MBX_N_TIMERS - MBX_N_IF + 1u))
-        << "B7 slots past the fabric's timer bank are refused";
+    EXPECT_TRUE(acmp_mbx_init(&m, &c, &kEnv, MBX_N_TIMERS - MBX_N_IF)) << "B7 the last slot range that fits is taken";
+    EXPECT_TRUE(m.ifs[0].slot == MBX_N_TIMERS - MBX_N_IF && m.ifs[MBX_N_IF - 1u].slot == MBX_N_TIMERS - 1u)
+        << "B7 its last interface on the bank's last slot";
+    for (unsigned first : {MBX_N_TIMERS - MBX_N_IF + 1u, MBX_N_TIMERS, 0x100u, 0x100u + MBX_N_TIMERS - MBX_N_IF,
+                           UINT_MAX - MBX_N_IF + 1u, UINT_MAX}) {
+        EXPECT_FALSE(acmp_mbx_init(&m, &c, &kEnv, first))
+            << "B7 a first slot of " << first << " is refused: past the bank, wrapping the sum, or truncating to a slot";
+    }
     c.n_interfaces = MBX_N_IF + 1u;
     EXPECT_FALSE(acmp_mbx_init(&m, &c, &kEnv, 0)) << "B7 more interfaces than the mailbox has are refused";
     c = acmp_shape();
@@ -375,101 +441,197 @@ TEST(AcmpAdapterUnit, B7RefusalsOfTheAdapter) {
     EXPECT_FALSE(acmp_mbx_attach(&m, &loop)) << "B7 a loop with no room for the poll is refused";
 }
 
+// The adp channel's bound-talker term (#665 comment 6029368753): each binding
+// writes its sink's entry of its interface's table, and the filter passes
+// exactly that talker's ENTITY_AVAILABLE on exactly that interface.
+TEST_F(AcmpMailbox, B8TheBoundTalkerTableFollowsEachBinding) {
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        Adp b;
+        b.entity = kTkB;
+        EXPECT_FALSE(available(Adp{}, i)) << "B8 before any binding no ENTITY_AVAILABLE passes, interface " << i;
+        bind(k);
+        EXPECT_TRUE(model.bound_en[i][k] && model.bound_eid[i][k] == kTkA)
+            << "B8 a BIND_RX writes its sink's entry of interface " << i << "'s table";
+        EXPECT_TRUE(available(Adp{}, i)) << "B8 and the bound talker's ENTITY_AVAILABLE passes on that interface";
+        settle();
+        EXPECT_FALSE(available(Adp{}, i + 1u)) << "B8 but on no other interface index";
+        Pdu rebind = command(spec::MSG_BIND_RX_COMMAND, k);
+        rebind.talker = kTkB;
+        ASSERT_TRUE(offer(rebind, spec::MULTICAST_MAC, i));
+        settle();
+        EXPECT_TRUE(model.bound_en[i][k] && model.bound_eid[i][k] == kTkB)
+            << "B8 a BIND_RX of another talker rewrites the entry";
+        EXPECT_FALSE(available(Adp{}, i)) << "B8 the old talker's ENTITY_AVAILABLE is refused";
+        EXPECT_TRUE(available(b, i)) << "B8 the new talker's passes";
+        settle();
+        ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, k), spec::MULTICAST_MAC, i));
+        settle();
+        EXPECT_FALSE(model.bound_en[i][k]) << "B8 an UNBIND_RX clears the entry's BOUND_EN";
+        EXPECT_FALSE(available(b, i)) << "B8 and its talker's ENTITY_AVAILABLE is refused again";
+    }
+}
+
+// The filter reads the message type and the identity, never the AVTP
+// version: a frame of another version reaches the core, which discards it
+// before it is read (IEEE 1722-2016 4.4.3.4).
+template <std::size_t N>
+std::array<std::uint8_t, N> versioned(std::array<std::uint8_t, N> f, unsigned v) {
+    f[15] = static_cast<std::uint8_t>((f[15] & 0x8Fu) | (v << 4));
+    return f;
+}
+
+TEST_F(AcmpMailbox, B9AnotherAvtpVersionPassesTheFilterAndChangesNothing) {
+    for (unsigned v : {1u, 7u}) {
+        SetUp();
+        const std::uint32_t sent = model.tx_sent;
+        auto bindf = versioned(acmpdu(command(spec::MSG_BIND_RX_COMMAND, 0)), v);
+        ASSERT_TRUE(mbx_model_rx(&model, bindf.data(), bindf.size(), 0))
+            << "B9 the filter reads no version: a BIND_RX of version " << v << " reaches the acmp ring";
+        settle();
+        EXPECT_TRUE(model.tx_sent == sent && core()->sinks[0].state == ACMP_UNBOUND && !model.bound_en[0][0] &&
+                    core()->rx_malformed == 1u)
+            << "B9 the core discards it: no response, no binding, no bound-talker entry, version " << v;
+        bind(0);
+        auto resp = versioned(acmpdu(answer(0)), v);
+        ASSERT_TRUE(mbx_model_rx(&model, resp.data(), resp.size(), 0));
+        settle();
+        EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_RESP) << "B9 a PROBE_TX_RESPONSE of version " << v << " is not taken";
+        auto avail = versioned(adpdu(Adp{}), v);
+        ASSERT_TRUE(mbx_model_rx(&model, avail.data(), avail.size(), 0))
+            << "B9 the bound talker's ENTITY_AVAILABLE of version " << v << " passes the filter";
+        settle();
+        EXPECT_FALSE(core()->sinks[0].discovered) << "B9 and discovers nothing, version " << v;
+        ASSERT_TRUE(available(Adp{}));
+        settle();
+        ASSERT_TRUE(core()->sinks[0].discovered) << "B9 the same AVAILABLE at version 0 discovers the talker";
+        Adp gone;
+        gone.msg = spec::ADPDU_ENTITY_DEPARTING;
+        auto dep = versioned(adpdu(gone), v);
+        ASSERT_TRUE(mbx_model_rx(&model, dep.data(), dep.size(), 0));
+        settle();
+        EXPECT_TRUE(core()->sinks[0].discovered) << "B9 an ENTITY_DEPARTING of version " << v << " departs nothing";
+    }
+}
+
 // ---- C: the service cost of every path (H-ACMP, H-DISC) -----------------------------------
 
 TEST_F(AcmpMailbox, C0ToC4CommandsAreAnsweredInThePassThatTakesThem) {
-    std::uint32_t sent = model.tx_sent;
-    ASSERT_TRUE(offer(command(spec::MSG_BIND_RX_COMMAND, 0)));
-    std::uint64_t n = pass();
-    EXPECT_EQ(model.tx_sent, sent + 2u) << "C0 BIND_RX: the response and the probe in the pass that takes it";
-    bound("C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP", n, ACMP_MBX_LAT_BIND);
-    ASSERT_TRUE(offer(command(spec::MSG_GET_RX_STATE_COMMAND, 0)));
-    n = pass();
-    EXPECT_EQ(model.tx_sent, sent + 3u) << "C1 GET_RX_STATE answered in one pass";
-    bound("C1 GET_RX_STATE -> response", n, ACMP_MBX_LAT_GET_RX);
-    ASSERT_TRUE(offer(answer(0)));
-    n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_SETTLED_NO_RSV) << "C2 PROBE_TX_RESPONSE settles in one pass";
-    bound("C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed", n, ACMP_MBX_LAT_PROBE_RESP);
-    ASSERT_TRUE(offer(command(spec::MSG_UNBIND_RX_COMMAND, 0)));
-    n = pass();
-    EXPECT_TRUE(model.tx_sent == sent + 4u && core()->sinks[0].state == ACMP_UNBOUND)
-        << "C3 UNBIND_RX answered in one pass";
-    bound("C3 UNBIND_RX -> response, timer stopped", n, ACMP_MBX_LAT_UNBIND);
-    for (std::uint8_t msg : {spec::MSG_PROBE_TX_COMMAND, spec::MSG_GET_TX_STATE_COMMAND,
-                             spec::MSG_DISCONNECT_TX_COMMAND, spec::MSG_GET_TX_CONNECTION_COMMAND}) {
-        std::uint32_t before = model.tx_sent;
-        ASSERT_TRUE(offer(talker_command(msg)));
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;                            // sink i, source i: interface i's
+        const unsigned other = (k + 1u) % 2u;
+        auto on = [i](const Pdu& p) { return offer(p, spec::MULTICAST_MAC, i); };
+        std::uint32_t sent = model.tx_sent;
+        ASSERT_TRUE(on(command(spec::MSG_BIND_RX_COMMAND, k)));
+        std::uint64_t n = pass();
+        EXPECT_EQ(model.tx_sent, sent + 2u) << "C0 BIND_RX: the response and the probe in the pass that takes it";
+        EXPECT_TRUE(model.bound_en[i][k]) << "C0 and its talker admitted in that pass";
+        bound(on_if(i, "C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted"), n, ACMP_MBX_LAT_BIND);
+        ASSERT_TRUE(on(command(spec::MSG_GET_RX_STATE_COMMAND, k)));
         n = pass();
-        EXPECT_EQ(model.tx_sent, before + 1u) << "C4 a talker command is answered in one pass";
-        bound("C4 talker command -> response", n, ACMP_MBX_LAT_TALKER);
+        EXPECT_EQ(model.tx_sent, sent + 3u) << "C1 GET_RX_STATE answered in one pass";
+        bound(on_if(i, "C1 GET_RX_STATE -> response"), n, ACMP_MBX_LAT_GET_RX);
+        ASSERT_TRUE(on(answer(k)));
+        n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_SETTLED_NO_RSV) << "C2 PROBE_TX_RESPONSE settles in one pass";
+        bound(on_if(i, "C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed"), n, ACMP_MBX_LAT_PROBE_RESP);
+        ASSERT_TRUE(on(command(spec::MSG_UNBIND_RX_COMMAND, k)));
+        n = pass();
+        EXPECT_TRUE(model.tx_sent == sent + 4u && core()->sinks[k].state == ACMP_UNBOUND && !model.bound_en[i][k])
+            << "C3 UNBIND_RX answered in one pass, its talker withdrawn";
+        bound(on_if(i, "C3 UNBIND_RX -> response, timer stopped, talker withdrawn"), n, ACMP_MBX_LAT_UNBIND);
+        for (std::uint8_t msg : {spec::MSG_PROBE_TX_COMMAND, spec::MSG_GET_TX_STATE_COMMAND,
+                                 spec::MSG_DISCONNECT_TX_COMMAND, spec::MSG_GET_TX_CONNECTION_COMMAND}) {
+            std::uint32_t before = model.tx_sent;
+            ASSERT_TRUE(on(talker_command(msg, static_cast<std::uint16_t>(k))));
+            n = pass();
+            const mbx_model_tx* r = mbx_model_tx_frame(&model, model.tx_sent - 1u);
+            EXPECT_TRUE(model.tx_sent == before + 1u && r != nullptr && r->interface == i &&
+                        read(r->bytes).status == (msg == spec::MSG_GET_TX_CONNECTION_COMMAND
+                                                      ? spec::STATUS_NOT_SUPPORTED : spec::STATUS_SUCCESS))
+                << "C4 a talker command for interface " << i << "'s source is answered in one pass, on that interface";
+            bound(on_if(i, "C4 talker command -> response"), n, ACMP_MBX_LAT_TALKER);
+        }
+        bind(other);
+        ASSERT_TRUE(offer(answer(other, 5u), spec::MULTICAST_MAC, acfg.sink_interface[other]));
+        n = pass();
+        bound(on_if(i, "C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed"), n, ACMP_MBX_LAT_PROBE_RESP);
     }
-    bind(1);
-    ASSERT_TRUE(offer(answer(1, 5u)));
-    n = pass();
-    bound("C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed", n, ACMP_MBX_LAT_PROBE_RESP);
 }
 
 TEST_F(AcmpMailbox, C5ToC9TimerPathsAreServedInThePassThatTakesTheExpiry) {
-    bind(0);
-    to_deadline();
-    std::uint32_t sent = model.tx_sent;
-    std::uint64_t n = pass();
-    EXPECT_TRUE(model.tx_sent == sent + 1u && core()->sinks[0].state == ACMP_PRB_W_RESP2)
-        << "C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry";
-    bound("C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP", n, ACMP_MBX_LAT_TIMER_PROBE);
-    to_deadline();
-    n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_RETRY) << "C6 the second TMR_NO_RESP";
-    bound("C6 TMR_NO_RESP -> TMR_RETRY armed", n, ACMP_MBX_LAT_TIMER_ARM);
-    post_adp(Adp{});
-    settle();
-    to_deadline();
-    n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_DELAY) << "C7 TMR_RETRY, talker discovered";
-    bound("C7 TMR_RETRY -> TMR_DELAY armed", n, ACMP_MBX_LAT_TIMER_ARM);
-    to_deadline();
-    n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_RESP) << "C8 TMR_DELAY";
-    bound("C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP", n, ACMP_MBX_LAT_TIMER_PROBE);
-    ASSERT_TRUE(offer(answer(0)));
-    settle();
-    to_deadline();
-    n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_DELAY) << "C9 TMR_NO_TK, talker discovered";
-    bound("C9 TMR_NO_TK -> TMR_DELAY armed", n, ACMP_MBX_LAT_TIMER_ARM);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        bind(k);
+        to_deadline(i);
+        std::uint32_t sent = model.tx_sent;
+        std::uint64_t n = pass();
+        EXPECT_TRUE(model.tx_sent == sent + 1u && core()->sinks[k].state == ACMP_PRB_W_RESP2)
+            << "C5 TMR_NO_RESP: the duplicate in the pass that takes the expiry";
+        bound(on_if(i, "C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP"), n, ACMP_MBX_LAT_TIMER_PROBE);
+        to_deadline(i);
+        n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_RETRY) << "C6 the second TMR_NO_RESP";
+        bound(on_if(i, "C6 TMR_NO_RESP -> TMR_RETRY armed"), n, ACMP_MBX_LAT_TIMER_ARM);
+        ASSERT_TRUE(available(Adp{}, i));
+        settle();
+        to_deadline(i);
+        n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_DELAY) << "C7 TMR_RETRY, talker discovered";
+        bound(on_if(i, "C7 TMR_RETRY -> TMR_DELAY armed"), n, ACMP_MBX_LAT_TIMER_ARM);
+        to_deadline(i);
+        n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_RESP) << "C8 TMR_DELAY";
+        bound(on_if(i, "C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP"), n, ACMP_MBX_LAT_TIMER_PROBE);
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        to_deadline(i);
+        n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_DELAY) << "C9 TMR_NO_TK, talker discovered";
+        bound(on_if(i, "C9 TMR_NO_TK -> TMR_DELAY armed"), n, ACMP_MBX_LAT_TIMER_ARM);
+    }
 }
 
 TEST_F(AcmpMailbox, C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord) {
-    restore(0);
-    post_adp(Adp{});
-    std::uint64_t n = pass();
-    EXPECT_EQ(core()->sinks[0].state, ACMP_PRB_W_DELAY) << "C10 ENTITY_AVAILABLE: TMR_DELAY in the same pass";
-    bound("C10 ENTITY_AVAILABLE -> TMR_DELAY armed (H-DISC)", n, ACMP_MBX_LAT_AVAILABLE);
-    Adp gone;
-    gone.msg = spec::ADPDU_ENTITY_DEPARTING;
-    post_adp(gone);
-    n = pass();
-    EXPECT_TRUE(core()->sinks[0].state == ACMP_PRB_W_AVAIL && !app.acmp.ifs[0].armed)
-        << "C11 ENTITY_DEPARTING: PRB_W_AVAIL, the slot stopped, in the same pass";
-    bound("C11 ENTITY_DEPARTING -> timer stopped (H-DISC)", n, ACMP_MBX_LAT_DEPARTING);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        boot_restored({i});
+        const unsigned k = i;
+        ASSERT_TRUE(available(Adp{}, i)) << "C10 the filter commits the bound talker's ENTITY_AVAILABLE (RX_HEAD)";
+        std::uint64_t n = pass();
+        EXPECT_EQ(core()->sinks[k].state, ACMP_PRB_W_DELAY) << "C10 ENTITY_AVAILABLE: TMR_DELAY in the same pass";
+        bound(on_if(i, "C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC)"), n, ACMP_MBX_LAT_AVAILABLE);
+        Adp gone;
+        gone.msg = spec::ADPDU_ENTITY_DEPARTING;
+        ASSERT_TRUE(available(gone, i)) << "C11 and its ENTITY_DEPARTING";
+        n = pass();
+        EXPECT_TRUE(core()->sinks[k].state == ACMP_PRB_W_AVAIL && !app.acmp.ifs[i].armed)
+            << "C11 ENTITY_DEPARTING: PRB_W_AVAIL, the slot stopped, in the same pass";
+        bound(on_if(i, "C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC)"), n, ACMP_MBX_LAT_DEPARTING);
+    }
 }
 
 TEST_F(AcmpMailbox, C12AgingIsServedInThePassThatTakesTheExpiry) {
-    bind(0);
-    Adp v;
-    v.valid_time = 1;
-    post_adp(v);
-    settle();
-    ASSERT_TRUE(offer(answer(0)));
-    settle();
-    ASSERT_EQ(model.timers[CTRL_APP_ACMP_FIRST_SLOT].deadline_ms, core()->sinks[0].adp_deadline)
-        << "C12 TMR_NO_ADP (2 s) is the slot's earliest deadline";
-    to_deadline();
-    std::uint64_t n = pass();
-    EXPECT_TRUE(!core()->sinks[0].discovered && core()->sinks[0].state == ACMP_SETTLED_NO_RSV)
-        << "C12 TMR_NO_ADP: TK_NOT_DISCOVERED in the pass that takes the expiry (5.6.4.5.4)";
-    bound("C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC)", n, ACMP_MBX_LAT_NO_ADP);
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        SetUp();
+        const unsigned k = i;
+        bind(k);
+        Adp v;
+        v.valid_time = 1;
+        ASSERT_TRUE(available(v, i));
+        settle();
+        ASSERT_TRUE(offer(answer(k), spec::MULTICAST_MAC, i));
+        settle();
+        ASSERT_EQ(model.timers[slot(i)].deadline_ms, core()->sinks[k].adp_deadline)
+            << "C12 TMR_NO_ADP (2 s) is the slot's earliest deadline";
+        to_deadline(i);
+        std::uint64_t n = pass();
+        EXPECT_TRUE(!core()->sinks[k].discovered && core()->sinks[k].state == ACMP_SETTLED_NO_RSV)
+            << "C12 TMR_NO_ADP: TK_NOT_DISCOVERED in the pass that takes the expiry (5.6.4.5.4)";
+        bound(on_if(i, "C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC)"), n, ACMP_MBX_LAT_NO_ADP);
+    }
 }
 
 // ---- E: owed frames through the mailbox, and #653 ----------------------------------------
@@ -585,12 +747,12 @@ TEST_F(AcmpMailbox, F0ToF3FullRingsAreTakenWithinTheBound) {
         bind(k);
     }
     mbx_tick_enable(false);
-    for (unsigned slot = 0; slot < MBX_N_TIMERS; ++slot) {
-        if (slot != CTRL_APP_ACMP_FIRST_SLOT) {
-            mbx_timer_arm(slot, 0x77u, mbx_now_ms());
+    for (unsigned t = 0; t < MBX_N_TIMERS; ++t) {
+        if (t < slot(0) || t >= slot(MBX_N_IF)) {        // every slot but ACMP's
+            mbx_timer_arm(t, 0x77u, mbx_now_ms());
         }
     }
-    to_deadline();                                       // every sink's TMR_NO_RESP: the slot's expiry, last
+    to_deadline();                                       // every sink's TMR_NO_RESP: the ACMP slots' expiries, last
     ASSERT_EQ(static_cast<std::uint16_t>(model.evt_head - model.evt_tail), MBX_EVT_WORDS)
         << "F0 the event ring is full";
     unsigned stored = 0;
@@ -648,11 +810,13 @@ TEST_F(AcmpMailbox, F4TheSmallestRecordsTheFilterPassesFillTheRing) {
 }
 
 TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
-    restore(0);
-    restore(1);
-    // The smallest ENTITY_DISCOVER the filter passes (26 bytes, through
-    // entity_id), as adp_mbx.h's backlog test sends, until only the
-    // ENTITY_AVAILABLE's record still fits; that record goes in last.
+    acfg.sink_interface[1] = 0;                          // two sinks of one talker on interface 0
+    boot_restored({0, 1});
+    // Through the filter, as the fabric fills it: the smallest ENTITY_DISCOVER
+    // the filter passes (26 bytes, through entity_id), as adp_mbx.h's backlog
+    // test sends, until only the ENTITY_AVAILABLE's record still fits; then
+    // the bound talker's ENTITY_AVAILABLE, the ring's last record. The token
+    // bucket refills while the core is stalled.
     Adp d;
     d.msg = spec::ADPDU_ENTITY_DISCOVER;
     d.entity = 0;
@@ -671,8 +835,14 @@ TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
             mbx_model_advance_ms(&model, 1);
         }
     }
-    ASSERT_EQ(model.ch[MBX_CH_ADP].rx_drop, 0u);
-    post_adp(Adp{});
+    bool committed = false;
+    for (unsigned j = 0; j < 1000u && !committed; ++j) {
+        committed = available(Adp{});
+        if (!committed) {
+            mbx_model_advance_ms(&model, 1);
+        }
+    }
+    ASSERT_TRUE(committed && model.ch[MBX_CH_ADP].rx_drop == 0u) << "F5 the ENTITY_AVAILABLE's record is committed";
     stored++;
     EXPECT_TRUE(room() < discover_words && stored <= CTRL_LOOP_RX_BACKLOG(MBX_CH_ADP_RX_WORDS))
         << "F5 the adp ring is full, the ENTITY_AVAILABLE its last record";
@@ -684,10 +854,10 @@ TEST_F(AcmpMailbox, F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound) {
         EXPECT_EQ(core()->sinks[1].state, core()->sinks[0].state)
             << "F5 every matching bound sink takes it in the same pass (5.6.4.1)";
     }
-    std::printf("  adp backlog: %u records, the ENTITY_AVAILABLE served in pass %u\n", stored, at);
+    std::printf("  adp backlog: %u records through the filter, the ENTITY_AVAILABLE served in pass %u\n", stored, at);
     EXPECT_TRUE(at != 0u && at <= CTRL_LOOP_RX_PASSES(MBX_CH_ADP_RX_WORDS))
         << "F5 the ENTITY_AVAILABLE is taken by pass CTRL_LOOP_RX_PASSES(256)";
-    bound("F5 ENTITY_AVAILABLE behind a full adp ring (H-DISC)", at != 0u ? spent : UINT64_MAX,
+    bound("F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)", at != 0u ? spent : UINT64_MAX,
           ACMP_MBX_ADP_RX_ACCESSES);
 }
 
@@ -702,10 +872,17 @@ TEST_F(AcmpMailbox, U5AcmpComesAfterAdpAndReadsNothingBeforeTheContract) {
     EXPECT_TRUE(app.loop.rx[MBX_CH_ACMP].fn != nullptr && app.loop.rx[MBX_CH_ADP].ctx == &app.acmp &&
                 app.acmp.adp_next.ctx == &app.adp)
         << "U5 ACMP binds its channel and stands in front of ADP's handler";
+    std::uint8_t record[spec::BINDING_BYTES] = {0x03, 0, 0, 1};
+    wire_put_be(record + 4, kTkA, 8);
+    ASSERT_EQ(acmp_restore_binding(core(), 1, record, sizeof record), ACMP_RESTORE_APPLIED);
+    EXPECT_EQ(model.reads + model.writes, before) << "U5 the store's binding walk between the two touches none either";
     ASSERT_TRUE(ctrl_app_open(&app, &cfg));
     EXPECT_TRUE(mbx_field(model.filter_en, 0u, 8u) == ((1u << MBX_CH_ADP) | (1u << MBX_CH_ACMP)) &&
                 ((model.irq_enable >> MBX_CH_ACMP) & 1u) == 1u)
         << "U5 opening opens the acmp channel and its interrupt";
+    EXPECT_TRUE(model.bound_en[acfg.sink_interface[1]][1] && model.bound_eid[acfg.sink_interface[1]][1] == kTkA &&
+                !model.bound_en[0][0])
+        << "U5 and writes the bound-talker entry of the binding restored between compose and open, only that one";
     acmp_config bad = acmp_shape();
     bad.n_sinks = ACMP_MAX_SINKS + 1u;
     acfg = bad;
