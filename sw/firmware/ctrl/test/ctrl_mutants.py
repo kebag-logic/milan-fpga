@@ -43,18 +43,56 @@ class Mutant:
 
 
 #: ctrl_app_start from the pool's bind to the mailbox's open: the app binds
-#: lwSRP's pool before anything reads the mailbox window.
+#: lwSRP's pool before anything reads the mailbox window. (Lane FC: the open
+#: now also takes every interface's own MAC.)
 APP_BRING = ("\tshlan_port_bind_pool(&app->pool);\n\tctrl_debug_bind(cfg->sink, cfg->sink_ctx);\n"
              "\tctrl_loop_init(&app->loop);\n"
              "\tif (!adp_mbx_init(&app->adp, cfg->entity, CTRL_APP_ADP_FIRST_SLOT, "
              "cfg->current_configuration_index) ||\n"
              "\t    !adp_mbx_attach(&app->adp, &app->loop)) {\n\t\treturn false;\n\t}\n"
-             "\tif (!ctrl_loop_open(&app->loop, cfg->entity->entity_id)) {\n\t\treturn false;\n\t}\n")
+             "\t// ADP sends the entity's one MAC on every interface (adp.c), so it is\n"
+             "\t// every interface's own unicast address\n"
+             "\tuint64_t own_mac[MBX_N_IF];\n"
+             "\tfor (unsigned i = 0; i < MBX_N_IF; ++i) {\n\t\town_mac[i] = cfg->entity->mac;\n\t}\n"
+             "\tif (!ctrl_loop_open(&app->loop, cfg->entity->entity_id, own_mac)) {\n\t\treturn false;\n\t}\n")
+
+#: The model's classifier entry, and the same with a front end that strips an
+#: 802.1Q C-tag before it (lane FC, rule 1).
+MODEL_CLASSIFY = "\tbool mismatch = false;\n\tint found = classify(m, frame, len, interface, &mismatch);\n"
+MODEL_CLASSIFY_UNTAGGED = ("\tuint8_t stripped[MBX_FRAME_BYTES_MAX + 4u];\n"
+                           "\tif (len > 16u && len <= sizeof stripped && wire_be16(frame + 12u) == 0x8100u) {\n"
+                           "\t\tmemcpy(stripped, frame, 12u);\n\t\tmemcpy(stripped + 12u, frame + 16u, len - 16u);\n"
+                           "\t\tframe = stripped;\n\t\tlen -= 4u;\n\t}\n" + MODEL_CLASSIFY)
+
+#: ctrl_loop_open's identities and channel opening, and the same with the own
+#: MACs written only once the channels are open.
+LOOP_OWN_MAC = ("\tfor (unsigned i = 0; i < MBX_N_IF; ++i) {\n"
+                "\t\t(void)mbx_filter_set_own_mac(i, own_mac[i]);    // every i is an interface of the contract\n"
+                "\t}\n")
+LOOP_OPEN = ("\tmbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_ENABLE_RX_WIDTH) |\n"
+             "\t\t       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));\n"
+             "\tmbx_tick_enable(l->n_ticks > 0u);\n\tmbx_filter_open(open);\n")
+
+#: The model arm's test of one suite group.
+MODEL_GROUP = "Suite/MbxModelGroup.PassesOnTheModel/"
 #: The same with the pool bound only once the mailbox is open.
 APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n") + \
     "\tshlan_port_bind_pool(&app->pool);\n"
 
 MUTANTS = (
+    Mutant("reentry-guard-removed", "adp/adp.c",
+           "\tassert(!port_active);\n\tif (port_active) {",
+           "\tif (port_active && false) {",
+           "reentry_debug", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry asserts",
+           (("reentry_debug", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry asserts"),
+            ("reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
+            ("reentry_release", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry is counted"))),
+    Mutant("reentry-uncounted", "adp/adp.c", "\t\treentry_count++;\n", "",
+           "reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
+    Mutant("reentry-not-ignored", "adp/adp.c", "\t\treentry_count++;\n\t\treturn true;",
+           "\t\treentry_count++;\n\t\treturn false;",
+           "reentry_release", "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
+           "callback leaves core state unchanged"),
     Mutant("departing-keeps-index", "adp/adp.c",
            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
            "\tuint32_t index = a->available_index;\n", "walk", "Table551/AdpWalkCell.Graded/", "available_index"),
@@ -315,6 +353,98 @@ MUTANTS = (
            "unit", "MmioPlatform.M1OneWordAtBasePlusOffset", "M1 a write lands in the word at base + offset"),
     Mutant("wait-without-wfi", "plat/mbx_plat_mmio.c", "\tCTRL_MBX_WFI();\n", "",
            "unit", "MmioPlatform.M2WaitIsThePlatformWfi", "M2 each mbx_hal_wait() waits once"),
+    # ---- #665 lane FC: the full-tuple filter on the model, one defect per rule, the RTL arms' twins ----
+    # 1. tagged frames never reach a mailbox: a front end that strips a C-tag
+    #    before the filter, and the RTL arm's twin, a TPID taken for any EtherType
+    Mutant("model-tag-stripped", "host/mbx_model.c", MODEL_CLASSIFY, MODEL_CLASSIFY_UNTAGGED,
+           "model", MODEL_GROUP + "TupleRejections", "Q1 tagged, it (adp): no RX record"),
+    Mutant("model-tpid-matches-a-tuple", "host/mbx_model.c",
+           "bool named = tuple_dst[j] != MBX_DST_NONE && et == tuple_ethertype[j];",
+           "bool named = tuple_dst[j] != MBX_DST_NONE && (et == tuple_ethertype[j] || et == 0x8100u);",
+           "model", MODEL_GROUP + "TupleRejections", "Q1 tagged, it (srp MSRP): no RX record"),
+    # 2. each channel matches its exact tuple
+    Mutant("model-multicast-dst-ignored", "host/mbx_model.c", "&& dst == mac &&",
+           "&& (dst == mac || tuple_dst[j] == MBX_DST_MAC) &&",
+           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (adp)"),
+    Mutant("model-ethertype-ignored", "host/mbx_model.c", "if (named && tuple_dst_mac(m, j, interface, &mac)",
+           "if (tuple_dst[j] != MBX_DST_NONE && tuple_dst_mac(m, j, interface, &mac)",
+           "model", MODEL_GROUP + "TupleRejections", "Q3 under another control EtherType, it (adp)"),
+    Mutant("model-subtype-ignored", "host/mbx_model.c", "frame[MBX_SUBTYPE_BYTE] == tuple_subtype[j])",
+           "tuple_subtype[j] != 0u)", "model", MODEL_GROUP + "TupleRejections",
+           "Q4 with an unassigned AVTP subtype, it (adp)"),
+    # 3. own unicast is the arrival interface's MAC, never any unicast
+    Mutant("model-own-any-unicast", "host/mbx_model.c", "&& dst == mac &&",
+           "&& (dst == mac || (tuple_dst[j] == MBX_DST_OWN && ((dst >> 40) & 1u) == 0u)) &&",
+           "model", MODEL_GROUP + "TupleRejections", "Q2 to another destination MAC, it (aecp, command)"),
+    Mutant("model-own-mac-of-interface-0", "host/mbx_model.c",
+           "if (tuple_dst[j] == MBX_DST_OWN && interface < MBX_N_IF) {\n\t\t*mac = m->own_mac[interface];",
+           "if (tuple_dst[j] == MBX_DST_OWN) {\n\t\t(void)interface;\n\t\t*mac = m->own_mac[0];",
+           "model", MODEL_GROUP + "OwnMacPerInterface",
+           "Q8 another interface's own MAC, or one on an index with no interface, reaches no ring"),
+    Mutant("model-own-mac-hi-dropped", "host/mbx_model.c",
+           "((uint64_t)mbx_field(v, MBX_OWN_MAC_HI_MAC_LSB, MBX_OWN_MAC_HI_MAC_WIDTH) << 32)", "0u",
+           "model", MODEL_GROUP + "ResetIdentityAndRegisterMasks",
+           "R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only"),
+    # 4. AECP: (command AND target = own) OR (response AND controller = own),
+    #    planted in the generated header the model reads its terms from
+    Mutant("model-aecp-command-only", "mbx/mbx_contract.h", "#define MBX_CH_AECP_T1_TEST 2u",
+           "#define MBX_CH_AECP_T1_TEST 0u", "model", MODEL_GROUP + "AecpBothDirections",
+           "Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring"),
+    # 5. FILTER_MISMATCH: a tuple failure once, never an identity refusal; it sets ERR
+    Mutant("model-mismatch-never-counted", "host/mbx_model.c", "\t*mismatch = control;",
+           "\t*mismatch = control && false;",
+           "model", MODEL_GROUP + "TupleRejections",
+           "Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once"),
+    Mutant("model-mismatch-counts-identity-refusals", "host/mbx_model.c",
+           "\tif (!rule_passes(m, c, frame, len)) {\n\t\treturn false;",
+           "\tif (!rule_passes(m, c, frame, len)) {\n\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n"
+           "\t\treturn false;",
+           "model", MODEL_GROUP + "TupleRejections",
+           "Q5 ENTITY_DISCOVER for another entity: FILTER_MISMATCH does not count it"),
+    Mutant("model-mismatch-sets-no-err", "host/mbx_model.c",
+           "\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n\t\tm->err = true;\n",
+           "\t\tm->filter_mismatch = sat16(m->filter_mismatch);\n",
+           "model", MODEL_GROUP + "FilterMismatchCount", "Q9 a mismatch sets IRQ_STATUS.ERR"),
+    # ---- #665 lane FC round 2: the MAAP DEFEND to own unicast (IEEE 1722-2016 B.2.1), the RTL arms' twins ----
+    # a DEFEND to this interface's own MAC is delivered: the message type read one byte early
+    Mutant("model-msg-type-off-by-one", "host/mbx_model.c", "\tuint32_t msg = msg_type(frame, len);\n\tbool control",
+           "\tuint32_t msg = frame[MBX_SUBTYPE_BYTE] & 0x0Fu;\n\tbool control", "model",
+           MODEL_GROUP + "MaapDefendToOwnUnicast", "Q11 a DEFEND to this interface's own MAC reaches the MAAP ring"),
+    # a PROBE or ANNOUNCE to it is rejected and counted: the tuple's message
+    # types ignored; a message-type refusal taken as an identity refusal, uncounted
+    Mutant("model-tuple-msg-type-ignored", "host/mbx_model.c",
+           "((tuple_msg_mask[j] >> msg) & 1u) != 0u) {", "(((tuple_msg_mask[j] | 0xFFFFu) >> msg) & 1u) != 0u) {",
+           "model",
+           MODEL_GROUP + "MaapDefendToOwnUnicast", "Q11 a PROBE to this interface's own MAC: no RX record"),
+    Mutant("model-msg-type-refusal-uncounted", "host/mbx_model.c",
+           " &&\n\t\t    ((tuple_msg_mask[j] >> msg) & 1u) != 0u) {\n\t\t\treturn (int)(j / MBX_MAX_TUPLES);",
+           ") {\n\t\t\treturn ((tuple_msg_mask[j] >> msg) & 1u) != 0u ? (int)(j / MBX_MAX_TUPLES) : -1;",
+           "model", MODEL_GROUP + "MaapDefendToOwnUnicast",
+           "Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once"),
+    # a DEFEND to a foreign unicast is rejected: the DEFEND tuple takes any unicast
+    Mutant("model-defend-any-unicast", "host/mbx_model.c", "&& dst == mac &&",
+           "&& (dst == mac || (tuple_msg_mask[j] != 0xFFFFu && ((dst >> 40) & 1u) == 0u)) &&",
+           "model", MODEL_GROUP + "MaapDefendToOwnUnicast",
+           "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
+    # the firmware's side: the own MAC per interface, the counter, the bring-up order
+    Mutant("own-mac-unguarded", "mbx/mbx.c",
+           "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_hal_write32(iff_reg",
+           "\tmbx_hal_write32(iff_reg", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+           "D11 an interface past the contract's is refused"),
+    Mutant("own-mac-halves-swapped", "mbx/mbx.c",
+           "mbx_place((uint32_t)mac, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
+           "mbx_place((uint32_t)(mac >> 32), MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
+           "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount", "D11 OWN_MAC_LO holds MAC[31:0]",
+           (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 an AEM_COMMAND to it on interface 0 passes"),)),
+    Mutant("mismatch-read-from-bus-err", "mbx/mbx.c", "mbx_hal_read32(MBX_REG_FILTER_MISMATCH)",
+           "mbx_hal_read32(MBX_REG_BUS_ERR)", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+           "D11 FILTER_MISMATCH is read as its COUNT field",
+           (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 FILTER_MISMATCH reads the one tuple failure"),)),
+    Mutant("own-mac-after-the-channels-open", "loop/ctrl_loop.c", LOOP_OWN_MAC + LOOP_OPEN, LOOP_OPEN + LOOP_OWN_MAC,
+           "port", "LoopBring.L1OpenOrder", "L1 every interface's OWN_MAC is written before any channel opens"),
+    Mutant("app-own-mac-not-the-entity-mac", "app/ctrl_app.c", "\t\town_mac[i] = cfg->entity->mac;\n",
+           "\t\town_mac[i] = cfg->entity->mac & 0xFFFFFFFFull;\n",
+           "unit", "AppComposition.U4EveryInterfaceOwnsTheEntityMacBeforeAChannelOpens", "OWN_MAC is the entity's MAC"),
 )
 
 
@@ -378,14 +508,15 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
     return escaped
 
 
-def campaign(root: Path, reuse: Path) -> bool:
+def campaign(root: Path, reuse: Path, jobs: int) -> bool:
     """Plant every mutant; True when one escaped. One build serves every
     copy, so a test object is compiled again only where a planted header
     changes what it sees."""
     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
-    build = fw_gtest.Build()
+            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
+            "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
+    build = fw_gtest.Build(jobs=jobs)
     escaped = 0
     for m in MUTANTS:
         tree = Tree(plant(m, root), root / m.name / "build", reuse, build)

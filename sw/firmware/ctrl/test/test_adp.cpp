@@ -934,11 +934,12 @@ struct Passes {
 // fabric coalesces behind them. The tick is held off until then, so the 16
 // records are exactly these.
 Backlog backlog_post(void) {
+    const uint64_t own_mac[MBX_N_IF] = {entity.mac};
     mbx_model_reset(&model);
     mbx_model_bind(&model, nullptr, nullptr);
     ctrl_loop_init(&app.loop);
     EXPECT_TRUE(adp_mbx_init(&app.adp, &entity, CTRL_APP_ADP_FIRST_SLOT, 2) && adp_mbx_attach(&app.adp, &app.loop) &&
-                ctrl_loop_add_tick(&app.loop, count_tick) && ctrl_loop_open(&app.loop, entity.entity_id))
+                ctrl_loop_add_tick(&app.loop, count_tick) && ctrl_loop_open(&app.loop, entity.entity_id, own_mac))
         << "F0 the F0 composition with a centisecond consumer comes up";
     adp_mbx_set_enable(&app.adp, true);
     mbx_model_set_link(&model, 0, true);

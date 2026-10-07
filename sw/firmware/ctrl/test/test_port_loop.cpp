@@ -10,7 +10,8 @@
 //   S   the debug sink behind shlan_printf: delivery, truncation, discard;
 //   D   the mailbox driver on the model: RX records byte for byte, a
 //       malformed record resynchronised, TX records and their refusals, every
-//       event type decoded, timers, the coherent grandmaster read;
+//       event type decoded, timers, the coherent grandmaster read, the own
+//       MAC the filter matches and the FILTER_MISMATCH it counts (lane FC);
 //   L   the event loop: the order ctrl_loop_open brings the mailbox up in,
 //       the per-pass bounds, the TICK fan-out to centisecond consumers.
 //
@@ -42,6 +43,18 @@ mbx_model model;
 alignas(std::max_align_t) std::uint8_t arena[4096];
 
 const ctrl_pool_class classes[] = {{32u, 4u}, {64u, 2u}};
+
+// Each interface's own unicast MAC as ctrl_loop_open takes them, one apart,
+// so a write into another interface's block shows (#665 lane FC).
+struct OwnMacs {
+    std::uint64_t mac[MBX_N_IF];
+    OwnMacs() {
+        for (unsigned i = 0; i < MBX_N_IF; ++i) {
+            mac[i] = 0x001B92112200ull + i;
+        }
+    }
+};
+const OwnMacs kOwn;
 
 // CTRL_POOL_ALIGN, which ctrl_pool.h spells with C11's _Alignof, in C++.
 constexpr std::size_t kPoolAlign = alignof(std::max_align_t);
@@ -445,6 +458,27 @@ TEST_F(Driver, D5CoherentGrandmasterRead) {
     EXPECT_TRUE(mbx_gm_id(0, &dom) == 0x0102030405060708ull && dom == 9u) << "D5 the grandmaster read is coherent";
 }
 
+// The own MAC the driver writes is the destination the model's AECP tuple
+// takes on that interface, and FILTER_MISMATCH reads what the model counted
+// (#665 lane FC).
+TEST_F(Driver, D12OwnMacAndMismatchOnTheModel) {
+    static mbx_frame got;
+    std::uint8_t f[64];
+    build_frame(f, sizeof f, 0x22F0, 0xFB, 0);
+    wire_put_be(f, kOwn.mac[0], 6);
+    wire_put_be(f + 18, 0x1122334455667788ull, 8);
+    ASSERT_TRUE(mbx_open());
+    mbx_filter_set_own_eid(0x1122334455667788ull);
+    EXPECT_TRUE(mbx_filter_set_own_mac(0, kOwn.mac[0])) << "D12 interface 0's own MAC is written";
+    mbx_filter_open(1u << MBX_CH_AECP);
+    EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0)) << "D12 an AEM_COMMAND to it on interface 0 passes";
+    EXPECT_EQ(mbx_rx_take(MBX_CH_AECP, &got), MBX_STATUS_OK) << "D12 and is taken";
+    EXPECT_EQ(mbx_filter_mismatch(), 0u) << "D12 a frame that passes is no mismatch";
+    wire_put_be(f, kOwn.mac[0] ^ 0x010000000000ull, 6);
+    EXPECT_FALSE(mbx_model_rx(&model, f, sizeof f, 0)) << "D12 to another unicast MAC it does not";
+    EXPECT_EQ(mbx_filter_mismatch(), 1u) << "D12 FILTER_MISMATCH reads the one tuple failure";
+}
+
 // ---- L: the event loop -----------------------------------------------------
 
 struct LoopProbe {
@@ -484,6 +518,7 @@ void tick_b() {
 
 struct OpenOrder {
     int own_eid_hi_at;
+    int own_mac_at;     // the last OWN_MAC_LO/HI write of any interface
     int filter_en_at;
     int tick_ctl_at;
     std::uint32_t tick_ctl;
@@ -500,6 +535,8 @@ void trace_open(void*, bool write, std::uint32_t off, std::uint32_t value) {
     }
     if (off == MBX_REG_OWN_EID_HI) {
         order.own_eid_hi_at = order.n;
+    } else if (off >= MBX_IFF_BASE && off < MBX_IFF_BASE + MBX_IFF_STRIDE * MBX_N_IF) {
+        order.own_mac_at = order.n;
     } else if (off == MBX_REG_FILTER_EN) {
         if (order.filter_en_at == 0 && value != 0u) {
             order.filter_en_at = order.n;
@@ -538,7 +575,7 @@ class Loop : public Model {
         probe = LoopProbe{};
         ctrl_loop_init(&loop_);
         ASSERT_TRUE(bind_probe(&loop_));
-        ASSERT_TRUE(ctrl_loop_open(&loop_, 0));
+        ASSERT_TRUE(ctrl_loop_open(&loop_, 0, kOwn.mac));
     }
     ctrl_loop loop_;
 };
@@ -558,10 +595,17 @@ TEST_F(LoopBring, L1OpenOrder) {
     ctrl_loop_init(&loop);
     ASSERT_TRUE(bind_probe(&loop));
     mbx_host_trace(trace_open, nullptr);
-    EXPECT_TRUE(ctrl_loop_open(&loop, 0)) << "L1 ctrl_loop_open brings the mailbox up";
+    EXPECT_TRUE(ctrl_loop_open(&loop, 0, kOwn.mac)) << "L1 ctrl_loop_open brings the mailbox up";
     mbx_host_trace(nullptr, nullptr);
     EXPECT_TRUE(order.own_eid_hi_at > 0 && order.own_eid_hi_at < order.filter_en_at)
         << "L1 OWN_EID is written before any channel opens";
+    EXPECT_TRUE(order.own_mac_at > 0 && order.own_mac_at < order.filter_en_at)
+        << "L1 every interface's OWN_MAC is written before any channel opens";
+    bool macs = true;
+    for (unsigned i = 0; i < MBX_N_IF; ++i) {
+        macs = macs && model.own_mac[i] == kOwn.mac[i];
+    }
+    EXPECT_TRUE(macs) << "L1 each interface's OWN_MAC holds the MAC given for it";
     EXPECT_EQ(order.filter_en, 1u << MBX_CH_ADP) << "L1 only the bound channel opens";
     EXPECT_EQ(order.tick_ctl, 1u) << "L1 the tick starts because a centisecond consumer is bound";
     EXPECT_EQ(model.irq_enable, (1u << MBX_CH_ADP) | (1u << MBX_IRQ_ENABLE_EVT_LSB))

@@ -18,7 +18,7 @@ import os
 import re
 import sys
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import yaml
@@ -61,6 +61,7 @@ class Binary:
     cflags: tuple[str, ...] = ()
     defines: tuple[str, ...] = ()
     vector: bool = False
+    address_sanitizer: bool = False
 
 
 RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
@@ -77,7 +78,8 @@ UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_MAPIN_
          Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_N_NAME", 0),),
                 defines=("-DNVM_DOCTORED_NONAME",)),
          Binary("litespi", ("mock_litespi_csr.cpp", "test_nvm_litespi.cpp"), store=("plat/nvm_flash_litespi.c",),
-                models=("host/nvm_fmodel.c",)))
+                models=("host/nvm_fmodel.c",)),
+         Binary("prefix", ("test_nvm_prefix.cpp",), store=("nvm_klj2.c",), models=(), address_sanitizer=True))
 #: The journal, read out of the SoC source the way every other consumer reads it.
 JOURNAL = literal("FLASHBOOT_RESERVED")["journal"]
 SLOT = JOURNAL["size"] // 2
@@ -184,6 +186,7 @@ def build_suite(inputs: ShapeInputs, work: Path, b: fw_gtest.Build, binary: Bina
     warning an error (a planted copy may leave a variable unused), the host
     models, and the tests compiled from this directory against the tree's
     headers."""
+    b = replace(b, address_sanitizer=binary.address_sanitizer)
     gen = work / "gen"
     header = shape_header(inputs.shape, inputs.donor, VECTOR_IDENT if binary.vector else inputs.ident)
     write_headers(gen, doctor(header, binary.edit), inputs.clock_hz)
@@ -205,7 +208,11 @@ def run_suite(exe: Path, fixture: Path, only: Sequence[str] = ()) -> tuple[bool,
     """Run a suite binary over its fixture, all of its tests or `only` these
     (GoogleTest test names); (passed, the log)."""
     args = [f"--gtest_filter={':'.join(f'*.{name}:*.{name}/*' for name in only)}"] if only else []
-    return fw_gtest.run_binary(exe, args, env={**os.environ, "NVM_FIXTURE": str(fixture)})
+    env = {**os.environ, "NVM_FIXTURE": str(fixture)}
+    if exe.name == "nvm_prefix":
+        # Preserve the named failing test in the tally on a sanitizer error.
+        env["ASAN_OPTIONS"] = "abort_on_error=1"
+    return fw_gtest.run_binary(exe, args, env=env)
 
 
 @dataclass(frozen=True)

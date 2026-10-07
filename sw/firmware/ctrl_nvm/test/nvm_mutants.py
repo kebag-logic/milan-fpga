@@ -139,6 +139,12 @@ MUTANTS = (
     _m("incomplete_accepted", CODEC, "\tif (seen != NVM_N_REC)\n\t\treturn NVM_VD_INCOMPLETE;\n", "",
        "verdict_parity", "codec_parity"),
     # ---- the codec asked directly: its room, a short loaded prefix, its lookups ----
+    _m("erased_payload_end_bound", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
+       "\t\tif (pos + NVM_REC_HDR + r.plen > end)\n", "codec_erased_loaded_prefix"),
+    _m("erased_payload_guard_early", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
+       "\t\tif (pos + NVM_REC_HDR + r.plen >= loaded)\n", "codec_erased_loaded_prefix"),
+    _m("erased_payload_guard_late", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
+       "\t\tif (pos + NVM_REC_HDR + r.plen > loaded + 1u)\n", "codec_erased_loaded_prefix"),
     _m("room_unchecked", CODEC, "\tif (img_len > room)\n\t\treturn NVM_VD_LEN;\n", "", "codec_room"),
     # R507-1-F1: a prefix that ends before a record header, read on past
     # its end, or refused as a length fault

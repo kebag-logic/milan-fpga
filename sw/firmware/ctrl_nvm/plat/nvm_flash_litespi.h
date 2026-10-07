@@ -3,6 +3,12 @@
  * nvm_flash_litespi.h - the flash port on the on-chip SPI flash controller
  * (#665 lane F1).
  */
+/* No synchronous callbacks (#678): a port must return before any core
+ * input is dispatched by the single bare-metal event loop. A port never
+ * calls back into a protocol core or the store, including on zero-delay
+ * timer arms or TX completion. Interrupts defer dispatch to the loop.
+ * F2 to F5 inherit this rule for every protocol port. */
+
 #ifndef NVM_FLASH_LITESPI_H
 #define NVM_FLASH_LITESPI_H
 

@@ -334,8 +334,12 @@ access to the command master costs 40 ns, and CPU work costs none of it.
 
 ## Static sizes
 
-The RV32I freestanding build (`-march=rv32i -Os`) of the codec, the store
-and the LiteSPI port, per shipped shape at its own system clock, in bytes.
+RV32I object sizes, compiled with the pinned SDK at `-Os`.
+Each shape uses its own system clock and ILP32 ABI.
+Both builds disable compiler stack-protector instrumentation.
+The largest static frame is 128 bytes per shape.
+That figure does not bound the complete runtime stack.
+See [the harness](../gtest/README.md#rv32-object-builds) for validation limits.
 The stage is the container plus one record header; the payload buffer is the
 shape's largest payload; the chunk is one read-back step; the clock counters
 are the port's time base and its per-call deadline state. bss includes
@@ -344,11 +348,11 @@ only while the slot is judged.
 
 | Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,352 |
-| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,368 |
-| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,360 |
-| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,360 |
-| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,372 |
+| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,116 |
+| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,132 |
+| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,124 |
+| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,124 |
+| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,136 |
 
 #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
 64 KiB slot. The shipping writer keeps a live window and a private stage in
@@ -469,9 +473,14 @@ GoogleMock's command master and `timer0`.
 
 `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
 one per copy, and requires each check it names to fail; every check is named
-by at least one (106 defects). They are graded at the 1x1 shape, except a defect that only
+by at least one (109 defects). They are graded at the 1x1 shape, except a defect that only
 shows at a clock that is not a whole number of MHz. That one,
 `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
+
+The host gate also runs exact-sized erased prefixes under AddressSanitizer.
+`test_nvm_prefix.cpp` checks 40, 47 and 48 loaded bytes.
+It pins both boundaries of the last erased payload.
+The three related defects restore `end` or shift `loaded`.
 
 ## What this does not prove
 

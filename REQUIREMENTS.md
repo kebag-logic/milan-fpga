@@ -59,6 +59,7 @@ kept in Git history rather than the tracked product tree (#259).
 The [owner filter decision](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6014311316)
 requires this exact channel table.
 Each row matches VLAN tag, destination MAC, EtherType and subtype.
+The `maap` own-unicast destination also matches message_type MAAP_DEFEND.
 The identity term then restricts which matching frames are delivered.
 All rows require untagged frames; tagged frames retain the fabric path.
 AAF/CRF media use the SR class VLAN and have no mailbox channel.
@@ -69,7 +70,7 @@ Stray untagged AAF/CRF frames therefore cannot reach the core either.
 | `adp` | absent | `91:E0:F0:01:00:00` | `0x22F0` | `0xFA` | ENTITY_DISCOVER for entity_id 0 or own; F3 adds bound talkers' ENTITY_AVAILABLE/ENTITY_DEPARTING |
 | `acmp` | absent | `91:E0:F0:01:00:00`; own unicast as a receive tolerance | `0x22F0` | `0xFC` | talker_entity_id or listener_entity_id = own |
 | `aecp` | absent | own unicast MAC on the receiving AVB interface | `0x22F0` | `0xFB` | (command AND target_entity_id = own) OR (response AND controller_entity_id = own) |
-| `maap` | absent | `91:E0:F0:00:FF:00` | `0x22F0` | `0xFE` | overlaps own range |
+| `maap` | absent | `91:E0:F0:00:FF:00`; own unicast on the receiving AVB interface for MAAP_DEFEND only | `0x22F0` | `0xFE` | overlaps own range |
 | `srp` MSRP | absent | `01:80:C2:00:00:0E` | `0x22EA` | not applicable | all |
 | `srp` MVRP | absent | `01:80:C2:00:00:21` | `0x88F5` | not applicable | all |
 
@@ -87,11 +88,15 @@ Table B.1 assigns that multicast address.
 Own-unicast ACMP reception is the owner's tolerance, not normative transmission.
 Milan v1.2 5.4.5.3 requires the CONTROLLER_AVAILABLE liveness exchange.
 Its response must pass the own-controller AECP term.
+IEEE 1722-2016 B.2.1 sends MAAP_PROBE and MAAP_ANNOUNCE to the MAAP multicast address.
+It sends MAAP_DEFEND to the source MAC of the triggering MAAP_PROBE.
+A MAAP_DEFEND answering this entity's probe therefore arrives as own unicast.
+A MAAP_PROBE or MAAP_ANNOUNCE to own unicast fails its tuple.
 
 [The filter requirement](docs/reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
 traces this table to the mailbox YAML and acceptance hooks.
-The contract lane after FT implements these additions before F2 to F5.
-F0's current filter is described in the [mailbox design](docs/design/MAILBOX_SPLIT.md#the-ingress-filter).
+PR #685 (#665 lane FC) implements this table, before F2 to F5.
+The [mailbox design](docs/design/MAILBOX_SPLIT.md#the-ingress-filter) describes the implemented filter.
 
 The [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
 Major `0x0003` identifies only images running the split.

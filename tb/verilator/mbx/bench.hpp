@@ -27,6 +27,7 @@
 
 #include "Vtb_mbx_top.h"
 #include "frames.hpp"
+#include "mbx_contract.h"
 
 namespace mbx_tb {
 
@@ -101,9 +102,18 @@ class Bench {
     }
 
     void set_gm(unsigned iface, std::uint64_t gm, std::uint8_t domain) {
+#if MBX_N_IF == 1
         dut_->gm_id_i = gm;
         dut_->gptp_domain_i = domain;
         (void)iface;
+#else
+        // a contract of more interfaces (the two-interface variant): gm_id_i is
+        // a Verilator wide signal of 32-bit words, least significant first
+        dut_->gm_id_i[2u * iface] = static_cast<std::uint32_t>(gm);
+        dut_->gm_id_i[2u * iface + 1u] = static_cast<std::uint32_t>(gm >> 32);
+        const unsigned shift = 8u * iface;
+        dut_->gptp_domain_i = (dut_->gptp_domain_i & ~(0xFFu << shift)) | (static_cast<unsigned>(domain) << shift);
+#endif
     }
 
     void set_link(unsigned mask) { dut_->link_up_i = mask; }

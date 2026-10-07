@@ -142,10 +142,11 @@ bool ctrl_loop_add_tick(struct ctrl_loop *l, ctrl_tick_fn fn);
 bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx);
 
 // Bring the mailbox up in the contract's order: check the contract, write the
-// filter's entity_id, enable the interrupt causes, start the tick when a
+// filter's entity_id and each interface's own unicast MAC (own_mac[i], 48
+// bits, for interface i), enable the interrupt causes, start the tick when a
 // centisecond consumer is bound, and only then open the bound channels.
 // False when the bitstream carries another contract (nothing is opened).
-bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id);
+bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF]);
 
 // One service pass; returns the events and records it handled, plus one when
 // output or centiseconds are still owed. 0 means the loop may sleep.
