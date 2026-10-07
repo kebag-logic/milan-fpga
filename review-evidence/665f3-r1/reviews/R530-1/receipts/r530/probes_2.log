@@ -1,0 +1,65 @@
+[ESCAPED] D3-departing-skips-ifx (acmp=2 acmpwalk=2): 2 [FAIL] line(s); expected one of AcmpCore.A22, Table554/DiscoveryWalk.Graded
+    acmp: REFUSED refused: acmp.c does not compile:
+$REVIEWS/665f3-r530-1-packet/scratch/probes/probes-2/D3-departing-skips-ifx/ctrl/acmp/acmp.c: In function ‘disc_departing’:
+$REVIEWS/665f3-r530-1-pack
+    acmpwalk: REFUSED refused: acmp.c does not compile:
+$REVIEWS/665f3-r530-1-packet/scratch/probes/probes-2/D3-departing-skips-ifx/ctrl/acmp/acmp.c: In function ‘disc_departing’:
+$REVIEWS/665f3-r530-1-
+[CAUGHT] D4-valid-time-low-bits (acmp=1 acmpwalk=1): 14 [FAIL] line(s); expected one of AcmpCore.A22
+    acmp: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TMR_NO_ADP is the received valid_time in two-second units, valid_time 1
+    acmp: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TMR_NO_ADP is the received valid_time in two-second units, valid_time 10
+    acmp: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TMR_NO_ADP is the received valid_time in two-second units, valid_time 31
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 a rising available_index is noted and TMR_NO_ADP restarted, no event (step 3)
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 699 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 0 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+    acmp: [FAIL] AcmpMailbox.C12AgingIsServedInThePassThatTakesTheExpiry: C12 TMR_NO_ADP (2 s) is the slot's earliest deadline
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_NOT_DISCOVERED: DW AVAILABLE(match, index > last) x TK_NOT_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_DISCOVERED: DW AVAILABLE(match, index > last) x TK_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_NOT_DISCOVERED: DW AVAILABLE(match, index <= last) x TK_NOT_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_DISCOVERED: DW AVAILABLE(match, index <= last) x TK_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+[CAUGHT] D5-refresh-not-rearmed (acmp=1 acmpwalk=1): 4 [FAIL] line(s); expected one of AcmpCore.A22, Table554/DiscoveryWalk.Graded
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 a rising available_index is noted and TMR_NO_ADP restarted, no event (step 3)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index___last__TK_DISCOVERED: DW AVAILABLE(match, index > last) x TK_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_match__index____last__TK_DISCOVERED: DW AVAILABLE(match, index <= last) x TK_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_DISCOVERED: DW AVAILABLE(GM mismatch, index > last) x TK_DISCOVERED: TMR_NO_ADP armed from the received valid_time (6.2.2.5)
+[CAUGHT] D6-departing-keeps-no-adp (acmp=1 acmpwalk=1): 3 [FAIL] line(s); expected one of AcmpCore.A22, Table554/DiscoveryWalk.Graded
+    acmp: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING: TMR_NO_ADP stopped, TK_NOT_DISCOVERED, EVT_TK_DEPARTED (5.6.4.5.3)
+    acmp: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING: PRB_W_AVAIL, the slot stopped, in the same pass
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_matches__TK_DISCOVERED: DW DEPARTING(interface_index matches) x TK_DISCOVERED: TMR_NO_ADP stopped
+[CAUGHT] D7-adp-any-interface (acmp=1 acmpwalk=0): 1 [FAIL] line(s); expected one of AcmpCore.A22Only
+    acmp: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 every bound sink of the talker processes it (5.6.4.1), only on the interface it arrived on
+[CAUGHT] D8-first-available-skips-gm (acmp=1 acmpwalk=1): 14 [FAIL] line(s); expected one of AcmpCore.A22Available, Table554/DiscoveryWalk.Graded
+    acmp: [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TK_NOT_DISCOVERED: an AVAILABLE from another grandmaster is ignored (5.6.4.5.1 step 1)
+    acmp: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 the grandmaster is sampled once for the frame
+    acmp: [FAIL] AcmpCore.A22OnlyBoundSinksOfThatTalkerOnThatInterface: A22 and the grandmaster is sampled once for the frame
+    acmp: [FAIL] AcmpCore.A23EveryPortIsGuarded: A23 the port kind 2 is guarded
+    acmp: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 an AVAILABLE from another grandmaster than GM_LO/GM_HI is ignored
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED: the discovery state (5.6.4.5.1 step 1)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED: the events raised to the connection machine
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index___last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index > last) x TK_NOT_DISCOVERED: TMR_NO_ADP untouched
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED: the discovery state (5.6.4.5.1 step 1)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED: the events raised to the connection machine
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_NOT_DISCOVERED: DW AVAILABLE(GM mismatch, index <= last) x TK_NOT_DISCOVERED: TMR_NO_ADP untouched
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_NOT_DISCOVERED: DW AVAILABLE(domain mismatch, index <= last) x TK_NOT_DISCOVERED: the discovery state (5.6.4.5.1 step 1)
+[CAUGHT] T1-disconnect-unknown-success (acmp=1 acmpwalk=1): 2 [FAIL] line(s); expected one of AcmpCore.A20Disconnect, TalkerWalk.TW3
+    acmp: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+    acmpwalk: [FAIL] TalkerWalk.TW3DisconnectAndGetTxConnection: TD1 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44); the processor answers SUCCESS
+[CAUGHT] T2-probe-tx-drops-streaming-wait (acmp=1 acmpwalk=1): 2 [FAIL] line(s); expected one of AcmpCore.A20Probe, TalkerWalk.TW1
+    acmp: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 PROBE_TX_RESPONSE is Table 5.43: cc 0, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED 0
+    acmpwalk: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 PROBE_TX: SUCCESS, FAST_CONNECT and STREAMING_WAIT echoed, REGISTERING_FAILED forced 0, the source's stream (F05.11; Milan v1.2 Table 5.43)
+[CAUGHT] T3-get-tx-state-echoes-listener (acmp=1 acmpwalk=1): 3 [FAIL] line(s); expected one of AcmpCore.A20Disconnect, TalkerWalk.TW2
+    acmp: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_STATE: listener fields 0, cc 0, REGISTERING_FAILED live, the stream (Table 5.47)
+    acmp: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 with no destination MAC held, none is reported
+    acmpwalk: [FAIL] TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive: TW2 GET_TX_STATE: listener fields 0, REGISTERING_FAILED live from Asking Failed (Table 5.47)
+[CAUGHT] T4-get-tx-connection-checks-source (acmp=1 acmpwalk=0): 1 [FAIL] line(s); expected one of AcmpCore.A20Disconnect, TalkerWalk.TW3
+    acmp: [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_CONNECTION: NOT_SUPPORTED, fields echoed (5.5.4.4, Table 5.48)
+[CAUGHT] T5-probe-tx-any-interface (acmp=1 acmpwalk=1): 2 [FAIL] line(s); expected one of AcmpCore.A20Probe, TalkerWalk.TW4
+    acmp: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+    acmpwalk: [FAIL] TalkerWalk.TW4TheInterfaceAndTheStatelessProperty: TW4 a probe from another interface than the source's is answered INCOMPATIBLE_REQUEST (Table 5.41), 5.5.4.1 step 2's other choice than the processor's s
+[CAUGHT] X1-stale-tag-accepted (acmp=1): 2 [FAIL] line(s); expected one of AcmpMailbox.B4
+    acmp: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands
+    acmp: [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 another module's slot is not ACMP's
+[CAUGHT] X2-tap-departing-to-adp (acmp=1): 1 [FAIL] line(s); expected one of AcmpMailbox.B5, AcmpMailbox.C10
+    acmp: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C11 ENTITY_DEPARTING: PRB_W_AVAIL, the slot stopped, in the same pass
+probes slice 2/3: 12 of 13 caught by an expected test

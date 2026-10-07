@@ -1,0 +1,27 @@
+[CAUGHT] acmp-restart-mismatch-keeps-aging: named AcmpCore.A22DiscoveredStateCells, Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_DISCOVERED
+    [FAIL] AcmpCore.A22DiscoveredStateCells: A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+[CAUGHT] acmp-departing-interface-unchecked: named AcmpCore.A22DepartingAndAging, Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED
+    [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+[CAUGHT] acmp-valid-time-in-seconds: named AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches, Table554/DiscoveryWalk.Graded/
+    [FAIL] AcmpCore.A22AvailableDiscoversWhenTheGrandmasterMatches: A22 TMR_NO_ADP is the received valid_time in two-second units, valid_time 1
+[CAUGHT] acmp-stale-tag-taken: named AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded
+    [FAIL] AcmpMailbox.B4AnExpiryThatRacedAStopOrAReArmIsDiscarded: B4 the expiry of a replaced arm carries its old tag and is discarded; the new arm stands
+[CAUGHT] acmp-tap-takes-discover: named AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp
+    [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+[CAUGHT] acmp-change-not-held-for-its-response: named AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits, AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt
+    [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+[CAUGHT] acmp-response-passes-an-owed-frame: named AcmpCore.A19NothingPassesAnOwedFrame
+    [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+[CAUGHT] acmp-bind-reads-the-clock-twice: named AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem
+    [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP
+[CAUGHT] acmp-adp-ring-bound-understated: named AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound
+    [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 ENTITY_AVAILABLE behind a full adp ring (H-DISC)
+[CAUGHT] acmp-record-flags-swapped: named AcmpStore.N3EachSinksStartedStateIsSaved
+    [FAIL] AcmpStore.N3EachSinksStartedStateIsSaved: N3 each sink's started state and STREAMING_WAIT come back (5.3.8.7)
+[CAUGHT] acmp-restore-starts-no-discovery: named AcmpCore.A24ARestoredBindingFastConnects, AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+    [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 startup with a saved binding: discovery started, PROBING_PASSIVE, PRB_W_AVAIL (5.5.3.5.2)
+[CAUGHT] acmp-nvm-d3-roll-back-kept: named AcmpStore.N6TheRollBackAndEveryOtherGroup
+    [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 every other group, settle, the D3 roll-back and the release go to the other owners unchanged
+[CAUGHT] acmp-nvm-refusal-applied: named AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault, AcmpStore.N6TheRollBackAndEveryOtherGroup
+    [FAIL] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault: N5 a binding record of a sink the configuration lacks is refused (nvm_state.h REFUSED), the walk goes on
+author sample slice 2/2: 13 of 13 caught by their named test

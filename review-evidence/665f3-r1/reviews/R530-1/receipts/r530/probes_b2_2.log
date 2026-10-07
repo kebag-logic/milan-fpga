@@ -1,0 +1,18 @@
+[CAUGHT] D9-gm-restart-keeps-no-adp (acmp=1 acmpwalk=1): 3 [FAIL] line(s); expected one of AcmpCore.A22, Table554/DiscoveryWalk.Graded
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 index <= last from another grandmaster: EVT_TK_DEPARTED, TMR_NO_ADP stopped, TK_NOT_DISCOVERED (2b)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_GM_mismatch__index____last__TK_DISCOVERED: DW AVAILABLE(GM mismatch, index <= last) x TK_DISCOVERED: TMR_NO_ADP stopped
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/AVAILABLE_domain_mismatch__index____last__TK_DISCOVERED: DW AVAILABLE(domain mismatch, index <= last) x TK_DISCOVERED: TMR_NO_ADP stopped
+[CAUGHT] T6-unknown-source-off-by-one (acmp=1 acmpwalk=1): 4 [FAIL] line(s); expected one of AcmpCore.A20, TalkerWalk
+    acmp: [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+    acmpwalk: [FAIL] TalkerWalk.TW1ProbeTheFlagLawAndTheSource: TW1 an unknown source: TALKER_UNKNOWN_ID (Table 5.40)
+    acmpwalk: [FAIL] TalkerWalk.TW2GetTxStateReadsRegisteringFailedLive: TW2 an unknown source: TALKER_UNKNOWN_ID (Table 5.46)
+    acmpwalk: [FAIL] TalkerWalk.TW3DisconnectAndGetTxConnection: TD1 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Milan v1.2 5.5.4.2 step 1, Table 5.44); the processor answers SUCCESS
+[CAUGHT] X10-poll-never-releases (acmp=1 acmpwalk=0): 3 [FAIL] line(s); expected one of AcmpCore.A19, AcmpMailbox.E1
+    acmp: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the change is reported once its response has left
+    acmp: [FAIL] AcmpCore.A19TwoOwedResponsesForOneSinkReleaseTogether: A19 once the unbind's response leaves nothing is reported: the sink is as it was (unbound)
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 the change is reported once the room returns
+[CAUGHT] X11-tap-drops-discover (acmp=1): 2 [FAIL] line(s); expected one of AcmpMailbox.B5
+    acmp: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 an ENTITY_DISCOVER still goes to ADP's own handler (5.6.3.5.4)
+    acmp: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 and so does any other ADPDU, which ADP discards
+[ESCAPED] S8-longer-record-applied (acmp=0 acmpnvm=0): 0 [FAIL] line(s); expected one of AcmpCore.A24Unbound, AcmpStore.N6
+probes slice 2/2: 4 of 5 caught by an expected test

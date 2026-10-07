@@ -1,0 +1,43 @@
+[CAUGHT] D3b-departing-skips-ifx (acmp=1 acmpwalk=1): 3 [FAIL] line(s); expected one of AcmpCore.A22, Table554/DiscoveryWalk.Graded
+    acmp: [FAIL] AcmpCore.A22DepartingAndAging: A22 a DEPARTING with another interface_index is ignored (5.6.4.5.3 step 1)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED: DW DEPARTING(interface_index differs) x TK_DISCOVERED: the discovery state (5.6.4.5.3 step 1)
+    acmpwalk: [FAIL] Table554/DiscoveryWalk.Graded/DEPARTING_interface_index_differs__TK_DISCOVERED: DW DEPARTING(interface_index differs) x TK_DISCOVERED: the events raised to the connection machine
+[CAUGHT] L12-resp2-ignores-response (acmp=1 acmpwalk=1): 14 [FAIL] line(s); expected one of AcmpCore.A10, AcmpCore.A8, Table530/ListenerWalk.Graded
+    acmp: [FAIL] AcmpCore.A8SuccessSettles: A8 SUCCESS: SETTLED_NO_RSV, PROBING_COMPLETED, state 4
+    acmp: [FAIL] AcmpCore.A8SuccessSettles: A8 TMR_NO_RESP stopped and TMR_NO_TK 10 s started
+    acmp: [FAIL] AcmpCore.A8SuccessSettles: A8 SRP is started
+    acmp: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 a failed response: PRB_W_RETRY, the ACMP status is its status (5.5.3.5.18 step 3), state 4
+    acmp: [FAIL] AcmpCore.A9FailureWaitsForTheRetry: A9 and TMR_RETRY 4 s
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: the timer's deadline
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: state, probing and ACMP status PW2 2 0 want SNR 3 0
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: the settled stream
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: the talker's discovered and registered state
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: SRP started
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_OK_PW2: LW PROBE_OK x PW2: notified exactly when a Table 5.22 item moved
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/PROBE_FAIL_PW2: LW PROBE_FAIL x PW2: the timer's deadline
+[CAUGHT] L13-unbind-not-locked (acmp=1 acmpwalk=0): 6 [FAIL] line(s); expected one of AcmpCore.A4Locked
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 and nothing changes
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 and nothing changes
+    acmp: [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 each refusal is counted
+[CAUGHT] L14-get-rx-no-fast-connect (acmp=1 acmpwalk=1): 15 [FAIL] line(s); expected one of AcmpCore.A2GetRxStateInEveryState, Table530/ListenerWalk.Graded
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 1
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 2
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 3
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 4
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 5
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 6
+    acmp: [FAIL] AcmpCore.A2GetRxStateInEveryState: A2 GET_RX_STATE_RESPONSE is Table 5.34/5.37/5.38/5.39 in state 7
+    acmp: [FAIL] AcmpCore.A2GetRxStateReportsStreamingWaitAndRegisteringFailed: A2 SETTLED_RSV_OK on a Talker Failed: STREAMING_WAIT saved, REGISTERING_FAILED 1 (Table 5.39)
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/GETRX_PWA: LW GETRX x PWA: frame 0 byte for byte
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/GETRX_PWD: LW GETRX x PWD: frame 0 byte for byte
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/GETRX_PWR: LW GETRX x PWR: frame 0 byte for byte
+    acmpwalk: [FAIL] Table530/ListenerWalk.Graded/GETRX_PW2: LW GETRX x PW2: frame 0 byte for byte
+[CAUGHT] L15-unknown-sink-off-by-one (acmp=1 acmpwalk=1): 2 [FAIL] line(s); expected one of AcmpCore.A2Unknown, ListenerScenario.LW2
+    acmp: [FAIL] AcmpCore.A2UnknownSinkIsAnsweredListenerUnknownId: A2 a command for a sink the entity lacks is answered, msg 6
+    acmpwalk: [FAIL] ListenerScenario.LW2GuardsUnknownSinksAndForeignMessages: LW2 LISTENER_UNKNOWN_ID byte for byte
+[CAUGHT] L16-owed-room-off-by-one (acmp=1 acmpwalk=0): 1 [FAIL] line(s); expected one of AcmpCore.A19AFull
+    acmp: [FAIL] AcmpCore.A19AFullQueueDropsTheCommandBeforeItActs: A19 a command whose response would find the queue full is dropped before it changes anything
+probes slice 1/2: 6 of 6 caught by an expected test

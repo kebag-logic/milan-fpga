@@ -1,0 +1,27 @@
+[CAUGHT] acmp-probe-before-response: named AcmpCore.A1BindFromUnboundRespondsThenProbes
+    [FAIL] AcmpCore.A1BindFromUnboundRespondsThenProbes: A1 BIND_RX_RESPONSE is Table 5.32 field by field
+[CAUGHT] acmp-not-authorized-is-13: named AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind, ListenerScenario.LD3TheLockRefusalStatus
+    [FAIL] AcmpCore.A4LockedByAnotherControllerRefusesBindAndUnbind: A4 CONTROLLER_NOT_AUTHORIZED (16, IEEE 1722.1-2021 Table 8-3), fields echoed (Tables 5.31, 5.35)
+[CAUGHT] acmp-lock-refuses-the-holder: named AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked
+    [FAIL] AcmpCore.A4TheLockingControllerPassesAndGetRxStateIsNotLocked: A4 the locking controller binds
+[CAUGHT] acmp-rebind-same-reprobes: named AcmpCore.A5RebindTheSameSourceUpdatesAndExits, Table530/ListenerWalk.Graded/BIND_SAME_PWR
+    [FAIL] AcmpCore.A5RebindTheSameSourceUpdatesAndExits: A5 a re-bind of the same source sends the response alone, state 1
+[CAUGHT] acmp-guard-reads-the-binding: named AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding
+    [FAIL] AcmpCore.A7TheGuardReadsTheSentProbeNotTheBinding: A7 the answer to the probe sent before a re-bind still matches the probe that was sent
+[CAUGHT] acmp-duplicate-takes-a-new-sequence-id: named AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp, Table530/ListenerWalk.Graded/TMR_CMD_PWR
+    [FAIL] AcmpCore.A10NoResponseSendsTheDuplicateThenGivesUp: A10 an exact duplicate of the first probe, same sequence_id (5.5.3.5.16)
+[CAUGHT] acmp-retry-zeroes-the-status: named AcmpCore.A11RetryWaitsForTheTalkerOrDelays, Table530/ListenerWalk.Graded/TMR_RETRY_PWT_disc
+    [FAIL] AcmpCore.A11RetryWaitsForTheTalkerOrDelays: A11 and the ACMP status stays: step 2 sets none
+[CAUGHT] acmp-reprobe-ignores-discovery: named AcmpCore.A13NoTalkerAttributeReprobes, AcmpCore.A15UnregisteredReprobes, Table530/ListenerWalk.Graded/TMR_NOTK_SNR_disc
+    [FAIL] AcmpCore.A13NoTalkerAttributeReprobes: A13 talker discovered: TMR_DELAY, PRB_W_DELAY, ACTIVE, status 0 (step 3)
+[CAUGHT] acmp-unbind-echoes-the-talker: named AcmpCore.A3UnbindInEveryState, Table530/ListenerWalk.Graded/UNBIND_PWR
+    [FAIL] AcmpCore.A3UnbindInEveryState: A3 UNBIND_RX_RESPONSE is Table 5.36: talker_entity_id and talker_unique_id 0, in state 0
+[CAUGHT] acmp-disconnect-always-succeeds: named AcmpCore.A20DisconnectGetTxStateAndGetTxConnection, TalkerWalk.TW3DisconnectAndGetTxConnection
+    [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 DISCONNECT_TX of an unknown source: TALKER_UNKNOWN_ID (Table 5.44)
+[CAUGHT] acmp-probe-tx-any-interface: named AcmpCore.A20ProbeTxIsAnsweredFromTheSource, TalkerWalk.TW4TheInterfaceAndTheStatelessProperty
+    [FAIL] AcmpCore.A20ProbeTxIsAnsweredFromTheSource: A20 a probe from another interface than the source's: INCOMPATIBLE_REQUEST (5.5.4.1 step 2, Table 5.41)
+[CAUGHT] acmp-get-tx-connection-supported: named AcmpCore.A20DisconnectGetTxStateAndGetTxConnection, TalkerWalk.TW3DisconnectAndGetTxConnection
+    [FAIL] AcmpCore.A20DisconnectGetTxStateAndGetTxConnection: A20 GET_TX_CONNECTION: NOT_SUPPORTED, fields echoed (5.5.4.4, Table 5.48)
+[CAUGHT] acmp-restart-on-a-smaller-index-only: named AcmpCore.A22DiscoveredStateCells
+    [FAIL] AcmpCore.A22DiscoveredStateCells: A22 available_index 700 <= last: EVT_TK_DEPARTED then EVT_TK_DISCOVERED, the index noted (5.6.4.5.2 steps 2a, 2c, 3)
+author sample slice 1/2: 13 of 13 caught by their named test

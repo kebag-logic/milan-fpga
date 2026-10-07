@@ -1,0 +1,64 @@
+[ESCAPED] X3-one-slot-for-all-interfaces (acmp=0): 0 [FAIL] line(s); expected one of AcmpMailbox.B3, AcmpMailbox.B7
+[CAUGHT] X4-change-before-response (acmp=1 acmpwalk=0): 4 [FAIL] line(s); expected one of AcmpCore.A19, AcmpMailbox.E1
+    acmp: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 but its change is not reported while its response waits (#653)
+    acmp: [FAIL] AcmpCore.A19AResponseWithoutRoomIsOwedAndItsChangeWaits: A19 the change is reported once its response has left
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 the change is reported once the room returns
+[CAUGHT] X5-send-past-owed (acmp=1 acmpwalk=0): 2 [FAIL] line(s); expected one of AcmpCore.A19Nothing, AcmpMailbox.E
+    acmp: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 a response does not pass one already owed
+    acmp: [FAIL] AcmpCore.A19NothingPassesAnOwedFrame: A19 they leave in the order they were made
+[CAUGHT] X6-poll-lets-loop-sleep (acmp=1): 3 [FAIL] line(s); expected one of AcmpMailbox.E
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 BIND_RX behind a full ring: bound, its response and probe owed, its change waiting
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 nothing reported yet, and the loop does not sleep while frames are owed
+    acmp: [FAIL] AcmpMailbox.E1AnOwedResponseLeavesFirstAndItsChangeAfterIt: E1 then the probe; nothing owed
+[CAUGHT] X7-rearm-every-entry (acmp=1 acmpwalk=0): 8 [FAIL] line(s); expected one of AcmpMailbox.C, AcmpCore.A17
+    acmp: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 2
+    acmp: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 5
+    acmp: [FAIL] AcmpCore.A7ResponsesOutsideProbingAreIgnored: A7 RCV_PROBE_TX_RESP is ignored outside PRB_W_RESP and PRB_W_RESP2 (Table 5.30 -), state 6
+    acmp: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 the port is called only when the earliest deadline moves
+    acmp: [FAIL] AcmpCore.A17EachInterfaceTimerHoldsItsEarliestDeadline: A17 an interface whose sinks hold no deadline has its timer stopped
+    acmp: [FAIL] AcmpCore.A22DiscoveredStateCells: A22 TK_DISCOVERED: an AVAILABLE with another interface_index is ignored (5.6.4.5.2 step 1)
+    acmp: [FAIL] AcmpCore.A24StartedIsSavedAndReported: A24 setting it again changes nothing
+    acmp: [FAIL] AcmpMailbox.C0ToC4CommandsAreAnsweredInThePassThatTakesThem: C1 GET_RX_STATE -> response
+[CAUGHT] X8-reentry-not-refused (acmp=1 acmpwalk=0): 22 [FAIL] line(s); expected one of AcmpCore.A23
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 0
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP running, entry 0
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 1
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 2
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 3
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 4
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: Expected: false
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 5
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 6
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort:     Which is: 1
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 a call made from inside the send port is refused, counted and trapped, entry 7
+    acmp: [FAIL] AcmpCore.A23EveryEntryRefusesACallFromInsideAPort: A23 and the outer call completes as if it had not been made: TMR_NO_RESP running, entry 7
+[CAUGHT] S1-restore-without-discovery (acmp=1 acmpnvm=1): 10 [FAIL] line(s); expected one of AcmpCore.A24, AcmpStore.N1
+    acmp: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 EVT_TK_DISCOVERED in PRB_W_AVAIL: TMR_DELAY 0 to 1 s, PRB_W_DELAY, ACTIVE (5.5.3.5.9)
+    acmp: [FAIL] AcmpCore.A22DiscoveredStartsTheProbeFromPrbWAvail: A22 the grandmaster is sampled once for the frame
+    acmp: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 startup with a saved binding: discovery started, PROBING_PASSIVE, PRB_W_AVAIL (5.5.3.5.2)
+    acmp: [FAIL] AcmpMailbox.B5TheTapHandsAvailableToDiscoveryAndTheRestToAdp: B5 a record the contract's term would post reaches discovery through the tap (5.5.3.5.9)
+    acmp: [FAIL] AcmpMailbox.B6TheGrandmasterIsTheInterfaces: B6 one from the interface's grandmaster and domain is taken
+    acmp: [FAIL] AcmpMailbox.C10C11DiscoveryPathsAreServedInThePassThatTakesTheRecord: C10 ENTITY_AVAILABLE: TMR_DELAY in the same pass
+    acmp: [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 the ENTITY_AVAILABLE is taken by pass CTRL_LOOP_RX_PASSES(256)
+    acmp: [FAIL] AcmpMailbox.F5AnAvailableBehindAFullAdpRingIsServedWithinTheBound: F5 ENTITY_AVAILABLE behind a full adp ring (H-DISC)
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 into PRB_W_AVAIL, PROBING_PASSIVE, discovery running (5.5.3.5.2)
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: Expected: false
+[CAUGHT] S2-restore-not-settled (acmp=0 acmpnvm=1): 2 [FAIL] line(s); expected one of AcmpCore.A24, AcmpStore.N1
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 probing saves nothing
+    acmpnvm: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the unbind marks the record (5.5.3.5.8 step 3)
+[ESCAPED] S3-flag-bits-swapped (acmp=0 acmpnvm=0): 0 [FAIL] line(s); expected one of AcmpCore.A24, AcmpStore.N
+[ESCAPED] S4-d3-rollback-drops-bindings (acmpnvm=0): 0 [FAIL] line(s); expected one of AcmpStore.N6
+[CAUGHT] S5-unbound-not-latched (acmp=1 acmpnvm=1): 3 [FAIL] line(s); expected one of AcmpStore.N2, AcmpCore.A24
+    acmp: [FAIL] AcmpCore.A24UnboundRecordsRefusalsAndRollback: Expected: true
+    acmpnvm: [FAIL] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord: N2 the next boot finds the sink unbound
+    acmpnvm: [FAIL] AcmpStore.N6TheRollBackAndEveryOtherGroup: N6 the record's does
+[CAUGHT] S6-controller-not-saved (acmp=1 acmpnvm=1): 3 [FAIL] line(s); expected one of AcmpCore.A24, AcmpStore.N1, AcmpCore.A5
+    acmp: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the talker's ENTITY_AVAILABLE starts the fast connect: TMR_DELAY, then its probe (5.5.2.6)
+[CAUGHT] S7-talker-uid-offset (acmp=1 acmpnvm=1): 3 [FAIL] line(s); expected one of AcmpCore.A24, AcmpStore.N1
+    acmp: [FAIL] AcmpCore.A24ARestoredBindingFastConnects: A24 the latch gives the same record back
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the binding parameters come back (5.3.8.2, 5.3.8.3)
+    acmpnvm: [FAIL] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects: N1 the talker's ENTITY_AVAILABLE starts the fast connect: TMR_DELAY, then its probe (5.5.2.6)
+probes slice 3/3: 10 of 13 caught by an expected test
