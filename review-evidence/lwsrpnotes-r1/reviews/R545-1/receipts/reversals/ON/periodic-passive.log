@@ -1,0 +1,42 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[10]
+		expected value:			[9]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:301: Failure: integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table 
+	Expected [mrp_transmit(app, 0, tx, sizeof(tx), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[10]
+		expected value:			[5]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_declaration_recovery_and_withdrawal_follow_the_table 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[10]
+		expected value:			[5]
+
+  "integration_suite": 383 passes, 4 failures in 10ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 17156 passes in 78ms.
+Completed "main": 19885 passes, 4 failures in 118ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

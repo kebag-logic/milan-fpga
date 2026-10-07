@@ -1,0 +1,100 @@
+$ git diff --no-ext-diff a4cbe41de1c80d43f26e0d348cbdb45075273a4f..ced667d8ee35929ab5f9e77a1c5396e173a693d8
+diff --git a/README.md b/README.md
+index c96bb17..e40c10a 100644
+--- a/README.md
++++ b/README.md
+@@ -42,7 +42,7 @@ ctest --test-dir "$LWSRP_BUILD" --output-on-failure
+ SHLAN_LIBRARY="$LWSRP_BUILD/libshlan.so" behave
+ ~~~
+ 
+-The default unit target runs 86 tests with 19885 assertions.
++The default unit target runs 87 tests with 19901 assertions.
+ The scenario suite passes three scenarios and ten steps.
+ The [tester guide](doc/tester.md) explains their coverage and limits.
+ An [optional Milan setting](doc/integrator.md#milan-received-leave) enables immediate withdrawal of received stream registrations.
+diff --git a/doc/tester.md b/doc/tester.md
+index 69abe6d..c595f21 100644
+--- a/doc/tester.md
++++ b/doc/tester.md
+@@ -26,7 +26,7 @@ behave --dry-run
+ | Check | Current result | Meaning |
+ | --- | --- | --- |
+ | Configure and build | Exit 0. | The host library and required unit target compile. |
+-| Default unit target | Exit 0; 86 tests and 19885 assertions. | The [runner](../tests/unit/main.c) executes eight suites. |
++| Default unit target | Exit 0; 87 tests and 19901 assertions. | The [runner](../tests/unit/main.c) executes eight suites. |
+ | Scenario execution | Exit 0; three scenarios and ten steps pass. | The [setup hook](../tests/features/environment.py) loads the [test bindings](../tests/features/switch_bindings.c). |
+ | Scenario dry run | Validates step matching only. | It does not execute setup or verify behavior. |
+ 
+@@ -67,7 +67,7 @@ ctest --test-dir "$LWSRP_MILAN_BUILD" --output-on-failure
+ SHLAN_LIBRARY="$LWSRP_MILAN_BUILD/libshlan.so" behave
+ ~~~
+ 
+-The enabled build passes 86 tests with 19873 assertions.
++The enabled build passes 87 tests with 19889 assertions.
+ It also passes three scenarios and ten steps.
+ The [profile suite](../tests/unit/milan_test.c) checks both application options in each build.
+ It checks the actual constructor against the build selection.
+diff --git a/tests/check_reversals.py b/tests/check_reversals.py
+index 98d46e9..f68094e 100644
+--- a/tests/check_reversals.py
++++ b/tests/check_reversals.py
+@@ -73,6 +73,9 @@ CASES = [
+      '#include "shish_lan/error.h"\n#include <errno.h>', "freestanding"),
+     ("point-to-point-condition", MAD, "if ((p2p && ev == MRP_EVENT_RJOININ &&",
+      "if ((false && p2p && ev == MRP_EVENT_RJOININ &&", "unit"),
++    ("pending-point-to-point-condition", MAD,
++     "ai->appl == MRP_APPL_STATE_VO || ai->appl == MRP_APPL_STATE_VP",
++     "ai->appl == MRP_APPL_STATE_VO", "unit"),
+     ("shared-in-condition", MAD, "(!p2p && ev == MRP_EVENT_RIN)",
+      "(false && !p2p && ev == MRP_EVENT_RIN)", "unit"),
+     ("withdrawal-transition", MAD,
+@@ -179,6 +182,10 @@ CASES = [
+ ]
+ 
+ REQUIRED_FAILURES = {
++    "point-to-point-condition": ["applicant_receive_conditions_follow_link_mode",
++                                  "pending_applicant_joinin_obeys_note_four"],
++    "pending-point-to-point-condition": ["pending_applicant_joinin_obeys_note_four"],
++    "shared-in-condition": ["applicant_receive_conditions_follow_link_mode"],
+     'flush-snapshot-bypass': ['pending_flush_talker_snapshot_survives_cross_port_updates', 'pending_flush_failed_talker_snapshot_survives_cross_port_updates', 'pending_flush_listener_snapshot_survives_cross_port_updates', 'pending_flush_snapshot_survives_local_declarations_and_repeated_failure'],
+     'flush-snapshot-replaced': ['pending_flush_snapshot_survives_local_declarations_and_repeated_failure'],
+     'flush-snapshot-indication': ['pending_flush_talker_snapshot_survives_cross_port_updates', 'pending_flush_failed_talker_snapshot_survives_cross_port_updates', 'pending_flush_listener_snapshot_survives_cross_port_updates'],
+diff --git a/tests/unit/integration_test.c b/tests/unit/integration_test.c
+index c46add8..71625c6 100644
+--- a/tests/unit/integration_test.c
++++ b/tests/unit/integration_test.c
+@@ -347,6 +347,24 @@ Ensure(Integration, applicant_receive_conditions_follow_link_mode)
+     }
+ }
+ 
++/* Table 10-3 note 4 covers both VO and VP; the link-mode control must
++ * distinguish ignored rJoinIn from the ordinary VP -> AP transition. */
++Ensure(Integration, pending_applicant_joinin_obeys_note_four)
++{
++    struct mvrp_ctx ctx = {0};
++    for (unsigned p2p = 0; p2p < 2; ++p2p) {
++        struct mrp_app *app = mvrp_app_create(1, &ctx);
++        uint8_t rx[] = {0, 1, 2, 0, 1, 0, 2, 36, 0, 0, 0, 0};
++        assert_that(mrp_port_configure(app, 0, 20, 60, 1000, 1, p2p), is_equal_to(0));
++        assert_that(mvrp_declare(app, 0, 2), is_equal_to(0));
++        check_applicant(app, MRP_APPL_STATE_VP);
++        assert_that(mrp_rx(app, 0, rx, sizeof(rx)), is_equal_to(0));
++        check_applicant(app, p2p ? MRP_APPL_STATE_VP : MRP_APPL_STATE_AP);
++        assert_that(mrp_attr_registered_ports(app, 1, rx + 5), is_equal_to(1));
++        mvrp_app_destroy(app);
++    }
++}
++
+ static unsigned leaveall_types;
+ static void received_leaveall(void *ctx, uint8_t type)
+ {
+@@ -403,6 +421,7 @@ TestSuite *integration_suite(void)
+     add_test_with_context(suite, Integration, local_withdrawal_keeps_the_registered_listener_value);
+     add_test_with_context(suite, Integration, applicant_declaration_recovery_and_withdrawal_follow_the_table);
+     add_test_with_context(suite, Integration, applicant_receive_conditions_follow_link_mode);
++    add_test_with_context(suite, Integration, pending_applicant_joinin_obeys_note_four);
+     add_test_with_context(suite, Integration, transmitted_leaveall_includes_every_supported_type);
+     add_test_with_context(suite, Integration, later_versions_skip_unknown_stream_messages);
+     return suite;
+
+RC=0

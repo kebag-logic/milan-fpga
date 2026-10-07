@@ -1,0 +1,42 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.14 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 12ms.
+  "milan_suite": 442 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1234: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [mrp_rx(a, 0, pdu, sizeof(pdu))] to [equal] [0]
+		actual value:			[-12]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1236: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1237: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [state(a, 0).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1241: Failure: boundaries_suite -> applications_without_policy_do_not_reserve_propagation 
+	Expected [leaves] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 17152 passes, 4 failures in 90ms.
+Completed "main": 19897 passes, 4 failures in 134ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.14 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

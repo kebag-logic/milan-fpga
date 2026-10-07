@@ -1,0 +1,27 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/msrp_values_test.c:46: Failure: msrp_values_suite -> domain_callback_preserves_existing_member_order 
+	Expected [__builtin_offsetof (struct msrp_ctx, on_talker_advertise)] to [equal] [0]
+		actual value:			[8]
+		expected value:			[0]
+
+  "msrp_values_suite": 22 passes, 1 failure in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 79ms.
+Completed "main": 19900 passes, 1 failure in 120ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

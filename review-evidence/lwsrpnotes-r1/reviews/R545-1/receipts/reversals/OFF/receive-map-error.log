@@ -1,0 +1,1482 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.14 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 13ms.
+  "milan_suite": 442 passes in 9ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:529: Failure: boundaries_suite -> changed_value_allocation_failure_preserves_retry 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:551: Failure: boundaries_suite -> reservation_failure_is_reported_without_partial_publication 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_allocation_failures_keep_leave_before_join 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:777: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [r] to [equal] [fault > 0 && fault <= 7 ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:786: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, p, (uint8_t)next_type, 1).count] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:789: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:791: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [indication_order[1]] to [equal] [next_type]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:793: Failure: boundaries_suite -> replacement_from_lv_keeps_leave_before_join_at_every_allocation 
+	Expected [typed_state(a, 0, (uint8_t)next_type, 1).reg] to [equal] [MRP_REG_STATE_IN]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1197: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1197: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1197: Failure: boundaries_suite -> reservation_failure_stops_later_receive_messages 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_failed_talker_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1076: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [r] to [equal] [retry ? -SHLAN_ERROR_NO_MEMORY : 0]
+		actual value:			[0]
+		expected value:			[-12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:1084: Failure: boundaries_suite -> pending_flush_listener_receive_failures_preserve_order_and_values 
+	Expected [mrp_rx(a, 0, pdu, len)] to [equal] [-SHLAN_ERROR_NO_MEMORY]
+		actual value:			[0]
+		expected value:			[-12]
+
+  "boundaries_suite": 16852 passes, 292 failures in 91ms.
+Completed "main": 19597 passes, 292 failures in 138ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.14 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

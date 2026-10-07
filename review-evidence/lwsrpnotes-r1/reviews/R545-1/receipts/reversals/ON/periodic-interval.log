@@ -1,0 +1,57 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:125: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:128: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "transmit_suite": 104 passes, 2 failures in 5ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:186: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:188: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:191: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:194: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:196: Failure: integration_suite -> periodic_is_one_second_independent_of_join_time 
+	Expected [mrp_transmit(app, 0, pdu, sizeof(pdu), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 382 passes, 5 failures in 12ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 17156 passes in 81ms.
+Completed "main": 19882 passes, 7 failures in 125ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

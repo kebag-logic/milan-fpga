@@ -1,0 +1,20 @@
+{
+  "independent_verdict": "receipts/independent-verdict.md",
+  "read_order": "Prior findings read only after the independent verdict and five-lens ledger were written.",
+  "on_this_pr": "No prior finding, submitted review, or inline comment was returned. Issue #16 comments were empty. PR #15 conversation contained only the two manager review-start notices.",
+  "related_parent_findings": [
+    {
+      "id": "R532-1-F2 part 3",
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/690#issuecomment-6032564515",
+      "summary": "Disabling Applicant notes 4/5 guards survived the earlier upstream and parent tests.",
+      "disposition": "RESOLVED at ced667d8 for issue #16 scope: two named tests cover all six cells and the three guard reversals fail required names in both profiles."
+    },
+    {
+      "id": "R533-2-F2",
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/690#issuecomment-6035155719",
+      "summary": "The reported upstream note-4/5 tests were not publicly retrievable, preventing independent verification.",
+      "disposition": "RESOLVED at ced667d8: public exact-head PR, unchanged production source and reviewer-executed positive and mutation evidence."
+    }
+  ],
+  "scope_limit": "Other parent findings concern a different repository and are not re-adjudicated here."
+}

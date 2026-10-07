@@ -1,0 +1,47 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 2ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/receive_test.c:118: Failure: receive_suite -> withdrawal_does_not_replace_the_registered_declaration 
+	Expected [stored_decl] to [equal] [2]
+		actual value:			[1]
+		expected value:			[2]
+
+  "receive_suite": 82 passes, 1 failure in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 12ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:60: Failure: milan_suite -> listener_leave_in_is_immediate 
+	Expected [((const uint8_t *)value)[8]] to [equal] [MSRP_LISTENER_DECL_READY]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:60: Failure: milan_suite -> leave_in_lv_keeps_the_original_deadline 
+	Expected [((const uint8_t *)value)[8]] to [equal] [MSRP_LISTENER_DECL_READY]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:60: Failure: milan_suite -> disabled_application_option_preserves_ieee_timing 
+	Expected [((const uint8_t *)value)[8]] to [equal] [MSRP_LISTENER_DECL_READY]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:60: Failure: milan_suite -> msrp_constructor_selects_the_build_profile 
+	Expected [((const uint8_t *)value)[8]] to [equal] [MSRP_LISTENER_DECL_READY]
+		actual value:			[1]
+		expected value:			[2]
+
+  "milan_suite": 438 passes, 4 failures in 10ms.
+  "boundaries_suite": 17156 passes in 80ms.
+Completed "main": 19896 passes, 5 failures in 127ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

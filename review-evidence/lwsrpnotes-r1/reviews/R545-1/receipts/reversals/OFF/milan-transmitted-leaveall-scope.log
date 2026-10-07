@@ -1,0 +1,52 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.14 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 12ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:319: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:169: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:171: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [leaves] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/milan_test.c:102: Failure: milan_suite -> transmitted_leaveall_keeps_the_ieee_deadline 
+	Expected [state] to [equal] [expected]
+		actual value:			[2]
+		expected value:			[1]
+
+  "milan_suite": 436 passes, 6 failures in 11ms.
+  "boundaries_suite": 17156 passes in 88ms.
+Completed "main": 19895 passes, 6 failures in 136ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.14 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

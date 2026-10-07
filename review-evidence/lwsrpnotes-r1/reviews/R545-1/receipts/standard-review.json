@@ -1,0 +1,29 @@
+{
+  "authority": "IEEE Std 802.1Q-2018, clause 10.7.7, Table 10-3, notes 4 and 5",
+  "pdf_sha256": "55268b5f716aee085c3357a4cba398602d9f0cb340fe3d8a70de40fac58ed956",
+  "printed_page": 270,
+  "pdf_page_1based": 271,
+  "scope": "Full participant, both configured operational point-to-point values; separate participant subset selection is outside issue #16.",
+  "oracle": [
+    {
+      "event": "rJoinIn",
+      "initial": "VO",
+      "false": "AO",
+      "true": "VO"
+    },
+    {
+      "event": "rJoinIn",
+      "initial": "VP",
+      "false": "AP",
+      "true": "VP"
+    },
+    {
+      "event": "rIn",
+      "initial": "AA",
+      "false": "AA",
+      "true": "QA"
+    }
+  ],
+  "wire": "One VLAN value 2; event octets 36 = 1*36 + 0*6 + 0 for JoinIn and 72 = 2*36 + 0*6 + 0 for In; padding slots are unused.",
+  "reviewed_at_utc": "2026-10-07T12:45:45.050855+00:00"
+}

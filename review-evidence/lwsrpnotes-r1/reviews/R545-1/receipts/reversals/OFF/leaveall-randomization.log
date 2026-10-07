@@ -1,0 +1,54 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:212: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:222: Failure: integration_suite -> leaveall_draws_are_inside_the_required_interval 
+	Expected [elapsed] to [not equal] [previous]
+		actual value:			[1001]
+
+  "integration_suite": 380 passes, 7 failures in 10ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 83ms.
+Completed "main": 19894 passes, 7 failures in 123ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

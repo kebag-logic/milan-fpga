@@ -1,0 +1,15 @@
+{
+  "command": [
+    "cmake",
+    "-S",
+    "$REVIEWS/r545-1-lwsrpnotes",
+    "-B",
+    "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/build-ON",
+    "-DCMAKE_BUILD_TYPE=Debug",
+    "-DCMAKE_PREFIX_PATH=$REVIEWS/lwsrpnotes-r545-1-packet/scratch/cgreen-prefix",
+    "-DLWSRP_MILAN=ON"
+  ],
+  "cwd": "$REVIEWS/r545-1-lwsrpnotes",
+  "rc": 0,
+  "seconds": 0.302
+}

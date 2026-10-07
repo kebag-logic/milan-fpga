@@ -1,0 +1,297 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/receive_test.c:32: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/receive_test.c:32: Failure: receive_suite -> truncation_respects_complete_vectors_and_pdu_end 
+	Expected [attributes + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+  "receive_suite": 81 passes, 2 failures in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:157: Failure: integration_suite -> a_malformed_later_message_has_no_earlier_indications 
+	Expected [indications] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:158: Failure: integration_suite -> a_malformed_later_message_has_no_earlier_indications 
+	Expected [mrp_attr_visit(app, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "integration_suite": 390 passes, 2 failures in 11ms.
+  "milan_suite": 430 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [before]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [before]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [before]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:95: Failure: boundaries_suite -> application_errors_reject_the_whole_pdu 
+	Expected [joins] to [equal] [2]
+		actual value:			[5]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[7]
+		expected value:			[6]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[10]
+		expected value:			[9]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[5]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [joins] to [equal] [before]
+		actual value:			[13]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> stream_vectors_cannot_wrap_identity_or_destination 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [joins] to [equal] [before]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [joins] to [equal] [before]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> vlan_and_mac_vector_ranges_are_atomic 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[3]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[4]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[5]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[5]
+		expected value:			[4]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:75: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [decoded + leavealls] to [equal] [0]
+		actual value:			[6]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:77: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [joins] to [equal] [before]
+		actual value:			[6]
+		expected value:			[5]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:78: Failure: boundaries_suite -> reserved_leaveall_events_are_rejected_atomically 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+  "boundaries_suite": 17105 passes, 51 failures in 79ms.
+Completed "main": 19839 passes, 55 failures in 120ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

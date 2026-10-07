@@ -1,0 +1,1937 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:50: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [mrp_attr_registered_ports(a,1,&talker)] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:58: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[0]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:66: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [frames] to [equal] [3]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/transmit_test.c:112: Failure: transmit_suite -> refused_pdu_survives_timers_without_aging_unsent_leaveall 
+	Expected [left] to [equal] [1]
+		actual value:			[2]
+		expected value:			[1]
+
+  "transmit_suite": 101 passes, 5 failures in 5ms.
+  "integration_suite": 387 passes in 12ms.
+  "milan_suite": 434 passes in 9ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[200]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[200]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[1]
+		expected value:			[11]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[11]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[200]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[200]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[2]
+		expected value:			[12]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[200]
+		expected value:			[100]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[12]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[100]
+		expected value:			[300]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[1]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[1]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:938: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [fault ? 0 : 1]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:944: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:948: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:957: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [1u + receive]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:958: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[0]] to [equal] [10u + type]
+		actual value:			[3]
+		expected value:			[13]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:959: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[0]] to [equal] [old]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:964: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_order[1]] to [equal] [type]
+		actual value:			[13]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:965: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_values[1]] to [equal] [next]
+		actual value:			[2]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:973: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [2]
+		actual value:			[3]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:981: Failure: boundaries_suite -> pending_flush_snapshot_survives_local_declarations_and_repeated_failure 
+	Expected [indication_count] to [equal] [3]
+		actual value:			[4]
+		expected value:			[3]
+
+  "boundaries_suite": 16778 passes, 378 failures in 84ms.
+Completed "main": 19510 passes, 383 failures in 130ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,27 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.14 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:232: Failure: integration_suite -> local_withdrawal_keeps_the_registered_listener_value 
+	Expected [((const uint8_t *)value)[8]] to [equal] [MSRP_LISTENER_DECL_READY]
+		actual value:			[0]
+		expected value:			[2]
+
+  "integration_suite": 386 passes, 1 failure in 12ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 87ms.
+Completed "main": 19900 passes, 1 failure in 131ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.14 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

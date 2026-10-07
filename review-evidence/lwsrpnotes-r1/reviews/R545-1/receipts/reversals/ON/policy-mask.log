@@ -1,0 +1,262 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 9ms.
+  "milan_suite": 430 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1219: Failure: boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+	Expected [typed_state(a, 0, 1, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1225: Failure: boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+	Expected [typed_state(a, 1, 3, 1).count] to [equal] [0]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1226: Failure: boundaries_suite -> propagation_obeys_talker_and_listener_policy_masks 
+	Expected [typed_state(a, 2, 3, 1).appl] to [equal] [MRP_APPL_STATE_VO]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[1]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[1]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[0]
+		expected value:			[2]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1143: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->reg_from] to [equal] [seen->reg]
+		actual value:			[2]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:1144: Failure: boundaries_suite -> failed_flush_reports_continuous_observer_transitions 
+	Expected [t->appl_from] to [equal] [seen->appl]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 17138 passes, 48 failures in 81ms.
+Completed "main": 19871 passes, 48 failures in 122ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

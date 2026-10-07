@@ -1,0 +1,27 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.15 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+  "integration_suite": 387 passes in 16ms.
+  "milan_suite": 430 passes in 9ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:372: Failure: boundaries_suite -> received_leaveall_restarts_the_participant_deadline 
+	Expected [la] to [equal] [MRP_LA_STATE_PASSIVE]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 17155 passes, 1 failure in 91ms.
+Completed "main": 19888 passes, 1 failure in 142ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.15 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

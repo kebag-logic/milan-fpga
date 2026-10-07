@@ -1,0 +1,27 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/integration_test.c:391: Failure: integration_suite -> transmitted_leaveall_includes_every_supported_type 
+	Expected [leaveall_types] to [equal] [0x1e]
+		actual value:			[14]
+		expected value:			[30]
+
+  "integration_suite": 386 passes, 1 failure in 10ms.
+  "milan_suite": 442 passes in 9ms.
+  "boundaries_suite": 17156 passes in 77ms.
+Completed "main": 19900 passes, 1 failure in 118ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,32 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 1ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/msrp_values_test.c:18: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [domain.class_id] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/msrp_values_test.c:23: Failure: msrp_values_suite -> domain_and_vector_offsets_match_wire_fields 
+	Expected [out[0]] to [equal] [6]
+		actual value:			[5]
+		expected value:			[6]
+
+  "msrp_values_suite": 21 passes, 2 failures in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 17156 passes in 77ms.
+Completed "main": 19887 passes, 2 failures in 118ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

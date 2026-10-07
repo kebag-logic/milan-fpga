@@ -1,0 +1,2176 @@
+[
+  {
+    "label": "configure",
+    "command": [
+      "cmake",
+      "-S",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source",
+      "-B",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=$REVIEWS/lwsrpnotes-r545-1-packet/scratch/cgreen-prefix",
+      "-DLWSRP_MILAN=OFF"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "baseline-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "timer-unlink-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "timer-unlink",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "msrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "msrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mmrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mmrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mvrp-address-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mvrp-address",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "talker-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "talker-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-offset-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-offset",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "wire-prevalidation-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "wire-prevalidation",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pdu-endmark-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pdu-endmark",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "local-registration-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "local-registration",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "periodic-interval-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "periodic-interval",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-randomization-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-randomization",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "refused-storage-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "refused-storage",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-during-refusal-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-during-refusal",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-listener-indication-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-listener-indication",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-opportunity-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-opportunity",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-interest-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-interest",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reclaim-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reclaim",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "split-fairness-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "split-fairness",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "received-withdrawal-value-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "received-withdrawal-value",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "local-withdrawal-value-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "local-withdrawal-value",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "talker-replacement-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "talker-replacement",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-redeclaration-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-redeclaration",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-member-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-member-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "hosted-allocation-header",
+    "command": [
+      "/usr/bin/python3",
+      "tests/check_freestanding.py"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "hosted-error-header",
+    "command": [
+      "/usr/bin/python3",
+      "tests/check_freestanding.py"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pending-point-to-point-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pending-point-to-point-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "shared-in-condition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "shared-in-condition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "withdrawal-transition-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "withdrawal-transition",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "periodic-passive-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "periodic-passive",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-all-types-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-all-types",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "unknown-stream-message-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unknown-stream-message",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "bounded-header-initialization",
+    "command": [
+      "cc",
+      "-O2",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Isrc/include",
+      "-Isrc",
+      "-c",
+      "src/core/mrp_pdu.c",
+      "-o",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/strict.o"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "milan-delayed-in-leave-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-delayed-in-leave",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-restarted-lv-deadline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-restarted-lv-deadline",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-profile-selection-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-profile-selection",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-option-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-option-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "application-decode-error-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "application-decode-error",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "stream-increment-overflow-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "stream-increment-overflow",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-priority-range-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-priority-range",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "domain-class-range-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "domain-class-range",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "vlan-range-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "vlan-range",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "mac-increment-overflow-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "mac-increment-overflow",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "unknown-event-extension-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "unknown-event-extension",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "current-version-extension-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "current-version-extension",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "propagation-retention-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "propagation-retention",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "propagation-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "propagation-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-recovery-indication-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-recovery-indication",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "committed-local-leaveall-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "committed-local-leaveall",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "omitted-leaveall-event-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "omitted-leaveall-event",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reserved-leaveall-event-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reserved-leaveall-event",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "listener-subtype-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "listener-subtype",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leaveall-upper-bound-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leaveall-upper-bound",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reclaim-leaving-observer-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reclaim-leaving-observer",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-redeclare-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-redeclare-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "milan-transmitted-leaveall-scope-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "milan-transmitted-leaveall-scope",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "received-leaveall-restart-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "received-leaveall-restart",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "embedded-switch-source",
+    "command": [
+      "/usr/bin/python3",
+      "tests/check_embedded.py",
+      "--work-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/embedded"
+    ],
+    "rc": 1
+  },
+  {
+    "label": "changed-in-only-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-in-only",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "stream-list-boundary-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "stream-list-boundary",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-value-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-value-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "registrar-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "registrar-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "applicant-rollback-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "applicant-rollback",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "leave-timer-retry-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "leave-timer-retry",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-map-error-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-map-error",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "reservation-atomicity-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "reservation-atomicity",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "poll-replay-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "poll-replay",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "commit-replay-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "commit-replay",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "queue-teardown-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "queue-teardown",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "zero-attribute-length-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "zero-attribute-length",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "changed-value-propagation-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "changed-value-propagation",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "replay-error-retention-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "replay-error-retention",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "callback-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "callback-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-retry-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-retry",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "replacement-order-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "replacement-order",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-stop-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-stop",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "policy-mask-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "policy-mask",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "no-policy-reservation-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "no-policy-reservation",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "pending-flush-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "pending-flush",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-before-refresh-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-before-refresh",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-deadline-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-deadline",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-observer-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-observer",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "replacement-lv-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "replacement-lv",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "replacement-leave-timer-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "replacement-leave-timer",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "receive-instance-stop-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "receive-instance-stop",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-completion-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-completion",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-snapshot-bypass-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-snapshot-bypass",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-snapshot-replaced-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-snapshot-replaced",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-snapshot-indication-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-snapshot-indication",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-snapshot-policy-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-snapshot-policy",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "flush-timer-completion-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "flush-timer-completion",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 8
+  },
+  {
+    "label": "restored-build",
+    "command": [
+      "cmake",
+      "--build",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--parallel",
+      "2"
+    ],
+    "rc": 0
+  },
+  {
+    "label": "restored-check",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build",
+      "--output-on-failure",
+      "--timeout",
+      "10"
+    ],
+    "rc": 0
+  }
+]

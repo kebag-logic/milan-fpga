@@ -1,0 +1,5 @@
+{
+  "url": "https://github.com/kebag-logic/lwSRP/issues/16",
+  "title": "Tests: Applicant link-mode conditions of Table 10-3 notes 4 and 5",
+  "body": "The parent's Mark II F4 reviews (milan-fpga [#690](https://github.com/kebag-logic/milan-fpga/pull/690): R532-1-F2 and R533-2-F2) asked for upstream regressions for [IEEE 802.1Q-2018](https://standards.ieee.org/ieee/802.1Q/6844/) Table 10-3, notes 4 and 5.\n\n## Acceptance\n\n1. A named test covers the VP and VO Applicant cells with both PointToPointMAC values (note 4).\n2. A named test covers AA/rIn! with both values (note 5).\n3. Each test has a reversal that fails it, in both profiles.\n4. Nothing changes in `src/`."
+}

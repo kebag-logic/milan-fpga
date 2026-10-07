@@ -1,0 +1,37 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 12ms.
+  "milan_suite": 442 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:637: Failure: boundaries_suite -> propagation_policy_observes_completed_host_indications 
+	Expected [join_seen] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:638: Failure: boundaries_suite -> propagation_policy_observes_completed_host_indications 
+	Expected [mrp_attr_visit(a, 1, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:642: Failure: boundaries_suite -> propagation_policy_observes_completed_host_indications 
+	Expected [leave_seen] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 17153 passes, 3 failures in 83ms.
+Completed "main": 19898 passes, 3 failures in 127ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

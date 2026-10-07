@@ -1,0 +1,37 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/transmit_test.c:58: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/transmit_test.c:61: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [event_value] to [equal] [expected[k]]
+		actual value:			[0]
+		expected value:			[3]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/transmit_test.c:66: Failure: transmit_suite -> fresh_ladder_and_refusal_are_transactional 
+	Expected [frames] to [equal] [3]
+		actual value:			[2]
+		expected value:			[3]
+
+  "transmit_suite": 103 passes, 3 failures in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 79ms.
+Completed "main": 19898 passes, 3 failures in 121ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

@@ -1,0 +1,42 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 3ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/transmit_test.c:128: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/transmit_test.c:131: Failure: transmit_suite -> receive_redeclare_requests_transmission_without_periodic_wait 
+	Expected [mrp_transmit(a,0,buffer,sizeof(buffer),send_pdu,0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "transmit_suite": 104 passes, 2 failures in 4ms.
+  "integration_suite": 387 passes in 11ms.
+  "milan_suite": 442 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:358: Failure: boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission 
+	Expected [mrp_transmit(a, 0, tx, sizeof(tx), accept, ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-OFF/source/tests/unit/review_test.c:359: Failure: boundaries_suite -> leaving_observer_is_retained_until_its_pending_transmission 
+	Expected [mrp_reclaim(a, 0)] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "boundaries_suite": 17154 passes, 2 failures in 79ms.
+Completed "main": 19897 passes, 4 failures in 119ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

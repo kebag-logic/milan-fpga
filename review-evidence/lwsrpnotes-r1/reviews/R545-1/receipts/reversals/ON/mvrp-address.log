@@ -1,0 +1,27 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.13 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 13ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 5ms.
+  "transmit_suite": 106 passes in 5ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:30: Failure: integration_suite -> every_application_uses_its_standard_destination 
+	Expected [memcmp(apps[n]->ops->group_addr, expected[n], 6)] to [equal] [0]
+		actual value:			[-1]
+		expected value:			[0]
+
+  "integration_suite": 386 passes, 1 failure in 10ms.
+  "milan_suite": 430 passes in 8ms.
+  "boundaries_suite": 17156 passes in 79ms.
+Completed "main": 19888 passes, 1 failure in 123ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.13 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest

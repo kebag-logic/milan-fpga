@@ -1,0 +1,92 @@
+Test project $REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/build
+    Start 1: unit
+1/1 Test #1: unit .............................***Failed    0.12 sec
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 10ms.
+  "timer_suite": 14 passes in 1ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 3ms.
+  "transmit_suite": 106 passes in 4ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:405: Failure: integration_suite -> later_versions_skip_unknown_stream_messages 
+	Expected [mrp_rx(app, 0, pdu, sizeof(pdu))] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/integration_test.c:406: Failure: integration_suite -> later_versions_skip_unknown_stream_messages 
+	Expected [indications] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+  "integration_suite": 380 passes, 2 failures in 11ms.
+  "milan_suite": 430 passes in 8ms.
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:156: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:157: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:158: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:156: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:157: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:158: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:156: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_rx(a, 0, pdus[kind], sizes[kind])] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:157: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:158: Failure: boundaries_suite -> later_versions_skip_unknown_messages_in_every_application 
+	Expected [mrp_attr_visit(a, 0, ((void *)0), ((void *)0))] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:500: Failure: boundaries_suite -> unknown_stream_layout_uses_attribute_list_length 
+	Expected [mrp_rx(a, 0, pdu, sizeof(pdu))] to [equal] [0]
+		actual value:			[-22]
+		expected value:			[0]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:501: Failure: boundaries_suite -> unknown_stream_layout_uses_attribute_list_length 
+	Expected [joins] to [equal] [1]
+		actual value:			[0]
+		expected value:			[1]
+
+$REVIEWS/lwsrpnotes-r545-1-packet/scratch/reversals-ON/source/tests/unit/review_test.c:502: Failure: boundaries_suite -> unknown_stream_layout_uses_attribute_list_length 
+	Expected [indicated_value] to [equal] [2]
+		actual value:			[0]
+		expected value:			[2]
+
+  "boundaries_suite": 17144 passes, 12 failures in 78ms.
+Completed "main": 19870 passes, 14 failures in 118ms.
+
+
+0% tests passed, 1 tests failed out of 1
+
+Total Test time (real) =   0.12 sec
+
+The following tests FAILED:
+	  1 - unit (Failed)
+Errors while running CTest
