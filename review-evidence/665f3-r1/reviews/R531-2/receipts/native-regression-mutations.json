@@ -1,0 +1,65 @@
+[
+  {
+    "name": "acmp-slot-sum-wraps",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpAdapterUnit.B7RefusalsOfTheAdapter",
+    "expected_text": "B7 a first slot of 4294967295 is refused"
+  },
+  {
+    "name": "acmp-one-slot-for-all-interfaces",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpMailbox.B3TheTimersRunOnTheInterfaceSlot",
+    "expected_text": "B3 TMR_NO_RESP is armed on interface 1's ACMP slot"
+  },
+  {
+    "name": "acmp-record-flag-defines-swapped",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A24TheRecordIsTheProcessorsPayloadOneFlagAtATime",
+    "expected_text": "A24 bound and started: flags 0x03"
+  },
+  {
+    "name": "acmp-longer-record-applied",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A24UnboundRecordsRefusalsAndRollback",
+    "expected_text": "A24 a payload of 21 bytes is refused"
+  },
+  {
+    "name": "acmp-nvm-d3-rollback-drops-bindings",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpStore.N7AD3RollBackKeepsTheBindings",
+    "expected_text": "N7 and leaves the applied binding"
+  },
+  {
+    "name": "acmp-due-unsigned",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A28EveryTimerExpiresAtItsDeadlineAcrossTheWrap",
+    "expected_text": "A28 TMR_NO_RESP: nothing at the wrap or 1 ms before its deadline"
+  },
+  {
+    "name": "acmp-earliest-unsigned",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A28TheEarliestDeadlineIsChosenAcrossTheWrap",
+    "expected_text": "A28 the interface timer holds the earlier deadline"
+  },
+  {
+    "name": "acmp-owed-probe-timer-runs",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A27AnOwedProbeStartsItsTimerWhenItLeaves",
+    "expected_text": "A27 a probe with no transmit room: PRB_W_RESP, its TMR_NO_RESP held"
+  },
+  {
+    "name": "acmp-version-unchecked",
+    "rc": 1,
+    "caught": true,
+    "expected_test": "AcmpCore.A26AnotherAvtpVersionIsDiscardedBeforeItIsRead",
+    "expected_text": "A26 a BIND_RX of AVTP version 1"
+  }
+]

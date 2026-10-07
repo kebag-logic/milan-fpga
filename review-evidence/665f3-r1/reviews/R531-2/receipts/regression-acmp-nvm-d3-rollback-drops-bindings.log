@@ -1,0 +1,43 @@
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from AcmpStore
+[ RUN      ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects
+[       OK ] AcmpStore.N1ABindSurvivesAPowerCycleAndFastConnects (2 ms)
+[ RUN      ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord
+[       OK ] AcmpStore.N2AnUnbindIsSavedAsAnUnboundRecord (1 ms)
+[ RUN      ] AcmpStore.N3EachSinksStartedStateIsSaved
+[       OK ] AcmpStore.N3EachSinksStartedStateIsSaved (0 ms)
+[ RUN      ] AcmpStore.N4AnUnreadSlotRefusesPersistence
+[       OK ] AcmpStore.N4AnUnreadSlotRefusesPersistence (1 ms)
+[ RUN      ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault
+[       OK ] AcmpStore.N5ARecordTheCoreRefusesKeepsItsDefault (0 ms)
+[ RUN      ] AcmpStore.N6TheRollBackAndEveryOtherGroup
+[       OK ] AcmpStore.N6TheRollBackAndEveryOtherGroup (0 ms)
+[ RUN      ] AcmpStore.N7AD3RollBackKeepsTheBindings
+$REVIEWS/r531-2-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:258: Failure
+Value of: a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkA && a.sinks[0].state == ACMP_PRB_W_AVAIL && a.sinks[0].disc_running
+  Actual: false
+Expected: true
+N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+
+  [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and leaves the applied binding as the binding walk left it: bound, PRB_W_AVAIL, discovery running
+$REVIEWS/r531-2-665f3/sw/firmware/ctrl/test/test_acmp_nvm.cpp:278: Failure
+Value of: nvm_store_status()->terminal == NVM_T_DEFAULTS && a.sinks[0].bound && a.sinks[0].binding.talker_entity_id == kTkB && a.sinks[0].state == ACMP_PRB_W_AVAIL
+  Actual: false
+Expected: true
+N7 and the saved binding still comes back: the fast connect stands
+
+  [FAIL] AcmpStore.N7AD3RollBackKeepsTheBindings: N7 and the saved binding still comes back: the fast connect stands
+[  FAILED  ] AcmpStore.N7AD3RollBackKeepsTheBindings (0 ms)
+[----------] 7 tests from AcmpStore (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (8 ms total)
+[  PASSED  ] 6 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AcmpStore.N7AD3RollBackKeepsTheBindings
+
+ 1 FAILED TEST
+== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 7 checks, exit 1)
