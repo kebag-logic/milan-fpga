@@ -1,0 +1,68 @@
+[
+  {
+    "width": 32,
+    "floating_point_instances_added": [
+      {
+        "text": "  FpuCore FpuEmbedded_logic_core (",
+        "line": 41470
+      },
+      {
+        "text": "  FpuDiv flt_div_divider (",
+        "line": 82167
+      },
+      {
+        "text": "  FpuSqrt flt_sqrt_sqrt (",
+        "line": 82179
+      }
+    ],
+    "L2_geometry": {
+      "none": {
+        "line": 9890,
+        "words": 16384,
+        "bits_per_word": 64,
+        "bytes": 131072,
+        "parameter_block": "  Ram_1w_1rs #(\n    .wordCount(16384),\n    .wordWidth(64),\n    .clockCrossing(1'b0),\n    .technology(\"auto\"),\n    .readUnderWrite(\"dontCare\"),\n    .wrAddressWidth(14),\n    .wrDataWidth(64),\n    .wrMaskWidth(8),\n    .wrMaskEnable(1'b1),\n    .rdAddressWidth(14),\n    .rdDataWidth(64)\n  "
+      },
+      "l2": {
+        "line": 9890,
+        "words": 1024,
+        "bits_per_word": 64,
+        "bytes": 8192,
+        "parameter_block": "  Ram_1w_1rs #(\n    .wordCount(1024),\n    .wordWidth(64),\n    .clockCrossing(1'b0),\n    .technology(\"auto\"),\n    .readUnderWrite(\"dontCare\"),\n    .wrAddressWidth(10),\n    .wrDataWidth(64),\n    .wrMaskWidth(8),\n    .wrMaskEnable(1'b1),\n    .rdAddressWidth(10),\n    .rdDataWidth(64)\n  "
+      }
+    }
+  },
+  {
+    "width": 64,
+    "floating_point_instances_added": [
+      {
+        "text": "  FpuCore FpuEmbedded_logic_core (",
+        "line": 41778
+      },
+      {
+        "text": "  FpuDiv flt_div_divider (",
+        "line": 83093
+      },
+      {
+        "text": "  FpuSqrt flt_sqrt_sqrt (",
+        "line": 83105
+      }
+    ],
+    "L2_geometry": {
+      "none": {
+        "line": 9945,
+        "words": 16384,
+        "bits_per_word": 64,
+        "bytes": 131072,
+        "parameter_block": "  Ram_1w_1rs #(\n    .wordCount(16384),\n    .wordWidth(64),\n    .clockCrossing(1'b0),\n    .technology(\"auto\"),\n    .readUnderWrite(\"dontCare\"),\n    .wrAddressWidth(14),\n    .wrDataWidth(64),\n    .wrMaskWidth(8),\n    .wrMaskEnable(1'b1),\n    .rdAddressWidth(14),\n    .rdDataWidth(64)\n  "
+      },
+      "l2": {
+        "line": 9945,
+        "words": 1024,
+        "bits_per_word": 64,
+        "bytes": 8192,
+        "parameter_block": "  Ram_1w_1rs #(\n    .wordCount(1024),\n    .wordWidth(64),\n    .clockCrossing(1'b0),\n    .technology(\"auto\"),\n    .readUnderWrite(\"dontCare\"),\n    .wrAddressWidth(10),\n    .wrDataWidth(64),\n    .wrMaskWidth(8),\n    .wrMaskEnable(1'b1),\n    .rdAddressWidth(10),\n    .rdDataWidth(64)\n  "
+      }
+    }
+  }
+]

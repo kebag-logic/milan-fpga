@@ -1,0 +1,27 @@
+{"case": "vexiiriscv-RV32--inf", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV32--0.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV32-1e-12", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV32-8192.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV32-1", "reason": "without a data cache", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV64--inf", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV64--0.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV64-1e-12", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV64-8192.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "vexiiriscv-RV64-1", "reason": "without a data cache", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV32--inf", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV32--0.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV32-1e-12", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV32-8192.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV32--0.0", "reason": "keeps its nonzero default", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV64--inf", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV64--0.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV64-1e-12", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV64-8192.5", "reason": "whole number", "before_cpu_args_fill": true}
+{"case": "naxriscv-RV64--0.0", "reason": "keeps its nonzero default", "before_cpu_args_fill": true}
+{"case": ["--l2-bytes=-inf"], "reason": "whole number", "before_platform": true, "rc": 2}
+{"case": ["--l2-bytes=1e309"], "reason": "whole number", "before_platform": true, "rc": 2}
+{"case": ["--l2-bytes=1e-12"], "reason": "whole number", "before_platform": true, "rc": 2}
+{"case": ["--l2-bytes=bad"], "reason": "invalid float value", "before_platform": true, "rc": 2}
+{"case": ["--with-fpu", "--board=arty"], "reason": "floating-point hardware", "before_platform": true, "rc": 2}
+PASS: probe execution failure propagates; it cannot count as a killed control
+PASS: 25 independent early-boundary cases

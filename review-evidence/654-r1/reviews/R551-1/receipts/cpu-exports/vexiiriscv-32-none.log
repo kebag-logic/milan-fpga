@@ -1,0 +1,406 @@
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=False, with_axi3=False, with_axilite_xlen=False, with_dma=False, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-07 22:42:57)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100t-fgg484-2.
+INFO:SoC:System clock: 50.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:RAM main_ram added Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:S7PLL:Creating S7PLL, speedgrade -2.
+INFO:S7PLL:Registering Differential ClkIn of 200.00MHz.
+INFO:S7PLL:Creating ClkOut0 sys of 50.00MHz (+-0.00ppm).
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 4).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 0.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 1.
+INFO:SoCCSRHandler:timer0 CSR allocated at Location 2.
+INFO:SoCCSRHandler:uart CSR allocated at Location 3.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (6)
+rom                 : Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (4)
+- rom               : r
+- sram              : rw
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (4)
+- ctrl           : 0
+- identifier_mem : 1
+- timer0         : 2
+- uart           : 3
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+VexiiRiscv netlist : VexiiRiscvLitex_8e1b29cb70508ad0ce88c8aefdfe1271
+VexiiRiscv generation command :
+cd $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv && sbt "runMain vexiiriscv.soc.litex.SocGen --netlist-name=VexiiRiscvLitex_8e1b29cb70508ad0ce88c8aefdfe1271 --netlist-directory=$PACKET/scratch/cpu/vexiiriscv  --with-isa=,zicsr,zifencei,i --xlen=32 --reset-vector 0 --memory-region=0,131072,rxc,p --memory-region=268435456,8192,rwxc,p --memory-region=1073741824,32768,rwxc,p --memory-region=4026531840,65536,rw,p --cpu-count=1 --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0"
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+[info] welcome to sbt 1.10.0 (Arch Linux Java 17.0.20.1)
+[info] loading settings for project vexiiriscv-build from plugins.sbt ...
+[info] loading project definition from $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/project
+[info] loading settings for project ret from build.sbt ...
+[info] loading settings for project spinalhdl-build from plugin.sbt ...
+[info] loading project definition from $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/project
+$PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/build.sbt:141: warning: method sonatypeRepo in class ResolverFunctions is deprecated (since 1.7.0): Use sonatypeOssRepos instead e.g. `resolvers ++= Resolver.sonatypeOssRepos("snapshots")`
+    resolvers += Resolver.sonatypeRepo("public"),
+                          ^
+[info] loading settings for project all from build.sbt ...
+[info] set current project to VexiiRiscv (in build file:$PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/)
+[info] compiling 72 Scala sources and 2 Java sources to $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/target/scala-2.12/classes ...
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:3135:25: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]                 case d: SpinalEnumCraft[SpinalEnum] => d.init(d.spinalEnum.elements(0))
+[warn]                         ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/AFix.scala:231:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:387:29: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]   def dirString(): String = dir match {
+[warn]                             ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:578:16: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]           that.dir match {
+[warn]                ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/SInt.scala:391:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/UInt.scala:273:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match{
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/fiber/AsyncThread.scala:81:5: match may not be exhaustive.
+[warn] It would fail on the following input: false
+[warn]     done match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:1629:31: unreachable code
+[warn]           case e: MemReadSync =>
+[warn]                               ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:3021:12: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         io.dir match {
+[warn]            ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/PhaseVerilog.scala:483:23: match may not be exhaustive.
+[warn] It would fail on the following input: Nil
+[warn]         val newName = IFlist match {
+[warn]                       ^
+[warn] four deprecations
+[warn] two deprecations (since 2.12.0)
+[warn] 6 deprecations in total; re-run with -deprecation for details
+[warn] three feature warnings; re-run with -feature for details
+[warn] 14 warnings found
+[info] done compiling
+[info] compiling 563 Scala sources to $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/target/scala-2.12/classes ...
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/CrossClock.scala:144:15: non-variable type argument spinal.core.Data in type pattern spinal.lib.BufferCC[spinal.core.Data] is unchecked since it is eliminated by erasure
+[warn]       case c: BufferCC[Data] => {
+[warn]               ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Utils.scala:671:19: abstract type pattern T is unchecked since it is eliminated by erasure
+[warn]         case bt : T => solveCombDriver(bt)
+[warn]                   ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegInst.scala:94:19: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]           case t: SpinalEnumCraft[SpinalEnum] => t.init(t.spinalEnum.elements(resetValue.toInt))
+[warn]                   ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Utils.scala:661:32: unreachable code
+[warn]     case e: MemReadSync => body(e)
+[warn]                                ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:24:55: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     override def transformers = MappedConnection.this.userMapping match {
+[warn]                                                       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:34:29: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]       MappedConnection.this.userMapping match {
+[warn]                             ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:48:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:57:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegBase.scala:325:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegBase.scala:356:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegInst.scala:320:21: match may not be exhaustive.
+[warn] It would fail on the following inputs: W1CHS, W1I, W1SHS
+[warn]     val ret: Bits = acc match {
+[warn]                     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/Block/RegSlice.scala:35:13: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: spinal.lib.bus.regif.Secure forSome x not in (spinal.lib.bus.regif.Secure.CS, spinal.lib.bus.regif.Secure.MS)))
+[warn]       Option(sec) match {
+[warn]             ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:223:25: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]         inflightC.remove(d.source -> d.address) match {
+[warn]                         ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:239:21: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]     inflightD.remove(e.sink) match {
+[warn]                     ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/dsptool/FixData.scala:30:26: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]       val rounded = this.roundType match {
+[warn]                          ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/eda/TimingExtractor.scala:143:49: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]     case bt : BaseType if bt.isComb => bt.getTag(classOf[ClockDomainTag]) match {
+[warn]                                                 ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:22:7: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]     e.getDirection match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:36:13: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         key.getDirection match {
+[warn]             ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/pipeline/Pipeline.scala:171:22: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in Pipeline.this.ConnectionModel))
+[warn]       stageDriver.get(stage) match {
+[warn]                      ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:112:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.writes(self).absolutePriority, p.writes(other).absolutePriority) match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:198:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.reads(self).absolutePriority, p.reads(other).absolutePriority) match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/com/usb/ohci/UsbOhciTilelinkFiber.scala:46:17: comparing values of types spinal.core.ClockDomain and spinal.core.fiber.Handle[spinal.core.ClockDomain] using `==` will always yield false
+[warn]       if(ctrlCd == phyCd) {
+[warn]                 ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/generator/ClockDomainGenerator.scala:272:5: multiline expressions might require enclosing parentheses; a value can be silently discarded when Unit is expected
+[warn]     generator
+[warn]     ^
+[warn] 23 deprecations
+[warn] two deprecations (since 2.12.0)
+[warn] one deprecation (since 2022-12-31)
+[warn] one deprecation (since 2026.12.30)
+[warn] 27 deprecations in total; re-run with -deprecation for details
+[warn] 6 feature warnings; re-run with -feature for details
+[warn] 29 warnings found
+[info] done compiling
+[info] compiling 139 Scala sources and 1 Java source to $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/target/scala-2.12/classes ...
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:53:40: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(ctrl: InterruptCtrlFiber) = priv match {
+[warn]                                        ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:63:47: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(clint: TilelinkClintFiber): Unit = priv match {
+[warn]                                               ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:78:41: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(aplic: TilelinkAPlicFiber) = priv match {
+[warn]                                         ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/TilelinkVexiiRiscvFiber.scala:89:57: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]   def bind(msi: TilelinkImsicTriggerFiber, mode: Int) = priv match {
+[warn]                                                         ^
+[warn] $PACKET/scratch/cpu/vexiiriscv/ext/VexiiRiscv/src/main/scala/vexiiriscv/fetch/FetchCachelessBridge.scala:105:3: a pure expression does nothing in statement position; multiline expressions may require enclosing parentheses
+[warn]   bus
+[warn]   ^
+[warn] 8 feature warnings; re-run with -feature for details
+[warn] 6 warnings found
+[info] done compiling
+[info] running (fork) vexiiriscv.soc.litex.SocGen --netlist-name=VexiiRiscvLitex_8e1b29cb70508ad0ce88c8aefdfe1271 --netlist-directory=$PACKET/scratch/cpu/vexiiriscv --with-isa=,zicsr,zifencei,i --xlen=32 --reset-vector 0 --memory-region=0,131072,rxc,p --memory-region=268435456,8192,rwxc,p --memory-region=1073741824,32768,rwxc,p --memory-region=4026531840,65536,rw,p --cpu-count=1 --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0
+[error] Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+[info] [Runtime] SpinalHDL dev    git head : 1097c1df52f6b4ac532e42ff35a9c610f8e9a07c
+[info] [Runtime] JVM max memory : 2048.0MiB
+[info] [Runtime] Current date : 2026.10.07 22:44:24
+[info] [Progress] at 0.000 : Elaborate components
+[info] PBUS => 
+[info] MappedTransfers(toplevel/peripheral_clint_node mapped=[0xf0010000 .. 0xf001ffff] through=List(OT(0xf0010000)) ,GF)
+[info] MappedTransfers(toplevel/peripheral_plic_intc_node mapped=[0xf0c00000 .. 0xf0ffffff] through=List(OT(0xf0c00000)) ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x0 .. 0x1ffff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x10000000 .. 0x10001fff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x40000000 .. 0x40007fff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0xf0000000 .. 0xf000ffff] through=List() ,GF)
+[info] IBUS => 
+[info] MappedTransfers(toplevel/peripheral_clint_node mapped=[0xf0010000 .. 0xf001ffff] through=List(OT(0xf0010000)) ,G)
+[info] MappedTransfers(toplevel/peripheral_plic_intc_node mapped=[0xf0c00000 .. 0xf0ffffff] through=List(OT(0xf0c00000)) ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x0 .. 0x1ffff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x10000000 .. 0x10001fff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x40000000 .. 0x40007fff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0xf0000000 .. 0xf000ffff] through=List() ,G)
+[info] [Progress] at 1.680 : Checks and transforms
+[info] [Progress] at 2.257 : Generate Verilog to $PACKET/scratch/cpu/vexiiriscv
+[info] [Warning] 931 signals were pruned. You can call printPruned on the backend report to get more informations.
+[info] [Done] at 2.507
+[success] Total time: 80 s (01:20), completed Oct 7, 2026, 10:44:26 PM
+INFO:S7PLL:Config:
+divclk_divide : 4
+clkout0_freq  : 50.00MHz
+clkout0_divide: 37
+clkout0_phase : 0.00°
+vco           : 1850.00MHz
+clkfbout_mult : 37
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+MilanSoC
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    └── [BB:VexiiRiscvLitex_8e1b29cb70508ad0ce88c8aefdfe1271]
+├── rom (SRAM)
+├── sram (SRAM)
+├── main_ram (SRAM)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHY)
+│    │    ├── tx (RS232PHYTX)
+│    │    │    ├── clk_phase_accum (RS232ClkPhaseAccum)
+│    │    │    └── fsm (FSM)
+│    │    └── rx (RS232PHYRX)
+│    │         ├── clk_phase_accum (RS232ClkPhaseAccum)
+│    │         └── fsm (FSM)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── crg (_CRG)
+│    └── pll (S7PLL)
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:PLLE2_ADV]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:BUFG]
+│         └── [BB:FDCE]
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_2 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------

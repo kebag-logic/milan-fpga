@@ -1,0 +1,452 @@
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-07 22:45:18)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100t-fgg484-2.
+INFO:SoC:System clock: 50.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU naxriscv added.
+INFO:SoC:CPU naxriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU naxriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU naxriscv setting reset address to 0x00000000.
+INFO:SoC:CPU naxriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU naxriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU naxriscv adding SoC components.
+INFO:SoCCSRHandler:uart CSR added at Location 2.
+INFO:SoCCSRHandler:timer0 CSR added at Location 3.
+INFO:SoCBusHandler:opensbi Region added at Origin: 0x40f00000, Size: 0x00080000, Mode:  RW, Cached:  True, Linker:  True.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoC:RAM rom added Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+INFO:SoC:RAM sram added Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:RAM main_ram added Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:S7PLL:Creating S7PLL, speedgrade -2.
+INFO:S7PLL:Registering Differential ClkIn of 200.00MHz.
+INFO:S7PLL:Creating ClkOut0 sys of 50.00MHz (+-0.00ppm).
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 4).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 0.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 1.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (7)
+rom                 : Origin: 0x00000000, Size: 0x00020000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00002000, Mode: RWX, Cached:  True, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x00008000, Mode: RWX, Cached:  True, Linker: False
+opensbi             : Origin: 0x40f00000, Size: 0x00080000, Mode:  RW, Cached:  True, Linker:  True
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (4)
+- rom               : r
+- sram              : rw
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (4)
+- ctrl           : 0
+- identifier_mem : 1
+- uart           : 2
+- timer0         : 3
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+NaxRiscv netlist : NaxRiscvLitex_d9c7e1a162a284400d71f1ea11f6eb29
+NaxRiscv generation command :
+cd $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv && sbt "runMain naxriscv.platform.litex.NaxGen --netlist-name=NaxRiscvLitex_d9c7e1a162a284400d71f1ea11f6eb29 --netlist-directory=$PACKET/scratch/cpu/naxriscv --reset-vector=0 --xlen=32 --cpu-count=1 --l2-bytes=131072 --l2-ways=8 --litedram-width=32 --memory-region=2147483648,2147483648,io,p --memory-region=0,131072,rxc,p --memory-region=268435456,8192,rwxc,p --memory-region=1073741824,32768,rwxc,p --memory-region=4026531840,65536,rw,p --scala-file=$PACKET/scratch/cpu/naxriscv/configs/gen.scala"
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+[info] welcome to sbt 1.6.0 (Arch Linux Java 17.0.20.1)
+[info] loading settings for project naxriscv-build from plugins.sbt ...
+[info] loading project definition from $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/project
+[info] loading settings for project root from build.sbt ...
+[info] loading settings for project spinalhdl-build from plugin.sbt ...
+[info] loading project definition from $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/project
+[info] loading settings for project all from build.sbt ...
+[info] set current project to NaxRiscv (in build file:$PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/)
+[info] compiling 68 Scala sources and 1 Java source to $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/target/scala-2.12/classes ...
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:2612:25: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]                 case d: SpinalEnumCraft[SpinalEnum] => d.init(d.spinalEnum.elements(0))
+[warn]                         ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/AFix.scala:232:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:367:29: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]   def dirString(): String = dir match {
+[warn]                             ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/Data.scala:541:16: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, outWithNull
+[warn]           that.dir match {
+[warn]                ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/SInt.scala:390:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match{
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/UInt.scala:269:5: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]     roundType match{
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/fiber/AsyncThread.scala:81:5: match may not be exhaustive.
+[warn] It would fail on the following input: false
+[warn]     done match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/core/src/main/scala/spinal/core/internals/Phase.scala:2498:12: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         io.dir match {
+[warn]            ^
+[warn] 6 deprecations
+[warn] two deprecations (since 2.11.0)
+[warn] two deprecations (since 2.12.0)
+[warn] 10 deprecations in total; re-run with -deprecation for details
+[warn] two feature warnings; re-run with -feature for details
+[warn] 13 warnings found
+[info] done compiling
+[info] compiling 463 Scala sources to $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/target/scala-2.12/classes ...
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Stream.scala:764:14: abstract type T in type pattern spinal.lib.StreamArbiter[T] is unchecked since it is eliminated by erasure
+[warn]     case c : StreamArbiter[T] => new Area {
+[warn]              ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/RegInst.scala:147:19: non-variable type argument spinal.core.SpinalEnum in type pattern spinal.core.SpinalEnumCraft[spinal.core.SpinalEnum] is unchecked since it is eliminated by erasure
+[warn]           case t: SpinalEnumCraft[SpinalEnum] => t.init(t.spinalEnum.elements(resetValue.toInt))
+[warn]                   ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/fabric/Axi4Bridge.scala:8:33: imported `Axi4Bridge` is permanently hidden by definition of class Axi4Bridge in package fabric
+[warn] import spinal.lib.bus.tilelink.{Axi4Bridge, S2mSupport}
+[warn]                                 ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Stream.scala:155:5: match may not be exhaustive.
+[warn] It would fail on the following inputs: (false, true, true), (true, false, true), (true, true, true)
+[warn]     (m2s, s2m, halfRate) match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/Utils.scala:784:29: unreachable code
+[warn]         case e: MemReadSync =>
+[warn]                             ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:25:55: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     override def transformers = MappedConnection.this.userMapping match {
+[warn]                                                       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:35:29: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]       MappedConnection.this.userMapping match {
+[warn]                             ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:49:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/fabric/MappedConnection.scala:58:5: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in (BigInt, DefaultMapping, spinal.lib.bus.misc.AddressMapping)))
+[warn]     userMapping match {
+[warn]     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/RegInst.scala:740:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/regif/RegInst.scala:759:7: Exhaustivity analysis reached max recursion depth, not all missing cases are reported.
+[warn] (Please try with scalac -Ypatmat-exhaust-depth 40 or -Ypatmat-exhaust-depth off.)
+[warn]       accType match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:222:25: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]         inflightC.remove(d.source -> d.address) match {
+[warn]                         ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/tilelink/sim/Checker.scala:238:21: match may not be exhaustive.
+[warn] It would fail on the following input: None
+[warn]     inflightD.remove(e.sink) match {
+[warn]                     ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/dsptool/FixData.scala:30:26: match may not be exhaustive.
+[warn] It would fail on the following input: SCRAP
+[warn]       val rounded = this.roundType match {
+[warn]                          ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:22:7: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]     e.getDirection match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/io/InOutVecToBits.scala:36:13: match may not be exhaustive.
+[warn] It would fail on the following inputs: inWithNull, inout, outWithNull
+[warn]         key.getDirection match {
+[warn]             ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/pipeline/Pipeline.scala:167:22: match may not be exhaustive.
+[warn] It would fail on the following input: Some((x: Any forSome x not in Pipeline.this.ConnectionModel))
+[warn]       stageDriver.get(stage) match {
+[warn]                      ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:112:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.writes(self).absolutePriority, p.writes(other).absolutePriority) match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/system/dma/sg/MemoryCore.scala:198:7: match may not be exhaustive.
+[warn] It would fail on the following input: (true, true)
+[warn]       (p.reads(self).absolutePriority, p.reads(other).absolutePriority) match {
+[warn]       ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/bus/bmb/sim/BmbMemoryTester.scala:41:108: a pure expression does nothing in statement position
+[warn]       override def regionFree(region: SizeMapping): Unit = if(checkAvailability) regions.free(region) else true
+[warn]                                                                                                            ^
+[warn] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/ext/SpinalHDL/lib/src/main/scala/spinal/lib/generator/ClockDomainGenerator.scala:272:5: multiline expressions might require enclosing parentheses; a value can be silently discarded when Unit is expected
+[warn]     generator
+[warn]     ^
+[warn] 40 deprecations
+[warn] 34 deprecations (since 2.11.0)
+[warn] two deprecations (since 2.12.0)
+[warn] two deprecations (since 2022-12-31)
+[warn] 78 deprecations in total; re-run with -deprecation for details
+[warn] 6 feature warnings; re-run with -feature for details
+[warn] 27 warnings found
+[info] done compiling
+[info] compiling 127 Scala sources and 3 Java sources to $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/target/scala-2.12/classes ...
+[info] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/src/main/scala/naxriscv/sandbox/doc/Pres.scala:1:1: 
+[info] Found names but no class, trait or object is defined in the compilation unit.
+[info] The incremental compiler cannot record the dependency information in such case.
+[info] Some errors like unused import referring to a non-existent class might not be reported.
+[info]     
+[info] // SPDX-FileCopyrightText: 2023 "Everybody"
+[info] ^
+[info] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/src/main/scala/naxriscv/sandbox/syntax/Spec.scala:1:1: 
+[info] Found names but no class, trait or object is defined in the compilation unit.
+[info] The incremental compiler cannot record the dependency information in such case.
+[info] Some errors like unused import referring to a non-existent class might not be reported.
+[info]     
+[info] // SPDX-FileCopyrightText: 2023 "Everybody"
+[info] ^
+[info] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/src/main/scala/naxriscv/sandbox/doc/Pres.scala:1:1: 
+[info] Found top level imports but no class, trait or object is defined in the compilation unit.
+[info] The incremental compiler cannot record the dependency information in such case.
+[info] Some errors like unused import referring to a non-existent class might not be reported.
+[info]     
+[info] // SPDX-FileCopyrightText: 2023 "Everybody"
+[info] ^
+[info] $PACKET/scratch/cpu/naxriscv/ext/NaxRiscv/src/main/scala/naxriscv/sandbox/syntax/Spec.scala:1:1: 
+[info] Found top level imports but no class, trait or object is defined in the compilation unit.
+[info] The incremental compiler cannot record the dependency information in such case.
+[info] Some errors like unused import referring to a non-existent class might not be reported.
+[info]     
+[info] // SPDX-FileCopyrightText: 2023 "Everybody"
+[info] ^
+[warn] 7 deprecations; re-run with -deprecation for details
+[warn] four feature warnings; re-run with -feature for details
+[warn] two warnings found
+[info] done compiling
+[info] running (fork) naxriscv.platform.litex.NaxGen --netlist-name=NaxRiscvLitex_d9c7e1a162a284400d71f1ea11f6eb29 --netlist-directory=$PACKET/scratch/cpu/naxriscv --reset-vector=0 --xlen=32 --cpu-count=1 --l2-bytes=131072 --l2-ways=8 --litedram-width=32 --memory-region=2147483648,2147483648,io,p --memory-region=0,131072,rxc,p --memory-region=268435456,8192,rwxc,p --memory-region=1073741824,32768,rwxc,p --memory-region=4026531840,65536,rw,p --scala-file=$PACKET/scratch/cpu/naxriscv/configs/gen.scala
+[error] Picked up JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=4 -Xmx2g
+[info] [Runtime] SpinalHDL dev    git head : c362657003fa178350d6955055867e9ab363c44a
+[info] [Runtime] JVM max memory : 2048.0MiB
+[info] [Runtime] Current date : 2026.10.07 22:46:45
+[info] [Progress] at 0.000 : Elaborate components
+[info] memoryRegions: Seq[naxriscv.platform.litex.LitexMemoryRegion] = ArrayBuffer(LitexMemoryRegion(SM(0x80000000, 0x80000000),io,p), LitexMemoryRegion(SM(0x0, 0x20000),rxc,p), LitexMemoryRegion(SM(0x10000000, 0x2000),rwxc,p), LitexMemoryRegion(SM(0x40000000, 0x8000),rwxc,p), LitexMemoryRegion(SM(0xf0000000, 0x10000),rw,p))
+[info] import scala.collection.mutable.ArrayBuffer
+[info] import naxriscv.utilities.Plugin
+[info] import naxriscv.platform.litex.LitexMemoryRegion
+[info] import spinal.lib.bus.misc.SizeMapping
+[info] plugins: scala.collection.mutable.ArrayBuffer[naxriscv.utilities.Plugin] = ArrayBuffer(DocPlugin, MmuPlugin, FetchPlugin, PcPlugin, FetchCachePlugin, AlignerPlugin, FrontendPlugin, DecompressorPlugin, DecoderPlugin, integer_RfTranslationPlugin, RfDependencyPlugin, integer_RfAllocationPlugin, DispatchPlugin, BranchContextPlugin, HistoryPlugin, DecoderPredictionPlugin, BtbPlugin, GSharePlugin, Lsu2Plugin, DataCachePlugin, RobPlugin, CommitPlugin, integer_RegFilePlugin, CommitDebugFilterPlugin, CsrRamPlugin, PrivilegedPlugin, PerformanceCounterPlugin, ALU0_ExecutionUnitBase, ALU0_IntFormatPlugin, ALU0_SrcPlugin, ALU0_IntAluPlug...
+[info] scala.None$.get(Option.scala:529)
+[info] scala.None$.get(Option.scala:527)
+[info] naxriscv.platform.litex.ScalaInterpreter$.evaluate(NaxGen.scala:155)
+[info] naxriscv.platform.litex.NaxGen$.plugins$1(NaxGen.scala:125)
+[info] naxriscv.platform.litex.NaxGen$.$anonfun$new$23(NaxGen.scala:129)
+[info] naxriscv.platform.litex.NaxGen$.$anonfun$new$23$adapted(NaxGen.scala:128)
+[info] scala.collection.generic.GenTraversableFactory.tabulate(GenTraversableFactory.scala:150)
+[info] naxriscv.platform.litex.NaxGen$.$anonfun$new$21(NaxGen.scala:128)
+[info] spinal.core.internals.PhaseCreateComponent.$anonfun$impl$275(Phase.scala:2559)
+[info] spinal.core.fiber.Engine$.$anonfun$create$1(AsyncCtrl.scala:173)
+[info] spinal.core.fiber.AsyncThread.$anonfun$jvmThread$1(AsyncThread.scala:60)
+[info] spinal.core.fiber.EngineContext.$anonfun$newJvmThread$1(AsyncCtrl.scala:39)
+[info] spinal.sim.JvmThread.run(SimManager.scala:51)
+[info] **********************************************************************************************
+[info] [Warning] Elaboration failed (0 error).
+[info]           Spinal will restart with scala trace to help you to find the problem.
+[info] **********************************************************************************************
+[info] [Progress] at 3.501 : Elaborate components
+[info] memoryRegions: Seq[naxriscv.platform.litex.LitexMemoryRegion] = ArrayBuffer(LitexMemoryRegion(SM(0x80000000, 0x80000000),io,p), LitexMemoryRegion(SM(0x0, 0x20000),rxc,p), LitexMemoryRegion(SM(0x10000000, 0x2000),rwxc,p), LitexMemoryRegion(SM(0x40000000, 0x8000),rwxc,p), LitexMemoryRegion(SM(0xf0000000, 0x10000),rw,p))
+[info] import scala.collection.mutable.ArrayBuffer
+[info] import naxriscv.utilities.Plugin
+[info] import naxriscv.platform.litex.LitexMemoryRegion
+[info] import spinal.lib.bus.misc.SizeMapping
+[info] plugins: scala.collection.mutable.ArrayBuffer[naxriscv.utilities.Plugin] = ArrayBuffer(DocPlugin, MmuPlugin, FetchPlugin, PcPlugin, FetchCachePlugin, AlignerPlugin, FrontendPlugin, DecompressorPlugin, DecoderPlugin, integer_RfTranslationPlugin, RfDependencyPlugin, integer_RfAllocationPlugin, DispatchPlugin, BranchContextPlugin, HistoryPlugin, DecoderPredictionPlugin, BtbPlugin, GSharePlugin, Lsu2Plugin, DataCachePlugin, RobPlugin, CommitPlugin, integer_RegFilePlugin, CommitDebugFilterPlugin, CsrRamPlugin, PrivilegedPlugin, PerformanceCounterPlugin, ALU0_ExecutionUnitBase, ALU0_IntFormatPlugin, ALU0_SrcPlugin, ALU0_IntAluPlug...
+[info] [Progress] at 6.482 : Checks and transforms
+[info] [Progress] at 7.895 : Generate Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/DecoderPredictionPlugin_logic_ras_mem_stack : Mem[16*32 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_0 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_0 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_0 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_0 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_0 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_1 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_1 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_1 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_1 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_1 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_2 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_2 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_2 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_2 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_2 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_3 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_3 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_3 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_3 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_3 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_4 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_4 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_4 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_4 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_4 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_5 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_5 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_5 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_5 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_5 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_6 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_6 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_6 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_6 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] toplevel/naxes_0_thread_core/RobPlugin_logic_completionMem_hits_6 : Mem[64*1 bits].readAsync can only be write first into Verilog
+[info] [Warning] 1139 signals were pruned. You can call printPruned on the backend report to get more informations.
+[info] [Done] at 8.502
+[success] Total time: 88 s (01:28), completed Oct 7, 2026, 10:46:53 PM
+INFO:S7PLL:Config:
+divclk_divide : 4
+clkout0_freq  : 50.00MHz
+clkout0_divide: 37
+clkout0_phase : 0.00°
+vco           : 1850.00MHz
+clkfbout_mult : 37
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+MilanSoC
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (NaxRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    └── [BB:NaxRiscvLitex_d9c7e1a162a284400d71f1ea11f6eb29]
+├── rom (SRAM)
+├── sram (SRAM)
+├── main_ram (SRAM)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHY)
+│    │    ├── tx (RS232PHYTX)
+│    │    │    ├── clk_phase_accum (RS232ClkPhaseAccum)
+│    │    │    └── fsm (FSM)
+│    │    └── rx (RS232PHYRX)
+│    │         ├── clk_phase_accum (RS232ClkPhaseAccum)
+│    │         └── fsm (FSM)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── crg (_CRG)
+│    └── pll (S7PLL)
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:PLLE2_ADV]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:FDCE]
+│         ├── [BB:BUFG]
+│         └── [BB:FDCE]
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_2 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
