@@ -1,0 +1,15 @@
+# count statements in tracked Markdown at f680e3c8
+README.md:45:The default unit target runs 87 tests with 19901 assertions.
+doc/manager.md:56:Its default [unit runner](../tests/unit/main.c) passes 87 tests with 19901 assertions.
+doc/manager.md:57:The enabled [Milan build](tester.md#test-both-registrar-profiles) passes 87 tests with 19889 assertions.
+doc/tester.md:29:| Default unit target | Exit 0; 87 tests and 19901 assertions. | The [runner](../tests/unit/main.c) executes eight suites. |
+doc/tester.md:70:The enabled build passes 87 tests with 19889 assertions.
+doc/tester.md:101:The observed result is exit 0, with nine tests and 1690 passing assertions.
+doc/tester.md:179:python3 tests/check_embedded.py --work-dir "$EMBEDDED_SCRATCH"
+doc/tester.md:180:python3 tests/check_freestanding.py
+doc/tester.md:181:CC="cc -DLWSRP_MILAN=1" python3 tests/check_freestanding.py
+doc/tester.md:182:python3 tests/check_reversals.py --work-dir "$REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX"
+doc/tester.md:183:python3 tests/check_reversals.py --work-dir "$MILAN_REVERSAL_SCRATCH" --prefix "$CGREEN_PREFIX" --milan ON
+doc/tester.md:193:Both profiles run all 94 reversals.
+# stale figures (expect none)
+rc=1 (1 = none found)

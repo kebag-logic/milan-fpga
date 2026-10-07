@@ -1,0 +1,44 @@
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.3s)
+-- Generating done (0.0s)
+-- Build files have been written to: $PACKET/scratch/count-ced/b-OFF
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 13%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 18%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 22%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 27%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 31%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 36%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 40%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 45%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 50%] Linking C shared library libshlan.so
+[ 50%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 59%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 68%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 72%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 77%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 81%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 86%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 90%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 11ms.
+  "timer_suite": 14 passes in 2ms.
+  "msrp_values_suite": 23 passes in 1ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 4ms.
+  "integration_suite": 387 passes in 10ms.
+  "milan_suite": 442 passes in 8ms.
+  "boundaries_suite": 17156 passes in 80ms.
+Completed "main": 19901 passes in 121ms.
+COUNTED TESTS: 87

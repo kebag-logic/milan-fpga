@@ -1,0 +1,15 @@
+Running "main" (87 tests)...
+  "mrp_pdu_suite": 1690 passes in 12ms.
+  "timer_suite": 14 passes in 3ms.
+  "msrp_values_suite": 23 passes in 2ms.
+  "receive_suite": 83 passes in 4ms.
+  "transmit_suite": 106 passes in 5ms.
+$PACKET/scratch/probes/note5-ignores-link-mode-OFF/src/tests/unit/integration_test.c:284: Failure: integration_suite -> applicant_receive_conditions_follow_link_mode 
+	Expected [state.appl[1]] to [equal] [expected]
+		actual value:			[4]
+		expected value:			[5]
+
+  "integration_suite": 386 passes, 1 failure in 12ms.
+  "milan_suite": 442 passes in 9ms.
+  "boundaries_suite": 17156 passes in 94ms.
+Completed "main": 19900 passes, 1 failure in 141ms.

@@ -1,0 +1,12 @@
+# Conformance oracle (paraphrased; the standard is not reproduced)
+Authority: IEEE 802.1Q-2018, clause 10.7.7, Table 10-3 (Applicant state table), printed page 270.
+Local copy sha256: 55268b5f716aee085c3357a4cba398602d9f0cb340fe3d8a70de40fac58ed956
+
+| Cell | Table result | Note condition | Encoding at f680e3c8 | Test |
+| VO, rJoinIn! | AO, note 4 | no transition on a point-to-point link | src/core/mrp_mad.c:508-509 guard | applicant_receive_conditions_follow_link_mode (integration_test.c:327-335) |
+| VP, rJoinIn! | AP, note 4 | no transition on a point-to-point link | src/core/mrp_mad.c:508-509 guard | pending_applicant_joinin_obeys_note_four (integration_test.c:350-366) |
+| AA, rIn! | QA, note 5 | no transition when operPointToPointMAC is FALSE | src/core/mrp_mad.c:510 guard | applicant_receive_conditions_follow_link_mode (integration_test.c:337-345) |
+| AA, rJoinIn! | QA, no note | unconditional | table row src/core/mrp_mad.c:206-212 | none in either link mode (carried suggestion S1) |
+
+Test vectors: MVRP attribute type 1, length 2, one value (VID 2); packed event byte 36 = JoinIn, 72 = In.
+The PointToPointMAC argument is the last parameter of mrp_port_configure; the loops run 0 and 1.
