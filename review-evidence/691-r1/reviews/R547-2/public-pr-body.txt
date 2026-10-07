@@ -1,0 +1,200 @@
+https://github.com/kebag-logic/milan-fpga/pull/693
+[A564]
+
+## Contents
+
+- [Status](#status)
+- [Linked Issue / roles](#linked-issue--roles)
+- [Description](#description)
+- [Authoritative references](#authoritative-references)
+- [How to get into the same state](#how-to-get-into-the-same-state)
+- [How to validate](#how-to-validate)
+- [Known limitations / out of scope](#known-limitations--out-of-scope)
+- [Definition of Done](#definition-of-done)
+- [Round 2](#round-2)
+
+## Status
+
+REVIEW READY, Round 2, at `ba080007a402dced74fa74656338710e0b6cb880`. `691-rx-iob` -> `dev`.
+This prepared body responds to R546-1 under assignment 6046111178.
+The capture implementation is unchanged.
+Ruling 6045752839 accepts timing by the kept best-WNS build on each tree.
+Both kept builds meet the setup and hold floors.
+
+## Linked Issue / roles
+
+Closes #691
+Relates to #645 and #475.
+
+Executor: `[A564]`
+Internal cleared-context reviewer: `[R546]`
+External reviewer: `[R547]`
+
+## Description
+
+The synthesis control-set heuristic could move the GMII receive reset into a LUT before capture D. That prevented IOB packing after unrelated logic changes. The new dependency patch samples data and valid without reset, samples reset alongside them, and masks the captured outputs with that sampled reset. This retains the original cycle latency, synchronous reset and last-byte behavior while removing the input-flop reset that the heuristic could remap.
+
+| Changed area | Result |
+|---|---|
+| PHY patch and maintained patch series | Direct pad-to-capture D paths; reset acts after capture |
+| Capture simulation and runner inventory | Exhaustive byte/reset/valid cases plus frame boundaries and active-frame reset |
+| Placement fixtures and checker self-test | Preserved reset-before-D defect is rejected before routing |
+| Build and patch documentation | Mechanism, unchanged contracts and validation entry points recorded |
+
+Production capture uses no preservation attribute. The negative fixture preserves its inserted LUTs so synthesis cannot repair the deliberately planted defect. Default selection and register map are unchanged; the shipping image changes only in the GMII RX capture structure, and nothing was deployed.
+
+## Authoritative references
+
+- #691 acceptance criteria, assignment comment 6041364533 and continuation ruling 6042557053.
+- #645 round-2d STOP comment 6041331463.
+- #475 and `sw/litex/iob_pack_check.tcl`.
+- `REQUIREMENTS.md`, Ethernet and verification requirements.
+- `CONTRIBUTING.md`, section 3.
+- `docs/integration/BUILDING.md`, IOB packing contract and section 5 timing margin; `docs/testing/RUNNING_TESTS.md`, AX7101 WNS >= +0.030 ns and WHS >= 0 per corner.
+
+## How to get into the same state
+
+Use the pinned environment documented in `docs/integration/BUILDING.md`.
+Set `REPO` to the checkout, `SCRATCH` outside it, and `MILAN_LITEX_PYTHON` to that interpreter.
+Set `RTL_SIM` to the pinned simulator with compilation bounded to eight jobs.
+Set `VIVADO_LOCK` to the shared exclusive implementation lock.
+
+```sh
+cd "$REPO"
+git switch 691-rx-iob
+test "$(git rev-parse HEAD)" = ba080007a402dced74fa74656338710e0b6cb880
+PYTHON="$MILAN_LITEX_PYTHON" bash sw/litex/patches/apply.sh
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONHASHSEED=0
+export VERILATOR_JOBS=2
+export VERILATOR="$RTL_SIM"
+```
+
+The complete patch series must be applied before checking generated artifacts.
+
+The second full-image input is `2525eae9567865a8bc741901914bdf5a1caf2c26` plus this branch's diff from `e21c1ca024d37ea188ad15b5c8f9c2dae18628df`. Its recorded overlay tree is `01f65c3b2693d2b1c494e0738b9562a1778740b5`. Keep that experiment in a separate scratch checkout.
+
+## How to validate
+
+```sh
+cd "$REPO"
+"$MILAN_LITEX_PYTHON" sw/litex/gen_mac_tx_model.py --check
+make -j8 -C tb/verilator/gptp_txts
+"$MILAN_LITEX_PYTHON" sw/litex/test_gmii_rx_capture.py --emit-dir "$SCRATCH/capture"
+"$MILAN_LITEX_PYTHON" sw/litex/iob_pack_selftest.py
+bash scripts/run_litex_sims.sh --selftest
+bash scripts/run_litex_sims.sh "$SCRATCH/standalone-logs"
+"$MILAN_LITEX_PYTHON" sw/builder/test_builder.py --require-rv32
+python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base e21c1ca024d37ea188ad15b5c8f9c2dae18628df
+cd "$SCRATCH/capture"
+flock "$VIVADO_LOCK" vivado -mode batch -nojournal \
+  -source "$REPO/sw/litex/gmii_rx_capture_check.tcl" -tclargs "$PWD"
+```
+
+Expected: exact model reconstruction; 85 timestamp checks and six caught controls;
+1,036 capture comparisons and six caught structural controls; five passing standalone simulations;
+22 checker arms and 21 caught controls; nine packed pads and nine expected placement refusals.
+The handoff supplies the complete documentation gate list and per-command receipts.
+Run placement after other heavy jobs finish.
+
+Earlier-round measurements are retained below; Round 2 results follow separately.
+
+| Validation | Current result |
+|---|---|
+| Compact positive fixture at control-set threshold 100 | 9/9 required pads in ILOGIC |
+| Preserved reset-before-D fixture | 9/9 refusals before routing; expected-refusal wrapper returns 0 |
+| RX filter, RMON, TX reset and link guard | Pass |
+| Datapath prerequisite legs and two mutation campaigns | Pass; each campaign detects all six controls |
+| Final datapath leg and complete builder rerun | rc 0; 193/0 physical checks; one unavailable retired-board calibration arm |
+| Lint, parser ratchet, source lists, documentation and style | Pass |
+| Both full shipping projects | Elaborate successfully |
+| Full-image packing and timing | Packing 6/6 passes; timing dev 3/3 and #645 2/3 passes; final row refused for setup margin |
+
+The six-row sweep is complete below. Each corner cell is WNS / WHS in ns. The 0 C and 85 C endpoints repeat fixed Slow/Fast models. Every corner has zero TNS and THS. All Ethernet crossing reports retain the four 8 ns datapath-only checks; none has an Unsafe row or rejected-constraint diagnostic.
+
+| Tree | Placement directive | Full IOB check | Slow 0 C | Slow 85 C | Fast 0 C | Fast 85 C | Result |
+|---|---|---|---|---|---|---|---|
+| dev + fix | ExtraPostPlacementOpt | 21 PASS, 1 INERT, 0 FAIL | +0.492 / +0.040 | +0.492 / +0.040 | +1.660 / +0.007 | +1.660 / +0.007 | PASS |
+| dev + fix | AltSpreadLogic_high | 21 PASS, 1 INERT, 0 FAIL | +0.064 / +0.052 | +0.064 / +0.052 | +1.638 / +0.029 | +1.638 / +0.029 | PASS |
+| dev + fix | ExtraTimingOpt | 21 PASS, 1 INERT, 0 FAIL | +0.098 / +0.074 | +0.098 / +0.074 | +1.362 / +0.036 | +1.362 / +0.036 | PASS |
+| #645 round 2d + fix | ExtraPostPlacementOpt | 21 PASS, 1 INERT, 0 FAIL | +0.238 / +0.102 | +0.238 / +0.102 | +1.518 / +0.036 | +1.518 / +0.036 | PASS |
+| #645 round 2d + fix | AltSpreadLogic_high | 21 PASS, 1 INERT, 0 FAIL | +0.227 / +0.071 | +0.227 / +0.071 | +1.521 / +0.035 | +1.521 / +0.035 | PASS |
+| #645 round 2d + fix | ExtraTimingOpt | 21 PASS, 1 INERT, 0 FAIL | +0.013 / +0.069 | +0.013 / +0.069 | +1.561 / +0.036 | +1.561 / +0.036 | FAIL |
+
+The full recipe is AX7101, shipping 1x1 TDM8, eight wire channels, all-fabric control, 50 MHz Milan clock, inverted transmit clock and shipping floorplan. Synthesis uses `AreaOptimized_high`, optimization `ExploreArea`, and routing/physical optimization `AggressiveExplore`, with the default seed and 12 implementation threads. Cacheless bare-metal management, disabled playback/render low-pass filter, enabled loopback/fabric gPTP and 656/219 ns ingress/egress latency remain as selected by the shipping recipe. The handoff records complete commands, input identities and artifact hashes.
+
+The failing Slow setup path runs from `pp_shadow/u_pp/u_notify/wr_ix_r_reg[1]` to `pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[1]` in the 20 ns clock group. That is the report's observation; no cause or repair is asserted. The failed row's generated evaluation artifact is not a passing candidate.
+
+## Known limitations / out of scope
+
+Ruling 6045752839 accepts timing by each tree's kept build. The unkept #645
+ExtraTimingOpt row remains below the shipping setup floor and is retained above.
+The complete local regression and portability banks, hosted evidence, workflow replica
+and candidate-merge validation remain manager-owned. The builder's retired-board
+calibration requires a saved report unavailable here. The earlier datapath aggregate
+interruption and completed constituent results remain recorded in the handoff.
+Both prior review verdicts cover the previous head; this correction needs re-review.
+
+No physical acceptance, deployment or merge is claimed. There is no register-map change, and the shipping configuration remains selected as before.
+
+## Definition of Done
+
+- [x] Linked Issue acceptance criteria are satisfied
+- [x] New or changed behavior has self-checking tests
+- [ ] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done
+
+## Round 2
+
+Assignment 6046111178 responds to R546-1 at `35fb2a95`.
+
+| Review item | Change | Evidence |
+|---|---|---|
+| F1 | Regenerated the committed MAC chain and manifest with all five patches | Only GMII RX declarations, masks and capture statements changed; exact reconstruction passes; timestamp suite 85/0, controls 6/6 |
+| F2 | Added the compact constraint file and placement driver beside the emitter | Live run: 9 ILOGIC PASS / 9 expected FAIL for "no register reads the pad"; driver rc 0 |
+| R1 | Added the exact 0007 patch-series header entry | Header now names every applied patch |
+| R2 | Applied the exact shipping-image sentence in Description | No deployment claim |
+| S1 | Added the default structural assertion and six planted controls | Reset branches, input masking, enable and missing-bit defects are refused |
+| S2 | Recomputed all six prior IOB summary rows from raw reports | ROUND2-IOB.json supersedes the incomplete earlier summary |
+
+The artifact census found no other committed conversion of LiteEth RX.
+The structural checker accepts only the pinned converter's known capture process;
+a future converter shape change requires review. It does not replace placement.
+
+All requested Round 2 gates completed with rc 0:
+
+- Strong reconstruction, 85 timestamp checks and 6/6 caught controls.
+- Capture contract: 1,036 comparisons; structural controls: 6/6 caught.
+- Five standalone simulations; inventory controls: 10/10.
+- IOB checker: 22 arms and 21 caught mutants.
+- Complete builder with the target compiler required; one saved retired-board calibration arm NOT RUN.
+- 76 selected documentation, source and policy commands.
+- Locked live placement: 9 PASS / 9 expected FAIL, driver rc 0.
+
+The first documentation attempt lacked the pinned parser. Installing its locked dependency in isolated scratch resolved that environment refusal; the unchanged gate then passed.
+All jobs have ended. The new head remains local and requires independent re-review.
+The full candidate bank and workflow evidence remain manager-owned under ruling 6045752839.
+
+### Earlier status record
+
+The following Round 1b status is retained as history. Ruling 6045752839
+supersedes its per-row timing interpretation and authorizes review unchanged.
+
+BLOCKED — round 1b STOP: packing 6/6 passes; timing 5/6 passes. `691-rx-iob` -> `dev`.
+Head: `35fb2a95007ce6dd1ec4f51c2dcb793800623cfd` (superseded by ruling 6045752839).
+This is a prepared description; the branch has not been pushed.
+
+All three dev rows and the first two #645 overlay rows pass the required timing margin. The #645 overlay under `ExtraTimingOpt` returns rc 1 at qualification: Slow 0 C and 85 C WNS/WHS is +0.013/+0.069 ns; Fast 0 C and 85 C is +1.561/+0.036 ns. Slow WNS is 0.017 ns short of the +0.030 ns requirement. All six complete IOB checks report 21 PASS, one expected INERT and zero FAIL, including every required RX capture.
+
+Ruling 6042557053 requires STOP on any failed row. No alternative directive, source change or further gate run followed the failure. Acceptance 4 is not met.
+
+The complete builder rerun returned rc 0, with one absent retired-board calibration report explicitly NOT RUN. The final physical-clock leg passed 193 checks with zero failures, rc 0. Round 1 capture equivalence, three behavioral mutants, the preserved reset-before-D control, standalone simulations and Ethernet evidence remain retained. The earlier STOP arose from an execution-window limit; ruling 6042557053 authorized the completed long runs.

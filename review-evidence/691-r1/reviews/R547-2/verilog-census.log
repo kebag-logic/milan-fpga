@@ -1,0 +1,27 @@
+sw/litex/gen_mac_tx_model.py:29:    `LiteEthPHYGMIITX`/`LiteEthPHYGMIIRX`, in `cd_eth_tx`/`cd_eth_rx`.
+sw/litex/gen_mac_tx_model.py:32:(`LiteEthPHYGMIICRG`). It is clock generation, not datapath: it exists to
+sw/litex/gen_mac_tx_model.py:102:    from liteeth.phy.gmii import LiteEthPHYGMIITX, LiteEthPHYGMIIRX
+sw/litex/gen_mac_tx_model.py:145:        """The PHY's own register stages, which is all of `LiteEthPHYGMII`
+sw/litex/gen_mac_tx_model.py:154:                LiteEthPHYGMIITX(pads))
+sw/litex/gen_mac_tx_model.py:156:                LiteEthPHYGMIIRX(pads))
+sw/litex/milan_rgmii.py:5:(docs/integration/BOARD_PORTING_AX7101.md §3) and the SoC uses LiteEthPHYGMII
+sw/litex/milan_rgmii.py:10:LiteEth's stock `LiteEthPHYRGMII` (s7rgmii) samples the RGMII RX data with a
+sw/litex/milan_rgmii.py:35:from liteeth.phy.s7rgmii import LiteEthPHYRGMIITX
+sw/litex/milan_rgmii.py:154:        self.tx  = ClockDomainsRenamer("eth_tx")(LiteEthPHYRGMIITX(pads))
+sw/litex/milan_soc.py:1405:    boundary. Uses LiteEth's `LiteEthPHYGMII` (the AX7101 e1 port is GMII-wired) + `LiteEthMACCore`
+sw/litex/milan_soc.py:1419:        from liteeth.phy.gmii import LiteEthPHYGMII
+sw/litex/milan_soc.py:1453:            # remains in Git history under #259). LiteEthPHYGMII is the right PHY.
+sw/litex/milan_soc.py:1455:            self.phy  = LiteEthPHYGMII(clk_pads, pads, with_hw_init_reset=True,
+sw/litex/milan_soc.py:1732:        # speed or duplex output. `LiteEthPHYGMII`/`LiteEthPHYMII` carry the TX/RX
+sw/litex/milan_soc.py:1862:        # nets would defeat the packing. `LiteEthPHYGMIITX` registers
+sw/litex/test_gmii_rx_capture.py:20:from liteeth.phy.gmii import LiteEthPHYGMIIRX
+sw/litex/test_gmii_rx_capture.py:41:        self.submodules.rx = LiteEthPHYGMIIRX(capture_pads)
+sw/litex/test_gmii_rx_capture.py:103:    expected = r"\s*rx_dv <= pads_rx_dv;\s*rx_data <= pads_rx_data;\s*rx_reset <= sys_rst;"
+sw/litex/test_gmii_rx_capture.py:115:        ("valid input logic", "rx_dv <= pads_rx_dv;", "rx_dv <= pads_rx_dv & ~sys_rst;"),
+sw/litex/test_gmii_rx_capture.py:117:        ("capture enable", "rx_dv <= pads_rx_dv;", "if (!sys_rst) rx_dv <= pads_rx_dv;"),
+tb/verilator/eth_tx_reset/KL_eth_tx_reset_model.sv:16:                Root cause it models: on GMII 1G the LiteEthPHYGMIICRG drives
+tb/verilator/eth_tx_reset/KL_eth_tx_reset_model.sv:27:                    LiteEthPHYGMIITX pads.tx_data.reset_less): no reset, holds
+tb/verilator/eth_tx_reset/KL_eth_tx_reset_model.sv:53:  Spec refs   : liteeth/phy/gmii.py (LiteEthPHYGMIICRG / LiteEthPHYGMIITX);
+tb/verilator/gptp_txts/generated/mac_tx_chain.v:43:reg pads_rx_dv = 1'd0;
+tb/verilator/gptp_txts/generated/mac_tx_chain.v:827:assign phy_source_last = ((~pads_rx_dv) & phy_source_valid);
+tb/verilator/gptp_txts/generated/mac_tx_chain.v:2208:	phy_rx_dv <= pads_rx_dv;

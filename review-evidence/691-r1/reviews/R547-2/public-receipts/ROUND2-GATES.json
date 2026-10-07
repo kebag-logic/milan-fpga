@@ -1,0 +1,104 @@
+[
+  {
+    "label": "gptp-txts",
+    "command": [
+      "make",
+      "-j8",
+      "-C",
+      "tb/verilator/gptp_txts"
+    ],
+    "cwd": "$SCRATCH/round2/test-tree",
+    "pid": 265438,
+    "rc": 0,
+    "seconds": 70.64,
+    "peak_memory_bytes": 1364869120,
+    "min_free_bytes": 173980520448,
+    "interrupted": null
+  },
+  {
+    "label": "litex-sims",
+    "command": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "$SCRATCH/round2/litex-sim-logs"
+    ],
+    "cwd": "$SCRATCH/round2/test-tree",
+    "pid": 291922,
+    "rc": 0,
+    "seconds": 184.63,
+    "peak_memory_bytes": 1677606912,
+    "min_free_bytes": 172984045568,
+    "interrupted": null
+  },
+  {
+    "label": "sim-inventory",
+    "command": [
+      "bash",
+      "scripts/run_litex_sims.sh",
+      "--selftest"
+    ],
+    "cwd": "$SCRATCH/round2/test-tree",
+    "pid": 328340,
+    "rc": 0,
+    "seconds": 2.5,
+    "peak_memory_bytes": 1068249088,
+    "min_free_bytes": 172949299200,
+    "interrupted": null
+  },
+  {
+    "label": "model-control",
+    "command": [
+      "$MILAN_LITEX_PYTHON",
+      "$SCRATCH/round2/model_control.py"
+    ],
+    "cwd": "$SCRATCH/round2/test-tree",
+    "pid": 298628,
+    "rc": 0,
+    "seconds": 0.5,
+    "peak_memory_bytes": 1077207040,
+    "min_free_bytes": 173595054080,
+    "interrupted": null
+  },
+  {
+    "label": "builder",
+    "command": [
+      "python3",
+      "$SCRATCH/round2/run_builder.py"
+    ],
+    "cwd": "$SCRATCH/round2",
+    "pid": 279488,
+    "rc": 0,
+    "seconds": 1207.95,
+    "peak_memory_bytes": 1863241728,
+    "min_free_bytes": 162543235072,
+    "interrupted": null
+  },
+  {
+    "label": "docs-rerun",
+    "command": [
+      "python3",
+      "$SCRATCH/round2/run_docs.py"
+    ],
+    "cwd": "$SCRATCH/round2/docs-tree",
+    "pid": 274433,
+    "rc": 0,
+    "seconds": 909.65,
+    "peak_memory_bytes": 1863241728,
+    "min_free_bytes": 163815096320,
+    "interrupted": null
+  },
+  {
+    "label": "placement",
+    "command": [
+      "python3",
+      "$SCRATCH/round2/placement.py"
+    ],
+    "cwd": "$REPO",
+    "pid": 298622,
+    "rc": 0,
+    "seconds": 2271.04,
+    "peak_memory_bytes": 2838745088,
+    "min_free_bytes": 162539114496,
+    "interrupted": null
+  }
+]

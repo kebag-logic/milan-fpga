@@ -1,0 +1,15 @@
+{
+  "command": [
+    "env",
+    "REAL_VERILATOR=$SCOPED_SIMULATOR",
+    "VERILATOR=$PACKET/bounded_verilator.py",
+    "MILAN_LITEX_PYTHON=$PACKET/scratch/sdk-python",
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/gptp_txts"
+  ],
+  "cwd": "$PACKET/scratch/probe",
+  "exit": 0,
+  "elapsed_s": 66.259
+}

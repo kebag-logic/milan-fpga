@@ -1,0 +1,13 @@
+https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6042535076
+[A564] STOP
+Head: `35fb2a95007ce6dd1ec4f51c2dcb793800623cfd`
+Branch: `691-rx-iob`, from `e21c1ca024d37ea188ad15b5c8f9c2dae18628df`.
+
+The structural GMII capture fix is committed locally. Data and valid capture without reset; a reset value sampled on the same edge masks their outputs. The maintained dependency patch series applies the fix. Default selection, register map and deployed image are unchanged.
+
+Completed evidence: compact placement at control-set threshold 100 packs all nine required captures into ILOGIC. A preserved reset-before-D plant is rejected on all nine pins by the #475 check before routing; the expected-refusal wrapper returns 0. Both receiver versions pass 1,036 behavioral comparisons, and live-reset, missing-last and lost-data-bit mutations are caught. The IOB self-test passes 22 arms and 21 mutants. Patch reconstruction catches all five omitted-patch controls. All five standalone simulations pass without skips. RX filter, RMON, TX reset, link guard, three datapath prerequisite legs and both six-control datapath mutation campaigns pass. Lint, parser ratchet, source, documentation and style gates pass.
+
+STOP reason: dev full-image synthesis was terminated at the 570-second foreground bound during iterative area optimization, before a synthesis checkpoint existed. Recorded peak service memory was 8,000,000,000 bytes. The matching prior #645 round-2d synthesis report records 29 minutes 34 seconds for synthesis alone. This command window cannot complete that recipe. Both full shipping projects elaborate, including `2525eae9567865a8bc741901914bdf5a1caf2c26` plus the change, but none of the six full-tree/directive packing and timing rows has a result. WNS/WHS remain unknown; acceptance 2 and 4 are unmet. The complete builder test and final datapath physical-clock leg also exceeded the foreground bound, so acceptance 3 remains partial. No incomplete result is counted as passing.
+
+`HANDOFF.md` and `PR-BODY.md` are prepared, with file:line changes, defect controls, acceptance and gate tables, unclaimed review coverage, command receipts, source provenance, and artifact sizes/SHA-256. Completing the full-image proof requires a longer foreground execution window. No independent approval is claimed. No push, PR creation, merge, hardware access or flashing occurred.
+

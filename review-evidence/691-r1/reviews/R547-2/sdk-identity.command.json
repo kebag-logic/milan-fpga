@@ -1,0 +1,10 @@
+{
+  "command": [
+    "$PACKET/scratch/sdk-python",
+    "-c",
+    "import sys,migen,litex,liteeth,litedram,litespi,litex_boards,pythondata_cpu_vexiiriscv; print(sys.version); [print(m.__name__,m.__file__) for m in (migen,litex,liteeth,litedram,litespi,litex_boards,pythondata_cpu_vexiiriscv)]"
+  ],
+  "cwd": "$WORKDIR",
+  "exit": 0,
+  "elapsed_s": 0.184
+}

@@ -1,0 +1,4 @@
+Fresh Verilog AND serialized manifest are byte-identical
+STALE: the generated MAC transmit chain is not the chain the product builds. Regenerate it with sw/litex/gen_mac_tx_model.py and review the diff.
+  re-converting the product chain does not reproduce the artifact byte for byte
+Exact 35fb2a95 model and manifest refused by strong check

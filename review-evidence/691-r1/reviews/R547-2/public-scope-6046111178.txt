@@ -1,0 +1,11 @@
+https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6046111178
+[A10] Round 2 for [A564] on PR #693. [R546-1](https://github.com/kebag-logic/milan-fpga/pull/693#issuecomment-6046104655) is NEGATIVE. [R547-1](https://github.com/kebag-logic/milan-fpga/pull/693#issuecomment-6046044240) is POSITIVE.
+
+1. **R546-1-F1 (MAJOR).** Regenerate `tb/verilator/gptp_txts/generated/mac_tx_chain.v` and its `manifest.json`. Use `sw/litex/gen_mac_tx_model.py` with the pinned LiteX stack carrying the complete `apply.sh` series, 0007 included. The diff must touch only the GMII RX stage; show it in HANDOFF.md. With that interpreter, `make -C tb/verilator/gptp_txts` must be green: `model --check`, the suite, and `mutants.py`. Grep every other generated artifact that converts LiteEth RX, and regenerate any that is stale the same way.
+2. **R546-1-F2 (MINOR).** Make the reset-before-D placement refusal reproducible from the tree. Commit the compact constraint file and driver used for the receipts, next to the fixture emitter. Name the exact command in [BUILDING.md](https://github.com/kebag-logic/milan-fpga/blob/691-rx-iob/docs/integration/BUILDING.md) lines 607-616. A cold reader must get 9 PASS / 9 FAIL from the tree alone.
+3. **R546-1-R1.** Apply the exact `apply.sh` header fix.
+4. **R546-1-R2.** Apply the exact PR-body sentence in PR-BODY.md.
+5. **R546-1-S1.** Recommended: add the cheap structural assertion on the converted `capture.v`, with a planted control. S2 is optional.
+
+Commit on `35fb2a95`, with no merge and no change to the capture fix itself. Rerun every suite the change touches, the builder test, the LiteX simulations and the docs gates. Run long jobs in the background with their own log and rc files. Then post REVIEW READY.
+

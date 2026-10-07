@@ -1,0 +1,19 @@
+{
+  "command": [
+    "flock",
+    "-w",
+    "600",
+    "$VIVADO_LOCK",
+    "$HOME/Xilinx/2026.1/Vivado/bin/vivado",
+    "-mode",
+    "batch",
+    "-nojournal",
+    "-source",
+    "$REPO/sw/litex/gmii_rx_capture_check.tcl",
+    "-tclargs",
+    "$PACKET/scratch/capture"
+  ],
+  "cwd": "$PACKET/scratch/capture",
+  "exit": 0,
+  "elapsed_s": 102.382
+}

@@ -1,0 +1,122 @@
+{
+  "R546-1-F1": {
+    "status": "RESOLVED",
+    "severity": "MAJOR",
+    "lenses": [
+      "Tests",
+      "Conformance",
+      "RTL"
+    ],
+    "receipts": [
+      "model.log",
+      "model-control.log",
+      "gptp-txts.log",
+      "verilog-census.log",
+      "round2.diff"
+    ]
+  },
+  "R546-1-F2": {
+    "status": "RESOLVED",
+    "severity": "MINOR",
+    "lenses": [
+      "Docs",
+      "Tests"
+    ],
+    "receipts": [
+      "placement.log",
+      "placement-capture.rpt",
+      "placement-reset_before_d.rpt"
+    ]
+  },
+  "R546-1-R1": {
+    "status": "RESOLVED",
+    "severity": "RESIDUE",
+    "lenses": [
+      "Docs"
+    ],
+    "exact_header_present": true
+  },
+  "R546-1-R2": {
+    "status": "RESOLVED",
+    "severity": "RESIDUE",
+    "lenses": [
+      "Docs"
+    ],
+    "exact_sentence_present": true
+  },
+  "R546-1-S1": {
+    "status": "IMPLEMENTED",
+    "severity": "SUGGESTION",
+    "lenses": [
+      "Tests"
+    ],
+    "receipt": "capture.log"
+  },
+  "R546-1-S2": {
+    "status": "IMPLEMENTED",
+    "severity": "SUGGESTION",
+    "lenses": [
+      "Docs"
+    ],
+    "rows": [
+      {
+        "tree": "dev",
+        "directive": "ExtraPostPlacementOpt",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "fc36d445afd1e343d067a510bed13becf94856fa3bbd734609308d0f8ff1ffb3"
+      },
+      {
+        "tree": "dev",
+        "directive": "AltSpreadLogic_high",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "fc36d445afd1e343d067a510bed13becf94856fa3bbd734609308d0f8ff1ffb3"
+      },
+      {
+        "tree": "dev",
+        "directive": "ExtraTimingOpt",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "fc36d445afd1e343d067a510bed13becf94856fa3bbd734609308d0f8ff1ffb3"
+      },
+      {
+        "tree": "ring",
+        "directive": "ExtraPostPlacementOpt",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "f033e18ce3e7896987c7034a2dd84e82f202d38fd26cf5e7ddbe0d77d6b2e732"
+      },
+      {
+        "tree": "ring",
+        "directive": "AltSpreadLogic_high",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "f033e18ce3e7896987c7034a2dd84e82f202d38fd26cf5e7ddbe0d77d6b2e732"
+      },
+      {
+        "tree": "ring",
+        "directive": "ExtraTimingOpt",
+        "PASS": 21,
+        "INERT": 1,
+        "FAIL": 0,
+        "RX_ILOGIC": 9,
+        "sha256": "f033e18ce3e7896987c7034a2dd84e82f202d38fd26cf5e7ddbe0d77d6b2e732"
+      }
+    ]
+  },
+  "R547-1": {
+    "open_findings": 0,
+    "baseline_head": "35fb2a95007ce6dd1ec4f51c2dcb793800623cfd"
+  }
+}

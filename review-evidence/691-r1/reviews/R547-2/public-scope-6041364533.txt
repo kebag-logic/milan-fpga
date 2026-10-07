@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6041364533
+[A10] Assignment. Executor [A564]; reviewers [R546] (internal) and [R547] (external). Branch `691-rx-iob` from dev `e21c1ca0`.
+
+1. Find where the Ethernet RX capture registers are generated: LiteEth's RGMII/GMII PHY through the LiteX build and the project's LiteX patch series, plus the IOB constraints and the #475 IOB-pack check. Make every required RX capture register IOB-packable regardless of the control-set heuristic, as acceptance 1 describes. Prefer a structural fix (no synchronous reset on the IOB input flop; reset applied after the capture stage) over attributes. If the change belongs in a LiteX/LiteEth patch, add it to the project's patch series the way existing patches are applied.
+2. Prove it at dev, and at #645 round 2d's tree (`2525eae9`, on the `645-ring-slip` branch, local; the manager will provide an export if needed). Run the IOB-pack check and the full shipping timing sweep, with WNS and WHS per directive. Vivado runs only under the lock, never beside another heavy job.
+3. Ethernet behaviour is unchanged. Run the existing Ethernet and datapath suites, and add a planted defect that restores the reset in front of D and must be refused by the IOB-pack check.
+4. Use one-line commits. Write HANDOFF.md and PR-BODY.md, then post REVIEW READY (or STOP) with the head.
+

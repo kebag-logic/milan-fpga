@@ -1,0 +1,27 @@
+migen 4c2ae8dfeea37f235b52acb8166f12acaaae4f7c extracted committed source
+litex a1e1c3652ec2f1346ebaea7663d2867f393ae2c4 extracted committed source
+litedram f9b75e0347fc43267d083f7ff5965170fe8f9a58 extracted committed source
+liteeth 276c9e37fb4d92a5c0f30d39a51c20f42a59cf93 extracted committed source
+litespi 02d5a209bc0010d33ddb506ba18e736636d4109a extracted committed source
+litex-boards 9ac53c7a11f2571ba2c9f165f468ae021a4f9bda extracted committed source
+pythondata-cpu-vexiiriscv 15cfab529a17c473d0fc75edf3f409eb374cef35 extracted committed source
+[patches] 0002-liteeth-gmii-tx-clk-invert.patch -> $PACKET/scratch/sdk/liteeth
+[patches]   applied.
+[patches] 0007-liteeth-gmii-rx-capture.patch -> $PACKET/scratch/sdk/liteeth
+[patches]   applied.
+[patches] 0004-vexiiriscv-baremetal-variant.patch -> $PACKET/scratch/sdk/litex
+[patches]   applied.
+[patches] 0006-bios-dispatch-hook.patch -> $PACKET/scratch/sdk/litex
+[patches]   applied.
+[patches] 0005-vexiiriscv-cacheless-litex.patch -> $PACKET/scratch/sdk/pythondata-cpu-vexiiriscv
+[patches]   ERROR: does not apply to a pristine pythondata_cpu_vexiiriscv.
+[patches]   Re-diff against the new tree and refresh 0005-vexiiriscv-cacheless-litex.patch
+[patches]   (sw/litex/patches/README.md has the procedure).
+Traceback (most recent call last):
+  File "$PACKET/prepare_sdk.py", line 28, in <module>
+    subprocess.run(["bash", str(repo / "sw/litex/patches/apply.sh")], env=env, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['bash', '$WORKDIR/sw/litex/patches/apply.sh']' returned non-zero exit status 1.

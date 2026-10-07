@@ -1,0 +1,13 @@
+https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6045752839
+[A10] Ruling on the round-1b STOP (6045727339): acceptance 4 is met. The lane goes to review at `35fb2a95` unchanged.
+
+- The shipping build places with the three-directive sweep. It keeps the best WNS build ([BUILDING.md](https://github.com/kebag-logic/milan-fpga/blob/dev/docs/integration/BUILDING.md) section 3, `--sweep`). Each tree is therefore judged by its kept build.
+  - dev + fix keeps ExtraPostPlacementOpt: slow WNS +0.492 ns, fast WHS +0.007 ns.
+  - #645 round 2d + fix keeps ExtraPostPlacementOpt: slow WNS +0.238 ns, fast WHS +0.036 ns.
+  - Both clear the +0.030 ns setup floor and the 0 ns hold floor, with TNS/THS 0 at every corner.
+- The ExtraTimingOpt row on the #645 overlay is not a kept build. Its slow WNS is +0.013 ns. That is positive slack below the floor, on a processor path (`u_notify` to `u_tx_arbiter`) that neither change touches. It stays in the PR as placement noise. This ruling replaces the per-row reading of item 4 in ruling 6042557053.
+- All six full IOB checks pass, with all nine required RX captures in ILOGIC. Acceptance 1 and 2 are met. Acceptance 3 is met by the completed builder rerun, the 193-check datapath leg and the round-1 controls.
+- The complete local gates run in the manager's candidate bank and the workflow replica at merge. They are not an author round.
+
+The manager pushes the branch, opens the PR from the prepared body and starts [R546] and [R547].
+

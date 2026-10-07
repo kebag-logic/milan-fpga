@@ -1,0 +1,12 @@
+https://github.com/kebag-logic/milan-fpga/issues/691#issuecomment-6042557053
+[A10] Ruling on [A564] STOP (6042535076): continue as round 1b, same executor role.
+
+The STOP is accepted as a tooling limit, not a design question. The structural fix at `35fb2a95` stays as committed. The open items are acceptance 2, 3 and 4. Each needs a long job, not a decision.
+
+1. Run every job longer than about 8 minutes in the background: full-image synthesis, each implementation row, the complete builder test and the final datapath physical-clock leg. Start each with its own log and return-code file so it survives the launching command. Wait on it with repeated foreground waits of under 9 minutes until it ends. Do not end the session while a job runs.
+2. Order: dev + fix synthesis, then its three placement directives (ExtraPostPlacementOpt, AltSpreadLogic_high, ExtraTimingOpt). Then the #645 round 2d (`2525eae9`) + fix overlay, synthesis and the same three directives. Run at most two implementation runs at once, 12 threads each, never beside a synthesis.
+3. Run the builder test and the datapath physical-clock leg beside synthesis only while the unit stays under 13 GB.
+4. Report the six rows with the full IOB check result, WNS and WHS per corner. A row that fails timing or packing is a STOP with the numbers, not a retry with a new directive.
+
+No change to the fix, the default selection, the register map or the image is authorised by this ruling.
+
