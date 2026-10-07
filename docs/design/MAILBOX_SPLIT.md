@@ -793,6 +793,32 @@ and the second MAAP tuple's compares. The block RAM is unchanged, with no
 DSP. WNS is +0.186 ns at 10 ns (+0.271 ns before), with all 5,630 nets
 routed.
 
+The adp channel's bound-talker term (lane F3 round 2, contract 2.1) was
+measured with the same recipe on 2026-10-07, beside FC round 2's head
+`db9aa8c9`, whose figures repeated the "after" column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,151 | 1,951 | 1,069 | 1,076 |
+| `KL_mbx` registers, decode, read mux | 295 | 752 | 532 | 1,572 |
+| `KL_mbx_evt` | 682 | 727 | 978 | 978 |
+| `KL_mbx_tx` | 529 | 481 | 280 | 280 |
+| `KL_mbx_wb` | 67 | 93 | 1 | 1 |
+| **Total** | **2,745** | **4,025** | **2,860** | **3,907** |
+
+It costs 1,280 LUT and 1,047 FF. The table is 1,040 of those FF: sixteen
+65-bit entries (`BOUND_EID`, `BOUND_EN`) for the one interface, in `KL_mbx`,
+with their write decode and read-back (457 LUT). `KL_mbx_rx` carries the
+sixteen 64-bit entity_id comparators of the one `eq_bound` term and the
+third term slot every channel's verdict now reads (800 LUT). The block RAM
+is unchanged, with no DSP. WNS is +0.283 ns at 10 ns, with all 7,907 nets
+routed. A first version compared every term position with the table, since
+the verdict reads the term by the frame's channel; it cost 2,142 LUT, and
+building the comparators only for the term whose test is `eq_bound` (a
+constant of the term) saved 862 of them. The obvious further lever is the
+table itself: in distributed RAM, scanned one entry per cycle once the
+entity_id has arrived, it would hold most of those flip-flops and comparators.
+
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
   hdl/milan/mailbox/KL_mbx_rx.sv hdl/milan/mailbox/KL_mbx_tx.sv hdl/milan/mailbox/KL_mbx_evt.sv \
