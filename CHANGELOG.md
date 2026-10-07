@@ -51,7 +51,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The capture harness finishes frames crossing its observation boundary.
 - That extension stops after at most 2,048 cycles.
 - C11 documents the landed byte interfaces and TX backpressure.
-- It also documents synchronous reset and complete FCS-good RX frames.
+- It also documents complete FCS-good RX frames.
 - SRP registrar expiry precedes same-clock reception (#134).
 - Lv and LeaveAll finish MT; New and Join renew IN.
 - A held DEREGISTER waits for the notification round boundary (#158).
