@@ -1,0 +1,9 @@
+read_verilog $SCRATCH/equiv-post/gold.v
+read_verilog $SCRATCH/equiv-post/gate.v
+proc
+opt_clean
+miter -equiv -flatten -make_outputs gold gate miter
+hierarchy -top miter
+flatten
+opt_clean
+sat -verify -tempinduct -prove trigger 0 -set-init-zero -maxsteps 8 -show-inputs -show-outputs miter

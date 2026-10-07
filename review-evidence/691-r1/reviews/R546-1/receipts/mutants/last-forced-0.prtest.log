@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$REPO/sw/litex/test_gmii_rx_capture.py", line 114, in <module>
+    main()
+    ~~~~^^
+  File "$REPO/sw/litex/test_gmii_rx_capture.py", line 106, in main
+    checked = check_capture()
+  File "$REPO/sw/litex/test_gmii_rx_capture.py", line 83, in check_capture
+    run_simulation(dut, stimulus())
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$LITEX_ENV/venv/lib/python3.14/site-packages/migen/sim/core.py", line 414, in run_simulation
+    s.run()
+    ~~~~~^^
+  File "$LITEX_ENV/venv/lib/python3.14/site-packages/migen/sim/core.py", line 403, in run
+    self._process_generators(cd)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^
+  File "$LITEX_ENV/venv/lib/python3.14/site-packages/migen/sim/core.py", line 357, in _process_generators
+    request = generator.send(reply)
+  File "$REPO/sw/litex/test_gmii_rx_capture.py", line 74, in stimulus
+    assert got == expected, (value, valid, reset, got, expected)
+           ^^^^^^^^^^^^^^^
+AssertionError: (0, 0, 0, (1, 165, 0), (1, 165, 1))

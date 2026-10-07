@@ -1,0 +1,7 @@
+OK  RX-valid reset remapped into a LUT before capture D: holds
+OK  fixed shape, refusal expected: does not hold (exit 0, want 1: IOB-PACK INERT eth0_rx_er: IN, the port has no net: nothing drives or reads the pin
+)
+OK  planted shape, pass expected: does not hold (exit 1, want 0: IOB-PACK FAIL: 1 port(s) constrained IOB TRUE are not in an IOB register after place)
+new arm alone kills 4/21 check mutants: final error removed; delay elements not looked through; every input load taken for a register; an input with no register taken for INERT
+RESULT: PASS
+rc=0

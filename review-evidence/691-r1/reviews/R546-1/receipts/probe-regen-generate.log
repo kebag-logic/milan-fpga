@@ -1,0 +1,21 @@
+wrote tb/verilator/gptp_txts/generated/mac_tx_chain.v (2683 lines) and its manifest
+make: Entering directory '$REPO/tb/verilator/gptp_txts'
+$PYTHON ../../../sw/litex/gen_mac_tx_model.py --check
+generated MAC transmit chain: OK (2683 lines, region 1875a2eb2163, checked by re-converted from the product source)
+make: Leaving directory '$REPO/tb/verilator/gptp_txts'
+rc=0
+ tb/verilator/gptp_txts/generated/mac_tx_chain.v | 21 +++++++++++----------
+ tb/verilator/gptp_txts/generated/manifest.json  |  2 +-
+ 2 files changed, 12 insertions(+), 11 deletions(-)
+diff --git a/tb/verilator/gptp_txts/generated/manifest.json b/tb/verilator/gptp_txts/generated/manifest.json
+index c2dea3a3c..7ade2ca9e 100644
+--- a/tb/verilator/gptp_txts/generated/manifest.json
++++ b/tb/verilator/gptp_txts/generated/manifest.json
+@@ -14,5 +14,5 @@
+   "top": "mac_tx_chain",
+   "tx_sf_param_depth": 8,
+   "tx_sf_payload_depth": 512,
+-  "verilog_sha256": "350df0e9a0b7699190a2d3f09dfeb2ef0641be00f79ae9f535f01066a69d3a21"
++  "verilog_sha256": "f3f110e9825516aa8ede44b56df5418aaf378e015e4e5f31ea1052616bba78e8"
+ }
+regenerated == earlier post conversion

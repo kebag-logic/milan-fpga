@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0,"sw/builder"); import test_builder as t; t.test_toolchain_patches_are_applied(); print("GATE23H-OK")
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REPO/sw/builder/test_builder.py", line 24371, in test_toolchain_patches_are_applied
+    assert not problems, "gate 23h:\n  " + "\n  ".join(problems)
+           ^^^^^^^^^^^^
+AssertionError: gate 23h:
+  0007-liteeth-gmii-rx-capture.patch: does not reverse out of the live liteeth, so that tree is not upstream plus this series. Either the patch was never applied (run sw/litex/patches/apply.sh), the file drifted (re-diff per sw/litex/patches/README.md), or the series TEXT changed since this tree was patched - reverse the previous text first, as the README's migration note says

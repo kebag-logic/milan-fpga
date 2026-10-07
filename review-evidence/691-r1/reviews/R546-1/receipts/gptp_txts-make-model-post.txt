@@ -1,0 +1,7 @@
+make: Entering directory '$REPO/tb/verilator/gptp_txts'
+$PYTHON ../../../sw/litex/gen_mac_tx_model.py --check
+STALE: the generated MAC transmit chain is not the chain the product builds. Regenerate it with sw/litex/gen_mac_tx_model.py and review the diff.
+  re-converting the product chain does not reproduce the artifact byte for byte
+make: *** [Makefile:91: model] Error 1
+make: Leaving directory '$REPO/tb/verilator/gptp_txts'
+rc=2
