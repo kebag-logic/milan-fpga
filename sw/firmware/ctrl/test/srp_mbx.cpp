@@ -357,8 +357,10 @@ TEST_F(Srp, LinkLossCancelsItsOwedFrameOnly) {
     const unsigned waiting=adapter.owed_if;
     if(MBX_N_IF>1) {
         const unsigned other=1-waiting;
-        mbx_model_set_link(&model,other,false); ctrl_loop_service(&loop);
+        mbx_model_set_link(&model,other,false); mbx_model_set_link(&model,other,true);
+        ctrl_loop_service(&loop);
         EXPECT_GT(adapter.owed_len,0u); EXPECT_EQ(adapter.owed_if,waiting);
+        mbx_model_set_link(&model,other,false); ctrl_loop_service(&loop);
     }
     mbx_model_set_link(&model,waiting,false); ctrl_loop_service(&loop);
     EXPECT_EQ(adapter.owed_len,0u);
@@ -478,6 +480,190 @@ TEST_F(Srp, SinkMembershipCommitsBeforeReadyAtStartup) {
         }
     }
     EXPECT_TRUE(ready);
+}
+
+TEST_F(Srp, InListenerWithdrawalRevokesLicenceImmediately) {
+    settle();
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+        EXPECT_CALL(licence,Change(i,0,false)); offer(frame(3,identity(i),5,2),i);
+        EXPECT_FALSE(adapter.ifs[i].active[0]);
+    }
+    EXPECT_EQ(adapter.stops,MBX_N_IF);
+    advance(5000); EXPECT_EQ(adapter.stops,MBX_N_IF);
+}
+TEST_F(Srp, InTalkerWithdrawalImmediatelyWithdrawsListener) {
+    settle();
+    msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
+    std::vector<uint8_t> talker(25);
+    std::copy(sid.bytes,sid.bytes+8,talker.begin());
+    std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,2,2);
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,0,&sid,da,2));
+        offer(frame(1,talker,1),i); advance(200);
+        ASSERT_EQ(adapter.ifs[i].sinks[0].declared,2u);
+        const auto withdrew=model.now_ms;
+        offer(frame(1,talker,5),i);
+        EXPECT_EQ(adapter.ifs[i].sinks[0].declared,0u);
+        advance(200); capture();
+        bool left=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
+            d.type==3 && d.event==5 && d.time_ms>=withdrew && d.time_ms<=withdrew+200) left=true;
+        EXPECT_TRUE(left);
+    }
+}
+TEST_F(Srp, ReadyToReadyFailedNeverGlitchesAnActiveLicence) {
+    settle();
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+        ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(&licence));
+        offer(frame(3,identity(i),1,3),i);
+        EXPECT_TRUE(adapter.ifs[i].active[0]); EXPECT_EQ(adapter.stops,0u);
+    }
+    for(unsigned i=0;i<MBX_N_IF;++i) EXPECT_CALL(licence,Change(i,0,false));
+}
+TEST_F(Srp, AdmissionStraddlesTheExactEthernetCeiling) {
+    // 224 payload + 22 tagged header/FCS + 20 preamble/IFG, 8000 frames/s.
+    // The independent on-wire charge is 17,024,000 bps.
+    for(uint32_t rate : {22698667u,22698666u}) {
+        srp_mbx_destroy(&adapter); config.link_rate_bps=rate;
+        ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+        for(unsigned i=0;i<MBX_N_IF;++i) EXPECT_EQ(adapter.ifs[i].admitted[0],rate==22698667u);
+    }
+}
+TEST_F(Srp, AdjacentLinkEdgesResetDomainAndAllPriorRegistrations) {
+    settle();
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        offer(frame(4,{6,4,0,3},0),i); advance(200);
+        EXPECT_CALL(licence,Change(i,0,true)); offer(frame(3,identity(i),1,2),i);
+    }
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        EXPECT_CALL(licence,Change(i,0,false));
+        mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true); settle();
+        EXPECT_EQ(adapter.ifs[i].domain.priority,3u); EXPECT_EQ(adapter.ifs[i].domain.vid,2u);
+        EXPECT_FALSE(adapter.ifs[i].active[0]);
+        for(unsigned other=i+1;other<MBX_N_IF;++other) EXPECT_TRUE(adapter.ifs[other].active[0]);
+        advance(200); EXPECT_FALSE(adapter.ifs[i].active[0]);
+    }
+}
+TEST_F(Srp, OldReceiveBacklogCannotRegisterAcrossLinkRestart) {
+    settle(); advance(400);
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        auto ready=frame(3,identity(i),1,2);
+        for(unsigned k=0;k<CTRL_LOOP_RX_PER_PASS+1;++k)
+            ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
+        mbx_model_set_link(&model,i,false); settle();
+        mbx_model_set_link(&model,i,true); settle(); advance(200);
+        EXPECT_FALSE(adapter.ifs[i].active[0]);
+        EXPECT_CALL(licence,Change(i,0,true)); offer(ready,i);
+        EXPECT_TRUE(adapter.ifs[i].active[0]);
+        EXPECT_CALL(licence,Change(i,0,false));
+        mbx_model_set_link(&model,i,false); settle();
+    }
+}
+TEST_F(Srp, SharedIdentityReconcilesBothBindingOrdersOnTheWire) {
+    settle();
+    msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    uint8_t da[2][6]={
+        {0x91,0xe0,0xf0,0,0,8}, {0x91,0xe0,0xf0,0,0,9}
+    };
+    for(bool different_vlan : {false,true}) for(unsigned first : {0u,1u}) {
+        // Preserve protocol state; start a fresh bounded capture window.
+        capture(); model.tx_sent=0; declarations.clear();
+        const uint16_t vid[2]={2,static_cast<uint16_t>(different_vlan ? 7 : 2)};
+        for(unsigned k=0;k<2;++k) ASSERT_TRUE(srp_mbx_bind(&adapter,0,k,&sid,da[k],vid[k]));
+        std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
+        wire_put_be(talker.data()+14,2,2);
+        for(unsigned k : {first,1-first}) {
+            std::copy(da[k],da[k]+6,talker.begin()+8); wire_put_be(talker.data()+14,vid[k],2);
+            const unsigned start=model.now_ms;
+            offer(frame(1,talker,1)); advance(1200); capture();
+            unsigned last=99;
+            for(const auto &d:declarations) if(d.ethertype==0x22ea && d.type==3 && d.time_ms>=start) {
+                last=d.event; EXPECT_EQ(d.subtype,2u);
+            }
+            EXPECT_NE(last,99u); EXPECT_NE(last,5u);
+        }
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,first,nullptr,nullptr,0));
+        advance(200);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,0,1-first,nullptr,nullptr,0));
+        const unsigned start=model.now_ms; advance(200); capture();
+        bool left=false;
+        for(const auto &d:declarations) if(d.ethertype==0x22ea && d.type==3 && d.event==5 && d.time_ms>=start) left=true;
+        EXPECT_TRUE(left);
+    }
+}
+
+TEST_F(Srp, RecreateAllocationFailureIsCountedAndRetried) {
+    settle();
+    for(int failure : {0,3,6}) {
+        calloc_before_failure=failure;
+        const unsigned refused=adapter.refused;
+        mbx_model_set_link(&model,0,false);
+        ctrl_loop_service(&loop);
+        EXPECT_GT(adapter.refused,refused); EXPECT_EQ(adapter.ifs[0].msrp,nullptr);
+        EXPECT_EQ(adapter.ifs[0].mvrp,nullptr);
+        EXPECT_GT(ctrl_loop_service(&loop),0u);
+        if(MBX_N_IF>1) {
+            capture(); const auto start=model.now_ms;
+            adapter.cursor=0;
+            for(unsigned ms=0;ms<1200;++ms) {
+                mbx_model_advance_ms(&model,1); ctrl_loop_service(&loop); capture();
+            }
+            bool other_sent=false;
+            for(const auto &d:declarations) if(d.interface==1 && d.time_ms>start) other_sent=true;
+            EXPECT_TRUE(other_sent)<<"a failed participant must not starve the other interface";
+        }
+        calloc_before_failure=-1; settle();
+        ASSERT_NE(adapter.ifs[0].msrp,nullptr); ASSERT_NE(adapter.ifs[0].mvrp,nullptr);
+        mbx_model_set_link(&model,0,true); settle();
+        EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
+    }
+}
+TEST_F(Srp, LinkEventsDiscardOnlyTheirPublishedReceivePrefix) {
+    settle();
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        auto ready=frame(3,identity(i),1,2);
+        ASSERT_TRUE(mbx_model_rx(&model,ready.data(),ready.size(),i));
+        mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
+        settle(); EXPECT_FALSE(adapter.ifs[i].active[0]);
+        EXPECT_CALL(licence,Change(i,0,true)); offer(ready,i);
+        EXPECT_TRUE(adapter.ifs[i].active[0]);
+        EXPECT_CALL(licence,Change(i,0,false));
+    }
+}
+TEST_F(Srp, LinkLevelLossAndFirstDownEventAreFailClosed) {
+    settle(); EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),1,2));
+    EXPECT_CALL(licence,Change(0,0,false));
+    // Simulate a level change while event publication is held by a full ring.
+    model.link_up[0]=false; ctrl_loop_service(&loop);
+    EXPECT_FALSE(adapter.ifs[0].active[0]); EXPECT_FALSE(adapter.ifs[0].link);
+    adapter.ifs[0].link_seen=false;
+    mbx_event event{}; event.type=MBX_EV_TYPE_LINK;
+    const auto sink=loop.sinks[loop.n_sinks-1];
+    sink.fn(sink.ctx,&event); EXPECT_TRUE(adapter.ifs[0].link_seen);
+    event.interface=MBX_N_IF; sink.fn(sink.ctx,&event);
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u);
+}
+TEST_F(Srp, EventReentryAndSinkCapacityAreGuarded) {
+    settle();
+    EXPECT_CALL(licence,Change(0,0,true)).WillOnce([&](unsigned,unsigned,bool) {
+        mbx_event event{}; event.type=MBX_EV_TYPE_LINK;
+        loop.sinks[loop.n_sinks-1].fn(&adapter,&event);
+    });
+    offer(frame(3,identity(),1,2)); EXPECT_EQ(adapter.reentries,1u);
+    EXPECT_TRUE(adapter.ifs[0].link);
+    EXPECT_CALL(licence,Change(0,0,false)); srp_mbx_destroy(&adapter);
+    ASSERT_TRUE(srp_mbx_init(&adapter,&config));
+    ctrl_loop_init(&loop); loop.n_sinks=CTRL_LOOP_MAX_SINKS;
+    EXPECT_FALSE(srp_mbx_attach(&adapter,&loop)); EXPECT_EQ(loop.n_ticks,0u);
+    ctrl_loop_init(&loop); ASSERT_TRUE(ctrl_loop_add_sink(&loop,[](void*,const mbx_event*){},nullptr));
+    ASSERT_TRUE(srp_mbx_attach(&adapter,&loop)); srp_mbx_destroy(&adapter);
+    EXPECT_EQ(loop.n_sinks,1u);
+    EXPECT_EQ(mbx_rx_mark(MBX_N_CH),0u); EXPECT_FALSE(mbx_rx_before(MBX_N_CH,0));
 }
 
 }

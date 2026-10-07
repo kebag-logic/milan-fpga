@@ -71,8 +71,8 @@ DEFECTS = (
     Defect(
         name='ignore-link',
         test='InterfaceStateDoesNotCross',
-        old='if (i->link && !link)',
-        new='if (i->link && !link && false)',
+        old='if (i->link_seen || !event->link_up)',
+        new='if (false)',
         needle='adapter.ifs[i].active[0]',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -180,10 +180,10 @@ DEFECTS = (
     ),
     Defect(
         name='reset-skips-recreate',
-        test='ExhaustedPoolStillReusesOwnedBlocksOnLinkReset',
-        old='(void)open_interface(i);',
-        new='(void)i;',
-        needle='crashed on signal',
+        test='RecreateAllocationFailureIsCountedAndRetried',
+        old='if (!i->msrp) {\n            // A failed recreate',
+        new='if (!i->msrp) {\n            continue; // A failed recreate',
+        needle='adapter.ifs[0].msrp',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
         debug=False,
@@ -261,8 +261,8 @@ DEFECTS = (
     Defect(
         name='other-link-cancels-owed',
         test='LinkLossCancelsItsOwedFrameOnly',
-        old='m->owed_len && m->owed_if == n',
-        new='m->owed_len && m->owed_if != n',
+        old='m->owed_len && m->owed_if == i->index',
+        new='m->owed_len && m->owed_if != i->index',
         needle='adapter.owed_len',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -346,8 +346,8 @@ DEFECTS = (
     Defect(
         name='ready-before-vlan',
         test='SinkMembershipCommitsBeforeReadyAtStartup',
-        old='if (s->desired == 2 && !s->vlan_sent)',
-        new='if (s->desired == 2 && false)',
+        old='if (r->desired != 2 || r->vlan_sent)',
+        new='if (true)',
         needle='joined',
     ),
     Defect(
@@ -393,7 +393,7 @@ DEFECTS = (
     ),
     Defect(
         name='walk-match-da-ignored',
-        test='SrpWalk.StreamMatcherNearMissSwapAndDelayedWithdrawal',
+        test='SrpWalk.StreamMatcherNearMissSwapAndImmediateWithdrawal',
         old='memcmp(sink->dest_mac,v->dest_mac,6) == 0 &&',
         new='true &&',
         needle='declared',
@@ -431,6 +431,40 @@ DEFECTS = (
         needle='outputs',
         suite='srp_shape.cpp',
     ),
+    Defect('tag-overhead-omitted','AdmissionStraddlesTheExactEthernetCeiling',
+           '+ 22u','+ 18u','admitted[0]'),
+    Defect('preamble-ifg-omitted','AdmissionStraddlesTheExactEthernetCeiling',
+           '(size + 20u)','(size + 0u)','admitted[0]'),
+    Defect('ninety-percent-ceiling','AdmissionStraddlesTheExactEthernetCeiling',
+           '* 3u / 4u','* 9u / 10u','admitted[0]'),
+    Defect('readyfailed-callback-stop','ReadyToReadyFailedNeverGlitchesAnActiveLicence',
+           'declaration == MSRP_LISTENER_DECL_READY_FAILED','false','mock function call'),
+    Defect('short-link-interruption-ignored','AdjacentLinkEdgesResetDomainAndAllPriorRegistrations',
+           'if (i->link_seen || !event->link_up)','if (!mbx_link_up(i->index))','domain.priority'),
+    Defect('old-prefix-accepted','LinkEventsDiscardOnlyTheirPublishedReceivePrefix',
+           'i->discard_prefix && mbx_rx_before(MBX_CH_SRP,i->rx_mark)',
+           'false','mock function call'),
+    Defect('shared-identity-overwritten','SharedIdentityReconcilesBothBindingOrdersOnTheWire',
+           'desired |= r->desired;','desired = r->desired;','last'),
+    Defect('event-reentry-unguarded','EventReentryAndSinkCapacityAreGuarded',
+           'static void on_event(void *ctx, const struct mbx_event *event)\n{\n'
+           '    struct srp_mbx *m = ctx;\n    if (!enter(m))',
+           'static void on_event(void *ctx, const struct mbx_event *event)\n{\n'
+           '    struct srp_mbx *m = ctx;\n    if (false)',
+           'adapter.reentries'),
+
+    Defect('failed-interface-starves-peer','RecreateAllocationFailureIsCountedAndRetried',
+           'if (!i->msrp) {\n            m->cursor = (slot + 1u) % (2u * MBX_N_IF);',
+           'if (!i->msrp) {','other_sent'),
+    Defect('delayed-in-listener','InListenerWithdrawalRevokesLicenceImmediately',
+           '// These valid constants',
+           '((struct mrp_app_ops *)i->msrp->ops)->milan_rapid_leave = false;\n    // These valid constants',
+           'adapter.ifs[i].active[0]'),
+    Defect('delayed-in-talker','InTalkerWithdrawalImmediatelyWithdrawsListener',
+           '// These valid constants',
+           '((struct mrp_app_ops *)i->msrp->ops)->milan_rapid_leave = false;\n    // These valid constants',
+           'declared'),
+
 )
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4) -> bool:

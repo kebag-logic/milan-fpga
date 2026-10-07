@@ -19,6 +19,7 @@ static struct srp_mbx *timer_owner;
 static void tick(void);
 static bool poll(void *ctx);
 static void receive(void *ctx, const struct mbx_frame *frame);
+static void on_event(void *ctx, const struct mbx_event *event);
 
 static bool enter(struct srp_mbx *m)
 {
@@ -152,7 +153,7 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
     return false;
 }
 
-static bool open_interface(struct srp_interface *i)
+static bool create_participants(struct srp_interface *i)
 {
     i->msrp_ctx = (struct msrp_ctx){.on_domain=domain,.on_listener=listener,.on_leave=left};
     i->msrp = msrp_app_create(1,&i->msrp_ctx);
@@ -172,6 +173,16 @@ static bool open_interface(struct srp_interface *i)
         return false;
     }
     return declare_sources(i);
+}
+
+static bool open_interface(struct srp_interface *i)
+{
+    if (create_participants(i)) {
+        return true;
+    }
+    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
+    i->msrp = NULL; i->mvrp = NULL;
+    return false;
 }
 
 bool srp_mbx_init(struct srp_mbx *m, const struct srp_mbx_config *config)
@@ -225,6 +236,13 @@ void srp_mbx_destroy(struct srp_mbx *m)
             if (l->polls[n].ctx == m) {
                 --l->n_polls;
                 memmove(l->polls + n,l->polls + n + 1,(l->n_polls - n) * sizeof(*l->polls));
+                break;
+            }
+        }
+        for (unsigned n = 0; n < l->n_sinks; ++n) {
+            if (l->sinks[n].ctx == m) {
+                --l->n_sinks;
+                memmove(l->sinks + n,l->sinks + n + 1,(l->n_sinks - n) * sizeof(*l->sinks));
                 break;
             }
         }
@@ -319,6 +337,10 @@ static void receive(void *ctx, const struct mbx_frame *frame)
         return;
     }
     struct srp_interface *i = &m->ifs[frame->interface];
+    if (!i->link || (i->discard_prefix && mbx_rx_before(MBX_CH_SRP,i->rx_mark))) {
+        m->busy = false;
+        return;
+    }
     uint16_t type = wire_be16(frame->bytes + 12);
     uint64_t da = ((uint64_t)wire_be32(frame->bytes) << 16) | wire_be16(frame->bytes + 4);
     struct mrp_app *app = NULL;
@@ -462,21 +484,88 @@ static bool prepare_declarations(struct srp_interface *i)
                 }
             }
         }
-        if (s->desired == 2 && !s->vlan_sent) {
-            // The application's Join timer wakes the loop when eligible.
+    }
+    // One Applicant owns a StreamID, even when several bindings request it.
+    // Resolve every eligible sink before changing that shared declaration.
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        struct srp_sink *s = &i->sinks[k];
+        if (!s->bound) {
             continue;
         }
-        if (s->desired != s->declared) {
-            int result = s->desired ? msrp_declare_listener(i->msrp,0,&s->stream_id,s->desired) :
-                                     msrp_withdraw_listener(i->msrp,0,&s->stream_id);
-            if (result == 0) {
-                s->declared = s->desired;
-            } else {
-                ++m->refused; owed = true;
+        uint8_t desired = 0;
+        bool handled = false;
+        for (unsigned other = 0; other < CTRL_SRP_SINKS; ++other) {
+            const struct srp_sink *r = &i->sinks[other];
+            if (r->bound && memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
+                handled = handled || other < k;
+                if (r->desired != 2 || r->vlan_sent) {
+                    desired |= r->desired;
+                }
             }
+        }
+        if (handled) {
+            continue;
+        }
+        int result = desired == s->declared ? 0 : desired ? msrp_declare_listener(i->msrp,0,&s->stream_id,desired) :
+                               msrp_withdraw_listener(i->msrp,0,&s->stream_id);
+        if (result == 0) {
+            for (unsigned other = k; other < CTRL_SRP_SINKS; ++other) {
+                struct srp_sink *r = &i->sinks[other];
+                if (r->bound && memcmp(r->stream_id.bytes,s->stream_id.bytes,8) == 0) {
+                    r->declared = desired;
+                }
+            }
+        } else {
+            ++m->refused; owed = true;
         }
     }
     return owed;
+}
+
+static void reset_interface(struct srp_interface *i)
+{
+    struct srp_mbx *m = i->owner;
+    if (m->owed_len && m->owed_if == i->index) {
+        m->owed_len = 0;
+    }
+    i->rx_mark = mbx_rx_mark(MBX_CH_SRP);
+    i->discard_prefix = true;
+    for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
+        if (i->active[k]) {
+            i->active[k] = false;
+            ++m->stops;
+            m->config.licence(m->config.ctx,i->index,k,false);
+        }
+        i->stop_owed[k] = false;
+    }
+    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
+    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
+    for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+        i->sinks[k].desired = 0; i->sinks[k].declared = 0;
+        i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
+    }
+    if (!open_interface(i)) {
+        ++m->refused;
+    }
+}
+
+static void on_event(void *ctx, const struct mbx_event *event)
+{
+    struct srp_mbx *m = ctx;
+    if (!enter(m)) {
+        return;
+    }
+    if (event->type == MBX_EV_TYPE_LINK && event->interface < MBX_N_IF) {
+        struct srp_interface *i = &m->ifs[event->interface];
+        // A repeated UP can represent coalesced down/up edges. Only the
+        // initial UP uses the already clean startup participants.
+        if (i->link_seen || !event->link_up) {
+            reset_interface(i);
+        }
+        i->link_seen = true;
+        i->link = event->link_up;
+    }
+    m->busy = false;
 }
 
 static bool poll(void *ctx)
@@ -490,20 +579,21 @@ static bool poll(void *ctx)
         struct srp_interface *i = &m->ifs[n];
         bool link = mbx_link_up(n);
         if (i->link && !link) {
-            if (m->owed_len && m->owed_if == n) {
-                m->owed_len = 0;
-            }
-            msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
-            i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;
-            for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
-                i->sinks[k].desired = 0; i->sinks[k].declared = 0;
-                i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
-            }
-            // No callback or concurrent allocation intervenes: recreating the
-            // same startup shape reuses the blocks just released above.
-            (void)open_interface(i);
+            reset_interface(i);
+            i->link = false;
         }
-        i->link = link;
+        if (i->discard_prefix && !mbx_rx_before(MBX_CH_SRP,i->rx_mark)) {
+            i->discard_prefix = false;
+        }
+        if (!i->msrp) {
+            // A failed recreate is counted and retried without dereferencing it.
+            msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
+            i->msrp = NULL; i->mvrp = NULL;
+            if (!open_interface(i)) {
+                ++m->refused; owed = true;
+                continue;
+            }
+        }
         memset(i->registered,0,sizeof(i->registered));
         for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
             i->sinks[k].desired = 0;
@@ -516,7 +606,7 @@ static bool poll(void *ctx)
                 ++m->stops;
                 m->config.licence(m->config.ctx,n,s,false);
             }
-            bool active = link && i->vlan_sent && i->admitted[s] && i->registered[s];
+            bool active = i->link && i->vlan_sent && i->admitted[s] && i->registered[s];
             if (active != i->active[s]) {
                 if (!active) {
                     ++m->stops;
@@ -528,7 +618,9 @@ static bool poll(void *ctx)
     }
     if (!m->owed_len) {
         for (unsigned n = 0; n < MBX_N_IF; ++n) {
-            owed = prepare_declarations(&m->ifs[n]) || owed;
+            if (m->ifs[n].msrp) {
+                owed = prepare_declarations(&m->ifs[n]) || owed;
+            }
         }
     }
     for (unsigned attempt = 0; attempt < 2u * MBX_N_IF; ++attempt) {
@@ -536,6 +628,10 @@ static bool poll(void *ctx)
         struct srp_interface *i = &m->ifs[slot / 2u];
         struct mrp_app *app = slot % 2u ? i->mvrp : i->msrp;
         struct send_context send = {i,app};
+        if (!i->msrp) {
+            m->cursor = (slot + 1u) % (2u * MBX_N_IF);
+            continue;
+        }
         (void)mrp_reclaim(i->msrp,0);
         (void)mrp_reclaim(i->mvrp,0);
         if (i->link) {
@@ -561,11 +657,12 @@ bool srp_mbx_attach(struct srp_mbx *m, struct ctrl_loop *loop)
         return false;
     }
     bool ok = m->initialized && !m->loop && !timer_owner && loop->n_ticks < CTRL_LOOP_MAX_TICKS &&
-              loop->n_polls < CTRL_LOOP_MAX_POLLS && !loop->rx[MBX_CH_SRP].fn;
+              loop->n_polls < CTRL_LOOP_MAX_POLLS && loop->n_sinks < CTRL_LOOP_MAX_SINKS && !loop->rx[MBX_CH_SRP].fn;
     if (ok) {
         m->loop = loop;
         timer_owner = m;
         (void)ctrl_loop_bind_rx(loop,MBX_CH_SRP,receive,m);
+        (void)ctrl_loop_add_sink(loop,on_event,m);
         (void)ctrl_loop_add_tick(loop,tick);
         (void)ctrl_loop_add_poll(loop,poll,m);
         ctrl_loop_set_rx_ready(loop,MBX_CH_SRP,rx_ready);

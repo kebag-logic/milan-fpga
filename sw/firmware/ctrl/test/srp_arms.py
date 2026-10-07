@@ -56,14 +56,15 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
         cut_srp(out)
         inc.append(f"-I{out}")
     lw = lwsrp / "src"
-    inc += [f"-I{lw / 'include'}",f"-I{lw}"]
+    inc += ["-DLWSRP_MILAN=1",f"-I{lw / 'include'}",f"-I{lw}"]
     build = fw_gtest.Build(coverage=tree.build.coverage and not debug,jobs=tree.build.jobs,cache=tree.build.cache)
     flags = [*C_FLAGS] + ([] if debug else ["-DNDEBUG"])
     sources = [(variant if p.startswith("mbx/") else tree.src) / p for p in SRP_SOURCES]
     try:
         ours = fw_gtest.compile_c(build,flags,inc,sources,out / "firmware")
         host = fw_gtest.compile_c(build,C_FLAGS,inc,[tree.src / p for p in HOST],out / "host",False)
-        theirs = fw_gtest.compile_c(build,C_FLAGS,inc,[lw / p for p in LWSRP_SOURCES],out / "library",False)
+        theirs = fw_gtest.compile_c(build,[*C_FLAGS,"-Dshlan_calloc=srp_test_calloc"],inc,
+                                    [lw / p for p in LWSRP_SOURCES],out / "library",False)
         tests = fw_gtest.compile_tests(build,inc,[HERE / ("srp_debug.cpp" if debug else test)],out / "tests")
         main = fw_gtest.main_object(build,out / "main")
         exe = fw_gtest.link(build,[*ours,*host,*theirs,*tests,main],out / "suite")
@@ -85,7 +86,7 @@ def arm_srp_rv32(tree: Tree, lwsrp: Path, interfaces: int,
     out = tree.out / name
     variant, inc = prepared(tree,interfaces,out,config)
     lw = lwsrp / "src"
-    inc += [f"-I{lw / 'include'}",f"-I{lw}",*fw_rv32.includes(cc)]
+    inc += ["-DLWSRP_MILAN=1",f"-I{lw / 'include'}",f"-I{lw}",*fw_rv32.includes(cc)]
     sources = [(variant if p.startswith("mbx/") else tree.src) / p for p in SRP_SOURCES]
     sources += [lw / p for p in LWSRP_SOURCES]
     sources += [tree.src / "plat/mbx_plat_mmio.c"]

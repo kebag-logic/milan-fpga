@@ -47,6 +47,9 @@ struct srp_interface {
     bool registered[CTRL_SRP_SOURCES];
     bool active[CTRL_SRP_SOURCES];
     bool stop_owed[CTRL_SRP_SOURCES];
+    uint16_t rx_mark;
+    bool discard_prefix;
+    bool link_seen;
     bool link;
     bool vlan_sent;
     bool domain_owed;

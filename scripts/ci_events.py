@@ -7763,9 +7763,9 @@ def _rv32_sdk_arms() -> list[Arm]:
                      "(`Install and verify the pinned RV32 SDK`)"))
         if path == RTL_FAST:
             # Each missing compiler must refuse, never silently skip a build.
-            for script, label in (("test_ctrl_firmware.py", "control-plane firmware"),
-                                  ("test_ctrl_nvm.py", "saved-state store")):
-                step_name = f"Run the {label} suites and its RV32 build"
+            for script, step_name in (
+                    ("test_ctrl_firmware.py", "Run the control-plane firmware suites and RV32 builds"),
+                    ("test_ctrl_nvm.py", "Run the saved-state store suites and its RV32 build")):
                 suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
                 arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
                              _m_step_key_any(path, jid, script, "run",

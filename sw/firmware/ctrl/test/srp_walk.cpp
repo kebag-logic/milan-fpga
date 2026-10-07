@@ -28,7 +28,7 @@ TEST_F(SrpWalk, CertifiedTwoClassDomainVectorAdoptsOnlyClassA) {
         d.value==std::vector<uint8_t>({6,3,0,3})) seen=true;
     EXPECT_TRUE(seen)<<"adopted Domain is re-declared on the wire";
 }
-TEST_F(SrpWalk, StreamMatcherNearMissSwapAndDelayedWithdrawal) {
+TEST_F(SrpWalk, StreamMatcherNearMissSwapAndImmediateWithdrawal) {
     // srp_stream_fsms section E, including 35.2.6's in-place type swap.
     const uint64_t sid=0x02AABBCCDDEE0001ull; const uint64_t da=0x91E0F0001234ull;
     msrp_stream_id id{}; uint8_t dest[6]; wire_put_be(id.bytes,sid,8); wire_put_be(dest,da,6);
@@ -44,11 +44,9 @@ TEST_F(SrpWalk, StreamMatcherNearMissSwapAndDelayedWithdrawal) {
     input({P::Msg{1,25,false,{P::Vec{false,1,P::fv_talker(sid,da,2,217,1,3,1,555),{3},{}}}}});
     advance(200); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u); expect_listener(2,0);
     input({P::Msg{1,25,false,{P::Vec{false,1,P::fv_talker(sid,da,2,217,1,3,1,555),{5},{}}}}});
-    // DELTA D1: fabric section E expects immediate MT; Table 10-4 requires
-    // LV until LeaveTime, including the existing registration's declaration.
-    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u);
-    advance(4990); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,2u);
-    advance(210); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,0u); expect_listener(2,5); // D2: retain Ready; Ignore=0 would discard this Lv.
+    // Milan 4.2.7.2.2 replaces IN/rLv with immediate MT for MSRP.
+    EXPECT_EQ(adapter.ifs[0].sinks[0].declared,0u);
+    advance(200); EXPECT_EQ(adapter.ifs[0].sinks[0].declared,0u); expect_listener(2,5); // D2: retain Ready; Ignore=0 would discard this Lv.
 }
 TEST_F(SrpWalk, RunBLeaveAllLanesPreserveTheRedeclaredListener) {
     // srp_stream_fsms I/J/K and srp_top's switch vector shape (#608/#134).

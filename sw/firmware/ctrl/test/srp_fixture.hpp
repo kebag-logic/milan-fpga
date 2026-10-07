@@ -10,6 +10,14 @@
 #include "shlan_port.h"
 #include "mbx_model.h"
 #include "wire.h"
+// The host's allocation-port fault injector forwards to the real static pool.
+// Only the library call site is renamed by the host arm; firmware stays intact.
+static int calloc_before_failure = -1;
+extern "C" void *srp_test_calloc(size_t count, size_t size) {
+    if(calloc_before_failure==0) return nullptr;
+    if(calloc_before_failure>0) --calloc_before_failure;
+    return shlan_calloc(count,size);
+}
 namespace {
 using ::testing::StrictMock;
 struct Licence {
@@ -34,6 +42,7 @@ protected:
     srp_mbx_config config{};
     StrictMock<Licence> licence;
     void SetUp() override {
+        calloc_before_failure=-1;
         mbx_model_reset(&model); mbx_model_bind(&model,nullptr,nullptr);
         ASSERT_TRUE(ctrl_pool_init(&pool,arena,sizeof(arena),srp_pool_classes,SRP_POOL_N_CLASSES));
         shlan_port_bind_pool(&pool);

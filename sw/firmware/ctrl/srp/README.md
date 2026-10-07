@@ -42,14 +42,19 @@ Initialize the adapter with interface MACs, source TSpecs/allocation state,
 link rate, and a licence output callback.
 Call `srp_mbx_attach` before opening the loop's channels.
 Only one adapter may own the library's global centisecond dispatch.
-The fabric's millisecond events feed the loop's accumulated centiseconds;
-coalesced ticks are drained without dropping elapsed time.
+Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
+millisecond timestamp. Coalesced ticks are drained without dropping elapsed time.
 Destroy detaches the adapter, releases all participants and revokes active licences.
 Destroy before reinitializing an already initialized instance.
 
 F3 calls `srp_mbx_bind(interface, sink, identity, destination, VID)` on the loop.
 A null identity removes a binding; false leaves the old binding unchanged.
 Retry after owed transmission commits.
+Bindings may share a StreamID while differing in destination or VID.
+The interface reconciles one Listener declaration from all eligible bindings:
+Ready contributes 2, AskingFailed contributes 1, and their union is ReadyFailed.
+An ineligible binding contributes nothing and cannot withdraw another's request.
+Ready contributes only after its own VLAN membership commits.
 Shared bindings retain their Listener and VLAN until the final user leaves.
 All ports are serialized. Output callbacks must enqueue work and return;
 they must not synchronously call an input port or advance the loop.
@@ -83,6 +88,10 @@ A bound sink retains an old VID it still needs.
 | Periodic | 100 centiseconds | IEEE 802.1Q-2018 10.7.11; Milan Table 4.3 |
 | LeaveAll | Integer draw strictly between 1000 and 1500 centiseconds | IEEE 802.1Q-2018 10.7.11 |
 
+Build lwSRP with `LWSRP_MILAN=1` for Milan v1.2 4.2.7.2.2.
+Only MSRP opts in: IN/rLv issues Lv and enters MT immediately.
+The corresponding Talker licence or Listener request is revoked in that pass.
+MVRP retains the generic IEEE 802.1Q Table 10-4 Registrar behavior.
 A withdrawal in LV does not restart LeaveTime (#608 and processor #134).
 The original five-second deadline revokes the Talker licence.
 Expiry processing precedes later RX, including a tick still in the event ring.
@@ -91,7 +100,16 @@ A subsequent same-pass registration cannot erase the owed stop notification.
 An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 SRP RX waits behind that owed record; Registrar clocks continue to run.
-A link loss cancels only that interface's owed output and recreates its state.
+Each LINK event preserves the lifecycle, including down/up between service passes.
+A repeated UP also recreates state because event coalescing may hide the down edge.
+Reset cancels only that interface's owed output and restores the default Domain.
+It fences that interface's already published RX prefix at the current RX_HEAD.
+Those records are consumed without registration; other interfaces keep their input.
+Frames published before lifecycle service are conservatively discarded for that
+interface, including frames received after the physical recovery.
+Fresh declarations after that fence are required before a licence can restart.
+A failed recreation owns neither participant, counts a refusal and retries later;
+the surviving interface continues service.
 
 ## Evidence
 
@@ -108,6 +126,28 @@ The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
 Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.
+`ctrl_image.py` also links a size fixture containing the reachable control loop,
+ADP, mailbox, SRP, binding entry and their static storage.
+`ctrl_image_runtime.py` builds its memory primitives and integer helpers with the
+same compiler from externally provisioned Picolibc, compiler-rt and LiteX sources.
+Their hashes, commands, ELF sections and symbol sizes accompany the measurement.
+The fixture has no board reset entry and observes licences in static storage.
+It is size evidence, not a boot or routed-resource result.
+
+```sh
+python3 sw/firmware/ctrl/test/ctrl_image_runtime.py --picolibc "$PICOLIBC" \
+  --compiler-rt "$COMPILER_RT" --litex-software "$LITEX_SOFTWARE" --output "$RUNTIME"
+python3 sw/firmware/ctrl/test/ctrl_image.py \
+  --config configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --output "$IMAGE" \
+  --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+```
+
+Repeat for `endstation_ax7101_8x8.yaml` and two interfaces.
+For the base comparison, export its control sources and pass `--without-srp`
+with `--ctrl-source "$BASE_CTRL"` to the same fixture and runtime.
+The report separates text, read-only data, initialized data, BSS, reserved stack
+and alignment; the arena is already in BSS and must not be added twice.
+The reserved 8192-byte stack is a measurement assumption, not a call-chain proof.
 
 GoogleTest/GoogleMock exercise one and two interfaces, every shipped entity shape,
 allocation failures, malformed inputs, declaration changes, reset, reentry,
@@ -139,10 +179,10 @@ of every processor state. The complete original processor suites run separately.
 
 | Difference | Processor stimulus/expectation | Firmware result and authority |
 |---|---|---|
-| D1 | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Retain in LV until LeaveTime. IEEE 802.1Q-2018 Table 10-4; a later Lv in LV does not reset the timer. The #608 case stops at the original deadline. |
+| D1, resolved | `srp_stream_fsms` section E expects immediate loss on Talker Lv from IN | Firmware agrees under Milan v1.2 4.2.7.2.2. A later Lv in LV retains the original LeaveTime deadline; the #608 cases remain covered. |
 | D2 | Sections B/E encode Listener withdrawal with FourPackedEvent Ignore (0) | Retain the last declaration subtype on Lv. IEEE 802.1Q-2018 35.2.2.7.2: Ignore is not a Listener declaration to register or withdraw. |
 
-IEEE 802.1Q is the oracle for both differences.
+Milan v1.2 4.2.7.2.2 governs D1; IEEE 802.1Q-2018 35.2.2.7.2 governs D2.
 JoinIn/JoinMt replacing Advertise with Failed or the reverse uses 35.2.6;
 conflicting New registrations retain Failed precedence until replacement/expiry.
 
@@ -155,7 +195,7 @@ The desk callback proves output ordering, not a connected target licence registe
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.
 
-The lwSRP pin is on a local topic stack pending upstream publication and review.
-Its private availability gates hosted fetch and merge, as the assignment states.
-FC integration, two independent reviews, candidate-merge gates and deployment
+The lwSRP pin is the integrated `mark2-port` head `23d9a817` from PR #12.
+A later integration delta moves it to that PR's reviewed head.
+Two independent reviews, candidate-merge gates and deployment
 remain separate obligations; this lane changes neither shipping ownership nor RTL.
