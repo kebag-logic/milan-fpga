@@ -11,7 +11,9 @@
 // The same checks run on the firmware's host model (the host test's model
 // arm), so the RTL and the model answer to one set of expectations.
 // `make run-if2` builds this file again against the two-interface variant of
-// the contract (lane FC), for the per-interface own-MAC checks.
+// the contract (lane FC), for the per-interface own-MAC checks. The
+// bound-talker table's timing checks (lane F3 round 3) run on every build
+// here and never on the model, whose frames arrive whole.
 
 #include <cstdio>
 
@@ -38,6 +40,7 @@ int main(int argc, char** argv) {
     mbx_tb::Bench bench(model.get(), host);
     mbx_tb::Suite<mbx_tb::Bench> suite(bench, check);
     suite.run();
+    suite.run_bound_timing();
     if (host == 1) {
         mbx_tb::AxilChecks axil(bench, check);
         axil.run();

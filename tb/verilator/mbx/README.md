@@ -4,7 +4,8 @@
 `make` builds and runs four things, exit 0 = all green:
 
 1. `run-wb`: the checks of [`suite.hpp`](suite.hpp) on `KL_mbx` behind
-   `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus);
+   `KL_mbx_wb` (Wishbone, the on-chip RISC-V's bus), then the bound-talker
+   table's timing checks, which need a stream that can stall;
 2. `run-axil`: the same checks on `KL_mbx` behind `KL_mbx_axil` (AXI4-Lite,
    a hard core's bus), then the adapter's own handshake checks
    ([`axil_checks.hpp`](axil_checks.hpp));
@@ -70,6 +71,8 @@ filter table. Register offsets and field positions are the generated
 | Q10 | tuple and identity refusals take no token: a full burst passes after them, the frame past it counts in RATE_DROP |
 | Q12 | the adp channel's bound talkers (lane F3 round 2, #665 comment 6029368753): with the table empty no ENTITY_AVAILABLE passes; an enabled entry's talker passes as ENTITY_AVAILABLE and ENTITY_DEPARTING, whole and uncounted, and under no other message_type, ENTITY_DISCOVER included; another talker, an identity differing in either half, a frame that ends inside entity_id (even when its bytes, right-aligned, are an entry) and an entry with `BOUND_EN` clear are dropped uncounted; the last entry, a rewritten entry and every entry at once; DISCOVER's own terms unchanged |
 | Q13 | the table read is the arrival interface's: a talker bound on interface i passes there only, with the record's IF i, and on another interface or an index with no interface reaches no ring and counts nothing |
+| Q14 to Q17 | the table compared byte by byte as the identity arrives (lane F3 round 3, #665 comment 6032450078): the bound talker right after another talker's frame passes, and right after that one differing in its first identity byte only does not; an identity differing from the entry in any one of its eight bytes is refused; `BOUND_EID_LO`, then `BOUND_EID_HI`, rewritten with `BOUND_EN` still set takes effect; after a reset every entry reads 0 again, an entry enabled with no identity written holds talker 0, and one with `BOUND_EID_HI` alone written holds that word and 0 |
+| Q18 to Q21 | the table's timing, on the RTL only (the model's frames arrive whole): a frame stalled inside its identity passes, but not while its entry's `BOUND_EN` is cleared and set again, or set again alone, even with the copy made by the verdict; another entry's words read back while an entry is copied, and both then pass; `BOUND_EID_LO` rewritten at each of 32 clocks after `BOUND_EN` is set again, the new talker passing and the old never |
 | Q11 | the MAAP DEFEND (IEEE 1722-2016 B.2.1): a DEFEND to the own MAC delivered whole and uncounted; a PROBE, an ANNOUNCE and every reserved message_type there, and a DEFEND to a foreign unicast, never delivered and counted once each; a DEFEND to the own MAC for a range beside this entity's dropped uncounted; a multicast DEFEND still delivered; a DEFEND cut at byte 14 (no message_type: counted) and at byte 15 (no range: uncounted), then the next DEFEND delivered |
 | D0, D1 | the ring fills to its last whole record; a frame the space cannot hold, or one over the channel's limit, counts in RX_DROP and never touches an unread record |
 | T0, T1 | the token bucket: a burst of its depth, then one frame per refill period |
@@ -96,7 +99,8 @@ master (AW and W together, BREADY and RREADY high) never exercises:
 
 The host test runs the same `suite.hpp` on the firmware's mailbox model
 ([`sw/firmware/ctrl/test`](../../../sw/firmware/ctrl/README.md), arm
-`model`), so the model and the RTL answer to one set of expectations.
+`model`), so the model and the RTL answer to one set of expectations; only
+Q18 to Q21 are the RTL's alone.
 `run-if2` does the same on two interfaces with the RTL and the model built
 against one generated header.
 
@@ -215,25 +219,47 @@ name with `-axil`), and each caught by Q11 on both:
 | `rx-defend-any-unicast` | the DEFEND tuple takes any unicast destination | Q11, a DEFEND to a foreign unicast reaches no ring |
 | `rx-short-frame-never-classified` | a frame that ends at byte 14 is never decided, so the receive path waits | Q11, the DEFEND cut at byte 14 counted once |
 
-The adp channel's bound talkers (lane F3 round 2) add twelve defects, each
-planted through both adapters as above; the last two build the two-interface
-variant, where only another interface shows them. Their twins in the host
-model are in `ctrl_mutants.py`'s table (lane F3's `acmp_mutants.py`):
+The adp channel's bound talkers (lane F3) add thirty defects, each planted
+through both adapters as above; the ones marked so build the two-interface
+variant, where only another interface shows them. Round 3 put the table in
+distributed RAM, compared byte by byte as the identity arrives: the first
+fifteen rows are round 2's twelve rules, planted on the lines that now carry
+them, with the skeleton's entry decode and the arrival interface's identity
+bytes and copies; the rest are round 3's. The twins in the host model are in
+`ctrl_mutants.py`'s table (lane F3's `acmp_mutants.py`):
 
 | Arm | Defect | Caught by |
 |---|---|---|
 | `pkg-adp-bound-term-dropped` | the package drops the eq_bound term | Q12, a bound talker's AVAILABLE delivered |
-| `top-bound-eid-halves-swapped` | the skeleton hands the filter BOUND_EID's halves in the wrong order | Q12, a bound talker's AVAILABLE delivered |
+| `rx-bound-copy-halves-swapped` | the copier takes BOUND_EID's halves in the wrong order | Q12, a bound talker's AVAILABLE delivered |
 | `pkg-adp-bound-term-any-type` | the term takes any message_type | Q12, no other message_type passes |
-| `rx-bound-low-word-only` | the entry compared on its low word only | Q12, an identity differing in [63:32] |
+| `rx-bound-low-word-only` | the flag armed at the fifth identity byte: the entry compared on its low word only | Q12, an identity differing in [63:32] |
 | `rx-bound-enable-ignored` | BOUND_EN never read | Q12, an entry with BOUND_EN clear (and F2) |
 | `rx-bound-field-length-unchecked` | the term holds on a truncated entity_id | Q12, a frame that ends inside entity_id |
-| `rx-bound-first-entry-only` | only entry 0 compared | Q12, the last entry |
-| `top-bound-entry-write-lands-in-entry-0` | every entry's BOUND_EID_LO write lands in entry 0 | R1, each entry at its own address |
+| `rx-bound-first-entry-only` | only entry 0's flag read | Q12, the last entry |
+| `rx-bound-entry-write-lands-in-entry-0` | every entry's BOUND_EID words land in entry 0's | R1, each entry at its own address |
+| `top-bound-entry-decoded-as-0` | the skeleton decodes every entry as entry 0 | R1, each entry at its own address |
 | `top-bound-en-read-from-eid` | BOUND_EN reads BOUND_EID_LO | R1, BOUND_EN keeps EN only |
-| `rx-bound-table-of-interface-0` | interface 0's table read for every interface index | Q13, an index with no interface |
+| `rx-bound-table-of-interface-0` | interface 0's table for every interface index | Q13, an index with no interface |
 | `rx-bound-enable-of-interface-0` (two interfaces) | interface 0's BOUND_EN read for every interface | Q13, a talker bound on interface 1 |
-| `top-bound-write-ignores-interface` (two interfaces) | interface 1's BOUND_EN writes land in interface 0's | Q13 and R1 |
+| `top-bound-write-ignores-interface` (two interfaces) | the skeleton decodes every interface as interface 0 | Q13 and R1 |
+| `rx-bound-taps-of-interface-0` (two interfaces) | interface 0's identity bytes compared for every interface | Q13, a talker bound on interface 1 |
+| `rx-bound-copy-into-interface-0` (two interfaces) | the copier shifts interface 1's entries into interface 0's | Q13, a talker bound on interface 1 |
+| `rx-bound-byte-index-off-by-one` | identity byte b compared with the entry's byte b + 1 | Q12, a bound talker's AVAILABLE delivered |
+| `rx-bound-copy-lanes-reversed` | the copier takes a word's bytes in the wrong lanes | Q12, a bound talker's AVAILABLE delivered |
+| `rx-bound-last-byte-uncompared` | the eighth identity byte never compared | Q15, one identity byte differing |
+| `rx-bound-flag-never-rearmed` | the match flag never armed again: a refused frame's flag carries into every later frame | Q14, the bound talker right after another talker |
+| `rx-bound-flag-carried-into-the-next-frame` | a matched frame's flag stands in for the next frame's first identity byte | Q14, one differing in its first identity byte only |
+| `rx-bound-liveness-at-the-verdict-only` | BOUND_EN and the owed copy read at the verdict only | Q18, BOUND_EN cleared and set inside the identity |
+| `rx-bound-live-while-owed` | an entry takes part while its copy is owed | Q19, BOUND_EN set again inside the identity |
+| `rx-bound-copy-not-owed-on-enable` | setting BOUND_EN owes no copy | Q12, a bound talker's AVAILABLE delivered |
+| `rx-bound-copy-not-owed-on-rewrite` | a BOUND_EID word written while BOUND_EN is set owes no copy | Q16, the new talker passes |
+| `rx-bound-copy-ignores-the-host` | the copier steps while the host holds the read-back memory | Q20, the entry copied meanwhile |
+| `rx-bound-copy-not-restarted` | a rewrite during a copy does not start it over | Q21, the new talker passes |
+| `rx-bound-scan-skips-the-last-entry` | the copier's scan wraps before the last entry | Q12, the last entry |
+| `rx-bound-unwritten-word-copied-raw` | a word not written since the reset copied as stored | Q17, an entry enabled with no identity written |
+| `top-bound-unwritten-word-read-raw` | a word not written since the reset read as stored | Q17, every entry reads 0 after a reset |
+| `rx-bound-valid-kept-through-reset` | BOUND_EID_LO's written flag kept through a reset | Q17, every entry reads 0 after a reset |
 
 ## Run
 

@@ -294,50 +294,110 @@ ARMS += (
 )
 
 
-#: ---- lane F3 round 2: the adp channel's bound talkers (#665, comment
-#: 6029368753), one defect per rule through both adapters (the model's twins
-#: are in sw/firmware/ctrl/test/ctrl_mutants.py) ----
+#: ---- lane F3: the adp channel's bound talkers (#665, comment 6029368753),
+#: one defect per rule through both adapters (the model's twins are in
+#: sw/firmware/ctrl/test/ctrl_mutants.py). Round 3 holds the table in
+#: distributed RAM and compares it byte by byte (comment 6032450078): the
+#: round-2 rules are planted on the lines that now carry them ----
 ARMS += (
     # an ENTITY_AVAILABLE or ENTITY_DEPARTING of a bound talker passes: the term
-    # dropped from the contract, the identity's halves swapped into the filter
+    # dropped from the contract, the identity's halves swapped into the compare
     *_both("pkg-adp-bound-term-dropped", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_TEST_C = 32'd5;",
            "MBX_CH_ADP_T2_TEST_C = 32'd0;", "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
-    *_both("top-bound-eid-halves-swapped", "KL_mbx.sv",
-           "bound_eid_w[64*k +: 64] = {bound_eid_hi_r[k], bound_eid_lo_r[k]};",
-           "bound_eid_w[64*k +: 64] = {bound_eid_lo_r[k], bound_eid_hi_r[k]};",
+    *_both("rx-bound-copy-halves-swapped", "KL_mbx_rx.sv", "RW_C'(2 * int'(cp_k_r) + int'(cp_b_r[2]))",
+           "RW_C'(2 * int'(cp_k_r) + int'(!cp_b_r[2]))",
            "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
     # only those two message types, only the whole identity, only an enabled entry
     *_both("pkg-adp-bound-term-any-type", "KL_mbx_pkg.sv", "MBX_CH_ADP_T2_MSG_MASK_C = 32'h00000003;",
            "MBX_CH_ADP_T2_MSG_MASK_C = 32'h0000FFFF;",
            "Q12 no other message_type of a bound talker passes on its entity_id"),
-    *_both("rx-bound-low-word-only", "KL_mbx_rx.sv", "field_r[j] == bound_eid_w[64*e +: 64]",
-           "field_r[j][31:0] == bound_eid_w[64*e +: 32]",
-           "Q12 an entity_id differing from the entry in [63:32] only"),
-    *_both("rx-bound-enable-ignored", "KL_mbx_rx.sv", "if (bound_en_w[e] && field_r[j] == bound_eid_w[64*e +: 64])",
-           "if (field_r[j] == bound_eid_w[64*e +: 64])",
-           "Q12 an entry with BOUND_EN clear, its identity still written"),
+    *_both("rx-bound-low-word-only", "KL_mbx_rx.sv", "(cnt_r == 11'(BO_C) || match_r[e])",
+           "(cnt_r == 11'(BO_C + 4) || match_r[e])", "Q12 an entity_id differing from the entry in [63:32] only"),
+    *_both("rx-bound-enable-ignored", "KL_mbx_rx.sv", "live_w[e] = fok_w && en_r[int'(fif_w) * int'(NB_C) + e] && ",
+           "live_w[e] = fok_w && ", "Q12 an entry with BOUND_EN clear, its identity still written"),
     *_both("rx-bound-field-length-unchecked", "KL_mbx_rx.sv",
-           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w[j])", "MBX_TEST_EQ_BOUND_C:      if (bound_hit_w[j])",
+           "MBX_TEST_EQ_BOUND_C:      if (field_ok && bound_hit_w)", "MBX_TEST_EQ_BOUND_C:      if (bound_hit_w)",
            "Q12 an ENTITY_AVAILABLE of a bound talker that ends inside its entity_id"),
     # every entry takes part, and each is written and read at its own address
-    *_both("rx-bound-first-entry-only", "KL_mbx_rx.sv", "for (int e = 0; e < int'(NB_C); e++) begin",
-           "for (int e = 0; e < 1; e++) begin", "Q12 the last entry passes its talker"),
-    *_both("top-bound-entry-write-lands-in-entry-0", "KL_mbx.sv",
-           "bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e] <=", "bound_eid_lo_r[i * int'(MBX_N_BOUND_C)] <=",
+    *_both("rx-bound-first-entry-only", "KL_mbx_rx.sv", "assign bound_hit_w = |(match_r & live_w);",
+           "assign bound_hit_w = match_r[0] && live_w[0];", "Q12 the last entry passes its talker"),
+    *_both("rx-bound-entry-write-lands-in-entry-0", "KL_mbx_rx.sv",
+           "assign rb_wa_w = RW_C'(2 * int'(hk_w) + int'(hhi_w));", "assign rb_wa_w = RW_C'(int'(hhi_w));",
+           "R1 each bound-talker entry keeps"),
+    *_both("top-bound-entry-decoded-as-0", "KL_mbx.sv", "bnd_entry_w = 5'(entry);", "bnd_entry_w = '0;",
            "R1 each bound-talker entry keeps"),
     *_both("top-bound-en-read-from-eid", "KL_mbx.sv",
-           "reg_rdata_w = 32'(bound_en_r[i * int'(MBX_N_BOUND_C) + e]);",
-           "reg_rdata_w = 32'(bound_eid_lo_r[i * int'(MBX_N_BOUND_C) + e]);", "R1 each bound-talker entry keeps"),
+           "reg_rdata_w = mbx_place_f(32'(bnd_en_w), MBX_BOUND_EN_EN_LSB_C, MBX_BOUND_EN_EN_WIDTH_C);",
+           "reg_rdata_w = bnd_eid_w;", "R1 each bound-talker entry keeps"),
     # the table read is the arrival interface's: at one interface an index with
     # no interface behind it shows it, at two the other interface's table does
-    *_both("rx-bound-table-of-interface-0", "KL_mbx_rx.sv", "if (int'(if_r) == i) begin\n        bound_eid_w",
-           "if (i == 0) begin\n        bound_eid_w",
+    *_both("rx-bound-table-of-interface-0", "KL_mbx_rx.sv",
+           "assign {fok_w, fif_w} = (int'(if_r) < int'(MBX_N_IF_C)) ? {1'b1, if_r} : '0;",
+           "assign {fok_w, fif_w} = {1'b1, MBX_IF_W_C'(0)};",
            "Q13 on another interface, or an index with no interface, it reaches no ring"),
-    *_both("rx-bound-enable-of-interface-0", "KL_mbx_rx.sv", "bound_en_w  = bound_en_i[NB_C*i +: NB_C];",
-           "bound_en_w  = bound_en_i[0 +: NB_C];", "Q13 a talker bound on interface i passes on interface i", 2),
-    *_both("top-bound-write-ignores-interface", "KL_mbx.sv",
-           "bound_en_r[i * int'(MBX_N_BOUND_C) + e] <=", "bound_en_r[e] <=",
+    *_both("rx-bound-enable-of-interface-0", "KL_mbx_rx.sv", "en_r[int'(fif_w) * int'(NB_C) + e]", "en_r[e]",
            "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("top-bound-write-ignores-interface", "KL_mbx.sv",
+           "bnd_if_w    = MBX_IF_W_C'(rel >> $clog2(MBX_BND_STRIDE_C));", "bnd_if_w    = '0;",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("rx-bound-taps-of-interface-0", "KL_mbx_rx.sv",
+           "eq_w[e]   = rx_data_i == c_tap_w[int'(fif_w) * int'(NB_C) + e];", "eq_w[e]   = rx_data_i == c_tap_w[e];",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    *_both("rx-bound-copy-into-interface-0", "KL_mbx_rx.sv", "c_sh_w[k] = cp_step_w && int'(cp_k_r) == k;",
+           "c_sh_w[k] = cp_step_w && int'(cp_k_r) % int'(NB_C) == k;",
+           "Q13 a talker bound on interface i passes on interface i", 2),
+    # round 3: each identity byte against the same byte of every entry, as it
+    # arrives: a wrong tap, the copier's bytes in the wrong lanes, a byte left out
+    *_both("rx-bound-byte-index-off-by-one", "KL_mbx_rx.sv", "assign c_tap_w[k] = sr_r[cmp_b_w];",
+           "assign c_tap_w[k] = sr_r[cmp_b_w + 3'd1];",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-copy-lanes-reversed", "KL_mbx_rx.sv", "rb_q_w[8 * int'(cp_b_r[1:0]) +: 8]",
+           "rb_q_w[8 * (3 - int'(cp_b_r[1:0])) +: 8]",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-last-byte-uncompared", "KL_mbx_rx.sv", "(32'(cnt_r) - BO_C < 32'd8)",
+           "(32'(cnt_r) - BO_C < 32'd7)",
+           "Q15 an entity_id differing from the entry in one identity byte is refused"),
+    # the match flag is the frame's own: never armed again, or the last
+    # frame's carried into the first byte of the next
+    *_both("rx-bound-flag-never-rearmed", "KL_mbx_rx.sv", "(cnt_r == 11'(BO_C) || match_r[e])", "match_r[e]",
+           "Q14 the bound talker's right after it passes"),
+    *_both("rx-bound-flag-carried-into-the-next-frame", "KL_mbx_rx.sv",
+           "match_r[e] <= live_w[e] && eq_w[e] && (cnt_r == 11'(BO_C) || match_r[e]);",
+           "match_r[e] <= live_w[e] && (eq_w[e] || (cnt_r == 11'(BO_C) && match_r[e])) "
+           "&& (cnt_r == 11'(BO_C) || match_r[e]);",
+           "Q14 right after that, one differing from it in the first identity byte only"),
+    # an entry takes part from the first identity byte to the verdict only
+    # while BOUND_EN is set and no copy of it is owed
+    *_both("rx-bound-liveness-at-the-verdict-only", "KL_mbx_rx.sv", "else match_r[e] <= match_r[e] && live_w[e];",
+           "else match_r[e] <= match_r[e];", "Q18 one stalled while BOUND_EN is cleared and set again"),
+    *_both("rx-bound-live-while-owed", "KL_mbx_rx.sv", " && !owed_r[int'(fif_w) * int'(NB_C) + e];", ";",
+           "Q19 one stalled while BOUND_EN is set again alone"),
+    # the copier: owed by BOUND_EN set and by a word written while it is, giving
+    # way to the host's reads, starting over on a rewrite, reaching every entry
+    *_both("rx-bound-copy-not-owed-on-enable", "KL_mbx_rx.sv",
+           "(heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])", "(heid_w && en_r[hk_w])",
+           "Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring"),
+    *_both("rx-bound-copy-not-owed-on-rewrite", "KL_mbx_rx.sv",
+           "(heid_w ? en_r[hk_w] : bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])",
+           "(!heid_w && bnd_wdata_i[MBX_BOUND_EN_EN_LSB_C])", "Q16 the new talker passes"),
+    *_both("rx-bound-copy-ignores-the-host", "KL_mbx_rx.sv", "assign cp_step_w = cp_busy_r && !bnd_req_i;",
+           "assign cp_step_w = cp_busy_r;", "Q20 the entry copied meanwhile passes its talker"),
+    *_both("rx-bound-copy-not-restarted", "KL_mbx_rx.sv",
+           "        if (cp_busy_r && hk_w == cp_k_r) cp_b_r <= '0;\n", "",
+           "Q21 BOUND_EID_LO rewritten at each of 32 clocks"),
+    *_both("rx-bound-scan-skips-the-last-entry", "KL_mbx_rx.sv", "(32'(cp_k_r) == NE_C - 1)",
+           "(32'(cp_k_r) == NE_C - 2)",
+           "Q12 the last entry passes its talker"),
+    # distributed RAM keeps its contents through a reset: a word not written
+    # since reads 0 and is copied as 0
+    *_both("rx-bound-unwritten-word-copied-raw", "KL_mbx_rx.sv",
+           "c_d_w = rb_vld_w ? rb_q_w[8 * int'(cp_b_r[1:0]) +: 8] : 8'd0;",
+           "c_d_w = rb_q_w[8 * int'(cp_b_r[1:0]) +: 8];",
+           "Q17 it holds talker 0, whose ENTITY_AVAILABLE passes"),
+    *_both("top-bound-unwritten-word-read-raw", "KL_mbx.sv", " && bnd_eid_vld_w) reg_rdata_w = bnd_eid_w;",
+           ") reg_rdata_w = bnd_eid_w;", "Q17 after a reset every entry of every interface's table reads 0 again"),
+    *_both("rx-bound-valid-kept-through-reset", "KL_mbx_rx.sv", "      vlo_r     <= '0;\n", "",
+           "Q17 after a reset every entry of every interface's table reads 0 again"),
 )
 
 
