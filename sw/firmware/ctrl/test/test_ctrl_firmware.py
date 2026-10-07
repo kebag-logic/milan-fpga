@@ -33,9 +33,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
            host mailbox hook; maap_if2 repeats the hook at two interfaces;
   maap_debug the no-synchronous-callback assertion in a debug build;
   rv32     the portable set and the MMIO platform cross-compiled freestanding
-           for RV32I with the pinned SDK, every undefined symbol a C-library
-           string or format function or a libgcc helper (no heap, no OS);
-           CTRL_RV32_CC can select an installed bare-metal compiler explicitly;
+           for RV32I with the pinned SDK and isolated freestanding headers;
+           every undefined symbol a named runtime interface or arithmetic
+           helper, with ELF ABI and static-frame checks (no heap, no OS);
   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)

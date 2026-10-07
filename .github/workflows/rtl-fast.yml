@@ -231,18 +231,14 @@ jobs:
 
   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
-  # every shipped shape, the saved-state store's RV32 build, the tally
+  # every shipped shape, both freestanding RV32 object builds, the tally
   # listener's planted failure and crash, and the coverage ratchet with its
   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
   # are the distribution's packages, and the install step prints the
   # versions and the compiler and gcov the ratchet is measured with.
-  # Three arms stay local gates, each named where it is left out: the ctrl
-  # gate runs before the RV32 SDK is installed, so its rv32 arm is SKIPPED,
-  # visibly (it builds against the SDK's C headers for -mabi=ilp32, which
-  # the pinned ilp32d SDK does not carry: no gnu/stubs-ilp32.h); the ctrl
-  # gate's lwsrp arm is opt-in (--lwsrp) and lwSRP is a private repository
-  # this workflow's token cannot read (the ratchet reads the same with and
-  # without it); and both gates' planted-defect campaigns (--self-test).
+  # The ctrl gate's lwsrp arm stays opt-in: the workflow token cannot
+  # read that private dependency. Both firmware mutation campaigns remain
+  # local gates. The SDK is installed before either required RV32 arm.
   firmware-unit:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
@@ -266,9 +262,6 @@ jobs:
       - name: Prove the tally reads a failing and a crashing test as failures
         run: python3 sw/firmware/gtest/tally_selftest.py
 
-      - name: Run the control-plane firmware suites
-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
-
       - name: Cache the pinned RV32 SDK
         uses: actions/cache@v4
         with:
@@ -279,6 +272,12 @@ jobs:
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+
+      - name: Run the control-plane firmware suites and its RV32 build
+        run: |
+          set -euo pipefail
+          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
 
       - name: Run the saved-state store suites and its RV32 build
         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"

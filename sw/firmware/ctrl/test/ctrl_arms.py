@@ -4,15 +4,14 @@
 
 from __future__ import annotations
 
-import os
 import re
-import shutil
 import sys
 from pathlib import Path
 
-from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
                         run, sources)
+import fw_rv32
 
 
 def arm_model(tree: Tree) -> Outcome:
@@ -186,23 +185,14 @@ def arm_entity(tree: Tree) -> Outcome:
 # ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
 
 def rv32_compiler() -> str | None:
-    """An explicit bare-metal compiler, otherwise the first installed candidate."""
-    explicit = os.environ.get("CTRL_RV32_CC")
-    if explicit:
-        found = shutil.which(explicit)
-        if found is None:
-            raise Refusal("CTRL_RV32_CC does not name an executable compiler")
-        return found
-    for cand in RV32_CANDIDATES:
-        found = shutil.which(cand)
-        if found is not None:
-            return found
-    return None
+    """The explicit compiler, or the first available SDK candidate."""
+    return fw_rv32.compiler()
 
 
 def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
-    """The undefined, or the defined, symbols of a set of objects."""
-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
+    """Undefined symbols, or definitions capable of resolving external references."""
+    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
+    res = run([tool, *flags, *map(str, objs)])
     if res.returncode != 0:
         raise Refusal(f"{tool}: {res.stderr.strip()}")
     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
@@ -217,25 +207,40 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
         return Outcome("rv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
     obj_dir = tree.out / "rv32"
     obj_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        runtime_inc = fw_rv32.includes(cc)
+    except ValueError as exc:
+        raise Refusal(str(exc)) from exc
     objs = []
     for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
-        res = run([cc, *RV32_FLAGS, *includes(tree), "-c", str(src), "-o", str(obj)])
+        res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
         if res.returncode != 0:
             return Outcome("rv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{res.stderr}")
         objs.append(obj)
     tool = cc.removesuffix("gcc")
     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
-    stray = sorted(s for s in open_syms if s not in RV32_LIBC and not s.startswith("__"))
-    size = run([tool + "size", "-t", *map(str, objs)]).stdout.strip().splitlines()
+    stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
+    findings = fw_rv32.object_findings(cc, objs)
+    try:
+        frame = fw_rv32.stack_frames(objs)
+    except ValueError as exc:
+        findings.append(str(exc))
+        frame = None
+    measured = run([tool + "size", "-t", *map(str, objs)])
+    if measured.returncode:
+        raise Refusal(f"RV32 size failed: {measured.stderr.strip()}")
+    size = measured.stdout.strip().splitlines()
     lines = [f"  {cc.rsplit('/', 1)[-1]} {' '.join(RV32_FLAGS[:4])}: {len(objs)} objects",
              f"  size (text data bss dec): {' '.join(size[-1].split()[:4]) if size else 'unknown'}",
+             f"  largest static frame: {frame} bytes (not a call-chain bound)",
              f"  undefined: {', '.join(sorted(open_syms))}"]
     if stray:
-        lines.append(f"  [FAIL] symbols outside the C library and libgcc: {', '.join(stray)}")
-    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if stray else 0} ==",
-              f"RESULT: {'FAIL' if stray else 'PASS'}"]
-    return Outcome("rv32", 1 if stray else 0, "\n".join(lines))
+        findings.append(f"symbols outside the C library and libgcc: {', '.join(stray)}")
+    lines += [f"  [FAIL] {finding}" for finding in findings]
+    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if findings else 0} ==",
+              f"RESULT: {'FAIL' if findings else 'PASS'}"]
+    return Outcome("rv32", 1 if findings else 0, "\n".join(lines))
 
 
 # ---- lwsrp: lwSRP's MRP core on the port layer -----------------------------------------
