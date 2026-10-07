@@ -50,6 +50,17 @@ It opens SRP reception and its interrupt, and enables centisecond delivery.
 SRP owns no one-shot fabric timer slot: lwSRP timers use the shared tick.
 The other three modules retain disjoint runs of `MBX_N_IF` slots.
 The isolated adapter uses `srp_mbx_attach` before opening its loop.
+The composition also observes the per-sink registration snapshot after SRP returns.
+A matching Advertise calls `acmp_tk_registered(sink, false)` and a matching
+Failed calls it with `true`, when the sink is SETTLED_NO_RSV.
+Withdrawal calls `acmp_tk_unregistered(sink)` from SETTLED_RSV_OK.
+Each uses the accepted binding on the sink's configured interface.
+These serialized entries obey #678 and Milan v1.2 5.5.3.5.42/5.5.3.5.48.
+A refreshed healthy Talker keeps the listener settled past TMR_NO_TK.
+VID 0 and VID >= 4095 park the request, visible through
+`ctrl_app.srp_requests[sink].parked`, until ACMP replaces or withdraws it.
+Parking does not keep the loop awake; transient SRP refusals still retry.
+
 Only one adapter may own the library's global centisecond dispatch.
 Each fabric TICK record counts elapsed centiseconds; NOW_MS is a separate
 millisecond timestamp. Coalesced ticks are drained without dropping elapsed time.
@@ -68,7 +79,8 @@ Other ACMP environment callbacks keep their original context.
 After SRP's poll returns, a composition poll calls
 `srp_mbx_bind(interface, sink, identity, destination, VID)` for pending requests.
 The sink index and its configured interface are preserved independently.
-An accepted request retires; a refusal stays pending and keeps the loop awake.
+An accepted request retires; transient refusal stays pending and keeps the loop awake.
+Permanent VID refusal parks until a new ACMP request, as described above.
 Unbind or replacement supersedes that sink's previous pending request.
 Keep both objects alive until loop service stops, then destroy SRP and the pool.
 Recompose the application before attaching another adapter.
@@ -218,6 +230,16 @@ replacement and interface/sink isolation, with named plants at both interface co
 `srp_app.cpp` counts actual mailbox accesses in the event, refused-receive,
 retained-receive poll, transmitting poll, maximum RX/TX record and full-pass paths.
 Each bound term has a named planted understatement at one and two interfaces.
+The fixed poll envelope separately measures idle link reads, reset increments
+and retained-receive increments: four per interface. Reset and retained receive
+are alternative paths, so their conservative sum is not a simultaneous trace.
+The transmit observer wraps the real `send_pdu` callback and pads library output
+to the channel maximum. It measures 383 accesses for each of two calls per
+interface, preserving the firmware callback and the mailbox driver.
+A pass drains eight real event records and another drains two maximum RX records.
+Subtracting unrelated published terms checks their funding independently.
+The SRP envelope is 1,596 / 2,366 accesses at IF=1/2.
+Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.
 They cover mixed attributes, partial completion, repeated refusal and recovery.
@@ -272,7 +294,9 @@ conflicting New registrations retain Failed precedence until replacement/expiry.
 
 F3 is present in the Round 8 merge base.
 The explicit composition now runs ADP, ACMP, MAAP and SRP.
-The composition owns ACMP binding-port delivery, cancellation and retries.
+The composition owns ACMP binding-port delivery, cancellation and retries,
+plus deferred per-sink SRP registration feedback to ACMP. Neither direction
+needs target wiring; the remaining items below do.
 Target integration still supplies live stream configuration and MAAP allocation changes.
 It also connects the existing fabric licence output.
 The desk callback proves output ordering, not a connected target licence register.

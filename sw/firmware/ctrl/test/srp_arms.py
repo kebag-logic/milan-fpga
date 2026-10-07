@@ -62,13 +62,18 @@ def arm_srp(tree: Tree, lwsrp: Path, interfaces: int, debug: bool = False,
         inc.append(f"-I{out}")
     lw = lwsrp / "src"
     inc += ["-DLWSRP_MILAN=1",f"-I{lw / 'include'}",f"-I{lw}"]
-    build = fw_gtest.Build(coverage=tree.build.coverage and not debug,jobs=tree.build.jobs,cache=tree.build.cache)
+    build = fw_gtest.Build(coverage=tree.build.coverage and not debug,
+                           address_sanitizer=tree.build.address_sanitizer,
+                           jobs=tree.build.jobs,cache=tree.build.cache)
     flags = [*C_FLAGS, "-UNDEBUG" if debug else "-DNDEBUG"]
     sources = [(variant if p.startswith("mbx/") else tree.src) / p for p in SRP_SOURCES]
     try:
         ours = fw_gtest.compile_c(build,flags,inc,sources,out / "firmware")
         host = fw_gtest.compile_c(build,C_FLAGS,inc,[tree.src / p for p in HOST],out / "host",False)
-        theirs = fw_gtest.compile_c(build,[*C_FLAGS,"-Dshlan_calloc=srp_test_calloc"],inc,
+        library_flags = [*C_FLAGS,"-Dshlan_calloc=srp_test_calloc"]
+        if test == "srp_app.cpp":
+            library_flags.append("-Dmrp_transmit=srp_test_transmit_real")
+        theirs = fw_gtest.compile_c(build,library_flags,inc,
                                     [lw / p for p in LWSRP_SOURCES],out / "library",False)
         tests = fw_gtest.compile_tests(build,inc,[HERE / ("srp_debug.cpp" if debug else test)],out / "tests")
         main = fw_gtest.main_object(build,out / "main")

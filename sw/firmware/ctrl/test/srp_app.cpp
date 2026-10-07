@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 #include "srp_fixture.hpp"
 #include "ctrl_app.h"
+#include "srp_cost_probe.hpp"
 FW_TALLY_LABEL("ctrl ADP MAAP SRP composition");
 namespace {
 TEST(SrpApp, AttachRefusalPreservesExistingComposition) {
@@ -141,5 +142,94 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     const auto pass=cost([&]{ctrl_loop_service(&loop);});
     ASSERT_GT(pass,record);
     check("SRP complete pass bound",pass,SRP_MBX_PASS_MAX);
+}
+} // namespace
+
+namespace {
+TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
+    settle();
+    auto poll=[&] { return srp_cost(model,[&]{loop.polls[0].fn(loop.polls[0].ctx);}); };
+    const auto idle=poll();
+    EXPECT_EQ(idle,MBX_N_IF) << "one link read per interface";
+    uint64_t reset_extra=0;
+    uint64_t retry_extra=0;
+    // Reset and retained reception are mutually exclusive on one interface.
+    // Measure both branches separately, then add their increments to the one
+    // common link read. This reaches the conservative four-read envelope.
+    for (unsigned i=0;i<MBX_N_IF;++i) {
+        mbx_model_set_link(&model,i,false);
+        reset_extra+=poll()-idle;
+        settle();
+        mbx_model_set_link(&model,i,true); settle();
+        const auto f=frame(4,{6,3,0,7},0);
+        mbx_frame rx{};
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));
+        ASSERT_EQ(mbx_rx_take(MBX_CH_SRP,&rx),MBX_STATUS_OK);
+        calloc_before_failure=0;
+        loop.rx[MBX_CH_SRP].fn(&adapter,&rx);
+        ASSERT_NE(adapter.pending_rx.len,0u);
+        retry_extra+=poll()-idle;
+        calloc_before_failure=-1; settle();
+    }
+    const uint64_t fixed=idle+reset_extra+retry_extra;
+    EXPECT_EQ(fixed,MBX_N_IF*4u) << "fixed poll branch envelope";
+    EXPECT_LE(static_cast<int64_t>(fixed),static_cast<int64_t>(SRP_MBX_POLL_MAX)-2*MBX_N_IF*SRP_MBX_TX_MAX)
+        << "poll fixed term is funded independently";
+    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    srp_probe={&model,0,0,0,true};
+    const auto transmitting=poll();
+    const auto observed=srp_probe;
+    srp_probe={};
+    EXPECT_EQ(observed.calls,2u*MBX_N_IF) << "both participants on every interface are visited";
+    EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
+    EXPECT_EQ(transmitting,idle+observed.accesses) << "transmitting poll adds only measured sends";
+    EXPECT_LE(static_cast<int64_t>(observed.calls),
+              (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed))/SRP_MBX_TX_MAX)
+        << "poll transmit count is funded independently";
+    EXPECT_LE(fixed+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
+    std::printf("  SRP poll terms: fixed %u, calls %u, real send accesses %u, envelope %u/%u\n",
+                unsigned(fixed),observed.calls,unsigned(observed.accesses),
+                unsigned(fixed+observed.accesses),SRP_MBX_POLL_MAX);
+}
+
+TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
+    settle();
+    // Take a full pass of real LINK records with no RX/poll work to hide a
+    // missing event-record term. Each repeated edge forces a participant reset.
+    loop.n_polls=0;
+    const auto receive=loop.rx[MBX_CH_SRP];
+    loop.rx[MBX_CH_SRP]={};
+    for (unsigned n=0;n<CTRL_LOOP_EVENTS_PER_PASS;++n) mbx_model_set_link(&model,0,(n%2u)!=0u);
+    const auto events0=loop.stats.events;
+    const auto events=srp_cost(model,[&]{ctrl_loop_service(&loop);});
+    ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
+    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u));
+    EXPECT_LE(static_cast<int64_t>(events),static_cast<int64_t>(SRP_MBX_PASS_MAX)-
+              CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+SRP_MBX_RX_MAX)-SRP_MBX_POLL_MAX)
+        << "pass event records are funded independently";
+    // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
+    // Ethernet padding needs no allocation; the real readiness check runs.
+    loop.rx[MBX_CH_SRP]=receive;
+    std::vector<uint8_t> large(MBX_CH_SRP_MAX_FRAME_BYTES);
+    wire_put_be(large.data(),0x0180c2000021ull,6);
+    wire_put_be(large.data()+6,0x020304010203ull,6); wire_put_be(large.data()+12,0x88f5u,2);
+    for (unsigned n=0;n<CTRL_LOOP_RX_PER_PASS;++n) ASSERT_TRUE(mbx_model_rx(&model,large.data(),large.size(),0));
+    const auto rx0=loop.stats.rx_records;
+    const auto rx=srp_cost(model,[&]{ctrl_loop_service(&loop);});
+    ASSERT_EQ(loop.stats.rx_records-rx0,CTRL_LOOP_RX_PER_PASS);
+    // One empty event-head read, then each record and its one readiness read.
+    EXPECT_EQ(rx,1u+CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+1u));
+    // Retained allocation refusal needs one further clock read, measured by
+    // EventReceiveAndTransmitPollFitTheirMeasuredBounds. Fund that alternative
+    // for each record; it cannot be hidden by a short frame or a quiet poll.
+    const auto receive_envelope=rx-1u+CTRL_LOOP_RX_PER_PASS;
+    EXPECT_LE(static_cast<int64_t>(receive_envelope),static_cast<int64_t>(SRP_MBX_PASS_MAX)-events-SRP_MBX_POLL_MAX)
+        << "pass receive count is funded independently";
+    const auto pass_envelope=events+receive_envelope+MBX_N_IF*(4u+2u*SRP_MBX_TX_MAX);
+    EXPECT_LE(pass_envelope,SRP_MBX_PASS_MAX) << "pass funds the independently measured poll envelope";
+    std::printf("  SRP pass terms: event %u, receive %u, poll %u, envelope %u/%u\n",
+                unsigned(events),unsigned(receive_envelope),MBX_N_IF*(4u+2u*SRP_MBX_TX_MAX),
+                unsigned(pass_envelope),SRP_MBX_PASS_MAX);
+    loop.n_polls=1;
 }
 } // namespace

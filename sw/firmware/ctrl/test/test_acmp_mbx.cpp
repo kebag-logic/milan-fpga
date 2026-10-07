@@ -1039,7 +1039,7 @@ TEST_F(AcmpMailbox, F6WithMaapComposedEveryPassStaysWithinTheThreeWayBound) {
 #endif
 #ifdef CTRL_APP_TEST_SRP
     EXPECT_EQ(CTRL_APP_PASS_MAX, ACMP_MBX_PASS_MAX + MAAP_MBX_PASS_MAX + SRP_MBX_PASS_MAX -
-              2u * CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
+              2u * CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u) + CTRL_APP_SRP_FEEDBACK_MAX)
         << "F6 four modules count each shared event record once";
     EXPECT_TRUE(srp_at > 0u && srp_at <= CTRL_LOOP_EVT_PASSES + CTRL_LOOP_RX_PASSES(MBX_CH_SRP_RX_WORDS))
         << "F6 SRP backlog drains after the event prefix";

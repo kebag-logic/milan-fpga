@@ -7,7 +7,7 @@
 #include <string.h>
 
 // Forward the entity's existing ports with their original context. SRP's
-// callback copies intent only; the loop delivers it after SRP's poll returns.
+// binding callback copies intent only; the loop delivers it after SRP's poll returns.
 static bool locked(void *ctx, uint64_t *owner)
 {
     struct ctrl_app *app = ctx;
@@ -42,6 +42,7 @@ static void request(void *ctx, unsigned sink, const struct acmp_stream *stream)
     if (stream) {
         r->stream = *stream;
     }
+    r->parked = r->bound && (r->stream.vlan_id == 0 || r->stream.vlan_id >= 4095);
     r->pending = true;
     app->acmp_owner->srp(app->acmp_owner->ctx,sink,stream);
 }
@@ -56,16 +57,34 @@ static bool deliver(void *ctx)
     bool pending = false;
     for (unsigned sink = 0; sink < app->acmp.acmp.cfg.n_sinks; ++sink) {
         struct ctrl_app_srp_request *r = &app->srp_requests[sink];
-        if (!r->pending) {
+        unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
+        if (r->parked) {
+            // A replacement can overtake the old unbind in the request slot.
+            // Retire that accepted binding, then leave the invalid request idle.
+            r->pending = app->srp->ifs[interface].sinks[sink].bound &&
+                         !srp_mbx_bind(app->srp,interface,sink,NULL,NULL,0);
+            pending = pending || r->pending;
             continue;
         }
-        struct msrp_stream_id id;
-        uint8_t mac[6];
-        wire_put_be(id.bytes,r->stream.stream_id,8);
-        wire_put_be(mac,r->stream.dest_mac,6);
-        unsigned interface = app->acmp.acmp.cfg.sink_interface[sink];
-        if (srp_mbx_bind(app->srp,interface,sink,r->bound ? &id : NULL,mac,r->stream.vlan_id)) {
-            r->pending = false;
+        if (r->pending) {
+            struct msrp_stream_id id;
+            uint8_t mac[6];
+            wire_put_be(id.bytes,r->stream.stream_id,8);
+            wire_put_be(mac,r->stream.dest_mac,6);
+            if (srp_mbx_bind(app->srp,interface,sink,r->bound ? &id : NULL,mac,r->stream.vlan_id)) {
+                r->pending = false;
+            }
+        }
+        // SRP computed this snapshot before returning from its poll. Never
+        // feed an old binding's registration to a replacement awaiting delivery.
+        if (!r->pending && r->bound) {
+            uint8_t registered = app->srp->ifs[interface].sinks[sink].desired;
+            enum acmp_sink_state state = app->acmp.acmp.sinks[sink].state;
+            if (registered && state == ACMP_SETTLED_NO_RSV) {
+                acmp_tk_registered(&app->acmp.acmp,sink,registered == 1u);
+            } else if (!registered && state == ACMP_SETTLED_RSV_OK) {
+                acmp_tk_unregistered(&app->acmp.acmp,sink);
+            }
         }
         pending = r->pending || pending;
     }

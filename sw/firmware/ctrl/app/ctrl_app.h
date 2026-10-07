@@ -67,17 +67,21 @@ extern "C" {
 	(CTRL_LOOP_EVENTS_PER_PASS * MAAP_MBX_EVENT_MAX +                                                          \
 	 CTRL_LOOP_RX_PER_PASS * (CTRL_APP_MAAP_RX_RECORD_MAX + MAAP_MBX_RX_MAX) + MBX_N_IF * MAAP_MBX_POLL_MAX)
 #define CTRL_APP_THREE_PASS_MAX (ACMP_MBX_PASS_MAX + CTRL_APP_MAAP_PASS_SHARE)
+// Each sink feedback can read the clock and seed and re-arm one timer.
+// The registered path only stops/re-arms; withdrawal may start discovery delay.
+#define CTRL_APP_SRP_FEEDBACK_MAX (ACMP_MAX_SINKS * 4u)
 // ACMP's published pass already includes ADP. Each additional module shares
 // the same event-record reads; all four retain their own handler/poll terms.
 #define CTRL_APP_PASS_MAX (CTRL_APP_THREE_PASS_MAX + SRP_MBX_PASS_MAX - \
-    CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u))
+	CTRL_LOOP_EVENTS_PER_PASS * (MBX_EV_WORDS + 2u) + CTRL_APP_SRP_FEEDBACK_MAX)
 
 // One latest request per entity sink; its configured interface never changes.
 // Storage belongs to the composition, independent of the callback's lifetime.
 struct ctrl_app_srp_request {
-    struct acmp_stream stream;
-    bool bound;
-    bool pending;
+	struct acmp_stream stream;
+	bool bound;
+	bool pending;
+	bool parked; // invalid VID; cleared only by the next ACMP request
 };
 
 struct srp_mbx;
@@ -87,10 +91,10 @@ struct ctrl_app {
 	struct adp_mbx adp;
 	struct acmp_mbx acmp;
 	struct maap_mbx maap;
-    struct srp_mbx *srp;
-    const struct acmp_env *acmp_owner;
-    struct acmp_env acmp_delivery;
-    struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
+	struct srp_mbx *srp;
+	const struct acmp_env *acmp_owner;
+	struct acmp_env acmp_delivery;
+	struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
 };
 
 struct ctrl_app_config {
@@ -135,10 +139,10 @@ bool ctrl_app_start_maap(struct ctrl_app *app, const struct ctrl_app_config *cfg
 			 maap_allocation_fn allocation, void *ctx, uint64_t preferred);
 
 // MAAP must be composed. After open (or start_maap), initialize SRP on app's
-// pool and attach it here before
-// servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
+// pool and attach it here before servicing the loop. Use the entity MAC on each SRP interface, as MAAP/ADP
 // do. A refusal leaves the ADP/ACMP/MAAP composition running and SRP unattached.
-// With ACMP, attachment owns deferred SRP binding delivery and retries. The
+// With ACMP, attachment owns deferred binding delivery and registration
+// feedback. Invalid VID requests are parked; transient refusals retry. The
 // supplied SRP callback remains a request observer; it must not deliver the
 // binding itself or reenter any protocol. Other environment ports retain ctx.
 // Attachment refuses an ACMP sink count larger than the generated SRP shape.

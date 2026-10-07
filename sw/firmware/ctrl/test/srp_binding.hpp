@@ -40,6 +40,32 @@ protected:
                   wire_be32(sink(k).dest_mac + 2),kDa + variant) << "destination delivered";
         EXPECT_EQ(sink(k).vid,2u + variant) << "VLAN delivered";
     }
+    template<class Fn> void without_delivery(Fn action) {
+        const unsigned polls=app.loop.n_polls;
+        --app.loop.n_polls;
+        action();
+        app.loop.n_polls=polls;
+    }
+    std::vector<uint8_t> talker(unsigned variant=0, bool failed=false, unsigned event=0) {
+        std::vector<uint8_t> v(failed ? 34u : 25u);
+        wire_put_be(v.data(),kSid+variant,8); wire_put_be(v.data()+8,kDa+variant,6);
+        wire_put_be(v.data()+14,2u+variant,2); wire_put_be(v.data()+16,224,2);
+        wire_put_be(v.data()+18,1,2); v[20]=0x60;
+        if (failed) v[33]=1;
+        const unsigned list=2+v.size()+1+2;
+        std::vector<uint8_t> f(14+1+4+list+2);
+        wire_put_be(f.data(),0x0180c200000eull,6);
+        wire_put_be(f.data()+6,0x020304010203ull,6); wire_put_be(f.data()+12,0x22ea,2);
+        auto *p=f.data()+14; p[1]=failed ? 2 : 1; p[2]=v.size();
+        wire_put_be(p+3,list,2); wire_put_be(p+5,1,2);
+        std::memcpy(p+7,v.data(),v.size()); p[7+v.size()]=event*36;
+        return f;
+    }
+    void registration(unsigned k, bool failed=false, unsigned event=0, unsigned variant=0) {
+        const auto f=talker(variant,failed,event);
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),acfg.sink_interface[k]));
+        settle();
+    }
     void refuse_receive() {
         // New Class A Domain requires allocation. Fail the library's port,
         // retaining a real mailbox record, never a fabricated adapter flag.
@@ -64,9 +90,7 @@ TEST_F(SrpBinding, BindIsDeferredAndKeepsEverySinkAndInterface) {
             EXPECT_FALSE(sink(k).bound) << "callback only queues the binding";
             EXPECT_TRUE(core()->in_port);
         };
-        app.loop.n_polls=4u;
-        response(k,k);
-        app.loop.n_polls=5u;
+        without_delivery([&]{response(k,k);});
         EXPECT_FALSE(sink(k).bound) << "binding waits for the delivery poll";
         const auto before=model.reads+model.writes;
         EXPECT_FALSE(app.loop.polls[4].fn(app.loop.polls[4].ctx));
@@ -166,18 +190,118 @@ TEST_F(SrpBinding, ReplacementSupersedesPendingIdentity) {
     for (unsigned k=0;k<2u;++k) expect_stream(k,k+3u);
 }
 
-TEST_F(SrpBinding, OneRefusedSinkDoesNotBlockAnotherOrLetTheLoopSleep) {
-    bind(0); bind(1);
-    app.loop.n_polls=4u;
-    auto invalid=answer(0); invalid.vlan=0;
-    ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
-    response(1,1);
-    app.loop.n_polls=5u;
-    EXPECT_TRUE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "earlier refusal keeps service awake";
-    EXPECT_FALSE(sink(0).bound);
-    expect_stream(1,1);
+TEST_F(SrpBinding, PermanentRefusalParksAndDoesNotBlockAnotherSink) {
+    for (unsigned vid : {0u,4095u,65535u}) {
+        bind(0); bind(1);
+        without_delivery([&] {
+            auto invalid=answer(0); invalid.vlan=vid;
+            ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+            response(1,1);
+        });
+        EXPECT_FALSE(app.loop.polls[4].fn(app.loop.polls[4].ctx)) << "permanent refusal allows sleep";
+        EXPECT_TRUE(app.srp_requests[0].parked) << "permanent refusal is visible";
+        EXPECT_FALSE(app.srp_requests[0].pending);
+        EXPECT_FALSE(sink(0).bound);
+        expect_stream(1,1);
+        EXPECT_EQ(ctrl_loop_service(&app.loop),0u) << "parked request does not keep loop awake";
+        // A new binding replaces the parked request, including a valid VID.
+        auto replacement=command(spec::MSG_BIND_RX_COMMAND,0); replacement.talker=kTkB;
+        ASSERT_TRUE(offer(replacement,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+        response(0);
+        EXPECT_FALSE(app.srp_requests[0].parked) << "replacement clears parking";
+        expect_stream(0);
+        unbind(0); unbind(1);
+        EXPECT_FALSE(app.srp_requests[0].parked) << "unbind clears parking";
+        mbx_model_advance_ms(&model,1000u); settle();
+    }
+}
+
+TEST_F(SrpBinding, ParkedReplacementRetiresThePreviouslyAcceptedBinding) {
+    for (bool transient : {false,true}) {
+        bind(0); response(0); expect_stream(0);
+        if (transient) refuse_receive();
+        without_delivery([&] {
+            auto p=command(spec::MSG_BIND_RX_COMMAND,0); p.talker=kTkB;
+            ASSERT_TRUE(offer(p,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+            auto invalid=answer(0); invalid.vlan=4095;
+            ASSERT_TRUE(offer(invalid,spec::MULTICAST_MAC,acfg.sink_interface[0])); settle();
+        });
+        ASSERT_TRUE(sink(0).bound);
+        EXPECT_EQ(app.loop.polls[4].fn(app.loop.polls[4].ctx),transient);
+        calloc_before_failure=-1; settle();
+        EXPECT_FALSE(sink(0).bound) << "parking retires the old accepted binding";
+        EXPECT_TRUE(app.srp_requests[0].parked);
+        EXPECT_FALSE(app.srp_requests[0].pending);
+        unbind(0);
+        EXPECT_FALSE(app.srp_requests[0].parked);
+        mbx_model_advance_ms(&model,1000u); settle();
+    }
+}
+
+TEST_F(SrpBinding, AdvertiseFeedbackIsDeferredAndSurvivesNoTalkerDeadline) {
+    for (unsigned k=0;k<2u;++k) { bind(k); response(k); }
+    without_delivery([&] { for (unsigned k=0;k<2u;++k) registration(k); });
+    for (unsigned k=0;k<2u;++k) {
+        EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_NO_RSV) << "registration waits for delivery poll";
+    }
+    fk.hook_kind=Call::CHANGED;
+    fk.hook=[&] {
+        EXPECT_TRUE(core()->in_port);
+        EXPECT_FALSE(srp_adapter.busy) << "feedback runs after SRP returns";
+    };
+    const auto before=model.reads+model.writes;
+    EXPECT_FALSE(app.loop.polls[4].fn(app.loop.polls[4].ctx));
+    EXPECT_LE(model.reads+model.writes-before,CTRL_APP_SRP_FEEDBACK_MAX);
+    for (unsigned second=0;second<12u;++second) {
+        for (unsigned k=0;k<2u;++k) {
+            registration(k,false,1);
+            EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "Advertise reaches ACMP";
+            EXPECT_FALSE(core()->sinks[k].tk_failed);
+        }
+        for (unsigned ms=0;ms<1000u;ms+=10u) { mbx_model_advance_ms(&model,10u); settle(); }
+    }
+    for (unsigned k=0;k<2u;++k) expect_stream(k);
+    EXPECT_EQ(core()->impossible,0u) << "unchanged registration is delivered once";
+    EXPECT_EQ(core()->reentries,0u); EXPECT_EQ(srp_adapter.reentries,0u);
+}
+
+TEST_F(SrpBinding, FailedRegistrationReachesAcmpAndWithdrawalReprobes) {
+    for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); registration(k,true,0,k); }
+    for (unsigned k=0;k<2u;++k) {
+        EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK) << "Failed registration reaches ACMP";
+        EXPECT_TRUE(core()->sinks[k].tk_failed) << "Failed flag reaches ACMP";
+        without_delivery([&]{registration(k,true,5,k);});
+    }
+    // Milan 4.2.7.2.2 rapid leave from IN retires immediately in SRP.
+    // ACMP observes it only after the delivery poll runs.
+    for (unsigned k=0;k<2u;++k) EXPECT_EQ(core()->sinks[k].state,ACMP_SETTLED_RSV_OK);
+    settle();
+    for (unsigned k=0;k<2u;++k) {
+        EXPECT_EQ(core()->sinks[k].state,ACMP_PRB_W_AVAIL) << "withdrawal reaches ACMP";
+        EXPECT_FALSE(sink(k).bound) << "withdrawal delivers the resulting unbind";
+    }
+    EXPECT_EQ(core()->impossible,0u);
+    EXPECT_EQ(core()->reentries,0u); EXPECT_EQ(srp_adapter.reentries,0u);
+}
+
+TEST_F(SrpBinding, RegistrationKeepsSinkAndInterfaceIdentity) {
+    for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); }
+    // Matching identity on the wrong interface cannot settle this sink.
+    const auto f=talker();
+    if (MBX_N_IF==2u) {
+        ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),1u)); settle();
+        EXPECT_EQ(core()->sinks[0].state,ACMP_SETTLED_NO_RSV);
+    }
+    registration(0);
+    EXPECT_EQ(core()->sinks[0].state,ACMP_SETTLED_RSV_OK) << "feedback uses configured interface";
+    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_NO_RSV) << "feedback keeps sink identity";
+    registration(1,true,0,1);
+    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "second interface registration delivered; feedback keeps sink identity";
+    EXPECT_TRUE(core()->sinks[1].tk_failed);
+    EXPECT_FALSE(core()->sinks[0].tk_failed);
     unbind(0);
-    EXPECT_FALSE(app.srp_requests[0].pending);
+    EXPECT_EQ(core()->sinks[1].state,ACMP_SETTLED_RSV_OK) << "other sink survives unbind";
+    EXPECT_EQ(core()->impossible,0u);
 }
 
 TEST_F(SrpBinding, AttachmentRefusesMissingRoomAndShapeWithoutPartialBinding) {

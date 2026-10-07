@@ -126,18 +126,29 @@ A failed attachment preserves the running three-module composition.
 With ACMP present, attachment also installs a composition-owned request per sink.
 The ACMP callback copies the latest bind or unbind, preserving its sink index.
 A fifth poll delivers requests after SRP service returns, using each sink's
-configured interface. Refusal keeps the request pending and the loop awake.
+configured interface. Transient refusal keeps the request pending and the loop awake.
+VID 0 or VID >= 4095 sets the readable per-request `parked` state.
+A parked request permits sleep until ACMP replaces or withdraws it.
 Unbind and replacement supersede the prior request; no callback enters SRP.
 The supplied ACMP SRP callback observes intent; it must not deliver it itself.
+After SRP returns, the same poll reports matching per-sink Talker registration
+to ACMP: Advertise or Failed enters SETTLED_RSV_OK; withdrawal reprobes.
+The snapshot uses the configured interface and only the accepted binding.
+Repeated registration is not a new event under Milan Table 5.30.
+Both directions obey #678: no protocol entry occurs inside a port callback.
 Other environment callbacks retain their original context.
 Keep application and adapter storage alive until loop service stops.
 
 `CTRL_APP_PASS_MAX` bounds all four modules: `ACMP_MBX_PASS_MAX` already
 includes ADP, then add `MAAP_MBX_PASS_MAX` and `SRP_MBX_PASS_MAX`, subtracting
-two copies of the shared event reads. The result is 3,128 accesses at one
-interface and 3,977 at two. The SRP bound counts one maximum-size frame per
+two copies of the shared event reads, then adding `CTRL_APP_SRP_FEEDBACK_MAX`.
+Feedback costs at most four accesses per configured sink: clock, seed and
+one timer re-arm on withdrawal; registration only stops or re-arms a timer.
+The static maximum of 16 sinks contributes 64 accesses.
+The result is 3,192 accesses at one interface and 4,041 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most two calls per interface, receive readiness and
-retry clocks, plus link/reset work. The binding-delivery poll adds no mailbox access.
+retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+The feedback allowance covers the same poll's ACMP registration entries.
 It excludes CPU work and external ports.
 The SRP arm also builds U6/F6 with all four modules at each interface count:
 exact interrupt mask, an idle HAL awakened by SRP alone, ordered attachment,
