@@ -1,0 +1,12 @@
+sequenceDiagram
+    participant Host
+    participant App as Protocol application
+    participant Core as MRP state
+    participant Timer as Timer service
+    Host->>App: Create with ports and callbacks
+    App->>Core: Copy operations and allocate state
+    Core->>Timer: Register and arm port timers
+    App-->>Host: Handle or null
+    Host->>App: Declare a value
+    App->>Core: Apply local event
+    Core-->>Host: Status code

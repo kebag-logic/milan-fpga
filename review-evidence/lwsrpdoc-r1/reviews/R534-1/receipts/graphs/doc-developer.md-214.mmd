@@ -1,0 +1,7 @@
+stateDiagram-v2
+    direction LR
+    [*] --> Passive: Begin
+    Passive --> Active: timer
+    Active --> Passive: tx or rLA
+    Active --> Active: timer
+    Passive --> Passive: rLA

@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant Host
+    participant Core as MRP state
+    participant Timer as Global timer service
+    Host->>Core: Withdraw local declarations
+    Note over Host,Core: Withdrawal does not send a frame
+    Host->>Timer: Stop all future ticks and callbacks
+    Host->>Core: Destroy application
+    Note over Host,Timer: Current timer list retains freed links

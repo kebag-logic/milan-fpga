@@ -1,0 +1,17 @@
+B no-cgreen configure rc=1 (expect nonzero)
+A empty-suite ctest rc=8 (expect nonzero)
+D noop-enable/connect behave rc=1 (2 scenarios passed, 1 failed, 0 skipped)
+C wrong-disable-binding behave rc=0 (3 scenarios passed, 0 failed, 0 skipped)
+1/1 Test #1: unit .............................***Failed  Error regular expression found in output. Regex=[No assertions]  0.00 sec
+Completed "main": No assertions.
+  Could not find CGREEN_LIB using the following names: cgreen
+$PACKET/scratch/suite-probes/C/tests/features/switch_bindings.c:8:    return shlan_connect(sw);
+$PACKET/scratch/suite-probes/C/tests/features/switch_bindings.c:16:int shlan_test_port_enable(struct shlan_switch *sw, uint8_t port_id)
+$PACKET/scratch/suite-probes/C/tests/features/switch_bindings.c:18:    return shlan_port_enable(sw, port_id);
+$PACKET/scratch/suite-probes/C/tests/features/switch_bindings.c:21:int shlan_test_port_disable(struct shlan_switch *sw, uint8_t port_id)
+$PACKET/scratch/suite-probes/C/tests/features/switch_bindings.c:23:    return shlan_port_enable(sw, port_id);
+$PACKET/scratch/suite-probes/D/tests/features/switch_bindings.c:8:    return 0;
+$PACKET/scratch/suite-probes/D/tests/features/switch_bindings.c:16:int shlan_test_port_enable(struct shlan_switch *sw, uint8_t port_id)
+$PACKET/scratch/suite-probes/D/tests/features/switch_bindings.c:18:    return 0;
+$PACKET/scratch/suite-probes/D/tests/features/switch_bindings.c:21:int shlan_test_port_disable(struct shlan_switch *sw, uint8_t port_id)
+$PACKET/scratch/suite-probes/D/tests/features/switch_bindings.c:23:    return shlan_port_disable(sw, port_id);

@@ -1,0 +1,16 @@
+readme-1 rc=0 :: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+readme-2 rc=0 :: cmake --build build --parallel 2
+readme-3 rc=0 :: ctest --test-dir build --output-on-failure
+readme-4 rc=0 :: behave
+tester-1 rc=0 :: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+tester-2 rc=0 :: cmake --build build --parallel 2
+tester-3 rc=0 :: ctest --test-dir build --output-on-failure
+tester-4 rc=0 :: ./build/unit_tests
+tester-5 rc=0 :: behave
+tester-6 rc=0 :: behave --dry-run
+tester-7 rc=0 :: cc ... heredoc
+tester-8 rc=0 :: ./build/mrp_pdu_tests
+tools-1 rc=0 :: python3 doc/tools/check_sentences.py
+tools-2 rc=0 :: python3 doc/tools/check_references.py
+tools-3 rc=1 :: python3 doc/tools/check_links.py --github-auth
+tools-4 rc=0 :: python3 doc/tools/render_mermaid.py --output $PACKET/scratch/doc-scratch/graphs

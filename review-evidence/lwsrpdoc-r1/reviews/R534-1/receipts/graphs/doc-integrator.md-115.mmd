@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant Platform
+    participant Timer as Global timer list
+    participant Core as All applications
+    loop Once per centisecond
+        Platform->>Timer: Advance one tick
+        Timer->>Core: Run expired callbacks
+        Core->>Core: Apply events and rearm
+    end

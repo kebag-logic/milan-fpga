@@ -1,0 +1,10 @@
+stateDiagram-v2
+    [*] --> VO: Begin
+    VO --> VP: Join
+    VO --> VN: New
+    VN --> AN: tx / New
+    AN --> QA: tx / New, Registrar IN
+    AN --> AA: tx / New, Registrar not IN
+    VP --> AA: tx / Join
+    AA --> QA: tx / Join
+    QA --> QA: Join

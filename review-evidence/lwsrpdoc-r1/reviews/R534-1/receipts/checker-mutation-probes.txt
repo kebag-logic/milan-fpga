@@ -1,0 +1,24 @@
+clean-sentences rc=0 :: check_sentences.py  :: Sentences/fragments: 708; over limit: 0; prose exceptions: 0 
+clean-references rc=0 :: check_references.py  :: Unlinked references: 0; prose exceptions: 0 
+clean-links-local rc=1 :: check_links.py --local-only :: Local links: 269; external URLs: 12; failures: 8 
+long-sentence rc=0 :: check_sentences.py  :: Sentences/fragments: 709; over limit: 0; prose exceptions: 0   [INVALID PROBE: planted text had 24 words, superseded by long-sentence-26]
+long-wrapped rc=1 :: check_sentences.py  :: FAIL doc/manager.md:87: 26 words: One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twentyone twentytwo twentythree twentyfour twentyfive twentysix. Sentences/fragments: 709; over limit: 1; prose exceptions: 0 
+long-table-cell rc=1 :: check_sentences.py  :: FAIL README.md:62: 26 words: One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty 21 22 23 24 25 26 Sentences/fragments: 712; over limit: 1; prose exceptions: 0 
+plain-file rc=1 :: check_references.py  :: FAIL doc/developer.md:302: unlinked file: src/core/mrp_mad.c FAIL doc/developer.md:302: unlinked function: mrp_mad 
+plain-clause rc=1 :: check_references.py  :: FAIL doc/developer.md:302: unlinked clause: clause 10.7.7 Unlinked references: 1; prose exceptions: 0 
+plain-issue rc=1 :: check_references.py  :: FAIL doc/tester.md:117: unlinked issue: #4 Unlinked references: 1; prose exceptions: 0 
+plain-function rc=1 :: check_references.py  :: FAIL doc/integrator.md:230: unlinked function: mrp_rx Unlinked references: 1; prose exceptions: 0 
+inline-code-file rc=1 :: check_references.py  :: FAIL doc/integrator.md:230: unlinked file: build.sh Unlinked references: 1; prose exceptions: 0 
+plain-kconfig-file rc=0 :: check_references.py  :: Unlinked references: 0; prose exceptions: 0 
+plain-table rc=1 :: check_references.py  :: FAIL doc/developer.md:302: unlinked table: Table 10-3 Unlinked references: 1; prose exceptions: 0 
+missing-file rc=1 :: check_links.py --local-only :: FAIL doc/tester.md:120: missing.md: missing target Local links: 270; external URLs: 12; failures: 9 
+missing-heading rc=1 :: check_links.py --local-only :: FAIL doc/tester.md:120: manager.md#no-such-heading: missing heading Local links: 270; external URLs: 12; failures: 9 
+line-range-past-eof rc=1 :: check_links.py --local-only :: FAIL doc/tester.md:120: ../src/core/mrp_mad.c#L970-L990: invalid line range Local links: 270; external URLs: 12; failures: 9 
+outside-repo rc=1 :: check_links.py --local-only :: FAIL doc/tester.md:120: ../../../etc/hostname: outside repository Local links: 270; external URLs: 12; failures: 9 
+dead-external rc=1 :: check_links.py  :: FAIL https://example.invalid/nothing: <urlopen error [Errno -2] Name or service not known> FAIL https://github.com/kebag-logic/lwSRP/issues: anonymous; HTTP 404 
+graph-16-nodes rc=1 :: render_mermaid.py --output $PACKET/scratch/probe-logs/g-graph-16-nodes :: FAIL doc/tester.md:121: 17 nodes; expected 1 through 15 Graphs: 23; failures: 1 
+graph-syntax-error rc=1 :: render_mermaid.py --output $PACKET/scratch/probe-logs/g-graph-syntax-error :: FAIL doc/tester.md:121: 2 nodes; render rc=1 Graphs: 23; failures: 1 
+graph-output-inside rc=2 :: render_mermaid.py --output $PACKET/scratch/probe/doc/out :: 
+unclosed-fence rc=1 :: check_sentences.py  :: 
+long-sentence-26 rc=1 :: FAIL doc/tester.md:121: 26 words: One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twentyone twentytwo twentythree twentyfour twentyfive twentysix. Sentences/fragments: 709; over limit: 1; prose exceptions: 0 
+boundary-25-words rc=0 (expect 0) :: Sentences/fragments: 709; over limit: 0; prose exceptions: 0 
