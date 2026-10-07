@@ -1,0 +1,122 @@
+[
+  {
+    "name": "configure-off",
+    "command": [
+      "cmake",
+      "-S",
+      "<clone>",
+      "-B",
+      "<packet>/scratch/build-off",
+      "-G",
+      "Unix Makefiles",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DLWSRP_MILAN=OFF"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:20.822552+00:00",
+    "elapsed_seconds": 0.315
+  },
+  {
+    "name": "build-off",
+    "command": [
+      "make",
+      "-C",
+      "<packet>/scratch/build-off",
+      "-j16"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:21.137397+00:00",
+    "elapsed_seconds": 0.466
+  },
+  {
+    "name": "ctest-off",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/build-off",
+      "--output-on-failure",
+      "-V"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:21.603662+00:00",
+    "elapsed_seconds": 0.164
+  },
+  {
+    "name": "unit-off",
+    "command": [
+      "<packet>/scratch/build-off/unit_tests"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:21.768367+00:00",
+    "elapsed_seconds": 0.164
+  },
+  {
+    "name": "behave-off",
+    "command": [
+      "behave"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:21.932990+00:00",
+    "elapsed_seconds": 0.114
+  },
+  {
+    "name": "configure-on",
+    "command": [
+      "cmake",
+      "-S",
+      "<clone>",
+      "-B",
+      "<packet>/scratch/build-on",
+      "-G",
+      "Unix Makefiles",
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DLWSRP_MILAN=ON"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:22.047558+00:00",
+    "elapsed_seconds": 0.315
+  },
+  {
+    "name": "build-on",
+    "command": [
+      "make",
+      "-C",
+      "<packet>/scratch/build-on",
+      "-j16"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:22.362743+00:00",
+    "elapsed_seconds": 0.466
+  },
+  {
+    "name": "ctest-on",
+    "command": [
+      "ctest",
+      "--test-dir",
+      "<packet>/scratch/build-on",
+      "--output-on-failure",
+      "-V"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:22.828739+00:00",
+    "elapsed_seconds": 0.164
+  },
+  {
+    "name": "unit-on",
+    "command": [
+      "<packet>/scratch/build-on/unit_tests"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:22.993411+00:00",
+    "elapsed_seconds": 0.114
+  },
+  {
+    "name": "behave-on",
+    "command": [
+      "behave"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:34:23.107857+00:00",
+    "elapsed_seconds": 0.114
+  }
+]

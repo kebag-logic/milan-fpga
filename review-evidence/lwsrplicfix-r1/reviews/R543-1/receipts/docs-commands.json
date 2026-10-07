@@ -1,0 +1,43 @@
+[
+  {
+    "name": "sentences",
+    "command": [
+      "/usr/bin/python3",
+      "doc/tools/check_sentences.py"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:32:54.593317+00:00",
+    "elapsed_seconds": 0.064
+  },
+  {
+    "name": "references",
+    "command": [
+      "/usr/bin/python3",
+      "doc/tools/check_references.py"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:32:54.657608+00:00",
+    "elapsed_seconds": 0.114
+  },
+  {
+    "name": "references-self-test",
+    "command": [
+      "/usr/bin/python3",
+      "doc/tools/check_references.py",
+      "--self-test"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:32:54.772021+00:00",
+    "elapsed_seconds": 0.064
+  },
+  {
+    "name": "links-anonymous",
+    "command": [
+      "/usr/bin/python3",
+      "doc/tools/check_links.py"
+    ],
+    "rc": 0,
+    "started_utc": "2026-10-07T11:32:54.836452+00:00",
+    "elapsed_seconds": 2.569
+  }
+]
