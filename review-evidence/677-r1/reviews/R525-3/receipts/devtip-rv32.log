@@ -1,0 +1,7 @@
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 11520 0 170 11690
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+rc 0

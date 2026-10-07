@@ -1,0 +1,1606 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 0c403f40d..cbb682646 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -231,18 +231,14 @@ jobs:
+ 
+   # The bare-metal control-plane firmware's host unit tests (#665 lane FT):
+   # the GoogleTest suites of sw/firmware/ctrl and sw/firmware/ctrl_nvm at
+-  # every shipped shape, the saved-state store's RV32 build, the tally
++  # every shipped shape, both freestanding RV32 object builds, the tally
+   # listener's planted failure and crash, and the coverage ratchet with its
+   # planted cases (sw/firmware/gtest/README.md). GoogleTest and GoogleMock
+   # are the distribution's packages, and the install step prints the
+   # versions and the compiler and gcov the ratchet is measured with.
+-  # Three arms stay local gates, each named where it is left out: the ctrl
+-  # gate runs before the RV32 SDK is installed, so its rv32 arm is SKIPPED,
+-  # visibly (it builds against the SDK's C headers for -mabi=ilp32, which
+-  # the pinned ilp32d SDK does not carry: no gnu/stubs-ilp32.h); the ctrl
+-  # gate's lwsrp arm is opt-in (--lwsrp) and lwSRP is a private repository
+-  # this workflow's token cannot read (the ratchet reads the same with and
+-  # without it); and both gates' planted-defect campaigns (--self-test).
++  # The ctrl gate's lwsrp arm stays opt-in: the workflow token cannot
++  # read that private dependency. Both firmware mutation campaigns remain
++  # local gates. The SDK is installed before either required RV32 arm.
+   firmware-unit:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+@@ -266,9 +262,6 @@ jobs:
+       - name: Prove the tally reads a failing and a crashing test as failures
+         run: python3 sw/firmware/gtest/tally_selftest.py
+ 
+-      - name: Run the control-plane firmware suites
+-        run: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py
+-
+       - name: Cache the pinned RV32 SDK
+         uses: actions/cache@v4
+         with:
+@@ -280,6 +273,12 @@ jobs:
+           python3 scripts/ci_rv32_sdk_selftest.py
+           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
+ 
++      - name: Run the control-plane firmware suites and its RV32 build
++        run: |
++          set -euo pipefail
++          python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
++          python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
++
+       - name: Run the saved-state store suites and its RV32 build
+         run: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"
+ 
+diff --git a/docs/design/TIME_SYNC.md b/docs/design/TIME_SYNC.md
+index 7e671dcd1..2bf61364e 100644
+--- a/docs/design/TIME_SYNC.md
++++ b/docs/design/TIME_SYNC.md
+@@ -498,6 +498,18 @@ The capture crossbar hands the talker whole TDM frames (#617).
+ 
+ Every channel of one sample event is one TDM frame.
+ 
++After each enable, packetization waits for the first channel pair.
++
++Reset or disable clears that admission state for each talker.
++
++The first accepted pair captures sample time plus presentation offset.
++
++Partial sample frames cannot start an epoch with retained timestamps.
++
++IEEE 1722-2016 7.5 requires valid timestamps in normal mode.
++
++The [startup sweep](../../tb/verilator/aaf/sim_start.cpp) grades this boundary (#667).
++
+ | Term | Value | Derivation |
+ |---|---|---|
+ | Frame complete | the strobe of the frame's last pair: pair 3 on TDM8 | `KL_tdm_capture_master` strobes pair k at the end of slot 2k+1 |
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 21b0c768f..e3933a031 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -42,19 +42,17 @@ pull-request update and on every push to `dev`. It produces one stable
+ - the bare-metal control-plane firmware's host unit tests, `firmware-unit`
+   (#665), when RTL or its tooling changes: the GoogleTest suites of
+   `sw/firmware/ctrl` and `sw/firmware/ctrl_nvm` at every shipped shape, the
+-  saved-state store's RV32 build, the tally listener's planted failure and
++  two freestanding RV32 object builds, the tally listener's planted failure and
+   crash, and the line and branch coverage ratchet with its planted cases
+   ([the harness page](../../sw/firmware/gtest/README.md)). GoogleTest and
+   GoogleMock are the runner distribution's `libgtest-dev` and
+   `libgmock-dev`; the job prints the versions it installed and the gcc and
+   gcov the ratchet is measured with. The RV32 SDK is the docs job's pinned
+-  cache and install. Three arms stay local gates (see
+-  [Local commands](#local-commands)), and the job names each:
+-  - the ctrl gate's `rv32` arm. It builds against the SDK's C headers with
+-    `-mabi=ilp32`, and the pinned SDK is `ilp32d` with no
+-    `gnu/stubs-ilp32.h`, at the base this job was added on as well. The
+-    ctrl gate therefore runs before the SDK is installed and reports that
+-    arm SKIPPED.
++  cache and install. It precedes both required RV32 arms.
++  Their freestanding headers exclude the SDK's hosted C library.
++  The RV32 self-test plants header, ABI, and runtime-dependency defects.
++  These builds report objects and frames, not linked-image bounds.
++  Two groups stay local (see [Local commands](#local-commands)):
+   - the ctrl gate's opt-in `lwsrp` arm. lwSRP is a private repository the
+     workflow's token cannot read; the ratchet reads the same with and
+     without that arm.
+@@ -193,11 +191,57 @@ margin sets each named entry:
+ 
+ | Suite | Budget | Basis |
+ |---|---|---|
+-| every other default suite | 1800 s | original hosted basis: at most 548 s |
++| every other default suite | 1800 s | retained; #673's near-limit survey appears below |
+ | `mmcm_servo` | 1800 s | hosted window 1159.1 s; 640.9 s remains (35.6% of budget) |
+-| `milan_dp` | 3600 s | hosted window 2459.9 s; 1140.1 s remains (31.7% of budget) |
++| `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
++| `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
++| `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
+ | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+ 
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
++authorizes those three increases within existing shard envelopes.
++The survey covers ten hosted runs on 2026-10-06.
++Its endpoints are `37420502040` and `37457223191`.
++Available logs provide 425 completed suite windows.
++Seven active jobs withheld logs; one run skipped suites.
++These windows include tally overhead between adjacent verdicts.
++Timeout windows establish cutoffs, never successful completion bounds.
++
++| Suite above 60% | Largest window | Previous limit | Usage | Run / job |
++|---|---|---|---|---|
++| `capture_coherence` | 1642.280 s PASS | 1800 s | 91.24% | [37429204551 / 112155955445](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955445) |
++| `milan_dp` | 3509.562 s PASS | 3600 s | 97.49% | [37424768281 / 112142195163](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195163) |
++| `milan_dp_mclk` | 1800.008 s TIMEOUT | 1800 s | 100.00% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `milan_dp_render` | 1285.710 s PASS | 1800 s | 71.43% | [37429204551 / 112155955318](https://github.com/kebag-logic/milan-fpga/actions/runs/37429204551/job/112155955318) |
++| `mmcm_servo` | 1147.315 s PASS | 1800 s | 63.74% | [37430728685 / 112160880744](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880744) |
++| `pp_shadow` | 1201.263 s PASS | 1800 s | 66.74% | [37424768281 / 112142195196](https://github.com/kebag-logic/milan-fpga/actions/runs/37424768281/job/112142195196) |
++| `milan_dp_gptp` | 5400.003 s TIMEOUT | 5400 s | 100.00% | [37430728685 / 112160880673](https://github.com/kebag-logic/milan-fpga/actions/runs/37430728685/job/112160880673) |
++
++The largest completed `milan_dp_mclk` window was 1084.530 seconds.
++It came from run `37424768281`, job `112142195210`.
++The three default suites exceeding 80% receive increases.
++The remaining default suites retain their limits.
++The ruling assigns `milan_dp_gptp` scheduling to a follow-up.
++
++Each envelope substitutes new limits for changed suites.
++It adds each sibling's largest observed window independently.
++Job overhead equals total job time minus suite windows.
++The largest observed overhead is added for each shard.
++This includes setup, preflights, tally, upload, and cleanup.
++Every affected shard remains below 6480 seconds: 90% utilization.
++
++| Shard | New limit | Sibling maxima sum | Maximum overhead | Envelope | Remaining / 7200 s |
++|---|---|---|---|---|---|
++| 1/5 | 2400 s | 3381.779 s | 117.580 s | 5899.359 s | 1300.641 s / 18.06% |
++| 2/5 | 3600 s | 2517.453 s | 86.448 s | 6203.901 s | 996.099 s / 13.83% |
++| 4/5 | 4800 s | 0 s | 89.438 s | 4889.438 s | 2310.562 s / 32.09% |
++
++Overhead maxima come from jobs `112142195196`, `112155955407`, and `112142195163`.
++No requested limit needs trimming under this measured envelope.
++These samples cannot bound future runner or cache-miss delays.
++Checks, campaigns, shard assignments, and job timeouts remain unchanged.
++An explicit `SUITE_TIMEOUT` still overrides every selected suite's limit.
++
+ PR #563's first head timed out during servo mutations.
+ 
+ The #545 decision keeps all clean checks under 1800 seconds.
+@@ -238,11 +282,11 @@ The PR samples build candidate merges onto dev `57456af9`.
+ The day's observed spread was 1296-2460 s.
+ The `a21cd358` sample left 240.1 s of 2700 s: 8.9%.
+ That crossed [decision 5819379503](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5819379503)'s 10% trigger.
+-The new budget leaves 1140.1 s: 31.7%, approximately 32%.
++That historical budget left 1140.1 s: 31.7%, approximately 32%.
+ These historical samples do not measure the corrected candidate.
+ The five default gmstep controls remain in `run` (#602).
+ The additional controls stay in the explicit `gmstep-mutants` campaign.
+-The hosted shards allow 120 minutes, accommodating this one-hour deadline.
++The hosted shards allow 120 minutes; #673's envelopes appear above.
+ If later exact-head margin falls below 10%, split further.
+ 
+ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
+diff --git a/docs/testing/RUNNING_TESTS.md b/docs/testing/RUNNING_TESTS.md
+index 7e2d3d469..9e77c01cc 100644
+--- a/docs/testing/RUNNING_TESTS.md
++++ b/docs/testing/RUNNING_TESTS.md
+@@ -80,9 +80,10 @@ See the [containment contract](../../CONTRIBUTING.md#21-the-issue-to-merge-lane)
+ for its supported histories and unresolved cases.
+ The runner discovers suites from the filesystem, serializes whole-tree sweeps,
+ enforces a per-suite wall clock, and refuses to quote a total when a suite's
+-check count cannot be read. The default selection contains 54 suites, each
+-with an 1800-second deadline except `milan_dp`, which has 3600 seconds
+-under [decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308).
++check count cannot be read.
++The default selection contains 60 suites.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The separate `milan_dp_gptp` selection uses
+ 5400 seconds, including compilation, and preserves physical clock and timer
+ rates. CI shards the default selection; the physical job runs nightly and on
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5932ffd25..bbb713a8e 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -166,10 +166,9 @@ The directory inventory includes one environment-dependent measurement exception
+ It requires the product LiteX tree, CPU netlist and pinned RV32 SDK.
+ Its README provides measurement commands and the complete receipt.
+ 
+-The default driver permits 1800 seconds per suite, and 3600 seconds for `milan_dp`.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets this deadline from recorded hosted samples.
+-The table and its measurements are in the [workflow policy](CI_WORKFLOWS.md#exhaustive-validation).
+-It excludes scheduled `milan_dp_gptp` and manual `nvm_capture_cpu` measurements.
++Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
++The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+ The separate physical job permits 5400 seconds, including compilation.
+ Its workflow job permits 120 minutes, including toolchain setup.
+ Both target a four-core `ubuntu-latest` hosted worker.
+diff --git a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+index fb038e678..eae99385c 100644
+--- a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++++ b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+@@ -268,6 +268,10 @@ module KL_aaf_packetizer #(
+   logic [2:0] nsamp_r  [N_TALKERS_P];   //! samples accumulated in wr bank
+   logic       wbank_r  [N_TALKERS_P];   //! bank being filled
+   logic       pend_r   [N_TALKERS_P];   //! !wbank full, awaiting emission
++  //! After enable, wait for pair zero before collecting a sample frame.
++  //! Otherwise its last pair advances nsamp without capturing TCTX w4.
++  //! IEEE 1722-2016 7.5 requires the first sample's presentation time.
++  logic       started_r [N_TALKERS_P]; //! first pair accepted since enable
+ 
+   //! channels_per_frame flop mirror of TCTX w0.chans (clamped even 2..8;
+   //! reset 2 = the byte-identical stereo default, t0 included). Snoops the
+@@ -312,6 +316,7 @@ module KL_aaf_packetizer #(
+   //! still-pending frame (the old MVP frame_pend drop, per bank; blocking
+   //! only the bank-completing pair keeps channel alignment slot-structural)
+   wire pair_ok_w = pair_valid_i && pown_v_w && stream_en_i[pown_t_w] &&
++                   (started_r[pown_t_w] || pown_o_w == '0) &&
+                    !(pend_r[pown_t_w] && own_last_w &&
+                      (32'(nsamp_r[pown_t_w]) == SAMPLES_PER_FRAME_C - 1));
+ 
+@@ -583,6 +588,7 @@ module KL_aaf_packetizer #(
+         nsamp_r[t] <= '0;
+         wbank_r[t] <= 1'b0;
+         pend_r[t]  <= 1'b0;
++        started_r[t] <= 1'b0;
+         //! the build constant IS the wire: reset every talker to the
+         //! channels_per_frame this fabric emits (WIRE_CHANS_P, default 2 =
+         //! the historical 4'd2 literal, byte for byte)
+@@ -706,6 +712,7 @@ module KL_aaf_packetizer #(
+       // ---- pair capture / bank swap (after the FSM so a same-cycle
+       //      new-epoch pend set wins over the drain clear) ----------------
+       if (pair_ok_w) begin
++        started_r[pown_t_w] <= 1'b1;
+         //! the sample row advances on its LAST channel pair; the bank swap
+         //! on the last row's last pair (channel position is slot-addressed,
+         //! so drops can only repeat a row, never skew channels)
+@@ -732,6 +739,7 @@ module KL_aaf_packetizer #(
+       //! disabled stream: clear its accumulation (flat-talker semantics)
+       for (int t = 0; t < N_TALKERS_P; t++) begin
+         if (!stream_en_i[t]) begin
++          started_r[t] <= 1'b0;
+           nsamp_r[t] <= '0;
+           pend_r[t]  <= 1'b0;
+         end
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index db18f3011..344b49157 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -2341,13 +2341,9 @@ RTL_STEP_LISTS = {
+              'python3 syn/yosys/cache_selftest.py',
+          )},
+     ),
+-    # #665 lane FT: the bare-metal firmware's GoogleTest suites, the
+-    # saved-state store's RV32 build and the coverage ratchet. The RV32
+-    # steps are the docs job's pinned cache and install, placed after the
+-    # ctrl gate: that gate's rv32 arm builds against the SDK's C headers
+-    # for -mabi=ilp32, which the pinned ilp32d SDK does not carry, so it
+-    # runs with no RV32 compiler present and skips that arm by name. lwSRP
+-    # is private, so the ctrl gate's opt-in lwsrp arm stays local too.
++    # #679: both object builds require the SDK, installed before either.
++    # Freestanding headers exclude the SDK's hosted libc. The ctrl gate's
++    # opt-in lwSRP arm and both mutation campaigns remain local gates.
+     (RTL_FAST, FIRMWARE_UNIT_JOB): (
+         {"uses": "actions/checkout@v4"},
+         {"name": "Fetch RTL dependencies",
+@@ -2366,14 +2362,16 @@ RTL_STEP_LISTS = {
+          "run": (
+              'python3 sw/firmware/gtest/tally_selftest.py',
+          )},
+-        {"name": "Run the control-plane firmware suites",
+-         "run": (
+-             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py',
+-         )},
+         {"name": "Cache the pinned RV32 SDK", "uses": "actions/cache@v4",
+          "with": RV32_CACHE_WITH},
+         {"name": "Install and verify the pinned RV32 SDK",
+          "run": RV32_INSTALL},
++        {"name": "Run the control-plane firmware suites and its RV32 build",
++         "run": (
++             'set -euo pipefail',
++             'python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32',
++             'python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32',
++         )},
+         {"name": "Run the saved-state store suites and its RV32 build",
+          "run": (
+              'python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$(nproc)"',
+@@ -7765,14 +7763,15 @@ def _rv32_sdk_arms() -> list[Arm]:
+                      _m_step_key_any(path, jid, "ci_rv32_sdk.py", "if", False),
+                      "(`Install and verify the pinned RV32 SDK`)"))
+         if path == RTL_FAST:
+-            # #665 lane FT: the store's gate skips its RV32 arm visibly
+-            # without a compiler; only --require-rv32 makes that a refusal.
+-            store = "Run the saved-state store suites and its RV32 build"
+-            suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == store)
+-            arms.append((f"RV32 {jid} allows a stood-down compiler",
+-                         _m_step_key_any(path, jid, "test_ctrl_nvm.py", "run",
+-                                         "\n".join(suites["run"]).replace(" --require-rv32", "")),
+-                         f"(`{store}`) script is not the canonical form"))
++            # Each missing compiler must refuse, never silently skip a build.
++            for script, label in (("test_ctrl_firmware.py", "control-plane firmware"),
++                                  ("test_ctrl_nvm.py", "saved-state store")):
++                step_name = f"Run the {label} suites and its RV32 build"
++                suites = next(s for s in RTL_STEP_LISTS[(path, jid)] if s.get("name") == step_name)
++                arms.append((f"RV32 {jid} {script} allows a stood-down compiler",
++                             _m_step_key_any(path, jid, script, "run",
++                                             "\n".join(suites["run"]).replace(" --require-rv32", "")),
++                             f"(`{step_name}`) script is not the canonical form"))
+             continue
+         builder_name = "End-station builder gates" if path == DOCS else "Elaboration gates"
+         arms.append((f"RV32 {jid} allows a stood-down compiler",
+diff --git a/scripts/measure_test_evidence.py b/scripts/measure_test_evidence.py
+index 198b59d6c..8d217e548 100644
+--- a/scripts/measure_test_evidence.py
++++ b/scripts/measure_test_evidence.py
+@@ -668,13 +668,15 @@ def runner_contract(text: str) -> list[str]:
+         problems.append("the per-suite wall-clock guard is missing")
+     budget = '''suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }'''
+     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
+-        problems.append("the declared 1800/3600/5400-second suite budgets changed")
++        problems.append("the declared 1800/2400/3600/4800/5400-second suite budgets changed")
+     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
+                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
+                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',
+diff --git a/scripts/measure_test_evidence_readers.py b/scripts/measure_test_evidence_readers.py
+index fbb02cc52..04f814bd3 100644
+--- a/scripts/measure_test_evidence_readers.py
++++ b/scripts/measure_test_evidence_readers.py
+@@ -18,6 +18,9 @@ A new reader is debt until review classifies it here.
+ """
+ 
+ DUT_READER_DISPOSITIONS = {
++    "tb/verilator/aaf/start_mutants.py":
++        "mutation campaign; plants named defects in isolated RTL and requires named assertion failures; "
++        "expected timestamps and samples are independent of RTL text",
+     "protocol-processor/tb/pp_top/acmp_mutants.py":
+         "mutation campaign; it plants one ACMP listener, validator, top SRP-service, bound-view, "
+         "SRP matcher or top timer arm-queue defect from its own table into an isolated copy and "
+diff --git a/scripts/measure_test_evidence_selftest.py b/scripts/measure_test_evidence_selftest.py
+index 302544ab7..4e16490a8 100644
+--- a/scripts/measure_test_evidence_selftest.py
++++ b/scripts/measure_test_evidence_selftest.py
+@@ -291,10 +291,14 @@ def _arms_runner_contract(ck):
+     for old, new in (("PHYSICAL_GPTP=0", "PHYSICAL_GPTP=1"),
+                      ('[ "$PHYSICAL_GPTP" = 1 ]', '[ 1 = 1 ]'),
+                      ("SUITE_TIMEOUT:-1800", "SUITE_TIMEOUT:-2400"),
+-                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-2700"),
++                     ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-1800"),
++                     ("SUITE_TIMEOUT:-4800", "SUITE_TIMEOUT:-3600"),
+                      ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
++                     ("capture_coherence)", "capture_coherence_typo)"),
+                      ("milan_dp_gptp)", "milan_dp)"),
+-                     ("    milan_dp)      ", "    milan_dp_render) "),
++                     ("milan_dp_mclk)", "milan_dp_render)"),
++                     ("milan_dp)", "milan_dp_render)"),
+                      ('TMO=$(suite_timeout "$suite")', 'TMO=2400')):
+         ck(f"a changed suite budget is rejected: {old}",
+            bool(runner_contract(runner.replace(old, new))))
+diff --git a/scripts/run_all_suites.sh b/scripts/run_all_suites.sh
+index 997bea9fb..133a9c8f5 100755
+--- a/scripts/run_all_suites.sh
++++ b/scripts/run_all_suites.sh
+@@ -36,7 +36,8 @@
+ #
+ # Environment:
+ #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
+-#                        Defaults: 1800 s; milan_dp gets 3600 s and the
++#                        Defaults: 1800 s; capture_coherence gets 2400 s,
++#                        milan_dp_mclk 3600 s, milan_dp 4800 s and the
+ #                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
+ #                        See docs/testing/TESTING.md for the physical timer floor.
+ #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
+@@ -237,14 +238,17 @@ acquire_lock() {
+ 
+ #! Declared per-suite defaults; an explicit caller override retains its meaning.
+ #! The CI runner contract pins every budget and each named suite.
+-#! milan_dp (#387, decision 5820240308): hosted window 2459.9 s at a21cd358,
+-#! with a 1296-2460 s spread on 2026-09-24. The 3600 s budget leaves
+-#! 1140.1 s (31.7% of the budget); CI_WORKFLOWS.md cites the samples.
++#! #673, decision 6015726285: capture_coherence passed in 1642.280 s,
++#! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
++#! The new limits leave >=10% in each hosted shard's measured job envelope.
++#! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
+ suite_timeout() {
+   case "$1" in
+-    milan_dp)      printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
+-    milan_dp_gptp) printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+-    *)             printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
++    capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
++    milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
++    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
++    milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
++    *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
+   esac
+ }
+ 
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 286d6683c..94046fed7 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -108,11 +108,14 @@ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test
+ python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --lwsrp <lwSRP checkout>
+ ```
+ 
+-Needs a host C and C++ compiler, GoogleTest and GoogleMock (`libgtest-dev`
+-and `libgmock-dev`), PyYAML, and for `rv32` an RV32 compiler for
+-`-mabi=ilp32` with its C headers (the CI-pinned SDK of
+-`scripts/ci_rv32_sdk.py` is `ilp32d` and carries no `gnu/stubs-ilp32.h`, so
+-`firmware-unit` runs this gate with the arm skipped). lwSRP is referenced, never vendored, at the
++Needs host C/C++ compilers, GoogleTest, GoogleMock, and PyYAML.
++RV32 checks use the SDK from `scripts/ci_rv32_sdk.py`.
++Both firmware gates require RV32 in `firmware-unit`.
++Freestanding declarations avoid the SDK's hosted C headers.
++GCC supplies its own freestanding integer and varargs headers.
++`MILAN_RV32_CC` selects an explicit compiler for local validation.
++See [the harness](../gtest/README.md#rv32-object-builds) for evidence limits.
++lwSRP is referenced, never vendored, at the
+ revision `ctrl_arms.LWSRP_REV` records,
+ `19f5796b63652eb1151906de73cb827d4980a53f`:
+ 
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index 779e6dfd9..04f168a3f 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -5,13 +5,13 @@
+ from __future__ import annotations
+ 
+ import re
+-import shutil
+ import sys
+ from pathlib import Path
+ 
+-from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_CANDIDATES, RV32_FLAGS, RV32_LIBC, TB_COMMON,
++from ctrl_build import (CTRL, HERE, PORTABLE, PP_ADP_PKG, ROOT, RV32_FLAGS, RV32_LIBC, TB_COMMON,
+                         TB_MBX, Outcome, Refusal, Tree, compile_c, compile_tests, execute, firmware, includes, link,
+                         run, sources)
++import fw_rv32
+ 
+ 
+ def arm_model(tree: Tree) -> Outcome:
+@@ -176,17 +176,14 @@ def arm_entity(tree: Tree) -> Outcome:
+ # ---- rv32: freestanding RV32I build, no heap and no OS ---------------------------------
+ 
+ def rv32_compiler() -> str | None:
+-    """The first RV32 compiler present, the pinned SDK's first."""
+-    for cand in RV32_CANDIDATES:
+-        found = shutil.which(cand)
+-        if found is not None:
+-            return found
+-    return None
++    """The explicit compiler, or the first available SDK candidate."""
++    return fw_rv32.compiler()
+ 
+ 
+ def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
+-    """The undefined, or the defined, symbols of a set of objects."""
+-    res = run([tool, "-u" if undefined else "--defined-only", *map(str, objs)])
++    """Undefined symbols, or definitions capable of resolving external references."""
++    flags = ("-u",) if undefined else ("--extern-only", "--defined-only")
++    res = run([tool, *flags, *map(str, objs)])
+     if res.returncode != 0:
+         raise Refusal(f"{tool}: {res.stderr.strip()}")
+     return {ln.split()[-1] for ln in res.stdout.splitlines() if ln.strip() and not ln.endswith(":")}
+@@ -201,25 +198,40 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
+         return Outcome("rv32", 0, "  SKIPPED: no RV32 compiler; --require-rv32 refuses instead")
+     obj_dir = tree.out / "rv32"
+     obj_dir.mkdir(parents=True, exist_ok=True)
++    try:
++        runtime_inc = fw_rv32.includes(cc)
++    except ValueError as exc:
++        raise Refusal(str(exc)) from exc
+     objs = []
+     for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
+         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
+-        res = run([cc, *RV32_FLAGS, *includes(tree), "-c", str(src), "-o", str(obj)])
++        res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
+         if res.returncode != 0:
+             return Outcome("rv32", 1, f"  [FAIL] {src.name} does not build for RV32I:\n{res.stderr}")
+         objs.append(obj)
+     tool = cc.removesuffix("gcc")
+     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
+-    stray = sorted(s for s in open_syms if s not in RV32_LIBC and not s.startswith("__"))
+-    size = run([tool + "size", "-t", *map(str, objs)]).stdout.strip().splitlines()
++    stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
++    findings = fw_rv32.object_findings(cc, objs)
++    try:
++        frame = fw_rv32.stack_frames(objs)
++    except ValueError as exc:
++        findings.append(str(exc))
++        frame = None
++    measured = run([tool + "size", "-t", *map(str, objs)])
++    if measured.returncode:
++        raise Refusal(f"RV32 size failed: {measured.stderr.strip()}")
++    size = measured.stdout.strip().splitlines()
+     lines = [f"  {cc.rsplit('/', 1)[-1]} {' '.join(RV32_FLAGS[:4])}: {len(objs)} objects",
+              f"  size (text data bss dec): {' '.join(size[-1].split()[:4]) if size else 'unknown'}",
++             f"  largest static frame: {frame} bytes (not a call-chain bound)",
+              f"  undefined: {', '.join(sorted(open_syms))}"]
+     if stray:
+-        lines.append(f"  [FAIL] symbols outside the C library and libgcc: {', '.join(stray)}")
+-    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if stray else 0} ==",
+-              f"RESULT: {'FAIL' if stray else 'PASS'}"]
+-    return Outcome("rv32", 1 if stray else 0, "\n".join(lines))
++        findings.append(f"symbols outside the C library and libgcc: {', '.join(stray)}")
++    lines += [f"  [FAIL] {finding}" for finding in findings]
++    lines += [f"== ctrl RV32I freestanding build: checks: 1   failures: {1 if findings else 0} ==",
++              f"RESULT: {'FAIL' if findings else 'PASS'}"]
++    return Outcome("rv32", 1 if findings else 0, "\n".join(lines))
+ 
+ 
+ # ---- lwsrp: lwSRP's MRP core on the port layer -----------------------------------------
+diff --git a/sw/firmware/ctrl/test/ctrl_build.py b/sw/firmware/ctrl/test/ctrl_build.py
+index dbc40507c..f52c341f9 100644
+--- a/sw/firmware/ctrl/test/ctrl_build.py
++++ b/sw/firmware/ctrl/test/ctrl_build.py
+@@ -39,11 +39,9 @@ HOST = ("host/mbx_model.c", "host/mbx_plat_host.c")
+ INCLUDE_DIRS = ("mbx", "wire", "host", "port", "loop", "adp", "app", "test")
+ C_FLAGS = ("-std=c11", "-O2", "-Wall", "-Wextra", "-Werror", "-pedantic")
+ 
+-RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"), "riscv32-unknown-elf-gcc",
+-                   "riscv64-elf-gcc")
+ RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-std=c11", "-Wall",
+-              "-Wextra", "-Werror", "-pedantic", "-DCTRL_MBX_BASE=0x80000000u")
+-#: What a freestanding RV32I build may leave undefined, besides libgcc's `__` helpers.
++              "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
++#: Runtime interfaces an object-only check may leave undefined.
+ RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf"})
+ 
+ 
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index 6574ff300..e95b965ce 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -33,8 +33,10 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+            (the builder's ADP shape include) and the processor's
+            ADP_ENTITY_CAPS_C;
+   rv32     the portable set and the MMIO platform cross-compiled freestanding
+-           for RV32I with the pinned SDK, every undefined symbol a C-library
+-           string, format or assertion function or a libgcc helper (no heap, no OS);
++           for RV32I with the pinned SDK and isolated freestanding headers;
++           every undefined symbol a named runtime interface (string, format
++           or assertion) or arithmetic helper, with ELF ABI and static-frame
++           checks (no heap, no OS);
+   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
+            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
+            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index cdf727e61..e0184b014 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -334,8 +334,12 @@ access to the command master costs 40 ns, and CPU work costs none of it.
+ 
+ ## Static sizes
+ 
+-The RV32I freestanding build (`-march=rv32i -Os`) of the codec, the store
+-and the LiteSPI port, per shipped shape at its own system clock, in bytes.
++RV32I object sizes, compiled with the pinned SDK at `-Os`.
++Each shape uses its own system clock and ILP32 ABI.
++Both builds disable compiler stack-protector instrumentation.
++The largest static frame is 128 bytes per shape.
++That figure does not bound the complete runtime stack.
++See [the harness](../gtest/README.md#rv32-object-builds) for validation limits.
+ The stage is the container plus one record header; the payload buffer is the
+ shape's largest payload; the chunk is one read-back step; the clock counters
+ are the port's time base and its per-call deadline state. bss includes
+@@ -344,11 +348,11 @@ only while the slot is judged.
+ 
+ | Shape | Clock (Hz) | Records | Container | Stage | Payload | Chunk | Store state | Clock counters | bss | text |
+ |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+-| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,352 |
+-| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,368 |
+-| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,360 |
+-| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,360 |
+-| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,372 |
++| `endstation_arty_current` | 83,333,000 | 42 | 2,516 | 2,524 | 66 | 256 | 288 | 20 | 3,160 | 12,112 |
++| `endstation_ax7101_1x1_tdm8` | 100,000,000 | 54 | 3,336 | 3,344 | 136 | 256 | 288 | 20 | 4,048 | 12,128 |
++| `endstation_arty_4x4` | 83,333,000 | 88 | 4,808 | 4,816 | 66 | 256 | 288 | 20 | 5,452 | 12,120 |
++| `endstation_arty_8ch` | 83,333,000 | 120 | 7,368 | 7,376 | 66 | 256 | 288 | 20 | 8,012 | 12,120 |
++| `endstation_ax7101_8x8` | 100,000,000 | 164 | 13,256 | 13,264 | 576 | 256 | 288 | 20 | 14,408 | 12,132 |
+ 
+ #640 D4 removes DDR3, so the stage lives in block RAM: one container, not the
+ 64 KiB slot. The shipping writer keeps a live window and a private stage in
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_rv32.py b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+index b9c0ac16c..eba002147 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_rv32.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_rv32.py
+@@ -7,24 +7,23 @@ with the pinned SDK's compiler for RV32I, freestanding, against MMIO stand-ins
+ for the LiteX-generated CSR and memory headers (test/rv32/) and the shape's
+ own generated/soc.h, which the bench writes from its config's system clock,
+ so each shape is built at the clock it ships. The arm fails on any undefined
+-symbol that is not a C-library memory function or a libgcc helper, so a heap
++symbol outside named memory interfaces and arithmetic helpers, so a heap
+ allocator, a stdio call or an OS service cannot enter the store; and it
+ reports the store's text, data and bss and each static buffer, which is the
+-size of the store as the shape fixes it.
++size of the store as the shape fixes it. These are object sizes, not a
++linked image; the maximum static frame is not a call-chain bound.
+ """
+ 
+ from __future__ import annotations
+ 
+-import shutil
+ import subprocess
+ from pathlib import Path
+ 
+ from nvm_bench import Refusal
++import fw_rv32
+ 
+-RV32_CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
+-                   "riscv32-linux-gcc", "riscv32-unknown-elf-gcc", "riscv64-unknown-elf-gcc")
+ RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-Os", "-std=c11", "-ffreestanding",
+-              "-Wall", "-Wextra", "-Werror")
++              "-fno-stack-protector", "-fstack-usage", "-Wall", "-Wextra", "-Werror")
+ PORTABLE = ("nvm_klj2.c", "nvm_store.c", "plat/nvm_flash_litespi.c")
+ LIBC_OK = frozenset({"memcpy", "memset", "memmove", "memcmp"})
+ #: The store's static buffers and state, and the port's counters: its clock
+@@ -35,12 +34,8 @@ CLOCK = ("ls_ticks", "ls_tick_last", "ls_call_start", "ls_waited")
+ 
+ 
+ def compiler() -> str | None:
+-    """The first RV32 compiler present, the pinned SDK's first."""
+-    for cand in RV32_CANDIDATES:
+-        found = shutil.which(cand)
+-        if found is not None:
+-            return found
+-    return None
++    """The explicit compiler, or the first available SDK candidate."""
++    return fw_rv32.compiler()
+ 
+ 
+ def _tool(cc: str, name: str, *args: str) -> str:
+@@ -55,10 +50,14 @@ def _tool(cc: str, name: str, *args: str) -> str:
+ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[str, int]]:
+     """Compile the portable set for RV32I into `work`: (findings, sizes)."""
+     work.mkdir(parents=True, exist_ok=True)
++    try:
++        runtime_inc = fw_rv32.includes(cc)
++    except ValueError as exc:
++        raise Refusal(str(exc)) from exc
+     objs = []
+     for src in PORTABLE:
+         obj = work / (Path(src).stem + ".o")
+-        r = subprocess.run([cc, *RV32_FLAGS, f"-I{gen}", f"-I{tree / 'test/rv32'}", "-c",
++        r = subprocess.run([cc, *RV32_FLAGS, *runtime_inc, f"-I{gen}", f"-I{tree / 'test/rv32'}", "-c",
+                             str(tree / src), "-o", str(obj)], capture_output=True, text=True,
+                            check=False)
+         if r.returncode:
+@@ -66,14 +65,20 @@ def build(tree: Path, work: Path, gen: Path, cc: str) -> tuple[list[str], dict[s
+         objs.append(str(obj))
+     undefined = {ln.split()[-1] for ln in _tool(cc, "nm", "-u", *objs).splitlines()
+                  if ln.strip() and not ln.endswith(":")}
+-    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--defined-only", *objs).splitlines()
++    defined = {ln.split()[-1] for ln in _tool(cc, "nm", "--extern-only", "--defined-only", *objs).splitlines()
+                if ln.strip() and not ln.endswith(":")}
+-    stray = sorted(s for s in undefined - defined if s not in LIBC_OK and not s.startswith("__"))
++    stray = sorted(undefined - defined - LIBC_OK - fw_rv32.HELPERS)
+     total = _tool(cc, "size", "-t", *objs).strip().splitlines()[-1].split()
+     sizes = {"text": int(total[0]), "data": int(total[1]), "bss": int(total[2])}
++    found = fw_rv32.object_findings(cc, [Path(obj) for obj in objs])
++    try:
++        sizes["stack_frame"] = fw_rv32.stack_frames([Path(obj) for obj in objs])
++    except ValueError as exc:
++        found.append(str(exc))
+     for line in _tool(cc, "nm", "-S", "--defined-only", *objs).splitlines():
+         parts = line.split()
+         if len(parts) == 4 and parts[3] in BUFFERS:
+             sizes[parts[3]] = int(parts[1], 16)
+-    found = [f"rv32: symbols outside the C library and libgcc: {', '.join(stray)}"] if stray else []
++    if stray:
++        found.append(f"rv32: symbols outside the C library and libgcc: {', '.join(stray)}")
+     return found, sizes
+diff --git a/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py b/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+index c960f0441..66e863c1c 100755
+--- a/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
++++ b/sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py
+@@ -152,6 +152,7 @@ def rv32_arm(inputs: ShapeInputs, work: Path, require: bool) -> list[str]:
+               f"stage={sizes.get('nvm_stage')} payload={sizes.get('nvm_payload')} "
+               f"chunk={sizes.get('nvm_chunk')} store={sizes.get('nvm')} "
+               f"clock={sum(sizes.get(s, 0) for s in nvm_rv32.CLOCK)} (bytes)")
++        print(f"  largest static frame: {sizes.get('stack_frame')} bytes (not a call-chain bound)")
+     return found
+ 
+ 
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index b908b4bf2..94a422869 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -21,6 +21,7 @@ binaries and grade each one by the tally it prints.
+ - **[The port](#the-port)** -- Every hand-rolled check moved onto GoogleTest, arm by arm, with the counts.
+ - **[Coverage](#coverage)** -- Line and branch coverage of the firmware's sources with gcc's gcov, the ratchet that refuses a drop, and each branch no input can reach, with its proof.
+ - **[Run](#run)** -- The commands, and what each needs.
++- **[RV32 object builds](#rv32-object-builds)** -- Freestanding compilation, dependency checks, and evidence limits.
+ - **[CI](#ci)** -- The hosted job, the arms it leaves to the local gates, and the versions it runs with.
+ - **[Not in this lane](#not-in-this-lane)** -- lwSRP's own suites.
+ 
+@@ -326,16 +327,54 @@ python3 sw/firmware/gtest/fw_coverage.py --selftest
+ They need a C11 and a C++20 compiler (gcc), `gcov`, GoogleTest and
+ GoogleMock with their pkg-config files (`libgtest-dev` and `libgmock-dev` on
+ Debian and Ubuntu, `gtest` on Arch), PyYAML, and for the RV32 arms an RV32
+-compiler. The store's arm builds with the pinned SDK
+-(`scripts/ci_rv32_sdk.py`). The ctrl arm compiles against the SDK's C
+-headers for `-mabi=ilp32`, and that SDK is `ilp32d` with no
+-`gnu/stubs-ilp32.h`, so the ctrl arm needs an `ilp32` SDK at
+-`~/br-milan-rv32/host` or a bare-metal compiler. The ctrl gate, the store's
++compiler. Both arms use the SDK from `scripts/ci_rv32_sdk.py`.
++Their headers exclude the SDK's hosted C library.
++`MILAN_RV32_CC` selects an explicit local compiler.
++The ctrl gate, the store's
+ gate, the coverage gate and the tally's self-test each print a `toolchain:`
+ line first: the C and C++ compilers, gcov and GoogleTest and GoogleMock
+ they ran with. A gate's coverage mode does not; the coverage gate that
+ drives it prints the line for the run.
+ 
++## RV32 object builds
++
++Both arms compile RV32I objects using ILP32.
++`-ffreestanding` selects GCC's freestanding C headers.
++`-nostdinc` excludes the SDK's hosted include directories.
++`rv32_include` declares memory functions and the bounded formatter.
++Those declarations supply no runtime implementations or replacement behavior.
++The product supplies its runtime through the bare-metal build.
++The SDK pin remains unchanged.
++
++Every object must identify little-endian ELF32 RISC-V, soft-float ABI.
++Its architecture attribute must specify RV32I without extensions.
++Compressed instructions and double-float ABI flags are refused.
++The dependency check matches names across the compiled objects.
++Only global or weak definitions remove names from undefined references.
++Same-name local definitions leave those references unresolved.
++Remaining undefined symbols allow only named interfaces and arithmetic helpers.
++Both builds disable stack-protector instrumentation, matching bare-metal compilation.
++Heap, OS, and unexpected double-underscore dependencies fail.
++
++The outputs are objects, not linked firmware images.
++Text, data, BSS, and static buffers are reported.
++The largest compiler-reported static frame is reported separately.
++It does not bound nested calls, interrupts, or runtime functions.
++Dynamic or missing frame reports cannot pass.
++Shipping firmware sources and image construction remain unchanged.
++
++```sh
++python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
++```
++
++The self-test compiles against a deliberately hostile hosted-header tree.
++Restoring hosted headers or disabling freestanding compilation fails.
++RV64, hard-float, extended-ISA, and malformed objects are refused.
++A dynamic stack report and absent required compiler fail.
++Both real firmware arms reject planted heap and unknown dependencies.
++Same-name static definitions cannot hide the planted unknown dependencies.
++The store also rejects restored stack-protector dependencies.
++
+ ## CI
+ 
+ `rtl-fast`'s `firmware-unit` job
+@@ -344,15 +383,13 @@ runs on every change the classifier calls relevant (`scripts/ci_scope.py`;
+ every path under `sw/firmware/` is). It installs `libgtest-dev` and
+ `libgmock-dev` from the runner's distribution, prints their versions and the
+ gcc and gcov it measures with, then runs the tally's planted cases, the ctrl
+-gate, the store's gate at every shape with its RV32 build on the pinned SDK,
++gate, and the store's gate at every shape. Both require RV32.
++The SDK installation precedes both, followed by the RV32 self-test,
+ and this coverage gate with its planted cases. `scripts/ci_events.py` pins
+ the job's steps and the `rtl-fast` aggregate's verdict on it, and
+ `scripts/act_ci.py` replays it with the rest of `rtl-fast.yml`.
+ 
+-Three arms stay with the local gates, and the job names each:
+-
+-- the ctrl gate's `rv32` arm, for the SDK reason above: the job runs that
+-  gate before it installs the SDK, so the arm reports SKIPPED;
++Two groups stay with local gates:
+ - the ctrl gate's `lwsrp` arm: lwSRP is a private repository the workflow's
+   token cannot read. The coverage ratchet reads the same with and without
+   it;
+diff --git a/sw/firmware/gtest/fw_rv32.py b/sw/firmware/gtest/fw_rv32.py
+new file mode 100644
+index 000000000..d33c89c41
+--- /dev/null
++++ b/sw/firmware/gtest/fw_rv32.py
+@@ -0,0 +1,74 @@
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Shared freestanding RV32I object checks, without the SDK's hosted libc.
++
++GCC supplies stdint/stddef/stdarg/stdbool under -ffreestanding. The two
++rv32_include headers declare the bare-metal runtime interfaces consumed by
++the firmware. These checks compile objects, not a linked or bootable image.
++"""
++
++from __future__ import annotations
++
++import os
++import re
++import shutil
++import struct
++from pathlib import Path
++
++import fw_gtest
++
++HERE = Path(__file__).resolve().parent
++CANDIDATES = (str(Path.home() / "br-milan-rv32/host/bin/riscv32-linux-gcc"),
++              "riscv32-linux-gcc", "riscv32-unknown-elf-gcc",
++              "riscv64-unknown-elf-gcc", "riscv64-elf-gcc")
++# Exact compiler arithmetic helpers, never an unrestricted double-underscore prefix.
++HELPERS = frozenset({"__lshrdi3", "__ashldi3", "__ashrdi3", "__mulsi3", "__muldi3",
++                     "__divsi3", "__udivsi3", "__modsi3", "__umodsi3",
++                     "__divdi3", "__udivdi3", "__moddi3", "__umoddi3"})
++
++
++def compiler() -> str | None:
++    """Use an explicit compiler when requested; otherwise prefer the CI SDK."""
++    requested = os.environ.get("MILAN_RV32_CC")
++    choices = (requested,) if requested else CANDIDATES
++    return next((found for name in choices if (found := shutil.which(name))), None)
++
++
++def includes(cc: str) -> list[str]:
++    """Exclude all hosted headers, retaining GCC's freestanding C headers."""
++    result = fw_gtest.run([cc, "-print-file-name=include"])
++    directory = Path(result.stdout.strip())
++    if result.returncode or not directory.is_dir() or not (directory / "stdint.h").is_file():
++        raise ValueError("RV32 compiler did not identify its freestanding headers")
++    return ["-nostdinc", "-isystem", str(directory), "-I", str(HERE / "rv32_include")]
++
++
++def object_findings(cc: str, objects: list[Path]) -> list[str]:
++    """Every emitted object must use little-endian ELF32 RISC-V soft-float ABI."""
++    found = []
++    for obj in objects:
++        data = obj.read_bytes()
++        if (len(data) < 52 or data[:7] != b"\x7fELF\x01\x01\x01" or
++                struct.unpack_from("<HH", data, 16) != (1, 243) or
++                struct.unpack_from("<I", data, 36)[0] != 0):
++            found.append(f"{obj.name}: expected RV32I ILP32 relocatable object")
++            continue
++        attributes = fw_gtest.run([cc.removesuffix("gcc") + "readelf", "-A", str(obj)])
++        arches = re.findall(r'Tag_RISCV_arch: "([^"]+)"', attributes.stdout)
++        if attributes.returncode or len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+", arches[0]):
++            found.append(f"{obj.name}: expected RV32I architecture attribute, got {arches}")
++    return found
++
++
++def stack_frames(objects: list[Path]) -> int:
++    """Largest compiler-reported static frame; not a call-chain stack bound."""
++    maximum = 0
++    for obj in objects:
++        rows = obj.with_suffix(".su").read_text().splitlines()
++        if not rows:
++            raise ValueError(f"{obj.name}: missing stack usage rows")
++        for row in rows:
++            _, size, kind = row.split("\t")
++            if kind != "static":
++                raise ValueError(f"{obj.name}: non-static stack usage: {row}")
++            maximum = max(maximum, int(size))
++    return maximum
+diff --git a/sw/firmware/gtest/fw_rv32_selftest.py b/sw/firmware/gtest/fw_rv32_selftest.py
+new file mode 100755
+index 000000000..dd9e494ba
+--- /dev/null
++++ b/sw/firmware/gtest/fw_rv32_selftest.py
+@@ -0,0 +1,172 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Plant header, ABI and runtime-dependency defects in RV32 object checks (#679)."""
++
++from __future__ import annotations
++
++import argparse
++import os
++import sys
++import tempfile
++from pathlib import Path
++from unittest.mock import patch
++
++import fw_gtest
++import fw_rv32
++
++ROOT = Path(__file__).resolve().parents[3]
++sys.path[:0] = [str(ROOT / "sw/firmware/ctrl/test"), str(ROOT / "sw/firmware/ctrl_nvm/test")]
++
++import ctrl_arms  # noqa: E402
++import nvm_bench  # noqa: E402
++import nvm_rv32  # noqa: E402
++from ctrl_build import CTRL, Tree  # noqa: E402
++
++
++def header_and_abi_cases(cc: str, work: Path) -> int:
++    """A hostile hosted include tree cannot affect the freestanding build."""
++    poison = work / "sysroot/usr/include"
++    poison.mkdir(parents=True)
++    for header in ("stdint.h", "string.h", "stdio.h"):
++        (poison / header).write_text('#error "hosted header reached"\n')
++    source = work / "interfaces.c"
++    source.write_text("""#include <stdint.h>
++#include <stdbool.h>
++#include <string.h>
++#include <stdio.h>
++_Static_assert(sizeof(uintptr_t) == 4, "RV32 pointers");
++_Static_assert(sizeof(long) == 4, "ILP32 long");
++_Static_assert(sizeof(uint64_t) == 8, "64-bit wire fields");
++int format(char *dst, size_t n, const char *fmt, va_list ap) {
++    memset(dst, 0, n);
++    return vsnprintf(dst, n, fmt, ap);
++}
++""")
++    flags = ["-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector",
++             "-fstack-usage", "-Os", "-std=c11", "-Wall", "-Werror",
++             f"--sysroot={work / 'sysroot'}"]
++    obj = work / "interfaces.o"
++    inc = fw_rv32.includes(cc)
++    command = [cc, *flags, *inc, "-c", str(source), "-o", str(obj)]
++    built = fw_gtest.run(command)
++    assert built.returncode == 0, built.stderr
++    assert not fw_rv32.object_findings(cc, [obj])
++    assert fw_rv32.stack_frames([obj]) >= 0
++    print("PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot")
++    for name, bad, reason in (
++            ("hosted headers restored", [cc, *flags, "-c", str(source), "-o", str(obj)], "hosted header reached"),
++            ("freestanding disabled", [x for x in command if x != "-ffreestanding"], "include_next")):
++        result = fw_gtest.run(bad)
++        assert result.returncode != 0 and reason in result.stderr, (name, result.stderr)
++        print(f"PASS: caught {name}")
++    source.write_text("int identity(int value) { return value; }\n")
++    for name, arch, abi in (("RV64", "rv64i", "lp64"), ("hard-float", "rv32imafd", "ilp32d"),
++                            ("compressed ISA", "rv32ic", "ilp32"), ("multiply ISA", "rv32im", "ilp32")):
++        result = fw_gtest.run([cc, f"-march={arch}", f"-mabi={abi}", "-ffreestanding",
++                               "-c", str(source), "-o", str(obj)])
++        assert result.returncode == 0, result.stderr
++        assert fw_rv32.object_findings(cc, [obj]), name
++        print(f"PASS: caught {name} object")
++    obj.write_bytes(b"not an ELF object")
++    assert fw_rv32.object_findings(cc, [obj])
++    obj.with_suffix(".su").write_text("probe.c:1:1:probe\t16\tdynamic\n")
++    try:
++        fw_rv32.stack_frames([obj])
++    except ValueError as exc:
++        assert "non-static stack usage" in str(exc)
++    else:
++        raise AssertionError("dynamic stack report was accepted")
++    print("PASS: caught malformed object and dynamic stack report")
++    return 9
++
++
++def runtime_cases(cc: str, work: Path) -> int:
++    """Real firmware arms must reject heap and unrecognised __ dependencies."""
++    import shutil
++
++    ctrl = work / "ctrl"
++    shutil.copytree(CTRL, ctrl)
++    tree = Tree(ctrl, work / "ctrl-build", work / "reuse")
++    with patch.dict(os.environ, MILAN_RV32_CC=cc):
++        assert ctrl_arms.arm_rv32(tree, True).rc == 0
++        source = ctrl / "port/shlan_port.c"
++        original = source.read_text()
++        for symbol in ("malloc", "__unexpected_service"):
++            source.write_text(f"extern void *{symbol}(__SIZE_TYPE__);\n" + original.replace(
++                "return ctrl_pool_alloc(port_pool, size);", f"return {symbol}(size);"))
++            got = ctrl_arms.arm_rv32(tree, True)
++            assert got.rc and "symbols outside the C library" in got.log and symbol in got.log, got.log
++            print(f"PASS: ctrl rejects {symbol}")
++        # Keep the external call above; a private definition in another object
++        # cannot resolve it. `used` prevents optimization from dropping the plant.
++        private = ctrl / "port/ctrl_debug.c"
++        private_original = private.read_text()
++        private.write_text(private_original + "\n__attribute__((used)) static void "
++                           "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++        got = ctrl_arms.arm_rv32(tree, True)
++        assert got.rc and "symbols outside the C library" in got.log and "__unexpected_service" in got.log, got.log
++        print("PASS: ctrl rejects __unexpected_service despite a same-name static definition")
++        private.write_text(private_original)
++        source.write_text(original)
++    cfg = ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
++    inputs = nvm_bench.shape_inputs(cfg, work / "inputs")
++    gen = work / "gen"
++    nvm_bench.write_headers(gen, nvm_bench.shape_header(inputs.shape, inputs.donor, inputs.ident), inputs.clock_hz)
++    nvm = work / "nvm"
++    shutil.copytree(nvm_bench.TREE, nvm)
++    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert not findings, findings
++    source = nvm / "nvm_klj2.c"
++    original = source.read_text()
++    for symbol in ("malloc", "__unexpected_service"):
++        source.write_text(original + f"\nextern void *{symbol}(__SIZE_TYPE__);\n"
++                          f"void *runtime_probe(void) {{ return {symbol}(16); }}\n")
++        findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++        assert any("symbols outside the C library" in f and symbol in f for f in findings), findings
++        print(f"PASS: ctrl_nvm rejects {symbol}")
++    private = nvm / "nvm_store.c"
++    private_original = private.read_text()
++    private.write_text(private_original + "\n__attribute__((used)) static void "
++                       "*__unexpected_service(__SIZE_TYPE__ n) { (void)n; return (void *)0; }\n")
++    findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert any("symbols outside the C library" in f and "__unexpected_service" in f for f in findings), findings
++    print("PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition")
++    private.write_text(private_original)
++    source.write_text(original + """
++extern void use_buffer(char *);
++void stack_probe(void) { char bytes[64]; use_buffer(bytes); }
++""")
++    with patch.object(nvm_rv32, "RV32_FLAGS", (*nvm_rv32.RV32_FLAGS, "-fstack-protector-all")):
++        findings, _ = nvm_rv32.build(nvm, work / "nvm-build", gen, cc)
++    assert any("__stack_chk_fail" in f for f in findings), findings
++    print("PASS: ctrl_nvm rejects restored stack-protector dependency")
++    return 7
++
++
++def main() -> int:
++    """Compile positive controls and require every planted defect caught."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--require-rv32", action="store_true")
++    args = parser.parse_args()
++    cc = fw_rv32.compiler()
++    if cc is None:
++        print("REFUSED: no RV32 compiler" if args.require_rv32 else "SKIPPED: no RV32 compiler")
++        return 2 if args.require_rv32 else 0
++    with tempfile.TemporaryDirectory(prefix="fw-rv32-") as tmp:
++        work = Path(tmp)
++        with patch.dict(os.environ, MILAN_RV32_CC=str(work / "absent-compiler")):
++            assert fw_rv32.compiler() is None, "explicit absent compiler fell back"
++            try:
++                ctrl_arms.arm_rv32(Tree(CTRL, work, work), True)
++            except ctrl_arms.Refusal:
++                pass
++            else:
++                raise AssertionError("required ctrl compiler was skipped")
++        print("PASS: explicit absent compiler is refused without fallback")
++        checks = 1 + header_and_abi_cases(cc, work) + runtime_cases(cc, work)
++    print(f"RV32 build self-test: {checks} checks PASS")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/sw/firmware/gtest/rv32_include/stdio.h b/sw/firmware/gtest/rv32_include/stdio.h
+new file mode 100644
+index 000000000..43a18799a
+--- /dev/null
++++ b/sw/firmware/gtest/rv32_include/stdio.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* The bounded C11 formatter's declaration for object-only target checks.
++ * This declares the runtime interface; it supplies no replacement formatter. */
++#ifndef MILAN_RV32_STDIO_H
++#define MILAN_RV32_STDIO_H
++
++#include <stdarg.h>
++#include <stddef.h>
++
++int vsnprintf(char *restrict dst, size_t n, const char *restrict fmt, va_list ap);
++
++#endif
+diff --git a/sw/firmware/gtest/rv32_include/string.h b/sw/firmware/gtest/rv32_include/string.h
+new file mode 100644
+index 000000000..f0029c720
+--- /dev/null
++++ b/sw/firmware/gtest/rv32_include/string.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: CERN-OHL-W-2.0 */
++/* Freestanding C11 memory declarations for object-only target checks.
++ * Implementations belong to the product's bare-metal C runtime. */
++#ifndef MILAN_RV32_STRING_H
++#define MILAN_RV32_STRING_H
++
++#include <stddef.h>
++
++void *memcpy(void *restrict dst, const void *restrict src, size_t n);
++void *memset(void *dst, int value, size_t n);
++void *memmove(void *dst, const void *src, size_t n);
++int memcmp(const void *a, const void *b, size_t n);
++
++#endif
+diff --git a/tb/verilator/aaf/Makefile b/tb/verilator/aaf/Makefile
+index 8e3e72a93..36ddf3945 100644
+--- a/tb/verilator/aaf/Makefile
++++ b/tb/verilator/aaf/Makefile
+@@ -1,4 +1,8 @@
+ VERILATOR ?= verilator
++VERILATOR_JOBS ?= 16
++START_RTL ?= ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++START_MDIR ?= obj_start
++START_JOBS ?= 4
+ TOP = aaf_talker_i2s
+ SRCS = ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/common/cdc_pair_fifo.sv
+ # Multi-stream talker lane (docs/overview/ARCHITECTURE.md): golden byte-compare (flat talker vs
+@@ -15,8 +19,17 @@ obj_nx/Vaaf_nx_wrap: $(NXSRCS) sim_main_nx.cpp
+ 	  -Wall -Wno-fatal -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+ 	  -Wno-PINCONNECTEMPTY -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" \
+ 	  $(NXSRCS) sim_main_nx.cpp -o Vaaf_nx_wrap
+-run: obj_dir/V$(TOP) obj_nx/Vaaf_nx_wrap
++startup-build:
++	$(VERILATOR) --cc --exe --build -j $(VERILATOR_JOBS) \
++	  --top-module KL_aaf_packetizer -GN_TALKERS_P=1 -GWIRE_CHANS_P=8 \
++	  --Mdir $(START_MDIR) -Wall -Wno-fatal \
++	  -CFLAGS "-std=c++17 -O2 -Wall -Wextra" $(START_RTL) $(abspath sim_start.cpp)
++startup: startup-build
++	$(abspath $(START_MDIR))/VKL_aaf_packetizer
++startup-mutants: startup
++	python3 start_mutants.py --jobs $(START_JOBS)
++run: obj_dir/V$(TOP) obj_nx/Vaaf_nx_wrap startup-mutants
+ 	./obj_dir/V$(TOP)
+ 	./obj_nx/Vaaf_nx_wrap
+-clean: ; rm -rf obj_dir obj_nx
+-.PHONY: all run clean
++clean: ; rm -rf obj_dir obj_nx obj_start
++.PHONY: all run clean startup startup-build startup-mutants
+diff --git a/tb/verilator/aaf/README.md b/tb/verilator/aaf/README.md
+new file mode 100644
+index 000000000..5f31a5a0d
+--- /dev/null
++++ b/tb/verilator/aaf/README.md
+@@ -0,0 +1,108 @@
++<!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++
++# AAF talker checks
++
++`make` runs both existing talker legs and startup checks.
++
++## Contents
++
++- **[Startup boundary](#startup-boundary)** -- Defines the exercised contract and sweep.
++- **[Defect controls](#defect-controls)** -- Names each planted defect and detecting assertion.
++- **[Running](#running)** -- Gives reproducible commands and expected results.
++- **[Limits](#limits)** -- Separates boundary simulation from bench measurements.
++
++## Startup boundary
++
++Issue #667 concerns retained timestamps after stream enable.
++
++The shape has one talker and eight wire channels.
++
++Four pair slots form each sample; six samples form packets.
++
++IEEE 1722-2016 7.5 associates timestamps with the first sample.
++
++Sections 4.3.2 and 4.4.4.9 define presentation time and encoding.
++
++Milan v1.2 5.3.8.10, Table 5.6 defines EARLY/LATE_TIMESTAMP counters.
++
++| Sweep dimension | Values |
++|---|---|
++| Fabric period | 20 ns |
++| Sample periods | 1041, 1042, 1042 cycles, repeated |
++| Pair spacing | 1, 26, 260 fabric cycles |
++| Enable phase | 0, 1, each later pair and following cycle, 1040 |
++| PHC origin | 0, 1000000000, 0xffe00000 ns |
++| Disabled interval | Cold start, 500000000 ns, 3800000000 ns |
++| Restart | Disable/re-enable; reset with enable held high |
++| Output stalls | Five cycles in seventeen during reset-start cases |
++| Initial sequence | 248, crossing modulo-256 wrap |
++
++The Cartesian sweep grades 486 starts and 4860 PDUs.
++
++Repeated phases in the compact-spacing case remain separate cases.
++
++Every first-to-second timestamp step must equal the steady step.
++
++Six rational sample periods equal exactly 125000 ns here.
++
++The tolerance is therefore zero, including modulo-2^32 wrap.
++
++Every timestamp independently matches its payload sample plus offset.
++
++Payload checks require complete, ordered eight-channel sample frames.
++
++Bounded loops require all ten PDUs, preventing vacuous success.
++
++Each case prints its first ten headers and sweep result.
++
++## Defect controls
++
++| Planted defect | Required failing assertion |
++|---|---|
++| Restore admission before pair zero | Startup step equals steady |
++| Retain admission across disable | Startup step equals steady |
++| Retain admission across reset | Startup step equals steady |
++| Omit presentation offset | Sample plus offset |
++| Clear normal-mode timestamp validity | Valid normal timestamp |
++| Hold sequence number | Consecutive sequence |
++| Never publish a completed bank | Bounded first ten |
++| Corrupt left sample bits | Complete sample rows |
++
++Each source fragment must occur exactly once before mutation.
++
++Every mutant requires exit 1 and its named failing assertion.
++
++Compilation failures and crashes fail the campaign.
++
++## Running
++
++```sh
++make -j16 -C tb/verilator/aaf
++make -j16 -C tb/verilator/aaf startup
++make -j16 -C tb/verilator/aaf startup-mutants START_JOBS=4
++```
++
++The startup leg passes 34020 checks.
++
++All eight mutations must be caught; commands return zero.
++
++`START_MDIR` selects the startup build directory.
++
++`TMPDIR` selects temporary storage for the mutation campaign.
++
++## Limits
++
++The boundary receives the post-bind enable, not ACMP traffic.
++
++The pair source models three legal delivery spacings.
++
++It does not instantiate the TDM capture or capture-map engines.
++
++Disabled clocks are elided while PHC time advances.
++
++This exposes retained state without simulating seconds of silence.
++
++Whole-datapath regressions exercise integration separately.
++
++The manager repeats the bench binds after merge and flashing.
+diff --git a/tb/verilator/aaf/sim_start.cpp b/tb/verilator/aaf/sim_start.cpp
+new file mode 100644
+index 000000000..f4dceb557
+--- /dev/null
++++ b/tb/verilator/aaf/sim_start.cpp
+@@ -0,0 +1,222 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// #667: grade the first ten PDUs at every enable phase, including rebinds.
++// The shipping 1x1 TDM8 packetizer receives the capture-map pair walk.
++// IEEE 1722-2016 7.5: each timestamp belongs to its first sample frame.
++#include "VKL_aaf_packetizer.h"
++#include "../../common/verilator_harness.hpp"
++#include "verilated.h"
++#include <array>
++#include <cstdint>
++#include <cstdio>
++#include <map>
++#include <string>
++#include <vector>
++
++namespace {
++using Frame = std::vector<uint8_t>;
++constexpr uint32_t kTransitNs = 2000000;
++constexpr int kTickNs = 20;
++constexpr int kPduPeriodNs = 125000;
++constexpr unsigned kPdus = 10;
++constexpr unsigned kSamplesLimit = 80;
++
++class Startup {
++ public:
++    explicit Startup(milan::tb::Checker& checks) : check(checks) {}
++    void run(uint64_t origin, int phase, int pair_stride, uint64_t idle_ns, bool reset_start,
++             bool stalled);
++
++ private:
++    void tick();
++    void cycles(unsigned count);
++    void sample(unsigned index, int enable_cycle = -1);
++    void reset();
++    void grade(const std::string& label);
++    static uint32_t word(const Frame& frame, unsigned offset);
++
++    const milan::tb::Model<VKL_aaf_packetizer> model;
++    VKL_aaf_packetizer* dut = model.get();
++    milan::tb::Checker& check;
++    std::vector<Frame> frames;
++    Frame current;
++    std::map<unsigned, uint32_t> sample_times;
++    uint64_t now_ns = 0;
++    unsigned cycle = 0;
++    int pair_stride_cyc = 1;
++    bool stall = false;
++};
++
++void Startup::tick() {
++    dut->ptp_ns_i = now_ns;
++    // Bounded stalls never approach one sample interval or exhaust a bank.
++    dut->m_axis_tready = !stall || cycle % 17 >= 5;
++    dut->clk_i = 0;
++    dut->eval();
++    if (dut->m_axis_tvalid && dut->m_axis_tready) {
++        for (unsigned byte = 0; byte < 8; ++byte) {
++            if ((dut->m_axis_tkeep >> byte) & 1)
++                current.push_back(static_cast<uint8_t>(dut->m_axis_tdata >> (8 * byte)));
++        }
++        if (dut->m_axis_tlast) {
++            frames.push_back(current);
++            current.clear();
++        }
++    }
++    dut->clk_i = 1;
++    dut->eval();
++    now_ns += kTickNs;
++    ++cycle;
++}
++
++void Startup::cycles(unsigned count) {
++    for (unsigned i = 0; i < count; ++i) tick();
++}
++
++void Startup::sample(unsigned index, int enable_cycle) {
++    // Four pair slots exercise compact, capture-map and physical TDM spacing.
++    // A rational 1041/1042/1042-cycle grid gives 48 kHz at 50 MHz.
++    const int length = index % 3 == 0 ? 1041 : 1042;
++    sample_times[index] = static_cast<uint32_t>(now_ns);
++    for (int offset = 0; offset < length; ++offset) {
++        if (offset == enable_cycle) {
++            dut->rst_n = 1;
++            dut->stream_en_i = 1;
++        }
++        const int slot = offset / pair_stride_cyc;
++        dut->pair_valid_i = slot < 4 && offset % pair_stride_cyc == 0;
++        dut->pair_slot_i = slot < 4 ? slot : 0;
++        // Every channel identifies its source sample and channel position.
++        dut->pair_l_i = (index << 4) + 2 * slot;
++        dut->pair_r_i = (index << 4) + 2 * slot + 1;
++        tick();
++    }
++    dut->pair_valid_i = 0;
++}
++
++void Startup::reset() {
++    dut->rst_n = 0;
++    dut->stream_en_i = 0;
++    dut->pair_valid_i = 0;
++    cycles(4);
++    dut->rst_n = 1;
++    cycles(4);
++}
++
++uint32_t Startup::word(const Frame& frame, unsigned offset) {
++    uint32_t value = 0;
++    for (unsigned byte = 0; byte < 4; ++byte)
++        value = (value << 8) | frame.at(offset + byte);
++    return value;
++}
++
++void Startup::grade(const std::string& label) {
++    check.dec((label + " bounded first ten").c_str(), frames.size(), kPdus);
++    if (frames.size() != kPdus) return;
++    std::array<uint32_t, kPdus> timestamps{};
++    for (unsigned pdu = 0; pdu < kPdus; ++pdu) {
++        const Frame& frame = frames[pdu];
++        check.dec((label + " frame bytes").c_str(), frame.size(), 234);
++        if (frame.size() != 234) return;
++        timestamps[pdu] = word(frame, 30);
++        const unsigned first_sample = word(frame, 42) >> 12;
++        const auto first = sample_times.find(first_sample);
++        check.dec((label + " first sample exists").c_str(), first != sample_times.end(), true);
++        if (first != sample_times.end()) {
++            check.dec((label + " sample plus offset").c_str(), timestamps[pdu],
++                     static_cast<uint32_t>(first->second + kTransitNs));
++        }
++        bool payload_ok = true;
++        for (unsigned row = 0; row < 6; ++row) {
++            for (unsigned channel = 0; channel < 8; ++channel) {
++                const uint32_t expected = (((first_sample + row) << 4) + channel) << 8;
++                payload_ok &= word(frame, 42 + 4 * (8 * row + channel)) == expected;
++            }
++        }
++        check.dec((label + " complete sample rows").c_str(), payload_ok, true);
++        check.dec((label + " valid normal timestamp").c_str(), frame[19] & 1, 1);
++        if (pdu != 0)
++            check.dec((label + " consecutive sequence").c_str(), frame[20],
++                     static_cast<uint8_t>(frames[pdu - 1][20] + 1));
++        std::printf("START-PDU %s n=%u seq=%u tv=%u ts=%08x\n", label.c_str(),
++                    pdu + 1, frame[20], frame[19] & 1, timestamps[pdu]);
++    }
++    // Six rational sample periods are exactly 125000 ns, including wrap.
++    // Later PDUs independently establish the steady step. No first-PDU skip.
++    const int32_t steady = static_cast<int32_t>(timestamps[9] - timestamps[8]);
++    check.dec((label + " steady period").c_str(), steady, kPduPeriodNs);
++    for (unsigned pdu = 1; pdu < kPdus; ++pdu)
++        check.dec((label + " startup step equals steady").c_str(),
++                 static_cast<int32_t>(timestamps[pdu] - timestamps[pdu - 1]), steady);
++    std::printf("START-SWEEP %s first_step=%d steady=%d tolerance_ns=0\n", label.c_str(),
++                static_cast<int32_t>(timestamps[1] - timestamps[0]), steady);
++}
++
++void Startup::run(uint64_t origin, int phase, int pair_stride, uint64_t idle_ns,
++                  bool reset_start, bool stalled) {
++    now_ns = origin;
++    pair_stride_cyc = pair_stride;
++    dut->dest_mac_i = 0x91e0f0000001ULL;
++    dut->station_mac_i = 0x020000000001ULL;
++    dut->vlan_vid_i = 2;
++    dut->vlan_pcp_i = 3;
++    dut->dom_ovr_i = 0;
++    dut->transit_ns_i = kTransitNs;
++    dut->ts_uncertain_i = 0;
++    dut->mr_i = 0;
++    dut->tctx_wr_en_i = 0;
++    dut->tctx_rd_en_i = 0;
++    reset();
++    // An arbitrary legal initial sequence exercises modulo-256 wrap.
++    dut->tctx_wr_addr_i = 3;
++    dut->tctx_wr_data_i = 248;
++    dut->tctx_wr_en_i = 1;
++    tick();
++    dut->tctx_wr_en_i = 0;
++    if (idle_ns != 0) {
++        dut->stream_en_i = 1;
++        for (unsigned index = 0; index < 13; ++index) sample(index);
++        // Stop with a partial epoch. A new timestamp must be acquired even
++        // though the unreset TCTX retains this previous stream's value.
++        if (reset_start) {
++            // Keep enable high through reset so its reset assignment is
++            // observed independently of the disabled-stream clear.
++            dut->rst_n = 0;
++            cycles(8);
++        }
++        else {
++            dut->stream_en_i = 0;
++            cycles(8);
++        }
++        // Elide the disabled interval's clocks, advancing only the PHC.
++        now_ns += idle_ns;
++    }
++    frames.clear();
++    current.clear();
++    sample_times.clear();
++    stall = stalled;
++    sample(13, phase);
++    for (unsigned index = 14; index < kSamplesLimit && frames.size() < kPdus; ++index)
++        sample(index);
++    const std::string label = "origin=" + std::to_string(origin)
++        + " phase=" + std::to_string(phase) + " idle=" + std::to_string(idle_ns)
++        + " stride=" + std::to_string(pair_stride_cyc)
++        + " reset=" + std::to_string(reset_start) + " stall=" + std::to_string(stalled);
++    grade(label);
++}
++}  // namespace
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    milan::tb::Checker check{"aaf-start"};
++    for (uint64_t origin : {uint64_t{0}, uint64_t{1000000000}, uint64_t{0xffe00000}})
++        for (int stride : {1, 26, 260})
++          for (int phase : {0, 1, stride, stride + 1, 2 * stride,
++                            2 * stride + 1, 3 * stride, 3 * stride + 1, 1040})
++            for (uint64_t idle : {uint64_t{0}, uint64_t{500000000}, uint64_t{3800000000}})
++                for (bool reset : {false, true}) {
++                    Startup start(check);
++                    start.run(origin, phase, stride, idle, reset, reset);
++                }
++    return check.report();
++}
+diff --git a/tb/verilator/aaf/start_mutants.py b/tb/verilator/aaf/start_mutants.py
+new file mode 100644
+index 000000000..9aac632df
+--- /dev/null
++++ b/tb/verilator/aaf/start_mutants.py
+@@ -0,0 +1,98 @@
++#!/usr/bin/env python3
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""Prove the startup checks reject stale timestamps and invalid first PDUs.
++
++Each arm builds a disposable packetizer through the suite's own recipe.
++Only rc 1 with the named assertion is a caught defect. Compile failures,
++crashes and missing assertions fail this campaign. All loops in the leg
++are bounded by sample counts, independently of DUT progress.
++"""
++
++import argparse
++import os
++import subprocess
++import tempfile
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++
++HERE = Path(__file__).resolve().parent
++RTL = HERE / "../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv"
++# name, unique source text, replacement, required failed assertion
++MUTATIONS = (
++    ("stale admission restored",
++     "                   (started_r[pown_t_w] || pown_o_w == '0) &&\n", "",
++     "startup step equals steady"),
++    ("disable keeps the previous start",
++     "          started_r[t] <= 1'b0;", "          started_r[t] <= started_r[t];",
++     "startup step equals steady"),
++    ("reset keeps the previous start",
++     "        started_r[t] <= 1'b0;", "        started_r[t] <= started_r[t];",
++     "startup step equals steady"),
++    ("offset omitted", "+ transit_ns_i[32*(32'(pown_t_w)) +: 32];", "+ 32'd0;",
++     "sample plus offset"),
++    ("normal timestamp marked invalid",
++     "fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b1};",
++     "fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b0};", "valid normal timestamp"),
++    ("sequence held", "{24'd0, eseq_r + 8'd1}", "{24'd0, eseq_r}",
++     "consecutive sequence"),
++    ("bank never published", "pend_r[pown_t_w]  <= 1'b1;", "pend_r[pown_t_w]  <= 1'b0;",
++     "bounded first ten"),
++    ("left samples corrupt", "assign stg_wdata_w = {pair_l_i, pair_r_i};",
++     "assign stg_wdata_w = {pair_l_i ^ 24'd1, pair_r_i};", "complete sample rows"),
++)
++
++
++def run_arm(arm: tuple[str, str, str, str], parent: Path) -> bool:
++    """Build and grade one mutation without changing tracked sources."""
++    name, old, new, assertion = arm
++    source = RTL.read_text()
++    # Compare whole lines for reset/disable: their indentation distinguishes
++    # two sites. A substring count would mistake the longer indentation.
++    if "started_r[t]" in old:
++        old = "\n" + old + "\n"
++        new = "\n" + new + "\n"
++    if source.count(old) != 1:
++        print(f"[FAIL] {name}: expected one planting site", flush=True)
++        return False
++    work = parent / name.replace(" ", "_")
++    work.mkdir()
++    mutated = work / RTL.name
++    mutated.write_text(source.replace(old, new))
++    obj = work / "obj"
++    command = ["make", "-j16", "--no-print-directory", "-C", str(HERE),
++               "startup-build", f"START_RTL={mutated}", f"START_MDIR={obj}"]
++    with (work / "build.log").open("w") as log:
++        build = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=False)
++    if build.returncode != 0:
++        print(f"[FAIL] {name}: build rc={build.returncode}", flush=True)
++        print((work / "build.log").read_text()[-4000:])
++        return False
++    run = subprocess.run([str(obj / "VKL_aaf_packetizer")], capture_output=True,
++                         text=True, check=False)
++    caught = run.returncode == 1 and any(
++        "[FAIL]" in line and assertion in line for line in run.stdout.splitlines())
++    print(f"[{'PASS' if caught else 'FAIL'}] {name}: {assertion}; rc={run.returncode}",
++          flush=True)
++    if not caught:
++        print((run.stdout + run.stderr)[-4000:])
++    return caught
++
++
++def main() -> int:
++    """Run every declared arm and refuse any missed defect."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--jobs", type=int, default=4)
++    args = parser.parse_args()
++    if args.jobs < 1:
++        parser.error("--jobs must be positive")
++    # TMPDIR selects physical scratch storage for the entire campaign.
++    with tempfile.TemporaryDirectory(prefix="aaf-start-", dir=os.environ.get("TMPDIR")) as temp:
++        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
++            results = list(pool.map(lambda arm: run_arm(arm, Path(temp)), MUTATIONS))
++    print(f"startup mutants: {sum(results)}/{len(results)} caught")
++    return 0 if all(results) else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index bff4c7a49..3f962ae20 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -306,7 +306,8 @@ The unchanged acquisition deadline expires before the acquired-publication check
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+ The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+-Every other default suite retains its 1800-second deadline; `milan_dp` has 3600 seconds ([#387 decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308)).
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+ Physical regressions are therefore caught nightly, outside the PR aggregate.
+ Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index c15b5f188..5fca90b3a 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -28,8 +28,8 @@ The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.
+-The historical `milan_dp` suite has its own 3600-second budget.
+-[Decision 5820240308](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5820240308) sets that deadline.
++Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
++[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ 
+ The accounting verifier retains each failing DUT control transcript.
+ They reside under `../milan_dp/obj_ax1x1gptp/`, outside passing suite logs.

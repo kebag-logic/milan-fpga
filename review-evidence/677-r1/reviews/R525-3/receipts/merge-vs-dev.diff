@@ -1,0 +1,1186 @@
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 777a24aba..94046fed7 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -22,7 +22,7 @@ is an integration obligation, not a target-time result established here.
+ ## Contents
+ 
+ - **[Layout](#layout)** -- One directory per layer: wire, driver and HAL, lwSRP's port layer, loop, ADP, the app, the MMIO platform, the host model, the tests.
+-- **[The host test](#the-host-test)** -- The seven arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
++- **[The host test](#the-host-test)** -- The ten arms, how the processor's ADP stimulus is cut from the pinned submodule and walked, and the planted defects.
+ - **[Run](#run)** -- The three invocations and what each needs.
+ 
+ ## Layout
+@@ -54,9 +54,10 @@ hand-rolled checks and the coverage ratchet are described in
+ | `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included), the loop's order, bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
+ | `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the contract check field by field, the driver's refusals and bounds, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
+ | `adp` | `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
++| `reentry_debug`, `reentry_release` | `test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
+ | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |
+ | `entity` | `entity_fields.cpp` | every shipped config's ADPDU fields, against the fabric's own sources |
+-| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string and format functions and libgcc helpers |
++| `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
+ | `lwsrp` | `lwsrp_port.cpp` | with `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
+ 
+ ### Reusing the processor's stimulus
+diff --git a/sw/firmware/ctrl/adp/adp.c b/sw/firmware/ctrl/adp/adp.c
+index 32d346028..450eba2b5 100644
+--- a/sw/firmware/ctrl/adp/adp.c
++++ b/sw/firmware/ctrl/adp/adp.c
+@@ -14,10 +14,32 @@
+ 
+ #include "adp.h"
+ 
++#include <assert.h>
+ #include <string.h>
+ 
+ #include "wire.h"
+ 
++// One event loop owns every instance. Shared state also protects init's
++// uninitialized destination and build's const instance without casting.
++static bool port_active;
++static uint32_t reentry_count;
++
++static bool reject_reentry(void)
++{
++	assert(!port_active);
++	if (port_active) {
++		reentry_count++;
++		return true;
++	}
++	return false;
++}
++
++uint32_t adp_reentry_count(void)
++{
++	(void)reject_reentry();
++	return reentry_count;
++}
++
+ static uint32_t rng_next(struct adp *a)
+ {
+ 	uint32_t x = a->rng;
+@@ -42,13 +64,17 @@ static uint32_t draw_ms(struct adp *a, enum adp_draw kind)
+ static void timer_start(struct adp *a, enum adp_timer kind, uint32_t delay_ms)
+ {
+ 	a->timer = kind;
++	port_active = true;
+ 	a->ports->timer_start(a->ports->ctx, a->interface, delay_ms);
++	port_active = false;
+ }
+ 
+ static void timer_stop(struct adp *a)
+ {
+ 	a->timer = ADP_TIMER_NONE;
++	port_active = true;
+ 	a->ports->timer_stop(a->ports->ctx, a->interface);
++	port_active = false;
+ }
+ 
+ // Start TMR_DELAY and go to DELAY.
+@@ -60,10 +86,15 @@ static void enter_delay(struct adp *a, enum adp_draw kind)
+ 
+ void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	const struct adp_entity *e = a->entity;
+ 	uint64_t gm = 0;
+ 	uint8_t domain = 0;
++	port_active = true;
+ 	a->ports->gptp(a->ports->ctx, a->interface, &gm, &domain);    // sampled at build, as the fabric does
++	port_active = false;
+ 	uint8_t valid_time = message_type == ADP_MSG_ENTITY_AVAILABLE ? ADP_VALID_TIME : 0u;
+ 	uint8_t *pdu = frame + ADP_HEADER_BYTES;
+ 
+@@ -97,7 +128,10 @@ static bool send(struct adp *a, uint8_t message_type, uint32_t available_index)
+ {
+ 	uint8_t frame[ADP_FRAME_BYTES];
+ 	adp_build(a, message_type, available_index, frame);
+-	if (a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES)) {
++	port_active = true;
++	bool sent = a->ports->send(a->ports->ctx, a->interface, frame, ADP_FRAME_BYTES);
++	port_active = false;
++	if (sent) {
+ 		return true;
+ 	}
+ 	a->deferred_sends++;
+@@ -133,6 +167,9 @@ static void advertise(struct adp *a)
+ void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_ports *ports,
+ 	      unsigned interface, uint16_t current_configuration_index)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	memset(a, 0, sizeof *a);
+ 	a->entity = entity;
+ 	a->ports = ports;
+@@ -147,6 +184,9 @@ void adp_init(struct adp *a, const struct adp_entity *entity, const struct adp_p
+ 
+ void adp_set_current_configuration(struct adp *a, uint16_t index)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	a->current_configuration_index = index;
+ }
+ 
+@@ -176,6 +216,9 @@ static void shutdown(struct adp *a)
+ 
+ void adp_set_enable(struct adp *a, bool enable)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	if (enable == a->enabled) {
+ 		return;
+ 	}
+@@ -185,11 +228,15 @@ void adp_set_enable(struct adp *a, bool enable)
+ 		return;
+ 	}
+ 	a->enabled = true;
++	port_active = true;
+ 	a->rng ^= a->ports->seed(a->ports->ctx);
++	port_active = false;
+ 	if (a->rng == 0u) {
+ 		a->rng = 1u;
+ 	}
++	port_active = true;
+ 	a->link_up = a->ports->link_up(a->ports->ctx, a->interface);
++	port_active = false;
+ 	if (a->link_up) {
+ 		enter_delay(a, ADP_DRAW_STARTUP);                       // 5.6.3.5.2
+ 	} else {
+@@ -199,6 +246,9 @@ void adp_set_enable(struct adp *a, bool enable)
+ 
+ void adp_link_change(struct adp *a, bool up)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	bool was = a->link_up;
+ 	a->link_up = up;
+ 	if (!a->enabled || up == was) {
+@@ -219,6 +269,9 @@ void adp_link_change(struct adp *a, bool up)
+ 
+ void adp_gm_change(struct adp *a)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	a->gm_changed++;
+ 	if (a->enabled && a->state == ADP_STATE_WAITING) {
+ 		enter_delay(a, ADP_DRAW_DELAY);                         // 5.6.3.5.7
+@@ -227,6 +280,9 @@ void adp_gm_change(struct adp *a)
+ 
+ void adp_timer_expired(struct adp *a)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	enum adp_timer kind = a->timer;
+ 	if (kind == ADP_TIMER_NONE) {
+ 		a->stray_expiries++;
+@@ -244,6 +300,9 @@ void adp_timer_expired(struct adp *a)
+ 
+ void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
+ {
++	if (reject_reentry()) {
++		return;
++	}
+ 	// 5.6.3.1: an ENTITY_DISCOVER for entity_id 0 or this entity is
+ 	// RCV_ADP_DISCOVER; anything else is discarded.
+ 	if (len < ADP_HEADER_BYTES + 12u || wire_be16(frame + 12) != ADP_ETHERTYPE ||
+@@ -268,6 +327,9 @@ void adp_rx(struct adp *a, const uint8_t *frame, size_t len)
+ // when none is owed, the owed ENTITY_AVAILABLE.
+ bool adp_poll(struct adp *a)
+ {
++	if (reject_reentry()) {
++		return false;
++	}
+ 	if (a->departing_owed != 0u) {
+ 		depart(a);
+ 	} else if (a->available_owed) {
+diff --git a/sw/firmware/ctrl/adp/adp.h b/sw/firmware/ctrl/adp/adp.h
+index 21288e47a..85ec96bd2 100644
+--- a/sw/firmware/ctrl/adp/adp.h
++++ b/sw/firmware/ctrl/adp/adp.h
+@@ -11,8 +11,9 @@
+ // provides (struct adp_ports): sending a frame, one timer per interface, the
+ // gPTP grandmaster and domain, the link level and a seed. The mailbox adapter
+ // (adp_mbx.h) is one implementation of those ports; the unit tests' fake is
+-// another. The core allocates nothing, reaches no global, and every call
+-// returns after a bounded number of steps.
++// another. The core allocates nothing, and every call returns after a
++// bounded number of steps. Its only shared state is the port-call guard
++// and diagnostic count described below.
+ //
+ //   * ENTITY_AVAILABLE on its schedule (5.6.3.5.2, 5.6.3.5.3, 5.6.3.5.5,
+ //     5.6.3.5.9): a random TMR_DELAY, the frame, then TMR_ADVERTISE (5 s),
+@@ -126,6 +127,21 @@ struct adp_entity {
+ 	uint16_t identify_control_index;
+ };
+ 
++// NO SYNCHRONOUS CALLBACKS (#678). Every port returns before the single
++// bare-metal event loop delivers an expiry, frame or other core input.
++// This includes zero-delay timers, TX, link, gPTP and seed calls. Ports
++// must not call any ADP entry point, on any instance, while being called
++// by the core. Nor may an interrupt dispatch the core during a port call.
++// F2 to F5 use the same rule for their protocol ports.
++//
++// A shared flag brackets each port call, including adp_build's gPTP read.
++// Every core entry checks it before touching arguments, even adp_init.
++// Debug/test builds (NDEBUG absent) assert on a violation. Release builds
++// (NDEBUG defined) ignore the call and increment adp_reentry_count modulo
++// 2^32. A refused adp_poll returns false; adp_build leaves its output alone.
++// Initialization does not reset this lifetime diagnostic. This guard is
++// for one event loop, not a lock for concurrent callers.
++//
+ // The ports the core calls. Every pointer is required; `ctx` is passed back.
+ struct adp_ports {
+ 	void *ctx;
+@@ -134,6 +150,7 @@ struct adp_ports {
+ 	bool (*send)(void *ctx, unsigned interface, const uint8_t *frame, size_t len);
+ 	// Start (or restart, replacing) the interface's one timer; it calls
+ 	// adp_timer_expired once, delay_ms later, unless stopped or restarted.
++	// Even delay_ms == 0 is delivered by a later event-loop dispatch.
+ 	void (*timer_start)(void *ctx, unsigned interface, uint32_t delay_ms);
+ 	void (*timer_stop)(void *ctx, unsigned interface);
+ 	// The gPTP grandmaster identity and domain of the interface, now.
+@@ -192,6 +209,10 @@ bool adp_poll(struct adp *a);
+ // The ADPDU this instance would send now, built into frame[ADP_FRAME_BYTES].
+ void adp_build(const struct adp *a, uint8_t message_type, uint32_t available_index, uint8_t *frame);
+ 
++// Ignored port callbacks across all instances, counted since boot. Read
++// from the event loop; a port's re-entrant read is itself counted.
++uint32_t adp_reentry_count(void);
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/sw/firmware/ctrl/adp/adp_mbx.h b/sw/firmware/ctrl/adp/adp_mbx.h
+index db93efa74..842089a08 100644
+--- a/sw/firmware/ctrl/adp/adp_mbx.h
++++ b/sw/firmware/ctrl/adp/adp_mbx.h
+@@ -86,6 +86,12 @@
+ // TMR_DELAY and 5 s TMR_ADVERTISE (Table 5.50) and the 20 s a listener ages
+ // the entity out by (valid_time 10).
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef ADP_MBX_H
+ #define ADP_MBX_H
+ 
+diff --git a/sw/firmware/ctrl/mbx/mbx.h b/sw/firmware/ctrl/mbx/mbx.h
+index 4fc883d00..85d6ed408 100644
+--- a/sw/firmware/ctrl/mbx/mbx.h
++++ b/sw/firmware/ctrl/mbx/mbx.h
+@@ -16,6 +16,12 @@
+ // ring or the event ring holds a record (IRQ_STATUS levels), so a service
+ // pass that drains them leaves the line low.
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef MBX_H
+ #define MBX_H
+ 
+diff --git a/sw/firmware/ctrl/mbx/mbx_hal.h b/sw/firmware/ctrl/mbx/mbx_hal.h
+index 9a50d725c..591b80b29 100644
+--- a/sw/firmware/ctrl/mbx/mbx_hal.h
++++ b/sw/firmware/ctrl/mbx/mbx_hal.h
+@@ -21,6 +21,12 @@
+ // The Verilator suite tb/verilator/mbx answers the same three calls with
+ // cycle-accurate bus transactions on the RTL.
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef MBX_HAL_H
+ #define MBX_HAL_H
+ 
+diff --git a/sw/firmware/ctrl/port/ctrl_debug.h b/sw/firmware/ctrl/port/ctrl_debug.h
+index 5517fc620..6057a89aa 100644
+--- a/sw/firmware/ctrl/port/ctrl_debug.h
++++ b/sw/firmware/ctrl/port/ctrl_debug.h
+@@ -10,6 +10,12 @@
+ // one print costs a bounded time. With no sink bound the text is discarded
+ // and counted.
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef CTRL_DEBUG_H
+ #define CTRL_DEBUG_H
+ 
+diff --git a/sw/firmware/ctrl/port/ctrl_pool.h b/sw/firmware/ctrl/port/ctrl_pool.h
+index 5d63ea181..f479759d1 100644
+--- a/sw/firmware/ctrl/port/ctrl_pool.h
++++ b/sw/firmware/ctrl/port/ctrl_pool.h
+@@ -16,6 +16,12 @@
+ // from the entity model's stream and VLAN counts, and the pool's high-water
+ // marks are what a build reads back to confirm the sizing.
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef CTRL_POOL_H
+ #define CTRL_POOL_H
+ 
+diff --git a/sw/firmware/ctrl/port/shlan_port.h b/sw/firmware/ctrl/port/shlan_port.h
+index 54c7424c6..3ff73fa9b 100644
+--- a/sw/firmware/ctrl/port/shlan_port.h
++++ b/sw/firmware/ctrl/port/shlan_port.h
+@@ -24,6 +24,12 @@
+ // out. The host test's lwsrp-port arm (../test/test_ctrl_firmware.py) builds
+ // lwSRP's own MRP core against this file and drives it through the mailbox.
+ 
++// No synchronous callbacks (#678): a port must return before any core
++// input is dispatched by the single bare-metal event loop. A port never
++// calls back into a protocol core or the store, including on zero-delay
++// timer arms or TX completion. Interrupts defer dispatch to the loop.
++// F2 to F5 inherit this rule for every protocol port.
++
+ #ifndef SHLAN_PORT_H
+ #define SHLAN_PORT_H
+ 
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index 4dc153c7e..04f168a3f 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -33,6 +33,28 @@ def arm_adp(tree: Tree) -> Outcome:
+     return execute("adp", link(tree, "test_adp", objs))
+ 
+ 
++def reentry(tree: Tree, release: bool) -> Outcome:
++    """The same violating ports against assertions and release refusal."""
++    tag = "reentry_release" if release else "reentry_debug"
++    flags = ("-DNDEBUG",) if release else ("-UNDEBUG",)
++    tests = ("-DADP_TEST_RELEASE",) if release else ()
++    if tree.build.coverage:
++        tests += ("-DADP_TEST_COVERAGE",)
++    objs = compile_c(tree, sources(tree, ("adp/adp.c",)), tag, flags)
++    objs += compile_tests(tree, ("test_adp_reentry.cpp",), f"{tag}/tests", tests)
++    return execute(tag, link(tree, f"test_{tag}", objs))
++
++
++def arm_reentry_debug(tree: Tree) -> Outcome:
++    """Debug/test assertion on a synchronous callback."""
++    return reentry(tree, False)
++
++
++def arm_reentry_release(tree: Tree) -> Outcome:
++    """Release count and ignore, with the outer transition preserved."""
++    return reentry(tree, True)
++
++
+ def arm_unit(tree: Tree) -> Outcome:
+     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
+     mocks; then the MMIO platform over a host window."""
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+index c79796928..66eecba2e 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -55,6 +55,19 @@ APP_BRING_LATE = APP_BRING.removeprefix("\tshlan_port_bind_pool(&app->pool);\n")
+     "\tshlan_port_bind_pool(&app->pool);\n"
+ 
+ MUTANTS = (
++    Mutant("reentry-guard-removed", "adp/adp.c",
++           "\tassert(!port_active);\n\tif (port_active) {",
++           "\tif (port_active && false) {",
++           "reentry_debug", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry asserts",
++           (("reentry_debug", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry asserts"),
++            ("reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
++            ("reentry_release", "AdpReentry.DelayInlineExpiryOnGmChange", "inline DELAY expiry is counted"))),
++    Mutant("reentry-uncounted", "adp/adp.c", "\t\treentry_count++;\n", "",
++           "reentry_release", "AdpReentry.AdvertiseInlineExpiry", "inline ADVERTISE expiry is counted"),
++    Mutant("reentry-not-ignored", "adp/adp.c", "\t\treentry_count++;\n\t\treturn true;",
++           "\t\treentry_count++;\n\t\treturn false;",
++           "reentry_release", "AllPorts/AdpPortEntry.RefusesBeforeTouchingState/",
++           "callback leaves core state unchanged"),
+     Mutant("departing-keeps-index", "adp/adp.c",
+            "\tuint32_t index = a->available_index;\n\ta->available_index = 0;\n",
+            "\tuint32_t index = a->available_index;\n", "walk", "Table551/AdpWalkCell.Graded/", "available_index"),
+@@ -378,14 +391,15 @@ def lwsrp_pin_arms(root: Path, lwsrp: Path) -> int:
+     return escaped
+ 
+ 
+-def campaign(root: Path, reuse: Path) -> bool:
++def campaign(root: Path, reuse: Path, jobs: int) -> bool:
+     """Plant every mutant; True when one escaped. One build serves every
+     copy, so a test object is compiled again only where a planted header
+     changes what it sees."""
+     arms = {"model": ctrl_arms.arm_model, "port": ctrl_arms.arm_port, "adp": ctrl_arms.arm_adp,
+             "unit": ctrl_arms.arm_unit, "walk": ctrl_arms.arm_walk, "entity": ctrl_arms.arm_entity,
+-            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True)}
+-    build = fw_gtest.Build()
++            "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
++            "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
++    build = fw_gtest.Build(jobs=jobs)
+     escaped = 0
+     for m in MUTANTS:
+         tree = Tree(plant(m, root), root / m.name / "build", reuse, build)
+diff --git a/sw/firmware/ctrl/test/test_adp_reentry.cpp b/sw/firmware/ctrl/test/test_adp_reentry.cpp
+new file mode 100644
+index 000000000..ad01c94b3
+--- /dev/null
++++ b/sw/firmware/ctrl/test/test_adp_reentry.cpp
+@@ -0,0 +1,237 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Host-only violating ports: debug assertions and release refusal on the same calls.
++
++#include <gtest/gtest.h>
++
++#include <array>
++#include <csignal>
++#include <cstdint>
++#include <cstdlib>
++#include <cstring>
++#include <tuple>
++
++#include "fw_gtest.hpp"
++extern "C" {
++#include "adp.h"
++#ifdef ADP_TEST_COVERAGE
++void __gcov_dump(void);
++#endif
++}
++
++namespace fw_test {
++const char* tally_label() {
++#ifdef ADP_TEST_RELEASE
++    return "ADP release re-entry";
++#else
++    return "ADP debug re-entry";
++#endif
++}
++}
++
++namespace {
++enum class Port { Send, Start, Stop, Gptp, Link, Seed };
++enum class Entry { Init, Enable, Configuration, Rx, Timer, Link, Gm, Poll, Build, Count };
++
++#ifndef ADP_TEST_RELEASE
++// Preserve the assertion's real stderr diagnostic and terminate the child.
++// gcov normally loses an aborting child's counters; flush them for coverage.
++void assertion_exit(int) {
++#ifdef ADP_TEST_COVERAGE
++    __gcov_dump();
++#endif
++    std::_Exit(86);
++}
++#endif
++
++struct Rig {
++    adp a{};
++    adp other{};
++    adp_entity entity{};
++    adp_ports ports{};
++    Port selected = Port::Start;
++    Entry entry = Entry::Timer;
++    bool inject = false;
++    bool cross_instance = false;
++    bool running = false;
++    std::uint32_t delay = 0;
++    unsigned callbacks = 0;
++
++    Rig() {
++        ports = {this, send, start, stop, gptp, link, seed};
++        adp_init(&a, &entity, &ports, 0, 0);
++        adp_init(&other, &entity, &ports, 1, 0);
++    }
++
++    void callback(Port port) {
++        if (!inject || port != selected) {
++            return;
++        }
++        inject = false;  // a missing guard must not recurse indefinitely
++        ++callbacks;
++        adp* target = cross_instance ? &other : &a;
++        std::array<unsigned char, sizeof(adp)> before{};
++        std::memcpy(before.data(), target, sizeof(adp));
++        std::array<std::uint8_t, ADP_FRAME_BYTES> frame{};
++        frame.fill(0xA5);
++        switch (entry) {
++        case Entry::Init: adp_init(target, &entity, &ports, 7, 9); break;
++        case Entry::Enable: adp_set_enable(target, !target->enabled); break;
++        case Entry::Configuration: adp_set_current_configuration(target, 7); break;
++        case Entry::Rx: adp_rx(target, nullptr, 0); break;
++        case Entry::Timer: adp_timer_expired(target); break;
++        case Entry::Link: adp_link_change(target, !target->link_up); break;
++        case Entry::Gm: adp_gm_change(target); break;
++        case Entry::Poll: EXPECT_FALSE(adp_poll(target)); break;
++        case Entry::Build: adp_build(target, ADP_MSG_ENTITY_AVAILABLE, 1, frame.data()); break;
++        case Entry::Count: static_cast<void>(adp_reentry_count()); break;
++        }
++        EXPECT_EQ(std::memcmp(before.data(), target, sizeof(adp)), 0) << "callback leaves core state unchanged";
++        for (const auto byte : frame) {
++            EXPECT_EQ(byte, 0xA5) << "callback leaves output unchanged";
++        }
++    }
++
++    static bool send(void* ctx, unsigned, const std::uint8_t*, std::size_t) {
++        static_cast<Rig*>(ctx)->callback(Port::Send);
++        return true;
++    }
++    static void start(void* ctx, unsigned, std::uint32_t ms) {
++        auto& r = *static_cast<Rig*>(ctx);
++        r.running = true;
++        r.delay = ms;
++        r.callback(Port::Start);
++    }
++    static void stop(void* ctx, unsigned) {
++        auto& r = *static_cast<Rig*>(ctx);
++        r.running = false;
++        r.callback(Port::Stop);
++    }
++    static void gptp(void* ctx, unsigned, std::uint64_t* gm, std::uint8_t* domain) {
++        static_cast<Rig*>(ctx)->callback(Port::Gptp);
++        *gm = 1;
++        *domain = 0;
++    }
++    static bool link(void* ctx, unsigned) {
++        static_cast<Rig*>(ctx)->callback(Port::Link);
++        return true;
++    }
++    static std::uint32_t seed(void* ctx) {
++        auto& r = *static_cast<Rig*>(ctx);
++        r.callback(Port::Seed);
++        // Force the next xorshift state to 1: its upper sixteen bits are 4,
++        // which draws exactly zero milliseconds for the startup timer.
++        return r.a.rng ^ 1u;
++    }
++    void expire() {
++        running = false;
++        adp_timer_expired(&a);
++    }
++    void trigger() {
++        switch (selected) {
++        case Port::Send: expire(); break;
++        case Port::Start: adp_gm_change(&a); break;
++        case Port::Stop: adp_set_enable(&a, false); break;
++        case Port::Gptp: {
++            std::array<std::uint8_t, ADP_FRAME_BYTES> frame{};
++            adp_build(&a, ADP_MSG_ENTITY_AVAILABLE, 0, frame.data());
++            break;
++        }
++        case Port::Link:
++        case Port::Seed: adp_set_enable(&a, true); break;
++        }
++    }
++};
++
++// Both original inline-expiry probes also prove the corresponding valid,
++// deferred expiry still advances the machine after the violating call.
++TEST(AdpReentry, AdvertiseInlineExpiry) {
++    Rig r;
++    adp_set_enable(&r.a, true);
++    ASSERT_EQ(r.delay, 0u);
++    ASSERT_TRUE(r.running);
++    r.inject = true;
++#ifdef ADP_TEST_RELEASE
++    const auto before = adp_reentry_count();
++    r.expire();
++    EXPECT_EQ(adp_reentry_count(), before + 1u) << "inline ADVERTISE expiry is counted";
++#else
++    EXPECT_EXIT({ std::signal(SIGABRT, assertion_exit); r.expire(); },
++                ::testing::ExitedWithCode(86), "!port_active") << "inline ADVERTISE expiry asserts";
++    r.inject = false;
++    r.expire();
++#endif
++    EXPECT_EQ(r.a.state, ADP_STATE_WAITING);
++    EXPECT_EQ(r.a.timer, ADP_TIMER_ADVERTISE);
++    EXPECT_TRUE(r.running) << "ADVERTISE remains running";
++    EXPECT_EQ(r.delay, ADP_ADVERTISE_MS);
++    EXPECT_EQ(r.a.stray_expiries, 0u);
++    r.expire();
++    EXPECT_EQ(r.a.state, ADP_STATE_DELAY);
++    EXPECT_EQ(r.a.timer, ADP_TIMER_DELAY);
++    EXPECT_TRUE(r.running);
++}
++
++TEST(AdpReentry, DelayInlineExpiryOnGmChange) {
++    Rig r;
++    adp_set_enable(&r.a, true);
++    r.expire();
++    r.inject = true;
++#ifdef ADP_TEST_RELEASE
++    const auto before = adp_reentry_count();
++    adp_gm_change(&r.a);
++    EXPECT_EQ(adp_reentry_count(), before + 1u) << "inline DELAY expiry is counted";
++#else
++    EXPECT_EXIT({ std::signal(SIGABRT, assertion_exit); adp_gm_change(&r.a); },
++                ::testing::ExitedWithCode(86), "!port_active") << "inline DELAY expiry asserts";
++    r.inject = false;
++    adp_gm_change(&r.a);
++#endif
++    EXPECT_EQ(r.a.state, ADP_STATE_DELAY);
++    EXPECT_EQ(r.a.timer, ADP_TIMER_DELAY);
++    EXPECT_TRUE(r.running) << "DELAY remains running";
++    EXPECT_EQ(r.a.stray_expiries, 0u);
++    r.expire();
++    EXPECT_EQ(r.a.state, ADP_STATE_WAITING);
++    EXPECT_EQ(r.a.timer, ADP_TIMER_ADVERTISE);
++    EXPECT_TRUE(r.running);
++}
++
++class AdpPortEntry : public ::testing::TestWithParam<std::tuple<Port, Entry, bool>> {};
++
++TEST_P(AdpPortEntry, RefusesBeforeTouchingState) {
++    Rig r;
++    std::tie(r.selected, r.entry, r.cross_instance) = GetParam();
++    if (r.selected != Port::Link && r.selected != Port::Seed) {
++        adp_set_enable(&r.a, true);
++        if (r.selected == Port::Start) {
++            r.expire();
++        }
++    }
++    r.inject = true;
++#ifdef ADP_TEST_RELEASE
++    const auto before = adp_reentry_count();
++    r.trigger();
++    EXPECT_EQ(r.callbacks, 1u);
++    EXPECT_EQ(adp_reentry_count(), before + 1u) << "each port callback is counted";
++#else
++    EXPECT_EXIT({ std::signal(SIGABRT, assertion_exit); r.trigger(); },
++                ::testing::ExitedWithCode(86), "!port_active") << "each port callback asserts";
++#endif
++    // All entry points must work again once the outer port returns.
++    r.inject = false;
++    const auto after = adp_reentry_count();
++    adp_init(&r.a, &r.entity, &r.ports, 0, 0);
++    adp_set_current_configuration(&r.a, 2);
++    adp_set_enable(&r.a, true);
++    EXPECT_EQ(r.a.current_configuration_index, 2u);
++    EXPECT_EQ(r.a.timer, ADP_TIMER_DELAY);
++    EXPECT_TRUE(r.running);
++    EXPECT_EQ(adp_reentry_count(), after);
++}
++
++INSTANTIATE_TEST_SUITE_P(AllPorts, AdpPortEntry,
++    ::testing::Combine(::testing::Values(Port::Send, Port::Start, Port::Stop, Port::Gptp, Port::Link, Port::Seed),
++                       ::testing::Values(Entry::Init, Entry::Enable, Entry::Configuration, Entry::Rx,
++                                         Entry::Timer, Entry::Link, Entry::Gm, Entry::Poll, Entry::Build, Entry::Count),
++                       ::testing::Bool()));
++}  // namespace
+diff --git a/sw/firmware/ctrl/test/test_ctrl_firmware.py b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+index bef6ad14b..e95b965ce 100644
+--- a/sw/firmware/ctrl/test/test_ctrl_firmware.py
++++ b/sw/firmware/ctrl/test/test_ctrl_firmware.py
+@@ -14,6 +14,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+            driver and the event loop (test_port_loop.cpp);
+   adp      the ADP core over fake ports, the adapter's tag race and every
+            response path's service-latency bound (test_adp.cpp);
++  reentry_debug, reentry_release
++           synchronous callbacks from every port to every entry, on the same
++           instance and another, asserting or counted and ignored respectively;
+   unit     the firmware's own seams on GoogleMock: the mailbox window
+            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
+            composition, the driver's contract and refusals, the adapter's
+@@ -31,8 +34,9 @@ model (host/mbx_model.c) behind mbx_hal.h, and graded by these arms:
+            ADP_ENTITY_CAPS_C;
+   rv32     the portable set and the MMIO platform cross-compiled freestanding
+            for RV32I with the pinned SDK and isolated freestanding headers;
+-           every undefined symbol a named runtime interface or arithmetic
+-           helper, with ELF ABI and static-frame checks (no heap, no OS);
++           every undefined symbol a named runtime interface (string, format
++           or assertion) or arithmetic helper, with ELF ABI and static-frame
++           checks (no heap, no OS);
+   lwsrp    with --lwsrp DIR only: lwSRP's own MRP core on the port layer and
+            the mailbox (lwsrp_port.cpp). lwSRP is referenced, never vendored:
+            the checkout must be the pinned revision (ctrl_arms.LWSRP_REV)
+@@ -62,6 +66,7 @@ Exit 0 = every arm passed and every planted defect reddened; 1 = a finding;
+ from __future__ import annotations
+ 
+ import argparse
++import os
+ import sys
+ import tempfile
+ from pathlib import Path
+@@ -76,13 +81,14 @@ from ctrl_build import CTRL, Refusal, Tree  # noqa: E402
+ from ctrl_reuse import cut_reuse  # noqa: E402
+ 
+ 
+-def coverage(out: Path, lwsrp: Path | None) -> int:
++def coverage(out: Path, lwsrp: Path | None, jobs: int) -> int:
+     """Every arm that runs the firmware, built for gcov into `out`; 0 when each passed."""
+-    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True))
++    tree = Tree(CTRL, out / "build", out / "reuse", fw_gtest.Build(coverage=True, jobs=jobs))
+     try:
+         cut_reuse(tree.reuse)
+         outcomes = [ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree), ctrl_arms.arm_unit(tree),
+-                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree)]
++                    ctrl_arms.arm_walk(tree), ctrl_arms.arm_entity(tree),
++                    ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+         if lwsrp is not None:
+             outcomes.append(ctrl_arms.arm_lwsrp(tree, lwsrp.resolve()))
+     except Refusal as exc:
+@@ -99,20 +105,22 @@ def main(argv: list[str] | None = None) -> int:
+     ap.add_argument("--require-rv32", action="store_true", help="fail, not skip, when no RV32 compiler is found")
+     ap.add_argument("--lwsrp", type=Path, help="a lwSRP checkout: also run the lwSRP port arm")
+     ap.add_argument("--self-test", action="store_true", help="also plant every defect and require it caught")
++    ap.add_argument("--jobs", type=int, default=os.cpu_count() or 4, help="parallel compilation")
+     ap.add_argument("--build-dir", type=Path, help="keep builds here (default: a temporary directory)")
+     ap.add_argument("--coverage", type=Path, help="build for gcov into this directory and run the arms there")
+     args = ap.parse_args(argv)
+     if args.coverage is not None:
+-        return coverage(args.coverage.resolve(), args.lwsrp)
++        return coverage(args.coverage.resolve(), args.lwsrp, args.jobs)
+     print(f"toolchain: {fw_gtest.toolchain()}")
+     with tempfile.TemporaryDirectory(prefix="ctrl-fw-") as tmp:
+         out = args.build_dir.resolve() if args.build_dir else Path(tmp)
+         try:
+-            tree = Tree(CTRL, out / "checkout", out / "reuse")
++            tree = Tree(CTRL, out / "checkout", out / "reuse", fw_gtest.Build(jobs=args.jobs))
+             cut_reuse(tree.reuse)
+             outcomes = [ctrl_arms.arm_model(tree), ctrl_arms.arm_port(tree), ctrl_arms.arm_adp(tree),
+                         ctrl_arms.arm_unit(tree), ctrl_arms.arm_walk(tree),
+-                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32)]
++                        ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
++                        ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree)]
+             if args.lwsrp is not None:
+                 outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
+         except Refusal as exc:
+@@ -120,7 +128,7 @@ def main(argv: list[str] | None = None) -> int:
+             return 2
+         failed = ctrl_arms.report(outcomes)
+         if args.self_test and not failed:
+-            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse)
++            failed = ctrl_mutants.campaign(out / "mutants", tree.reuse, args.jobs)
+             if args.lwsrp is not None:
+                 try:
+                     failed = ctrl_mutants.lwsrp_pin_arms(out / "mutants", args.lwsrp.resolve()) != 0 or failed
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index 7bab2bc4c..e0184b014 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -473,10 +473,15 @@ GoogleMock's command master and `timer0`.
+ 
+ `--self-test` plants every defect of [`test/nvm_mutants.py`](test/nvm_mutants.py),
+ one per copy, and requires each check it names to fail; every check is named
+-by at least one (106 defects). They are graded at the 1x1 shape, except a defect that only
++by at least one (109 defects). They are graded at the 1x1 shape, except a defect that only
+ shows at a clock that is not a whole number of MHz. That one,
+ `ticks_per_us_truncated`, is graded at `endstation_arty_current`.
+ 
++The host gate also runs exact-sized erased prefixes under AddressSanitizer.
++`test_nvm_prefix.cpp` checks 40, 47 and 48 loaded bytes.
++It pins both boundaries of the last erased payload.
++The three related defects restore `end` or shift `loaded`.
++
+ ## What this does not prove
+ 
+ - The board: the real LiteSPI timing, a real power cut, the real N25Q128.
+diff --git a/sw/firmware/ctrl_nvm/nvm_flash.h b/sw/firmware/ctrl_nvm/nvm_flash.h
+index bc75ad7dd..dc9736105 100644
+--- a/sw/firmware/ctrl_nvm/nvm_flash.h
++++ b/sw/firmware/ctrl_nvm/nvm_flash.h
+@@ -27,6 +27,12 @@
+  * every wait it has, and the call as a whole, so a controller that keeps
+  * answering slowly cannot hold one call past a stated figure either.
+  */
++/* No synchronous callbacks (#678): a port must return before any core
++ * input is dispatched by the single bare-metal event loop. A port never
++ * calls back into a protocol core or the store, including on zero-delay
++ * timer arms or TX completion. Interrupts defer dispatch to the loop.
++ * F2 to F5 inherit this rule for every protocol port. */
++
+ #ifndef NVM_FLASH_H
+ #define NVM_FLASH_H
+ 
+diff --git a/sw/firmware/ctrl_nvm/nvm_klj2.c b/sw/firmware/ctrl_nvm/nvm_klj2.c
+index 160593b46..f0f2f0c93 100644
+--- a/sw/firmware/ctrl_nvm/nvm_klj2.c
++++ b/sw/firmware/ctrl_nvm/nvm_klj2.c
+@@ -295,6 +295,9 @@ static enum nvm_verdict nvm_klj2_record(const uint8_t *img, uint32_t pos, uint32
+ 			return NVM_VD_REC;
+ 		if (pos + NVM_REC_HDR + r.plen > end)
+ 			return NVM_VD_LEN;
++		/* The caller may hold only a prefix of the CRC-closed container. */
++		if (pos + NVM_REC_HDR + r.plen > loaded)
++			return NVM_VD_REC;
+ 		if (!nvm_all_erased(p + NVM_REC_HDR, r.plen))
+ 			return NVM_VD_REC;
+ 		*out = r;
+diff --git a/sw/firmware/ctrl_nvm/nvm_state.h b/sw/firmware/ctrl_nvm/nvm_state.h
+index 6b2bbaf7a..25927d853 100644
+--- a/sw/firmware/ctrl_nvm/nvm_state.h
++++ b/sw/firmware/ctrl_nvm/nvm_state.h
+@@ -46,6 +46,12 @@
+  *   release()   AECP may run. Called once, at the D3 terminal COMPLETE or
+  *               DEFAULTS (or BLANK), never at CLOSED.
+  */
++/* No synchronous callbacks (#678): a port must return before any core
++ * input is dispatched by the single bare-metal event loop. A port never
++ * calls back into a protocol core or the store, including on zero-delay
++ * timer arms or TX completion. Interrupts defer dispatch to the loop.
++ * F2 to F5 inherit this rule for every protocol port. */
++
+ #ifndef NVM_STATE_H
+ #define NVM_STATE_H
+ 
+diff --git a/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h b/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+index 797516612..09042f57c 100644
+--- a/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
++++ b/sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.h
+@@ -3,6 +3,12 @@
+  * nvm_flash_litespi.h - the flash port on the on-chip SPI flash controller
+  * (#665 lane F1).
+  */
++/* No synchronous callbacks (#678): a port must return before any core
++ * input is dispatched by the single bare-metal event loop. A port never
++ * calls back into a protocol core or the store, including on zero-delay
++ * timer arms or TX completion. Interrupts defer dispatch to the loop.
++ * F2 to F5 inherit this rule for every protocol port. */
++
+ #ifndef NVM_FLASH_LITESPI_H
+ #define NVM_FLASH_LITESPI_H
+ 
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_bench.py b/sw/firmware/ctrl_nvm/test/nvm_bench.py
+index 739d67202..09db98271 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_bench.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_bench.py
+@@ -18,7 +18,7 @@ import os
+ import re
+ import sys
+ from collections.abc import Sequence
+-from dataclasses import dataclass
++from dataclasses import dataclass, replace
+ from pathlib import Path
+ 
+ import yaml
+@@ -61,6 +61,7 @@ class Binary:
+     cflags: tuple[str, ...] = ()
+     defines: tuple[str, ...] = ()
+     vector: bool = False
++    address_sanitizer: bool = False
+ 
+ 
+ RIG = ("nvm_rig.cpp", "nvm_suite.cpp")
+@@ -77,7 +78,8 @@ UNITS = (Binary("mapin", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_MAPIN_
+          Binary("noname", (*RIG, "test_nvm_shapes.cpp"), edit=(("MILAN_NVM_N_NAME", 0),),
+                 defines=("-DNVM_DOCTORED_NONAME",)),
+          Binary("litespi", ("mock_litespi_csr.cpp", "test_nvm_litespi.cpp"), store=("plat/nvm_flash_litespi.c",),
+-                models=("host/nvm_fmodel.c",)))
++                models=("host/nvm_fmodel.c",)),
++         Binary("prefix", ("test_nvm_prefix.cpp",), store=("nvm_klj2.c",), models=(), address_sanitizer=True))
+ #: The journal, read out of the SoC source the way every other consumer reads it.
+ JOURNAL = literal("FLASHBOOT_RESERVED")["journal"]
+ SLOT = JOURNAL["size"] // 2
+@@ -184,6 +186,7 @@ def build_suite(inputs: ShapeInputs, work: Path, b: fw_gtest.Build, binary: Bina
+     warning an error (a planted copy may leave a variable unused), the host
+     models, and the tests compiled from this directory against the tree's
+     headers."""
++    b = replace(b, address_sanitizer=binary.address_sanitizer)
+     gen = work / "gen"
+     header = shape_header(inputs.shape, inputs.donor, VECTOR_IDENT if binary.vector else inputs.ident)
+     write_headers(gen, doctor(header, binary.edit), inputs.clock_hz)
+@@ -205,7 +208,11 @@ def run_suite(exe: Path, fixture: Path, only: Sequence[str] = ()) -> tuple[bool,
+     """Run a suite binary over its fixture, all of its tests or `only` these
+     (GoogleTest test names); (passed, the log)."""
+     args = [f"--gtest_filter={':'.join(f'*.{name}:*.{name}/*' for name in only)}"] if only else []
+-    return fw_gtest.run_binary(exe, args, env={**os.environ, "NVM_FIXTURE": str(fixture)})
++    env = {**os.environ, "NVM_FIXTURE": str(fixture)}
++    if exe.name == "nvm_prefix":
++        # Preserve the named failing test in the tally on a sanitizer error.
++        env["ASAN_OPTIONS"] = "abort_on_error=1"
++    return fw_gtest.run_binary(exe, args, env=env)
+ 
+ 
+ @dataclass(frozen=True)
+diff --git a/sw/firmware/ctrl_nvm/test/nvm_mutants.py b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+index 673be31f3..9deb30524 100644
+--- a/sw/firmware/ctrl_nvm/test/nvm_mutants.py
++++ b/sw/firmware/ctrl_nvm/test/nvm_mutants.py
+@@ -139,6 +139,12 @@ MUTANTS = (
+     _m("incomplete_accepted", CODEC, "\tif (seen != NVM_N_REC)\n\t\treturn NVM_VD_INCOMPLETE;\n", "",
+        "verdict_parity", "codec_parity"),
+     # ---- the codec asked directly: its room, a short loaded prefix, its lookups ----
++    _m("erased_payload_end_bound", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
++       "\t\tif (pos + NVM_REC_HDR + r.plen > end)\n", "codec_erased_loaded_prefix"),
++    _m("erased_payload_guard_early", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
++       "\t\tif (pos + NVM_REC_HDR + r.plen >= loaded)\n", "codec_erased_loaded_prefix"),
++    _m("erased_payload_guard_late", CODEC, "\t\tif (pos + NVM_REC_HDR + r.plen > loaded)\n",
++       "\t\tif (pos + NVM_REC_HDR + r.plen > loaded + 1u)\n", "codec_erased_loaded_prefix"),
+     _m("room_unchecked", CODEC, "\tif (img_len > room)\n\t\treturn NVM_VD_LEN;\n", "", "codec_room"),
+     # R507-1-F1: a prefix that ends before a record header, read on past
+     # its end, or refused as a length fault
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+index c378de779..0cb29a8e9 100644
+--- a/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_codec.cpp
+@@ -83,10 +83,7 @@ TEST(NvmCodec, codec_room) {
+ // guard that passes there can reach. On the last record, the payload's
+ // guard: one byte short of the payload's end VD_REC, at its exact end VD_OK.
+ //
+-// Left out: an erased record whose header ends exactly at `loaded`. Its
+-// verdict is right, but nvm_klj2_record reads its erased payload past
+-// `loaded` to reach it, which a buffer holding the whole container cannot
+-// show; the fix and its test are #677's.
++// Exact-sized erased prefixes run under AddressSanitizer in test_nvm_prefix.cpp.
+ TEST(NvmCodec, codec_loaded_prefix) {
+     std::vector<std::uint8_t> blank(NVM_IMG_LEN);
+     nvm_klj2_blank(blank.data());
+diff --git a/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp b/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp
+new file mode 100644
+index 000000000..c5d7e47fe
+--- /dev/null
++++ b/sw/firmware/ctrl_nvm/test/test_nvm_prefix.cpp
+@@ -0,0 +1,41 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Exact-sized allocations make a read beyond loaded visible to AddressSanitizer.
++
++#include <gtest/gtest.h>
++
++#include <algorithm>
++#include <cstdint>
++#include <memory>
++#include <vector>
++
++#include "fw_gtest.hpp"
++#include "nvm_c.hpp"
++
++namespace fw_test {
++const char* tally_label() { return "NVM erased prefixes under AddressSanitizer"; }
++}
++
++TEST(NvmCodec, codec_erased_loaded_prefix) {
++    std::vector<std::uint8_t> blank(NVM_IMG_LEN);
++    nvm_klj2_blank(blank.data());
++    ASSERT_EQ(nvm_klj2_check(blank.data(), NVM_IMG_LEN), NVM_VD_OK);
++    for (const std::uint32_t loaded : {40u, 47u, 48u}) {
++        auto prefix = std::make_unique<std::uint8_t[]>(loaded);
++        std::copy_n(blank.data(), loaded, prefix.get());
++        EXPECT_EQ(nvm_klj2_check_body(prefix.get(), NVM_IMG_LEN, loaded), NVM_VD_REC)
++            << "erased prefix of exactly " << loaded << " bytes is refused without reading beyond it";
++    }
++    // At the last payload the verdict distinguishes both sides of the bound.
++    // An interior record would hit the next header guard even if this guard failed.
++    std::uint32_t end = 0;
++    for (nvm_rec r = nvm_rec_first(); r.ok; r = nvm_rec_next(r)) {
++        end = NVM_KLJ2_HDR + r.off + NVM_REC_HDR + r.plen;
++    }
++    for (const std::uint32_t loaded : {end - 1u, end}) {
++        auto prefix = std::make_unique<std::uint8_t[]>(loaded);
++        std::copy_n(blank.data(), loaded, prefix.get());
++        EXPECT_EQ(nvm_klj2_check_body(prefix.get(), NVM_IMG_LEN, loaded),
++                  loaded == end ? NVM_VD_OK : NVM_VD_REC)
++            << "erased last payload at its exact loaded boundary";
++    }
++}
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index a73c91b70..94a422869 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -151,6 +151,7 @@ it.
+ | `model` | `model_suite.cpp` (one `Checker`) | 134 | `model_suite.cpp`: one test per group of `tb/verilator/mbx/suite.hpp` | 14 |
+ | `port` | `test_port_loop.c` | 81 | `test_port_loop.cpp`: P0 to P9, S0 to S3, D0 to D5, L0 to L9 | 30 |
+ | `adp` | `test_adp.c` | 163 | `test_adp.cpp`: A0 to A24, B1, C0 to C6, E0 to E5, F0 to F7 | 26 |
++| `reentry_debug`, `reentry_release` | (#678) | 0 | `test_adp_reentry.cpp`: inline expiries and every port/entry pair | 122 each |
+ | `walk` | `adp_walk.cpp` (one `Checker`) | 320 | `adp_walk.cpp`: one test per walked Table 5.51 cell, and four scenarios | 41 |
+ | `entity` | `entity_probe.c` and the arm's own compare | 45 | `entity_fields.cpp`: one test per field per shipped config | 45 |
+ | `lwsrp` | `lwsrp_port.c` | 13 | `lwsrp_port.cpp`: one application for the run, as a boot has | 1 |
+@@ -214,10 +215,10 @@ the module's public header reaches, with the ports keeping the contract their
+ header states; a static function is judged through the public functions that
+ call it. A row's proof does not rest on what today's callers happen to pass.
+ Where it rests on a generated constant of the contract, the row says so, and
+-the row stops matching (so the gate fails) when the constant changes. Nine
+-rows meet that standard through their headers as they stand. The five
+-`adp.c` rows do not yet: they rest on a port rule that `adp.h` does not
+-state, which #678 has ruled and will add to it (see below the gate's rules).
++the row stops matching (so the gate fails) when the constant changes.
++All fourteen rows meet that standard through their public headers.
++The five `adp.c` rows cite the no-callback rule in
++[`adp.h`](../ctrl/adp/adp.h), enforced by the core guard (#678).
+ 
+ ### Coverage exclusions
+ 
+@@ -260,49 +261,33 @@ them differently would fail the gate, not pass it. `fw_coverage.py
+ --selftest` plants each of these refusals, two of them on gcc's own output
+ (a compensating swap and a condition over two lines).
+ 
+-**The five `adp.c` rows rest on #678's rule, not on `adp.h` as it
+-stands.** They assume two things of the ports. `adp.h` states the first:
+-the timer port calls `adp_timer_expired` once, `delay_ms` after
+-`timer_start`, which the rows read as after `timer_start` has returned.
+-`adp.h` does not state the second: no port calls into the core while the
+-core is calling it. [#678](https://github.com/kebag-logic/milan-fpga/issues/678)
+-rules that ports never call back into the core synchronously, and its
+-follow-up to the F0 code states the rule in `adp.h` and the port headers
+-and guards it in the core. Until that lands, the rows rest on the ruling.
+-The adapter (`adp_mbx.c`) keeps the rule today: its ports call no core
+-function, and the core is called only from the loop's handlers. A port
+-that breaks the rule reaches every item the five rows name. Each of these
+-was measured alone with gcov:
+-
+-- **Rows 1 and 2** (`adp_link_change`, arc 2 of 2 each): a send port that
+-  reports the link down (`adp_link_change(false)`) from inside a send.
+-  From inside the ENTITY_AVAILABLE send, it leaves the machine in WAITING
+-  with the link recorded down and TMR_ADVERTISE running. The next link-up
+-  then reaches row 1 and enters no DELAY. From inside SHUTDOWN's
+-  ENTITY_DEPARTING send, the nested call reaches row 2.
+-- **Rows 3 and 4** (`adp_timer_expired`: row 3's arc 4 of 4, row 4's arcs
+-  2 and 4 of 4 and its stray-count line): a timer port that expires a
+-  timer from inside `timer_start`. Expiring TMR_ADVERTISE that way reaches
+-  row 3's arc and row 4's arc 2, and leaves the machine in WAITING with no
+-  timer running. Expiring TMR_DELAY on a grandmaster change reaches row 4's
+-  arc 4, and leaves it in DELAY with none. Each counts one stray.
+-- **Row 5** (`adp_poll`, arcs 2 and 4 of 4 and its line): a link port that
+-  calls back twice from inside `adp_set_enable(true)`. It reports the link
+-  up, expires the TMR_DELAY that starts while the send port has no room,
+-  then answers down. The machine is left in DOWN with an ENTITY_AVAILABLE
+-  owed. The next `adp_poll` reaches arc 4, or arc 2 after
+-  `adp_set_enable(false)`.
+-
+-So `adp.c`'s 100 % holds for ports that keep #678's rule, and not for a
+-port that breaks it.
++**ADP's port contract forbids synchronous callbacks.**
++[`adp.h`](../ctrl/adp/adp.h) states the rule for every port.
++The shared guard covers every instance and every public entry.
++It brackets TX, timer, gPTP, link and seed calls.
++Even zero-delay expiries arrive through later event-loop dispatch.
++Debug/test builds assert; release builds ignore and count violations.
++The rule also appears in the other firmware port headers.
++F2 to F5 inherit it for their protocol ports.
++
++[`test_adp_reentry.cpp`](../ctrl/test/test_adp_reentry.cpp) tests both build modes.
++Its two timer probes preserve DELAY and ADVERTISE timers respectively.
++Deferred expiries still advance both machines after rejected inline expiries.
++Every port is also paired with every public entry.
++Each pair runs against the same instance and another instance.
++Debug cases require the real assertion's diagnostic and child termination.
++The coverage child flushes gcov before exiting on SIGABRT.
++Release cases check the count, unchanged state and untouched output.
++Guard-removal defects fail these tests, without adding coverage exclusions.
++The adapter still delivers inputs only from the event loop.
+ 
+ | File | Function | Statement | Uncovered | Why no input reaches it |
+ |---|---|---|---|---|
+-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2 | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. |
+-| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2 | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. |
+-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4 | DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. |
+-| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;` | The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. |
+-| `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. |
++| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state == ADP_STATE_DOWN) {` | arc 2 of 2 | A link coming up while the machine is out of DOWN. The machine leaves DOWN only through `enter_delay`, after the link was recorded up: from `adp_set_enable` with the port's level up, or from `adp_link_change(up)`. While enabled, a link recorded down has put the machine in DOWN (the branch below). So an enabled machine with the link recorded down is in DOWN. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
++| `sw/firmware/ctrl/adp/adp.c` | `adp_link_change` | `if (a->state != ADP_STATE_DOWN) {` | arc 2 of 2 | A link going down while the machine is already DOWN. An enabled machine reaches DOWN only by a link going down, or by `adp_set_enable(true)` finding the port's link down. So an enabled machine with the link recorded up is out of DOWN. `shutdown` puts it in DOWN but runs only from `adp_set_enable(false)`, which then clears `enabled`, and this function returns early for a disabled machine. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
++| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `if (a->state == ADP_STATE_DELAY && kind == ADP_TIMER_DELAY) {` | arc 4 of 4 | DELAY with TMR_ADVERTISE held (`kind == ADP_TIMER_DELAY` false). `timer_start(ADVERTISE)` is called only by `advertise`, which then enters WAITING. Every way back into DELAY (`enter_delay`) starts TMR_DELAY, and every way into DOWN stops the timer. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
++| `sw/firmware/ctrl/adp/adp.c` | `adp_timer_expired` | `} else if (a->state == ADP_STATE_WAITING && kind == ADP_TIMER_ADVERTISE) {` | arcs 2, 4 of 4; line `a->stray_expiries++;` | The final `else` and its stray count (each operand false): a timer held in DOWN, or WAITING with TMR_DELAY held. DOWN is entered only with the timer stopped (`shutdown`, `adp_link_change(down)`, and `adp_set_enable` with the link down, from a stopped machine). TMR_DELAY is started only by `enter_delay`, which enters DELAY. The function sets the timer to NONE before acting, and a NONE timer returns earlier. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
++| `sw/firmware/ctrl/adp/adp.c` | `adp_poll` | `if (a->enabled && a->state == ADP_STATE_DELAY) {` | arcs 2, 4 of 4; line `a->available_owed = false;` | An owed ENTITY_AVAILABLE outside an enabled DELAY (each operand false). `available_owed` is set only by `advertise`, in DELAY: from the TMR_DELAY expiry, which only an enabled machine can hold, or from this poll. It is cleared by `shutdown`, by a link loss (each leaving DELAY), and by the send that enters WAITING. Nothing else leaves DELAY. The no-callback rule in `adp.h` prevents a port from interrupting these transitions. |
+ | `sw/firmware/ctrl/adp/adp_mbx.c` | `on_poll` | `owed = adp_poll(&m->ifs[k].adp)` | arc 3 of 4 | The second operand true. `owed` starts false and the loop runs `MBX_N_IF` times, 1 in the generated contract (`mbx_contract.h`), so the operand is read once, while still false. A contract of two interfaces makes it reachable, and the row stops matching. |
+ | `sw/firmware/ctrl/adp/adp_mbx.c` | `adp_mbx_attach` | `ctrl_loop_bind_rx(l, MBX_CH_ADP, on_frame, m)` | arc 2 of 6 | The channel bind failing. `ctrl_loop_bind_rx` refuses only a channel past `MBX_N_CH` or no function, whatever the loop holds. `MBX_CH_ADP` is a channel of the contract and `on_frame` is a function. Both table-full refusals after it are tested (B4). |
+ | `sw/firmware/ctrl/app/ctrl_app.c` | `ctrl_app_start` | `if (!adp_mbx_init(` | arcs 2, 3 of 4; line `return false;` | The adapter refusing the app (either operand true). `adp_mbx_init` refuses only `first_slot + MBX_N_IF > MBX_N_TIMERS`: here 0 + 1 > 16, constants of the contract. `adp_mbx_attach` refuses a full sink or poll table, and the app's loop was initialised empty two calls before, its channel bind as above. |
+@@ -320,13 +305,22 @@ prefix that ends before a record header (`NvmCodec.codec_loaded_prefix`,
+ which pins that guard and the payload's at their exact ends).
+ Each has a planted defect that removes it.
+ 
++The NVM `prefix` binary runs with AddressSanitizer on every default gate.
++It also runs in `firmware-unit` and the coverage measurement.
++[`test_nvm_prefix.cpp`](../ctrl_nvm/test/test_nvm_prefix.cpp) owns exact-sized buffers.
++Sizes 40, 47 and 48 expose the erased-record over-read.
++The last payload also pins both sides of `loaded`.
++Three planted defects restore `end` or shift the boundary.
++Only this host binary uses sanitizer instrumentation.
++Firmware remains C11, with no heap or OS dependencies.
++
+ ## Run
+ 
+ ```sh
+ python3 sw/firmware/gtest/tally_selftest.py --mutants
+-python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <lwSRP checkout>
+-python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 16
+-python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 16
++python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 4 --lwsrp <lwSRP checkout>
++python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 4
++python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <lwSRP checkout> --jobs 4
+ python3 sw/firmware/gtest/fw_coverage.py --selftest
+ ```
+ 
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index a42f65ae3..dec1398bc 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -2,7 +2,7 @@
+ # exclusions in sw/firmware/gtest/README.md. Written by fw_coverage.py --write, which
+ # refuses to record a drop; read by fw_coverage.py --check, which refuses one.
+ # file  lines covered/total  branches covered/total
+-sw/firmware/ctrl/adp/adp.c  lines 168/168  branches 73/73
++sw/firmware/ctrl/adp/adp.c  lines 204/204  branches 95/95
+ sw/firmware/ctrl/adp/adp_mbx.c  lines 83/83  branches 38/38
+ sw/firmware/ctrl/app/ctrl_app.c  lines 12/12  branches 6/6
+ sw/firmware/ctrl/loop/ctrl_loop.c  lines 93/93  branches 54/54
+@@ -13,6 +13,6 @@ sw/firmware/ctrl/port/ctrl_debug.c  lines 19/19  branches 6/6
+ sw/firmware/ctrl/port/ctrl_pool.c  lines 99/99  branches 60/60
+ sw/firmware/ctrl/port/shlan_port.c  lines 22/22  branches 6/6
+ sw/firmware/ctrl/wire/wire.h  lines 10/10  branches 2/2
+-sw/firmware/ctrl_nvm/nvm_klj2.c  lines 195/195  branches 104/104
++sw/firmware/ctrl_nvm/nvm_klj2.c  lines 198/198  branches 106/106
+ sw/firmware/ctrl_nvm/nvm_store.c  lines 434/434  branches 259/259
+ sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c  lines 100/100  branches 63/63
+diff --git a/sw/firmware/gtest/fw_coverage.py b/sw/firmware/gtest/fw_coverage.py
+index 675472c93..6b18df9e3 100644
+--- a/sw/firmware/gtest/fw_coverage.py
++++ b/sw/firmware/gtest/fw_coverage.py
+@@ -424,8 +424,7 @@ def measure(work: Path, lwsrp: Path | None, jobs: int) -> dict[str, Source]:
+         argv = [sys.executable, str(gate), "--coverage", str(out)]
+         if name == "ctrl" and lwsrp is not None:
+             argv += ["--lwsrp", str(lwsrp)]
+-        if name == "ctrl_nvm":
+-            argv += ["--jobs", str(jobs)]
++        argv += ["--jobs", str(jobs)]
+         res = subprocess.run(argv, capture_output=True, text=True, check=False)
+         tail = "\n".join((res.stdout + res.stderr).strip().splitlines()[-8:])
+         print(f"[{'ok' if res.returncode == 0 else 'FAIL'}] {name} coverage run\n{tail}")
+diff --git a/sw/firmware/gtest/fw_gtest.py b/sw/firmware/gtest/fw_gtest.py
+index 381900cb0..d147ec44f 100644
+--- a/sw/firmware/gtest/fw_gtest.py
++++ b/sw/firmware/gtest/fw_gtest.py
+@@ -56,6 +56,7 @@ class Build:
+     """How a gate builds: the compilers, coverage or not, and the jobs."""
+ 
+     coverage: bool = False
++    address_sanitizer: bool = False
+     jobs: int = os.cpu_count() or 4
+     #: compiled C++ objects by content key, shared by every arm of one run
+     cache: dict[str, Path] = field(default_factory=dict)
+@@ -77,9 +78,12 @@ class Build:
+ 
+     def c_flags(self, flags: Sequence[str]) -> list[str]:
+         """A module's C flags, with its optimisation replaced in a coverage build."""
+-        if not self.coverage:
+-            return list(flags)
+-        return [f for f in flags if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
++        use = list(flags)
++        if self.coverage:
++            use = [f for f in use if not re.fullmatch(r"-O[0-3sgz]?", f)] + list(COVERAGE_FLAGS)
++        if self.address_sanitizer:
++            use += ["-fsanitize=address", "-fno-omit-frame-pointer", "-fno-pie"]
++        return use
+ 
+ 
+ def run(argv: Sequence[str], cwd: Path | None = None, timeout: int | None = None,
+@@ -159,6 +163,8 @@ def main_object(build: Build, out: Path) -> Path:
+ def link(build: Build, objects: Sequence[Path], exe: Path) -> Path:
+     """Link test and firmware objects with the harness's main into exe."""
+     flags = ["--coverage"] if build.coverage else []
++    if build.address_sanitizer:
++        flags += ["-fsanitize=address", "-no-pie"]
+     res = run([build.cxx, *flags, *map(str, objects), "-o", str(exe), *TEST_LIBS])
+     if res.returncode != 0:
+         raise BuildError(f"{exe.name} does not link:\n{res.stderr}")

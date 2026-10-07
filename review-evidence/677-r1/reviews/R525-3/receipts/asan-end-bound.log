@@ -1,0 +1,19 @@
+head prefix suite under ASan: PASS
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from NvmCodec
+[ RUN      ] NvmCodec.codec_erased_loaded_prefix
+[       OK ] NvmCodec.codec_erased_loaded_prefix (0 ms)
+[----------] 1 test from NvmCodec (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== NVM erased prefixes under AddressSanitizer: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+restored end bound: rc=-6 PASS: ASan heap-buffer-overflow READ in nvm_all_erased
+  ==2885522==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x7b9ec83e06c0 at pc 0x000000403bd5 bp 0x7ffce8194a10 sp 0x7ffce8194a00
+  READ of size 1 at 0x7b9ec83e06c0 thread T0
+  #0 0x000000403bd4 in nvm_all_erased <scratch>/asan/mut/nvm_klj2.c:115
+  SUMMARY: AddressSanitizer: heap-buffer-overflow <scratch>/asan/mut/nvm_klj2.c:115 in nvm_all_erased

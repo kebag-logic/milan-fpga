@@ -1,0 +1,10 @@
+PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+PASS: caught hosted headers restored
+PASS: caught freestanding disabled
+PASS: caught RV64 object
+PASS: caught hard-float object
+PASS: caught compressed ISA object
+PASS: caught multiply ISA object
+PASS: caught malformed object and dynamic stack report
+positive control checks: 9
+PASS: self-test fails without rv32_include/assert.h: <scratch>/stw/neg/interfaces.c:5:10: fatal error: assert.h: No such file or directory

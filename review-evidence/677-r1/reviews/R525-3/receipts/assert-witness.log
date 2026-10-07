@@ -1,0 +1,27 @@
+compiler: <scratch>/sdk/bin/riscv32-linux-gcc
+RV32_LIBC: ['__assert_fail', 'memcpy', 'memset', 'vsnprintf']
+PASS: allowance adds exactly one name to #679's set
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12304 0 171 12475
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __assert_fail, __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: W0 head arm passes
+PASS: W0 debug build leaves __assert_fail open
+PASS: W1 arm fails without assert.h
+PASS: W2 arm fails on __assert_fail without the name
+  riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 9 objects
+  size (text data bss dec): 12268 0 178 12446
+  largest static frame: 112 bytes (not a call-chain bound)
+  undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+RESULT: PASS
+PASS: W3 NDEBUG build passes and references no assertion handler
+PASS: W4 rejects malloc
+PASS: W4 rejects __unexpected_service
+PASS: W4 rejects __assert_func
+PASS: W4 rejects __assert
+PASS: W4 rejects __assert_failx
+PASS: W4 rejects abort
+assert witness: failures 0

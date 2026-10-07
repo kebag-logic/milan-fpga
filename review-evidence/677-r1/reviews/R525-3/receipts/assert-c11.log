@@ -1,0 +1,13 @@
+PASS: probe_enabled_true() == 1 && calls == 0
+PASS: calls == 1 && !strcmp(g_expr, "x == 42") && strstr(g_file, "probe.c") && g_line == 7 && !strcmp(g_func, "probe_enabled_false")
+PASS: probe_enabled_false(42) == 0 && calls == 1
+PASS: probe_pointer("p") == 1 && calls == 1
+PASS: probe_void_expr(1) == 7 && calls == 1
+PASS: probe_disabled(0) == before && calls == 1
+PASS: probe_disabled_fail() == 1 && calls == 1
+PASS: calls == 2 && g_line == 16 && !strcmp(g_func, "probe_reenabled")
+last handler call: expr="0 && "reenabled"" line=16 func=probe_reenabled
+assert C11 probe: failures 0
+rv32 probe debug undefined: [__assert_fail ]
+rv32 ndebug debug undefined: [__assert_fail ]
+rv32 ndebug -DNDEBUG undefined: []

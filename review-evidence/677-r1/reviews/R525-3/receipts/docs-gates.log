@@ -1,0 +1,16 @@
+$ <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 198 md files + 1126 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+TOC gate: OK (138 page(s) carry an annotated contents list, 17 below the 3-section threshold)
+rc=0
+$ <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+anchor check: 388 existing cross-page fragment links reproduced
+rc=0
+$ <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/check_em_dash.py --base 910f338dbd050f4efd2d96991ddcf928a583d55f
+check_em_dash: 0 finding(s) over 52 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [910f338d..HEAD]
+rc=0
+$ git diff --check 910f338d HEAD
+rc=0
+$ git diff --check 232970db HEAD
+rc=0
