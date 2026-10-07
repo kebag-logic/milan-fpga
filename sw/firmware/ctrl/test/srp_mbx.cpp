@@ -816,6 +816,107 @@ TEST_F(Srp, ConsecutiveSharedReplacementsKeepApplicantStateUntilReconciliation) 
     }
 }
 
+TEST_F(Srp, JoiningIneligibleBindingWithdrawsReadyWhenOriginalLeaves) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const std::vector<uint8_t> id(sid.bytes,sid.bytes+8);
+    const uint8_t da[2][6]={
+        {0x91,0xe0,0xf0,0,0,9},{0x91,0xe0,0xf0,0,0,10}
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned first : {0u,1u}) {
+        SCOPED_TRACE(::testing::Message()<<i<<'/'<<first);
+        capture(); model.tx_sent=0;
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,&sid,da[0],7));
+        offer(frame(1,talker_value(sid,da[0],7),1),i); advance(400); capture();
+        bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
+            d.type==3 && d.value==id && d.event!=5) { ready|=d.subtype==2; }
+        ASSERT_TRUE(ready)<<"the original binding has declared Ready on the wire";
+        // Join from the other slot only after Ready exists. No service pass
+        // may repair its inherited Applicant before the eligible user leaves.
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,&sid,da[1],7));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,first,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(2200); capture();
+        bool left=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
+            d.type==3 && d.value==id) {
+            left|=d.event==5;
+            EXPECT_EQ(d.event,5u)<<"no stale Ready renewal for the ineligible survivor";
+        }
+        EXPECT_TRUE(left)<<"the shared Ready must be withdrawn";
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-first,nullptr,nullptr,0)); advance(1200);
+    }
+}
+
+TEST_F(Srp, ReboundStreamCannotInheritAnotherStreamsReady) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const msrp_stream_id other{{2,1,2,3,4,5,6,8}};
+    const std::vector<uint8_t> id(sid.bytes,sid.bytes+8);
+    const uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned slot : {0u,1u}) {
+        SCOPED_TRACE(::testing::Message()<<i<<'/'<<slot);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,&sid,da,7));
+        offer(frame(1,talker_value(sid,da,7),1),i); advance(400);
+        ASSERT_EQ(adapter.ifs[i].sinks[slot].declared,2u);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(400); capture();
+        bool left=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
+            d.type==3 && d.value==id) { left|=d.event==5; }
+        ASSERT_TRUE(left)<<"the previous Listener declaration has been withdrawn";
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-slot,&other,da,7));
+        offer(frame(1,talker_value(other,da,7),1),i); advance(400);
+        ASSERT_EQ(adapter.ifs[i].sinks[1-slot].declared,2u);
+        capture(); model.tx_sent=0;
+        // The first Talker is still registered. Rebind without another RX:
+        // another StreamID's Ready cache must not suppress this declaration.
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,&sid,da,7)); advance(400); capture();
+        bool ready=false;
+        for(const auto &d:declarations) if(d.interface==i && d.ethertype==0x22ea &&
+            d.type==3 && d.value==id && d.event!=5) { ready|=d.subtype==2; }
+        EXPECT_TRUE(ready)<<"the rebound StreamID owes its own Ready declaration";
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,nullptr,nullptr,0));
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,1-slot,nullptr,nullptr,0)); advance(1200);
+    }
+}
+
+TEST_F(Srp, FinalDomainVidUnbindKeepsSrClassMembership) {
+    settle(); advance(400);
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const std::vector<uint8_t> id(sid.bytes,sid.bytes+8);
+    const uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
+    for(unsigned i=0;i<MBX_N_IF;++i) for(unsigned vid : {2u,7u})
+        for(unsigned slot : {0u,1u}) {
+        SCOPED_TRACE(::testing::Message()<<i<<'/'<<vid<<'/'<<slot);
+        // Exercise the current Domain, including a peer-selected VID.
+        offer(frame(4,{6,3,0,uint8_t(vid)},1),i); advance(400);
+        ASSERT_EQ(adapter.ifs[i].domain.vid,vid);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,&sid,da,vid));
+        offer(frame(1,talker_value(sid,da,vid),1),i); advance(1200);
+        ASSERT_EQ(adapter.ifs[i].sinks[slot].declared,2u);
+        ASSERT_TRUE(srp_mbx_bind(&adapter,i,slot,nullptr,nullptr,0));
+        capture(); model.tx_sent=0; advance(2200); capture();
+        bool listener_left=false; bool vlan_renewed=false;
+        for(const auto &d:declarations) if(d.interface==i) {
+            if(d.ethertype==0x88f5 && d.value==std::vector<uint8_t>({0,uint8_t(vid)})) {
+                EXPECT_NE(d.event,5u)<<"final unbind must retain the Domain VID";
+                vlan_renewed|=d.event!=5;
+            }
+            if(d.ethertype==0x22ea && d.type==3 && d.value==id) {
+                listener_left|=d.event==5;
+                EXPECT_EQ(d.event,5u)<<"the removed Listener must not renew Ready";
+            }
+        }
+        EXPECT_TRUE(listener_left)<<"the final unbind was serviced";
+        EXPECT_TRUE(vlan_renewed)<<"SR class membership still renews after unbind";
+    }
+}
+
 TEST_F(Srp, LastNeverEligibleBindingWithdrawsTheSharedVidInEitherOrder) {
     settle(); advance(400);
     const msrp_stream_id eligible{{2,1,2,3,4,5,6,7}};

@@ -62,7 +62,8 @@ Shared bindings retain their Listener and VLAN until the final user leaves.
 Replacement preserves the shared Applicant state until reconciliation.
 Consecutive replacements before service preserve that state too.
 Reconciliation withdraws Ready when its last eligible binding disappears.
-The final binding releases its VID regardless of prior eligibility.
+The final binding preserves the current Domain VID.
+Otherwise, it releases its VID regardless of prior eligibility.
 All ports are serialized. Output callbacks must enqueue work and return;
 they must not synchronously call an input port or advance the loop.
 The adapter asserts on reentry in debug builds and counts/refuses it in release.
