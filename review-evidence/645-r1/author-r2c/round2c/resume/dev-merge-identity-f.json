@@ -1,0 +1,24 @@
+{
+  "head": "f6bd415f74bfae8666da327e31edb97fcc61d3a9",
+  "measurement_head": "9e529b2069d0ef652325f37e029ca969f852e8a6",
+  "diff": "M\tdocs/design/TIME_SYNC.md\nM\thdl/ieee1722/aaf/KL_aaf_packetizer.sv\nM\tscripts/measure_test_evidence_readers.py\nM\ttb/verilator/aaf/Makefile\nA\ttb/verilator/aaf/README.md\nA\ttb/verilator/aaf/sim_start.cpp\nA\ttb/verilator/aaf/start_mutants.py\n",
+  "note": "Delta of the --no-ff merge of dev 6a05347d (#680): the AAF packetizer startup admission fix, its aaf startup suite and documentation. Every gate that elaborates the packetizer is rerun at this head. Running regressions remain at the recorded measurement head; their claims carry forward through this explicit input-identity proof.",
+  "tree_diff_sha256": "703ac3cd02d17c24566a6bb860b03629b01e5e4b56152c436c45ba347f134402",
+  "dependencies": [
+    {
+      "path": "protocol-processor",
+      "root_verified": true,
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0"
+    },
+    {
+      "path": "gptp-processor",
+      "root_verified": true,
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "root_verified": true,
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  ]
+}

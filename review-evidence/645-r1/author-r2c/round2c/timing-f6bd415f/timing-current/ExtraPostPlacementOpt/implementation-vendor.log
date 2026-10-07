@@ -1,0 +1,2241 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Wed Oct  7 04:09:32 2026
+# Process ID         : 1159268
+# Current directory  : $VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware
+# Command line       : vivado -mode batch -source merged_implementation.tcl -nojournal -log implementation-vendor.log
+# Log file           : $VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware/implementation-vendor.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 47794 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source merged_implementation.tcl
+# set_param general.maxThreads 32
+# open_checkpoint alinx_ax7101_synth.dcp
+Command: open_checkpoint alinx_ax7101_synth.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 1448.191 ; gain = 7.938 ; free physical = 25408 ; free virtual = 45540
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.3 ; elapsed = 00:00:00.3 . Memory (MB): peak = 1999.340 ; gain = 0.000 ; free physical = 25038 ; free virtual = 45458
+INFO: [Netlist 29-17] Analyzing 5832 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.11 . Memory (MB): peak = 2132.184 ; gain = 0.000 ; free physical = 24514 ; free virtual = 45213
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+  synth.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2621.832 ; gain = 0.000 ; free physical = 22802 ; free virtual = 44276
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2621.832 ; gain = 0.000 ; free physical = 22798 ; free virtual = 44272
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2621.832 ; gain = 0.000 ; free physical = 22798 ; free virtual = 44272
+Read placeStorage: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2845.941 ; gain = 0.000 ; free physical = 22778 ; free virtual = 44252
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2845.941 ; gain = 0.000 ; free physical = 22778 ; free virtual = 44252
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2845.941 ; gain = 0.000 ; free physical = 22778 ; free virtual = 44252
+Read Physdb Files: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2845.941 ; gain = 224.109 ; free physical = 22778 ; free virtual = 44252
+Restored from archive | CPU: 0.050000 secs | Memory: 1.373238 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 2845.941 ; gain = 224.109 ; free physical = 22778 ; free virtual = 44252
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2845.941 ; gain = 0.000 ; free physical = 22698 ; free virtual = 44174
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1245 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 18 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 663 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 29 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:25 ; elapsed = 00:00:18 . Memory (MB): peak = 2845.977 ; gain = 1410.691 ; free physical = 22843 ; free virtual = 44324
+# source {$VALIDATION_STORAGE/645-a531/round2c/route-source/sw/litex/clock_constraints.tcl}
+## proc kl_quasi_static_constraints {} {
+##     set cells [get_cells -hierarchical -quiet -filter {quasi_static == "yes"}]
+##     if {[llength $cells]} {
+##         set_multicycle_path 4 -setup -from $cells
+##         set_multicycle_path 3 -hold -from $cells
+##     }
+##     puts "CONSTRAINTS: quasi_static cells=[llength $cells] setup=4 hold=3"
+## }
+## proc kl_net_clock {name} {
+##     set clocks [get_clocks -of_objects [get_nets $name]]
+##     if {[llength $clocks] != 1} {
+##         error "CONSTRAINTS: expected one clock on net $name, got $clocks"
+##     }
+##     return $clocks
+## }
+## proc milan_eth_constraints {eth_port part_nets other_nets} {
+##     set eth [get_clocks -of_objects [get_ports $eth_port]]
+##     if {[llength $eth] != 1} {
+##         error "CONSTRAINTS: expected one clock on port $eth_port, got $eth"
+##     }
+##     set part {}
+##     foreach net $part_nets {lappend part [kl_net_clock $net]}
+##     set other {}
+##     foreach net $other_nets {lappend other [kl_net_clock $net]}
+## 
+##     # Restore LiteX's MultiReg exception everywhere except the bounded pairs.
+##     # Destination classes follow the register clock, including reset-extended
+##     # aliases. No hierarchy spelling or per-register waiver selects a crossing.
+##     set eth_mr {}; set part_mr {}; set other_mr {}
+##     foreach cell [get_cells -hierarchical -quiet -filter {mr_ff == TRUE}] {
+##         set clocks [get_clocks -of_objects [get_pins -of_objects $cell -filter {IS_CLOCK == 1}]]
+##         if {[llength $clocks] != 1} {
+##             error "CONSTRAINTS: expected one MultiReg clock for $cell, got $clocks"
+##         }
+##         if {$clocks in $eth} {
+##             lappend eth_mr $cell
+##         } elseif {$clocks in $part} {
+##             lappend part_mr $cell
+##         } else {
+##             lappend other_mr $cell
+##         }
+##     }
+##     foreach {targets excluded} [list $eth_mr $part $part_mr $eth] {
+##         if {![llength $targets]} {continue}
+##         set sources {}
+##         foreach clock [get_clocks] {
+##             if {$clock ni $excluded} {lappend sources $clock}
+##         }
+##         if {[llength $sources]} {set_false_path -from $sources -to $targets}
+##         # Asynchronous board inputs retain the original synchronizer exception.
+##         set inputs [all_inputs]
+##         if {[llength $inputs]} {set_false_path -from $inputs -to $targets}
+##     }
+##     if {[llength $other_mr]} {set_false_path -to $other_mr}
+## 
+##     # Keep LiteX's PRE-pin asynchronous-assert exceptions and its 2 ns
+##     # inter-stage reset bound. The 8 ns budget covers data crossings, not
+##     # asynchronous reset assertion. Hold has no phase meaning on either pair.
+##     # An unbounded Ethernet synchronizer route previously caused a warm-die
+##     # receive failure; #607 makes that placement-dependent delay visible to STA.
+##     foreach clock $part {
+##         set_false_path -hold -from $eth -to $clock
+##         set_max_delay 8.000 -datapath_only -from $eth -to $clock
+##         set_false_path -hold -from $clock -to $eth
+##         set_max_delay 8.000 -datapath_only -from $clock -to $eth
+##     }
+##     if {[llength $other]} {
+##         set_clock_groups -asynchronous -group $eth -group $other
+##     }
+##     puts "CONSTRAINTS: eth=$eth bounded=$part async=$other budget_ns=8.000"
+##     puts "CONSTRAINTS: MultiReg eth=[llength $eth_mr] part=[llength $part_mr] other=[llength $other_mr]"
+## }
+# kl_quasi_static_constraints
+CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+# milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000
+CONSTRAINTS: MultiReg eth=12 part=198 other=0
+# opt_design -directive ExploreArea
+Command: opt_design -directive ExploreArea
+INFO: [Vivado_Tcl 4-136] Directive used for opt_design is: ExploreArea
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:06 ; elapsed = 00:00:02 . Memory (MB): peak = 3354.293 ; gain = 361.539 ; free physical = 23088 ; free virtual = 44510
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.09 . Memory (MB): peak = 3424.152 ; gain = 0.000 ; free physical = 24134 ; free virtual = 45615
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:00.14 ; elapsed = 00:00:00.13 . Memory (MB): peak = 3424.152 ; gain = 0.000 ; free physical = 24128 ; free virtual = 45610
+Phase 1 Initialization | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:00.15 ; elapsed = 00:00:00.13 . Memory (MB): peak = 3424.152 ; gain = 0.000 ; free physical = 24127 ; free virtual = 45609
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Detect if minReqCache needed
+Phase 2.1 Detect if minReqCache needed | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.18 . Memory (MB): peak = 3443.121 ; gain = 18.969 ; free physical = 24068 ; free virtual = 45549
+
+Phase 2.2 Timer Update
+Phase 2.2 Timer Update | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:01 . Memory (MB): peak = 3443.121 ; gain = 18.969 ; free physical = 24440 ; free virtual = 45922
+
+Phase 2.3 Timing Data Collection
+Phase 2.3 Timing Data Collection | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:01 . Memory (MB): peak = 3443.121 ; gain = 18.969 ; free physical = 24425 ; free virtual = 45908
+Phase 2 Timer Update And Timing Data Collection | Checksum: 205d6b79b
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:01 . Memory (MB): peak = 3443.121 ; gain = 18.969 ; free physical = 24407 ; free virtual = 45890
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 154 inverters resulting in an inversion of 1372 pins
+INFO: [Opt 31-138] Pushed 1 inverter(s) to 1 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 27899f270
+
+Time (s): cpu = 00:00:10 ; elapsed = 00:00:03 . Memory (MB): peak = 3691.242 ; gain = 267.090 ; free physical = 23441 ; free virtual = 44992
+Retarget | Checksum: 27899f270
+INFO: [Opt 31-389] Phase Retarget created 122 cells and removed 320 cells
+INFO: [Opt 31-1021] In phase Retarget, 7 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 1d8b1b170
+
+Time (s): cpu = 00:00:11 ; elapsed = 00:00:03 . Memory (MB): peak = 3691.242 ; gain = 267.090 ; free physical = 23472 ; free virtual = 45047
+Constant propagation | Checksum: 1d8b1b170
+INFO: [Opt 31-389] Phase Constant propagation created 36 cells and removed 48 cells
+INFO: [Opt 31-1021] In phase Constant propagation, 128 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3691.242 ; gain = 0.000 ; free physical = 23528 ; free virtual = 45119
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3691.242 ; gain = 0.000 ; free physical = 22497 ; free virtual = 44112
+Phase 5 Sweep | Checksum: 2241832e9
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:05 . Memory (MB): peak = 3691.242 ; gain = 267.090 ; free physical = 22155 ; free virtual = 43787
+Sweep | Checksum: 2241832e9
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 128 cells
+INFO: [Opt 31-1021] In phase Sweep, 1599 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 6 BUFG optimization
+INFO: [Opt 31-129] Inserted BUFG to drive high-fanout reset|set|enable net. BUFG cell: milan_rst_BUFG_inst, Net: milan_rst
+Phase 6 BUFG optimization | Checksum: 2476c0e84
+
+Time (s): cpu = 00:00:13 ; elapsed = 00:00:06 . Memory (MB): peak = 3723.258 ; gain = 299.105 ; free physical = 22327 ; free virtual = 44106
+BUFG optimization | Checksum: 2476c0e84
+INFO: [Opt 31-662] Phase BUFG optimization created 1 cells of which 1 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 2476c0e84
+
+Time (s): cpu = 00:00:13 ; elapsed = 00:00:06 . Memory (MB): peak = 3723.258 ; gain = 299.105 ; free physical = 22331 ; free virtual = 44125
+Shift Register Optimization | Checksum: 2476c0e84
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+INFO: [Opt 31-1555] control_set_opt supports Versal devices only, and device 7a100t is unsupported
+
+Phase 8 Resynthesis
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Opt 31-74] Optimized 56 modules.
+INFO: [Opt 31-75] Optimized module 'Axi4WriteOnlyAligner'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_clock_meter'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_latency_chain'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_latency_chain_13'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_packetizer'.
+INFO: [Opt 31-75] Optimized module 'KL_aaf_rx_depacketizer'.
+INFO: [Opt 31-75] Optimized module 'KL_acmp_nvm_shadow'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_ca_originator'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_desc_store'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_dyn_state'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_engine'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_notify'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_nvm_writer'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_resp_buf'.
+INFO: [Opt 31-75] Optimized module 'KL_aecp_ucpu'.
+INFO: [Opt 31-75] Optimized module 'KL_avtp_rx_monitor_ctx'.
+INFO: [Opt 31-75] Optimized module 'KL_chan_map_capture'.
+INFO: [Opt 31-75] Optimized module 'KL_chan_map_render'.
+INFO: [Opt 31-75] Optimized module 'KL_crf_tx'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_engine'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_rx_parser'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_shadow'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_timer'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_tx_slot'.
+INFO: [Opt 31-75] Optimized module 'KL_gptp_ucpu'.
+INFO: [Opt 31-75] Optimized module 'KL_media_clock_restart'.
+INFO: [Opt 31-75] Optimized module 'KL_nvm_backend'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_acmp_listener'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_event_router'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_normalizer'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_originator'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_prng'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_rx_slots'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_rx_slots_4'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_rx_validator'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_side_port'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_tx_arbiter'.
+INFO: [Opt 31-75] Optimized module 'KL_pp_tx_slots'.
+INFO: [Opt 31-75] Optimized module 'KL_render_setpoint'.
+INFO: [Opt 31-75] Optimized module 'KL_srp_admission'.
+INFO: [Opt 31-75] Optimized module 'KL_srp_decoder'.
+INFO: [Opt 31-75] Optimized module 'KL_srp_domain'.
+INFO: [Opt 31-75] Optimized module 'KL_srp_encoder'.
+INFO: [Opt 31-75] Optimized module 'KL_srp_talker_fsm'.
+INFO: [Opt 31-75] Optimized module 'KL_tdm_capture_master'.
+INFO: [Opt 31-75] Optimized module 'Ram_1w_1ra'.
+INFO: [Opt 31-75] Optimized module 'StreamFifoCC_2'.
+INFO: [Opt 31-75] Optimized module 'TransferFilter'.
+INFO: [Opt 31-75] Optimized module 'alinx_ax7101'.
+INFO: [Opt 31-75] Optimized module 'axis_fifo__parameterized2'.
+INFO: [Opt 31-75] Optimized module 'cdc_pair_fifo__parameterized0'.
+INFO: [Opt 31-75] Optimized module 'milan_csr'.
+INFO: [Opt 31-75] Optimized module 'milan_datapath'.
+INFO: [Opt 31-75] Optimized module 'protocol_processor_top'.
+INFO: [Opt 31-75] Optimized module 'ptp_csr_sync'.
+INFO: [Opt 31-75] Optimized module 'tcam'.
+INFO: [Opt 31-1566] Pulled 2352 inverters resulting in an inversion of 7451 pins
+INFO: [Opt 31-138] Pushed 4 inverter(s) to 23 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:16 ; elapsed = 00:00:00.04 . Memory (MB): peak = 3996.391 ; gain = 0.000 ; free physical = 18886 ; free virtual = 41420
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 3996.391 ; gain = 0.000 ; free physical = 20159 ; free virtual = 42693
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3996.391 ; gain = 0.000 ; free physical = 19525 ; free virtual = 42073
+Phase 8 Resynthesis | Checksum: 2055c357a
+
+Time (s): cpu = 00:03:24 ; elapsed = 00:00:40 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19656 ; free virtual = 42212
+Resynthesis | Checksum: 2055c357a
+INFO: [Opt 31-389] Phase Resynthesis created 38318 cells and removed 39117 cells
+INFO: [Opt 31-1021] In phase Resynthesis, 1601 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 9 Post Processing Netlist
+Phase 9 Post Processing Netlist | Checksum: 2055c357a
+
+Time (s): cpu = 00:03:25 ; elapsed = 00:00:40 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19550 ; free virtual = 42108
+Post Processing Netlist | Checksum: 2055c357a
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+INFO: [Opt 31-1021] In phase Post Processing Netlist, 288 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 10 Finalization
+
+Phase 10.1 Finalizing Design Cores and Updating Shapes
+Phase 10.1 Finalizing Design Cores and Updating Shapes | Checksum: 19ea056c8
+
+Time (s): cpu = 00:03:28 ; elapsed = 00:00:42 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19397 ; free virtual = 42072
+
+Phase 10.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.17 . Memory (MB): peak = 3996.391 ; gain = 0.000 ; free physical = 19627 ; free virtual = 42295
+Phase 10.2 Verifying Netlist Connectivity | Checksum: 19ea056c8
+
+Time (s): cpu = 00:03:28 ; elapsed = 00:00:42 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19619 ; free virtual = 42287
+Phase 10 Finalization | Checksum: 19ea056c8
+
+Time (s): cpu = 00:03:28 ; elapsed = 00:00:43 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19611 ; free virtual = 42280
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |             122  |             320  |                                              7  |
+|  Constant propagation         |              36  |              48  |                                            128  |
+|  Sweep                        |               0  |             128  |                                           1599  |
+|  BUFG optimization            |               1  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Resynthesis                  |           38318  |           39117  |                                           1601  |
+|  Post Processing Netlist      |               0  |               0  |                                            288  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 19ea056c8
+
+Time (s): cpu = 00:03:28 ; elapsed = 00:00:43 . Memory (MB): peak = 3996.391 ; gain = 572.238 ; free physical = 19610 ; free virtual = 42279
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3996.391 ; gain = 0.000 ; free physical = 20097 ; free virtual = 42767
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+93 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:03:37 ; elapsed = 00:00:47 . Memory (MB): peak = 3996.391 ; gain = 1003.637 ; free physical = 20263 ; free virtual = 42934
+# source {$VALIDATION_STORAGE/645-a531/round2c/route-source/sw/litex/timing_grade.tcl}
+## proc kl_timing_grade_configure {part grade min_c max_c corners} {
+##     set expected [get_property NAME [get_parts $part]]
+##     set actual [get_property PART [current_design]]
+##     if {$expected eq "" || $actual ne $expected} {
+##         error "TIMING-GRADE part mismatch: expected $part, found $actual"
+##     }
+##     set ::kl_timing_grade [dict create part $expected grade $grade \
+##         min_c $min_c max_c $max_c corners $corners]
+##     set_operating_conditions -grade $grade -junction_temp $max_c
+##     foreach corner $corners {
+##         config_timing_corners -corner $corner -delay_type min_max
+##     }
+## }
+## proc kl_timing_grade_check {} {
+##     set spec $::kl_timing_grade
+##     if {[get_property PART [current_design]] ne [dict get $spec part]} {
+##         error "TIMING-GRADE part changed after configuration"
+##     }
+##     set conditions [report_operating_conditions -grade -junction_temp -return_string]
+##     if {![regexp {Device Grade = (\S+)} $conditions -> grade] ||
+##         $grade ne [dict get $spec grade] ||
+##         ![regexp {Junction Temp = ([0-9.]+)} $conditions -> temp] ||
+##         $temp != [dict get $spec max_c]} {
+##         error "TIMING-GRADE operating conditions changed: $conditions"
+##     }
+##     set settings [report_config_timing -return_string]
+##     foreach corner [dict get $spec corners] {
+##         if {![regexp -line "^ *$corner +Yes +Yes *$" $settings]} {
+##             error "TIMING-GRADE requires setup and hold at $corner: $settings"
+##         }
+##     }
+## }
+## proc kl_timing_grade_reports {prefix} {
+##     kl_timing_grade_check
+##     set spec $::kl_timing_grade
+##     set info [open ${prefix}_grade.txt w]
+##     puts $info $spec
+##     puts $info "Fixed Slow/Fast timing models cover the declared range."
+##     puts $info "Endpoint Tj settings below are power metadata, not independent timing models."
+##     close $info
+##     # Analyse each supported model at both declared Tj endpoints, explicitly
+##     # retaining the identical results rather than claiming four PVT models.
+##     try {
+##         foreach temp [list [dict get $spec min_c] [dict get $spec max_c]] {
+##             set_operating_conditions -junction_temp $temp
+##             foreach corner [dict get $spec corners] {
+##                 config_timing_corners -corner $corner -delay_type min_max
+##                 foreach other [dict get $spec corners] {
+##                     if {$other ne $corner} {
+##                         config_timing_corners -corner $other -delay_type none
+##                     }
+##                 }
+##                 set stem ${prefix}_${corner}_${temp}C
+##                 report_operating_conditions -file ${stem}_operating.rpt
+##                 report_timing_summary -delay_type min_max -report_unconstrained \
+##                     -max_paths 5 -file ${stem}_timing.rpt
+##                 report_timing -delay_type min_max -slack_lesser_than 0 \
+##                     -max_paths 100 -file ${stem}_negative.rpt
+##             }
+##         }
+##     } finally {
+##         set_operating_conditions -junction_temp [dict get $spec max_c]
+##         foreach corner [dict get $spec corners] {
+##             config_timing_corners -corner $corner -delay_type min_max
+##         }
+##     }
+##     kl_timing_grade_check
+##     report_timing_summary -delay_type min_max -report_unconstrained \
+##         -check_timing_verbose -max_paths 5 -file ${prefix}_all_timing.rpt
+##     report_clock_interaction -delay_type min_max -file ${prefix}_clock_interaction.rpt
+##     report_cdc -details -file ${prefix}_cdc.rpt
+##     check_timing -verbose -file ${prefix}_check_timing.rpt
+## }
+# kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+# place_design -directive ExtraPostPlacementOpt
+Command: place_design -directive ExtraPostPlacementOpt
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Vivado_Tcl 4-2302] The placer was invoked with the 'ExtraPostPlacementOpt' directive.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors, 42 Warnings
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 32 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4084.562 ; gain = 0.000 ; free physical = 20163 ; free virtual = 42658
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 19db2b79b
+
+Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.07 . Memory (MB): peak = 4084.562 ; gain = 0.000 ; free physical = 20135 ; free virtual = 42630
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 4084.562 ; gain = 0.000 ; free physical = 20054 ; free virtual = 42549
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: 223d4fe99
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:07 . Memory (MB): peak = 4084.562 ; gain = 0.000 ; free physical = 19217 ; free virtual = 41747
+
+Phase 1.3 Build Placer Netlist Model
+Phase 1.3 Build Placer Netlist Model | Checksum: 2facb26b0
+
+Time (s): cpu = 00:00:50 ; elapsed = 00:00:24 . Memory (MB): peak = 4147.699 ; gain = 63.137 ; free physical = 18554 ; free virtual = 41174
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 2facb26b0
+
+Time (s): cpu = 00:00:50 ; elapsed = 00:00:24 . Memory (MB): peak = 4147.699 ; gain = 63.137 ; free physical = 18490 ; free virtual = 41110
+Phase 1 Placer Initialization | Checksum: 2facb26b0
+
+Time (s): cpu = 00:00:50 ; elapsed = 00:00:24 . Memory (MB): peak = 4147.699 ; gain = 63.137 ; free physical = 18089 ; free virtual = 40713
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+Phase 2.1 Floorplanning | Checksum: 2a01582e9
+
+Time (s): cpu = 00:01:08 ; elapsed = 00:00:29 . Memory (MB): peak = 4147.699 ; gain = 63.137 ; free physical = 18569 ; free virtual = 41232
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 263d62942
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:00:33 . Memory (MB): peak = 4293.699 ; gain = 209.137 ; free physical = 18779 ; free virtual = 41457
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: 31c4437e0
+
+Time (s): cpu = 00:01:25 ; elapsed = 00:00:33 . Memory (MB): peak = 4293.699 ; gain = 209.137 ; free physical = 18595 ; free virtual = 41278
+
+Phase 2.4 Global Place Phase1
+Phase 2.4 Global Place Phase1 | Checksum: 22062e5f7
+
+Time (s): cpu = 00:03:47 ; elapsed = 00:01:27 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 19014 ; free virtual = 41529
+
+Phase 2.5 Global Place Phase2
+
+Phase 2.5.1 UpdateTiming Before Physical Synthesis
+Phase 2.5.1 UpdateTiming Before Physical Synthesis | Checksum: 25e159406
+
+Time (s): cpu = 00:04:06 ; elapsed = 00:01:31 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 21356 ; free virtual = 43886
+
+Phase 2.5.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 81 LUTNM shape to break, 5167 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 53, two critical 28, total 81, new lutff created 3
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 2128 nets or LUTs. Breaked 81 LUTs, combined 2047 existing LUTs and moved 0 existing LUT
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4435.895 ; gain = 0.000 ; free physical = 19179 ; free virtual = 41573
+INFO: [Physopt 32-65] No nets found for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1123] No candidate cells found for Shift Register to Pipeline optimization
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1402] Pass 1: Identified 1 candidate cell for Shift Register optimization.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.06 ; elapsed = 00:00:00.05 . Memory (MB): peak = 4435.895 ; gain = 0.000 ; free physical = 19079 ; free virtual = 41581
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4435.895 ; gain = 0.000 ; free physical = 19596 ; free virtual = 42181
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |           81  |           2047  |                  2128  |           0  |           1  |  00:00:04  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Very High Fanout                                 |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  DSP Register                                     |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           1  |           1  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |           81  |           2047  |                  2128  |           1  |           9  |  00:00:05  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.5.2 Physical Synthesis In Placer | Checksum: 1d5400200
+
+Time (s): cpu = 00:04:29 ; elapsed = 00:01:41 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 19010 ; free virtual = 41792
+Phase 2.5 Global Place Phase2 | Checksum: 2bd8b38db
+
+Time (s): cpu = 00:04:38 ; elapsed = 00:01:45 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 18661 ; free virtual = 41493
+Phase 2 Global Placement | Checksum: 2bd8b38db
+
+Time (s): cpu = 00:04:38 ; elapsed = 00:01:45 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 18818 ; free virtual = 41651
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 2409c4c10
+
+Time (s): cpu = 00:04:56 ; elapsed = 00:01:49 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 17579 ; free virtual = 40435
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 298b50f1f
+
+Time (s): cpu = 00:05:30 ; elapsed = 00:02:01 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 19880 ; free virtual = 42592
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 2271e6e92
+
+Time (s): cpu = 00:05:32 ; elapsed = 00:02:01 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 20604 ; free virtual = 43323
+
+Phase 3.4 Pipeline Register Optimization
+Phase 3.4 Pipeline Register Optimization | Checksum: 2725b211e
+
+Time (s): cpu = 00:05:32 ; elapsed = 00:02:02 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 20644 ; free virtual = 43408
+
+Phase 3.5 Fast Optimization
+Phase 3.5 Fast Optimization | Checksum: 2b3bf9cd3
+
+Time (s): cpu = 00:06:06 ; elapsed = 00:02:10 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 20539 ; free virtual = 43282
+
+Phase 3.6 Small Shape Detail Placement
+Phase 3.6 Small Shape Detail Placement | Checksum: 263bdae52
+
+Time (s): cpu = 00:06:45 ; elapsed = 00:02:51 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 20357 ; free virtual = 43674
+
+Phase 3.7 Re-assign LUT pins
+Phase 3.7 Re-assign LUT pins | Checksum: 28723b8a8
+
+Time (s): cpu = 00:06:49 ; elapsed = 00:02:55 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 20538 ; free virtual = 43846
+
+Phase 3.8 Pipeline Register Optimization
+Phase 3.8 Pipeline Register Optimization | Checksum: 2dcee964a
+
+Time (s): cpu = 00:06:50 ; elapsed = 00:02:55 . Memory (MB): peak = 4435.895 ; gain = 351.332 ; free physical = 21513 ; free virtual = 44830
+
+Phase 3.9 Fast Optimization
+Phase 3.9 Fast Optimization | Checksum: 2aa9ccffa
+
+Time (s): cpu = 00:07:45 ; elapsed = 00:03:15 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 20796 ; free virtual = 44261
+Phase 3 Detail Placement | Checksum: 2aa9ccffa
+
+Time (s): cpu = 00:07:46 ; elapsed = 00:03:15 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 21054 ; free virtual = 44519
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 4.1.1 Post Placement Optimization
+Post Placement Optimization Initialization | Checksum: 22da9e5f3
+
+Phase 4.1.1.1 BUFG Insertion
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 32 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-5.145 | TNS=-247.666 |
+Phase 1 Physical Synthesis Initialization | Checksum: 7d8860b9
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:01 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19955 ; free virtual = 43605
+INFO: [Place 46-33] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/clear, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-56] BUFG insertion identified 1 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 1, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 2290b093b
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:02 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20116 ; free virtual = 43766
+Phase 4.1.1.1 BUFG Insertion | Checksum: 22da9e5f3
+
+Time (s): cpu = 00:08:48 ; elapsed = 00:03:28 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 20081 ; free virtual = 43732
+
+Phase 4.1.1.2 Post Placement Timing Optimization
+INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.541. For the most accurate timing information please run report_timing.
+Phase 4.1.1.2 Post Placement Timing Optimization | Checksum: 250e7da96
+
+Time (s): cpu = 00:09:54 ; elapsed = 00:04:29 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 21020 ; free virtual = 44416
+
+Time (s): cpu = 00:09:54 ; elapsed = 00:04:29 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 21009 ; free virtual = 44405
+Phase 4.1 Post Commit Optimization | Checksum: 250e7da96
+
+Time (s): cpu = 00:09:55 ; elapsed = 00:04:29 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 20903 ; free virtual = 44299
+Post Placement Optimization Initialization | Checksum: 27c097ef6
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 32 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.615 | TNS=-13.772 |
+Phase 1 Physical Synthesis Initialization | Checksum: 12846d25e
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:01 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17297 ; free virtual = 40534
+INFO: [Place 46-33] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/clear, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-56] BUFG insertion identified 1 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 1, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 1ccac3099
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:01 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17116 ; free virtual = 40370
+INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.280. For the most accurate timing information please run report_timing.
+Post Placement Optimization Initialization | Checksum: 24913d7e7
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 32 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.280 | TNS=-0.845 |
+Phase 1 Physical Synthesis Initialization | Checksum: 16c9b19fa
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:04 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 18342 ; free virtual = 40192
+INFO: [Place 46-33] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/clear, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-56] BUFG insertion identified 1 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 1, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 1556241ee
+
+Time (s): cpu = 00:00:31 ; elapsed = 00:00:04 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 18730 ; free virtual = 40636
+INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.269. For the most accurate timing information please run report_timing.
+
+Phase 4.2 Post Placement Cleanup
+Phase 4.2 Post Placement Cleanup | Checksum: 160b73750
+
+Time (s): cpu = 00:13:26 ; elapsed = 00:06:18 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 17191 ; free virtual = 39279
+
+Phase 4.3 Placer Reporting
+
+Phase 4.3.1 Print Estimated Congestion
+INFO: [Place 30-612] Post-Placement Estimated Congestion 
+ ____________________________________________________
+|           | Global Congestion | Short Congestion  |
+| Direction | Region Size       | Region Size       |
+|___________|___________________|___________________|
+|      North|                4x4|                8x8|
+|___________|___________________|___________________|
+|      South|                4x4|                8x8|
+|___________|___________________|___________________|
+|       East|                4x4|                8x8|
+|___________|___________________|___________________|
+|       West|                4x4|                8x8|
+|___________|___________________|___________________|
+
+Phase 4.3.1 Print Estimated Congestion | Checksum: 160b73750
+
+Time (s): cpu = 00:13:27 ; elapsed = 00:06:18 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 16878 ; free virtual = 38950
+Phase 4.3 Placer Reporting | Checksum: 160b73750
+
+Time (s): cpu = 00:13:28 ; elapsed = 00:06:18 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 16715 ; free virtual = 38784
+
+Phase 4.4 Final Placement Cleanup
+Netlist sorting complete. Time (s): cpu = 00:00:00.07 ; elapsed = 00:00:00.07 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 16507 ; free virtual = 38580
+
+Time (s): cpu = 00:13:28 ; elapsed = 00:06:18 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 16507 ; free virtual = 38580
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 11c009c9f
+
+Time (s): cpu = 00:13:28 ; elapsed = 00:06:19 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 16513 ; free virtual = 38597
+Ending Placer Task | Checksum: e90c51a8
+
+Time (s): cpu = 00:13:29 ; elapsed = 00:06:19 . Memory (MB): peak = 4458.895 ; gain = 374.332 ; free physical = 16689 ; free virtual = 38800
+45 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:13:49 ; elapsed = 00:06:24 . Memory (MB): peak = 4458.895 ; gain = 462.504 ; free physical = 16623 ; free virtual = 38735
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:45 ; elapsed = 00:00:08 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17531 ; free virtual = 39723
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 52.19s |  WALL: 8.17s
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17402 ; free virtual = 39598
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 32 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.269 | TNS=-0.812 |
+Phase 1 Physical Synthesis Initialization | Checksum: c470584d
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:09 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 16600 ; free virtual = 38682
+
+Phase 2 SLR Crossing Optimization
+Phase 2 SLR Crossing Optimization | Checksum: c470584d
+
+Time (s): cpu = 00:00:17 ; elapsed = 00:00:09 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17087 ; free virtual = 39138
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.269 | TNS=-0.812 |
+
+Phase 3 Fanout Optimization
+INFO: [Physopt 32-76] Pass 1. Identified 5 candidate nets for fanout optimization.
+INFO: [Physopt 32-81] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[1]. Replicated 5 times.
+INFO: [Physopt 32-81] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[2]. Replicated 4 times.
+INFO: [Physopt 32-81] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]. Replicated 4 times.
+INFO: [Physopt 32-81] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[3]. Replicated 3 times.
+INFO: [Physopt 32-81] Processed net VexiiRiscvLitex_f5f08b170311db53220574624f819159/milansoc_rdat1_fsm2_t_next_value_ce4. Replicated 1 times.
+INFO: [Physopt 32-232] Optimized 5 nets. Created 17 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 5 nets or cells. Created 17 new cells, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.012 | TNS=-0.012 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.09 ; elapsed = 00:00:00.09 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19400 ; free virtual = 41286
+Phase 3 Fanout Optimization | Checksum: f133c35d
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:21 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19370 ; free virtual = 41257
+
+Phase 4 Single Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 250 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[1]_repN.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[1]_replica
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_31.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT2_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_53.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT3_22
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_1_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_37_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_37
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT3_10
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/st_r_reg[2]_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/KL_srp_encoder_LUT6_151
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_6.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_6
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_445.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT4_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_5.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_5
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT3_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_20_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_20
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_50.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/p_41_in.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/org_withdraw_slot_mask_w[4].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cnt_r[0][15]_i_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/valid_r[3]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/valid_r[3]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_112.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_11
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_4
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_12_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/arb_req_w[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/owner_r[2]_i_6
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/retried_r[1]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[1]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_3.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[1]_i_5_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[1]_i_5
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_136.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_45
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_137.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_123
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_138.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_124
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_6.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_165
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/owner_r[2]_i_21_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_191
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_135.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_51.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_28
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_55.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_64
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/age_r_reg[3][0]_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/tx_slot_i[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_66
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[2]_1[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[0]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_41.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_11
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/owner_r[2]_i_20_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_187
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_44
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_132.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_121
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_133.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_43
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_135.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_122
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_5_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_164
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[47]_0[30].  Re-placed instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[30]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT3_11
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_140.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_46
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_114.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_2
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_27_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_27
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_11.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_10
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_13.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_142.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_126
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_15.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_49.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_27
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_11_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[2]_i_11
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/org_withdraw_slot_mask_w[6].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cnt_r[0][15]_i_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_139.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_125
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_42.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_43.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_184
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_30_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_30
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_172.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_9
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_131.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_120
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]_repN.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]_replica
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]_repN_2.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]_replica_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_133.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_11
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_56.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_65
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/tx_slot_i[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_68
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[2]_1[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[1]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/valid_r_reg[0]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_7
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_17_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_17
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_30.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_6
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_33.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_26
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_7.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_58.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_69
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/tx_slot_i[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_70
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[2]_1[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r_reg[2]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[1]_repN_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[1]_replica_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_141.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_19
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_137.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_15
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_139.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_17
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[1]_repN_2.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[1]_replica_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_116.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_8
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_28_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_28
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_16_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_16
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_109.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_4
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_136.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_14
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[2]_repN_2.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[2]_replica_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[3].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_128
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_145.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT3_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[2]_repN.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[2]_replica
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[3]_repN_2.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[3]_replica_2
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_26_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_26
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_173.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_57.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_67
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_134.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_138.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_16
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]_repN_3.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]_replica_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_52.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_11_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_11
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_13.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT2_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_12.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_127.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_113
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[11]_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[11]
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_14_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT2_21
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_23_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_23
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_39_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_116
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_124.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_111
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_125.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_112
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_14_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_111.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_15
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/org_withdraw_slot_mask_w[5].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cnt_r[0][15]_i_11
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_44.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_144.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_127
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[2]_repN_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[2]_replica_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_115.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_24_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_24
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r[31]_i_1__0_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_142
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_164.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_57
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[42]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_137
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[8]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[8]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg_n_0_[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[0]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[2]_i_10_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[2]_i_10
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r[7]_i_15_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[2]_i_5
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[1]_i_3_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[1]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_541.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_463
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_600.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_107
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/gsiq_type_r[1]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/gsiq_type_r[1]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_555.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_211
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_397.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_359
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_10.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_10
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_403.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_167
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_591.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_471
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_599.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_494
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/desc_ix_r_reg[0]_5[0].  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_186
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[47]_i_22_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/dirty_r[47]_i_22
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/name_r_reg_i_126_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rval_r_reg[11]_0[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_67
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[17].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[17]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[18].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[18]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[19].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[19]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[20].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[20]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[63]_0[13].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[13]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_54.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r[2]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/slot_r[2]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[1]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[3].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[3]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_21_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_21
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_113.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_153.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_31
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[2][2]_i_3_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[2][2]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[3][2]_i_9_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[3][2]_i_9
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_cnt_r[2]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_cnt_r[2]_i_2
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_14_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/gnt_r_reg[7][0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[0][2]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_12_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r[7][2]_i_12
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[5][2][1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_54
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3]_63[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3][1]
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[47]_0[31].  Re-placed instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[31]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]_repN_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[0]_replica_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[5][2][2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_257
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3]_63[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3][2]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_140.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_18
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_141.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_42
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[8]_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[8]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_0_1_i_11_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_0_1_i_11
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_414.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT2_79
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_0_1_i_17_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/rows_r_reg_0_15_0_1_i_17
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_419.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_172
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rval_r_reg[11]_0[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_68
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_129.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_117
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_142.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_20
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_137.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_251
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[4][2]_0[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_252
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[2]_62[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[2][2]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_13_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_110.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_14
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_135.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_249
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[4][2]_0[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_250
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[2]_62[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[2][1]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_22_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_22
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[47]_0[6].  Re-placed instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[6]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/valid_r_reg[9]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/ca_pend_r[9]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_313.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_12
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_56.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_46
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_166
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_7.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT4_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg_n_0_[4].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[4]
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/lane_off_r[7]_i_3_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/lane_off_r[7]_i_3
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/in_range_w_carry_i_7_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_94
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[0]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/key_index_r[0]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[1]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/key_index_r[1]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/name_r_reg_i_118_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_15
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[op][3]_10.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/KL_aecp_ucpu_LUT6_251
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[3]_repN_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[3]_replica_1
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[5][2][0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_53
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3]_63[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[3][0]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_77.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_18
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[21].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[21]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[22].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[22]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[23].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[23]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[24].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[24]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[29].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[29]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[30].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[30]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[31].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[31]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_47.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_190
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_38_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_115
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_424.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_377
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_430.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_175
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rval_r_reg[11]_0[2].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT4_69
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[3]_repN.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/wr_ix_r_reg[3]_replica
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[9]_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/pend_r_reg[9]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_10.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_167
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_11.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT4_4
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg_n_0_[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[1]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_121.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_239
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/laneq_org_r_reg[4][2][0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_240
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[0]_64[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/laneq_org_r_reg[0][0]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_108.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_25_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_25
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/valid_r_reg[11]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/mon_draw_pend_r[11]_i_5
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_161.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_39
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_145.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_23
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_16_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/cancel_pend_r[3]_i_16
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/valid_r_reg[6]_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/mon_draw_pend_r[6]_i_5
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[63]_0[12].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_ctlr_eid_r_reg[12]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_578.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_491
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_585.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_222
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_590.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_493
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_596.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_223
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_143.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_21
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[13].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[13]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[14].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[14]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[15].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[15]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[16].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[16]
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[47]_0[25].  Re-placed instance milan_datapath/pp_shadow/u_pp/u_rx_validator/hdr_src_mac_r_reg[25]
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_40.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_33
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_41.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_34
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_43.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_8
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_net_149.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_rx_validator/KL_pp_rx_valida_LUT6_27
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/key_index_r[1]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/key_index_r[1]_i_4
+INFO: [Physopt 32-663] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[1]_i_6_n_0.  Re-placed instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/ws_r[1]_i_6
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/rec_r_reg[2]_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/gsiq_index_r[2]_i_2
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/name_r_reg_i_116_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT6_13
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_net_556.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/KL_aecp_nvm_wri_LUT5_212
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[10].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[10]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[11].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[11]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[12].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[12]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg_n_0_[9].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[9]
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/Q[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][1]
+INFO: [Physopt 32-661] Optimized 38 nets.  Re-placed 38 instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 38 nets or cells. Created 0 new cell, deleted 0 existing cell and moved 38 existing cells
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.012 | TNS=-0.012 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 17069 ; free virtual = 39006
+Phase 4 Single Cell Placement Optimization | Checksum: 103d8c34e
+
+Time (s): cpu = 00:01:30 ; elapsed = 00:00:35 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 16938 ; free virtual = 38875
+
+Phase 5 Multi Cell Placement Optimization
+INFO: [Physopt 32-660] Identified 100 candidate nets for placement-based optimization.
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_31.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT2_3/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_53.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT3_22/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_1_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_1/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_37_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_37/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[1].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT3_10/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/st_r_reg[2]_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/KL_srp_encoder_LUT6_151/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_6.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_6/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_445.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT4_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_5.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_5/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[0]_i_3_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT3_1/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_20_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_20/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_50.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT4_12/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT5_3/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/p_41_in.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/valid_r[3]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/valid_r[3]_i_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_112.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT5_11/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_4_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_4/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_12_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/tslot_r_reg_r1_0_3_0_5_i_12/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/arb_req_w[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/owner_r[2]_i_6/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/retried_r[1]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/retried_r[1]_i_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_3.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[1]_i_5_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/owner_r[1]_i_5/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_136.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_45/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_137.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_123/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_138.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_124/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_6.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_165/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_51.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_28/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_net_55.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_64/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/age_r_reg[3][0]_1.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT5_1/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_tx_arbiter/tx_slot_i[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_tx_arbiter/KL_pp_tx_arbite_LUT6_66/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/ntfy_ca_cancel_owner_w[0].  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_44/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_2_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_2/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_132.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_121/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_133.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT4_43/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_135.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_LUT6_122/O
+INFO: [Physopt 32-662] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[1]_i_5_n_0.  Did not re-place instance milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_LUT6_164/O
+INFO: [Physopt 32-661] Optimized 0 net.  Re-placed 0 instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.04 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20648 ; free virtual = 40673
+Phase 5 Multi Cell Placement Optimization | Checksum: ecd3492e
+
+Time (s): cpu = 00:01:44 ; elapsed = 00:00:40 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20618 ; free virtual = 40643
+
+Phase 6 Rewire
+INFO: [Physopt 32-246] Starting Signal Push optimization...
+INFO: [Physopt 32-77] Pass 1. Identified 15 candidate nets for rewire optimization.
+INFO: [Physopt 32-242] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_20_n_0. Rewired (signal push) milan_datapath/pp_shadow/u_pp/u_notify/KL_aecp_notify_net_112 to 1 loads. Replicated 1 times.
+INFO: [Physopt 32-134] Processed net milan_datapath/pp_shadow/u_pp/u_notify/FSM_onehot_c_st_r[4]_i_37_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-134] Processed net milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_445. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net milan_datapath/pp_shadow/u_pp/u_originator/cancel_pend_r[3]_i_2_n_0. Rewired (signal push) milan_datapath/pp_shadow/u_pp/u_originator/KL_pp_originato_net_445 to 3 loads. Replicated 0 times.
+INFO: [Physopt 32-134] Processed net milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_4_n_0. Rewiring did not optimize the net.
+INFO: [Physopt 32-242] Processed net milan_datapath/pp_shadow/u_pp/u_originator/valid_r[3]_i_2_n_0. Rewired (signal push) milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_4_n_0 to 5 loads. Replicated 1 times.
+INFO: [Physopt 32-242] Processed net milan_datapath/pp_shadow/u_pp/u_originator/retried_r[3]_i_4_n_0. Rewired (signal push) milan_datapath/pp_shadow/u_pp/u_originator/tmr_arm_slot_o[5]_i_4_n_0 to 5 loads. Replicated 1 times.
+INFO: [Physopt 32-232] Optimized 4 nets. Created 3 new instances.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 4 nets or cells. Created 3 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00.05 ; elapsed = 00:00:00.05 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20216 ; free virtual = 40247
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.416 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20208 ; free virtual = 40240
+Phase 6 Rewire | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:43 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20170 ; free virtual = 40202
+
+Phase 7 Critical Cell Optimization
+INFO: [Physopt 32-670] No setup violation found.  Critical Cell Optimization was not performed.
+Phase 7 Critical Cell Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:43 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20152 ; free virtual = 40185
+
+Phase 8 Fanout Optimization
+INFO: [Physopt 32-670] No setup violation found.  Fanout Optimization was not performed.
+Phase 8 Fanout Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:43 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20139 ; free virtual = 40172
+
+Phase 9 Single Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Single Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20086 ; free virtual = 40123
+Phase 9 Single Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:43 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20086 ; free virtual = 40123
+
+Phase 10 Multi Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Multi Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20045 ; free virtual = 40089
+Phase 10 Multi Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20036 ; free virtual = 40081
+
+Phase 11 Rewire
+INFO: [Physopt 32-670] No setup violation found.  Rewire was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19971 ; free virtual = 40024
+Phase 11 Rewire | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19971 ; free virtual = 40025
+
+Phase 12 Critical Cell Optimization
+INFO: [Physopt 32-670] No setup violation found.  Critical Cell Optimization was not performed.
+Phase 12 Critical Cell Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20119 ; free virtual = 40174
+
+Phase 13 SLR Crossing Optimization
+INFO: [Physopt 32-670] No setup violation found.  SLR Crossing Optimization was not performed.
+Phase 13 SLR Crossing Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20404 ; free virtual = 40460
+
+Phase 14 Fanout Optimization
+INFO: [Physopt 32-670] No setup violation found.  Fanout Optimization was not performed.
+Phase 14 Fanout Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20531 ; free virtual = 40588
+
+Phase 15 Single Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Single Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20465 ; free virtual = 40519
+Phase 15 Single Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20461 ; free virtual = 40515
+
+Phase 16 Multi Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Multi Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20381 ; free virtual = 40437
+Phase 16 Multi Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20371 ; free virtual = 40427
+
+Phase 17 Rewire
+INFO: [Physopt 32-670] No setup violation found.  Rewire was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20333 ; free virtual = 40390
+Phase 17 Rewire | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20308 ; free virtual = 40366
+
+Phase 18 Critical Cell Optimization
+INFO: [Physopt 32-670] No setup violation found.  Critical Cell Optimization was not performed.
+Phase 18 Critical Cell Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20281 ; free virtual = 40341
+
+Phase 19 DSP Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  DSP Register Optimization was not performed.
+Phase 19 DSP Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20321 ; free virtual = 40381
+
+Phase 20 BRAM Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  BRAM Register Optimization was not performed.
+Phase 20 BRAM Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20430 ; free virtual = 40491
+
+Phase 21 URAM Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  URAM Register Optimization was not performed.
+Phase 21 URAM Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20491 ; free virtual = 40552
+
+Phase 22 Shift Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  Shift Register Optimization was not performed.
+Phase 22 Shift Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20478 ; free virtual = 40539
+
+Phase 23 DSP Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  DSP Register Optimization was not performed.
+Phase 23 DSP Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20464 ; free virtual = 40525
+
+Phase 24 BRAM Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  BRAM Register Optimization was not performed.
+Phase 24 BRAM Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20431 ; free virtual = 40493
+
+Phase 25 URAM Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  URAM Register Optimization was not performed.
+Phase 25 URAM Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20402 ; free virtual = 40463
+
+Phase 26 Shift Register Optimization
+INFO: [Physopt 32-670] No setup violation found.  Shift Register Optimization was not performed.
+Phase 26 Shift Register Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20397 ; free virtual = 40459
+
+Phase 27 Critical Pin Optimization
+INFO: [Physopt 32-670] No setup violation found.  Critical Pin Optimization was not performed.
+Phase 27 Critical Pin Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20359 ; free virtual = 40424
+
+Phase 28 Very High Fanout Optimization
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/chan_map_capture/FDPE_3' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 270 to 234 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 234.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_we_w' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/rf_waddr_w[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/KL_gptp_ucpu_net_17' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 274 to 242 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 242.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/g_gptp_plane.u_gptp_shadow/u_engine/u_ucpu/uop_e_r_reg[op][2]_0' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 281 to 249 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 249.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/rf_r_reg_r1_0_15_0_5_i_10_n_0' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/rf_waddr_w[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/rf_waddr_w[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/rf_we_w' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/rf_waddr_w[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 264 to 34 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 34.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_acmp_q/wr_ptr_r[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 274 to 37 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 37.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_acmp_q/wr_ptr_r[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 273 to 36 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 36.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_aecp_q/rd_ptr_r[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 290 to 147 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 147.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_aecp_q/rd_ptr_r[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 289 to 146 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 146.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_aecp_q/wr_ptr_r[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 386 to 51 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 51.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_dispatch/u_aecp_q/wr_ptr_r[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 385 to 50 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 50.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_listener/lstn_recwr_sink_w[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 429 to 66 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 66.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_listener/lstn_recwr_w' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 423 to 60 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 60.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_listener/ADDRA[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 329 to 174 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 174.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_normalizer/txn_r_reg[protocol][0]_1' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 277 to 40 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 40.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_normalizer/txn_r_reg[protocol][2]_0' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 389 to 54 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 54.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_notify/wr_en_r__0' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 512 to 65 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 65.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 280 to 50 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 50.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 288 to 51 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 51.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 368 to 61 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 61.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_notify/p_0_out[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 392 to 64 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 64.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/cnt_msrp_r_reg_n_0_[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 317 to 48 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 48.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/cnt_msrp_r_reg_n_0_[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 316 to 47 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 47.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/cnt_msrp_r_reg_n_0_[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 316 to 47 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 47.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/cnt_msrp_r_reg_n_0_[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 315 to 46 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 46.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/rd_idx_r[0]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 255 to 133 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 133.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/rd_idx_r[1]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 254 to 132 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 132.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/rd_idx_r[2]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 253 to 131 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 131.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_encoder/rd_idx_r[3]' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 251 to 129 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 129.
+INFO: [Physopt 32-1132] Very high fanout net 'milan_datapath/pp_shadow/u_pp/u_srp/u_talker/q0_valid_r_reg' is not considered as a candidate in VHFN optimization. The fanout considered for this optimization is changed from 308 to 41 due to a timing constraint or macro primitives that prevent optimization on all of the loads. To force replication, set the FORCE_MAX_FANOUT property on the net to a number less than 41.
+INFO: [Physopt 32-1408] Pass 1. Identified 1 candidate net for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 28 Very High Fanout Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20205 ; free virtual = 40271
+
+Phase 29 Single Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Single Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20105 ; free virtual = 40171
+Phase 29 Single Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20101 ; free virtual = 40167
+
+Phase 30 Multi Cell Placement Optimization
+INFO: [Physopt 32-670] No setup violation found.  Multi Cell Placement Optimization was not performed.
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19952 ; free virtual = 40019
+Phase 30 Multi Cell Placement Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19943 ; free virtual = 40010
+
+Phase 31 SLR Crossing Optimization
+INFO: [Physopt 32-670] No setup violation found.  SLR Crossing Optimization was not performed.
+Phase 31 SLR Crossing Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:51 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20072 ; free virtual = 40138
+
+Phase 32 Critical Path Optimization
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.416 | TNS=0.000 |
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.416 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20766 ; free virtual = 40857
+Phase 32 Critical Path Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:54 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20760 ; free virtual = 40851
+
+Phase 33 BRAM Enable Optimization
+Phase 33 BRAM Enable Optimization | Checksum: 1657f1e8c
+
+Time (s): cpu = 00:01:54 ; elapsed = 00:00:44 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20899 ; free virtual = 40982
+
+Phase 34 Hold Fix Optimization
+INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.416 | TNS=0.000 | WHS=-0.288 | THS=-15.507 |
+INFO: [Physopt 32-45] Identified 2 candidate nets for hold slack optimization.
+INFO: [Physopt 32-234] Optimized 2 nets. Inserted 0 new ZHOLD_DELAYs. Calibrated 0 existing ZHOLD_DELAYs. Inserted 2 buffers.
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 21785 ; free virtual = 41675
+INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.416 | TNS=0.000 | WHS=-0.233 | THS=-14.964 |
+Phase 34 Hold Fix Optimization | Checksum: 19ccb2a8a
+
+Time (s): cpu = 00:02:14 ; elapsed = 00:00:47 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 21927 ; free virtual = 41818
+Netlist sorting complete. Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 21897 ; free virtual = 41782
+INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=0.416 | TNS=0.000 | WHS=-0.233 | THS=-14.964 |
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization            |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Fanout                  |          0.257  |          0.800  |           17  |              0  |                     5  |           0  |           1  |  00:00:12  |
+|  Single Cell Placement   |          0.000  |          0.000  |            0  |              0  |                    38  |           0  |           1  |  00:00:14  |
+|  Multi Cell Placement    |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:05  |
+|  Rewire                  |          0.428  |          0.012  |            3  |              0  |                     4  |           0  |           1  |  00:00:03  |
+|  Critical Cell           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  SLR Crossing            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  DSP Register            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  BRAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  URAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Shift Register          |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Critical Pin            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Very High Fanout        |          0.000  |          0.000  |            0  |              0  |                     0  |           1  |           1  |  00:00:00  |
+|  BRAM Enable             |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Critical Path           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                   |          0.685  |          0.812  |           20  |              0  |                    47  |           1  |           8  |  00:00:34  |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Summary of Hold Fix Optimizations
+=================================
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization               |  WHS Gain (ns)  |  THS Gain (ns)  |  Added LUTs  |  Added FFs  |  Optimized Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT1 and ZHOLD Insertion   |          0.054  |          0.544  |           2  |          0  |               2  |           1  |           1  |  00:00:01  |
+|  Total                      |          0.054  |          0.544  |           2  |          0  |               2  |           1  |           1  |  00:00:01  |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 22215 ; free virtual = 41904
+Ending Physical Synthesis Task | Checksum: 1af0b9a72
+
+Time (s): cpu = 00:02:15 ; elapsed = 00:00:48 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 22021 ; free virtual = 41713
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+394 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:03:02 ; elapsed = 00:00:56 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 21989 ; free virtual = 41684
+# report_utilization -hierarchical -file alinx_ax7101_utilization_hierarchical_place.rpt
+# report_utilization -file alinx_ax7101_utilization_place.rpt
+# report_io -file alinx_ax7101_io.rpt
+report_io: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.21 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20016 ; free virtual = 39797
+# report_control_sets -verbose -file alinx_ax7101_control_sets.rpt
+report_control_sets: Time (s): cpu = 00:00:00.3 ; elapsed = 00:00:00.43 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19725 ; free virtual = 39423
+# report_clock_utilization -file alinx_ax7101_clock_utilization.rpt
+report_clock_utilization: Time (s): cpu = 00:00:51 ; elapsed = 00:00:09 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20494 ; free virtual = 40246
+# write_checkpoint -force alinx_ax7101_place.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20289 ; free virtual = 40045
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20289 ; free virtual = 40045
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.65 ; elapsed = 00:00:00.14 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20081 ; free virtual = 39850
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00.68 ; elapsed = 00:00:00.15 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20068 ; free virtual = 39837
+Wrote PlaceStorage: Time (s): cpu = 00:00:06 ; elapsed = 00:00:02 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20214 ; free virtual = 40039
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.2 ; elapsed = 00:00:00.12 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19939 ; free virtual = 39776
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19949 ; free virtual = 39786
+Write Physdb Complete: Time (s): cpu = 00:00:08 ; elapsed = 00:00:03 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 19750 ; free virtual = 39594
+INFO: [Common 17-1381] The checkpoint '$VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware/alinx_ax7101_place.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:10 ; elapsed = 00:00:06 . Memory (MB): peak = 4458.895 ; gain = 0.000 ; free physical = 20495 ; free virtual = 40142
+# source {$VALIDATION_STORAGE/645-a531/round2c/route-source/sw/litex/iob_pack_check.tcl}
+## proc kl_iob_net_cells {pins dir} {
+##     set net [get_nets -of_objects $pins]
+##     if {[llength $net] == 0} {
+##         return [list 0 {}]
+##     }
+##     set far [get_pins -leaf -of_objects $net -filter "DIRECTION == $dir"]
+##     if {[llength $far] == 0} {
+##         return [list 1 {}]
+##     }
+##     return [list 1 [get_cells -of_objects $far]]
+## }
+## proc kl_iob_far_groups {bufs dir} {
+##     if {$dir eq "OUT"} {
+##         set pins [get_pins -of_objects $bufs \
+##             -filter {REF_PIN_NAME == I || REF_PIN_NAME == T}]
+##         if {[llength $pins] == 0} {
+##             return [list 0 {}]
+##         }
+##         # one followed pin at a time: an OBUFT whose T answers a grounded
+##         # driver must not answer for an I whose net came back empty. Each
+##         # pin's answer is kept WHOLE, as its own group, because a Vivado
+##         # object list must never be taken apart and rebuilt: see the note on
+##         # `{*}` above the file's first proc.
+##         set groups {}
+##         foreach pin $pins {
+##             lassign [kl_iob_net_cells $pin OUT] reached cells
+##             if {!$reached || [llength $cells] == 0} {
+##                 return [list 0 {}]
+##             }
+##             lappend groups $cells
+##         }
+##         return [list 1 $groups]
+##     }
+##     set pins [get_pins -of_objects $bufs -filter {REF_PIN_NAME == O}]
+##     if {[llength $pins] == 0} {
+##         return [list 0 {}]
+##     }
+##     lassign [kl_iob_net_cells $pins IN] reached loads
+##     if {!$reached || [llength $loads] == 0} {
+##         return [list 0 {}]
+##     }
+##     set delays [filter $loads {REF_NAME == ZHOLD_DELAY || REF_NAME == IDELAYE2}]
+##     set direct [filter $loads {REF_NAME != ZHOLD_DELAY && REF_NAME != IDELAYE2}]
+##     if {[llength $delays] + [llength $direct] != [llength $loads]} {
+##         # the two halves must account for every load, and they do not when
+##         # the property itself answered nothing: an unknown or renamed one is
+##         # empty for == and for != alike, so both halves come back empty and
+##         # the loads that are really there would go ungraded.
+##         return [list 0 {}]
+##     }
+##     if {[llength $delays] == 0} {
+##         return [list 1 [list $direct]]
+##     }
+##     set taps [get_pins -of_objects $delays -filter \
+##         {REF_PIN_NAME == DATAOUT || REF_PIN_NAME == DLYIFF || REF_PIN_NAME == DLYFABRIC}]
+##     if {[llength $taps] == 0} {
+##         return [list 0 {}]
+##     }
+##     lassign [kl_iob_net_cells $taps IN] reached behind
+##     if {!$reached || [llength $behind] == 0} {
+##         return [list 0 {}]
+##     }
+##     return [list 1 [list $direct $behind]]
+## }
+## proc kl_iob_port_verdict {port} {
+##     set dir [get_property DIRECTION $port]
+##     if {$dir ni {IN OUT}} {
+##         return [list FAIL "direction $dir is not checked; only IN and OUT ports are"]
+##     }
+##     set site [expr {$dir eq "OUT" ? "OLOGIC" : "ILOGIC"}]
+##     set nets [get_nets -of_objects $port]
+##     if {[llength $nets] == 0} {
+##         # nothing drives or reads the pin, so synthesis kept neither net nor
+##         # buffer for it (eth0_rx_er): there is no launch or capture edge the
+##         # constraint could protect. The query itself worked - a failed one
+##         # would have raised - so this is a seen absence, not a silent one.
+##         return [list INERT "$dir, the port has no net: nothing drives or reads the pin"]
+##     }
+##     set bufs {}
+##     set pins [get_pins -leaf -of_objects $nets]
+##     if {[llength $pins] > 0} {
+##         set bufs [get_cells -of_objects $pins]
+##     }
+##     if {[llength $bufs] == 0} {
+##         return [list FAIL "$dir, net [join $nets {, }] reaches no cell: this port could not be traversed"]
+##     }
+##     lassign [kl_iob_far_groups $bufs $dir] reached groups
+##     if {!$reached} {
+##         return [list FAIL "$dir, nothing answered behind [join $bufs {, }]: this port could not be traversed"]
+##     }
+##     set regs {}
+##     set logic {}
+##     set wrong {}
+##     set fixed {}
+##     foreach group $groups {
+##         foreach cell $group {
+##             set ref [get_property REF_NAME $cell]
+##             if {$ref eq "GND" || $ref eq "VCC"} {
+##                 lappend fixed "$cell ($ref)"
+##                 continue
+##             }
+##             set loc [get_property LOC $cell]
+##             set what "$cell ($ref @ [expr {$loc eq {} ? {unplaced} : $loc}])"
+##             if {$dir eq "IN" && ![string is true -strict [get_property IS_SEQUENTIAL $cell]]} {
+##                 lappend logic $what
+##                 continue
+##             }
+##             lappend regs $what
+##             if {![string match "${site}_*" $loc]} {
+##                 lappend wrong $what
+##             }
+##         }
+##     }
+##     if {[llength $regs] == 0 && [llength $logic] == 0} {
+##         # the second of the two structures INERT is returned for: every pin
+##         # followed above answered a driver, and every one of them is a
+##         # constant cell. An input cannot arrive here - each hop behind its
+##         # pad buffer answered something or the traversal already failed - and
+##         # an output with no driver at all is the ungradable case, not a pad
+##         # with nothing to pack.
+##         if {$dir eq "OUT" && [llength $fixed] > 0} {
+##             return [list INERT "$dir, nothing to pack behind [join $bufs {, }]: driven by [join $fixed {, }]"]
+##         }
+##         return [list FAIL "$dir, no cell answered behind [join $bufs {, }]: this port could not be traversed"]
+##     }
+##     if {[llength $regs] == 0} {
+##         return [list FAIL "$dir, no register reads the pad, only: [join $logic {, }]"]
+##     }
+##     if {[llength $wrong] > 0} {
+##         return [list FAIL "$dir, not in an $site site: [join $wrong {, }]"]
+##     }
+##     set also [expr {[llength $logic] ? "; also read by [llength $logic] fabric cell(s)" : ""}]
+##     return [list PASS "$dir, [join $regs {, }]$also"]
+## }
+## proc kl_iob_constraint_lines {report} {
+##     set files [glob -nocomplain -directory [file dirname $report] *.xdc]
+##     if {[llength $files] == 0} {
+##         return -1
+##     }
+##     set lines 0
+##     foreach path $files {
+##         set fh [open $path r]
+##         set text [read $fh]
+##         close $fh
+##         foreach line [split $text "\n"] {
+##             if {[regexp -nocase {^[ \t]*set_property[ \t]+IOB[ \t]+TRUE} $line]} {
+##                 incr lines
+##             }
+##         }
+##     }
+##     return $lines
+## }
+## proc kl_iob_pack_check {report} {
+##     set rows {}
+##     set failed {}
+##     set graded {}
+##     foreach port [get_ports] {
+##         # the only -quiet read in this file, because an empty answer is the
+##         # NORMAL one here: most ports carry no IOB property at all. The two
+##         # counts crossed below are what keeps it honest.
+##         if {[string toupper [get_property -quiet IOB $port]] ne "TRUE"} {
+##             continue
+##         }
+##         lappend graded $port
+##         # re-raised, NEVER swallowed: a Vivado ERROR is catchable
+##         # (measured), so this catch is the one place a raise could be turned
+##         # into an absence, and the re-raise going uncaught is what ends the
+##         # batch run, on purpose. A named port is still a stopped build,
+##         # which is why the rule above is structural.
+##         if {[catch {kl_iob_port_verdict $port} answer]} {
+##             # printed first: measured, Vivado does not echo the re-raised
+##             # text when the cause is a Vivado ERROR, so without this line
+##             # no log names the port.
+##             puts "IOB-PACK ERROR: a query, or the code grading it, raised\
+##                 while grading $port"
+##             error "IOB-PACK ERROR: grading $port ended the run: $answer"
+##         }
+##         lassign $answer verdict detail
+##         lappend rows [format "%-5s %s: %s" $verdict $port $detail]
+##         if {$verdict eq "FAIL"} {
+##             lappend failed $port
+##         }
+##     }
+##     set rows [lsort $rows]
+##     set fh [open $report w]
+##     puts $fh "# issue #475: every port constrained IOB TRUE, after placement"
+##     foreach row $rows {
+##         puts $fh $row
+##     }
+##     close $fh
+##     foreach row $rows {
+##         puts "IOB-PACK $row"
+##     }
+##     if {[llength $failed] > 0} {
+##         error "IOB-PACK FAIL: [llength $failed] port(s) constrained IOB TRUE are not in an IOB register after placement, or could not be traversed: [join [lsort $failed] {, }]. An unpacked register is CRITICAL WARNING Place 30-722 made fatal; the other rows are this check refusing to grade what it could not see. See $report."
+##     }
+##     # A run that selected no port would otherwise report a clean result while
+##     # checking nothing. Cross the per-port property read above against the
+##     # same question asked as one filter, and both against the constraints the
+##     # build wrote: the three cannot disagree on a design that packed.
+##     set constrained [get_ports -filter {IOB == TRUE || IOB == true}]
+##     set lines [kl_iob_constraint_lines $report]
+##     if {[llength $rows] != [llength $constrained]} {
+##         set disputed {}
+##         foreach port $constrained {
+##             if {[lsearch -exact $graded $port] < 0} {
+##                 lappend disputed $port
+##             }
+##         }
+##         foreach port $graded {
+##             if {[lsearch -exact $constrained $port] < 0} {
+##                 lappend disputed $port
+##             }
+##         }
+##         error "IOB-PACK ERROR: [llength $rows] port(s) answered IOB TRUE one at a time, but [llength $constrained] match the same filter; the two reads disagree on: [join [lsort $disputed] {, }]. The netlist did not read the same way twice, so this run graded nothing; see $report."
+##     }
+##     if {[llength $rows] == 0 && $lines != 0} {
+##         set why "$lines set_property IOB TRUE line(s) sit in the constraints beside it"
+##         if {$lines < 0} {
+##             set why "no .xdc file sits beside it to say whether that is right"
+##         }
+##         error "IOB-PACK ERROR: no port answered IOB TRUE, so nothing was checked, and $why. A run that selects no port is not a pass; see $report."
+##     }
+##     puts "IOB-PACK OK: [llength $rows] port(s) constrained IOB TRUE checked, none unpacked ($report)"
+## }
+# kl_iob_pack_check alinx_ax7101_iob_pack.rpt
+WARNING: [Vivado 12-1023] No nets matched for command 'get_nets -of_objects eth0_rx_er'.
+IOB-PACK INERT eth0_rx_er: IN, the port has no net: nothing drives or reads the pin
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_phy_source_payload_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_phy_source_payload_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_phy_source_payload_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_phy_source_payload_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_phy_source_payload_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_phy_source_payload_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_phy_source_payload_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_phy_source_payload_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK PASS  eth0_rx_dv: IN, milansoc_phy_source_valid_reg (FDRE @ ILOGIC_X0Y119); also read by 4 fabric cell(s)
+IOB-PACK PASS  eth0_tx_data[0]: OUT, eth0_tx_data_reg[0] (FDSE @ OLOGIC_X0Y155)
+IOB-PACK PASS  eth0_tx_data[1]: OUT, eth0_tx_data_reg[1] (FDRE @ OLOGIC_X0Y134)
+IOB-PACK PASS  eth0_tx_data[2]: OUT, eth0_tx_data_reg[2] (FDSE @ OLOGIC_X0Y135)
+IOB-PACK PASS  eth0_tx_data[3]: OUT, eth0_tx_data_reg[3] (FDRE @ OLOGIC_X0Y136)
+IOB-PACK PASS  eth0_tx_data[4]: OUT, eth0_tx_data_reg[4] (FDSE @ OLOGIC_X0Y131)
+IOB-PACK PASS  eth0_tx_data[5]: OUT, eth0_tx_data_reg[5] (FDRE @ OLOGIC_X0Y122)
+IOB-PACK PASS  eth0_tx_data[6]: OUT, eth0_tx_data_reg[6] (FDSE @ OLOGIC_X0Y123)
+IOB-PACK PASS  eth0_tx_data[7]: OUT, eth0_tx_data_reg[7] (FDRE @ OLOGIC_X0Y121)
+IOB-PACK PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+IOB-PACK PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0Y168)
+IOB-PACK PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE @ OLOGIC_X0Y167)
+IOB-PACK PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_X0Y164)
+IOB-PACK OK: 22 port(s) constrained IOB TRUE checked, none unpacked (alinx_ax7101_iob_pack.rpt)
+# route_design -directive AggressiveExplore
+Command: route_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-270] Using Router directive 'AggressiveExplore'.
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 32 CPUs
+
+Phase 1 Build RT Design
+Checksum: PlaceDB: 124f2484 ConstDB: 0 ShapeSum: 457dbbfe RouteDB: b1d25f96
+Post Restoration Checksum: NetGraph: 3281a7ba | NumContArr: 37a3740a | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 1 Build RT Design | Checksum: 1ef7710fe
+
+Time (s): cpu = 00:01:25 ; elapsed = 00:00:26 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 20790 ; free virtual = 39680
+
+Phase 2 Router Initialization
+
+Phase 2.1 Fix Topology Constraints
+Phase 2.1 Fix Topology Constraints | Checksum: 1ef7710fe
+
+Time (s): cpu = 00:01:26 ; elapsed = 00:00:26 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 20218 ; free virtual = 39117
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 1ef7710fe
+
+Time (s): cpu = 00:01:26 ; elapsed = 00:00:26 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 20247 ; free virtual = 39154
+
+Phase 2.3 Update Timing
+Phase 2.3 Update Timing | Checksum: 2662a04ba
+
+Time (s): cpu = 00:02:36 ; elapsed = 00:00:41 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 22376 ; free virtual = 41353
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.708  | TNS=0.000  | WHS=-0.383 | THS=-1947.171|
+
+
+Phase 2.4 Soft Constraint Pins - Fast Budgeting
+Phase 2.4 Soft Constraint Pins - Fast Budgeting | Checksum: 28769a472
+
+Time (s): cpu = 00:03:02 ; elapsed = 00:00:45 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 19015 ; free virtual = 37876
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 0 %
+  Global Horizontal Routing Utilization  = 0 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 101214
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 101213
+  Number of Partially Routed Nets     = 1
+  Number of Node Overlaps             = 37
+
+Phase 2 Router Initialization | Checksum: 24b4d12ab
+
+Time (s): cpu = 00:03:03 ; elapsed = 00:00:46 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 18793 ; free virtual = 37666
+
+Phase 3 Global Routing
+Phase 3 Global Routing | Checksum: 24b4d12ab
+
+Time (s): cpu = 00:03:03 ; elapsed = 00:00:46 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 18740 ; free virtual = 37614
+
+Phase 4 Initial Routing
+
+Phase 4.1 Initial Net Routing Pass
+Phase 4.1 Initial Net Routing Pass | Checksum: 1fd0d0afb
+
+Time (s): cpu = 00:03:31 ; elapsed = 00:00:54 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 19082 ; free virtual = 37771
+Phase 4 Initial Routing | Checksum: 1fd0d0afb
+
+Time (s): cpu = 00:03:31 ; elapsed = 00:00:54 . Memory (MB): peak = 4792.582 ; gain = 0.000 ; free physical = 19075 ; free virtual = 37711
+
+Phase 5 Rip-up And Reroute
+
+Phase 5.1 Global Iteration 0
+ Number of Nodes with overlaps = 17332
+ Number of Nodes with overlaps = 2548
+ Number of Nodes with overlaps = 931
+ Number of Nodes with overlaps = 376
+ Number of Nodes with overlaps = 160
+ Number of Nodes with overlaps = 72
+ Number of Nodes with overlaps = 37
+ Number of Nodes with overlaps = 21
+ Number of Nodes with overlaps = 7
+ Number of Nodes with overlaps = 5
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.230 | TNS=-1.883 | WHS=N/A    | THS=N/A    |
+
+Phase 5.1 Global Iteration 0 | Checksum: 202ac2ecc
+
+Time (s): cpu = 00:08:37 ; elapsed = 00:03:22 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 18778 ; free virtual = 36262
+
+Phase 5.2 Global Iteration 1
+ Number of Nodes with overlaps = 1451
+ Number of Nodes with overlaps = 460
+ Number of Nodes with overlaps = 192
+ Number of Nodes with overlaps = 85
+ Number of Nodes with overlaps = 48
+ Number of Nodes with overlaps = 33
+ Number of Nodes with overlaps = 15
+ Number of Nodes with overlaps = 9
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.269  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 5.2 Global Iteration 1 | Checksum: 2a1361042
+
+Time (s): cpu = 00:09:57 ; elapsed = 00:03:58 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 27596 ; free virtual = 43282
+Phase 5 Rip-up And Reroute | Checksum: 2a1361042
+
+Time (s): cpu = 00:09:57 ; elapsed = 00:03:58 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 27581 ; free virtual = 43267
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+Phase 6.1 Delay CleanUp | Checksum: 2a1361042
+
+Time (s): cpu = 00:09:58 ; elapsed = 00:03:58 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 27552 ; free virtual = 43238
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 2a1361042
+
+Time (s): cpu = 00:09:58 ; elapsed = 00:03:58 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 27534 ; free virtual = 43220
+Phase 6 Delay and Skew Optimization | Checksum: 2a1361042
+
+Time (s): cpu = 00:09:59 ; elapsed = 00:03:58 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 27522 ; free virtual = 43208
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.353  | TNS=0.000  | WHS=0.033  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 1f602b161
+
+Time (s): cpu = 00:10:15 ; elapsed = 00:04:00 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26945 ; free virtual = 42457
+Phase 7 Post Hold Fix | Checksum: 1f602b161
+
+Time (s): cpu = 00:10:15 ; elapsed = 00:04:00 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26929 ; free virtual = 42441
+
+Phase 8 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 33.5352 %
+  Global Horizontal Routing Utilization  = 35.6577 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 8 Route finalize | Checksum: 1f602b161
+
+Time (s): cpu = 00:10:16 ; elapsed = 00:04:00 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26867 ; free virtual = 42379
+
+Phase 9 Verifying routed nets
+
+ Verification completed successfully
+Phase 9 Verifying routed nets | Checksum: 1f602b161
+
+Time (s): cpu = 00:10:17 ; elapsed = 00:04:00 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26953 ; free virtual = 42466
+
+Phase 10 Depositing Routes
+Phase 10 Depositing Routes | Checksum: 1c0ce3737
+
+Time (s): cpu = 00:10:25 ; elapsed = 00:04:05 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26516 ; free virtual = 42223
+INFO: [Route 72-16] Aggressive Explore Summary
++======+=======+=====+=======+=====+========+==============+===================+
+| Pass |  WNS  | TNS |  WHS  | THS | Status | Elapsed Time | Solution Selected |
++======+=======+=====+=======+=====+========+==============+===================+
+|  1   | 0.353 |  -  | 0.033 |  -  |  Pass  |   00:03:39   |         x         |
+|  2   |   -   |  -  |   -   |  -  |  Skip  |   00:00:00   |                   |
++------+-------+-----+-------+-----+--------+--------------+-------------------+
+
+
+Phase 11 Post Process Routing
+Phase 11 Post Process Routing | Checksum: 1c0ce3737
+
+Time (s): cpu = 00:10:25 ; elapsed = 00:04:05 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26475 ; free virtual = 42184
+
+Phase 12 Post Router Timing
+INFO: [Route 35-20] Post Routing Timing Summary | WNS=0.368  | TNS=0.000  | WHS=0.034  | THS=0.000  |
+
+Phase 12 Post Router Timing | Checksum: 1f787cf73
+
+Time (s): cpu = 00:11:25 ; elapsed = 00:04:11 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26674 ; free virtual = 42367
+INFO: [Route 35-61] The design met the setup and hold requirement.
+Total Elapsed time in route_design: 251.32 secs
+
+Phase 13 Post-Route Event Processing
+Phase 13 Post-Route Event Processing | Checksum: 1dfd1aeb1
+
+Time (s): cpu = 00:11:25 ; elapsed = 00:04:11 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26689 ; free virtual = 42384
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 1dfd1aeb1
+
+Time (s): cpu = 00:11:26 ; elapsed = 00:04:12 . Memory (MB): peak = 4943.582 ; gain = 151.000 ; free physical = 26595 ; free virtual = 42290
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+15 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:11:32 ; elapsed = 00:04:14 . Memory (MB): peak = 4943.582 ; gain = 484.688 ; free physical = 26061 ; free virtual = 41759
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Vivado_Tcl 4-241] Physical synthesis in post route mode 
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:52 ; elapsed = 00:00:07 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 25225 ; free virtual = 40867
+INFO: [Vivado_Tcl 4-2280] Estimated Timing Summary | WNS= 0.368 | TNS= 0.000 | WHS= 0.034 |
+INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. All physical synthesis setup optimizations will be skipped.
+INFO: [Vivado_Tcl 4-2291] Design worst hold slack (WHS) is greater than or equal to 0.000 ns. Hold fix optimization will be skipped.
+ 
+INFO: [Vivado_Tcl 4-232] No setup violation found. The netlist was not modified.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+8 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:01:32 ; elapsed = 00:00:14 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 25321 ; free virtual = 40963
+# write_checkpoint -force alinx_ax7101_route.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24994 ; free virtual = 40637
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24994 ; free virtual = 40637
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00.83 ; elapsed = 00:00:00.18 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24838 ; free virtual = 40492
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:01 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24197 ; free virtual = 39889
+Wrote PlaceStorage: Time (s): cpu = 00:00:05 ; elapsed = 00:00:02 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24519 ; free virtual = 40268
+Wrote Netlist Cache: Time (s): cpu = 00:00:00.12 ; elapsed = 00:00:00.13 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24418 ; free virtual = 40177
+Wrote Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24418 ; free virtual = 40178
+Write Physdb Complete: Time (s): cpu = 00:00:09 ; elapsed = 00:00:04 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 25002 ; free virtual = 40761
+INFO: [Common 17-1381] The checkpoint '$VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware/alinx_ax7101_route.dcp' has been generated.
+write_checkpoint: Time (s): cpu = 00:00:12 ; elapsed = 00:00:07 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 26166 ; free virtual = 41875
+# report_timing_summary -no_header -no_detailed_paths
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (46)
+6. checking no_output_delay (87)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (46)
+-------------------------------
+ There are 0 input ports with no input delay specified.
+
+ There are 46 input ports with no input delay but user has a false path constraint. (MEDIUM)
+
+
+6. checking no_output_delay (87)
+--------------------------------
+ There are 87 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.368        0.000                      0               181212        0.034        0.000                      0               181131        0.264        0.000                       0                 61167  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 16.087}       32.174          31.081          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.691          24.576          
+      milansoc_crg_mmcm_audio_fb   {0.000 16.087}       32.174          31.081          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 1.250}        2.500           400.000         
+  milansoc_crg_clkout3             {0.625 1.875}        2.500           400.000         
+  milansoc_crg_clkout4             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.559        0.000                      0                    7        0.159        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.539        0.000                      0                19397        0.057        0.000                      0                19397        3.000        0.000                       0                  7296  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       26.774        0.000                      0                 2016        0.082        0.000                      0                 2016       19.215        0.000                       0                   666  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.368        0.000                      0               154541        0.034        0.000                      0               154541        7.500        0.000                       0                 52387  
+  milansoc_crg_clkout2                                                                                                                                                               0.908        0.000                       0                   128  
+  milansoc_crg_clkout3                                                                                                                                                               0.908        0.000                       0                     6  
+  milansoc_crg_clkout4                   1.236        0.000                      0                  186        0.130        0.000                      0                  186        0.264        0.000                       0                    78  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.792        0.000                      0                 1678        0.104        0.000                      0                 1678        2.870        0.000                       0                   587  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        4.600        0.000                      0                   13                                                                        
+milansoc_crg_clkout4  milansoc_crg_clkout1        2.200        0.000                      0                    3        0.313        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.484        0.000                      0                   50                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout4        0.978        0.000                      0                   17        0.175        0.000                      0                   17  
+milansoc_crg_clkout0  eth_clocks0_rx              6.675        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.888        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        5.057        0.000                      0                  380        0.240        0.000                      0                  380  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       12.772        0.000                      0                 2906        0.447        0.000                      0                 2906  
+
+
+report_timing_summary: Time (s): cpu = 00:00:59 ; elapsed = 00:00:08 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 26987 ; free virtual = 42329
+# report_route_status -file alinx_ax7101_route_status.rpt
+# report_drc -file alinx_ax7101_drc.rpt
+Command: report_drc -file alinx_ax7101_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '$HOME/Xilinx/2026.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file $VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101/gateware/alinx_ax7101_drc.rpt.
+report_drc completed successfully
+report_drc: Time (s): cpu = 00:00:28 ; elapsed = 00:00:06 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 24862 ; free virtual = 40562
+# report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:51 ; elapsed = 00:00:07 . Memory (MB): peak = 4943.582 ; gain = 0.000 ; free physical = 27616 ; free virtual = 43320
+# report_power -file alinx_ax7101_power.rpt
+Command: report_power -file alinx_ax7101_power.rpt
+INFO: [Power 33-23] Power model is not available for STARTUPE2
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+1 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:22 ; elapsed = 00:00:10 . Memory (MB): peak = 5264.066 ; gain = 320.484 ; free physical = 24955 ; free virtual = 40671
+# kl_timing_grade_reports alinx_ax7101_signoff
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:07 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 26552 ; free virtual = 42466
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:07 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 26333 ; free virtual = 42501
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:57 ; elapsed = 00:00:08 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 24741 ; free virtual = 41079
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:01 ; elapsed = 00:00:08 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 27767 ; free virtual = 44126
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:03 ; elapsed = 00:00:09 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 26310 ; free virtual = 42835
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# set_property CONFIG_MODE SPIx4 [current_design]
+# set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+# set_property CFGBVS VCCO [current_design]
+# set_property CONFIG_VOLTAGE 3.3 [current_design]
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:52 ; elapsed = 00:00:08 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 26804 ; free virtual = 43762
+# report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+# report_utilization -file baseline_utilization.rpt
+# report_timing_summary -max_paths 10 -file baseline_timing.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:48 ; elapsed = 00:00:09 . Memory (MB): peak = 5264.066 ; gain = 0.000 ; free physical = 25449 ; free virtual = 42856
+# set pf [open baseline_cells.tsv w]
+# puts $pf "cell\tprimitive"
+# foreach c [get_cells -hier -filter {IS_PRIMITIVE == 1}] {
+#   puts $pf "$c\t[get_property REF_NAME $c]"
+# }
+# close $pf
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Wed Oct  7 04:24:39 2026...

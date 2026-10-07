@@ -1,0 +1,375 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 02-jul-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:01:26 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Tue Oct  6 12:44:23 2026
+# Process ID         : 4051565
+# Current directory  : $VALIDATION_STORAGE/645-a531/round2c/area-route
+# Command line       : vivado -mode batch -source ownership.tcl -nojournal -log ownership-vendor.log -tclargs $VALIDATION_STORAGE/645-a531/round2c/route/ax7101/gateware/alinx_ax7101_route.dcp $VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/alinx_ax7101_route.dcp
+# Log file           : $VALIDATION_STORAGE/645-a531/round2c/area-route/ownership-vendor.log
+# Journal file       : 
+# Running On         : archlinux
+# Platform           : unknown
+# Operating System   : unknown
+# Processor Detail   : AMD EPYC 9554P 64-Core Emb Processor
+# CPU Frequency      : 3095.348 MHz
+# CPU Physical cores : 128
+# CPU Logical cores  : 128
+# Host memory        : 57465 MB
+# Swap memory        : 38654 MB
+# Total Virtual      : 96120 MB
+# Available Virtual  : 41615 MB
+#-----------------------------------------------------------
+Sourcing tcl script '$HOME/.Xilinx/Vivado/Vivado_init.tcl'
+source ownership.tcl
+# if {[llength $argv] != 2} { error "Usage: ownership.tcl <head-route.dcp> <base-route.dcp>" }
+# set_param general.maxThreads 1
+# open_checkpoint [lindex $argv 0]
+Command: open_checkpoint $VALIDATION_STORAGE/645-a531/round2c/route/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00.03 ; elapsed = 00:00:00.04 . Memory (MB): peak = 1448.312 ; gain = 7.938 ; free physical = 8439 ; free virtual = 39975
+INFO: [Device 21-403] Loading part xc7a100tfgg484-2
+Netlist sorting complete. Time (s): cpu = 00:00:00.32 ; elapsed = 00:00:00.32 . Memory (MB): peak = 1956.191 ; gain = 0.000 ; free physical = 8878 ; free virtual = 40426
+INFO: [Netlist 29-17] Analyzing 5773 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.17 ; elapsed = 00:00:00.17 . Memory (MB): peak = 2117.223 ; gain = 0.000 ; free physical = 9675 ; free virtual = 41242
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.11 ; elapsed = 00:00:00.12 . Memory (MB): peak = 2761.777 ; gain = 7.938 ; free physical = 11378 ; free virtual = 43042
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 2761.777 ; gain = 0.000 ; free physical = 11378 ; free virtual = 43042
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2761.777 ; gain = 0.000 ; free physical = 11374 ; free virtual = 43038
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2840.066 ; gain = 78.289 ; free physical = 11324 ; free virtual = 42805
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2840.066 ; gain = 0.000 ; free physical = 11316 ; free virtual = 42797
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2864.066 ; gain = 24.000 ; free physical = 11410 ; free virtual = 42892
+Read Physdb Files: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2864.066 ; gain = 110.227 ; free physical = 11410 ; free virtual = 42891
+Restored from archive | CPU: 4.020000 secs | Memory: 85.157845 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2864.066 ; gain = 110.227 ; free physical = 11410 ; free virtual = 42891
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 2894.121 ; gain = 0.000 ; free physical = 11180 ; free virtual = 42670
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1245 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 18 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 663 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 29 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:29 ; elapsed = 00:00:31 . Memory (MB): peak = 2902.156 ; gain = 1466.750 ; free physical = 11027 ; free virtual = 42517
+# report_route_status -file candidate_route_status.rpt
+report_route_status: Time (s): cpu = 00:00:10 ; elapsed = 00:00:10 . Memory (MB): peak = 3110.527 ; gain = 208.371 ; free physical = 8913 ; free virtual = 39967
+# set added [get_cells -hier -filter {IS_PRIMITIVE && PRIMITIVE_GROUP == FLOP_LATCH && (NAME =~ *settle_run_ticks_r_reg* || NAME =~ *settle_ceil_ticks_r_reg* || NAME =~ *settle_pend_r_reg* || NAME =~ *settle_recover_r_reg* || NAME =~ *settle_recentre_p_r_reg*)}]
+# set f [open candidate_settle_cells.tsv w]
+# foreach c $added { puts $f "$c\t[get_property REF_NAME $c]" }
+# close $f
+# if {[llength $added] < 1} { error "No new settle registers for ownership attribution" }
+# set inputs [get_pins -of_objects $added -filter {DIRECTION == IN && REF_PIN_NAME != C}]
+# set cones [all_fanin -flat -only_cells -to $inputs]
+# set pulse [get_cells -hier -filter {IS_PRIMITIVE && PRIMITIVE_GROUP == FLOP_LATCH && NAME =~ *settle_recentre_p_r_reg*}]
+# if {[llength $pulse] < 1} { error "No settle pulse register" }
+# set qo [get_pins -of_objects $pulse -filter {DIRECTION == OUT}]
+# set cones [concat $cones [all_fanout -flat -only_cells -from $qo]]
+# set head_lut_names [dict create]
+# set f [open candidate_settle_cone.tsv w]
+# foreach c [lsort -unique $cones] {
+#   set kind [get_property REF_NAME $c]
+#   if {[string match LUT* $kind]} {
+#     dict set head_lut_names [get_property NAME $c] 1
+#     set terms {}
+#     foreach ip [lsort [get_pins -of_objects $c -filter {DIRECTION == IN}]] {
+#       set nets [get_nets -of_objects $ip]
+#       set drivers [lsort [concat [get_pins -leaf -of_objects $nets -filter {DIRECTION == OUT}] [get_ports -of_objects $nets -filter {DIRECTION == IN}]]]
+#       lappend terms "[get_property REF_PIN_NAME $ip]=[join $drivers ,]"
+#     }
+#     puts $f "$c\t$kind\t[get_property INIT $c]\t[join $terms ;]"
+#   }
+# }
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/chan_map_capture/KL_chan_map_cap_LUT4_26/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/chan_map_capture/KL_chan_map_cap_LUT4_26/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/chan_map_capture/KL_chan_map_cap_LUT4_26/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/chan_map_capture/KL_chan_map_cap_LUT4_26/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT2_53/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT2_53/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/g_mmcm_servo.mmcm_servo/i___21_i_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/g_mmcm_servo.mmcm_servo/i___21_i_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/g_mmcm_servo.mmcm_servo/state_r[2]_i_4/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/g_mmcm_servo.mmcm_servo/state_r[2]_i_4/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT2/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT2/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT3/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT3/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT3/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_1/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_1/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_1/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_1/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/settle_ceil_ticks_r[0]_i_4/I5}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_1/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_1/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_3/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_3/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_3/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_3/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_pend_r_i_3/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recentre_p_r_i_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recentre_p_r_i_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recentre_p_r_i_1/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recentre_p_r_i_1/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_1/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_10/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_10/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_10/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_10/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_10/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_11/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_11/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_11/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_11/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_11/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_12/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_12/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_12/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_12/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_13/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_13/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_13/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_13/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_13/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_grid_align/settle_recover_r_i_14/I0] -filter {DIRECTION == IN}]'.
+INFO: [Common 17-14] Message 'Vivado 12-584' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+# close $f
+# set cap [get_cells -hier -filter {ORIG_REF_NAME == KL_chan_map_capture || REF_NAME == KL_chan_map_capture}]
+# if {[llength $cap] != 1} { error "Expected one capture crossbar" }
+# report_utilization -cells $cap -file candidate_capture_utilization.rpt
+# close_design
+# open_checkpoint [lindex $argv 1]
+Command: open_checkpoint $VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/alinx_ax7101_route.dcp
+
+Starting open_checkpoint Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 8645 ; free virtual = 39614
+Netlist sorting complete. Time (s): cpu = 00:00:00.37 ; elapsed = 00:00:00.37 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9492 ; free virtual = 39155
+INFO: [Netlist 29-17] Analyzing 5766 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00.22 ; elapsed = 00:00:00.23 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 8130 ; free virtual = 37901
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Constraints 18-5170] The checkpoint was created with non-default parameter values which do not match the current Vivado settings.  Mismatching parameters are:
+  general.maxThreads
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00.13 ; elapsed = 00:00:00.14 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9138 ; free virtual = 38557
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9136 ; free virtual = 38555
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9136 ; free virtual = 38555
+Read placeStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 8890 ; free virtual = 38220
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 8890 ; free virtual = 38220
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9677 ; free virtual = 39010
+Read Physdb Files: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9646 ; free virtual = 38979
+Restored from archive | CPU: 3.920000 secs | Memory: 86.880951 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9642 ; free virtual = 38975
+Netlist sorting complete. Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.02 . Memory (MB): peak = 3110.527 ; gain = 0.000 ; free physical = 9678 ; free virtual = 39013
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 728 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 33 instances
+  IOBUFDS => IOBUFDS (IBUFDS, INV, OBUFTDS(x2)): 4 instances
+  OBUFDS => OBUFDS_DUAL_BUF (INV, OBUFDS(x2)): 1 instance 
+  OBUFTDS => OBUFTDS_DUAL_BUF (INV, OBUFTDS(x2)): 4 instances
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 453 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 59 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 2 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+INFO: [Project 1-604] Checkpoint was created with Vivado v2026.1 (64-bit) build 6511674
+open_checkpoint: Time (s): cpu = 00:00:21 ; elapsed = 00:00:22 . Memory (MB): peak = 3110.562 ; gain = 0.035 ; free physical = 9785 ; free virtual = 39119
+# set f [open base_lut_logic.tsv w]
+# foreach c [lsort [get_cells -hier -filter {IS_PRIMITIVE && REF_NAME =~ LUT*}]] {
+#   if {![dict exists $head_lut_names [get_property NAME $c]]} { continue }
+#   set kind [get_property REF_NAME $c]
+#   set terms {}
+#   foreach ip [lsort [get_pins -of_objects $c -filter {DIRECTION == IN}]] {
+#     set nets [get_nets -of_objects $ip]
+#     set drivers [lsort [concat [get_pins -leaf -of_objects $nets -filter {DIRECTION == OUT}] [get_ports -of_objects $nets -filter {DIRECTION == IN}]]]
+#     lappend terms "[get_property REF_PIN_NAME $ip]=[join $drivers ,]"
+#   }
+#   puts $f "$c\t$kind\t[get_property INIT $c]\t[join $terms ;]"
+# }
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT2_53/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT2_53/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/csr/milan_csr_LUT6_626/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT2/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT2/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_1/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_2/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_3/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I2] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I3] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I4] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/media_clock_restart/KL_media_clock__LUT6_4/I5] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_10/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_10/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_10/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_10/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_11/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_11/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_11/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_11/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_11/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_12/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_12/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_12/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_12/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_12/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_13/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_13/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_13/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_13/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_13/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_14/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_14/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_14/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_14/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_14/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_15/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_15/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_15/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_15/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_15/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_6/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_6/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_7/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_7/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_7/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_7/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_8/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_8/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_8/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_8/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_8/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_9/I0}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_9/I1}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_9/I2}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_9/I3}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects {milan_datapath/media_grid_align/src_band_ticks_r[0]_i_9/I4}] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT1_87/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_30/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_30/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_31/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_31/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_32/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_32/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_33/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_33/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_34/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_34/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_35/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_35/I1] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_36/I0] -filter {DIRECTION == IN}]'.
+WARNING: [Vivado 12-584] No ports matched '[get_ports -of_objects [get_nets -of_objects milan_datapath/milan_datapath_LUT2_36/I1] -filter {DIRECTION == IN}]'.
+INFO: [Common 17-14] Message 'Vivado 12-584' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+# close $f
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Oct  6 12:45:33 2026...

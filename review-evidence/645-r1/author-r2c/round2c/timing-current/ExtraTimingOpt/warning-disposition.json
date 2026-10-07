@@ -1,0 +1,16 @@
+{
+  "warning": {
+    "code": "Route 35-39",
+    "log": "route/ax7101-ExtraTimingOpt/gateware/implementation-vendor.log",
+    "line": 2247,
+    "intermediate_WNS_ns": -0.475,
+    "intermediate_TNS_ns": -1.388
+  },
+  "subsequent_prescribed_step": "phys_opt_design -directive AggressiveExplore",
+  "post_optimization_line": 2365,
+  "final_WNS_ns": 0.013,
+  "final_TNS_ns": 0,
+  "final_min_WHS_ns": 0.036,
+  "final_THS_ns": 0,
+  "disposition": "Post-route optimization removed negative slack, but this directive misses the +0.030 ns margin; retained and not selected. The sweep is graded on its best qualified directive."
+}

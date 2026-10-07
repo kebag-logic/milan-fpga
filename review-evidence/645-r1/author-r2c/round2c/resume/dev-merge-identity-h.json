@@ -1,0 +1,24 @@
+{
+  "head": "0a1961923895b35354e8c6d72566749e31237ff8",
+  "measurement_head": "4951c4717fa2db66a61d265eb9f52d8a81631594",
+  "diff": "M\t.github/workflows/rtl-fast.yml\nM\tdocs/testing/CI_WORKFLOWS.md\nM\tscripts/ci_events.py\nM\tsw/firmware/ctrl/README.md\nM\tsw/firmware/ctrl/test/ctrl_arms.py\nM\tsw/firmware/ctrl/test/ctrl_build.py\nM\tsw/firmware/ctrl/test/test_ctrl_firmware.py\nM\tsw/firmware/ctrl_nvm/README.md\nM\tsw/firmware/ctrl_nvm/test/nvm_rv32.py\nM\tsw/firmware/ctrl_nvm/test/test_ctrl_nvm.py\nM\tsw/firmware/gtest/README.md\nA\tsw/firmware/gtest/fw_rv32.py\nA\tsw/firmware/gtest/fw_rv32_selftest.py\nA\tsw/firmware/gtest/rv32_include/stdio.h\nA\tsw/firmware/gtest/rv32_include/string.h\n",
+  "note": "Delta of the --no-ff merge of dev 910f338d: firmware RV32 test tooling, ci_events.py and documentation; no HDL, testbench, harness or build input. Running regressions remain at the recorded measurement head; their claims carry forward through this explicit input-identity proof.",
+  "tree_diff_sha256": "201acf4bc05de44101133091b39102b24073ba29df9b2b56b2bdde9619dcfee1",
+  "dependencies": [
+    {
+      "path": "protocol-processor",
+      "root_verified": true,
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0"
+    },
+    {
+      "path": "gptp-processor",
+      "root_verified": true,
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "root_verified": true,
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  ]
+}

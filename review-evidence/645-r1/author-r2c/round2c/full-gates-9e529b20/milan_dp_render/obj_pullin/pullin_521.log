@@ -1,0 +1,32 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[PULLIN] #647: a running stream through T14's serial-clock hold at INTERNAL, graded after its settle recentre, at 1 feed phase(s)
+  [i]    LAW: waited 3917 media ticks for the settled report (2048 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T647 PULLIN +521 before the hold: over 73 steady PDU ends the first pop after the end is taken +1504..+1506 cycles from it and the pop nearest the boundary -579..-577 (walk 2); the least clearance is 577 cycles, at PDU 75 (offset -577), against the 9-cycle ambiguity window: margin 568
+  [i]    T647 PULLIN +521 before the hold: 60 PDUs, fill at the PDU end 14..14, first-event delay from it 18172..18174 cycles = 8.723..8.724 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+  [i]    T647 PULLIN +521 pull: +64 ms aligner err 212..1058 cycles, engaged 1, trim -1182, settle run 0
+  [i]    T647 PULLIN +521 pull: +128 ms aligner err 0..212 cycles, engaged 1, trim -395, settle run 63
+  [i]    T647 PULLIN +521 pull: +192 ms aligner err -43..0 cycles, engaged 1, trim -202, settle run 0
+  [i]    T647 PULLIN +521 pull: +256 ms aligner err -47..-42 cycles, engaged 1, trim -160, settle run 0
+  [i]    T647 PULLIN +521 pull: +320 ms aligner err -45..-39 cycles, engaged 1, trim -153, settle run 0
+  [i]    T647 PULLIN +521 pull: +384 ms aligner err -39..-32 cycles, engaged 1, trim -154, settle run 0
+  [i]    T647 PULLIN +521 pull: +448 ms aligner err -33..-26 cycles, engaged 1, trim -156, settle run 0
+  [i]    T647 PULLIN +521 pull: +512 ms aligner err -26..-21 cycles, engaged 1, trim -159, settle run 0
+  [i]    T647 PULLIN +521 pull: +576 ms aligner err -21..-16 cycles, engaged 1, trim -161, settle run 0
+  [i]    T647 PULLIN +521 pull: +640 ms aligner err -17..-13 cycles, engaged 1, trim -161, settle run 0
+  [i]    T647 PULLIN +521 pull: +704 ms aligner err -14..-10 cycles, engaged 1, trim -164, settle run 0
+  [i]    T647 PULLIN +521 pull: +768 ms aligner err -11..-8 cycles, engaged 1, trim -165, settle run 0
+  [i]    T647 PULLIN +521 pull: +832 ms aligner err -9..-7 cycles, engaged 1, trim -167, settle run 0
+  [i]    T647 PULLIN +521 pull: +896 ms aligner err -8..-5 cycles, engaged 1, trim -166, settle run 0
+  [i]    T647 PULLIN +521 pull: +960 ms aligner err -6..-4 cycles, engaged 1, trim -170, settle run 0
+  [i]    T647 PULLIN +521 pull: +1024 ms aligner err -5..-3 cycles, engaged 1, trim -171, settle run 0
+  [i]    T647 PULLIN +521 pull: +1088 ms aligner err -4..-3 cycles, engaged 1, trim -168, settle run 0
+  [i]    T647 PULLIN +521 pull: +1152 ms aligner err -3..-2 cycles, engaged 1, trim -170, settle run 0
+  [i]    T647 PULLIN +521 pull: +1216 ms aligner err -3..-1 cycles, engaged 1, trim -169, settle run 574
+  [i]    T647 PULLIN +521: the settle recentre came 124683570 axis cycles (1246.8 ms) after the hold; loopback slips 0 during the pull, 0 after the settle
+  [i]    T647 PULLIN +521 after the settle: over 123 steady PDU ends the first pop after the end is taken +483..+484 cycles from it and the pop nearest the boundary +483..+484 (walk 1); the least clearance is 482 cycles, at PDU 19 (offset +483), against the 9-cycle ambiguity window: margin 473
+  [i]    T647 PULLIN +521 after the settle: 124 PDUs, fill at the PDU end 14..14, first-event delay from it 17151..17152 cycles = 8.232..8.233 media ticks; the law is fill 14 and 8 < d/T <= 9 (+1 cycle of the pulse's register)
+== tdm8_render: checks: 31   failures: 0 ==
+RESULT: PASS

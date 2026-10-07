@@ -1,0 +1,167 @@
+{
+  "scopes": {
+    "alinx_ax7101": {
+      "base": {
+        "LUT": 50702,
+        "logic_LUT": 48470,
+        "LUTRAM": 2228,
+        "SRL": 4,
+        "FF": 59677,
+        "RAMB36": 79,
+        "RAMB18": 27,
+        "DSP": 14
+      },
+      "head": {
+        "LUT": 49960,
+        "logic_LUT": 46276,
+        "LUTRAM": 3680,
+        "SRL": 4,
+        "FF": 54296,
+        "RAMB36": 74,
+        "RAMB18": 27,
+        "DSP": 14
+      },
+      "delta": {
+        "LUT": -742,
+        "logic_LUT": -2194,
+        "LUTRAM": 1452,
+        "SRL": 0,
+        "FF": -5381,
+        "RAMB36": -5,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    },
+    "alinx_ax7101/milan_datapath/@own": {
+      "base": {
+        "LUT": 562,
+        "logic_LUT": 562,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 2850,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "head": {
+        "LUT": 605,
+        "logic_LUT": 605,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 2902,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "delta": {
+        "LUT": 43,
+        "logic_LUT": 43,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 52,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    },
+    "alinx_ax7101/milan_datapath/chan_map_capture": {
+      "base": {
+        "LUT": 1076,
+        "logic_LUT": 1076,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 1321,
+        "RAMB36": 1,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "head": {
+        "LUT": 1087,
+        "logic_LUT": 1087,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 1359,
+        "RAMB36": 1,
+        "RAMB18": 0,
+        "DSP": 0
+      },
+      "delta": {
+        "LUT": 11,
+        "logic_LUT": 11,
+        "LUTRAM": 0,
+        "SRL": 0,
+        "FF": 38,
+        "RAMB36": 0,
+        "RAMB18": 0,
+        "DSP": 0
+      }
+    }
+  },
+  "settle_FF": 42,
+  "settle_full_LUT_cone": 88,
+  "capture_added_FF": [
+    "milan_datapath/chan_map_capture/act_drop_r_reg[0][0]",
+    "milan_datapath/chan_map_capture/act_drop_r_reg[0][1]",
+    "milan_datapath/chan_map_capture/act_drop_r_reg[0][2]",
+    "milan_datapath/chan_map_capture/act_drop_r_reg[0][3]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[0][0]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[0][1]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[0][2]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[1][0]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[1][1]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[1][2]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[2][0]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[2][1]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[2][2]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[3][0]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[3][1]",
+    "milan_datapath/chan_map_capture/act_hold_r_reg[3][2]",
+    "milan_datapath/chan_map_capture/lb_sof_r_reg",
+    "milan_datapath/chan_map_capture/q_cnt_r_reg[0][4]",
+    "milan_datapath/chan_map_capture/q_cnt_r_reg[1][4]",
+    "milan_datapath/chan_map_capture/q_cnt_r_reg[2][4]",
+    "milan_datapath/chan_map_capture/q_cnt_r_reg[3][4]",
+    "milan_datapath/chan_map_capture/q_rd_r_reg[0][3]",
+    "milan_datapath/chan_map_capture/q_rd_r_reg[1][3]",
+    "milan_datapath/chan_map_capture/q_rd_r_reg[2][3]",
+    "milan_datapath/chan_map_capture/q_rd_r_reg[3][3]",
+    "milan_datapath/chan_map_capture/q_wr_r_reg[0][3]",
+    "milan_datapath/chan_map_capture/q_wr_r_reg[1][3]",
+    "milan_datapath/chan_map_capture/q_wr_r_reg[2][3]",
+    "milan_datapath/chan_map_capture/q_wr_r_reg[3][3]",
+    "milan_datapath/chan_map_capture/rc_arm_r_reg[0]",
+    "milan_datapath/chan_map_capture/rc_dec_r_reg[0]",
+    "milan_datapath/chan_map_capture/rc_drop_r_reg[0][0]",
+    "milan_datapath/chan_map_capture/rc_drop_r_reg[0][1]",
+    "milan_datapath/chan_map_capture/rc_drop_r_reg[0][2]",
+    "milan_datapath/chan_map_capture/rc_drop_r_reg[0][3]",
+    "milan_datapath/chan_map_capture/rc_hold_r_reg[0][0]",
+    "milan_datapath/chan_map_capture/rc_hold_r_reg[0][1]",
+    "milan_datapath/chan_map_capture/rc_hold_r_reg[0][2]"
+  ],
+  "capture_removed_FF": [],
+  "own_FF_delta": 80,
+  "own_LUT_conservative_bound": 99,
+  "two_changed_scopes_delta": {
+    "LUT": 54,
+    "logic_LUT": 54,
+    "LUTRAM": 0,
+    "SRL": 0,
+    "FF": 90,
+    "RAMB36": 0,
+    "RAMB18": 0,
+    "DSP": 0
+  },
+  "ownership": {
+    "full_cone_LUT": 88,
+    "capture_cone_LUT_counted_in_module_delta": 1,
+    "identical_base_functions": 6,
+    "remaining_cone_LUT_upper_bound": 81,
+    "capture_LUT_delta": 11,
+    "own_LUT_upper_bound": 92,
+    "own_FF_delta": 80,
+    "shared_band_functions_proved_identical": 10,
+    "final_remaining_cone_LUT_upper_bound": 71,
+    "final_own_LUT_upper_bound": 82
+  }
+}

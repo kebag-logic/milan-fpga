@@ -1,0 +1,79 @@
+[constraints] $VALIDATION_STORAGE/645-a531/round2c/tf/route/ax7101-ExtraTimingOpt/gateware/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+{
+  "candidate_head": "f6bd415f74bfae8666da327e31edb97fcc61d3a9",
+  "directive": "ExtraTimingOpt",
+  "required_WNS_ns": 0.03,
+  "required_WHS_ns": 0,
+  "rows": [
+    {
+      "corner": "Slow",
+      "power_temperature_C": 0,
+      "WNS_ns": 0.017,
+      "TNS_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "WHS_ns": 0.102,
+      "THS_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "WPWS_ns": 0.264,
+      "TPWS_ns": 0.0,
+      "speed_file": "| Speed File   : -2  PRODUCTION 1.23 2018-06-13",
+      "report": "alinx_ax7101_signoff_Slow_0C_timing.rpt",
+      "passes_margin": false
+    },
+    {
+      "corner": "Slow",
+      "power_temperature_C": 85,
+      "WNS_ns": 0.017,
+      "TNS_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "WHS_ns": 0.102,
+      "THS_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "WPWS_ns": 0.264,
+      "TPWS_ns": 0.0,
+      "speed_file": "| Speed File   : -2  PRODUCTION 1.23 2018-06-13",
+      "report": "alinx_ax7101_signoff_Slow_85C_timing.rpt",
+      "passes_margin": false
+    },
+    {
+      "corner": "Fast",
+      "power_temperature_C": 0,
+      "WNS_ns": 1.536,
+      "TNS_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "WHS_ns": 0.036,
+      "THS_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "WPWS_ns": 0.264,
+      "TPWS_ns": 0.0,
+      "speed_file": "| Speed File   : -2  PRODUCTION 1.23 2018-06-13",
+      "report": "alinx_ax7101_signoff_Fast_0C_timing.rpt",
+      "passes_margin": true
+    },
+    {
+      "corner": "Fast",
+      "power_temperature_C": 85,
+      "WNS_ns": 1.536,
+      "TNS_ns": 0.0,
+      "setup_failing_endpoints": 0,
+      "WHS_ns": 0.036,
+      "THS_ns": 0.0,
+      "hold_failing_endpoints": 0,
+      "WPWS_ns": 0.264,
+      "TPWS_ns": 0.0,
+      "speed_file": "| Speed File   : -2  PRODUCTION 1.23 2018-06-13",
+      "report": "alinx_ax7101_signoff_Fast_85C_timing.rpt",
+      "passes_margin": true
+    }
+  ],
+  "process_rc": 0,
+  "constraint_check_rc": 0,
+  "critical_warning_count": 1,
+  "critical_warning_codes": {
+    "Route 35-39": 1
+  },
+  "passes_margin": false,
+  "measurement_rc": 0,
+  "manifest": "route/ax7101-ExtraTimingOpt/flashboot_layout.json",
+  "bitstream": "route/ax7101-ExtraTimingOpt/gateware/alinx_ax7101.bit"
+}

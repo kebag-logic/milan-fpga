@@ -1,0 +1,11 @@
+  info: before the hold, last 0.5 s [   4.100,    4.600) s: ring slips 0+0, margin +5.057..+5.059 ticks; render n 3998 fill 14..14 (off-law 0), delay 8.972..8.974 (out of band 0), end-to-pop clearance 0.026 ticks
+  info: the pull, first 0.2 s      [   4.600,    4.800) s: ring slips 0+0, margin +5.057..+5.059 ticks; render n 1600 fill 14..14 (off-law 0), delay 8.972..8.974 (out of band 0), end-to-pop clearance 0.026 ticks
+  info: after the settle           [   4.601,    6.100) s: ring slips 0+0, margin +5.057..+5.059 ticks; render n 11990 fill 14..14 (off-law 0), delay 8.972..8.974 (out of band 0), end-to-pop clearance 0.026 ticks
+  info: [PULLIN]: settle recentre DID NOT FIRE (0 pulse(s), render recentre executed 0); slips before it 0, after it 0; after it the loopback margin +5.057..+5.059 ticks, render fill 14..14 delay 8.972..8.974, on the law
+MARGINS: [PULLIN] empty 5.057280 full 6.017280 ticks
+ERROR-DISTRIBUTION: INTERNAL before hold window 4.100000000 4.600000000 samples 24000 axis_hz 25000000 histogram -1:47 0:23909 1:44
+ERROR-DISTRIBUTION: INTERNAL after hold window 4.600000000 6.100000000 samples 71999 axis_hz 25000000 histogram -1:98 0:71801 1:100
+RESULT-647: latency 204.40 us hold 0.0 us: delay 8.972..8.974 -> 8.972..8.974 ticks (shift +0.000), fill 14..14 -> 14..14, clearance 0.026 -> 0.026 ticks, settle -1.000 s after the hold, recentres 0, loopback slips 0 before the settle and 0 after: ON THE LAW
+ERROR-DISTRIBUTION: INTERNAL without a hold window 4.600000000 6.100000000 samples 71999 axis_hz 25000000 histogram -1:98 0:71801 1:100
+== follow_ring: checks: 10   failures: 0 ==
+RESULT: PASS

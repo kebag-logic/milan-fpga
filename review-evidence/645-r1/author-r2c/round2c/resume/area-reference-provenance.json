@@ -1,0 +1,108 @@
+{
+  "note": "The routed AREA reference is fa450d30. The manager timing TABLE is 28f9666f; they are separate references. This corrects the previous base-identity.json metadata, which incorrectly associated the historical checkpoint with 28f9666f. No measurement is changed.",
+  "commits": {
+    "fa450d30": "fa450d301805881ad713b67521477bf042ddadfd",
+    "28f9666f": "28f9666feab2b2ba287643c63ed3a16b1e0bb863",
+    "30e3c018": "30e3c018b9add0cb182d8f1229eeec062218130d"
+  },
+  "routed_area_base": "fa450d301805881ad713b67521477bf042ddadfd",
+  "timing_table_base": "28f9666feab2b2ba287643c63ed3a16b1e0bb863",
+  "provenance": "HANDOFF_STAGE2E.md, Branch and source binding; the root 645-a531-s2e-work is the fa450d30 build, and its merged/ subdirectory is the later candidate.",
+  "recorded_build_inputs": {
+    "receipt": "stage2e/source-comparison.json",
+    "bytes": 64566,
+    "sha256": "3d5438461eed63bc3a8bc8374db35449afe2e1bd2e758f2d00bc3d725536f86e",
+    "rows": [
+      {
+        "path": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+        "base_sha256": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b",
+        "matches_recorded_build_input": true
+      },
+      {
+        "path": "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+        "base_sha256": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+        "matches_recorded_build_input": true
+      },
+      {
+        "path": "hdl/ieee1722/crf/KL_media_grid_align.sv",
+        "base_sha256": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed",
+        "matches_recorded_build_input": true
+      },
+      {
+        "path": "hdl/milan/milan_datapath.sv",
+        "base_sha256": "7100a1f8a56cc0e54345fb1cbc62b6de868bb2ab1cf820eec34bfdf3c0fceb50",
+        "matches_recorded_build_input": true
+      }
+    ]
+  },
+  "unchanged_leaf_inputs": [
+    {
+      "path": "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
+      "sha256": {
+        "fa450d30": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b",
+        "28f9666f": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b",
+        "30e3c018": "7f21dd43679fb8fdd019a8bacd6cdfd6a4bc160a1a1da9d8246062b750f9358b"
+      },
+      "byte_identical": true
+    },
+    {
+      "path": "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+      "sha256": {
+        "fa450d30": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+        "28f9666f": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200",
+        "30e3c018": "54b6a23336dcbef53a50482749b42a081365754017d2fb94fdc705772c9ba200"
+      },
+      "byte_identical": true
+    },
+    {
+      "path": "hdl/ieee1722/crf/KL_media_grid_align.sv",
+      "sha256": {
+        "fa450d30": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed",
+        "28f9666f": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed",
+        "30e3c018": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed"
+      },
+      "byte_identical": true
+    },
+    {
+      "path": "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "sha256": {
+        "fa450d30": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+        "28f9666f": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+        "30e3c018": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1"
+      },
+      "byte_identical": true
+    }
+  ],
+  "unchanged_media_plane": {
+    "path": "hdl/milan/milan_datapath.sv",
+    "range": "KL_mmcm_drp_servo instantiation through the text preceding KL_chan_map_render instantiation",
+    "sha256": {
+      "fa450d30": "fce6fa32f11b547a00fe4668184e82aaca5cf4124b29470992fd1c1027014297",
+      "28f9666f": "fce6fa32f11b547a00fe4668184e82aaca5cf4124b29470992fd1c1027014297",
+      "30e3c018": "fce6fa32f11b547a00fe4668184e82aaca5cf4124b29470992fd1c1027014297"
+    }
+  },
+  "upstream_root_diff": {
+    "bytes": 18500,
+    "sha256": "0def384819a1c6a2b19505e61f04b6a1d1ad3a05f0155157cdf59fa5726a3180",
+    "scope": "Identity-map boot writer and associated muxes and comments. Whole-image equivalence is not claimed."
+  },
+  "baseline_artifacts": [
+    {
+      "path": "$VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/alinx_ax7101_route.dcp",
+      "bytes": 110359924,
+      "sha256": "1fa0713d347a65ff3fbf1e48170584b590f1b7f8c54135c5301282297e663c3c"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/baseline_hierarchy.rpt",
+      "bytes": 46405,
+      "sha256": "1e046e999faabdf4902d98d266a64ebd3455994523979ec625a64477a4a9498f"
+    },
+    {
+      "path": "$VALIDATION_STORAGE/645-a531-s2e-work/route/ax7101/gateware/baseline_cells.tsv",
+      "bytes": 8575370,
+      "sha256": "3f25be488632d1e7b2a45d7d1ff855382f18642cbc9bf177a8e5912dda395570"
+    }
+  ],
+  "attribution": "The changed capture hierarchy and named settle-state cone are measured separately; unrelated hierarchy deltas are reported and are not credited to this change."
+}

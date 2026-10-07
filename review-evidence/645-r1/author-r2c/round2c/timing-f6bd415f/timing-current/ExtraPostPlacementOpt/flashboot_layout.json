@@ -1,0 +1,26 @@
+{
+  "manifest": "baremetal",
+  "gptp_owner": "fabric",
+  "cpu_xlen": 32,
+  "entry": null,
+  "complete": false,
+  "images": [
+    {
+      "name": "bitstream",
+      "offset": 0,
+      "addr": 0,
+      "budget": 4194304
+    },
+    {
+      "name": "aem",
+      "offset": 4194304,
+      "addr": 0,
+      "budget": 65536
+    }
+  ],
+  "aem_image_bytes": 7512,
+  "aem_image_crc32": 1537431019,
+  "aem_image_sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d",
+  "bitstream_payload_sha256": "fb15277e7359f2205b0bc8db39c758b2472225a8680573767a684fc278f2fdbb",
+  "bitstream_fpga_part": "7a100tfgg484"
+}

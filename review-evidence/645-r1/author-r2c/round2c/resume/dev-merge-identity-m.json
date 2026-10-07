@@ -1,0 +1,24 @@
+{
+  "head": "9e529b2069d0ef652325f37e029ca969f852e8a6",
+  "measurement_head": "33c951fcceb07d30028f2385c60900dc1aad8323",
+  "diff": "M\t.github/workflows/rtl-fast.yml\nM\tREADME.md\nM\tREQUIREMENTS.md\nM\tdocs/ARCHITECTURE_HW_SW_SPLIT.md\nM\tdocs/ENDSTATION_BUILDER.md\nM\tdocs/GLOSSARY.md\nM\tdocs/README.md\nM\tdocs/design/MAAP_FABRIC.md\nM\tdocs/design/MAILBOX_SPLIT.md\nM\tdocs/fpga/DATAPLANE_WALKTHROUGH.md\nM\tdocs/fpga/FPGA_DESIGN.md\nM\tdocs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md\nM\tdocs/integration/INTEGRATION_GUIDE.md\nM\tdocs/litex/LITEX_SOC.md\nM\tdocs/overview/ARCHITECTURE.md\nM\tdocs/overview/FULL_FPGA_SOLUTION.md\nM\tdocs/overview/SYSTEM_DOMAIN_MAP.md\nM\tdocs/reference/FR_NFR.md\nM\tdocs/reference/MILAN_COMPLIANCE_MATRIX.md\nM\tdocs/testing/CI_WORKFLOWS.md\nM\tdocs/traceability/ieee8021q.md\nM\tscripts/ci_events.py\nM\tscripts/ci_scope.py\nM\tsw/firmware/ctrl/README.md\nM\tsw/firmware/ctrl/adp/adp_mbx.h\nM\tsw/firmware/ctrl/test/adp_walk.cpp\nM\tsw/firmware/ctrl/test/ctrl_arms.py\nM\tsw/firmware/ctrl/test/ctrl_build.py\nM\tsw/firmware/ctrl/test/ctrl_mutants.py\nA\tsw/firmware/ctrl/test/entity_fields.cpp\nD\tsw/firmware/ctrl/test/entity_probe.c\nD\tsw/firmware/ctrl/test/lwsrp_port.c\nA\tsw/firmware/ctrl/test/lwsrp_port.cpp\nA\tsw/firmware/ctrl/test/mmio_window.h\nA\tsw/firmware/ctrl/test/mock_mbx_hal.cpp\nA\tsw/firmware/ctrl/test/mock_mbx_hal.hpp\nA\tsw/firmware/ctrl/test/mock_shlan_port.cpp\nA\tsw/firmware/ctrl/test/mock_shlan_port.hpp\nM\tsw/firmware/ctrl/test/model_suite.cpp\nD\tsw/firmware/ctrl/test/test_adp.c\nA\tsw/firmware/ctrl/test/test_adp.cpp\nD\tsw/firmware/ctrl/test/test_check.c\nD\tsw/firmware/ctrl/test/test_check.h\nM\tsw/firmware/ctrl/test/test_ctrl_firmware.py\nA\tsw/firmware/ctrl/test/test_mmio.cpp\nD\tsw/firmware/ctrl/test/test_port_loop.c\nA\tsw/firmware/ctrl/test/test_port_loop.cpp\nA\tsw/firmware/ctrl/test/test_unit_driver.cpp\nA\tsw/firmware/ctrl/test/test_unit_seams.cpp\nA\tsw/firmware/ctrl/test/unit_window.hpp\nM\tsw/firmware/ctrl_nvm/README.md\nM\tsw/firmware/ctrl_nvm/nvm_klj2.c\nA\tsw/firmware/ctrl_nvm/test/mock_litespi_csr.cpp\nA\tsw/firmware/ctrl_nvm/test/mock_litespi_csr.hpp\nA\tsw/firmware/ctrl_nvm/test/mock_nvm_flash.hpp\nM\tsw/firmware/ctrl_nvm/test/nvm_bench.py\nA\tsw/firmware/ctrl_nvm/test/nvm_c.hpp\nD\tsw/firmware/ctrl_nvm/test/nvm_checks.py\nD\tsw/firmware/ctrl_nvm/test/nvm_checks_write.py\nA\tsw/firmware/ctrl_nvm/test/nvm_fixture.py\nM\tsw/firmware/ctrl_nvm/test/nvm_mutants.py\nA\tsw/firmware/ctrl_nvm/test/nvm_rig.cpp\nA\tsw/firmware/ctrl_nvm/test/nvm_rig.hpp\nA\tsw/firmware/ctrl_nvm/test/nvm_suite.cpp\nA\tsw/firmware/ctrl_nvm/test/nvm_suite.hpp\nD\tsw/firmware/ctrl_nvm/test/nvm_test.c\nM\tsw/firmware/ctrl_nvm/test/test_ctrl_nvm.py\nA\tsw/firmware/ctrl_nvm/test/test_nvm_boot.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_codec.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_flashmock.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_litespi.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_more.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_shapes.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_vector.cpp\nA\tsw/firmware/ctrl_nvm/test/test_nvm_write.cpp\nA\tsw/firmware/gtest/README.md\nA\tsw/firmware/gtest/coverage.ratchet\nA\tsw/firmware/gtest/fw_coverage.py\nA\tsw/firmware/gtest/fw_coverage_selftest.py\nA\tsw/firmware/gtest/fw_gtest.hpp\nA\tsw/firmware/gtest/fw_gtest.py\nA\tsw/firmware/gtest/fw_gtest_main.cpp\nA\tsw/firmware/gtest/tally_cases.cpp\nA\tsw/firmware/gtest/tally_selftest.py\nM\ttb/verilator/mbx/suite.hpp\n",
+  "note": "Delta of the --no-ff merge of dev 6714181d: no file under hdl/, syn/, configs/ or the follow_ring, chmap_capture and milan_dp harnesses changes. Running regressions remain at the recorded measurement head; their claims carry forward through this explicit input-identity proof.",
+  "tree_diff_sha256": "3281e7599ccb14cfe2e1fd6620b55cef78cffdae3dd8e8ff3c5d1df1ebcccb26",
+  "dependencies": [
+    {
+      "path": "protocol-processor",
+      "root_verified": true,
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0"
+    },
+    {
+      "path": "gptp-processor",
+      "root_verified": true,
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "root_verified": true,
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  ]
+}

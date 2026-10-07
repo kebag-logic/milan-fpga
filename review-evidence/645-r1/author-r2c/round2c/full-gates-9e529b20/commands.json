@@ -1,0 +1,75 @@
+[
+  {
+    "name": "builder",
+    "argv": [
+      "python3",
+      "-B",
+      "sw/builder/test_builder.py",
+      "--require-rv32",
+      "--require-elaboration"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+    "rc": 0,
+    "wall_seconds": 1243.1,
+    "peak_memory_bytes": 7004991488,
+    "resource_interruption": false
+  },
+  {
+    "name": "source-controls",
+    "argv": [
+      "python3",
+      "-B",
+      "scripts/check_rtl_source_lists.py",
+      "--selftest"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+    "rc": 0,
+    "wall_seconds": 4.0,
+    "peak_memory_bytes": 1810198528,
+    "resource_interruption": false
+  },
+  {
+    "name": "wire-controls",
+    "argv": [
+      "python3",
+      "-B",
+      "tb/tools/avtp_wire_truth.py",
+      "--self-test"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/builder",
+    "rc": 0,
+    "wall_seconds": 1.0,
+    "peak_memory_bytes": 1237438464,
+    "resource_interruption": false
+  },
+  {
+    "name": "sweep-0",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-m/sweep-0",
+      "--shard",
+      "0/2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+    "rc": 0,
+    "wall_seconds": 6740.8,
+    "peak_memory_bytes": 7004991488,
+    "resource_interruption": false
+  },
+  {
+    "name": "sweep-1",
+    "argv": [
+      "bash",
+      "scripts/run_all_suites.sh",
+      "$VALIDATION_STORAGE/645-a531/round2c/functional/merged-gates-m/sweep-1",
+      "--shard",
+      "1/2"
+    ],
+    "cwd": "$VALIDATION_STORAGE/645-a531/round2c/functional/physical",
+    "rc": 0,
+    "wall_seconds": 1922.3,
+    "peak_memory_bytes": 5660504064,
+    "resource_interruption": false
+  }
+]

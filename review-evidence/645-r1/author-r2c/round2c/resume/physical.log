@@ -1,0 +1,287 @@
+ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=0 extended=0
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] audio ratio 782/1591 within one quantized edge
+  [ ok ] 200 MHz auxiliary clock has four rising edges per Milan cycle
+  [ ok ] TDM8 master captures four pairs per frame
+  [ ok ] TDM8 FSYNC period follows audio divided by 512
+  [ ok ] PHC advances 20 ns per modeled cycle before Sync selection got=200840 exp=200840
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO length      got=62 exp=62
+  [ ok ] pre-acquisition GET_AVB_INFO SUCCESS     got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO has no selected GM got=0x0 exp=0x0
+PROGRESS simulated_seconds=0.25 rx_aaf=2000 tx_aaf=1999
+PROGRESS simulated_seconds=0.50 rx_aaf=4000 tx_aaf=3999
+PROGRESS simulated_seconds=0.75 rx_aaf=6000 tx_aaf=5999
+PROGRESS simulated_seconds=1.00 rx_aaf=8000 tx_aaf=7999
+Pdelay event seq=0 t1=1200012614 t2=1200022928 t3=1200042928 t4=1200033240 oracle=313 ns
+RECENTRE decision=1 input_pdu=9822 cycle=61384216 fill=0 step_events=-5 dup=0 skip=0
+RECENTRE output=1 input_pdu=9822 output_pdu=9822 last_output_pdu=9822 step_events=-5 dup=0->0 skip=0->0
+RECENTRE WIRE decision=1 output_pdu=9822 declared_step=-5 observed_step=-5 events dup=0 skip=0
+  [ ok ] first Pdelay response completed          got=1 exp=1
+  [ ok ] one response cannot assert asCapable     got=0x0 exp=0x0
+FIRST PDELAY published=313 oracle=313 ns
+  [ ok ] first peer delay matches independent event oracle within 28 ns
+AUDIO arm=acquisition deadline=1.800000 s
+PROGRESS simulated_seconds=1.25 rx_aaf=10000 tx_aaf=9999
+PROGRESS simulated_seconds=1.50 rx_aaf=12000 tx_aaf=11999
+PROGRESS simulated_seconds=1.75 rx_aaf=14000 tx_aaf=13999
+PROGRESS simulated_seconds=2.00 rx_aaf=16000 tx_aaf=15999
+Pdelay event seq=1 t1=2200005114 t2=2200015432 t3=2200035432 t4=2200025740 oracle=313 ns
+PROGRESS simulated_seconds=2.25 rx_aaf=18000 tx_aaf=17999
+PROGRESS simulated_seconds=2.50 rx_aaf=20000 tx_aaf=19999
+PROGRESS simulated_seconds=2.75 rx_aaf=22000 tx_aaf=21999
+AUDIO elapsed=1.518121 s
+AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+  [ ok ] boot Pdelay occurs at 1.2 s
+  [ ok ] Pdelay retains one-second cadence        got=0 exp=0
+  [ ok ] scheduled peer ingress met its event times got=0 exp=0
+PUBLIC acquired at 2.751599 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=313 oracle=313 CLKV=00010002 generation=12/12
+  [ ok ] CSR snapshot publication generation stable got=0x12 exp=0x12
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM and parent              got=0x2 exp=0x2
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+  [ ok ] GET_AVB_INFO length                      got=62 exp=62
+  [ ok ] GET_AVB_INFO status SUCCESS              got=0 exp=0
+  [ ok ] GET_AVB_INFO coherent GM                 got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] GET_AVB_INFO delay equals CSR bank       got=313 exp=313
+  [ ok ] GET_AVB_INFO asCapable agrees with CSR
+  [ ok ] GET_AS_PATH Ethernet minimum length      got=60 exp=60
+  [ ok ] GET_AS_PATH status SUCCESS               got=0 exp=0
+  [ ok ] GET_AS_PATH control data length excludes padding got=32 exp=32
+  [ ok ] GET_AS_PATH padding bytes are zero       got=0 exp=0
+  [ ok ] GET_AS_PATH two ordered identities       got=2 exp=2
+  [ ok ] GET_AS_PATH GM                           got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] GET_AS_PATH parent                       got=0x80e1fffe112233 exp=0x80e1fffe112233
+AUDIO arm=healthy stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+AUDIO arm=TX backpressure deadline=1.000000 s
+PROGRESS simulated_seconds=3.00 rx_aaf=24000 tx_aaf=23999
+Pdelay event seq=2 t1=3200018113 t2=3200028432 t3=3200048432 t4=3200038739 oracle=313 ns
+AUDIO elapsed=0.430034 s
+AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] backpressure actually stalled valid beats
+  [ ok ] TX held data keep last and valid under stalls got=0 exp=0
+  [ ok ] gPTP packets traversed actual backpressure
+PUBLIC after backpressure at 3.201734 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=313 oracle=313 CLKV=00010002 generation=12/12
+  [ ok ] CSR snapshot publication generation stable got=0x12 exp=0x12
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM and parent              got=0x2 exp=0x2
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=Sync loss transition deadline=0.450000 s
+PROGRESS simulated_seconds=3.25 rx_aaf=26000 tx_aaf=25999
+PROGRESS simulated_seconds=3.50 rx_aaf=28000 tx_aaf=27999
+AUDIO elapsed=0.300023 s
+AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+  [ ok ] 375 ms Sync timeout clears sync and asserts tu got=0x1 exp=0x1
+AUDIO arm=peer loss, real fourth missed Pdelay deadline=4.749977 s
+PROGRESS simulated_seconds=3.75 rx_aaf=30000 tx_aaf=29999
+PROGRESS simulated_seconds=4.00 rx_aaf=32000 tx_aaf=31999
+PROGRESS simulated_seconds=4.25 rx_aaf=34000 tx_aaf=33999
+PROGRESS simulated_seconds=4.50 rx_aaf=36000 tx_aaf=35999
+PROGRESS simulated_seconds=4.75 rx_aaf=38000 tx_aaf=37999
+PROGRESS simulated_seconds=5.00 rx_aaf=40000 tx_aaf=39999
+PROGRESS simulated_seconds=5.25 rx_aaf=42000 tx_aaf=41999
+PROGRESS simulated_seconds=5.50 rx_aaf=44000 tx_aaf=43999
+PROGRESS simulated_seconds=5.75 rx_aaf=46000 tx_aaf=45999
+PROGRESS simulated_seconds=6.00 rx_aaf=48000 tx_aaf=47999
+PROGRESS simulated_seconds=6.25 rx_aaf=50000 tx_aaf=49999
+PROGRESS simulated_seconds=6.50 rx_aaf=52000 tx_aaf=51999
+PROGRESS simulated_seconds=6.75 rx_aaf=54000 tx_aaf=53999
+PROGRESS simulated_seconds=7.00 rx_aaf=56000 tx_aaf=55999
+PROGRESS simulated_seconds=7.25 rx_aaf=58000 tx_aaf=57999
+PROGRESS simulated_seconds=7.50 rx_aaf=59999 tx_aaf=59999
+PROGRESS simulated_seconds=7.75 rx_aaf=61999 tx_aaf=61999
+PROGRESS simulated_seconds=8.00 rx_aaf=63999 tx_aaf=63999
+AUDIO elapsed=4.699375 s
+AUDIO result rx=37594 tx=37595 samples=225570 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+PUBLIC lost at 8.201133 s: GM=020000fffe000001 parent=020000fffe000001 delay=313 oracle=313 CLKV=00000001 generation=21/21
+  [ ok ] CSR snapshot publication generation stable got=0x21 exp=0x21
+  [ ok ] loss clears asCapable                    got=0x0 exp=0x0
+  [ ok ] loss clears Sync and asserts uncertainty got=0x1 exp=0x1
+  [ ok ] four unanswered Pdelay intervals elapsed
+LOSS elapsed 4.999399 s, no timer compression
+AUDIO arm=recovery transition deadline=3.000000 s
+PROGRESS simulated_seconds=8.25 rx_aaf=65999 tx_aaf=65999
+PROGRESS simulated_seconds=8.50 rx_aaf=67999 tx_aaf=67999
+PROGRESS simulated_seconds=8.75 rx_aaf=69999 tx_aaf=69999
+PROGRESS simulated_seconds=9.00 rx_aaf=71999 tx_aaf=71999
+Pdelay event seq=8 t1=9200019179 t2=9200029496 t3=9200049496 t4=9200039805 oracle=313 ns
+PROGRESS simulated_seconds=9.25 rx_aaf=73999 tx_aaf=73999
+PROGRESS simulated_seconds=9.50 rx_aaf=75999 tx_aaf=75999
+PROGRESS simulated_seconds=9.75 rx_aaf=77999 tx_aaf=77999
+PROGRESS simulated_seconds=10.00 rx_aaf=79999 tx_aaf=79998
+Pdelay event seq=9 t1=10200021598 t2=10200031912 t3=10200051912 t4=10200042224 oracle=313 ns
+PROGRESS simulated_seconds=10.25 rx_aaf=81999 tx_aaf=81998
+PROGRESS simulated_seconds=10.50 rx_aaf=83999 tx_aaf=83998
+PROGRESS simulated_seconds=10.75 rx_aaf=85999 tx_aaf=85998
+AUDIO elapsed=2.550203 s
+AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+PUBLIC recovered at 10.751336 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=312 oracle=313 CLKV=00010002 generation=32/32
+  [ ok ] CSR snapshot publication generation stable got=0x32 exp=0x32
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM and parent              got=0x2 exp=0x2
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=recovered stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+RESET: assert with audio and peer active, flush model in-flight packets
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] reset clears complete public GM          got=0x0 exp=0x0
+  [ ok ] reset clears complete public parent      got=0x0 exp=0x0
+AUDIO arm=reset reacquisition deadline=3.000000 s
+PROGRESS simulated_seconds=11.00 rx_aaf=87999 tx_aaf=87998
+PROGRESS simulated_seconds=11.25 rx_aaf=89999 tx_aaf=89998
+PROGRESS simulated_seconds=11.50 rx_aaf=91999 tx_aaf=91998
+PROGRESS simulated_seconds=11.75 rx_aaf=93999 tx_aaf=93998
+Pdelay event seq=10 t1=1200005114 t2=1200015432 t3=1200035432 t4=1200025740 oracle=313 ns
+RECENTRE decision=2 input_pdu=95986 cycle=599913535 fill=0 step_events=-5 dup=0 skip=0
+RECENTRE output=2 input_pdu=95986 output_pdu=95985 last_output_pdu=95985 step_events=-5 dup=0->0 skip=0->0
+RECENTRE WIRE decision=2 output_pdu=95985 declared_step=-5 observed_step=-5 events dup=0 skip=0
+PROGRESS simulated_seconds=12.00 rx_aaf=95999 tx_aaf=95998
+PROGRESS simulated_seconds=12.25 rx_aaf=97999 tx_aaf=97998
+PROGRESS simulated_seconds=12.50 rx_aaf=99999 tx_aaf=99998
+PROGRESS simulated_seconds=12.75 rx_aaf=101999 tx_aaf=101997
+Pdelay event seq=11 t1=12971352778 t2=12971363096 t3=12971383096 t4=12971373404 oracle=313 ns
+AUDIO elapsed=2.201175 s
+AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+PUBLIC reset recovered at 12.972557 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=312 oracle=313 CLKV=00010002 generation=12/12
+  [ ok ] CSR snapshot publication generation stable got=0x12 exp=0x12
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM and parent              got=0x2 exp=0x2
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=reset stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] all scheduled Pdelay ingress events met deadlines got=0 exp=0
+  [ ok ] all epochs retain real Pdelay cadence
+PROGRESS simulated_seconds=13.00 rx_aaf=103999 tx_aaf=103997
+PROGRESS simulated_seconds=13.25 rx_aaf=105999 tx_aaf=105997
+PROGRESS simulated_seconds=13.50 rx_aaf=107999 tx_aaf=107997
+PROGRESS simulated_seconds=13.75 rx_aaf=109999 tx_aaf=109997
+Pdelay event seq=12 t1=13971353038 t2=13971363352 t3=13971383352 t4=13971373664 oracle=313 ns
+PROGRESS simulated_seconds=14.00 rx_aaf=111999 tx_aaf=111997
+PROGRESS simulated_seconds=14.25 rx_aaf=113999 tx_aaf=113997
+PROGRESS simulated_seconds=14.50 rx_aaf=115999 tx_aaf=115997
+PROGRESS simulated_seconds=14.75 rx_aaf=117999 tx_aaf=117997
+Pdelay event seq=13 t1=14971353297 t2=14971363616 t3=14971383616 t4=14971373923 oracle=313 ns
+PROGRESS simulated_seconds=15.00 rx_aaf=119999 tx_aaf=119997
+PROGRESS simulated_seconds=15.25 rx_aaf=121999 tx_aaf=121997
+PROGRESS simulated_seconds=15.50 rx_aaf=123999 tx_aaf=123997
+PROGRESS simulated_seconds=15.75 rx_aaf=125999 tx_aaf=125997
+Pdelay event seq=14 t1=15971353129 t2=15971363448 t3=15971383448 t4=15971373755 oracle=313 ns
+PROGRESS simulated_seconds=16.00 rx_aaf=127999 tx_aaf=127997
+PROGRESS simulated_seconds=16.25 rx_aaf=129999 tx_aaf=129997
+PROGRESS simulated_seconds=16.50 rx_aaf=131999 tx_aaf=131997
+PROGRESS simulated_seconds=16.75 rx_aaf=133999 tx_aaf=133997
+Pdelay event seq=15 t1=16971352938 t2=16971363256 t3=16971383256 t4=16971373564 oracle=313 ns
+  [ ok ] Sync TX flags: frames observed           got=1 exp=1
+  [ ok ] Sync TX flags: every wire word (Table 11-4) got=512 exp=512
+TX flags Sync: 42 frames, 0 wrong, expected 0x0200
+  [ ok ] Follow_Up TX flags: frames observed      got=1 exp=1
+  [ ok ] Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Follow_Up: 42 frames, 0 wrong, expected 0x0000
+  [ ok ] Pdelay_Req TX flags: frames observed     got=1 exp=1
+  [ ok ] Pdelay_Req TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Pdelay_Req: 16 frames, 0 wrong, expected 0x0000
+  [ ok ] Pdelay_Resp TX flags: frames observed    got=1 exp=1
+  [ ok ] Pdelay_Resp TX flags: every wire word (Table 11-4) got=512 exp=512
+TX flags Pdelay_Resp: 1 frames, 0 wrong, expected 0x0200
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: frames observed got=1 exp=1
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Pdelay_Resp_Follow_Up: 1 frames, 0 wrong, expected 0x0000
+  [ ok ] all monitored audio payload errors, excluding declared warm-up got=0 exp=0
+  [ ok ] all monitored audio sample ordering errors got=0 exp=0
+  [ ok ] all monitored AAF packet sequence errors got=0 exp=0
+  [ ok ] every emitted audio PDU has its capture order plan got=0 exp=0
+  [ ok ] declared recentre is consecutive within at most two output PDUs got=0 exp=0
+  [ ok ] every declared recentre step reached the wire got=2 exp=2
+  [ ok ] declared recentres leave both loopback slip counters unchanged got=0 exp=0
+RECENTRE totals decisions=2 completed=2 planted=0
+AUDIO comparisons payload=6517344 sample_order=814666 packet_sequence=135936
+simulated_duration_seconds=16.992556520 cycles=849627826
+clock_audio_hz=24575738.529227 clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20
+NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 143   failures: 0 ==
+RESULT: PASS
+wall_clock_seconds=4753.04 process_exit_status=0

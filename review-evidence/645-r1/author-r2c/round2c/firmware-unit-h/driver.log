@@ -1,0 +1,14 @@
+05:27:34 START tally-selftest python3 sw/firmware/gtest/tally_selftest.py
+05:27:37 DONE tally-selftest 0
+05:27:37 START rv32-sdk-selftest python3 scripts/ci_rv32_sdk_selftest.py
+05:27:38 DONE rv32-sdk-selftest 0
+05:27:38 START fw-rv32-selftest python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+05:27:43 DONE fw-rv32-selftest 0
+05:27:43 START ctrl-firmware python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32
+05:28:20 DONE ctrl-firmware 0
+05:28:20 START ctrl-nvm python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 4
+05:30:02 DONE ctrl-nvm 0
+05:30:02 START coverage-selftest python3 sw/firmware/gtest/fw_coverage.py --selftest
+05:30:02 DONE coverage-selftest 0
+05:30:02 START coverage-check python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
+05:32:19 DONE coverage-check 0

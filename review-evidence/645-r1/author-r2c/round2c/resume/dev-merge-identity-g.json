@@ -1,0 +1,24 @@
+{
+  "head": "4951c4717fa2db66a61d265eb9f52d8a81631594",
+  "measurement_head": "f6bd415f74bfae8666da327e31edb97fcc61d3a9",
+  "diff": "M\tdocs/testing/CI_WORKFLOWS.md\nM\tdocs/testing/RUNNING_TESTS.md\nM\tdocs/testing/TESTING.md\nM\tscripts/measure_test_evidence.py\nM\tscripts/measure_test_evidence_selftest.py\nM\tscripts/run_all_suites.sh\nM\ttb/verilator/milan_dp/README.md\nM\ttb/verilator/milan_dp_gptp/README.md\n",
+  "note": "Delta of the --no-ff merge of dev 79b086d4: per-suite default time limits in run_all_suites.sh (every sweep here ran under an explicit SUITE_TIMEOUT override), test-evidence scripts and documentation; no HDL, harness or build input. Running regressions remain at the recorded measurement head; their claims carry forward through this explicit input-identity proof.",
+  "tree_diff_sha256": "2e6255254fb8624ce735bbb125085749d996a37ecc440610cfc9da4a5af85a7d",
+  "dependencies": [
+    {
+      "path": "protocol-processor",
+      "root_verified": true,
+      "head": "ead8036035affd53ef4b29979190f2f4f67084c0"
+    },
+    {
+      "path": "gptp-processor",
+      "root_verified": true,
+      "head": "5dce647ab5a01a6ecff9a982b22e3a4a1d946d3d"
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "root_verified": true,
+      "head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    }
+  ]
+}
