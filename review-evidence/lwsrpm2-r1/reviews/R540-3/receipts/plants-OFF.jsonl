@@ -1,0 +1,14 @@
+{"label": "y01-no-map-error-stop", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4215 passes in 99ms."}
+{"label": "y02-publish-ignores-policy", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4215 passes in 102ms."}
+{"label": "y03-no-pending-tx-rollback", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4215 passes in 87ms."}
+{"label": "y04-list-skip-known-later", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4125 passes, 85 failures in 84ms."}
+{"label": "y05-list-skip-to-pdu-end", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4205 passes, 5 failures in 96ms."}
+{"label": "y06-reserve-misses-last-port", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4187 passes, 28 failures in 136ms."}
+{"label": "y07-no-policy-still-reserves", "status": "SURVIVED", "rc": 0, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4215 passes in 1337ms."}
+{"label": "y08-failure-returns-zero", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4198 passes, 17 failures in 109ms."}
+{"label": "y09-changed-rjoinin-only", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4189 passes, 26 failures in 89ms."}
+{"label": "y10-changed-any-event", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4227 passes, 8 failures in 103ms."}
+{"label": "y11-changed-key-only", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4109 passes, 57 failures, 1 exception in 256ms."}
+{"label": "y12-publish-leaks-unselected", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": true, "tail": "SUMMARY: AddressSanitizer: 128 byte(s) leaked in 2 allocation(s)."}
+{"label": "y13-reserve-partial-leak", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": true, "tail": "SUMMARY: AddressSanitizer: 64 byte(s) leaked in 1 allocation(s)."}
+{"label": "y14-no-replay-after-publish", "status": "KILLED", "rc": 1, "failing": [], "sanitizer": false, "tail": "Completed \"main\": 4180 passes, 35 failures in 82ms."}

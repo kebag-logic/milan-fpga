@@ -1,0 +1,13 @@
+PASS q1-rx
+PASS q1-propagated-to-1-and-2
+PASS q1-not-declared-on-source
+PASS q2-listener-rx
+PASS q2-listener-toward-talker
+PASS q2-listener-not-to-port-1
+INFO q3 rx=-12 talker_inds=1 stream2_appl_port1=1
+PASS q3-error-reported
+FAIL q3-later-message-not-applied
+PASS q3-retry
+INFO q4 rx=0
+PASS q4-no-policy-no-reservation
+probe failures: 1

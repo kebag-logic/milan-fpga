@@ -1,0 +1,13 @@
+INFO f1 k=0 fault_reached=0 rx=0 retry=0 source=200 destination=200
+PASS r541-2-f1-k0-destination-holds-200
+INFO f1 k=1 fault_reached=1 rx=-12 retry=0 source=200 destination=100
+FAIL r541-2-f1-k1-destination-holds-200
+INFO f1 k=2 fault_reached=0 rx=0 retry=0 source=200 destination=200
+PASS r541-2-f1-k2-destination-holds-200
+INFO f1 k=3 fault_reached=0 rx=0 retry=0 source=200 destination=200
+PASS r541-2-f1-k3-destination-holds-200
+INFO f1 k=4 fault_reached=0 rx=0 retry=0 source=200 destination=200
+PASS r541-2-f1-k4-destination-holds-200
+PASS r541-2-f2-rx
+FAIL r541-2-f2-policy-saw-indication
+probe failures: 2

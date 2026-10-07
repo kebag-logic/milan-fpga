@@ -1,0 +1,22 @@
+PASS m1-join-rx
+PASS m1-free-port-declares-now
+PASS m1-retaining-port-deferred
+PASS m1-leave-rx
+PASS m1-leave-indicated
+PASS m1-retaining-port-still-deferred
+PASS m1-commit
+INFO m1 port1 appl=VO port2 appl=VO
+PASS m1-replayed-in-order-matches-free-port
+INFO m2 rx=-12 inds=0 p0reg=MT
+PASS m2-error-returned
+PASS m2-no-indication
+PASS m2-registrar-not-in
+PASS m2-no-partial-propagation
+PASS m2-retry-succeeds
+PASS m3-commit-accepted
+PASS m3-replay-retained
+PASS m3-next-poll-replays
+PASS m4-milan-error-returned
+PASS m4-milan-retry
+PASS m4-ports-withdrawn
+probe failures: 0
