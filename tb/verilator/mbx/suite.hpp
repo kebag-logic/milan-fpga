@@ -98,6 +98,7 @@ class Suite {
     void run_bound_timing() {
         restart();
         check_bound_timing();
+        check_bound_verdict_interface();
         ck_.dec("no bus access went unanswered in the timing checks", b_.bus_timeouts, 0);
     }
 
@@ -311,6 +312,7 @@ class Suite {
     void check_bound_identity_bytes();
     void check_bound_reset();
     void check_bound_timing();
+    void check_bound_verdict_interface();
     void clear_bound();
 
     //! One row of the owner's table (REQUIREMENTS.md section 1): its valid
@@ -1491,10 +1493,7 @@ void Suite<Bench, Check>::check_bound_reset() {
 // a word written while it is (lane F3 round 3); an entry takes part only
 // while it is set and no copy is owed, from the frame's first identity byte
 // to its verdict. A frame stalled inside its identity shows that, and the
-// copier must give way to the host's reads and start over on a rewrite. The
-// verdict reads the table of the interface the frame arrived on while the
-// next frame is already presented, and the owed copy gates the entries of
-// that interface, every interface's (round 4, R530-2-F1).
+// copier must give way to the host's reads and start over on a rewrite.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_bound_timing() {
     // enough clocks for every entry's copy, ten clocks each at most
@@ -1554,6 +1553,17 @@ void Suite<Bench, Check>::check_bound_timing() {
     ck_.dec("Q21 BOUND_EID_LO rewritten at each of 32 clocks after BOUND_EN is set again: the new talker passes",
             newer, 32);
     ck_.dec("Q21 and the old one never does", older, 32);
+}
+
+// The verdict reads the table of the interface the frame arrived on while the
+// next frame is already presented, and the owed copy gates the entries of
+// that interface, every interface's (lane F3 round 4, R530-2-F1).
+template <class Bench, class Check>
+void Suite<Bench, Check>::check_bound_verdict_interface() {
+    const unsigned settle = 16u * MBX_N_IF * MBX_N_BOUND;
+    const std::uint64_t talker = 0x0A0B0C0D0E0F1011ull;
+    const std::uint64_t other = 0x1112131415161718ull;
+    const auto available = mbx_tb::adpdu(0, talker);
     // the next frame, another talker's on another index, right behind a bound
     // talker's: the verdict, after the last identity byte, reads the table of
     // the interface the first frame arrived on
@@ -1583,6 +1593,7 @@ void Suite<Bench, Check>::check_bound_timing() {
 #if MBX_N_IF >= 2
     // the owed copy gates the entry of the frame's own interface: Q19 on
     // every interface past the first
+    const std::size_t cut = MBX_CH_ADP_T2_OFFSET + 2u;
     std::uint32_t stalled = 0;
     std::uint32_t next = 0;
     for (std::uint32_t i = 1; i < MBX_N_IF; ++i) {
