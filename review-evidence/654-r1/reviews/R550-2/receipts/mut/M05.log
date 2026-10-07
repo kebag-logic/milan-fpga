@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M05/sw/builder/test_soc_options.py", line 251, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M05/sw/builder/test_soc_options.py", line 212, in test_refusals
+    count = _constructor_cases(directory)
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M05/sw/builder/test_soc_options.py", line 135, in _constructor_cases
+    _refused(_probe(directory, cpu=cpu, xlen=xlen, options=options), reason)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M05/sw/builder/test_soc_options.py", line 107, in _refused
+    assert reason in result["reason"], result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'kind': 'refused', 'reason': '--l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2'}

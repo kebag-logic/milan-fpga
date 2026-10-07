@@ -1,0 +1,39 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M12/sw/builder/test_soc_options.py", line 251, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M12/sw/builder/test_soc_options.py", line 213, in test_refusals
+    cli_count = _cli_cases(directory)
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M12/sw/builder/test_soc_options.py", line 162, in _cli_cases
+    _refused(_probe(directory, mode="cli", argv=argv), reason, cli=True)
+             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M12/sw/builder/test_soc_options.py", line 99, in _probe
+    raise RuntimeError(run.stdout + run.stderr)
+RuntimeError: Traceback (most recent call last):
+  File "<string>", line 52, in <module>
+    mod.main()
+    ~~~~~~~~^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M12/sw/litex/milan_soc.py", line 3800, in main
+    args = ap.parse_args()
+  File "/usr/lib/python3.14/argparse.py", line 2008, in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+                 ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/argparse.py", line 2018, in parse_known_args
+    return self._parse_known_args2(args, namespace, intermixed=False)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/argparse.py", line 2047, in _parse_known_args2
+    namespace, args = self._parse_known_args(args, namespace, intermixed)
+                      ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/argparse.py", line 2298, in _parse_known_args
+    start_index = consume_optional(start_index)
+  File "/usr/lib/python3.14/argparse.py", line 2222, in consume_optional
+    take_action(action, args, option_string)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/argparse.py", line 2108, in take_action
+    argument_values = self._get_values(action, argument_strings)
+  File "/usr/lib/python3.14/argparse.py", line 2624, in _get_values
+    value = self._get_value(action, arg_string)
+  File "/usr/lib/python3.14/argparse.py", line 2656, in _get_value
+    result = type_func(arg_string)
+decimal.InvalidOperation: [<class 'decimal.ConversionSyntax'>]
+

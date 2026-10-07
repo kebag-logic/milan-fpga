@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/builder/test_soc_options.py", line 251, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/builder/test_soc_options.py", line 212, in test_refusals
+    count = _constructor_cases(directory)
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/builder/test_soc_options.py", line 135, in _constructor_cases
+    _refused(_probe(directory, cpu=cpu, xlen=xlen, options=options), reason)
+             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/builder/test_soc_options.py", line 99, in _probe
+    raise RuntimeError(run.stdout + run.stderr)
+RuntimeError: Traceback (most recent call last):
+  File "<string>", line 54, in <module>
+    mod.MilanSoC(None, 50000000, with_milan=False, cpu=spec["cpu"],
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 xlen=spec["xlen"], **spec["options"])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/litex/milan_soc.py", line 2624, in __init__
+    _validate_cpu_options(cpu, with_fpu, l2_bytes)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M06/sw/litex/milan_soc.py", line 2588, in _validate_cpu_options
+    if size < 0 or size != size.to_integral_value():
+       ^^^^^^^^
+decimal.InvalidOperation: [<class 'decimal.InvalidOperation'>]
+

@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M13/sw/builder/test_soc_options.py", line 251, in <module>
+    test_refusals()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M13/sw/builder/test_soc_options.py", line 213, in test_refusals
+    cli_count = _cli_cases(directory)
+  File "$REVIEWS/654-r550-2-packet/scratch/mutwork/M13/sw/builder/test_soc_options.py", line 166, in _cli_cases
+    assert _probe(directory, mode="cli", argv=argv)["kind"] == "setup"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

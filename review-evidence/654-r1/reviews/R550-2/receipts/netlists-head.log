@@ -1,0 +1,22 @@
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+{"xlen": 32, "option": "omitted", "sha256": "89eb8f5ce7632bf5065f97fe408a6edf54924d0e4acfbccb8a979328d58be513", "bytes": 4853653, "rtl_sha256": "47ffd10c7b3571fc5ece86b74c89b2524667f78448017e0fb49a31eb3c63c703"}
+{"xlen": 32, "option": "fpu", "sha256": "94b79c574fb6e94c6aa46033d5263b3ea585b248e3ee0d0dd7ce34f164f04242", "bytes": 6207896, "rtl_sha256": "4eff948efc8347c80b21a00db7f34278a04d4b5085dc734a15639fa621588d41"}
+  killed: RV32 lost fpu forwarding
+{"xlen": 32, "option": "l2", "sha256": "7afcade70d9688a10ea1fc84c0c3a343ede6ac4f1e5ea92f458abce40c195d91", "bytes": 4853606, "rtl_sha256": "111aa4b3fe9acfb5ba4d93cea1a819598a090df498431c31587203f648657a8a"}
+  killed: RV32 lost l2 forwarding
+{"xlen": 64, "option": "omitted", "sha256": "e7f7af143c0ddb372f2cbeda21b4ba80e7f6aa603dcbb0910d8273dab575dba0", "bytes": 4961665, "rtl_sha256": "3d35153c4c454643754866895285608d82eafa72bfb8e63f246ca4ac49cd1fb2"}
+{"xlen": 64, "option": "fpu", "sha256": "249e3e7bc3ec1c16fb7539219d0b323b1a5e73f6a6c39ccc4caee4df69a03f3d", "bytes": 6303392, "rtl_sha256": "e7f74683d3b781bd82209e1d7b2a93adce35e59e439d0fe4c66afc67a89b50b6"}
+  killed: RV64 lost fpu forwarding
+{"xlen": 64, "option": "l2", "sha256": "b36e843975c09ffab96bcf1d2e19b5e226f9a595ba476a0f87454782b8df4ab8", "bytes": 4961618, "rtl_sha256": "ee0a2accc68ea689316657e96c7c860916c0401f2d8b64b1fac925104c0146cd"}
+  killed: RV64 lost l2 forwarding
+NaxRiscv netlists: 4 effects, 4 killed controls; generated names/comments excluded
+RESULT: PASS

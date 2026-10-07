@@ -1,0 +1,25 @@
+[
+  {
+    "token": "0",
+    "parsed_float": "0.0",
+    "kind": "setup_started"
+  },
+  {
+    "token": "1e-12",
+    "parsed_float": "1e-12",
+    "kind": "refused",
+    "rc": 2,
+    "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+  },
+  {
+    "token": "1e-400",
+    "parsed_float": "0.0",
+    "kind": "setup_started"
+  },
+  {
+    "token": "-1e-400",
+    "parsed_float": "-0.0",
+    "kind": "setup_started"
+  }
+]
+FAIL: nonzero fractional byte count reached setup after float underflow

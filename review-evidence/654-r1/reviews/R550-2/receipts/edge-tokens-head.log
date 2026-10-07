@@ -1,0 +1,407 @@
+[
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "0.0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "-0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "-0.0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "+0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "0e-400",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "0E+999999",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": " 0 ",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "0_0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "zero",
+  "token": "000",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "8192",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "8192.0",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "8.192e3",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "1E+999999",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "1_000",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "whole-nonzero",
+  "token": "4096.000",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be 0 or omitted for the cacheless VexiiRiscv recipe; without a data cache it builds no L2"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "1e-400",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "-1e-400",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "1e-12",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "0.5",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "4096.0000000000000000000000001",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "-1",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "-8192",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "nan",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "-nan",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "snan",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "inf",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "-Infinity",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "invalid",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: argument --l2-bytes: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: argument --l2-bytes: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "cli",
+  "group": "fractional/invalid",
+  "token": "0x10",
+  "ok": true,
+  "kind": "exit",
+  "rc": 2,
+  "reason": "milan_soc.py: error: argument --l2-bytes: --l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "Decimal('1E-400')",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "Decimal('-0')",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "Decimal('sNaN')",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "Decimal('NaN')",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "0.0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "None",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "1e-300",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexiiriscv'",
+  "l2_bytes": "-0.0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "Decimal('-0')",
+  "ok": true,
+  "kind": "refused",
+  "reason": "NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "0.0",
+  "ok": true,
+  "kind": "refused",
+  "reason": "NaxRiscv ignores --l2-bytes 0 and keeps its nonzero default; omit the option or request a positive size"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "Decimal('8192')",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "8192.0",
+  "ok": true,
+  "kind": "setup"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "Decimal('1E-400')",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'naxriscv'",
+  "l2_bytes": "-inf",
+  "ok": true,
+  "kind": "refused",
+  "reason": "--l2-bytes must be a finite, non-negative whole number of bytes"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'vexii'",
+  "l2_bytes": "0",
+  "ok": true,
+  "kind": "refused",
+  "reason": "unsupported CPU 'vexii'; expected vexiiriscv or naxriscv"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "'VexiiRiscv'",
+  "l2_bytes": "None",
+  "ok": true,
+  "kind": "refused",
+  "reason": "unsupported CPU 'VexiiRiscv'; expected vexiiriscv or naxriscv"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "' naxriscv'",
+  "l2_bytes": "0",
+  "ok": true,
+  "kind": "refused",
+  "reason": "unsupported CPU ' naxriscv'; expected vexiiriscv or naxriscv"
+ },
+ {
+  "surface": "constructor",
+  "cpu": "42",
+  "l2_bytes": "None",
+  "ok": true,
+  "kind": "refused",
+  "reason": "unsupported CPU 42; expected vexiiriscv or naxriscv"
+ }
+]
+UNEXPECTED: []
